@@ -2,7 +2,7 @@ package org.bigbluebutton.common2.domain
 
 case class ConfigProps(defaultConfigToken: String, config: String)
 
-case class DurationProps(duration: Int, createdTime: Long)
+case class DurationProps(duration: Int, createdTime: Long, createdDate: String)
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
@@ -14,15 +14,18 @@ case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartSt
 
 case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
 
-case class VoiceProp(telVoice: String, webVoice: String, dialNumber: String)
+case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String)
 
 case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String)
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
-case class DefaultProps(meetingProp: MeetingProp, durationProps: DurationProps, password: PasswordProp,
+case class ScreenshareProps(screenshareConf: String, red5ScreenshareIp: String, red5ScreenshareApp: String)
+
+case class DefaultProps(meetingProp: MeetingProp, breakoutProps: BreakoutProps,
+                        durationProps: DurationProps, password: PasswordProp,
                         recordProp: RecordProp, welcomeProp: WelcomeProp, voiceProp: VoiceProp,
-                        usersProp: UsersProp, metadataProp: MetadataProp)
+                        usersProp: UsersProp, metadataProp: MetadataProp, screenshareProps: ScreenshareProps)
 
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)

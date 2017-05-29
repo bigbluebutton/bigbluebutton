@@ -76,4 +76,20 @@ trait Deserializer {
     }
   }
 
+  def toRegisterUserReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Option[RegisterUserReqMsg] = {
+    def convertFromJson(json: String): Try[RegisterUserReqMsg] = {
+      for {
+        msg <- Try(fromJson[RegisterUserReqMsg](json))
+      } yield msg
+    }
+
+    val json = JsonUtil.toJson(jsonNode)
+
+    convertFromJson(json) match {
+      case Success(msg) => Some(msg)
+      case Failure(ex) => println(s"************ Problem deserializing json: ${json}")
+        println(s"*********** Exception deserializing json: ${ex.getMessage}")
+        None
+    }
+  }
 }

@@ -39,6 +39,14 @@ trait ReceivedJsonMsgHandlerTrait extends SystemConfiguration {
           println("************ Sending ValidateAuthTokenReqMsg")
           send(m)
         }
+      case RegisterUserReqMsg.NAME =>
+        println("**************** Route RegisterUserReqMsg")
+        for {
+          m <- routeRegisterUserReqMsg(envelope, jsonNode)
+        } yield {
+          println("************ Sending RegisterUserReqMsg")
+          send(m)
+        }
       case _ =>
         println("************ Cannot route envelope name " + envelope.name)
       // do nothing
@@ -58,6 +66,16 @@ trait ReceivedJsonMsgHandlerTrait extends SystemConfiguration {
       msg <- JsonDeserializer.toValidateAuthTokenReqMsg(envelope, jsonNode)
     } yield {
       BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
+    }
+  }
+
+  def routeRegisterUserReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Option[BbbMsgEvent] = {
+    for {
+      msg <- JsonDeserializer.toRegisterUserReqMsg(envelope, jsonNode)
+    } yield {
+      // Route via meeting manager as there is a race condition if we send directly to meeting
+      // because the meeting actor might not have been created yet.
+      BbbMsgEvent(meetingManagerChannel, BbbCommonEnvCoreMsg(envelope, msg))
     }
   }
 }

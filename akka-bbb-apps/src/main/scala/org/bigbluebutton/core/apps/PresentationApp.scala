@@ -25,23 +25,23 @@ trait PresentationApp {
   }
 
   def handleClearPresentation(msg: ClearPresentation) {
-    outGW.send(new ClearPresentationOutMsg(mProps.meetingID, mProps.recorded))
+    outGW.send(new ClearPresentationOutMsg(props.meetingProp.intId, props.recordProp.record))
   }
 
   def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
-    outGW.send(new PresentationConversionProgress(mProps.meetingID, msg.messageKey,
+    outGW.send(new PresentationConversionProgress(props.meetingProp.intId, msg.messageKey,
       msg.code, msg.presentationId, msg.presName))
   }
 
   def handlePresentationPageCountError(msg: PresentationPageCountError) {
-    outGW.send(new PresentationConversionError(mProps.meetingID, msg.messageKey,
+    outGW.send(new PresentationConversionError(props.meetingProp.intId, msg.messageKey,
       msg.code, msg.presentationId,
       msg.numberOfPages,
       msg.maxNumberPages, msg.presName))
   }
 
   def handlePresentationSlideGenerated(msg: PresentationSlideGenerated) {
-    outGW.send(new PresentationPageGenerated(mProps.meetingID, msg.messageKey,
+    outGW.send(new PresentationPageGenerated(props.meetingProp.intId, msg.messageKey,
       msg.code, msg.presentationId,
       msg.numberOfPages,
       msg.pagesCompleted, msg.presName))
@@ -51,7 +51,7 @@ trait PresentationApp {
 
     liveMeeting.presModel.addPresentation(msg.presentation)
 
-    outGW.send(new PresentationConversionDone(mProps.meetingID, mProps.recorded, msg.messageKey,
+    outGW.send(new PresentationConversionDone(props.meetingProp.intId, props.recordProp.record, msg.messageKey,
       msg.code, msg.presentation))
 
     sharePresentation(msg.presentation.id, true)
@@ -68,7 +68,7 @@ trait PresentationApp {
       }
     })
 
-    outGW.send(new RemovePresentationOutMsg(msg.meetingID, mProps.recorded, msg.presentationID))
+    outGW.send(new RemovePresentationOutMsg(msg.meetingID, props.recordProp.record, msg.presentationID))
 
   }
 
@@ -77,7 +77,7 @@ trait PresentationApp {
     val presenter = new CurrentPresenter(curPresenter.presenterID, curPresenter.presenterName, curPresenter.assignedBy)
     val presentations = liveMeeting.presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
-    outGW.send(new GetPresentationInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, presentationInfo, msg.replyTo))
+    outGW.send(new GetPresentationInfoOutMsg(props.meetingProp.intId, props.recordProp.record, msg.requesterID, presentationInfo, msg.replyTo))
   }
 
   def handleResizeAndMoveSlide(msg: ResizeAndMoveSlide) {
@@ -88,17 +88,17 @@ trait PresentationApp {
     val height = if (msg.heightRatio <= 100) msg.heightRatio else 100
 
     val page = liveMeeting.presModel.resizePage(xOffset, yOffset, width, height);
-    page foreach (p => outGW.send(new ResizeAndMoveSlideOutMsg(mProps.meetingID, mProps.recorded, p)))
+    page foreach (p => outGW.send(new ResizeAndMoveSlideOutMsg(props.meetingProp.intId, props.recordProp.record, p)))
   }
 
   def handleGotoSlide(msg: GotoSlide) {
     liveMeeting.presModel.changePage(msg.page) foreach { page =>
       log.debug("Switching page for meeting=[{}] page=[{}]", msg.meetingID, page.num);
-      outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
+      outGW.send(new GotoSlideOutMsg(props.meetingProp.intId, props.recordProp.record, page))
     }
 
     Users.getCurrentPresenter(liveMeeting.users) foreach { pres =>
-      handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.id))
+      handleStopPollRequest(StopPollRequest(props.meetingProp.intId, pres.id))
     }
 
   }
@@ -111,10 +111,10 @@ trait PresentationApp {
     val pres = liveMeeting.presModel.sharePresentation(presentationID)
 
     pres foreach { p =>
-      outGW.send(new SharePresentationOutMsg(mProps.meetingID, mProps.recorded, p))
+      outGW.send(new SharePresentationOutMsg(props.meetingProp.intId, props.recordProp.record, p))
 
       liveMeeting.presModel.getCurrentPage(p) foreach { page =>
-        outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
+        outGW.send(new GotoSlideOutMsg(props.meetingProp.intId, props.recordProp.record, page))
       }
     }
 
@@ -123,7 +123,7 @@ trait PresentationApp {
   def handleGetSlideInfo(msg: GetSlideInfo) {
     liveMeeting.presModel.getCurrentPresentation foreach { pres =>
       liveMeeting.presModel.getCurrentPage(pres) foreach { page =>
-        outGW.send(new GetSlideInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, page, msg.replyTo))
+        outGW.send(new GetSlideInfoOutMsg(props.meetingProp.intId, props.recordProp.record, msg.requesterID, page, msg.replyTo))
       }
     }
 

@@ -71,19 +71,22 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
-    val durationProps = DurationProps(duration = duration, createdTime = createTime)
+    val durationProps = DurationProps(duration = duration, createdTime = createTime, createDate)
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded, autoStartRecording = autoStartRecording,
       allowStartStopRecording = allowStartStopRecording)
+    val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, breakoutRooms = Vector())
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
-    val voiceProp = VoiceProp(telVoice = voiceBridge, webVoice = voiceBridge, dialNumber = dialNumber)
+    val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber)
     val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
       guestPolicy = guestPolicy)
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
+    val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
+      red5ScreenshareApp = "fixMe!")
 
-    val defaultProps = DefaultProps(meetingProp, durationProps, password, recordProp, welcomeProp, voiceProp,
-      usersProp, metadataProp)
+    val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
+      usersProp, metadataProp, screenshareProps)
 
     meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
   }

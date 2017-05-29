@@ -3,7 +3,7 @@ package org.bigbluebutton.api2.meeting
 import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.api2.bus.{MsgToAkkaApps, MsgToAkkaAppsEventBus}
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.messages.MessageBody.CreateMeetingReqMsgBody
+import org.bigbluebutton.common2.messages.MessageBody.{CreateMeetingReqMsgBody, RegisterUserReqMsgBody}
 import org.bigbluebutton.common2.messages._
 
 
@@ -22,5 +22,17 @@ trait ToAkkaAppsSendersTrait extends SystemConfiguration{
     val req = CreateMeetingReqMsg(header, body)
     val msg = BbbCommonEnvCoreMsg(envelope, req)
     sendToBus(msg)
+  }
+
+  def sendRegisterUserRequestToAkkaApps(msg: RegisterUser): Unit = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
+    val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
+      name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken,
+      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed)
+    val req = RegisterUserReqMsg(header, body)
+    val message = BbbCommonEnvCoreMsg(envelope, req)
+    sendToBus(message)
   }
 }

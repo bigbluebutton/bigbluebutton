@@ -28,13 +28,13 @@ trait PollApp {
     poll match {
       case Some(p) => {
         if (p.started && p.stopped && p.showResult) {
-          outGW.send(new GetCurrentPollReplyMessage(mProps.meetingID, mProps.recorded, msg.requesterId, true, Some(p)))
+          outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, true, Some(p)))
         } else {
-          outGW.send(new GetCurrentPollReplyMessage(mProps.meetingID, mProps.recorded, msg.requesterId, false, None))
+          outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
         }
       }
       case None => {
-        outGW.send(new GetCurrentPollReplyMessage(mProps.meetingID, mProps.recorded, msg.requesterId, false, None))
+        outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
       }
     }
   }
@@ -50,7 +50,7 @@ trait PollApp {
       poll <- PollModel.getPoll(msg.pollId, liveMeeting.pollModel)
     } yield {
       PollModel.hidePollResult(msg.pollId, liveMeeting.pollModel)
-      outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
+      outGW.send(new PollHideResultMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, msg.pollId))
     }
   }
 
@@ -93,7 +93,7 @@ trait PollApp {
         page <- liveMeeting.presModel.getCurrentPage()
         pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
         annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id, msg.requesterId, -1)
-      } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation))
+      } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(props.meetingProp.intId, msg.requesterId, annotation))
     }
 
     for {
@@ -102,7 +102,7 @@ trait PollApp {
     } yield {
       send(poll, shape)
       PollModel.showPollResult(msg.pollId, liveMeeting.pollModel)
-      outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
+      outGW.send(new PollShowResultMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, msg.pollId, poll))
     }
   }
 
@@ -112,7 +112,7 @@ trait PollApp {
       curPoll <- PollModel.getRunningPollThatStartsWith(page.id, liveMeeting.pollModel)
     } yield {
       PollModel.stopPoll(curPoll.id, liveMeeting.pollModel)
-      outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, curPoll.id))
+      outGW.send(new PollStoppedMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, curPoll.id))
     }
   }
 
@@ -137,7 +137,7 @@ trait PollApp {
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
       PollModel.startPoll(poll.id, liveMeeting.pollModel)
-      outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, simplePoll))
+      outGW.send(new PollStartedMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, pollId, simplePoll))
     }
   }
 
@@ -161,7 +161,7 @@ trait PollApp {
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
       PollModel.startPoll(poll.id, liveMeeting.pollModel)
-      outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, simplePoll))
+      outGW.send(new PollStartedMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, pollId, simplePoll))
     }
 
   }
@@ -188,7 +188,7 @@ trait PollApp {
       responder = new Responder(user.id, user.name)
       updatedPoll <- storePollResult(responder)
       curPres <- Users.getCurrentPresenter(liveMeeting.users)
-    } yield outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, curPres.id, msg.pollId, updatedPoll))
+    } yield outGW.send(new UserRespondedToPollMessage(props.meetingProp.intId, props.recordProp.record, curPres.id, msg.pollId, updatedPoll))
 
   }
 }

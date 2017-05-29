@@ -1,28 +1,30 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import akka.util.Timeout
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 
 import scala.concurrent.duration._
 
 object MeetingActor {
-  def props(mProps: MeetingProperties,
+  def props(props: DefaultProps,
     eventBus: IncomingEventBus,
     outGW: OutMessageGateway, liveMeeting: LiveMeeting): Props =
-    Props(classOf[MeetingActor], mProps, eventBus, outGW, liveMeeting)
+    Props(classOf[MeetingActor], props, eventBus, outGW, liveMeeting)
 }
 
-class MeetingActor(val mProps: MeetingProperties,
+class MeetingActor(val props: DefaultProps,
   val eventBus: IncomingEventBus,
   val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
     extends Actor with ActorLogging
@@ -44,20 +46,22 @@ class MeetingActor(val mProps: MeetingProperties,
    * Put the internal message injector into another actor so this
    * actor is easy to test.
    */
-  var actorMonitor = context.actorOf(MeetingActorInternal.props(mProps, eventBus, outGW), "actorMonitor-" + mProps.meetingID)
+  var actorMonitor = context.actorOf(MeetingActorInternal.props(props, eventBus, outGW),
+    "actorMonitor-" + props.meetingProp.intId)
 
   /** Subscribe to meeting and voice events. **/
-  eventBus.subscribe(actorMonitor, mProps.meetingID)
-  eventBus.subscribe(actorMonitor, mProps.voiceBridge)
-  eventBus.subscribe(actorMonitor, mProps.deskshareBridge)
+  eventBus.subscribe(actorMonitor, props.meetingProp.intId)
+  eventBus.subscribe(actorMonitor, props.voiceProp.voiceConf)
+  eventBus.subscribe(actorMonitor, props.screenshareProps.screenshareConf)
 
   def receive = {
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
+    case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
 
     case msg: ActivityResponse => handleActivityResponse(msg)
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
-    case msg: RegisterUser => handleRegisterUser(msg)
+    //case msg: RegisterUser => handleRegisterUser(msg)
     case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
     case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
     case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
@@ -169,7 +173,24 @@ class MeetingActor(val mProps: MeetingProperties,
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
+      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
+    }
+  }
+
+  def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
+    log.debug("****** RECEIVED RegisterUserReqMsg msg {}", msg)
+    if (liveMeeting.meetingModel.hasMeetingEnded()) {
+      // Check first if the meeting has ended and the user refreshed the client to re-connect.
+      log.info("Register user failed. Mmeeting has ended. meetingId=" + props.meetingProp.intId +
+        " userId=" + msg.body.intUserId)
+    } else {
+      val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
+        msg.body.name, msg.body.role, msg.body.authToken,
+        msg.body.avatarURL, msg.body.guest, msg.body.authed, msg.body.guest, liveMeeting.registeredUsers)
+
+      log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.extUserId + " user=" + regUser)
+      outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
     }
   }
 
@@ -177,9 +198,9 @@ class MeetingActor(val mProps: MeetingProperties,
     log.debug("****** RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
 
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka",
-      "msgType" -> "direct", "meetingId" -> mProps.meetingID, "userId" -> msg.body.userId)
+      "msgType" -> "direct", "meetingId" -> props.meetingProp.intId, "userId" -> msg.body.userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(ValidateAuthTokenRespMsg.NAME, mProps.meetingID)
+    val header = BbbCoreHeaderWithMeetingId(ValidateAuthTokenRespMsg.NAME, props.meetingProp.intId)
     val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, true)
     val event = ValidateAuthTokenRespMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
@@ -196,7 +217,7 @@ class MeetingActor(val mProps: MeetingProperties,
       liveMeeting.meetingModel.broadcastingRTMPStopped()
 
       // notify viewers that RTMP broadcast stopped
-      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
+      outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
         msg.videoWidth, msg.videoHeight, false))
     } else {
       log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
@@ -209,30 +230,31 @@ class MeetingActor(val mProps: MeetingProperties,
       + liveMeeting.meetingModel.isBroadcastingRTMP() + " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
     if (liveMeeting.meetingModel.isBroadcastingRTMP()) {
       // if the meeting has an ongoing WebRTC Deskshare session, send a notification
-      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
+      outGW.send(new DeskShareNotifyASingleViewer(props.meetingProp.intId, msg.requesterID, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
         liveMeeting.meetingModel.getDesktopShareVideoWidth(), liveMeeting.meetingModel.getDesktopShareVideoHeight(), true))
     }
   }
 
   def handleGetGuestPolicy(msg: GetGuestPolicy) {
-    outGW.send(new GetGuestPolicyReply(msg.meetingID, mProps.recorded, msg.requesterID, liveMeeting.meetingModel.getGuestPolicy().toString()))
+    outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
+      msg.requesterID, liveMeeting.meetingModel.getGuestPolicy().toString()))
   }
 
   def handleSetGuestPolicy(msg: SetGuestPolicy) {
     liveMeeting.meetingModel.setGuestPolicy(msg.policy)
     liveMeeting.meetingModel.setGuestPolicySetBy(msg.setBy)
-    outGW.send(new GuestPolicyChanged(msg.meetingID, mProps.recorded, liveMeeting.meetingModel.getGuestPolicy().toString()))
+    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record, liveMeeting.meetingModel.getGuestPolicy().toString()))
   }
 
   def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
     if (Users.isModerator(msg.userID, liveMeeting.users)) {
-      handleEndMeeting(EndMeeting(mProps.meetingID))
+      handleEndMeeting(EndMeeting(props.meetingProp.intId))
     }
   }
 
   def handleActivityResponse(msg: ActivityResponse) {
-    log.info("User endorsed that meeting {} is active", mProps.meetingID)
-    outGW.send(new MeetingIsActive(mProps.meetingID))
+    log.info("User endorsed that meeting {} is active", props.meetingProp.intId)
+    outGW.send(new MeetingIsActive(props.meetingProp.intId))
   }
 
   def handleEndMeeting(msg: EndMeeting) {
@@ -241,7 +263,7 @@ class MeetingActor(val mProps: MeetingProperties,
 
     liveMeeting.meetingModel.meetingHasEnded
 
-    outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
+    outGW.send(new MeetingEnded(msg.meetingId, props.recordProp.record, props.meetingProp.intId))
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
@@ -257,23 +279,25 @@ class MeetingActor(val mProps: MeetingProperties,
   def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     if (msg.recording) {
       liveMeeting.meetingModel.setVoiceRecordingFilename(msg.recordStream)
-      outGW.send(new VoiceRecordingStarted(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+      outGW.send(new VoiceRecordingStarted(props.meetingProp.intId, props.recordProp.record,
+        msg.recordStream, msg.timestamp, props.voiceProp.voiceConf))
     } else {
       liveMeeting.meetingModel.setVoiceRecordingFilename("")
-      outGW.send(new VoiceRecordingStopped(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+      outGW.send(new VoiceRecordingStopped(props.meetingProp.intId, props.recordProp.record,
+        msg.recordStream, msg.timestamp, props.voiceProp.voiceConf))
     }
   }
 
   def handleSetRecordingStatus(msg: SetRecordingStatus) {
-    log.info("Change recording status. meetingId=" + mProps.meetingID + " recording=" + msg.recording)
-    if (mProps.allowStartStopRecording && liveMeeting.meetingModel.isRecording() != msg.recording) {
+    log.info("Change recording status. meetingId=" + props.meetingProp.intId + " recording=" + msg.recording)
+    if (props.recordProp.allowStartStopRecording && liveMeeting.meetingModel.isRecording() != msg.recording) {
       if (msg.recording) {
         liveMeeting.meetingModel.recordingStarted()
       } else {
         liveMeeting.meetingModel.recordingStopped()
       }
 
-      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
+      outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record, msg.userId, msg.recording))
     }
   }
 
@@ -284,8 +308,8 @@ class MeetingActor(val mProps: MeetingProperties,
 
     if (!liveMeeting.meetingModel.getDeskShareStarted()) {
       val timestamp = System.currentTimeMillis().toString
-      val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
-        "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
+      val streamPath = "rtmp://" + props.screenshareProps.red5ScreenshareIp + "/" + props.screenshareProps.red5ScreenshareApp +
+        "/" + props.meetingProp.intId + "/" + props.meetingProp.intId + "-" + timestamp
       log.info("handleDeskShareStartedRequest: streamPath=" + streamPath)
 
       // Tell FreeSwitch to broadcast to RTMP
@@ -318,7 +342,7 @@ class MeetingActor(val mProps: MeetingProperties,
       log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
       // Notify viewers in the meeting that there's an rtmp stream to view
-      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname, msg.videoWidth, msg.videoHeight, true))
+      outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId, msg.streamname, msg.videoWidth, msg.videoHeight, true))
     } else {
       log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
     }
@@ -332,8 +356,8 @@ class MeetingActor(val mProps: MeetingProperties,
   def monitorNumberOfWebUsers() {
     if (Users.numWebUsers(liveMeeting.users) == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
       if (liveMeeting.timeNowInMinutes - liveMeeting.meetingModel.lastWebUserLeftOn > 2) {
-        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
-        outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", props.meetingProp.intId)
+        outGW.send(new EjectAllVoiceUsers(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf))
       }
     }
   }
@@ -341,20 +365,20 @@ class MeetingActor(val mProps: MeetingProperties,
   def monitorNumberOfUsers() {
     val hasUsers = Users.numUsers(liveMeeting.users) != 0
     // TODO: We could use a better control over this message to send it just when it really matters :)
-    eventBus.publish(BigBlueButtonEvent(mProps.meetingID, UpdateMeetingExpireMonitor(mProps.meetingID, hasUsers)))
+    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, UpdateMeetingExpireMonitor(props.meetingProp.intId, hasUsers)))
   }
 
   def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {
-    if (mProps.duration > 0) {
-      val endMeetingTime = liveMeeting.meetingModel.startedOn + (mProps.duration * 60)
+    if (props.durationProps.duration > 0) {
+      val endMeetingTime = liveMeeting.meetingModel.startedOn + (props.durationProps.duration * 60)
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
-      outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+      outGW.send(new MeetingTimeRemainingUpdate(props.meetingProp.intId, props.recordProp.record, timeRemaining.toInt))
     }
-    if (!mProps.isBreakout && liveMeeting.breakoutModel.getRooms().length > 0) {
+    if (!props.meetingProp.isBreakout && liveMeeting.breakoutModel.getRooms().length > 0) {
       val room = liveMeeting.breakoutModel.getRooms()(0);
       val endMeetingTime = liveMeeting.meetingModel.breakoutRoomsStartedOn + (liveMeeting.meetingModel.breakoutRoomsdurationInMinutes * 60)
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
-      outGW.send(new BreakoutRoomsTimeRemainingUpdateOutMessage(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+      outGW.send(new BreakoutRoomsTimeRemainingUpdateOutMessage(props.meetingProp.intId, props.recordProp.record, timeRemaining.toInt))
     } else if (liveMeeting.meetingModel.breakoutRoomsStartedOn != 0) {
       liveMeeting.meetingModel.breakoutRoomsdurationInMinutes = 0;
       liveMeeting.meetingModel.breakoutRoomsStartedOn = 0;
@@ -366,29 +390,30 @@ class MeetingActor(val mProps: MeetingProperties,
   }
 
   def handleGetRecordingStatus(msg: GetRecordingStatus) {
-    outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, liveMeeting.meetingModel.isRecording().booleanValue()))
+    outGW.send(new GetRecordingStatusReply(props.meetingProp.intId, props.recordProp.record,
+      msg.userId, liveMeeting.meetingModel.isRecording().booleanValue()))
   }
 
   def startRecordingIfAutoStart() {
-    if (mProps.recorded && !liveMeeting.meetingModel.isRecording() &&
-      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 1) {
-      log.info("Auto start recording. meetingId={}", mProps.meetingID)
+    if (props.recordProp.record && !liveMeeting.meetingModel.isRecording() &&
+      props.recordProp.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 1) {
+      log.info("Auto start recording. meetingId={}", props.meetingProp.intId)
       liveMeeting.meetingModel.recordingStarted()
-      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", liveMeeting.meetingModel.isRecording()))
+      outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record, "system", liveMeeting.meetingModel.isRecording()))
     }
   }
 
   def stopAutoStartedRecording() {
-    if (mProps.recorded && liveMeeting.meetingModel.isRecording() &&
-      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 0) {
-      log.info("Last web user left. Auto stopping recording. meetingId={}", mProps.meetingID)
+    if (props.recordProp.record && liveMeeting.meetingModel.isRecording() &&
+      props.recordProp.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 0) {
+      log.info("Last web user left. Auto stopping recording. meetingId={}", props.meetingProp.intId)
       liveMeeting.meetingModel.recordingStopped()
-      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", liveMeeting.meetingModel.isRecording()))
+      outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record, "system", liveMeeting.meetingModel.isRecording()))
     }
   }
 
   def sendMeetingHasEnded(userId: String) {
-    outGW.send(new MeetingHasEnded(mProps.meetingID, userId))
-    outGW.send(new DisconnectUser(mProps.meetingID, userId))
+    outGW.send(new MeetingHasEnded(props.meetingProp.intId, userId))
+    outGW.send(new DisconnectUser(props.meetingProp.intId, userId))
   }
 }

@@ -50,7 +50,7 @@ class BigBlueButtonInGW(
           //default
           case undef => GuestPolicy.ASK_MODERATOR
         }
-
+        /*
         val mProps = new MeetingProperties(
           msg.payload.id,
           msg.payload.externalId,
@@ -75,6 +75,7 @@ class BigBlueButtonInGW(
         )
 
         eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
+        */
       }
     }
   }

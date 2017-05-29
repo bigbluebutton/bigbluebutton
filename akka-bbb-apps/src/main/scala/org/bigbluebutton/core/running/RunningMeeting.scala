@@ -1,18 +1,20 @@
 package org.bigbluebutton.core.running
 
 import akka.actor.ActorContext
+import org.bigbluebutton.common2.domain.{ DefaultProps, Meeting2x }
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
+import org.bigbluebutton.core2.MeetingStatus2x
 
 object RunningMeeting {
-  def apply(mProps: MeetingProperties, outGW: OutMessageGateway,
+  def apply(props: DefaultProps, outGW: OutMessageGateway,
     eventBus: IncomingEventBus)(implicit context: ActorContext) =
-    new RunningMeeting(mProps, outGW, eventBus)(context)
+    new RunningMeeting(props, outGW, eventBus)(context)
 }
 
-class RunningMeeting(val mProps: MeetingProperties, val outGW: OutMessageGateway,
+class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
     val eventBus: IncomingEventBus)(implicit val context: ActorContext) {
 
   val chatModel = new ChatModel()
@@ -27,15 +29,15 @@ class RunningMeeting(val mProps: MeetingProperties, val outGW: OutMessageGateway
   val notesModel = new SharedNotesModel()
   val users = new Users
   val registeredUsers = new RegisteredUsers
+  // val meetingStatux2x = new MeetingStatus2x(props, )
 
-  meetingModel.setGuestPolicy(mProps.guestPolicy)
+  // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  val liveMeeting = new LiveMeeting(mProps,
-    chatModel, layoutModel, meetingModel, usersModel, users, registeredUsers, pollModel,
+  val liveMeeting = new LiveMeeting(props, chatModel, layoutModel, meetingModel, usersModel, users, registeredUsers, pollModel,
     wbModel, presModel, breakoutModel, captionModel, notesModel)
 
-  val actorRef = context.actorOf(MeetingActor.props(mProps, eventBus, outGW, liveMeeting), mProps.meetingID)
+  val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outGW, liveMeeting), props.meetingProp.intId)
 
 }

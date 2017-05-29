@@ -90,7 +90,7 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
   }
 
   def handleRegisterUser(msg: RegisterUser): Unit = {
-
+    sendRegisterUserRequestToAkkaApps(msg)
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {

@@ -1,12 +1,14 @@
 package org.bigbluebutton.core.running
 
 import java.util.concurrent.TimeUnit
+
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties }
 
-class LiveMeeting(val mProps: MeetingProperties,
+class LiveMeeting(val props: DefaultProps,
   val chatModel: ChatModel,
   val layoutModel: LayoutModel,
   val meetingModel: MeetingModel,
@@ -60,7 +62,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (Users.numWebUsers(users) == 0 && !mProps.isBreakout) {
+    if (Users.numWebUsers(users) == 0 && !props.meetingProp.isBreakout) {
       meetingModel.lastWebUserLeft()
     }
   }
@@ -68,7 +70,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   def sendTimeRemainingNotice() {
     val now = timeNowInSeconds
 
-    if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
+    if (props.durationProps.duration > 0 && (((meetingModel.startedOn + props.durationProps.duration) - now) < 15)) {
       //  log.warning("MEETING WILL END IN 15 MINUTES!!!!")
     }
   }

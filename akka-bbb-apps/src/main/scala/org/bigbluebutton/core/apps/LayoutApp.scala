@@ -13,7 +13,7 @@ trait LayoutApp {
   val outGW: OutMessageGateway
 
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
-    outGW.send(new GetCurrentLayoutReply(msg.meetingID, mProps.recorded, msg.requesterID,
+    outGW.send(new GetCurrentLayoutReply(msg.meetingID, props.recordProp.record, msg.requesterID,
       liveMeeting.layoutModel.getCurrentLayout(), liveMeeting.meetingModel.getPermissions().lockedLayout, liveMeeting.layoutModel.getLayoutSetter()))
   }
 
@@ -21,7 +21,7 @@ trait LayoutApp {
     liveMeeting.layoutModel.applyToViewersOnly(msg.viewersOnly)
     liveMeeting.lockLayout(msg.lock)
 
-    outGW.send(new LockLayoutEvent(msg.meetingID, mProps.recorded, msg.setById, msg.lock, affectedUsers))
+    outGW.send(new LockLayoutEvent(msg.meetingID, props.recordProp.record, msg.setById, msg.lock, affectedUsers))
 
     msg.layout foreach { l =>
       liveMeeting.layoutModel.setCurrentLayout(l)
@@ -30,8 +30,9 @@ trait LayoutApp {
   }
 
   private def broadcastSyncLayout(meetingId: String, setById: String) {
-    outGW.send(new BroadcastLayoutEvent(meetingId, mProps.recorded, setById,
-      liveMeeting.layoutModel.getCurrentLayout(), liveMeeting.meetingModel.getPermissions().lockedLayout, liveMeeting.layoutModel.getLayoutSetter(), affectedUsers))
+    outGW.send(new BroadcastLayoutEvent(meetingId, props.recordProp.record, setById,
+      liveMeeting.layoutModel.getCurrentLayout(), liveMeeting.meetingModel.getPermissions().lockedLayout,
+      liveMeeting.layoutModel.getLayoutSetter(), affectedUsers))
   }
 
   def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
@@ -40,9 +41,9 @@ trait LayoutApp {
   }
 
   def handleLockLayout(lock: Boolean, setById: String) {
-    outGW.send(new LockLayoutEvent(mProps.meetingID, mProps.recorded, setById, lock, affectedUsers))
+    outGW.send(new LockLayoutEvent(props.meetingProp.intId, props.recordProp.record, setById, lock, affectedUsers))
 
-    broadcastSyncLayout(mProps.meetingID, setById)
+    broadcastSyncLayout(props.meetingProp.intId, setById)
   }
 
   def affectedUsers(): Array[UserVO] = {
