@@ -7,28 +7,28 @@ class NotificationService {
      * @param {Object} database
      */
     constructor(database) {
-        this.database = database;
+      this.database = database;
     }
 
     /**
      * @param {string} notificationID
      */
     get(notificationID) {
-        this.database.findById(notificationID);
+      this.database.findById(notificationID);
     }
 
     /**
      * @param {Object} notification
      */
     add(notification) {
-        this.database.add(notification);
+      this.database.add(notification);
     }
 
     /**
      * @param {string} notificationID
      */
     remove(notificationID) {
-        this.database.remove(notificationID);
+      this.database.remove(notificationID);
     }
 }
 

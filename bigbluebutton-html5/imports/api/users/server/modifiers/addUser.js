@@ -29,7 +29,7 @@ export default function addUser(meetingId, user) {
       dummyUser.clientType === 'HTML5' &&
       user.role === ROLE_MODERATOR &&
       !ALLOW_HTML5_MODERATOR) {
-      user.role = ROLE_VIEWER;
+    user.role = ROLE_VIEWER;
   }
 
   const modifier = {

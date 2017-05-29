@@ -392,7 +392,11 @@ class UserListItem extends Component {
 
     userNameSub = userNameSub.join(' ');
 
-    const { disablePrivateChat, disableCam, disableMic, lockedLayout, disablePublicChat } = meeting.roomLockSettings;
+    const { disablePrivateChat,
+            disableCam,
+            disableMic,
+            loSckedLayout,
+            disablePublicChat, } = meeting.roomLockSettings;
 
     return (
       <div className={styles.userName}>

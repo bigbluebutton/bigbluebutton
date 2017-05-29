@@ -13,7 +13,7 @@ class ApplicationContainer extends Component {
     );
   }
 }
-export default createContainer(() => {
+export default createContainer(function () {
   return {
     fontSizes: [
       '12px',

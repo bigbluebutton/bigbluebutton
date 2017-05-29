@@ -194,7 +194,10 @@ class ApplicationMenu extends BaseMenu {
                 ) : null }
                 </select>
               </div>
-              <div id="changeLangLabel" aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}></div>
+              <div
+                id="changeLangLabel"
+                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}>
+              </div>
             </div>
           </div>
           <hr className={styles.separator}/>

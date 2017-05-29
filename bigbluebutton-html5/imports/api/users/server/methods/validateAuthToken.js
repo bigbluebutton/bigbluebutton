@@ -42,7 +42,9 @@ export default function validateAuthToken(credentials) {
     reply_to: `${meetingId}/${requesterUserId}`,
   };
 
-  Logger.info(`User '${requesterUserId}' is trying to validate auth token for meeting '${meetingId}'`);
+  Logger.info(`User '${
+    requesterUserId
+  }' is trying to validate auth tokenfor meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload, header);
 };
