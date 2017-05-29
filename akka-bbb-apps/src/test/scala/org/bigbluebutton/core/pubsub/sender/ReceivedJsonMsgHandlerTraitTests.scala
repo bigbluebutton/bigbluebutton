@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.pubsub.sender
 
 import com.fasterxml.jackson.databind.JsonDeserializer
+import org.bigbluebutton.common2.messages.MessageBody.CreateMeetingReqMsgBody
 import org.bigbluebutton.core.{ AppsTestFixtures, UnitSpec }
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.util.JsonUtil
@@ -9,7 +10,7 @@ import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerTrait
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 
-class ReceivedJsonMsgHandlerTraitTests extends UnitSpec with AppsTestFixtures with  MockitoSugar {
+class ReceivedJsonMsgHandlerTraitTests extends UnitSpec with AppsTestFixtures with MockitoSugar {
 
   class MessageRouter(val eventBus: BbbMsgRouterEventBus) extends ReceivedJsonMsgHandlerTrait {
 
@@ -23,7 +24,7 @@ class ReceivedJsonMsgHandlerTraitTests extends UnitSpec with AppsTestFixtures wi
 
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CreateMeetingReqMsg.NAME, routing)
-    val header = BbbCoreHeader(CreateMeetingReqMsg.NAME)
+    val header = BbbCoreBaseHeader(CreateMeetingReqMsg.NAME)
     val body = CreateMeetingReqMsgBody(defaultProps)
     val req = CreateMeetingReqMsg(header, body)
     val msg = BbbCommonEnvCoreMsg(envelope, req)
