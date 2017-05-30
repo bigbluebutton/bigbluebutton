@@ -378,81 +378,6 @@ function runPopcorn() {
     return shapes;
   };
 
-  var timeThreshold = 0.5;
-  // Check if the update is following the playback flow.
-  // Otherwise is some kind of seek.
-  var regularPlaybackFlow = function(updateTime, lastUpdateTime) {
-    if (Math.abs(updateTime - lastUpdateTime) > timeThreshold) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  var drawShape = function(shapes, shapeElement, shapeTime, currentTime) {
-    var visibleShape = false;
-    if (shapeTime < currentTime) {
-      // Check if it is a main shape
-      if(main_shapes_ids.indexOf(shapeElement.getAttribute("id")) > -1) {
-        var undoTime = parseFloat(shapeElement.getAttribute("undo"));
-        // And hasn't been undone
-        if(undoTime === -1 || undoTime > currentTime) {
-          shapeElement.style.visibility = "visible";
-          visibleShape = true;
-        }
-      }
-    } else if (shapeTime == currentTime) {
-      // Only makes visible the last drawing of a given shape
-      var shape = shapeElement.getAttribute("shape");
-      var shapeIndex = shapes.indexOf(shape);
-      if (shapeIndex > -1) {
-        shapes.splice(shapeIndex, 1);
-        shapeIndex = shapes.indexOf(shape);
-        if (shapeIndex === -1) {
-          shapeElement.style.visibility = "visible";
-          visibleShape = true;
-        }
-      }
-    }
-    // It's not a visible shape, force it to be hidden
-    if (!visibleShape) {
-      shapeElement.style.visibility = "hidden";
-    }
-  }
-
-  var lastShapeTime = -1;
-  var updateShapes = function(time) {
-    var svgDocument = null;
-    var shapes = get_shapes_in_time(time);
-    var currentTime = parseFloat(time);
-
-    if (svgobj.contentDocument) svgDocument = svgobj.contentDocument;
-    else svgDocument = svgobj.getSVGDocument('svgfile');
-
-    // Abort if there is no SVG available
-    if (svgDocument == null) return;
-
-    if (regularPlaybackFlow(currentTime, lastShapeTime)) {
-      for (var i = 0; i < shapesArray.length; i++) {
-        var shapeTime = parseFloat(shapesArray[i].getAttribute("timestamp"));
-        if (shapeTime <= currentTime) {
-          // Draw only inside this interval
-          var shapeElement = svgDocument.getElementById(shapesArray[i].getAttribute("id"));
-          drawShape(shapes, shapeElement, shapeTime, currentTime);
-        } else {
-          break;
-        }
-      }
-    } else {
-      for (var i = 0; i < shapesArray.length; i++) {
-        var shapeTime = parseFloat(shapesArray[i].getAttribute("timestamp"));
-        var shapeElement = svgDocument.getElementById(shapesArray[i].getAttribute("id"));
-        drawShape(shapes, shapeElement, shapeTime, currentTime);
-      }
-    }
-    lastShapeTime = currentTime;
-  }
-
   var p = new Popcorn("#video");
   //update 60x / second the position of the next value.
   p.code({
@@ -464,7 +389,50 @@ function runPopcorn() {
           lastFrameTime = currentTime;
           var t = currentTime.toFixed(1); //get the time and round to 1 decimal place
 
-          updateShapes(t);
+          current_shapes = get_shapes_in_time(t);
+
+          //redraw everything (only way to make everything elegant)
+          for (var i = 0; i < shapesArray.length; i++) {
+            var time_s = shapesArray[i].getAttribute("timestamp");
+            var time_f = parseFloat(time_s);
+
+            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(shapesArray[i].getAttribute("id"));
+            else shape = svgobj.getSVGDocument('svgfile').getElementById(shapesArray[i].getAttribute("id"));
+
+            var shape_i = shape.getAttribute("shape");
+            if (time_f < t) {
+              if(current_shapes.indexOf(shape_i) > -1) { //currently drawing the same shape so don't draw the older steps
+                shape.style.visibility = "hidden"; //hide older steps to shape
+              } else if(main_shapes_ids.indexOf(shape.getAttribute("id")) > -1) { //as long as it is a main shape, it can be drawn... no intermediate steps.
+                if(parseFloat(shape.getAttribute("undo")) === -1) { //As long as the undo event hasn't happened yet...
+                  shape.style.visibility = "visible";
+                } else if (parseFloat(shape.getAttribute("undo")) > t) {
+                  shape.style.visibility = "visible";
+                } else {
+                  shape.style.visibility = "hidden";
+                }
+              } else {
+                shape.style.visibility = "hidden";
+              }
+            } else if(time_s === t) { //for the shapes with the time specific to the current time
+              // only makes visible the last drawing of a given shape
+              var idx = current_shapes.indexOf(shape_i);
+              if (idx > -1) {
+                current_shapes.splice(idx, 1);
+                idx = current_shapes.indexOf(shape_i);
+                if (idx > -1) {
+                  shape.style.visibility = "hidden";
+                } else {
+                  shape.style.visibility = "visible";
+                }
+              } else {
+                // this is an inconsistent state, since current_shapes should have at least one drawing of this shape
+                shape.style.visibility = "hidden";
+              }
+            } else { //for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.
+              shape.style.visibility = "hidden";
+            }
+          }
 
           var next_image = getImageAtTime(t); //fetch the name of the image at this time.
 
@@ -649,6 +617,9 @@ function defineStartTime() {
 }
 
 var lastFrameTime = 0.0;
+
+var shape;
+var current_shapes = [];
 
 var deskshare_image = null;
 var current_image = "image0";
