@@ -36,7 +36,7 @@ module BigBlueButtonAwsRecorder
   end
 
   class Publisher
-    def initialize(aws_key = ENV['AWS_KEY'], aws_secret = ENV['AWS_SECRET'], aws_region = ENV['AWS_REGION'])
+    def initialize(aws_key, aws_secret, aws_region)
       @s3 = Aws::S3::Resource.new(
         credentials: Aws::Credentials.new(aws_key, aws_secret),
         region: aws_region
