@@ -70,7 +70,12 @@ Congratulations! You have Selenium server up and running. It is ready to handle 
 
 We use WebdriverIO interface to write the acceptance test cases. In order to execute the existing tests, you need to use `wdio` test runner. By default, it will look into any `*.spec.js` file inside the `/home/firstuser/dev/bigbluebutton/bigbluebutton-html5/tests/webdriverio/specs` directory. You can change the location of the test specs by modifying the `wdio` config file: `wdio.conf.js` (inside the `webdriverio` directory).
 
-Before executing the tests, make sure HTML5 client is up and running.
+Before proceeding any further, make sure HTML5 client is up and running.
+Node.js installation is also required:
+
+```sh
+$ sudo apt-get install nodejs-legacy
+```
 
 You can run all of the existing test specs with a single npm command:
 
