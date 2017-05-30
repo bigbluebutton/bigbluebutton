@@ -27,9 +27,6 @@ cd bigbluebutton/labs/bbb-aws-publisher/
 bundle package --all
 cd ..
 sudo cp -r bbb-aws-publisher /usr/share/
-chown tomcat7:tomcat7 /var/log/bbb-aws-publisher
-sudo mkdir /var/log/bbb-aws-publisher
-chown tomcat7:tomcat7 /var/log/bbb-aws-publisher
 sudo ln -s /usr/share/bbb-aws-publisher/bin/bbb-aws-publisher /usr/bin/bbb-aws-publisher
 sudo chmod +x /usr/bin/bbb-aws-publisher
 ```
@@ -39,7 +36,7 @@ Create a local configuration file and edit it with your information:
 ```bash
 sudo touch /usr/share/bbb-aws-publisher/.env.local
 sudo vim /usr/share/bbb-aws-publisher/.env.local
-chown tomcat7:tomcat7 /var/log/bbb-aws-publisher/.env.local
+chown tomcat7:tomcat7 /usr/share/bbb-aws-publisher/.env.local
 ```
 
 You will need the configure at least your AWS credentials. See `/usr/share/bbb-aws-publisher/.env`
