@@ -579,7 +579,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
 			
-			/*
+			
 			override protected function hideAllChildren():void {
 				presentationTab.includeInLayout = false;
 			}
@@ -587,7 +587,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			override protected function showAllChildren():void {
 				presentationTab.includeInLayout = true;
 			}
-			*/
+			
 			private function remoteUpload(e:ShortcutEvent):void{
 				if (uploadPres.visible){
 					uploadPres.setFocus();

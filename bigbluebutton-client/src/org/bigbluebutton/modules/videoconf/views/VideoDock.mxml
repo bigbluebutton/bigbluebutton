@@ -42,6 +42,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import mx.core.UIComponent;
+			
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
@@ -157,7 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			/*
+			
 			override protected function hideAllChildren():void {
 				for each (var child:DisplayObject in getChildren()) {
 					if (child is UIComponent) {
@@ -165,8 +167,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 			}
-			*/
-			/*
+			
 			override protected function showAllChildren():void {
 				for each (var child:DisplayObject in getChildren()) {
 					if (child is UIComponent) {
@@ -174,7 +175,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 			}
-			*/
+			
 		]]>
 	</fx:Script>
 </CustomMdiWindow>
