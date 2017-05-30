@@ -172,3 +172,26 @@ sudo bbb-aws-publisher --resync BBB_AWS_KEEP_FILES=1 BBB_AWS_KEEP_DELETED=1
 sudo bbb-aws-publisher --upload-playback
 sudo bbb-aws-publisher --resync BBB_AWS_REMOTE_PLAYBACK=1
 ```
+
+## Running on docker
+
+Start by [installing docker](https://docs.docker.com/engine/installation/).
+
+Open redis to external IPs by editing `/etc/redis/redis.conf` and changing the `bind` command to:
+
+```
+bind 0.0.0.0
+```
+
+Build the docker image:
+
+```
+cd /usr/share/bbb-aws-publisher
+docker build -t bbb-aws-publisher .
+```
+
+Run it:
+
+```
+docker run -it --rm -e BBB_AWS_REGION=sa-east-1 -e BBB_AWS_KEY="MY_AWS_KEY" -e BBB_AWS_SECRET="MY_AWS_SECRET" -e BBB_AWS_BUCKET=my-bucket -e BBB_AWS_REDIS_HOST=`ifconfig docker0 | grep 'inet addr:' | cut -d: -f2 | awk '{print $1}'` -v /var/bigbluebutton:/var/bigbluebutton -v /var/log/bigbluebutton:/var/log/bigbluebutton bbb-aws-publisher
+```
