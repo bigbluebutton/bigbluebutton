@@ -39,5 +39,13 @@ var landingPage = Object.create(page, {
     }
 });
 
+// To use in the future tests that will require login
+browser.addCommand('loginToClient', function(page) {
+    page.open();
+    page.username.waitForExist();
+    page.username.setValue('Maxim');
+    page.joinWithButtonClick();
+});
+
 module.exports = landingPage;
 
