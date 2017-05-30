@@ -107,8 +107,9 @@ function getViewboxAtTime(time) {
 }
 
 function setSlideAspect(time, imageWidth, imageHeight) {
+  var isDeskshare = mustShowDesktopVideo(time);
   var aspectAtTime = getAspectAtTime(time);
-  if (aspectAtTime != undefined && aspectAtTime != 0) {
+  if (aspectAtTime != undefined && aspectAtTime != 0 && !isDeskshare) {
     currentSlideAspect = aspectAtTime;
   } else {
     currentSlideAspect = parseFloat((imageWidth/imageHeight));
@@ -908,6 +909,10 @@ function processAspectValue(vboxWidth, vboxHeight, time, lastAspectValue) {
     }
 
     if (image) {
+      if(mustShowDesktopVideo(parseFloat(time))) {
+        return lastAspectValue;
+      }
+
       var imageWidth = parseFloat(image.getAttribute("width"));
       var imageHeight = parseFloat(image.getAttribute("height"));
 
