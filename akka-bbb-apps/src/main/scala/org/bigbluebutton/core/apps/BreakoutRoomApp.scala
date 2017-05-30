@@ -11,7 +11,8 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
 import org.bigbluebutton.core.models.Users
-import org.bigbluebutton.core.running.{ MeetingActor }
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait BreakoutRoomApp extends SystemConfiguration {
   this: MeetingActor =>
@@ -57,8 +58,9 @@ trait BreakoutRoomApp extends SystemConfiguration {
         sourcePresentationId, sourcePresentationSlide, msg.record)
       outGW.send(new CreateBreakoutRoom(props.meetingProp.intId, p))
     }
-    liveMeeting.meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
-    liveMeeting.meetingModel.breakoutRoomsStartedOn = liveMeeting.timeNowInSeconds;
+
+    MeetingStatus2x.breakoutRoomsdurationInMinutes(liveMeeting.status, msg.durationInMinutes)
+    MeetingStatus2x.breakoutRoomsStartedOn(liveMeeting.status, MeetingStatus2x.timeNowInSeconds)
   }
 
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {

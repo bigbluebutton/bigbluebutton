@@ -36,102 +36,103 @@ class MeetingModel {
   private var desktopShareVideoHeight = 0
 
   private var extension = new MeetingExtensionProp
+  /*
+    val startedOn = timeNowInSeconds;
 
-  val startedOn = timeNowInSeconds;
+    var breakoutRoomsStartedOn: Long = 0
+    var breakoutRoomsdurationInMinutes: Int = 0
 
-  var breakoutRoomsStartedOn: Long = 0
-  var breakoutRoomsdurationInMinutes: Int = 0
-
-  def resetDesktopSharingParams() = {
-    broadcastingRTMP = false
-    deskShareStarted = false
-    rtmpBroadcastingUrl = ""
-    desktopShareVideoWidth = 0
-    desktopShareVideoHeight = 0
-  }
-
-  def getDeskShareStarted(): Boolean = {
-    return deskShareStarted
-  }
-
-  def setDeskShareStarted(b: Boolean) {
-    deskShareStarted = b
-  }
-
-  def setDesktopShareVideoWidth(videoWidth: Int) {
-    desktopShareVideoWidth = videoWidth
-  }
-
-  def setDesktopShareVideoHeight(videoHeight: Int) {
-    desktopShareVideoHeight = videoHeight
-  }
-
-  def getDesktopShareVideoWidth(): Int = {
-    desktopShareVideoWidth
-  }
-
-  def getDesktopShareVideoHeight(): Int = {
-    desktopShareVideoHeight
-  }
-
-  def broadcastingRTMPStarted() {
-    broadcastingRTMP = true
-  }
-
-  def isBroadcastingRTMP(): Boolean = {
-    broadcastingRTMP
-  }
-
-  def broadcastingRTMPStopped() {
-    broadcastingRTMP = false
-  }
-
-  def setRTMPBroadcastingUrl(path: String) {
-    rtmpBroadcastingUrl = path
-  }
-
-  def getRTMPBroadcastingUrl(): String = {
-    rtmpBroadcastingUrl
-  }
-
-  def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
-  def incNumExtension(): Int = {
-    if (extension.numExtensions < extension.maxExtensions) {
-      extension = extension.copy(numExtensions = extension.numExtensions + 1); extension.numExtensions
+    def resetDesktopSharingParams() = {
+      broadcastingRTMP = false
+      deskShareStarted = false
+      rtmpBroadcastingUrl = ""
+      desktopShareVideoWidth = 0
+      desktopShareVideoHeight = 0
     }
-    extension.numExtensions
-  }
 
-  def notice15MinutesSent() = extension = extension.copy(sent15MinNotice = true)
-  def notice10MinutesSent() = extension = extension.copy(sent10MinNotice = true)
-  def notice5MinutesSent() = extension = extension.copy(sent5MinNotice = true)
+    def getDeskShareStarted(): Boolean = {
+      return deskShareStarted
+    }
 
-  def getMeetingExtensionProp(): MeetingExtensionProp = extension
-  def muteMeeting() = meetingMuted = true
-  def unmuteMeeting() = meetingMuted = false
-  def isMeetingMuted(): Boolean = meetingMuted
-  def recordingStarted() = recording = true
-  def recordingStopped() = recording = false
-  def isRecording(): Boolean = recording
-  def lastWebUserLeft() = lastWebUserLeftOnTimestamp = timeNowInMinutes
-  def lastWebUserLeftOn(): Long = lastWebUserLeftOnTimestamp
-  def resetLastWebUserLeftOn() = lastWebUserLeftOnTimestamp = 0
-  def setVoiceRecordingFilename(path: String) = voiceRecordingFilename = path
-  def getVoiceRecordingFilename(): String = voiceRecordingFilename
-  def permisionsInitialized(): Boolean = permissionsInited
-  def initializePermissions() = permissionsInited = true
-  def audioSettingsInitialized(): Boolean = audioSettingsInited
-  def initializeAudioSettings() = audioSettingsInited = true
-  def permissionsEqual(other: Permissions): Boolean = permissions == other
-  def lockLayout(lock: Boolean) = permissions = permissions.copy(lockedLayout = lock)
-  def getPermissions(): Permissions = permissions
-  def setPermissions(p: Permissions) = permissions = p
-  def meetingHasEnded() = meetingEnded = true
-  def hasMeetingEnded(): Boolean = meetingEnded
-  def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
-  def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
-  def getGuestPolicy(): GuestPolicy.GuestPolicy = guestPolicy
-  def setGuestPolicy(policy: GuestPolicy.GuestPolicy) = guestPolicy = policy
-  def getGuestPolicySetBy(): String = guestPolicySetBy
-  def setGuestPolicySetBy(user: String) = guestPolicySetBy = user
+    def setDeskShareStarted(b: Boolean) {
+      deskShareStarted = b
+    }
+
+    def setDesktopShareVideoWidth(videoWidth: Int) {
+      desktopShareVideoWidth = videoWidth
+    }
+
+    def setDesktopShareVideoHeight(videoHeight: Int) {
+      desktopShareVideoHeight = videoHeight
+    }
+
+    def getDesktopShareVideoWidth(): Int = {
+      desktopShareVideoWidth
+    }
+
+    def getDesktopShareVideoHeight(): Int = {
+      desktopShareVideoHeight
+    }
+
+    def broadcastingRTMPStarted() {
+      broadcastingRTMP = true
+    }
+
+    def isBroadcastingRTMP(): Boolean = {
+      broadcastingRTMP
+    }
+
+    def broadcastingRTMPStopped() {
+      broadcastingRTMP = false
+    }
+
+    def setRTMPBroadcastingUrl(path: String) {
+      rtmpBroadcastingUrl = path
+    }
+
+    def getRTMPBroadcastingUrl(): String = {
+      rtmpBroadcastingUrl
+    }
+
+    def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
+    def incNumExtension(): Int = {
+      if (extension.numExtensions < extension.maxExtensions) {
+        extension = extension.copy(numExtensions = extension.numExtensions + 1); extension.numExtensions
+      }
+      extension.numExtensions
+    }
+
+    def notice15MinutesSent() = extension = extension.copy(sent15MinNotice = true)
+    def notice10MinutesSent() = extension = extension.copy(sent10MinNotice = true)
+    def notice5MinutesSent() = extension = extension.copy(sent5MinNotice = true)
+
+    def getMeetingExtensionProp(): MeetingExtensionProp = extension
+    def muteMeeting() = meetingMuted = true
+    def unmuteMeeting() = meetingMuted = false
+    def isMeetingMuted(): Boolean = meetingMuted
+    def recordingStarted() = recording = true
+    def recordingStopped() = recording = false
+    def isRecording(): Boolean = recording
+    def lastWebUserLeft() = lastWebUserLeftOnTimestamp = timeNowInMinutes
+    def lastWebUserLeftOn(): Long = lastWebUserLeftOnTimestamp
+    def resetLastWebUserLeftOn() = lastWebUserLeftOnTimestamp = 0
+    def setVoiceRecordingFilename(path: String) = voiceRecordingFilename = path
+    def getVoiceRecordingFilename(): String = voiceRecordingFilename
+    def permisionsInitialized(): Boolean = permissionsInited
+    def initializePermissions() = permissionsInited = true
+    def audioSettingsInitialized(): Boolean = audioSettingsInited
+    def initializeAudioSettings() = audioSettingsInited = true
+    def permissionsEqual(other: Permissions): Boolean = permissions == other
+    def lockLayout(lock: Boolean) = permissions = permissions.copy(lockedLayout = lock)
+    def getPermissions(): Permissions = permissions
+    def setPermissions(p: Permissions) = permissions = p
+    def meetingHasEnded() = meetingEnded = true
+    def hasMeetingEnded(): Boolean = meetingEnded
+    def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
+    def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
+    def getGuestPolicy(): GuestPolicy.GuestPolicy = guestPolicy
+    def setGuestPolicy(policy: GuestPolicy.GuestPolicy) = guestPolicy = policy
+    def getGuestPolicySetBy(): String = guestPolicySetBy
+    def setGuestPolicySetBy(user: String) = guestPolicySetBy = user
+    */
 }

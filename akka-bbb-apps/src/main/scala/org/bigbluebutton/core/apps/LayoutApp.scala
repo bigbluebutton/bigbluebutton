@@ -5,7 +5,8 @@ import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ Roles, UserVO, Users }
-import org.bigbluebutton.core.running.{ MeetingActor }
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait LayoutApp {
   this: MeetingActor =>
@@ -14,7 +15,9 @@ trait LayoutApp {
 
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
     outGW.send(new GetCurrentLayoutReply(msg.meetingID, props.recordProp.record, msg.requesterID,
-      liveMeeting.layoutModel.getCurrentLayout(), liveMeeting.meetingModel.getPermissions().lockedLayout, liveMeeting.layoutModel.getLayoutSetter()))
+      liveMeeting.layoutModel.getCurrentLayout(),
+      MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
+      liveMeeting.layoutModel.getLayoutSetter()))
   }
 
   def handleLockLayoutRequest(msg: LockLayoutRequest) {
@@ -31,7 +34,8 @@ trait LayoutApp {
 
   private def broadcastSyncLayout(meetingId: String, setById: String) {
     outGW.send(new BroadcastLayoutEvent(meetingId, props.recordProp.record, setById,
-      liveMeeting.layoutModel.getCurrentLayout(), liveMeeting.meetingModel.getPermissions().lockedLayout,
+      liveMeeting.layoutModel.getCurrentLayout(),
+      MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
       liveMeeting.layoutModel.getLayoutSetter(), affectedUsers))
   }
 

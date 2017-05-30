@@ -55,11 +55,12 @@ trait UsersApp {
 
   def handleMuteAllExceptPresenterRequest(msg: MuteAllExceptPresenterRequest) {
     if (msg.mute) {
-      liveMeeting.meetingModel.muteMeeting()
+      MeetingStatus2x.muteMeeting(liveMeeting.status)
     } else {
-      liveMeeting.meetingModel.unmuteMeeting()
+      MeetingStatus2x.unmuteMeeting(liveMeeting.status)
     }
-    outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record, liveMeeting.meetingModel.isMeetingMuted()))
+    outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record,
+      MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
 
     usersWhoAreNotPresenter foreach { u =>
       outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
@@ -69,11 +70,12 @@ trait UsersApp {
 
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     if (msg.mute) {
-      liveMeeting.meetingModel.muteMeeting()
+      MeetingStatus2x.muteMeeting(liveMeeting.status)
     } else {
-      liveMeeting.meetingModel.unmuteMeeting()
+      MeetingStatus2x.unmuteMeeting(liveMeeting.status)
     }
-    outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record, liveMeeting.meetingModel.isMeetingMuted()))
+    outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record,
+      MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
     Users.getUsers(liveMeeting.users) foreach { u =>
       outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
         u.id, props.voiceProp.voiceConf, u.voiceUser.userId, msg.mute))
@@ -99,7 +101,7 @@ trait UsersApp {
   }
 
   def handleRegisterUser(msg: RegisterUser) {
-    if (liveMeeting.meetingModel.hasMeetingEnded()) {
+    if (MeetingStatus2x.hasMeetingEnded(liveMeeting.status)) {
       // Check first if the meeting has ended and the user refreshed the client to re-connect.
       log.info("Register user failed. Mmeeting has ended. meetingId=" + props.meetingProp.intId + " userId=" + msg.userID)
       sendMeetingHasEnded(msg.userID)
@@ -115,7 +117,7 @@ trait UsersApp {
 
   def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
     outGW.send(new IsMeetingMutedReply(props.meetingProp.intId, props.recordProp.record,
-      msg.requesterID, liveMeeting.meetingModel.isMeetingMuted()))
+      msg.requesterID, MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
   }
 
   def handleMuteUserRequest(msg: MuteUserRequest) {
@@ -148,14 +150,16 @@ trait UsersApp {
 
     //reusing the existing handle for NewPermissionsSettings to reply to the GetLockSettings request
     outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.userId,
-      liveMeeting.meetingModel.getPermissions(), Users.getUsers(liveMeeting.users).toArray))
+      MeetingStatus2x.getPermissions(liveMeeting.status),
+      Users.getUsers(liveMeeting.users).toArray))
   }
 
   def handleSetLockSettings(msg: SetLockSettings) {
     if (!liveMeeting.permissionsEqual(msg.settings)) {
       liveMeeting.newPermissions(msg.settings)
       outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.setByUser,
-        liveMeeting.meetingModel.getPermissions, Users.getUsers(liveMeeting.users).toArray))
+        MeetingStatus2x.getPermissions(liveMeeting.status),
+        Users.getUsers(liveMeeting.users).toArray))
 
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }
@@ -171,18 +175,19 @@ trait UsersApp {
   }
 
   def handleInitLockSettings(msg: InitLockSettings) {
-    if (!liveMeeting.meetingModel.permisionsInitialized()) {
-      liveMeeting.meetingModel.initializePermissions()
+    if (!MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
+      MeetingStatus2x.initializePermissions(liveMeeting.status)
       liveMeeting.newPermissions(msg.settings)
-      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings, Users.getUsers(liveMeeting.users).toArray))
+      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings,
+        Users.getUsers(liveMeeting.users).toArray))
     }
   }
 
   def handleInitAudioSettings(msg: InitAudioSettings) {
-    if (!liveMeeting.meetingModel.audioSettingsInitialized()) {
-      liveMeeting.meetingModel.initializeAudioSettings()
+    if (!MeetingStatus2x.audioSettingsInitialized(liveMeeting.status)) {
+      MeetingStatus2x.initializeAudioSettings(liveMeeting.status)
 
-      if (liveMeeting.meetingModel.isMeetingMuted() != msg.muted) {
+      if (MeetingStatus2x.isMeetingMuted(liveMeeting.status) != msg.muted) {
         handleMuteAllExceptPresenterRequest(
           new MuteAllExceptPresenterRequest(props.meetingProp.intId,
             msg.requesterID, msg.muted));
@@ -225,16 +230,18 @@ trait UsersApp {
         assignNewPresenter(mod.id, mod.name, mod.id)
       }
 
-      if (liveMeeting.meetingModel.isBroadcastingRTMP()) {
+      if (MeetingStatus2x.isBroadcastingRTMP(liveMeeting.status)) {
         // The presenter left during desktop sharing. Stop desktop sharing on FreeSWITCH
         outGW.send(new DeskShareHangUp(props.meetingProp.intId, props.voiceProp.voiceConf))
 
         // notify other clients to close their deskshare view
-        outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
-          liveMeeting.meetingModel.getDesktopShareVideoWidth(), liveMeeting.meetingModel.getDesktopShareVideoHeight(), false))
+        outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId,
+          MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status),
+          MeetingStatus2x.getDesktopShareVideoWidth(liveMeeting.status),
+          MeetingStatus2x.getDesktopShareVideoHeight(liveMeeting.status), false))
 
         // reset meeting info
-        liveMeeting.meetingModel.resetDesktopSharingParams()
+        MeetingStatus2x.resetDesktopSharingParams(liveMeeting.status)
       }
     }
   }
@@ -347,7 +354,8 @@ trait UsersApp {
        * Initialize the newly joined user copying voice status in case this
        * join is due to a reconnect.
        */
-      val waitingForAcceptance = ru.guest && liveMeeting.meetingModel.getGuestPolicy() == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
+      val waitingForAcceptance = ru.guest &&
+        MeetingStatus2x.getGuestPolicy(liveMeeting.status) == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
       val lockStatus = getInitialLockStatus(ru.role)
 
       for {
@@ -355,12 +363,12 @@ trait UsersApp {
       } yield {
         log.info("User joined meeting. metingId=" + props.meetingProp.intId + " userId=" + uvo.id + " user=" + uvo)
 
-        if (uvo.guest && liveMeeting.meetingModel.getGuestPolicy() == GuestPolicy.ALWAYS_DENY) {
+        if (uvo.guest && MeetingStatus2x.getGuestPolicy(liveMeeting.status) == GuestPolicy.ALWAYS_DENY) {
           outGW.send(new GuestAccessDenied(props.meetingProp.intId, props.recordProp.record, uvo.id))
         } else {
           outGW.send(new UserJoined(props.meetingProp.intId, props.recordProp.record, uvo))
           outGW.send(new MeetingState(props.meetingProp.intId, props.recordProp.record, uvo.id,
-            liveMeeting.meetingModel.getPermissions(), liveMeeting.meetingModel.isMeetingMuted()))
+            MeetingStatus2x.getPermissions(liveMeeting.status), MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
 
           if (!waitingForAcceptance) {
             // Become presenter if the only moderator
@@ -408,7 +416,7 @@ trait UsersApp {
   }
 
   def getInitialLockStatus(role: String): Boolean = {
-    liveMeeting.meetingModel.getPermissions().lockOnJoin && !role.equals(Roles.MODERATOR_ROLE)
+    MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin && !role.equals(Roles.MODERATOR_ROLE)
   }
 
   def handleUserJoinedVoiceFromPhone(msg: UserJoinedVoiceConfMessage) = {
@@ -448,9 +456,9 @@ trait UsersApp {
         outGW.send(new UserJoined(props.meetingProp.intId, props.recordProp.record, uvo))
         outGW.send(new UserJoinedVoice(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, uvo))
 
-        if (liveMeeting.meetingModel.isMeetingMuted()) {
+        if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
           outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, uvo.id, uvo.id,
-            props.voiceProp.voiceConf, vu.userId, liveMeeting.meetingModel.isMeetingMuted()))
+            props.voiceProp.voiceConf, vu.userId, MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
         }
       }
     }
@@ -479,10 +487,10 @@ trait UsersApp {
         log.info("User joined voice. meetingId=" + props.meetingProp.intId + " userId=" + user.id + " user=" + nu)
         outGW.send(new UserJoinedVoice(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, nu))
 
-        if (liveMeeting.meetingModel.isMeetingMuted()) {
+        if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
           outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record,
             nu.id, nu.id, props.voiceProp.voiceConf,
-            nu.voiceUser.userId, liveMeeting.meetingModel.isMeetingMuted()))
+            nu.voiceUser.userId, MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
         }
       }
       case None => {
@@ -506,7 +514,7 @@ trait UsersApp {
         log.info("User joined voice. meetingId=" + props.meetingProp.intId + " userId=" + user.id + " user=" + nu)
         outGW.send(new UserJoinedVoice(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, nu))
 
-        if (liveMeeting.meetingModel.isMeetingMuted() || previouslyMuted) {
+        if (MeetingStatus2x.isMeetingMuted(liveMeeting.status) || previouslyMuted) {
           outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record,
             nu.id, nu.id, props.voiceProp.voiceConf,
             nu.voiceUser.userId, true))
@@ -528,7 +536,7 @@ trait UsersApp {
       MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
       log.info("Send STOP RECORDING voice conf. meetingId=" + props.meetingProp.intId + " voice conf=" + props.voiceProp.voiceConf)
       outGW.send(new StopRecordingVoiceConf(props.meetingProp.intId, props.recordProp.record,
-        props.voiceProp.voiceConf, liveMeeting.meetingModel.getVoiceRecordingFilename()))
+        props.voiceProp.voiceConf, MeetingStatus2x.getVoiceRecordingFilename(liveMeeting.status)))
     }
   }
 

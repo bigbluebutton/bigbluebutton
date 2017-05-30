@@ -14,6 +14,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core2.MeetingStatus2x
 
 import scala.concurrent.duration._
 
@@ -185,7 +186,7 @@ class MeetingActor(val props: DefaultProps,
 
   def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
     log.debug("****** RECEIVED RegisterUserReqMsg msg {}", msg)
-    if (liveMeeting.meetingModel.hasMeetingEnded()) {
+    if (MeetingStatus2x.hasMeetingEnded(liveMeeting.status)) {
       // Check first if the meeting has ended and the user refreshed the client to re-connect.
       log.info("Register user failed. Mmeeting has ended. meetingId=" + props.meetingProp.intId +
         " userId=" + msg.body.intUserId)
@@ -225,16 +226,18 @@ class MeetingActor(val props: DefaultProps,
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + liveMeeting.meetingModel
-      .isBroadcastingRTMP() + " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
+    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" +
+      MeetingStatus2x.isBroadcastingRTMP(liveMeeting.status) + " URL:" +
+      MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status))
 
     // only valid if currently broadcasting
-    if (liveMeeting.meetingModel.isBroadcastingRTMP()) {
+    if (MeetingStatus2x.isBroadcastingRTMP(liveMeeting.status)) {
       log.info("STOP broadcast ALLOWED when isBroadcastingRTMP=true")
-      liveMeeting.meetingModel.broadcastingRTMPStopped()
+      MeetingStatus2x.broadcastingRTMPStopped(liveMeeting.status)
 
       // notify viewers that RTMP broadcast stopped
-      outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
+      outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId,
+        MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status),
         msg.videoWidth, msg.videoHeight, false))
     } else {
       log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
@@ -244,23 +247,28 @@ class MeetingActor(val props: DefaultProps,
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
 
     log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
-      + liveMeeting.meetingModel.isBroadcastingRTMP() + " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
-    if (liveMeeting.meetingModel.isBroadcastingRTMP()) {
+      + MeetingStatus2x.isBroadcastingRTMP(liveMeeting.status) + " URL:" +
+      MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status))
+
+    if (MeetingStatus2x.isBroadcastingRTMP(liveMeeting.status)) {
       // if the meeting has an ongoing WebRTC Deskshare session, send a notification
-      outGW.send(new DeskShareNotifyASingleViewer(props.meetingProp.intId, msg.requesterID, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
-        liveMeeting.meetingModel.getDesktopShareVideoWidth(), liveMeeting.meetingModel.getDesktopShareVideoHeight(), true))
+      outGW.send(new DeskShareNotifyASingleViewer(props.meetingProp.intId, msg.requesterID,
+        MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status),
+        MeetingStatus2x.getDesktopShareVideoWidth(liveMeeting.status),
+        MeetingStatus2x.getDesktopShareVideoHeight(liveMeeting.status), true))
     }
   }
 
   def handleGetGuestPolicy(msg: GetGuestPolicy) {
     outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
-      msg.requesterID, liveMeeting.meetingModel.getGuestPolicy().toString()))
+      msg.requesterID, MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
   }
 
   def handleSetGuestPolicy(msg: SetGuestPolicy) {
-    liveMeeting.meetingModel.setGuestPolicy(msg.policy)
-    liveMeeting.meetingModel.setGuestPolicySetBy(msg.setBy)
-    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record, liveMeeting.meetingModel.getGuestPolicy().toString()))
+    MeetingStatus2x.setGuestPolicy(liveMeeting.status, msg.policy)
+    MeetingStatus2x.setGuestPolicySetBy(liveMeeting.status, msg.setBy)
+    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record,
+      MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
   }
 
   def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
@@ -278,7 +286,7 @@ class MeetingActor(val props: DefaultProps,
     // Broadcast users the meeting will end
     outGW.send(new MeetingEnding(msg.meetingId))
 
-    liveMeeting.meetingModel.meetingHasEnded
+    MeetingStatus2x.meetingHasEnded(liveMeeting.status)
 
     outGW.send(new MeetingEnded(msg.meetingId, props.recordProp.record, props.meetingProp.intId))
   }
@@ -295,11 +303,11 @@ class MeetingActor(val props: DefaultProps,
 
   def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     if (msg.recording) {
-      liveMeeting.meetingModel.setVoiceRecordingFilename(msg.recordStream)
+      MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, msg.recordStream)
       outGW.send(new VoiceRecordingStarted(props.meetingProp.intId, props.recordProp.record,
         msg.recordStream, msg.timestamp, props.voiceProp.voiceConf))
     } else {
-      liveMeeting.meetingModel.setVoiceRecordingFilename("")
+      MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, "")
       outGW.send(new VoiceRecordingStopped(props.meetingProp.intId, props.recordProp.record,
         msg.recordStream, msg.timestamp, props.voiceProp.voiceConf))
     }
@@ -307,11 +315,12 @@ class MeetingActor(val props: DefaultProps,
 
   def handleSetRecordingStatus(msg: SetRecordingStatus) {
     log.info("Change recording status. meetingId=" + props.meetingProp.intId + " recording=" + msg.recording)
-    if (props.recordProp.allowStartStopRecording && liveMeeting.meetingModel.isRecording() != msg.recording) {
+    if (props.recordProp.allowStartStopRecording &&
+      MeetingStatus2x.isRecording(liveMeeting.status) != msg.recording) {
       if (msg.recording) {
-        liveMeeting.meetingModel.recordingStarted()
+        MeetingStatus2x.recordingStarted(liveMeeting.status)
       } else {
-        liveMeeting.meetingModel.recordingStopped()
+        MeetingStatus2x.recordingStopped(liveMeeting.status)
       }
 
       outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record, msg.userId, msg.recording))
@@ -321,9 +330,9 @@ class MeetingActor(val props: DefaultProps,
   // WebRTC Desktop Sharing
 
   def handleDeskShareStartedRequest(msg: DeskShareStartedRequest): Unit = {
-    log.info("handleDeskShareStartedRequest: dsStarted=" + liveMeeting.meetingModel.getDeskShareStarted())
+    log.info("handleDeskShareStartedRequest: dsStarted=" + MeetingStatus2x.getDeskShareStarted(liveMeeting.status))
 
-    if (!liveMeeting.meetingModel.getDeskShareStarted()) {
+    if (!MeetingStatus2x.getDeskShareStarted(liveMeeting.status)) {
       val timestamp = System.currentTimeMillis().toString
       val streamPath = "rtmp://" + props.screenshareProps.red5ScreenshareIp + "/" + props.screenshareProps.red5ScreenshareApp +
         "/" + props.meetingProp.intId + "/" + props.meetingProp.intId + "-" + timestamp
@@ -332,30 +341,33 @@ class MeetingActor(val props: DefaultProps,
       // Tell FreeSwitch to broadcast to RTMP
       outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath))
 
-      liveMeeting.meetingModel.setDeskShareStarted(true)
+      MeetingStatus2x.setDeskShareStarted(liveMeeting.status, true)
     }
   }
 
   def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit = {
-    log.info("handleDeskShareStoppedRequest: dsStarted=" + liveMeeting.meetingModel.getDeskShareStarted() +
-      " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
+    log.info("handleDeskShareStoppedRequest: dsStarted=" +
+      MeetingStatus2x.getDeskShareStarted(liveMeeting.status) +
+      " URL:" + MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status))
 
     // Tell FreeSwitch to stop broadcasting to RTMP
-    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, liveMeeting.meetingModel.getRTMPBroadcastingUrl()))
+    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName,
+      MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status)))
 
-    liveMeeting.meetingModel.setDeskShareStarted(false)
+    MeetingStatus2x.setDeskShareStarted(liveMeeting.status, false)
   }
 
   def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + liveMeeting.meetingModel.isBroadcastingRTMP() +
-      " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
+    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" +
+      MeetingStatus2x.isBroadcastingRTMP(liveMeeting.status) +
+      " URL:" + MeetingStatus2x.getRTMPBroadcastingUrl(liveMeeting.status))
 
     // only valid if not broadcasting yet
-    if (!liveMeeting.meetingModel.isBroadcastingRTMP()) {
-      liveMeeting.meetingModel.setRTMPBroadcastingUrl(msg.streamname)
-      liveMeeting.meetingModel.broadcastingRTMPStarted()
-      liveMeeting.meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
-      liveMeeting.meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
+    if (!MeetingStatus2x.isBroadcastingRTMP(liveMeeting.status)) {
+      MeetingStatus2x.setRTMPBroadcastingUrl(liveMeeting.status, msg.streamname)
+      MeetingStatus2x.broadcastingRTMPStarted(liveMeeting.status)
+      MeetingStatus2x.setDesktopShareVideoWidth(liveMeeting.status, msg.videoWidth)
+      MeetingStatus2x.setDesktopShareVideoHeight(liveMeeting.status, msg.videoHeight)
       log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
       // Notify viewers in the meeting that there's an rtmp stream to view
@@ -371,8 +383,9 @@ class MeetingActor(val props: DefaultProps,
   }
 
   def monitorNumberOfWebUsers() {
-    if (Users.numWebUsers(liveMeeting.users) == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
-      if (liveMeeting.timeNowInMinutes - liveMeeting.meetingModel.lastWebUserLeftOn > 2) {
+    if (Users.numWebUsers(liveMeeting.users) == 0 &&
+      MeetingStatus2x.lastWebUserLeftOn(liveMeeting.status) > 0) {
+      if (liveMeeting.timeNowInMinutes - MeetingStatus2x.lastWebUserLeftOn(liveMeeting.status) > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", props.meetingProp.intId)
         outGW.send(new EjectAllVoiceUsers(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf))
       }
@@ -387,18 +400,19 @@ class MeetingActor(val props: DefaultProps,
 
   def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {
     if (props.durationProps.duration > 0) {
-      val endMeetingTime = liveMeeting.meetingModel.startedOn + (props.durationProps.duration * 60)
+      val endMeetingTime = MeetingStatus2x.startedOn(liveMeeting.status) + (props.durationProps.duration * 60)
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
       outGW.send(new MeetingTimeRemainingUpdate(props.meetingProp.intId, props.recordProp.record, timeRemaining.toInt))
     }
     if (!props.meetingProp.isBreakout && liveMeeting.breakoutModel.getRooms().length > 0) {
       val room = liveMeeting.breakoutModel.getRooms()(0);
-      val endMeetingTime = liveMeeting.meetingModel.breakoutRoomsStartedOn + (liveMeeting.meetingModel.breakoutRoomsdurationInMinutes * 60)
+      val endMeetingTime = MeetingStatus2x.breakoutRoomsStartedOn(liveMeeting.status) +
+        (MeetingStatus2x.breakoutRoomsdurationInMinutes(liveMeeting.status) * 60)
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
       outGW.send(new BreakoutRoomsTimeRemainingUpdateOutMessage(props.meetingProp.intId, props.recordProp.record, timeRemaining.toInt))
-    } else if (liveMeeting.meetingModel.breakoutRoomsStartedOn != 0) {
-      liveMeeting.meetingModel.breakoutRoomsdurationInMinutes = 0;
-      liveMeeting.meetingModel.breakoutRoomsStartedOn = 0;
+    } else if (MeetingStatus2x.breakoutRoomsStartedOn(liveMeeting.status) != 0) {
+      MeetingStatus2x.breakoutRoomsdurationInMinutes(liveMeeting.status, 0)
+      MeetingStatus2x.breakoutRoomsStartedOn(liveMeeting.status, 0)
     }
   }
 
@@ -408,24 +422,26 @@ class MeetingActor(val props: DefaultProps,
 
   def handleGetRecordingStatus(msg: GetRecordingStatus) {
     outGW.send(new GetRecordingStatusReply(props.meetingProp.intId, props.recordProp.record,
-      msg.userId, liveMeeting.meetingModel.isRecording().booleanValue()))
+      msg.userId, MeetingStatus2x.isRecording(liveMeeting.status).booleanValue()))
   }
 
   def startRecordingIfAutoStart() {
-    if (props.recordProp.record && !liveMeeting.meetingModel.isRecording() &&
+    if (props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
       props.recordProp.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 1) {
       log.info("Auto start recording. meetingId={}", props.meetingProp.intId)
-      liveMeeting.meetingModel.recordingStarted()
-      outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record, "system", liveMeeting.meetingModel.isRecording()))
+      MeetingStatus2x.recordingStarted(liveMeeting.status)
+      outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record,
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)))
     }
   }
 
   def stopAutoStartedRecording() {
-    if (props.recordProp.record && liveMeeting.meetingModel.isRecording() &&
+    if (props.recordProp.record && MeetingStatus2x.isRecording(liveMeeting.status) &&
       props.recordProp.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 0) {
       log.info("Last web user left. Auto stopping recording. meetingId={}", props.meetingProp.intId)
-      liveMeeting.meetingModel.recordingStopped()
-      outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record, "system", liveMeeting.meetingModel.isRecording()))
+      MeetingStatus2x.recordingStopped(liveMeeting.status)
+      outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record,
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)))
     }
   }
 

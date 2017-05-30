@@ -13,7 +13,6 @@ class LiveMeeting(val props: DefaultProps,
   val status: MeetingStatus2x,
   val chatModel: ChatModel,
   val layoutModel: LayoutModel,
-  val meetingModel: MeetingModel,
   val users: Users,
   val registeredUsers: RegisteredUsers,
   val pollModel: PollModel,
@@ -25,25 +24,25 @@ class LiveMeeting(val props: DefaultProps,
     extends ChatModelTrait {
 
   def hasMeetingEnded(): Boolean = {
-    meetingModel.hasMeetingEnded()
+    MeetingStatus2x.hasMeetingEnded(status)
   }
 
   def webUserJoined() {
     if (Users.numWebUsers(users) > 0) {
-      meetingModel.resetLastWebUserLeftOn()
+      MeetingStatus2x.resetLastWebUserLeftOn(status)
     }
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
     if (Users.numWebUsers(users) == 0 && !props.meetingProp.isBreakout) {
-      meetingModel.lastWebUserLeft()
+      MeetingStatus2x.lastWebUserLeft(status)
     }
   }
 
   def sendTimeRemainingNotice() {
     val now = timeNowInSeconds
 
-    if (props.durationProps.duration > 0 && (((meetingModel.startedOn + props.durationProps.duration) - now) < 15)) {
+    if (props.durationProps.duration > 0 && (((MeetingStatus2x.startedOn(status) + props.durationProps.duration) - now) < 15)) {
       //  log.warning("MEETING WILL END IN 15 MINUTES!!!!")
     }
   }
@@ -57,15 +56,15 @@ class LiveMeeting(val props: DefaultProps,
   }
 
   def lockLayout(lock: Boolean) {
-    meetingModel.lockLayout(lock)
+    MeetingStatus2x.lockLayout(status, lock)
   }
 
   def newPermissions(np: Permissions) {
-    meetingModel.setPermissions(np)
+    MeetingStatus2x.setPermissions(status, np)
   }
 
   def permissionsEqual(other: Permissions): Boolean = {
-    meetingModel.permissionsEqual(other)
+    MeetingStatus2x.permissionsEqual(status, other)
   }
 
 }
