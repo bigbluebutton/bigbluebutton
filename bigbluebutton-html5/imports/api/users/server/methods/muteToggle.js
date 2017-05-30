@@ -32,7 +32,8 @@ export default function muteToggle(credentials, userId, isMuted = true) {
     requester_id: requesterUserId,
   };
 
-  Logger.verbose(`User '${userId}' was ${!isMuted ? 'un' : ''}muted by '${requesterUserId}' from meeting '${meetingId}'`);
+  Logger.verbose(`User '${userId}' was ${!isMuted ? 'un' : ''}muted by '${
+    requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
 };

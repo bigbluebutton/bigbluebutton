@@ -27,32 +27,26 @@ const STATUS_OFFLINE = 'offline';
 const intlMessages = defineMessages({
   failedMessage: {
     id: 'app.failedMessage',
-    defaultMessage: 'Apologies, trouble connecting to the server.',
-    description: 'Message when the client is trying to connect to the server',
+    description: 'Notification for connecting to server problems',
   },
   connectingMessage: {
     id: 'app.connectingMessage',
-    defaultMessage: 'Connecting...',
-    description: 'Message when the client is trying to connect to the server',
+    description: 'Notification message for when client is connecting to server',
   },
   waitingMessage: {
     id: 'app.waitingMessage',
-    defaultMessage: 'Disconnected. Trying to reconnect in {seconds} seconds...',
-    description: 'Message when the client is trying to reconnect to the server',
+    description: 'Notification message for disconnection with reconnection counter',
   },
   breakoutTimeRemaining: {
     id: 'app.breakoutTimeRemainingMessage',
-    defaultMessage: 'Breakout Room time remaining: {time}',
     description: 'Message that tells how much time is remaining for the breakout room',
   },
   breakoutWillClose: {
     id: 'app.breakoutWillCloseMessage',
-    defaultMessage: 'Time ended. Breakout Room will close soon',
     description: 'Message that tells time has ended and breakout will close',
   },
   calculatingBreakoutTimeRemaining: {
     id: 'app.calculatingBreakoutTimeRemaining',
-    defaultMessage: 'Calculating remaining time...',
     description: 'Message that tells that the remaining time is being calculated',
   },
 });
@@ -146,7 +140,7 @@ export default injectIntl(createContainer(({ intl }) => {
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = intl.formatMessage(
           intlMessages.waitingMessage,
-          { seconds: getRetrySeconds() }
+          { 0: getRetrySeconds() }
         );
         break;
     }

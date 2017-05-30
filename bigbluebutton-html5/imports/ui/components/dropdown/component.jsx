@@ -82,26 +82,25 @@ class Dropdown extends Component {
   }
 
   handleShow() {
-    this.setState({ isOpen: true }, this.handleStateCallback);
+    const { addEventListener } = window;
+    addEventListener('click', this.handleWindowClick, false);
 
-    const contentElement = findDOMNode(this.refs.content);
-    contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
+    this.setState({ isOpen: true }, this.handleStateCallback);
   }
 
   handleHide() {
-    this.setState({ isOpen: false }, this.handleStateCallback);
-    const triggerElement = findDOMNode(this.refs.trigger);
-    triggerElement.focus();
-  }
 
-  componentDidMount () {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleWindowClick, false);
-  }
-
-  componentWillUnmount () {
     const { removeEventListener } = window;
     removeEventListener('click', this.handleWindowClick, false);
+
+    const { autoFocus } = this.props;
+
+    this.setState({ isOpen: false }, this.handleStateCallback);
+
+    if (autoFocus) {
+      const triggerElement = findDOMNode(this.refs.trigger);
+      triggerElement.focus();
+    }
   }
 
   handleWindowClick(event) {
@@ -122,7 +121,14 @@ class Dropdown extends Component {
   }
 
   render() {
-    const { children, className, style, intl } = this.props;
+    const {
+      children,
+      className,
+      style, intl,
+      hasPopup,
+      ariaLive,
+      ariaRelevant,
+    } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -143,7 +149,12 @@ class Dropdown extends Component {
     });
 
     return (
-      <div style={style} className={cx(styles.dropdown, className)}>
+      <div
+      style={style}
+      className={cx(styles.dropdown, className)}
+      aria-live={ariaLive}
+      aria-relevant={ariaRelevant}
+      aria-haspopup={hasPopup}>
         {trigger}
         {content}
         { this.state.isOpen ?

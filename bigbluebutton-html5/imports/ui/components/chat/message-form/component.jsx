@@ -105,9 +105,9 @@ class MessageForm extends Component {
         <TextareaAutosize
           className={styles.input}
           id="message-input"
-          placeholder={intl.formatMessage(messages.inputPlaceholder, { name: chatName })}
+          placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
           aria-controls={this.props.chatAreaId}
-          aria-label={intl.formatMessage(messages.inputLabel, { name: chatTitle })}
+          aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
           autoCorrect="off"
           autoComplete="off"
           spellCheck="true"
@@ -123,9 +123,9 @@ class MessageForm extends Component {
           disabled={disabled}
           label={intl.formatMessage(messages.submitLabel)}
           hideLabel={true}
-          icon={"send"}
-          onClick={()=>{}}
-          />
+          icon={'send'}
+          onClick={this.handleMessageKeyDown({ keyCode: 13 })}
+        />
       </form>
     );
   }

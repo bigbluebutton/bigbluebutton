@@ -181,7 +181,7 @@ class ApplicationMenu extends BaseMenu {
                   defaultValue={this.state.settings.locale}
                   className={styles.select}
                   onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}>
-                  <option>
+                  <option disabled={true}>
                     { availableLocales &&
                       availableLocales.length ?
                       intl.formatMessage(intlMessages.languageOptionLabel) :
@@ -194,7 +194,10 @@ class ApplicationMenu extends BaseMenu {
                 ) : null }
                 </select>
               </div>
-              <div id="changeLangLabel" aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}></div>
+              <div
+                id="changeLangLabel"
+                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}>
+              </div>
             </div>
           </div>
           <hr className={styles.separator}/>

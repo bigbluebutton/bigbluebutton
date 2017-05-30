@@ -29,7 +29,7 @@ const updateSettings = (obj) => {
   Settings.save();
 };
 
-const getAvailableLocales = () => {
+const getAvailableLocales = function () {
   return fetch('/html5client/locales').then(locales => locales.json());
 };
 

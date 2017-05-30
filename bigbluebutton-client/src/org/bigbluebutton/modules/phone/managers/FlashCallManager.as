@@ -13,7 +13,6 @@
   import org.bigbluebutton.common.Media;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -376,20 +375,7 @@
       }
       hangup();
     }
-    
-	public function handleBecomeViewer():void {
-    LOGGER.debug("Handling BecomeViewer, current state: {0}, using flash: {1}", [state, usingFlash]);
-		if (options.presenterShareOnly) {
-			if (!usingFlash || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
-      LOGGER.debug("handleBecomeViewer leaving flash with mic and joining listen only stream");
-			hangup();
-			
-			var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-			command.mic = false;
-			dispatcher.dispatchEvent(command);
-		}
-	}
-	
+
     public function handleFlashVoiceConnected():void {
       switch (state) {
         case JOIN_VOICE_CONFERENCE:

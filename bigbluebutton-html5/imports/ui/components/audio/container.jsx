@@ -16,16 +16,17 @@ class AudioContainer extends Component {
   }
 }
 
+let didMountedAutoJoin = false;
+
 export default withModalMounter(createContainer(({ mountModal }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
   return {
     init: () => {
       Service.init();
-
-      if (APP_CONFIG.autoJoinAudio) {
-        mountModal(<AudioModal handleJoinListenOnly={Service.joinListenOnly} />);
-      }
+      if (didMountedAutoJoin) return;
+      mountModal(<AudioModal handleJoinListenOnly={Service.joinListenOnly} />);
+      didMountedAutoJoin = true;
     },
   };
 }, AudioContainer));

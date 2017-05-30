@@ -17,13 +17,13 @@ class AboutContainer extends Component {
   }
 }
 
-const getClientBuildInfo = () => {
+const getClientBuildInfo = function () {
   return {
     clientBuild: Meteor.settings.public.app.html5ClientBuild,
     copyright: Meteor.settings.public.app.copyright,
   };
 };
 
-export default createContainer(() => {
+export default createContainer(function () {
   return getClientBuildInfo();
 }, AboutContainer);
