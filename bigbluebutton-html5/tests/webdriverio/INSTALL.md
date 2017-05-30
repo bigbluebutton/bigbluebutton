@@ -24,20 +24,20 @@ and browser-specific WebDriver server.
 
 Firefox WebDriver (GeckoDriver):
 ```sh
-$ curl -L https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz | tar xf
+$ curl -L https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz | tar xz
 ```
 
 Chrome WebDriver (ChromeDriver):
 ```sh
 $ wget https://chromedriver.storage.googleapis.com/2.29/chromedriver_linux64.zip
-$ unzip chromedriver_linux.zip
+$ unzip chromedriver_linux64.zip
 ```
 
 Along with the WebDriver, you need to install the browser itself.
 
 How to install Chrome:
 ```sh
-$ wget -O - https:/dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+$ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 $ sudo sh -C 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
 $ sudo apt-get update
 $ sudo apt-get install google-chrome-stable
@@ -76,7 +76,7 @@ You can run all of the existing test specs with a single npm command:
 
 ```sh
 $ cd /home/firstuser/dev/bigbluebutton/bigbluebutton-html5
-$ npm run script
+$ npm run test
 ```
 
 ### Test suites
