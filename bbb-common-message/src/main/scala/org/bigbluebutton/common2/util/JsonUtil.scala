@@ -5,6 +5,8 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.annotation.JsonInclude
 
+import scala.util.Try
+
 
 object JsonUtil {
   val mapper = new ObjectMapper() with ScalaObjectMapper
@@ -21,17 +23,18 @@ object JsonUtil {
     mapper.writeValueAsString(value)
   }
 
-  def toMap[V](json: String)(implicit m: Manifest[V]) = fromJson[Map[String, V]](json)
-
-  def fromJson[T](json: String)(implicit m: Manifest[T]): T = {
-    mapper.readValue[T](json)
+  def toMap[V](json: String)(implicit m: Manifest[V]): Try[Map[String, V]] = {
+    fromJson[Map[String, V]](json)
   }
 
-  def toJsonNode(json: String): JsonNode = {
+  def fromJson[T](json: String)(implicit m: Manifest[T]): Try[T] = {
+    for {
+      result <- Try(mapper.readValue[T](json))
+    } yield result
+
+  }
+
+  def toJsonNode(json: String): Try[JsonNode] = {
     fromJson[JsonNode](json)
   }
-
-
-
-
 }

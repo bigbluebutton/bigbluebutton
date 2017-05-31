@@ -11,7 +11,7 @@ import akka.actor.SupervisorStrategy.Resume
 import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.core.{ MeetingProperties, OutMessageGateway }
+import org.bigbluebutton.core.{ OutMessageGateway }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 

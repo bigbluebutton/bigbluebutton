@@ -30,17 +30,19 @@ trait TestFixtures {
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
-  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime)
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, breakoutRooms = Vector())
+  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
     allowStartStopRecording = allowStartStopRecording)
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
     modOnlyMessage = modOnlyMessage)
-  val voiceProp = VoiceProp(telVoice = voiceConfId, webVoice = voiceConfId, dialNumber = dialNumber)
+  val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     guestPolicy = guestPolicy)
   val metadataProp = new MetadataProp(metadata)
-
-  val defaultProps = DefaultProps(meetingProp, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp)
+  val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
+    red5ScreenshareApp = "fixMe!")
+  val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
+    usersProp, metadataProp, screenshareProps)
 }

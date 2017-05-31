@@ -4,7 +4,6 @@ import org.bigbluebutton.core.api.GuestPolicy._
 import org.bigbluebutton.core.api.SharedNotesOperation._
 import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.MeetingProperties
 import org.bigbluebutton.core.apps.BreakoutUser
 import spray.json.JsObject
 
@@ -34,7 +33,6 @@ case class KeepAliveMessage(aliveID: String) extends InMessage
 case class MonitorNumberOfUsers(meetingID: String) extends InMessage
 case class SendTimeRemainingUpdate(meetingId: String) extends InMessage
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
-case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends InMessage
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage

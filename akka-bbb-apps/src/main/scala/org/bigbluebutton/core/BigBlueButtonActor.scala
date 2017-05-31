@@ -60,7 +60,6 @@ class BigBlueButtonActor(val system: ActorSystem,
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
 
     // 1x messages
-    case msg: CreateMeeting => handleCreateMeeting(msg)
     case msg: DestroyMeeting => handleDestroyMeeting(msg)
     case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
     case msg: PubSubPing => handlePubSubPingMessage(msg)
@@ -283,10 +282,6 @@ class BigBlueButtonActor(val system: ActorSystem,
       }
     }
  */
-  }
-
-  private def handleCreateMeeting(msg: CreateMeeting): Unit = {
-
   }
 
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {

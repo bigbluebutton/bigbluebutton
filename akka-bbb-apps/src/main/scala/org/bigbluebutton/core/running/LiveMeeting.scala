@@ -6,7 +6,6 @@ import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
-import org.bigbluebutton.core.{ MeetingModel, MeetingProperties }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 class LiveMeeting(val props: DefaultProps,

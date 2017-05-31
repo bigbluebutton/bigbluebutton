@@ -6,8 +6,8 @@ import scala.collection.immutable.List
 
 class ChatModelTest extends UnitSpec with AppsTestFixtures {
 
-  val liveMeeting = new LiveMeeting(mProps,
-    chatModel, layoutModel, meetingModel, usersModel, users, registeredUsers, pollModel,
+  val liveMeeting = new LiveMeeting(defaultProps, meetingStatux2x,
+    chatModel, layoutModel, users, registeredUsers, pollModel,
     wbModel, presModel, breakoutModel, captionModel, notesModel)
 
   "A Stack" should "pop values in last-in-first-out order" in {

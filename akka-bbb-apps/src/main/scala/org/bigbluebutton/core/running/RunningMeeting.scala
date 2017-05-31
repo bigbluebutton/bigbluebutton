@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.domain.{ DefaultProps, Meeting2x }
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
-import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
+import org.bigbluebutton.core.{ OutMessageGateway }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 object RunningMeeting {

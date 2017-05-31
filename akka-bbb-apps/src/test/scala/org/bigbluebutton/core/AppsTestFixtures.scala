@@ -1,10 +1,10 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.common2.domain._
-
 import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait AppsTestFixtures {
 
@@ -32,23 +32,16 @@ trait AppsTestFixtures {
   val maxUsers = 25
   val guestPolicy = "ALWAYS_ASK"
 
-  val red5DeskShareIP = "127.0.0.1"
-  val red5DeskShareApp = "red5App"
+  val red5DeskShareIPTestFixture = "127.0.0.1"
+  val red5DeskShareAppTestFixtures = "red5App"
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
+  val screenshareProps = ScreenshareProps("TODO", "TODO", "TODO")
+  val breakoutProps = BreakoutProps(parentMeetingId, sequence, Vector())
 
-  val mProps = new MeetingProperties(meetingId, externalMeetingId, parentMeetingId,
-    meetingName, record,
-    voiceConfId, deskshareConfId,
-    durationInMinutes,
-    autoStartRecording, allowStartStopRecording, webcamsOnlyForModerator,
-    moderatorPassword, viewerPassword,
-    createTime, createDate, red5DeskShareIP, red5DeskShareApp,
-    isBreakout, sequence, metadata, GuestPolicy.ALWAYS_ACCEPT)
-
+  val meetingStatux2x = new MeetingStatus2x
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
   val meetingModel = new MeetingModel()
-  val usersModel = new UsersModel()
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
@@ -58,22 +51,20 @@ trait AppsTestFixtures {
   val users = new Users
   val registeredUsers = new RegisteredUsers
 
-  meetingModel.setGuestPolicy(mProps.guestPolicy)
-
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
-  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime)
+  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
     allowStartStopRecording = allowStartStopRecording)
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
     modOnlyMessage = modOnlyMessage)
-  val voiceProp = VoiceProp(telVoice = voiceConfId, webVoice = voiceConfId, dialNumber = dialNumber)
+  val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     guestPolicy = guestPolicy)
   val metadataProp = new MetadataProp(metadata)
 
-  val defaultProps = DefaultProps(meetingProp, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp)
+  val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
+    usersProp, metadataProp, screenshareProps)
 
 }

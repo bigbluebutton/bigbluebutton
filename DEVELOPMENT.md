@@ -133,6 +133,7 @@ On your akka-fsesl terminal, start akka-fsesl
 
 ```
 cd ~/dev/bigbluebutton/akka-bbb-fsesl
+sbt clean
 sbt run
 ```
 

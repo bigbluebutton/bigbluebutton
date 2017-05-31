@@ -206,7 +206,7 @@ class MeetingActor(val props: DefaultProps,
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka",
       "msgType" -> "direct", "meetingId" -> props.meetingProp.intId, "userId" -> msg.body.userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(ValidateAuthTokenRespMsg.NAME, props.meetingProp.intId)
+    val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, props.meetingProp.intId, msg.body.userId)
 
     RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
       case Some(u) =>

@@ -5,6 +5,9 @@ import org.bigbluebutton.common2.messages._
 
 import scala.collection.immutable.List
 import com.fasterxml.jackson.databind.JsonNode
+import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenReqMsgBody
+
+import scala.util.{Failure, Success}
 
 
 case class Person(name: String, age: Int)
@@ -22,9 +25,9 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
     val map = JsonUtil.toMap[Seq[Int]](json)
     // map: Map[String,Seq[Int]] = Map(a -> List(1, 2), b -> List(3, 4, 5), c -> List())
     println(map)
-    map.get("a") match {
-      case Some(a) => assert(a.length == 2)
-      case None => fail("Failed to decode json message")
+    map match {
+      case Success(a) => assert(a.values.size == 3)
+      case Failure(ex) => fail("Failed to decode json message")
     }
   }
 
@@ -50,8 +53,7 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
 
   "JsonUtil" should "unmarshall a ValidateAuthTokenReq" in {
     val header: BbbCoreHeaderWithMeetingId = new BbbCoreHeaderWithMeetingId("foo", "mId")
-    val body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(meetingId = "mId", userId = "uId", token = "myToken",
-      replyTo = "replyHere", sessionId = "mySessionId")
+    val body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(userId = "uId", authToken = "myToken")
     val msg: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body)
     val json = JsonUtil.toJson(msg)
     println(json)
@@ -80,13 +82,24 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
       """.stripMargin
 
     val finalMsg = JsonUtil.fromJson[FooNode](jsonMsg)
-    val finalMsg2 = JsonUtil.fromJson[ValidateAuthTokenReqMsg](JsonUtil.toJson(finalMsg))
+
+    val json = JsonUtil.toJson(finalMsg)
+
+    val finalMsg2 = for {
+      result <- JsonUtil.fromJson[ValidateAuthTokenReqMsg](json)
+    } yield result
+
     println(finalMsg2)
     val map = JsonUtil.toMap[Map[String, Any]](jsonMsg)
-    for {
-      header <- map.get("header")
-      meetingId <- header.get("meetingId")
-    } yield println(meetingId)
+    map match {
+      case Success(m) =>
+        for {
+          header <- m.get("header")
+          meetingId <- header.get("meetingId")
+        } yield println(meetingId)
+      case Failure(ex) => fail("Failed to convert message.")
+    }
+
   }
 }
 
