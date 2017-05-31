@@ -7,6 +7,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
 import KEY_CODES from '/imports/utils/keyCodes';
+import Auth from '/imports/ui/services/auth/index.js';
 
 const propTypes = {
   openChats: PropTypes.array.isRequired,
@@ -109,17 +110,17 @@ class UserList extends Component {
     }
 
     if (Args[0].keyCode === KEY_CODES.ENTER
-        || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
-        || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
+      || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
+      || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
       active.firstChild.click();
     }
 
     if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
       if (this.counter < count) {
         this.focusListItem(active, 'down', items);
-      }else if (this.counter === count) {
+      } else if (this.counter === count) {
         this.focusListItem(active, 'downLoopDown', list);
-      }else if (this.counter === 0) {
+      } else if (this.counter === 0) {
         this.focusListItem(active, 'downLoopUp', list);
       }
     }
@@ -127,9 +128,9 @@ class UserList extends Component {
     if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
       if (this.counter < count && this.counter !== 0) {
         this.focusListItem(active, 'up', items);
-      }else if (this.counter === 0) {
+      } else if (this.counter === 0) {
         this.focusListItem(active, 'upLoopUp', list, count);
-      }else if (this.counter === count) {
+      } else if (this.counter === count) {
         this.focusListItem(active, 'upLoopDown', list, count);
       }
     }
@@ -150,9 +151,9 @@ class UserList extends Component {
   }
 
   componentWillUnmount() {
-    this._msgsList.removeEventListener('keypress', function (event) {}, false);
+    this._msgsList.removeEventListener('keypress', function (event) { }, false);
 
-    this._usersList.removeEventListener('keypress', function (event) {}, false);
+    this._usersList.removeEventListener('keypress', function (event) { }, false);
   }
 
   render() {
@@ -171,9 +172,9 @@ class UserList extends Component {
       <div className={styles.header}>
         {
           !this.state.compact ?
-          <div className={styles.headerTitle} role="banner">
-            {intl.formatMessage(intlMessages.participantsTitle)}
-          </div> : null
+            <div className={styles.headerTitle} role="banner">
+              {intl.formatMessage(intlMessages.participantsTitle)}
+            </div> : null
         }
       </div>
     );
@@ -199,9 +200,9 @@ class UserList extends Component {
       <div className={styles.messages}>
         {
           !this.state.compact ?
-          <div className={styles.smallTitle} role="banner">
-            {intl.formatMessage(intlMessages.messagesTitle)}
-          </div> : <hr className={styles.separator}></hr>
+            <div className={styles.smallTitle} role="banner">
+              {intl.formatMessage(intlMessages.messagesTitle)}
+            </div> : <hr className={styles.separator}></hr>
         }
         <div
           tabIndex={0}
@@ -251,27 +252,27 @@ class UserList extends Component {
       },
       clearStatus: {
         label: intl.formatMessage(intlMessages.ClearStatusLabel),
-        handler: user => makeCall('setEmojiStatus', user.id, 'none'),
+        handler: user => makeCall('setEmojiStatus', user.id, 'none', Auth.credentials),
         icon: 'clear_status',
       },
       setPresenter: {
         label: intl.formatMessage(intlMessages.MakePresenterLabel),
-        handler: user => makeCall('assignPresenter', user.id),
+        handler: user => makeCall('assignPresenter', user.id, Auth.credentials),
         icon: 'presentation',
       },
       kick: {
         label: intl.formatMessage(intlMessages.KickUserLabel),
-        handler: user => makeCall('kickUser', user.id),
+        handler: user => makeCall('kickUser', user.id, Auth.credentials),
         icon: 'circle_close',
       },
       mute: {
         label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => makeCall('muteUser', user.id),
+        handler: user => makeCall('muteUser', user.id, Auth.credentials),
         icon: 'audio_off',
       },
       unmute: {
         label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => makeCall('unmuteUser', user.id),
+        handler: user => makeCall('unmuteUser', user.id, Auth.credentials),
         icon: 'audio_on',
       },
     };
@@ -280,9 +281,9 @@ class UserList extends Component {
       <div className={styles.participants}>
         {
           !this.state.compact ?
-          <div className={styles.smallTitle} role="banner">
-            {intl.formatMessage(intlMessages.usersTitle)}
-            &nbsp;({users.length})
+            <div className={styles.smallTitle} role="banner">
+              {intl.formatMessage(intlMessages.usersTitle)}
+              &nbsp;({users.length})
           </div> : <hr className={styles.separator}></hr>
         }
         <div
@@ -302,15 +303,15 @@ class UserList extends Component {
             <div ref={(r) => this._userItems = r}>
               {
                 users.map(user => (
-                <UserListItem
-                  compact={this.state.compact}
-                  key={user.id}
-                  isBreakoutRoom={isBreakoutRoom}
-                  user={user}
-                  currentUser={currentUser}
-                  userActions={userActions}
-                  meeting={meeting}
-                />))
+                  <UserListItem
+                    compact={this.state.compact}
+                    key={user.id}
+                    isBreakoutRoom={isBreakoutRoom}
+                    user={user}
+                    currentUser={currentUser}
+                    userActions={userActions}
+                    meeting={meeting}
+                  />))
               }
             </div>
           </ReactCSSTransitionGroup>

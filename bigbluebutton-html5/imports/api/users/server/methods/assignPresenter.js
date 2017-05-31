@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import Users from '/imports/api/users';
 
 export default function assignPresenter(credentials, userId) {
@@ -15,10 +14,6 @@ export default function assignPresenter(credentials, userId) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(userId, String);
-
-  if (!isAllowedTo('setPresenter', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to setPresenter`);
-  }
 
   const User = Users.findOne({
     meetingId,

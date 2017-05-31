@@ -2,14 +2,15 @@ import Shapes from '/imports/api/shapes';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
-Meteor.publish('shapes', (credentials) => {
-  // TODO: Some publishers have ACL and others dont
-  // if (!isAllowedTo('@@@', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'shapes'"));
-  // }
+import mapToAcl from '/imports/startup/mapToAcl';
 
+Meteor.publish('shapes', function() {
+  shapes = shapes.bind(this);
+  return mapToAcl(shapes, 'shapes')(arguments);
+});
+
+function shapes(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -19,4 +20,4 @@ Meteor.publish('shapes', (credentials) => {
   Logger.info(`Publishing Shapes for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Shapes.find({ meetingId });
-});
+};

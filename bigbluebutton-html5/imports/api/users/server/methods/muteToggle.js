@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 export default function muteToggle(credentials, userId, isMuted = true) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -19,10 +18,6 @@ export default function muteToggle(credentials, userId, isMuted = true) {
 
   if (!isMuted) {
     action = `un${action}`;
-  }
-
-  if (!isAllowedTo(action, credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to ${action}`);
   }
 
   let payload = {

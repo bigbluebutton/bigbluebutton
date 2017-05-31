@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 export default function setEmojiStatus(credentials, userId, status) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -14,10 +13,6 @@ export default function setEmojiStatus(credentials, userId, status) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(userId, String);
-
-  if (!isAllowedTo('setEmojiStatus', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to setEmojiStatus`);
-  }
 
   let payload = {
     emoji_status: status,

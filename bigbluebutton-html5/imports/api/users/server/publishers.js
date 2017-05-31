@@ -2,12 +2,16 @@ import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import mapToAcl from '/imports/startup/mapToAcl';
 
 import userLeaving from './methods/userLeaving';
 
 Meteor.publish('current-user', function (credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  const {
+    meetingId,
+    requesterUserId,
+    requesterToken
+  } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
@@ -28,21 +32,26 @@ Meteor.publish('current-user', function (credentials) {
   return Users.find(selector, options);
 });
 
-Meteor.publish('users', function (credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+Meteor.publish('users', function() {
+  users = users.bind(this);
+  return mapToAcl(users,'users')(arguments);
+});
+
+function users(credentials) {
+  const {
+    meetingId,
+    requesterUserId,
+    requesterToken
+  } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  if (!isAllowedTo('subscribeUsers', credentials)) {
-    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
-  }
-
   this.onStop(() => {
     try {
       userLeaving(credentials, requesterUserId);
-    } catch(e) {
+    } catch (e) {
       Logger.error(`Exception while executing userLeaving: ${e}`);
     }
   });
@@ -60,4 +69,4 @@ Meteor.publish('users', function (credentials) {
   Logger.info(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Users.find(selector, options);
-});
+}

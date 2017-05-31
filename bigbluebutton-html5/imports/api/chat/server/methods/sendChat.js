@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import RedisPubSub from '/imports/startup/server/redis';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { translateHTML5ToFlash } from '/imports/api/common/server/helpers';
 import RegexWebUrl from '/imports/utils/regex-weburl';
 
@@ -51,11 +50,6 @@ export default function sendChat(credentials, message) {
   if (message.chat_type === PUBLIC_CHAT_TYPE) {
     eventName = 'send_public_chat_message';
     actionName = 'chatPublic';
-  }
-
-  if (!isAllowedTo(actionName, credentials)
-    && message.from_userid !== requesterUserId) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to sendChat`);
   }
 
   let payload = {

@@ -1,7 +1,14 @@
 import Breakouts from '/imports/api/breakouts';
 import { Meteor } from 'meteor/meteor';
 
-Meteor.publish('breakouts', credentials => {
+import mapToAcl from '/imports/startup/mapToAcl';
+
+Meteor.publish('breakouts', function() {
+  breakouts = breakouts.bind(this);
+  return mapToAcl(breakouts,'breakouts')(arguments);
+});
+
+function breakouts(credentials) {
   const {
     meetingId,
     requesterUserId,
@@ -17,4 +24,4 @@ Meteor.publish('breakouts', credentials => {
       },
     ],
   });
-});
+};

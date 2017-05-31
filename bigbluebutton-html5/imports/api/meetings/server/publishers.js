@@ -3,7 +3,14 @@ import { check } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-Meteor.publish('meetings', (credentials) => {
+import mapToAcl from '/imports/startup/mapToAcl';
+
+Meteor.publish('meetings', function() {
+  meetings = meetings.bind(this);
+  return mapToAcl(meetings, 'meetings')(arguments);
+});
+
+function meetings(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -15,4 +22,4 @@ Meteor.publish('meetings', (credentials) => {
   return Meetings.find({
     meetingId,
   });
-});
+};

@@ -2,14 +2,15 @@ import Slides from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('slides', (credentials) => {
-  // TODO: Some publishers have ACL and others dont
-  // if (!isAllowedTo('@@@', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'slides'"));
-  // }
 
+Meteor.publish('slides', function() {
+  slides = slides.bind(this);
+  return mapToAcl(slides, 'slides')(arguments);
+});
+
+function slides(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -19,4 +20,4 @@ Meteor.publish('slides', (credentials) => {
   Logger.info(`Publishing Slides for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Slides.find({ meetingId });
-});
+};

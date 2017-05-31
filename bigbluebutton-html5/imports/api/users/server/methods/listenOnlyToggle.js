@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
@@ -20,23 +19,17 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
 
   if (isJoining) {
     EVENT_NAME = 'user_connected_to_global_audio';
-    if (!isAllowedTo('joinListenOnly', credentials)) {
-      throw new Meteor.Error('not-allowed', `You are not allowed to joinListenOnly`);
-    }
   } else {
     EVENT_NAME = 'user_disconnected_from_global_audio';
-    if (!isAllowedTo('leaveListenOnly', credentials)) {
-      throw new Meteor.Error('not-allowed', `You are not allowed to leaveListenOnly`);
-    }
   }
 
-  const Metting = Meetings.findOne({ meetingId });
-  if (!Metting) {
+  const Meeting = Meetings.findOne({ meetingId });
+  if (!Meeting) {
     throw new Meteor.Error(
-      'metting-not-found', `You need a valid meeting to be able to toggle audio`);
+      'meeting-not-found', `You need a valid meeting to be able to toggle audio`);
   }
 
-  check(Metting.voiceConf, String);
+  check(Meeting.voiceConf, String);
 
   const User = Users.findOne({
     meetingId,
