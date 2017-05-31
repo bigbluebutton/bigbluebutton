@@ -141,7 +141,7 @@
        </sequential>
 	</target>
 	
-	<target name="localize">
+	<target name="locale">
 	 <compileLocale locale="${LOCALE}" />
 	</target>
 
