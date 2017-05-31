@@ -236,7 +236,7 @@ package org.bigbluebutton.modules.layout.managers
 				}
 				var windows:Array = obj.windows;
 				if (windows != null) {
-					for each (window in windows) {
+					for each (var window:MDIWindow in windows) {
 						LOGGER.debug(e.type + "/" + obj.mdiEventType + " on window " + WindowLayout.getType(window));
 						onActionOverWindowFinished(window);
 					}
@@ -245,19 +245,14 @@ package org.bigbluebutton.modules.layout.managers
 				}
 			});
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_ADD, function(e:MDIManagerEvent):void {
-				e.window.callLater(function():void {
-					checkSingleWindowPermissions(e.window);
-					LOGGER.debug("applying layout to just created window " + WindowLayout.getType(e.window));
-					applyLayout(_currentLayout);
-				});
+				checkSingleWindowPermissions(e.window);
+				LOGGER.debug("applying layout to just created window " + WindowLayout.getType(e.window));
+				applyLayout(_currentLayout);
 			});
 			
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_FOCUS_START, function(e:MDIManagerEvent):void {
 				OrderManager.getInstance().bringToFront(e.window);
 			});
-			for each (var window:MDIWindow in _canvas.windowManager.windowList.reverse()) {
-				OrderManager.getInstance().bringToFront(window);
-			}
 		}
 
     public function switchToLayout(name:String):void {
