@@ -78,7 +78,8 @@ export default class DropdownList extends Component {
       nextActiveItemIndex = this.childrenRefs.length - 1;
     }
 
-    if ([KEY_CODES.ESCAPE].includes(event.which)) {
+    if (KEY_CODES.ESCAPE === event.which || KEY_CODES.TAB === event.which) {
+      event.preventDefault();
       nextActiveItemIndex = 0;
       dropdownHide();
     }
