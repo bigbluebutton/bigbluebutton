@@ -71,15 +71,16 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
-    val durationProps = DurationProps(duration = duration, createdTime = createTime, createDate)
+    val durationProps = DurationProps(duration = duration.intValue(), createdTime = createTime.longValue(), createDate)
+
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
-    val recordProp = RecordProp(record = recorded, autoStartRecording = autoStartRecording,
-      allowStartStopRecording = allowStartStopRecording)
-    val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, breakoutRooms = Vector())
+    val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
+      allowStartStopRecording = allowStartStopRecording.booleanValue())
+    val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence.intValue(), breakoutRooms = Vector())
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber)
-    val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
+    val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       guestPolicy = guestPolicy)
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",

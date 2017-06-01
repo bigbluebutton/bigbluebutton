@@ -5,13 +5,18 @@ import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.common2.messages._
 import com.fasterxml.jackson.databind.JsonNode
 
+import scala.util.{Failure, Success}
+
 object ReceivedJsonMsgHdlrActor {
   def props(msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus): Props =
     Props(classOf[ReceivedJsonMsgHdlrActor], msgFromAkkaAppsEventBus)
 }
 
 class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus)
-  extends Actor with ActorLogging with SystemConfiguration {
+  extends Actor
+    with ActorLogging
+    with SystemConfiguration
+    with ReceivedMessageRouter {
 
   object JsonDeserializer extends Deserializer
 
@@ -24,37 +29,38 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
     for {
-      envJsonNode <- JsonDeserializer.toJBbbCommonEnvJsNodeMsg(msg.data)
+      envJsonNode <- JsonDeserializer.toBbbCommonEnvJsNodeMsg(msg.data)
     } yield route(envJsonNode.envelope, envJsonNode.core)
   }
 
   def route(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    println("*************** Route envelope name " + envelope.name)
+    log.debug("*************** Route envelope name " + envelope.name)
     envelope.name match {
       case MeetingCreatedEvtMsg.NAME =>
-        println("**************** Route MeetingCreatedEvtMsg")
+        log.debug("**************** Route MeetingCreatedEvtMsg")
         for {
-          m <- routeMeetingCreatedEvtMsg(envelope, jsonNode)
+          m <- routeMeetingCreatedEvtMsg(jsonNode)
         } yield {
-          println("************ Sending MeetingCreatedEvtMsg")
-          send(m)
+          log.debug("************ Sending MeetingCreatedEvtMsg")
+          send(envelope, m)
         }
       case _ =>
-        println("************ Cannot route envelope name " + envelope.name)
+        log.debug("************ Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }
 
   def send(msg: MsgFromAkkaApps): Unit = {
-    println("******************** Routing " + msg.payload.envelope.name)
+    log.debug("******************** Routing " + msg.payload.envelope.name)
     msgFromAkkaAppsEventBus.publish(msg)
   }
 
-  def routeMeetingCreatedEvtMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Option[MsgFromAkkaApps] = {
-    for {
-      msg <- JsonDeserializer.toMeetingCreatedEvtMsg(envelope, jsonNode)
-    } yield {
-      MsgFromAkkaApps(fromAkkaAppsChannel, BbbCommonEnvCoreMsg(envelope, msg))
+  def routeMeetingCreatedEvtMsg(jsonNode: JsonNode): Option[MeetingCreatedEvtMsg] = {
+    JsonDeserializer.toBbbCommonMsg[MeetingCreatedEvtMsg](jsonNode) match {
+      case Success(msg) => Some(msg.asInstanceOf[MeetingCreatedEvtMsg])
+      case Failure(ex) =>
+        log.error("Failed to ValidateAuthTokenReqMsg message " + ex)
+        None
     }
   }
 }

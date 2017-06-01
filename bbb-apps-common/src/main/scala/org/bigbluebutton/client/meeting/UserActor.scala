@@ -3,8 +3,10 @@ package org.bigbluebutton.client.meeting
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.SystemConfiguration
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, BbbCoreEnvelope, BbbCoreHeaderBody}
+import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, BbbCoreEnvelope}
 import org.bigbluebutton.common2.util.JsonUtil
+import com.fasterxml.jackson.databind.JsonNode
+import scala.util.{Failure, Success}
 
 object UserActor {
   def props(userId: String,
@@ -62,24 +64,43 @@ class UserActor(val userId: String,
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
-    println("**** UserActor handleMsgFromClient " + msg.json)
     log.debug("Received MsgFromClientMsg " + msg)
 
-    val map = JsonUtil.toMap[Map[String, Any]](msg.json)
-    for {
-      header <- map.get("header")
-      name <- header.get("name")
-      meetingId <- header.get("meetingId")
-    } yield {
-      val meta = collection.immutable.HashMap[String, String](
-        "meetingId" -> msg.connInfo.meetingId,
-        "userId" -> msg.connInfo.userId
-      )
-
-      val envelope = new BbbCoreEnvelope(name.toString, meta)
-      val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, JsonUtil.toJsonNode(msg.json))
-      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+    def convertToJsonNode(json: String): Option[JsonNode] = {
+      JsonUtil.toJsonNode(json) match {
+        case Success(jsonNode) => Some(jsonNode)
+        case Failure(ex) => log.error("Failed to process client message body " + ex)
+          None
+      }
     }
+
+    val msgAsMap = JsonUtil.toMap[Map[String, Any]](msg.json)
+
+    msgAsMap match {
+      case Success(map) =>
+        for {
+          header <- map.get("header")
+          name <- header.get("name")
+          meetingId <- header.get("meetingId")
+        } yield {
+          val meta = collection.immutable.HashMap[String, String](
+            "meetingId" -> msg.connInfo.meetingId,
+            "userId" -> msg.connInfo.userId
+          )
+
+          val envelope = new BbbCoreEnvelope(name.toString, meta)
+
+          for {
+            jsonNode <- convertToJsonNode(msg.json)
+          } yield {
+            val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
+            msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+          }
+        }
+      case Failure(ex) => log.error("Failed to process client message " + ex)
+    }
+
+
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {

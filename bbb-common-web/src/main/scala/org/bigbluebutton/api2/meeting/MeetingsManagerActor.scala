@@ -63,12 +63,16 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
   }
 
   def handleCreateMeeting(msg: CreateMeetingMsg): Unit = {
+    log.debug("Received create meeting request for {} {} ", msg.defaultProps.meetingProp.intId,
+      msg.defaultProps.meetingProp.name)
     for {
       mid <- Util2.getFirstPartOfMeetingId(msg.defaultProps.meetingProp.intId)
     } yield {
       MeetingsManager.findMeetingThatStartsWith(manager, mid) match {
-        case Some(m) => replyWithDuplicateMeeting()
+        case Some(m) => replyWithDuplicateMeeting(msg)
         case None => createNewMeeting(msg)
+          log.debug("Received create meeting request for {} {} ", msg.defaultProps.meetingProp.intId,
+            msg.defaultProps.meetingProp.name)
           sendCreateMeetingRequestToAkkaApps(msg.defaultProps)
           replyWithCreatedMeeting()
       }
@@ -77,8 +81,9 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
 
 
 
-  def replyWithDuplicateMeeting(): Unit = {
-
+  def replyWithDuplicateMeeting(msg: CreateMeetingMsg): Unit = {
+    log.warning("Duplicate create meeting request for {} {} ", msg.defaultProps.meetingProp.intId,
+      msg.defaultProps.meetingProp.name)
   }
 
   def createNewMeeting(msg: CreateMeetingMsg): RunningMeeting = {
