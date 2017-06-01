@@ -404,7 +404,6 @@ class UserListItem extends Component {
     const { disablePrivateChat,
             disableCam,
             disableMic,
-            loSckedLayout,
             disablePublicChat, } = meeting.roomLockSettings;
 
     return (
@@ -417,7 +416,6 @@ class UserListItem extends Component {
           {(user.isLocked && (disablePrivateChat
             || disableCam
             || disableMic
-            || lockedLayout
             || disablePublicChat)) ?
             <span> {(user.isCurrent ? ' | ' : null)}
               <Icon iconName='lock' />
