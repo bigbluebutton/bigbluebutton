@@ -34,7 +34,6 @@ class UserList extends Component {
 
     this.rovingIndex = this.rovingIndex.bind(this);
     this.focusList = this.focusList.bind(this);
-    this.focusListItem = this.focusListItem.bind(this);
     this.counter = -1;
   }
 
@@ -43,18 +42,6 @@ class UserList extends Component {
     this.counter = -1;
     list.tabIndex = 0;
     list.focus();
-  }
-
-  focusListItem(active, element) {
-
-    const select = (element) => {
-      element.tabIndex = 0;
-      element.focus();
-    }
-
-    active.tabIndex = -1;
-
-    select(element.childNodes[this.counter]);
   }
 
   rovingIndex(event, listType) {
@@ -87,6 +74,7 @@ class UserList extends Component {
     if (event.keyCode === KEY_CODES.ENTER
         || event.keyCode === KEY_CODES.ARROW_RIGHT
         || event.keyCode === KEY_CODES.ARROW_LEFT) {
+
       active.firstChild.click();
     }
 
@@ -97,7 +85,9 @@ class UserList extends Component {
         this.counter = 0;
       }
 
-      this.focusListItem(active, items);
+      active.tabIndex = -1;
+      items.childNodes[this.counter].tabIndex = 0;
+      items.childNodes[this.counter].focus();
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
@@ -107,7 +97,9 @@ class UserList extends Component {
         this.counter = count - 1;
       }
 
-      this.focusListItem(active, items);
+      active.tabIndex = -1;
+      items.childNodes[this.counter].tabIndex = 0;
+      items.childNodes[this.counter].focus();
     }
   }
 
