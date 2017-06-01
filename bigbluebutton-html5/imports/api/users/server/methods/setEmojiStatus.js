@@ -20,7 +20,8 @@ export default function setEmojiStatus(credentials, userId, status) {
     meeting_id: meetingId,
   };
 
-  Logger.verbose(`User '${userId}' emoji status updated to '${status}' by '${requesterUserId}' from meeting '${meetingId}'`);
+  Logger.verbose(`User '${userId}' emoji status updated to '${status}' by '${
+    requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
 };

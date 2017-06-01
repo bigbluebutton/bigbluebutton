@@ -11,7 +11,6 @@ Meteor.publish('chat', function() {
 });
 
 function chat(credentials) {
-
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 

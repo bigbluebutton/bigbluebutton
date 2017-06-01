@@ -81,6 +81,18 @@ class App extends Component {
     );
   }
 
+  renderClosedCaption() {
+    const { closedCaption } = this.props;
+
+    if (!closedCaption) return null;
+
+    return (
+      <div className={styles.closedCaptionBox}>
+        {closedCaption}
+      </div>
+    );
+  }
+
   renderUserList() {
     let { userList, intl } = this.props;
     const { compactUserList } = this.state;
@@ -128,6 +140,7 @@ class App extends Component {
         role="region"
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}>
           {media}
+          {this.renderClosedCaption()}
       </section>
     );
   }

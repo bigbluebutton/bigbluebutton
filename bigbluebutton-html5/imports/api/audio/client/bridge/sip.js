@@ -36,7 +36,8 @@ export default class SIPBridge extends BaseAudioBridge {
       }
     };
 
-    // Checks periodically until a call is established so we can successfully end the call clean state
+    // Checks periodically until a call is established so we can successfully
+    // end the call clean state
     triedHangup = false;
 
     // function to initiate call

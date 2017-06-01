@@ -32,7 +32,8 @@ export default function setConnectionStatus(meetingId, userId, status = 'online'
     }
 
     if (numChanged) {
-      return Logger.info(`Updated connection status user=${userId} status=${status} meeting=${meetingId}`);
+      return Logger.info(`Updated connection status user=${userId} status=${
+        status} meeting=${meetingId}`);
     }
   };
 

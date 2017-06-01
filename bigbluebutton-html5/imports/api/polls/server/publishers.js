@@ -4,7 +4,6 @@ import { check } from 'meteor/check';
 import { logger } from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
-
 Meteor.publish('polls', function() {
   polls = polls.bind(this);
   return mapToAcl('polls', polls)(arguments);

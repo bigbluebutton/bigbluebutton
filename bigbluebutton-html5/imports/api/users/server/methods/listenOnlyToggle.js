@@ -50,7 +50,8 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
     name: User.user.name,
   };
 
-  Logger.verbose(`User '${requesterUserId}' ${isJoining ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
+  Logger.verbose(`User '${requesterUserId}' ${isJoining
+    ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
 };

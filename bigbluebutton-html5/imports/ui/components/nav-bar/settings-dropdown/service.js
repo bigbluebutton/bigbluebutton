@@ -1,4 +1,3 @@
-
 toggleFullScreen = () => {
   let element = document.documentElement;
 
