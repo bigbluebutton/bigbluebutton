@@ -6,6 +6,7 @@ acl:
       - 'cursor'
       - 'deskshare'
       - 'meetings'
+      - 'polls'
       - 'presentations'
       - 'shapes'
       - 'slides'

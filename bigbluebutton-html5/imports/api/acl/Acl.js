@@ -1,4 +1,5 @@
 import { check } from 'meteor/check';
+import Users from '/imports/api/users/'
 
 export class Acl {
 
@@ -9,12 +10,8 @@ export class Acl {
 
   subscribe(channel,credentials){
     check(channel, String);
-    console.log("Channell",channel);
-    console.log("credentials",credentials);
 
     let subscriptions = this.getSubscriptions(credentials);
-
-    console.log("subscriptions",subscriptions);
 
     if (subscriptions) {
       return !!this.checkPermission(channel, subscriptions);
@@ -25,23 +22,14 @@ export class Acl {
   getSubscriptions(credentials){
     let role = this.getRole(credentials);
 
-    if(!role.subscribe){
+    if(!role.subscriptions){
       return [];
     }
     return role.subscriptions;
   }
 
-  checkSubscription(channel, subscriptions) {
-    check(channel, String);
-    
-    const isInList = subscriptions.some((perm)=> perm.indexOf(permission) > -1 );
-
-    return isInList;
-  }
-
   getMethods(credentials){
     let role = this.getRole(credentials);
-
     if(!role.methods){
       return [];
     }
@@ -62,10 +50,9 @@ export class Acl {
     if(!credentials){
       return false;
     }
-
-    const meetingId = credentials.meetingId;
-    const userId = credentials.requesterUserId;
-    const authToken = credentials.requesterToken;
+    let meetingId = credentials.meetingId;
+    let userId = credentials.requesterUserId;
+    let authToken = credentials.requesterToken;
 
     const user = this.Users.findOne({
       meetingId,
@@ -73,7 +60,6 @@ export class Acl {
     });
 
     if(!user){
-      console.log("Usuario vazio");
       return false;
     }
     return this.roleExist(this.aclConfig, user.user.role);

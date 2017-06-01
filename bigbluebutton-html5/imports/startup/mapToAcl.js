@@ -18,7 +18,7 @@ const injectAclActionCheck = (name, handler) => {
 const injectAclSubscribeCheck = (name,handler) => {
   return (...args) => {
     const credentials = args[args.length - 1];
-    if (!Acl.subscribe(name, credentials)) {
+    if (!Acl.subscribe(name, ...credentials)) {
       Logger.error(`acl-not-allowed, the user can't perform the subscription "${name}".`);
       return emptyCollection.find();
     }

@@ -13,4 +13,3 @@ import '/imports/api/users/server';
 import '/imports/api/log-client/server';
 import '/imports/api/common/server/helpers';
 import '/imports/startup/server/logger';
-import '/imports/startup/server/userPermissions';
