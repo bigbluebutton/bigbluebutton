@@ -32,9 +32,9 @@ Meteor.publish('current-user', function (credentials) {
   return Users.find(selector, options);
 });
 
-Meteor.publish('users', function() {
-  users = users.bind(this);
-  return mapToAcl(users,'users')(arguments);
+Meteor.publish('users', function () {
+  let boundUsers = users.bind(this);
+  return mapToAcl('users',boundUsers)(arguments);
 });
 
 function users(credentials) {

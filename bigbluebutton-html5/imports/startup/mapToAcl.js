@@ -15,7 +15,7 @@ const injectAclActionCheck = (name, handler) => {
   }
 };
 
-const injectAclSubscribeCheck = (name, handler) => {
+const injectAclSubscribeCheck = (name,handler) => {
   return (...args) => {
     const credentials = args[args.length - 1];
     if (!Acl.subscribe(name, credentials)) {
@@ -26,12 +26,13 @@ const injectAclSubscribeCheck = (name, handler) => {
   }
 };
 
-export default mapToAcl = (handler,name) => {
-  if(name){
-    return injectAclSubscribeCheck(name,handler);
+export default mapToAcl = (name,handler) => {
+  //The Meteor#methods require an object, while the Meteor#subscribe and function.
+  if(handler instanceof Function){
+    return injectAclSubscribeCheck(name, handler);
   }
-  return Object.keys(handler).reduce((previous, current) => {
-    previous[current] = injectAclActionCheck(current, handler[current]);
+  return Object.keys(handler).reduce((previous, current, index) => {
+    previous[current] = injectAclActionCheck(name[index], handler[current]);
     return previous;
   }, {})
 };

@@ -5,7 +5,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('breakouts', function() {
   breakouts = breakouts.bind(this);
-  return mapToAcl(breakouts,'breakouts')(arguments);
+  return mapToAcl('breakouts',breakouts)(arguments);
 });
 
 function breakouts(credentials) {

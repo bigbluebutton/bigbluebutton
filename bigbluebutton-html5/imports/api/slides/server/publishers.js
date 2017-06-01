@@ -7,7 +7,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('slides', function() {
   slides = slides.bind(this);
-  return mapToAcl(slides, 'slides')(arguments);
+  return mapToAcl('slides', slides)(arguments);
 });
 
 function slides(credentials) {

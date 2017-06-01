@@ -5,7 +5,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('deskshare', function() {
   deskshare = deskshare.bind(this);
-  return mapToAcl(deskshare, 'deskshare')(arguments);
+  return mapToAcl('deskshare', deskshare)(arguments);
 });
 
 function deskshare(credentials) {

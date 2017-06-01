@@ -4,7 +4,7 @@ import Meetings from '/imports/api/meetings';
 import addMeeting from '../modifiers/addMeeting';
 import removeMeeting from '../modifiers/removeMeeting';
 
-export default function handleGetAllMettings({ payload }) {
+export default function handleGetAllMeetings({ payload }) {
   let meetings = payload.meetings;
 
   check(meetings, Array);

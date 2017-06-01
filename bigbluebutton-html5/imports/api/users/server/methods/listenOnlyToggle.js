@@ -46,7 +46,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   let payload = {
     userid: requesterUserId,
     meeting_id: meetingId,
-    voice_conf: Metting.voiceConf,
+    voice_conf: Meeting.voiceConf,
     name: User.user.name,
   };
 

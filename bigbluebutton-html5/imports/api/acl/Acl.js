@@ -9,8 +9,12 @@ export class Acl {
 
   subscribe(channel,credentials){
     check(channel, String);
+    console.log("Channell",channel);
+    console.log("credentials",credentials);
 
     let subscriptions = this.getSubscriptions(credentials);
+
+    console.log("subscriptions",subscriptions);
 
     if (subscriptions) {
       return !!this.checkPermission(channel, subscriptions);
@@ -21,6 +25,9 @@ export class Acl {
   getSubscriptions(credentials){
     let role = this.getRole(credentials);
 
+    if(!role.subscribe){
+      return [];
+    }
     return role.subscriptions;
   }
 
@@ -35,6 +42,9 @@ export class Acl {
   getMethods(credentials){
     let role = this.getRole(credentials);
 
+    if(!role.methods){
+      return [];
+    }
     return role.methods;
   }
 
@@ -63,9 +73,9 @@ export class Acl {
     });
 
     if(!user){
+      console.log("Usuario vazio");
       return false;
     }
-
     return this.roleExist(this.aclConfig, user.user.role);
   }
 
