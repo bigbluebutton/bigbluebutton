@@ -18,7 +18,7 @@ class SettingsContainer extends Component {
   }
 }
 
-export default createContainer(() => {
+export default createContainer(function () {
   return {
     audio: SettingsService.audio,
     video: SettingsService.video,
