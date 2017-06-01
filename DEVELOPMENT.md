@@ -69,6 +69,8 @@ On your message terminal, run the following commands. Other components depends o
 
 ```
 cd ~/dev/bigbluebutton/bbb-common-message/
+sbt clean
+
 sbt publish
 sbt publishLocal
 ```
@@ -80,7 +82,7 @@ We've split bbb-apps into bbb-apps-common and bigbluebutton-apps. We need to bui
 On your apps-common terminal, build the bbb-apps-common component.
 
 ```
-cd dev/bigbluebutton/bbb-apps-common/
+cd ~/dev/bigbluebutton/bbb-apps-common/
 
 # Force updating of bbb-commons-message
 sbt clean
@@ -145,7 +147,7 @@ On your common-web terminal, run these commands
 
 
 ```
-cd dev/bigbluebutton/bbb-common-web/
+cd ~/dev/bigbluebutton/bbb-common-web/
 
 # Force updating of dependencies especially bbb-commons-message
 sbt clean
@@ -177,6 +179,7 @@ Start bbb-web
 gradle clean
 gradle resolveDeps
 grails clean
+sudo chmod -R ugo+rwx /var/log/bigbluebutton
 grails -Dserver.port=8888 run-war
 ```
 
