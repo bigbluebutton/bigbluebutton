@@ -15,7 +15,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   joinListenOnly() {
-    makeCall('listenOnlyToggle', true,Auth.credentials);
+    makeCall('listenOnlyToggle', true);
     this._joinVoiceCallSIP({ isListenOnly: true });
   }
 
@@ -32,7 +32,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
       // notify BBB-apps we are leaving the call if we are in listen only mode
       if (isListenOnly) {
-        makeCall('listenOnlyToggle', false, Auth.credentials);
+        makeCall('listenOnlyToggle', false);
       }
     };
 

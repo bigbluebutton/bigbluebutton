@@ -4,7 +4,7 @@ import { Acl } from '/imports/api/acl/Acl';
 let AclSingleton = new Acl();
 
 Meteor.startup(() => {
-  AclSingleton.aclConfig = Meteor.settings.public.acl;
+  AclSingleton.config = Meteor.settings.public.acl;
   AclSingleton.Users =  Users;
 });
 

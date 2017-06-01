@@ -6,8 +6,8 @@ import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('shapes', function() {
-  shapes = shapes.bind(this);
-  return mapToAcl('shapes', shapes)(arguments);
+  const boundShapes = shapes.bind(this);
+  return mapToAcl('shapes', boundShapes)(arguments);
 });
 
 function shapes(credentials) {

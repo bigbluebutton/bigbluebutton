@@ -3,9 +3,9 @@ import Users from '/imports/api/users/'
 
 export class Acl {
 
-  constructor(aclConfig, Users) {
+  constructor(config, Users) {
     this.Users = Users;
-    this.aclConfig = aclConfig;
+    this.config = config;
   }
 
   subscribe(channel,credentials){
@@ -14,7 +14,7 @@ export class Acl {
     let subscriptions = this.getSubscriptions(credentials);
 
     if (subscriptions) {
-      return !!this.checkPermission(channel, subscriptions);
+      return this.checkPermission(channel, subscriptions);
     }
     return false;
   }
@@ -62,7 +62,7 @@ export class Acl {
     if(!user){
       return false;
     }
-    return this.roleExist(this.aclConfig, user.user.role);
+    return this.roleExist(this.config, user.user.role);
   }
 
   checkPermission(permission, permissions) {

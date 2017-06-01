@@ -6,8 +6,8 @@ import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('cursor', function() {
-  cursor = cursor.bind(this);
-  return mapToAcl('cursor', cursor)(arguments);
+  const boundCursor = cursor.bind(this);
+  return mapToAcl('cursor', boundCursor)(arguments);
 });
 
 function cursor(credentials) {

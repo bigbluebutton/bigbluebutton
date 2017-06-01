@@ -6,8 +6,8 @@ import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('meetings', function() {
-  meetings = meetings.bind(this);
-  return mapToAcl('meetings', meetings)(arguments);
+  const boundMeetings = meetings.bind(this);
+  return mapToAcl('meetings', boundMeetings)(arguments);
 });
 
 function meetings(credentials) {

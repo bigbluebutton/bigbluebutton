@@ -6,8 +6,8 @@ import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('captions', function() {
-  captions = captions.bind(this);
-  return mapToAcl('captions',captions)(arguments);
+  const boundCaptions = captions.bind(this);
+  return mapToAcl('captions',boundCaptions)(arguments);
 });
 
 function captions(credentials) {

@@ -2,11 +2,10 @@ import Acl from '/imports/startup/acl';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 
-const emptyCollection = new Mongo.Collection("emptyCollection");
-
 const injectAclActionCheck = (name, handler) => {
   return (...args) => {
-    const credentials = args[args.length - 1];
+    console.log("Arguments",...args);
+    const credentials = args[0];
     if (!Acl.can(name, credentials)) {
       throw new Meteor.Error('acl-not-allowed', 
         `The user can't perform the action "${name}".`);
@@ -20,7 +19,7 @@ const injectAclSubscribeCheck = (name,handler) => {
     const credentials = args[args.length - 1];
     if (!Acl.subscribe(name, ...credentials)) {
       Logger.error(`acl-not-allowed, the user can't perform the subscription "${name}".`);
-      return emptyCollection.find();
+      return [];
     }
     return handler(...credentials);
   }

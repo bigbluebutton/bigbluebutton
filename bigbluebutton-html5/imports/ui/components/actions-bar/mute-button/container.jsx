@@ -24,11 +24,11 @@ export default createContainer((params) => {
   let callback = () => { };
 
   if (isInAudio && !isMuted) {
-    callback = () => makeCall('muteUser', userId, Auth.credentials);
+    callback = () => makeCall('muteUser', userId);
   }
 
   if (isInAudio && isMuted) {
-    callback = () => makeCall('unmuteUser', userId, Auth.credentials);
+    callback = () => makeCall('unmuteUser', userId);
   }
 
   const data = {

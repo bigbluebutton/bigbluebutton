@@ -252,27 +252,27 @@ class UserList extends Component {
       },
       clearStatus: {
         label: intl.formatMessage(intlMessages.ClearStatusLabel),
-        handler: user => makeCall('setEmojiStatus', user.id, 'none', Auth.credentials),
+        handler: user => makeCall('setEmojiStatus', user.id, 'none'),
         icon: 'clear_status',
       },
       setPresenter: {
         label: intl.formatMessage(intlMessages.MakePresenterLabel),
-        handler: user => makeCall('assignPresenter', user.id, Auth.credentials),
+        handler: user => makeCall('assignPresenter', user.id),
         icon: 'presentation',
       },
       kick: {
         label: intl.formatMessage(intlMessages.KickUserLabel),
-        handler: user => makeCall('kickUser', user.id, Auth.credentials),
+        handler: user => makeCall('kickUser', user.id),
         icon: 'circle_close',
       },
       mute: {
         label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => makeCall('muteUser', user.id, Auth.credentials),
+        handler: user => makeCall('muteUser', user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => makeCall('unmuteUser', user.id, Auth.credentials),
+        handler: user => makeCall('unmuteUser', user.id),
         icon: 'audio_on',
       },
     };

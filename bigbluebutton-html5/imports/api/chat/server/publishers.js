@@ -6,8 +6,8 @@ import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('chat', function() {
-  chat = chat.bind(this);
-  return mapToAcl('chat', chat)(arguments);
+  const boundChat = chat.bind(this);
+  return mapToAcl('chat', boundChat)(arguments);
 });
 
 function chat(credentials) {

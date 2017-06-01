@@ -185,9 +185,8 @@ class Auth {
           },
         });
       });
-
-      const credentials = this.credentials;
-      makeCall('validateAuthToken', credentials);
+      
+      makeCall('validateAuthToken');
     });
   }
 

@@ -4,8 +4,8 @@ import { logger } from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('deskshare', function() {
-  deskshare = deskshare.bind(this);
-  return mapToAcl('deskshare', deskshare)(arguments);
+  const boundDeskshare = deskshare.bind(this);
+  return mapToAcl('deskshare', boundDeskshare)(arguments);
 });
 
 function deskshare(credentials) {

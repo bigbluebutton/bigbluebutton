@@ -192,7 +192,7 @@ const sendMessage = (receiverID, message) => {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
   }
 
-  makeCall('sendChat', messagePayload, Auth.credentials);
+  makeCall('sendChat', messagePayload);
 
   return messagePayload;
 };
