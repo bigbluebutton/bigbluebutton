@@ -116,7 +116,7 @@ package org.bigbluebutton.modules.whiteboard.views
     }
     
     private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
-      if (_segment.length > 2) {
+      if (_segment.length <= 2) {
         // LogUtil.debug("SEGMENT too short");
         return;
       }

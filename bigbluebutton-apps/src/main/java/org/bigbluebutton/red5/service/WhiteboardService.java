@@ -35,6 +35,9 @@ public class WhiteboardService {
 	 private final static String STATUS = "status";
 	 private final static String COR_ID = "id";
 	 private final static String WB_ID = "whiteboardId";
+	 private final static String TEXT_TYPE = "text";
+	 private final static String TEXT_PROP = "text";
+	 private final static int MAX_TEXT_LEN = 1024;
 	
 	public void setWhiteboardApplication(WhiteboardApplication a){
 		log.debug("Setting whiteboard application instance");
@@ -43,7 +46,15 @@ public class WhiteboardService {
 		
 	private boolean validMessage(Map<String, Object> shp) {
 		if (shp.containsKey(COR_ID) && shp.containsKey(TYPE) &&
-				shp.containsKey(STATUS) && shp.containsKey(WB_ID)) return true;
+				shp.containsKey(STATUS) && shp.containsKey(WB_ID)) {
+			// Need to add a special case for when the text annotation is too long
+			if (shp.get(TYPE).toString().equals(TEXT_TYPE) && 
+					shp.containsKey(TEXT_PROP) && shp.get(TEXT_PROP).toString().length() > MAX_TEXT_LEN) {
+				log.warn("sendAnnotation detected type is" + TEXT_TYPE + " and message length exceeds max chars of " + MAX_TEXT_LEN + ". Annotation invalid");
+				return false;
+			}
+			return true;
+		}
 		
 		return false;
 	}
