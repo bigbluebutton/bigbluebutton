@@ -6,11 +6,15 @@ const sendAnnotation = (annotation) => {
 };
 
 const getWhiteboardToolbarValues = () => {
-  return {
-    tool: Storage.getItem('whiteboardAnnotationTool'),
-    thickness: Storage.getItem('whiteboardAnnotationThickness'),
-    color: Storage.getItem('whiteboardAnnotationColor'),
-  };
+  let drawSettings = Storage.getItem('drawSettings');
+  if(drawSettings) {
+    return {
+      tool: drawSettings.whiteboardAnnotationTool,
+      thickness: drawSettings.whiteboardAnnotationThickness,
+      color: drawSettings.whiteboardAnnotationColor,
+      textFontSize: drawSettings.textFontSize,
+    };
+  }
 };
 
 export default {

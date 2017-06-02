@@ -9,9 +9,14 @@ class WhiteboardOverlayContainer extends React.Component {
   }
 
   render() {
-    return (
-      <WhiteboardOverlay {...this.props}/>
-    );
+
+    if(this.props.drawSettings) {
+      return (
+        <WhiteboardOverlay {...this.props}/>
+      );
+    } else {
+      return null;
+    }
   }
 }
 
