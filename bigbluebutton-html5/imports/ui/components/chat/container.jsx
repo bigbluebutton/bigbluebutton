@@ -51,7 +51,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     messages = ChatService.getPrivateMessages(chatID);
   }
 
-  let user = ChatService.getUser(chatID, '{{NAME}}');
+  const user = ChatService.getUser(chatID, '{{NAME}}');
 
   let partnerIsLoggedOut = false;
 
@@ -59,22 +59,22 @@ export default injectIntl(createContainer(({ params, intl }) => {
     partnerIsLoggedOut = !user.isOnline;
 
     if (messages && chatID !== PUBLIC_CHAT_KEY) {
-      let userMessage = messages.find(m => m.sender !== null);
-      let user = ChatService.getUser(chatID, '{{NAME}}');
+      const userMessage = messages.find(m => m.sender !== null);
+      const user = ChatService.getUser(chatID, '{{NAME}}');
 
       title = intl.formatMessage(intlMessages.titlePrivate, { 0: user.name });
       chatName = user.name;
 
       if (!user.isOnline) {
-        let time = Date.now();
-        let id = `partner-disconnected-${time}`;
-        let messagePartnerLoggedOut = {
+        const time = Date.now();
+        const id = `partner-disconnected-${time}`;
+        const messagePartnerLoggedOut = {
           id,
           content: [{
             id,
             text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: user.name }),
             time,
-          },],
+          }],
           time,
           sender: null,
         };
@@ -103,9 +103,9 @@ export default injectIntl(createContainer(({ params, intl }) => {
 
       handleClosePrivateChat: chatID => ChatService.closePrivateChat(chatID),
 
-      handleSendMessage: message => {
+      handleSendMessage: (message) => {
         ChatService.updateScrollPosition(chatID, null);
-        let sentMessage = ChatService.sendMessage(chatID, message);
+        const sentMessage = ChatService.sendMessage(chatID, message);
       },
 
       handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),

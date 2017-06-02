@@ -46,7 +46,6 @@ class UserList extends Component {
   }
 
   focusListItem(active, direction, element, count) {
-
     function select() {
       element.tabIndex = 0;
       element.focus();
@@ -84,7 +83,7 @@ class UserList extends Component {
   rovingIndex(...Args) {
     const { users, openChats } = this.props;
 
-    let active = document.activeElement;
+    const active = document.activeElement;
     let list;
     let items;
     let count;
@@ -117,9 +116,9 @@ class UserList extends Component {
     if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
       if (this.counter < count) {
         this.focusListItem(active, 'down', items);
-      }else if (this.counter === count) {
+      } else if (this.counter === count) {
         this.focusListItem(active, 'downLoopDown', list);
-      }else if (this.counter === 0) {
+      } else if (this.counter === 0) {
         this.focusListItem(active, 'downLoopUp', list);
       }
     }
@@ -127,16 +126,16 @@ class UserList extends Component {
     if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
       if (this.counter < count && this.counter !== 0) {
         this.focusListItem(active, 'up', items);
-      }else if (this.counter === 0) {
+      } else if (this.counter === 0) {
         this.focusListItem(active, 'upLoopUp', list, count);
-      }else if (this.counter === count) {
+      } else if (this.counter === count) {
         this.focusListItem(active, 'upLoopDown', list, count);
       }
     }
   }
 
   componentDidMount() {
-    let _this = this;
+    const _this = this;
 
     if (!this.state.compact) {
       this._msgsList.addEventListener('keypress', function (event) {
@@ -150,9 +149,9 @@ class UserList extends Component {
   }
 
   componentWillUnmount() {
-    this._msgsList.removeEventListener('keypress', function (event) {}, false);
+    this._msgsList.removeEventListener('keypress', (event) => {}, false);
 
-    this._usersList.removeEventListener('keypress', function (event) {}, false);
+    this._usersList.removeEventListener('keypress', (event) => {}, false);
   }
 
   render() {
@@ -171,9 +170,9 @@ class UserList extends Component {
       <div className={styles.header}>
         {
           !this.state.compact ?
-          <div className={styles.headerTitle} role="banner">
-            {intl.formatMessage(intlMessages.participantsTitle)}
-          </div> : null
+            <div className={styles.headerTitle} role="banner">
+              {intl.formatMessage(intlMessages.participantsTitle)}
+            </div> : null
         }
       </div>
     );
@@ -199,32 +198,35 @@ class UserList extends Component {
       <div className={styles.messages}>
         {
           !this.state.compact ?
-          <div className={styles.smallTitle} role="banner">
-            {intl.formatMessage(intlMessages.messagesTitle)}
-          </div> : <hr className={styles.separator}></hr>
+            <div className={styles.smallTitle} role="banner">
+              {intl.formatMessage(intlMessages.messagesTitle)}
+            </div> : <hr className={styles.separator} />
         }
         <div
           tabIndex={0}
           className={styles.scrollableList}
-          ref={(r) => this._msgsList = r}>
+          ref={r => this._msgsList = r}
+        >
           <ReactCSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
+            transitionAppear
+            transitionEnter
             transitionLeave={false}
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.chatsList, styles.scrollableList)}>
-            <div ref={(r) => this._msgItems = r}>
+            className={cx(styles.chatsList, styles.scrollableList)}
+          >
+            <div ref={r => this._msgItems = r}>
               {openChats.map(chat => (
                 <ChatListItem
                   compact={this.state.compact}
                   key={chat.id}
                   openChat={openChat}
                   chat={chat}
-                  tabIndex={-1} />
+                  tabIndex={-1}
+                />
               ))}
             </div>
           </ReactCSSTransitionGroup>
@@ -280,37 +282,39 @@ class UserList extends Component {
       <div className={styles.participants}>
         {
           !this.state.compact ?
-          <div className={styles.smallTitle} role="banner">
-            {intl.formatMessage(intlMessages.usersTitle)}
+            <div className={styles.smallTitle} role="banner">
+              {intl.formatMessage(intlMessages.usersTitle)}
             &nbsp;({users.length})
-          </div> : <hr className={styles.separator}></hr>
+          </div> : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
           tabIndex={0}
-          ref={(r) => this._usersList = r}>
+          ref={r => this._usersList = r}
+        >
           <ReactCSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
-            transitionLeave={true}
+            transitionAppear
+            transitionEnter
+            transitionLeave
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.participantsList, styles.scrollableList)}>
-            <div ref={(r) => this._userItems = r}>
+            className={cx(styles.participantsList, styles.scrollableList)}
+          >
+            <div ref={r => this._userItems = r}>
               {
                 users.map(user => (
-                <UserListItem
-                  compact={this.state.compact}
-                  key={user.id}
-                  isBreakoutRoom={isBreakoutRoom}
-                  user={user}
-                  currentUser={currentUser}
-                  userActions={userActions}
-                  meeting={meeting}
-                />))
+                  <UserListItem
+                    compact={this.state.compact}
+                    key={user.id}
+                    isBreakoutRoom={isBreakoutRoom}
+                    user={user}
+                    currentUser={currentUser}
+                    userActions={userActions}
+                    meeting={meeting}
+                  />))
               }
             </div>
           </ReactCSSTransitionGroup>

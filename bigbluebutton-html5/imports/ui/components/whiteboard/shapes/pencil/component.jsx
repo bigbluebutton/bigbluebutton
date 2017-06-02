@@ -9,13 +9,13 @@ export default class PencilDrawComponent extends React.Component {
   getCoordinates() {
     let i = 2;
     let path = '';
-    let points = this.props.shape.points;
+    const points = this.props.shape.points;
     if (points && points.length >= 2) {
-      path = path + 'M' + (points[0] / 100 * this.props.slideWidth) +
-        ', ' + (points[1] / 100 * this.props.slideHeight);
+      path = `${path}M${points[0] / 100 * this.props.slideWidth
+        }, ${points[1] / 100 * this.props.slideHeight}`;
       while (i < points.length) {
-        path = path + ' L' + (points[i] / 100 * this.props.slideWidth) +
-          ', ' + (points[i + 1] / 100 * this.props.slideHeight);
+        path = `${path} L${points[i] / 100 * this.props.slideWidth
+          }, ${points[i + 1] / 100 * this.props.slideHeight}`;
         i += 2;
       }
 
@@ -24,7 +24,7 @@ export default class PencilDrawComponent extends React.Component {
   }
 
   render() {
-    let path = this.getCoordinates();
+    const path = this.getCoordinates();
     return (
       <path
         fill="none"
@@ -33,8 +33,8 @@ export default class PencilDrawComponent extends React.Component {
         strokeWidth={this.props.shape.thickness}
         strokeLinejoin="round"
         strokeLinecap="round"
-        style={this.props.style}>
-      </path>
+        style={this.props.style}
+      />
     );
   }
 }

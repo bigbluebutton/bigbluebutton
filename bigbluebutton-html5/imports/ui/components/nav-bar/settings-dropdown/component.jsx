@@ -102,17 +102,19 @@ class SettingsDropdown extends Component {
     }
 
     return (
-      <Dropdown isOpen={this.state.isSettingOpen}
-                onShow={this.onActionsShow}
-                onHide={this.onActionsHide}
-                autoFocus={true}>
-        <DropdownTrigger placeInTabOrder={true}>
+      <Dropdown
+        isOpen={this.state.isSettingOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        autoFocus
+      >
+        <DropdownTrigger placeInTabOrder>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
-            ghost={true}
-            circle={true}
-            hideLabel={true}
+            ghost
+            circle
+            hideLabel
             className={cx(styles.btn, styles.btnSettings)}
 
             // FIXME: Without onClick react proptypes keep warning

@@ -92,7 +92,7 @@ export default class ButtonBase extends Component {
   }
 
   render() {
-    let Component = this.props.tagName;
+    const Component = this.props.tagName;
 
     const remainingProps = Object.assign({}, this.props);
     delete remainingProps.label;

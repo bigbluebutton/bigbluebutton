@@ -17,7 +17,7 @@ export default function assignPresenter(credentials, userId) {
   check(userId, String);
 
   if (!isAllowedTo('setPresenter', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to setPresenter`);
+    throw new Meteor.Error('not-allowed', 'You are not allowed to setPresenter');
   }
 
   const User = Users.findOne({
@@ -26,10 +26,10 @@ export default function assignPresenter(credentials, userId) {
   });
   if (!User) {
     throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to set presenter`);
+      'user-not-found', 'You need a valid user to be able to set presenter');
   }
 
-  let payload = {
+  const payload = {
     new_presenter_id: userId,
     new_presenter_name: User.user.name,
     meeting_id: meetingId,
@@ -40,4 +40,4 @@ export default function assignPresenter(credentials, userId) {
     requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

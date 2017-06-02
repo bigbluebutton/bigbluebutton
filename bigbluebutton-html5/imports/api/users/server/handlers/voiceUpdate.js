@@ -17,4 +17,4 @@ export default function handleVoiceUpdate({ payload }) {
   check(userId, String);
 
   return updateVoiceUser(meetingId, userId, voiceUser);
-};
+}

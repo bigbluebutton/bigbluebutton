@@ -16,7 +16,7 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          <ActionsDropdown {...{ isUserPresenter }}/>
+          <ActionsDropdown {...{ isUserPresenter }} />
         </div>
         <div className={styles.center}>
           <MuteAudioContainer />
@@ -24,7 +24,7 @@ export default class ActionsBar extends Component {
             handleJoinAudio={this.props.handleOpenJoinAudio}
             handleCloseAudio={this.props.handleExitAudio}
           />
-          {/*<JoinVideo />*/}
+          {/* <JoinVideo />*/}
           <EmojiContainer />
         </div>
       </div>

@@ -39,11 +39,11 @@ const intlMessages = defineMessages({
   },
 });
 
-const presentation = () => {console.log('Should show the uploader component');};
+const presentation = () => { console.log('Should show the uploader component'); };
 
-const polling = () => {console.log('Should initiate a polling');};
+const polling = () => { console.log('Should initiate a polling'); };
 
-const shareScreen = () => {console.log('Should start screen sharing');};
+const shareScreen = () => { console.log('Should start screen sharing'); };
 
 class ActionsDropdown extends Component {
   constructor(props) {
@@ -64,7 +64,7 @@ class ActionsDropdown extends Component {
             icon="add"
             color="primary"
             size="lg"
-            circle={true}
+            circle
             onClick={() => null}
           />
         </DropdownTrigger>

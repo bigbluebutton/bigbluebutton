@@ -5,23 +5,23 @@ import Presentations from '/imports/api/presentations';
 import addPresentation from '../modifiers/addPresentation';
 
 const clearCurrentPresentation = (meetingId, presentationId) => {
-  let selector = {
+  const selector = {
     meetingId,
     presentationId: { $ne: presentationId },
     'presentation.current': true,
   };
 
-  let modifier = {
+  const modifier = {
     $set: { 'presentation.current': false },
   };
 
-  let cb = (err, numChanged) => {
+  const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Unsetting the current presentation: ${err}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Unsetted as current presentation`);
+      return Logger.info('Unsetted as current presentation');
     }
   };
 
@@ -41,4 +41,4 @@ export default function handlePresentationChange({ payload }) {
   }
 
   return addPresentation(meetingId, presentation);
-};
+}

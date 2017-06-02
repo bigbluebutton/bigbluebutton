@@ -7,21 +7,21 @@ export default class LineDrawComponent extends React.Component {
   }
 
   getCoordinates() {
-    let x1 = this.props.shape.points[0] / 100 * this.props.slideWidth;
-    let y1 = this.props.shape.points[1] / 100 * this.props.slideHeight;
-    let x2 = this.props.shape.points[2] / 100 * this.props.slideWidth;
-    let y2 = this.props.shape.points[3] / 100 * this.props.slideHeight;
+    const x1 = this.props.shape.points[0] / 100 * this.props.slideWidth;
+    const y1 = this.props.shape.points[1] / 100 * this.props.slideHeight;
+    const x2 = this.props.shape.points[2] / 100 * this.props.slideWidth;
+    const y2 = this.props.shape.points[3] / 100 * this.props.slideHeight;
 
     return {
-      x1: x1,
-      y1: y1,
-      x2: x2,
-      y2: y2,
+      x1,
+      y1,
+      x2,
+      y2,
     };
   }
 
   render() {
-    let results = this.getCoordinates();
+    const results = this.getCoordinates();
     return (
       <line
         x1={results.x1}

@@ -27,13 +27,12 @@ class NavBarContainer extends Component {
 }
 
 export default withRouter(createContainer(({ location, router }) => {
-
   let meetingTitle;
   let meetingRecorded;
 
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
-    meetingId: meetingId,
+    meetingId,
   });
 
   if (meetingObject != null) {
@@ -42,7 +41,7 @@ export default withRouter(createContainer(({ location, router }) => {
   }
 
   const checkUnreadMessages = () => {
-    let users = userListService.getUsers();
+    const users = userListService.getUsers();
 
     // 1.map every user id
     // 2.filter the user except the current user from the user array
@@ -58,7 +57,7 @@ export default withRouter(createContainer(({ location, router }) => {
   const breakouts = Service.getBreakouts();
   const currentUserId = Auth.userID;
 
-  let isExpanded = location.pathname.indexOf('/users') !== -1;
+  const isExpanded = location.pathname.indexOf('/users') !== -1;
 
   return {
     isExpanded,

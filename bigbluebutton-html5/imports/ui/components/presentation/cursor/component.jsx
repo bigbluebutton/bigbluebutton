@@ -1,25 +1,25 @@
 import React, { Component, PropTypes } from 'react';
 
 const propTypes = {
-  //Width of the view box
+  // Width of the view box
   viewBoxWidth: PropTypes.number.isRequired,
 
-  //Height of the view box
+  // Height of the view box
   viewBoxHeight: PropTypes.number.isRequired,
 
-  //x Position of the view box
+  // x Position of the view box
   viewBoxX: PropTypes.number.isRequired,
 
-  //y Position of the view box
+  // y Position of the view box
   viewBoxY: PropTypes.number.isRequired,
 
-  //Slide to view box width ratio
+  // Slide to view box width ratio
   widthRatio: PropTypes.number.isRequired,
 
-  //Defines the cursor x position
+  // Defines the cursor x position
   cursorX: PropTypes.number.isRequired,
 
-  //Defines the cursor y position
+  // Defines the cursor y position
   cursorY: PropTypes.number.isRequired,
 
   /**
@@ -58,12 +58,12 @@ export default class Cursor extends Component {
       radius,
     } = this.props;
 
-    //Adjust the x,y cursor position according to zoom
-    let cx = (cursorX * viewBoxWidth) + viewBoxX;
-    let cy = (cursorY * viewBoxHeight) + viewBoxY;
+    // Adjust the x,y cursor position according to zoom
+    const cx = (cursorX * viewBoxWidth) + viewBoxX;
+    const cy = (cursorY * viewBoxHeight) + viewBoxY;
 
-    //Adjust the radius of the cursor according to zoom
-    let finalRadius = radius * widthRatio / 100;
+    // Adjust the radius of the cursor according to zoom
+    const finalRadius = radius * widthRatio / 100;
 
     return (
       <circle

@@ -14,8 +14,8 @@ const propTypes = {
         propValue[key].type !== ListSeparator &&
         propValue[key].type !== ListTitle) {
       return new Error(
-        'Invalid prop `' + propFullName + '` supplied to' +
-        ' `' + componentName + '`. Validation failed.'
+        `Invalid prop \`${propFullName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`,
       );
     }
   }),
@@ -113,19 +113,18 @@ export default class DropdownList extends Component {
 
         return cloneElement(item, {
           tabIndex: 0,
-          injectRef: ref => {
-            if (ref && !this.childrenRefs.includes(ref))
-              this.childrenRefs.push(ref);
+          injectRef: (ref) => {
+            if (ref && !this.childrenRefs.includes(ref)) { this.childrenRefs.push(ref); }
           },
 
-          onClick: event => {
+          onClick: (event) => {
             let { onClick } = item.props;
             onClick = onClick ? onClick.bind(item) : null;
 
             this.handleItemClick(event, onClick);
           },
 
-          onKeyDown: event => {
+          onKeyDown: (event) => {
             let { onKeyDown } = item.props;
             onKeyDown = onKeyDown ? onKeyDown.bind(item) : null;
 

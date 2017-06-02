@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 
-let collection = new Mongo.Collection(null);
+const collection = new Mongo.Collection(null);
 
 function findById(notificationId) {
   check(notificationId, String);
@@ -17,7 +17,7 @@ function remove(notificationId) {
   collection.remove({ notificationId });
 }
 
-const NotificationCollection = { findById, add, remove, };
+const NotificationCollection = { findById, add, remove };
 
 export default NotificationCollection;
 

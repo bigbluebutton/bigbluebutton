@@ -41,9 +41,8 @@ class PresentationToolbarContainer extends React.Component {
           actions={actions}
         />
       );
-    } else {
-      return null;
     }
+    return null;
   }
 }
 
@@ -63,7 +62,7 @@ export default createContainer((params) => {
         PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides),
       previousSlideHandler: () =>
         PresentationToolbarService.previousSlide(params.currentSlideNum, numberOfSlides),
-      skipToSlideHandler: (event) =>
+      skipToSlideHandler: event =>
         PresentationToolbarService.skipToSlide(event),
     },
   };

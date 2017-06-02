@@ -13,6 +13,6 @@ export default class RecordingIndicator extends Component {
       return null;
     }
 
-    return (<div className={styles.indicator}></div>);
+    return (<div className={styles.indicator} />);
   }
-};
+}

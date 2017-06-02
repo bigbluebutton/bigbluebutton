@@ -26,14 +26,16 @@ export default class UserAvatar extends Component {
 
     const avatarColor = user.isOnline ? generateColor(user.name) : '#fff';
 
-    let avatarStyles = {
+    const avatarStyles = {
       backgroundColor: avatarColor,
       boxShadow: user.isTalking ? `0 0 .5rem ${avatarColor}` : 'none',
     };
 
     return (
-      <div className={user.isOnline ? styles.userAvatar : styles.userLogout}
-           style={avatarStyles} aria-hidden="true">
+      <div
+        className={user.isOnline ? styles.userAvatar : styles.userLogout}
+        style={avatarStyles} aria-hidden="true"
+      >
         <div>
           {this.renderAvatarContent()}
         </div>
@@ -49,7 +51,7 @@ export default class UserAvatar extends Component {
     let content = <span aria-hidden="true">{user.name.slice(0, 2)}</span>;
 
     if (user.emoji.status !== 'none') {
-      let iconEmoji = undefined;
+      let iconEmoji;
 
       switch (user.emoji.status) {
         case 'thumbsUp':
@@ -70,7 +72,7 @@ export default class UserAvatar extends Component {
         default:
           iconEmoji = user.emoji.status;
       }
-      content = <span aria-label={user.emoji.status}><Icon iconName={iconEmoji}/></span>;
+      content = <span aria-label={user.emoji.status}><Icon iconName={iconEmoji} /></span>;
     }
 
     return content;
@@ -80,14 +82,13 @@ export default class UserAvatar extends Component {
     const user = this.props.user;
     let userStatus;
 
-    let userStatusClasses = {};
+    const userStatusClasses = {};
     userStatusClasses[styles.moderator] = user.isModerator;
     userStatusClasses[styles.presenter] = user.isPresenter;
 
     if (user.isModerator || user.isPresenter) {
       userStatus = (
-        <span className={cx(styles.userStatus, userStatusClasses)}>
-        </span>
+        <span className={cx(styles.userStatus, userStatusClasses)} />
       );
     }
 
@@ -98,14 +99,14 @@ export default class UserAvatar extends Component {
     const user = this.props.user;
     let userMediaStatus;
 
-    let userMediaClasses = {};
+    const userMediaClasses = {};
     userMediaClasses[styles.voiceOnly] = user.isListenOnly;
     userMediaClasses[styles.microphone] = user.isVoiceUser;
 
     if (user.isListenOnly || user.isVoiceUser) {
       userMediaStatus = (
         <span className={cx(styles.userMediaStatus, userMediaClasses)}>
-          {user.isMuted ? <div className={styles.microphoneMuted}/> : null}
+          {user.isMuted ? <div className={styles.microphoneMuted} /> : null}
         </span>
       );
     }

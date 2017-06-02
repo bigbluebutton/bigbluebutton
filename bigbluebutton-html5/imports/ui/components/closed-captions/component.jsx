@@ -10,7 +10,7 @@ export default class ClosedCaptions extends React.Component {
   }
 
   renderCaptions(caption) {
-    let text = caption.captions;
+    const text = caption.captions;
     const captionStyles = {
       whiteSpace: 'pre-wrap',
       wordWrap: 'break-word',
@@ -56,13 +56,14 @@ export default class ClosedCaptions extends React.Component {
     return (
       <div disabled className={styles.ccbox}>
         <div className={styles.title}>
-          <p> {locale ? locale : 'Locale is not selected'} </p>
+          <p> {locale || 'Locale is not selected'} </p>
         </div>
         <div
           ref="ccScrollArea"
           className={styles.frame}
-          style={{ background: backgroundColor }}>
-          {captions[locale] ? captions[locale].captions.map((caption) => (
+          style={{ background: backgroundColor }}
+        >
+          {captions[locale] ? captions[locale].captions.map(caption => (
             this.renderCaptions(caption)
           )) : null }
         </div>

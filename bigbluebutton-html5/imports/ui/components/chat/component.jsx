@@ -47,8 +47,9 @@ class Chat extends Component {
             <Link
               to="/users"
               role="button"
-              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}>
-                <Icon iconName="left_arrow"/> {title}
+              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
+            >
+              <Icon iconName="left_arrow" /> {title}
             </Link>
           </div>
           <div className={styles.closeIcon}>
@@ -58,8 +59,9 @@ class Chat extends Component {
                 <Link
                   to="/users"
                   role="button"
-                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}>
-                    <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
+                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+                >
+                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
                 </Link>)
             }
           </div>

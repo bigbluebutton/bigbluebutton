@@ -18,20 +18,20 @@ export default class DropdownListItem extends Component {
   }
 
   renderDefault() {
-    let children = [];
-    const { icon, label, } = this.props;
+    const children = [];
+    const { icon, label } = this.props;
 
     return [
-      (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon}/> : null),
+      (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
       (<span className={styles.itemLabel} key="label">{label}</span>),
     ];
   }
 
   render() {
     const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, separator, intl, placeInTabOrder, } = this.props;
+      className, style, separator, intl, placeInTabOrder } = this.props;
 
-    let index = (placeInTabOrder) ? 0 : -1;
+    const index = (placeInTabOrder) ? 0 : -1;
 
     return (
       <li
@@ -43,10 +43,10 @@ export default class DropdownListItem extends Component {
         aria-describedby={this.descID}
         className={cx(styles.item, className)}
         style={style}
-        role="menuitem">
+        role="menuitem"
+      >
         {
-          children ? children
-          : this.renderDefault()
+          children || this.renderDefault()
         }
         {
           label ?
@@ -59,7 +59,7 @@ export default class DropdownListItem extends Component {
           : null
         }
       </li>
-      );
+    );
   }
 }
 

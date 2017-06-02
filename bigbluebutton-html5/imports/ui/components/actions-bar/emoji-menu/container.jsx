@@ -22,7 +22,7 @@ class EmojiContainer extends React.Component {
     } = this.props;
 
     return (
-      <EmojiMenu userEmojiStatus={userEmojiStatus} actions={actions}/>
+      <EmojiMenu userEmojiStatus={userEmojiStatus} actions={actions} />
     );
   }
 }

@@ -4,20 +4,20 @@ import { check } from 'meteor/check';
 import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
-export default function publishVote(credentials, pollId, pollAnswerId) { //TODO discuss location
+export default function publishVote(credentials, pollId, pollAnswerId) { // TODO discuss location
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.polling;
   const EVENT_NAME = 'vote_poll_user_request_message';
 
   if (!isAllowedTo('subscribePoll', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to publishVote`);
+    throw new Meteor.Error('not-allowed', 'You are not allowed to publishVote');
   }
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   const currentPoll = Polls.findOne({
     users: requesterUserId,
-    meetingId: meetingId,
+    meetingId,
     'poll.answers.id': pollAnswerId,
     'poll.id': pollId,
   });
@@ -27,7 +27,7 @@ export default function publishVote(credentials, pollId, pollAnswerId) { //TODO 
   check(pollAnswerId, Number);
   check(currentPoll.meetingId, String);
 
-  let payload = {
+  const payload = {
     meeting_id: currentPoll.meetingId,
     user_id: requesterUserId,
     poll_id: currentPoll.poll.id,
@@ -37,7 +37,7 @@ export default function publishVote(credentials, pollId, pollAnswerId) { //TODO 
 
   const selector = {
     users: requesterUserId,
-    meetingId: meetingId,
+    meetingId,
     'poll.answers.id': pollAnswerId,
   };
 

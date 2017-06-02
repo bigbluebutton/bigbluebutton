@@ -9,8 +9,8 @@ import DeskshareContainer from '../deskshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
-  overlay: null, //<VideoDockContainer/>,
-  content: <PresentationAreaContainer/>,
+  overlay: null, // <VideoDockContainer/>,
+  content: <PresentationAreaContainer />,
   defaultContent: <DefaultContent />,
 };
 
@@ -20,7 +20,7 @@ class MediaContainer extends Component {
 
     const { overlay, content, defaultContent } = this.props;
     this.state = {
-      overlay: overlay,
+      overlay,
       content: this.props.current_presentation ? content : defaultContent,
     };
 
@@ -54,7 +54,7 @@ class MediaContainer extends Component {
 MediaContainer.defaultProps = defaultProps;
 
 export default createContainer(() => {
-  let data = {};
+  const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
 
   data.content = <DefaultContent />;
