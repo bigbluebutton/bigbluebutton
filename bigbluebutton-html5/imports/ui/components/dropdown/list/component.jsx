@@ -1,9 +1,7 @@
 import React, { Component, PropTypes, Children, cloneElement } from 'react';
 import styles from './styles';
 import cx from 'classnames';
-
 import KEY_CODES from '/imports/utils/keyCodes';
-
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';
@@ -27,6 +25,7 @@ export default class DropdownList extends Component {
     this.childrenRefs = [];
     this.handleItemKeyDown = this.handleItemKeyDown.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
+    this.counter = 0;
   }
 
   componentWillMount() {
@@ -34,7 +33,7 @@ export default class DropdownList extends Component {
       activeItemIndex: 0,
     });
   }
-
+  
   componentDidUpdate(prevProps, prevState) {
     let { activeItemIndex } = this.state;
 
@@ -53,38 +52,53 @@ export default class DropdownList extends Component {
     const { dropdownHide } = this.props;
     const { activeItemIndex } = this.state;
 
-    if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
+    let selectableItems = [];
+    for (let i = 0; i < (this._menu.children.length); i++) {
+      if (this._menu.children[i].hasAttribute("role")){
+        selectableItems.push(this._menu.children[i]);
+      }
+    }
+
+    if (KEY_CODES.ENTER === event.which || KEY_CODES.SPACE === event.which) {
       event.preventDefault();
       event.stopPropagation();
 
-      return event.currentTarget.click();
-    }
-
-    let nextActiveItemIndex = null;
-
-    if (KEY_CODES.ARROW_UP === event.which) {
-      nextActiveItemIndex = activeItemIndex - 1;
+      document.activeElement.click();
     }
 
     if (KEY_CODES.ARROW_DOWN === event.which) {
-      nextActiveItemIndex = activeItemIndex + 1;
-    }
-
-    if (nextActiveItemIndex > (this.childrenRefs.length - 1)) {
-      nextActiveItemIndex = 0;
-    }
-
-    if (nextActiveItemIndex < 0) {
-      nextActiveItemIndex = this.childrenRefs.length - 1;
-    }
-
-    if (KEY_CODES.ESCAPE === event.which || KEY_CODES.TAB === event.which) {
       event.preventDefault();
-      nextActiveItemIndex = 0;
-      dropdownHide();
+      event.stopPropagation();
+
+      this.counter += 1;
+
+      if (!selectableItems[this.counter]) {
+        this.counter = 0;
+      }
+
+      selectableItems[this.counter].focus();
     }
 
-    this.setState({ activeItemIndex: nextActiveItemIndex });
+    if (KEY_CODES.ARROW_UP === event.which) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.counter -= 1;
+
+      if (this.counter < 0) {
+        this.counter = selectableItems.length - 1;
+      }
+      
+      selectableItems[this.counter].focus();
+    }
+
+    if (KEY_CODES.ESCAPE === event.which || KEY_CODES.TAB === event.which || KEY_CODES.ARROW_LEFT === event.which) {
+      event.preventDefault();
+      dropdownHide();
+
+      //find better way to do this
+      document.activeElement.parentElement.parentElement.parentElement.parentElement.focus();
+    }
 
     if (typeof callback === 'function') {
       callback(event);
@@ -136,7 +150,7 @@ export default class DropdownList extends Component {
       });
 
     return (
-      <ul style={style} className={cx(styles.list, className)} role="menu">
+      <ul style={style} className={cx(styles.list, className)} role="menu" ref={(r) => this._menu = r}>
         {boundChildren}
       </ul>
     );

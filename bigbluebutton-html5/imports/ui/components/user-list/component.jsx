@@ -68,20 +68,18 @@ class UserList extends Component {
     if (event.keyCode === KEY_CODES.ESCAPE
       || this.counter === -1
       || this.counter > count) {
-      this.focusList(active, list);
+        this.focusList(active, list);
     }
 
-    if (event.keyCode === KEY_CODES.ENTER
-        || event.keyCode === KEY_CODES.ARROW_RIGHT
-        || event.keyCode === KEY_CODES.ARROW_LEFT) {
-
-      active.firstChild.click();
+    if (event.keyCode === KEY_CODES.ARROW_RIGHT 
+      || event.keyCode === KEY_CODES.ENTER) {
+        active.firstChild.click();
     }
 
     if (event.keyCode === KEY_CODES.ARROW_DOWN) {
       this.counter += 1;
 
-      if(this.counter == count){
+      if (this.counter == count) {
         this.counter = 0;
       }
 
@@ -93,7 +91,7 @@ class UserList extends Component {
     if (event.keyCode === KEY_CODES.ARROW_UP) {
       this.counter -= 1;
 
-      if(this.counter <= -1){
+      if (this.counter <= -1) {
         this.counter = count - 1;
       }
 
