@@ -7,7 +7,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('captions', function() {
   const boundCaptions = captions.bind(this);
-  return mapToAcl('captions',boundCaptions)(arguments);
+  return mapToAcl('subscriptions.captions',boundCaptions)(arguments);
 });
 
 function captions(credentials) {

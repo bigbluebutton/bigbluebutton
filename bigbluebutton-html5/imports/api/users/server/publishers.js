@@ -34,7 +34,7 @@ Meteor.publish('current-user', function (credentials) {
 
 Meteor.publish('users', function () {
   const boundUsers = users.bind(this);
-  return mapToAcl('users',boundUsers)(arguments);
+  return mapToAcl('subscriptions.users',boundUsers)(arguments);
 });
 
 function users(credentials) {

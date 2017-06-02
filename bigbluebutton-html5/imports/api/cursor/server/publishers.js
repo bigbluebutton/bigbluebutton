@@ -7,7 +7,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('cursor', function() {
   const boundCursor = cursor.bind(this);
-  return mapToAcl('cursor', boundCursor)(arguments);
+  return mapToAcl('subscriptions.cursor', boundCursor)(arguments);
 });
 
 function cursor(credentials) {

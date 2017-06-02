@@ -8,8 +8,8 @@ import setEmojiStatus from './methods/setEmojiStatus';
 import validateAuthToken from './methods/validateAuthToken';
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.methods(mapToAcl(['kickUser','listenOnlyToggle','userLogout',
-'assignPresenter','setEmojiStatus','muteUser','unmuteUser']
+Meteor.methods(mapToAcl(['methods.kickUser','methods.listenOnlyToggle','methods.userLogout',
+'methods.assignPresenter','methods.setEmojiStatus','methods.muteUser','methods.unmuteUser']
 ,{
   kickUser,
   listenOnlyToggle,

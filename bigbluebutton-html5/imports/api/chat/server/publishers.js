@@ -7,7 +7,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('chat', function() {
   const boundChat = chat.bind(this);
-  return mapToAcl('chat', boundChat)(arguments);
+  return mapToAcl('subscriptions.chat', boundChat)(arguments);
 });
 
 function chat(credentials) {

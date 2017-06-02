@@ -7,7 +7,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('shapes', function() {
   const boundShapes = shapes.bind(this);
-  return mapToAcl('shapes', boundShapes)(arguments);
+  return mapToAcl('subscriptions.shapes', boundShapes)(arguments);
 });
 
 function shapes(credentials) {

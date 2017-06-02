@@ -4,7 +4,6 @@ import Logger from '/imports/startup/server/logger';
 
 const injectAclActionCheck = (name, handler) => {
   return (...args) => {
-    console.log("Arguments",...args);
     const credentials = args[0];
     if (!Acl.can(name, credentials)) {
       throw new Meteor.Error('acl-not-allowed', 
@@ -17,7 +16,7 @@ const injectAclActionCheck = (name, handler) => {
 const injectAclSubscribeCheck = (name,handler) => {
   return (...args) => {
     const credentials = args[args.length - 1];
-    if (!Acl.subscribe(name, ...credentials)) {
+    if (!Acl.can(name, ...credentials)) {
       Logger.error(`acl-not-allowed, the user can't perform the subscription "${name}".`);
       return [];
     }
@@ -26,7 +25,7 @@ const injectAclSubscribeCheck = (name,handler) => {
 };
 
 export default mapToAcl = (name,handler) => {
-  //The Meteor#methods require an object, while the Meteor#subscribe and function.
+  //The Meteor#methods require an object, while the Meteor#subscribe an function.
   if(handler instanceof Function){
     return injectAclSubscribeCheck(name, handler);
   }

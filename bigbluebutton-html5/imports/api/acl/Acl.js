@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Users from '/imports/api/users/'
+import { Match } from 'meteor/check';
 
 export class Acl {
 
@@ -8,46 +8,33 @@ export class Acl {
     this.config = config;
   }
 
-  subscribe(channel,credentials){
-    check(channel, String);
-
-    let subscriptions = this.getSubscriptions(credentials);
-
-    if (subscriptions) {
-      return this.checkPermission(channel, subscriptions);
-    }
-    return false;
-  }
-
-  getSubscriptions(credentials){
-    let role = this.getRole(credentials);
-
-    if(!role.subscriptions){
-      return [];
-    }
-    return role.subscriptions;
-  }
-
-  getMethods(credentials){
-    let role = this.getRole(credentials);
-    if(!role.methods){
-      return [];
-    }
-    return role.methods;
-  }
-
   can(permission, credentials) {
-    let methods = this.getMethods(credentials);
     check(permission, String);
+    const roles = this.getRole(credentials);
 
-    if (methods) {
-      return !!this.checkPermission(permission, methods);
+    if (roles) {
+      return this.fetchPermission(permission, this.config[roles.toLowerCase()]);
     }
     return false;
   }
 
-  getRole(credentials){
-    if(!credentials){
+  fetchPermission(permission, roles) {
+    if (!permission) return false;
+
+    if (Match.test(roles, String)) {
+      return roles.indexOf(permission) > -1;
+    } else if (Match.test(roles, Array)) {
+      return roles.some((internalAcl)=>(this.fetchPermission(permission, internalAcl)));
+    } else if (Match.test(roles, Object)) {
+      if (permission.indexOf(".") > -1) {
+        return this.fetchPermission(permission.substring(permission.indexOf(".") + 1), roles[permission.substring(0, permission.indexOf("."))]);
+      }
+      return roles[permission];
+    }
+  }
+
+  getRole(credentials) {
+    if (!credentials) {
       return false;
     }
     let meetingId = credentials.meetingId;
@@ -59,23 +46,9 @@ export class Acl {
       userId,
     });
 
-    if(!user){
+    if (!user) {
       return false;
     }
-    return this.roleExist(this.config, user.user.role);
-  }
-
-  checkPermission(permission, permissions) {
-    check(permissions, Array);
-    check(permission, String);
-    
-    const isInList = permissions.some((perm)=> perm.indexOf(permission) > -1 );
-    return isInList;
-  }
-
-  roleExist(acl, userRole) {
-    check(acl, Object);
-    check(userRole, String);
-    return acl[userRole.toLowerCase()];
+    return user.user.role;
   }
 }

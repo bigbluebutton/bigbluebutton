@@ -6,7 +6,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('polls', function() {
   const boundPolls = polls.bind(this);
-  return mapToAcl('polls', boundPolls)(arguments);
+  return mapToAcl('subscriptions.polls', boundPolls)(arguments);
 });
 
 function polls(credentials) {
