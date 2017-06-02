@@ -27,6 +27,12 @@ const messages = defineMessages({
     id: 'app.chat.inputPlaceholder',
     description: 'Chat message input placeholder',
   },
+  errorMinMessageLength: {
+    id: 'app.chat.errorMinMessageLength',
+  },
+  errorMaxMessageLength: {
+    id: 'app.chat.errorMaxMessageLength',
+  },
 });
 
 class MessageForm extends Component {
@@ -35,6 +41,8 @@ class MessageForm extends Component {
 
     this.state = {
       message: '',
+      error: '',
+      hasErrors: false,
     };
 
     this.handleMessageChange = this.handleMessageChange.bind(this);
@@ -44,7 +52,6 @@ class MessageForm extends Component {
   }
 
   handleMessageKeyDown(e) {
-
     //TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
@@ -59,19 +66,42 @@ class MessageForm extends Component {
   }
 
   handleMessageChange(e) {
-    this.setState({ message: e.target.value });
+    const { intl } = this.props;
+
+    const message = e.target.value;
+    let error = '';
+
+    const { minMessageLength, maxMessageLength, } = this.props;
+
+    if (message.length < minMessageLength) {
+      error = intl.formatMessage(messages.errorMinMessageLength,
+        { 0: minMessageLength - message.length });
+    }
+
+    if (message.length > maxMessageLength) {
+      error = intl.formatMessage(messages.errorMaxMessageLength,
+        { 0: message.length - maxMessageLength });
+    }
+
+    this.setState({
+      message,
+      error,
+    });
   }
 
   handleSubmit(e) {
     e.preventDefault();
 
-    const { disabled } = this.props;
+    const { disabled, minMessageLength, maxMessageLength, } = this.props;
+    let message = this.state.message.trim();
 
-    if (disabled) {
+    if (disabled
+      || message.length === 0
+      || message.length < minMessageLength
+      || message.length > maxMessageLength) {
+      this.setState({ hasErrors: true, });
       return false;
     }
-
-    let message = this.state.message.trim();
 
     // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
 
@@ -79,53 +109,55 @@ class MessageForm extends Component {
     div.appendChild(document.createTextNode(message));
     message = div.innerHTML;
 
-    if (message) {
-      this.props.handleSendMessage(message);
-    }
-
-    this.setState({ message: '' });
+    return this.props.handleSendMessage(message)
+      .then(() => this.setState({
+        message: '',
+        hasErrors: false,
+      }));
   }
 
   render() {
-    const { intl, chatTitle, chatName, disabled } = this.props;
+    const { intl, chatTitle, chatName, disabled,
+      minMessageLength, maxMessageLength, } = this.props;
+
+    const { hasErrors, error } = this.state;
 
     return (
       <form
         ref="form"
         className={cx(this.props.className, styles.form)}
         onSubmit={this.handleSubmit}>
-        {
-          // <MessageFormActions
-          //   onClick={() => alert('Not supported yet...')}
-          //   className={styles.actions}
-          //   disabled={disabled}
-          //   label={'More actions'}
-          // />
-        }
-        <TextareaAutosize
-          className={styles.input}
-          id="message-input"
-          placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
-          aria-controls={this.props.chatAreaId}
-          aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
-          autoCorrect="off"
-          autoComplete="off"
-          spellCheck="true"
-          disabled={disabled}
-          value={this.state.message}
-          onChange={this.handleMessageChange}
-          onKeyDown={this.handleMessageKeyDown}
-        />
-        <Button
-          className={styles.sendButton}
-          aria-label={intl.formatMessage(messages.submitLabel)}
-          type="submit"
-          disabled={disabled}
-          label={intl.formatMessage(messages.submitLabel)}
-          hideLabel={true}
-          icon={'send'}
-          onClick={this.handleMessageKeyDown({ keyCode: 13 })}
-        />
+        <div className={styles.wrapper}>
+          <TextareaAutosize
+            className={styles.input}
+            id="message-input"
+            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
+            aria-controls={this.props.chatAreaId}
+            aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
+            aria-invalid={ hasErrors ? 'true' : 'false' }
+            aria-describedby={ hasErrors ? 'message-input-error' : null }
+            autoCorrect="off"
+            autoComplete="off"
+            spellCheck="true"
+            disabled={disabled}
+            value={this.state.message}
+            onChange={this.handleMessageChange}
+            onKeyDown={this.handleMessageKeyDown}
+          />
+          <Button
+            className={styles.sendButton}
+            aria-label={intl.formatMessage(messages.submitLabel)}
+            type="submit"
+            disabled={disabled}
+            label={intl.formatMessage(messages.submitLabel)}
+            hideLabel={true}
+            icon="send"
+            onClick={() => null}
+          />
+        </div>
+        <div className={styles.info}>
+          { hasErrors ? <span id="message-input-error">{error}</span> : null }
+        </div>
       </form>
     );
   }

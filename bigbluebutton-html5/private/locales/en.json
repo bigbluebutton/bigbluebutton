@@ -10,6 +10,8 @@
   "app.chat.submitLabel": "Send Message",
   "app.chat.inputLabel": "Message input for chat {0}",
   "app.chat.inputPlaceholder": "Message {0}",
+  "app.chat.errorMinMessageLength": "The message is {0} characters(s) too short",
+  "app.chat.errorMaxMessageLength": "The message is {0} characters(s) too long",
   "app.chat.titlePublic": "Public Chat",
   "app.chat.titlePrivate": "Private Chat with {0}",
   "app.chat.partnerDisconnected": "{0} has left the meeting",
