@@ -54,7 +54,7 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
   }
 
   def onPMessage(pmessage: PMessage) {
-    //log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
+    log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
     val receivedJsonMessage = new OldReceivedJsonMessage(pmessage.patternMatched,
       pmessage.channel, pmessage.data.utf8String)
 

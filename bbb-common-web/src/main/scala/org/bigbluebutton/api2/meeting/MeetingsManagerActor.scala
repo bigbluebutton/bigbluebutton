@@ -101,7 +101,7 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       case m: MeetingCreatedEvtMsg => handleMeetingCreatedEvtMsg(m)
-      case _ => println("***** Cannot handle " + msg.envelope.name)
+      case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
 }

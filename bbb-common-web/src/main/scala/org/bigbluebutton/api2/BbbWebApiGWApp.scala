@@ -5,6 +5,7 @@ import java.util.Map
 
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
+import akka.event.Logging
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageSender, RedisPublisher}
 import org.bigbluebutton.api2.meeting.{CreateMeetingMsg, MeetingsManagerActor, RegisterUser}
@@ -15,7 +16,13 @@ import scala.concurrent.duration._
 class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBbbWebApiGWApp with SystemConfiguration{
 
   implicit val system = ActorSystem("bbb-web-common")
+
   implicit val timeout = akka.util.Timeout(3 seconds)
+
+  val log = Logging(system, getClass)
+
+  println("*********** meetingManagerChannel = " + meetingManagerChannel)
+  log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
   private val redisPublisher = new RedisPublisher(system)
@@ -56,6 +63,7 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
     * External APIs for Gateway
     */
   def send(channel: String, json: String): Unit = {
+    log.debug("Sending msg. channel={} msg={}", channel, json)
     jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, new JsonMsgToSendToAkkaApps(channel, json)))
   }
 
