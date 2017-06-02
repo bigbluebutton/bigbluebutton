@@ -42,9 +42,11 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  flex-basis: ($line-height-computed * 2);
 
   @include mq($small-only) {
     padding: ($line-height-computed / 1.5) 0;
+    flex-basis: ($line-height-computed * 3);
     justify-content: center;
   }
 

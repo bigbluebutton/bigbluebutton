@@ -8,7 +8,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   position: relative;
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
 }
 
 .navbar {
@@ -24,18 +24,18 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   position: relative;
   display: flex;
   flex: 1;
-  flex-direction: column;
+  flex-flow: column;
   overflow: hidden;
 
   @include mq($medium-up) {
-    flex-direction: row;
+    flex-flow: row;
   }
 }
 
 %full-page {
   position: absolute;
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
   overflow-y: auto;
   overflow-x: hidden;
 
@@ -152,11 +152,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   flex: 1 100%;
   order: 2;
 
-  @include mq($small-only) {
-    padding-bottom: $actionsbar-height;
-    margin-bottom: $actionsbar-height;
-    position: absolute;
-  }
+  position: relative;
 }
 
 .closedCaptions {
@@ -166,14 +162,11 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 }
 
 .actionsbar {
-  flex: 1;
   padding: $bars-padding;
-  position: relative;
   order: 3;
 
+  margin-top: auto;
   @include mq($small-only) {
-    position: absolute;
-    bottom: 0;
     width: 100%;
   }
 }

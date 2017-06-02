@@ -29,6 +29,7 @@ export default class PresentationArea extends React.Component {
             appear: styles.appear,
             appearActive: styles.appearActive,
           } }
+          className={styles.presentationTransitions}
           transitionAppear={true}
           transitionEnter={true}
           transitionLeave={false}

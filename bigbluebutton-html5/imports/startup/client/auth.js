@@ -21,7 +21,11 @@ export function logoutRouteHandler(nextState, replace, callback) {
 
   Auth.logout()
     .then(logoutURL => {
-      window.location = logoutURL || window.location.origin;
+      if (window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') {
+        window.location = `${window.location.origin}/demo/logout.html`;
+      } else {
+        window.location = logoutURL || window.location.origin;
+      }
       callback();
     })
     .catch(reason => {
@@ -62,8 +66,8 @@ function _addReconnectObservable() {
 
 /**
  * Check if should revalidate the auth
- * @param {Object} status 
- * @param {String} lastStatus 
+ * @param {Object} status
+ * @param {String} lastStatus
  */
 export function shouldAuthenticate(status, lastStatus) {
   return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
@@ -71,8 +75,8 @@ export function shouldAuthenticate(status, lastStatus) {
 
 /**
  * Check if the isn't the first connection try, preventing to authenticate on login.
- * @param {Object} status 
- * @param {string} lastStatus 
+ * @param {Object} status
+ * @param {string} lastStatus
  */
 export function updateStatus(status, lastStatus) {
   return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
