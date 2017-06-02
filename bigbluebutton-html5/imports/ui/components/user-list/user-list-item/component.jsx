@@ -83,15 +83,6 @@ const userNameSubTransition = {
 };
 
 class UserListItem extends Component {
-  componentDidMount() {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleClickOutsideDropdown, false);
-  }
-
-  componentWillUnmount() {
-    const { removeEventListener } = window;
-    removeEventListener('click', this.handleClickOutsideDropdown, false);
-  }
 
   constructor(props) {
     super(props);
@@ -401,7 +392,10 @@ class UserListItem extends Component {
 
     userNameSub = userNameSub.join(' ');
 
-    const { disablePrivateChat, disableCam, disableMic, lockedLayout, disablePublicChat } = meeting.roomLockSettings;
+    const { disablePrivateChat,
+            disableCam,
+            disableMic,
+            disablePublicChat, } = meeting.roomLockSettings;
 
     return (
       <div className={styles.userName}>
@@ -413,7 +407,6 @@ class UserListItem extends Component {
           {(user.isLocked && (disablePrivateChat
             || disableCam
             || disableMic
-            || lockedLayout
             || disablePublicChat)) ?
             <span> {(user.isCurrent ? ' | ' : null)}
               <Icon iconName='lock' />

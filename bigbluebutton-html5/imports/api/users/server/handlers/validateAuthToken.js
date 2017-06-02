@@ -45,7 +45,9 @@ export default function handleValidateAuthToken({ payload }) {
         addWelcomeChatMessage(meetingId, userId);
       }
 
-      return Logger.info(`Validated auth token as '${validStatus}' user=${userId} meeting=${meetingId}`);
+      return Logger.info('Validated auth token as ' + validStatus +
+       +' user=' + userId + ' meeting=' + meetingId
+      );
     }
   };
 
