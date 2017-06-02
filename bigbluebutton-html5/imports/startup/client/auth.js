@@ -22,6 +22,7 @@ export function logoutRouteHandler(nextState, replace, callback) {
   Auth.logout()
     .then(logoutURL => {
       if (window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') {
+        window.webkit.messageHandlers.bbb.postMessage(JSON.stringify({method: 'hangup'}));
         window.location = `${window.location.origin}/demo/logout.html`;
       } else {
         window.location = logoutURL || window.location.origin;
