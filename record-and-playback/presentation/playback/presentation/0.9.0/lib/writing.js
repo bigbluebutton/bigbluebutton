@@ -190,7 +190,6 @@ function isThereDeskshareVideo() {
 }
 
 function handlePresentationAreaContent(time) {
-  var meetingDuration = parseFloat(new Popcorn("#video").duration().toFixed(1));
   if(time >= meetingDuration)
      return;
 
@@ -633,6 +632,7 @@ var svgfile;
 //current time
 var t;
 var len;
+var meetingDuration;
 //coordinates for x and y for each second
 var panAndZoomTimes = [];
 var viewBoxes = [];
@@ -713,6 +713,12 @@ function initPopcorn() {
   Popcorn("#video").currentTime(startTime);
   if(isThereDeskshareVideo())
     Popcorn("#deskshare-video").currentTime(startTime);
+
+  //Popcorn documentation suggests this way to get the duration, since this information does not come with 'loadedmetadata' event.
+  Popcorn("#video").cue(2, function() {
+    meetingDuration = parseFloat(Popcorn("#video").duration().toFixed(1));
+    console.log("** Meeting duration (seconds): " + meetingDuration);
+  });
 }
 
 svgobj.addEventListener('load', function() {
