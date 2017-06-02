@@ -17,7 +17,6 @@ class ClosedCaptionsContainer extends Component {
   }
 }
 
-export default createContainer(() => {
-  const data = ClosedCaptionsService.getCCData();
-  return data;
+export default createContainer(function () {
+  return ClosedCaptionsService.getCCData();
 }, ClosedCaptionsContainer);

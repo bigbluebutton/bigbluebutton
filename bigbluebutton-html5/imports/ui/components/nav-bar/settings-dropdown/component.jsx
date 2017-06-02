@@ -67,6 +67,25 @@ const intlMessages = defineMessages({
 class SettingsDropdown extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      isSettingOpen: false,
+    };
+
+    this.onActionsShow = this.onActionsShow.bind(this);
+    this.onActionsHide = this.onActionsHide.bind(this);
+  }
+
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
   }
 
   render() {
@@ -83,8 +102,11 @@ class SettingsDropdown extends Component {
     }
 
     return (
-      <Dropdown ref="dropdown">
-        <DropdownTrigger>
+      <Dropdown isOpen={this.state.isSettingOpen}
+                onShow={this.onActionsShow}
+                onHide={this.onActionsHide}
+                autoFocus={true}>
+        <DropdownTrigger placeInTabOrder={true}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"

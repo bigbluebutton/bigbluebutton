@@ -8,7 +8,6 @@ export default class AudioManager {
   constructor(userData) {
     const MEDIA_CONFIG = Meteor.settings.public.media;
 
-    console.log('user agent', window.navigator.userAgent);
     let audioBridge;
     if (window.navigator.userAgent === 'BigBlueButton') {
       audioBridge = new IOSBridge(userData);
@@ -22,6 +21,7 @@ export default class AudioManager {
 
     this.bridge = audioBridge;
     this.isListenOnly = false;
+    this.microphoneLockEnforced = userData.microphoneLockEnforced;
   }
 
   exitAudio () {
@@ -29,7 +29,7 @@ export default class AudioManager {
   }
 
   joinAudio(listenOnly) {
-    if (listenOnly) {
+    if (listenOnly || this.microphoneLockEnforced) {
       this.isListenOnly = true;
       this.bridge.joinListenOnly();
     } else {

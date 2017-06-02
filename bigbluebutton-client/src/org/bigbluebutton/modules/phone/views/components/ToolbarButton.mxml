@@ -95,44 +95,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				}				
 			}
-			
-			public function remoteClick(event:ShortcutEvent):void{
+
+			public function remoteClick(event:ShortcutEvent):void {
 				this.selected = true;
 				startPhone();
 			}
-			
-			
+
 			private function mouseOverHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-          this.styleName = "voiceConfInactiveButtonStyle";
+				if (_currentState == ACTIVE_STATE)
+					this.styleName = "voiceConfInactiveButtonStyle";
 				else
-          this.styleName = "voiceConfActiveButtonStyle"; 			
+					this.styleName = "voiceConfActiveButtonStyle";
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-          this.styleName = "voiceConfActiveButtonStyle";
+				if (_currentState == ACTIVE_STATE)
+					this.styleName = "voiceConfActiveButtonStyle";
 				else
-          this.styleName = "voiceConfDefaultButtonStyle";			
+					this.styleName = "voiceConfDefaultButtonStyle";
 			}
-			
+
 			private function onCreationComplete():void {
 				var conference:Conference = UserManager.getInstance().getConference();
 				var thisUser:BBBUser = conference.getMyUser();
-				
+
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
 					if (phoneOptions.skipCheck || thisUser.disableMyMic) {
 						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-						if (
-							(phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
-							|| thisUser.disableMyMic
-						) {
+						if (thisUser.disableMyMic) {
 							command.mic = false;
 						} else {
 							command.mic = true;
 						}
-						
+
 						dispatcher.dispatchEvent(command);
 					} else {
 						LOGGER.debug("Sending Show Audio Selection command");
@@ -140,6 +136,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 			}
+
 
       private function onUserJoinedConference():void {
         this.selected = true;

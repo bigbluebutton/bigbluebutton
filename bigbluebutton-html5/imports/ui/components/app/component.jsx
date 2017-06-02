@@ -33,7 +33,6 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  init: PropTypes.func.isRequired,
   fontSize: PropTypes.string,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
@@ -52,8 +51,6 @@ class App extends Component {
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
-
-    props.init.call(this);
   }
 
   componentDidMount() {
@@ -81,6 +78,18 @@ class App extends Component {
       <aside className={styles.sidebar}>
         {sidebar}
       </aside>
+    );
+  }
+
+  renderClosedCaption() {
+    const { closedCaption } = this.props;
+
+    if (!closedCaption) return null;
+
+    return (
+      <div className={styles.closedCaptionBox}>
+        {closedCaption}
+      </div>
     );
   }
 
@@ -131,6 +140,7 @@ class App extends Component {
         role="region"
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}>
           {media}
+          {this.renderClosedCaption()}
       </section>
     );
   }

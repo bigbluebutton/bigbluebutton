@@ -13,7 +13,6 @@ class ClosedCaptionsMenuContainer extends Component {
   }
 }
 
-export default createContainer(() => {
-  let data = Service.getClosedCaptionSettings();
-  return data;
+export default createContainer(function () {
+  return Service.getClosedCaptionSettings();
 }, ClosedCaptionsMenuContainer);
