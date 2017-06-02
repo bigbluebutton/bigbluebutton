@@ -14,6 +14,7 @@ $toolbar-button-margin-bottom: 1px;
 /**********************************************************************************/
 $number-of-annotation-list-buttons: 7;
 $number-of-thickness-list-buttons: 7;
+$number-of-fontsize-list-buttons: 7;
 $number-of-color-list-buttons: 12;
 $number-of-vertical-main-toolbar-buttons: 5;
 
@@ -97,6 +98,10 @@ $number-of-vertical-main-toolbar-buttons: 5;
   }
 }
 
+.fontSizeListButton {
+  padding: initial;
+}
+
 .selectedListButton {
   background-color: $color-gray-light;
 }
@@ -107,6 +112,12 @@ $number-of-vertical-main-toolbar-buttons: 5;
   height: $toolbar-button-height;
 }
 
+.textThickness {
+  margin: auto;
+  color: $color-white;
+  transition: color 0.4s, font-size 0.3s;
+}
+
 .annotationList {
   width: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width});
   right: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
@@ -115,6 +126,11 @@ $number-of-vertical-main-toolbar-buttons: 5;
 .thicknessList {
   width: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width});
   right: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+}
+
+.fontSizeList {
+  width: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width});
+  right: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
 }
 
 .colorList {

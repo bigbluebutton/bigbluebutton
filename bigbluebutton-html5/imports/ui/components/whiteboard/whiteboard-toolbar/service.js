@@ -9,10 +9,14 @@ const clearWhiteboard = (whiteboardId) => {
   callServer('clearWhiteboard', whiteboardId);
 };
 
-const setWhiteboardToolbarValues = (tool, thickness, color) => {
-  Storage.setItem('whiteboardAnnotationTool', tool);
-  Storage.setItem('whiteboardAnnotationThickness', thickness);
-  Storage.setItem('whiteboardAnnotationColor', color);
+const setWhiteboardToolbarValues = (tool, thickness, color, fontSize) => {
+  let drawSettings = {
+    whiteboardAnnotationTool: tool,
+    whiteboardAnnotationThickness: thickness,
+    whiteboardAnnotationColor: color,
+    textFontSize: fontSize,
+  };
+  Storage.setItem('drawSettings', JSON.stringify(drawSettings));
 };
 
 export default {

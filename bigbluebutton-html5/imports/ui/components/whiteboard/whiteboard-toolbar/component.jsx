@@ -21,6 +21,7 @@ export default class WhiteboardToolbar extends Component {
         sessionRadius: 6,
       },
       colorSelected: '#000000',
+      fontSizeSelected: 18,
 
       //lists of tools/thickness/colors are not direct children of main toolbar buttons
       //and we want the list to close when onBlur fires at the main toolbar button
@@ -35,6 +36,7 @@ export default class WhiteboardToolbar extends Component {
     this.handleClearAll = this.handleClearAll.bind(this);
     this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
     this.handleThicknessChange = this.handleThicknessChange.bind(this);
+    this.handleFontSizeChange = this.handleFontSizeChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
     this.disableOnBlur = this.disableOnBlur.bind(this);
     this.enableOnBlur = this.enableOnBlur.bind(this);
@@ -43,11 +45,12 @@ export default class WhiteboardToolbar extends Component {
   componentWillMount() {
 
     //setting default or resetting current drawing settings in the session
-    const { annotationSelected, thicknessSelected, colorSelected } = this.state;
+    const { annotationSelected, thicknessSelected, colorSelected, fontSizeSelected } = this.state;
     this.props.setWhiteboardToolbarValues(
       annotationSelected.sessionValue,
       thicknessSelected.sessionRadius,
       this.HEXToINTColor(colorSelected),
+      fontSizeSelected,
     );
   }
 
@@ -90,11 +93,12 @@ export default class WhiteboardToolbar extends Component {
   //changes a current selected annotation both in the state and in the session
   //and closes the annotation list
   handleAnnotationChange(annotation) {
-    const { thicknessSelected, colorSelected } = this.state;
+    const { thicknessSelected, colorSelected, fontSizeSelected } = this.state;
     this.props.setWhiteboardToolbarValues(
       annotation.sessionValue,
       thicknessSelected.sessionRadius,
       this.HEXToINTColor(colorSelected),
+      fontSizeSelected,
     );
 
     this.setState({
@@ -107,11 +111,12 @@ export default class WhiteboardToolbar extends Component {
   //changes a current selected thickness both in the state and in the session
   //and closes the thickness list
   handleThicknessChange(thicknessObj) {
-    const { annotationSelected, colorSelected } = this.state;
+    const { annotationSelected, colorSelected, fontSizeSelected } = this.state;
     this.props.setWhiteboardToolbarValues(
       annotationSelected.sessionValue,
       thicknessObj.sessionRadius,
       this.HEXToINTColor(colorSelected),
+      fontSizeSelected,
     );
 
     this.setState({
@@ -121,14 +126,32 @@ export default class WhiteboardToolbar extends Component {
     });
   }
 
+  handleFontSizeChange(fontSizeObj) {
+    const { annotationSelected, colorSelected, thicknessSelected } = this.state;
+
+    this.props.setWhiteboardToolbarValues(
+      annotationSelected.sessionValue,
+      thicknessSelected.sessionRadius,
+      this.HEXToINTColor(colorSelected),
+      fontSizeObj.fontSize,
+    );
+
+    this.setState({
+      fontSizeSelected: fontSizeObj.fontSize,
+      onBlurEnabled: true,
+      currentSubmenuOpen: '',
+    });
+  }
+
   //changes a current selected color both in the state and in the session
   //and closes the color list
   handleColorChange(color) {
-    const { annotationSelected, thicknessSelected } = this.state;
+    const { annotationSelected, thicknessSelected, fontSizeSelected } = this.state;
     this.props.setWhiteboardToolbarValues(
       annotationSelected.sessionValue,
       thicknessSelected.sessionRadius,
       this.HEXToINTColor(color),
+      fontSizeSelected
     );
     this.setState({
       colorSelected: color,
@@ -180,6 +203,33 @@ export default class WhiteboardToolbar extends Component {
     );
   }
 
+  renderFontSizeList() {
+
+    return (
+      <div className={cx(styles.fontSizeList, styles.toolbarList)}>
+        {this.props.fontSizes ? this.props.fontSizes.map((fontSizeObj, index) =>
+          <Button
+            hideLabel={true}
+            label="Radius"
+            color={'default'}
+            size={'md'}
+            className={cx(styles.toolbarListButton, styles.fontSizeListButton, this.state.fontSizeSelected == fontSizeObj.fontSize ? styles.selectedListButton : '')}
+            onClick={this.handleFontSizeChange.bind(null, fontSizeObj)}
+            onMouseEnter={this.disableOnBlur}
+            onMouseLeave={this.enableOnBlur}
+            key={index}
+            customIcon={
+              <p className={styles.textThickness} style={{fontSize: fontSizeObj.fontSize}}>
+                Aa
+              </p>
+            }
+          >
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
   renderThicknessList() {
 
     return (
@@ -194,7 +244,7 @@ export default class WhiteboardToolbar extends Component {
             onClick={this.handleThicknessChange.bind(null, thicknessObj)}
             onMouseEnter={this.disableOnBlur}
             onMouseLeave={this.enableOnBlur}
-            customSvgIcon={
+            customIcon={
               <svg className={styles.customSvgIcon}>
                 <circle cx="50%" cy="50%" r={thicknessObj.iconRadius} fill="#F3F6F9"/>
               </svg>
@@ -220,7 +270,7 @@ export default class WhiteboardToolbar extends Component {
             onClick={this.handleColorChange.bind(null, color)}
             onMouseEnter={this.disableOnBlur}
             onMouseLeave={this.enableOnBlur}
-            customSvgIcon={
+            customIcon={
               <svg className={styles.customSvgIcon}>
                 <rect x="20%" y="20%" width="60%" height="60%" fill={color}/>
               </svg>
@@ -256,26 +306,50 @@ export default class WhiteboardToolbar extends Component {
               this.renderAnnotationList()
             : null }
           </div>
-          <div className={styles.buttonWrapper}>
-            <Button
-              label="Thickness List"
-              hideLabel={true}
-              role="button"
-              color={'default'}
-              size={'md'}
-              onClick={this.displaySubMenu.bind(null, "thicknessList")}
-              onBlur={this.closeSubMenu}
-              className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "thicknessList" ? '' : styles.notActive)}
-              customSvgIcon={
-                <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-                  <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected.iconRadius} fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
-                </svg>
-              }
-            />
-            {this.state.currentSubmenuOpen == "thicknessList" ?
-              this.renderThicknessList()
-            : null }
-          </div>
+
+          {this.state.annotationSelected.sessionValue == "Text" ?
+            <div className={styles.buttonWrapper}>
+              <Button
+                label="Thickness List"
+                hideLabel={true}
+                role="button"
+                color={'default'}
+                size={'md'}
+                onClick={this.displaySubMenu.bind(null, "fontSizeList")}
+                onBlur={this.closeSubMenu}
+                className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "fontSizeList" ? '' : styles.notActive)}
+                customIcon={
+                  <p className={styles.textThickness} style={{fontSize: this.state.fontSizeSelected, color: this.state.colorSelected}}>
+                    Aa
+                  </p>
+                }
+              />
+              {this.state.currentSubmenuOpen == "fontSizeList" ?
+                this.renderFontSizeList()
+              : null }
+            </div>
+          :
+            <div className={styles.buttonWrapper}>
+              <Button
+                label="Thickness List"
+                hideLabel={true}
+                role="button"
+                color={'default'}
+                size={'md'}
+                onClick={this.displaySubMenu.bind(null, "thicknessList")}
+                onBlur={this.closeSubMenu}
+                className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "thicknessList" ? '' : styles.notActive)}
+                customIcon={
+                  <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
+                    <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected.iconRadius} fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
+                  </svg>
+                }
+              />
+              {this.state.currentSubmenuOpen == "thicknessList" ?
+                this.renderThicknessList()
+              : null }
+            </div>
+          }
           <div className={styles.buttonWrapper}>
             <Button
               label="Color List"
@@ -286,7 +360,7 @@ export default class WhiteboardToolbar extends Component {
               onClick={this.displaySubMenu.bind(null, "colorList")}
               onBlur={this.closeSubMenu}
               className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "colorList" ? '' : styles.notActive)}
-              customSvgIcon={
+              customIcon={
               <svg className={styles.customSvgIcon}>
                 <rect x="25%" y="25%" width="50%" height="50%" fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
               </svg>
@@ -348,6 +422,15 @@ const defaultProps = {
     {icon: 'rectangle_tool', sessionValue: "Rectangle"},
     {icon: 'pen_tool', sessionValue: "Pencil"},
     {icon: 'hand', sessionValue: "Hand"}
+  ],
+  fontSizes: [
+    {fontSize: 30},
+    {fontSize: 24},
+    {fontSize: 20},
+    {fontSize: 18},
+    {fontSize: 16},
+    {fontSize: 14},
+    {fontSize: 12},
   ],
 };
 

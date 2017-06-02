@@ -192,13 +192,6 @@ export default class ShapeDrawListener extends React.Component {
     this.props.sendAnnotation(shape);
   }
 
-  //a function to transform a screen point to svg point
-  //accepts and returns a point of type SvgPoint and an svg object
-  coordinateTransform(screenPoint, someSvgObject) {
-    var CTM = someSvgObject.getScreenCTM();
-    return screenPoint.matrixTransform(CTM.inverse());
-  }
-
   render() {
     let tool = this.props.drawSettings.tool;
     return (
