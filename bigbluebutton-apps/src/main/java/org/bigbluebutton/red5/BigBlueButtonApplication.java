@@ -29,19 +29,19 @@ import org.bigbluebutton.client.IClientInGW;
 import org.bigbluebutton.client.ConnInfo;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-//import org.red5.logging.Red5LoggerFactory;
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
-//import org.slf4j.Logger;
+import org.slf4j.Logger;
 
 import com.google.gson.Gson;
 
 public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
-	//private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
+	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
 
 	private ConnectionInvokerService connInvokerService;
 	private MessagePublisher red5InGW;
@@ -118,7 +118,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 		Gson gson = new Gson();
 		String logStr =  gson.toJson(logData);
-//		log.info("JVM Heap [MB] data={}", logStr);
+		log.info("JVM Heap [MB] data={}", logStr);
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 				Gson gson = new Gson();
 				String logStr =  gson.toJson(logData);
 
-//				log.info("Removing defunct connection: data={}", logStr);
+				log.info("Removing defunct connection: data={}", logStr);
 			}
 		}
 
@@ -243,7 +243,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		Gson gson = new Gson();
         String logStr =  gson.toJson(logData);
 		
-//		log.info("User joining bbb-apps: data={}", logStr);
+		log.info("User joining bbb-apps: data={}", logStr);
 		System.out.println("User joining bbb-apps: data=" + logStr);
 		userConnections.addUserConnection(userId, connId);
 

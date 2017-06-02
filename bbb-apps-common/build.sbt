@@ -55,7 +55,7 @@ libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.5"
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
 libraryDependencies += "org.apache.commons" % "commons-pool2" % "2.3"
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
-libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.5"
+libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.23" % "provided"
 
 
 libraryDependencies += "junit" % "junit" % "4.12" % "test"

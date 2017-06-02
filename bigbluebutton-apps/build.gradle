@@ -46,7 +46,7 @@ dependencies {
   providedCompile 'org.slf4j:log4j-over-slf4j:1.7.21@jar' 
   providedCompile 'org.slf4j:jcl-over-slf4j:1.7.21@jar'
   providedCompile 'org.slf4j:jul-to-slf4j:1.7.21@jar'
-  providedCompile 'org.slf4j:slf4j-api:1.7.21@jar'
+  providedCompile 'org.slf4j:slf4j-api:1.7.23@jar'
   	
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.

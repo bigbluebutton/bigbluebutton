@@ -21,11 +21,13 @@ package org.bigbluebutton.red5.service;
 import java.util.Map;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 
 public class WhiteboardService {
+	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardService.class, "bigbluebutton");
 
 	private WhiteboardApplication application;
 	
@@ -47,7 +49,7 @@ public class WhiteboardService {
 			// Need to add a special case for when the text annotation is too long
 			if (shp.get(TYPE).toString().equals(TEXT_TYPE) && 
 					shp.containsKey(TEXT_PROP) && shp.get(TEXT_PROP).toString().length() > MAX_TEXT_LEN) {
-				log.warn("sendAnnotation detected type is" + TEXT_TYPE + " and message length exceeds max chars of " + MAX_TEXT_LEN + ". Annotation invalid");
+				log.debug("sendAnnotation detected type is" + TEXT_TYPE + " and message length exceeds max chars of " + MAX_TEXT_LEN + ". Annotation invalid");
 				return false;
 			}
 			return true;

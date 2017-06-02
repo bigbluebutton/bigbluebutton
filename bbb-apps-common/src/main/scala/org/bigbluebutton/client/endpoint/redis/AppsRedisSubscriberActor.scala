@@ -1,7 +1,6 @@
 package org.bigbluebutton.client.endpoint.redis
 
-import akka.actor.Props
-import akka.actor.OneForOneStrategy
+import akka.actor.{ActorLogging, OneForOneStrategy, Props}
 import akka.actor.SupervisorStrategy.Resume
 import java.io.{PrintWriter, StringWriter}
 import java.net.InetSocketAddress
@@ -22,14 +21,15 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   def props(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus): Props =
     Props(classOf[AppsRedisSubscriberActor], jsonMsgBus, oldMessageEventBus,
       redisHost, redisPort,
-      channels, patterns)//.withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
+      channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
 class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
                                redisPort: Int,
                                channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") })
+      with SystemConfiguration with ActorLogging {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -49,7 +49,7 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
   def onMessage(message: Message) {
     //log.error(s"SHOULD NOT BE RECEIVING: $message")
     if (message.channel == fromAkkaAppsRedisChannel) {
-      println(s"RECEIVED:\n ${message.data.utf8String} \n")
+      log.debug(s"RECEIVED:\n ${message.data.utf8String} \n")
       val receivedJsonMessage = new JsonMsgFromAkkaApps(message.channel, message.data.utf8String)
       jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
     }

@@ -46,7 +46,7 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 public class ConnectionInvokerService implements IConnectionInvokerService {
-  //private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
+  private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
 
   private final String CONN = "RED5-";
   private static final int NTHREADS = 1;
@@ -75,16 +75,16 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
           ClientMessage message;
           try {
             message = messages.take();
-            //if (log.isTraceEnabled()) {
-            //  log.trace("Took message from queue: " + message.getMessageName());
-            //}
+            if (log.isTraceEnabled()) {
+              log.trace("Took message from queue: " + message.getMessageName());
+            }
             sendMessageToClient(message);
-            //if (log.isTraceEnabled()) {
-            //  log.trace("Sent message to client: " + message.getMessageName());
-            //}
+            if (log.isTraceEnabled()) {
+              log.trace("Sent message to client: " + message.getMessageName());
+            }
           } catch (Exception e) {
             Marker sendingException = MarkerFactory.getMarker("SENDING_EXCEPTION");
-            //log.error(sendingException, "Exception while sending message to client.", e);
+            log.error(sendingException, "Exception while sending message to client.", e);
           }
         }
       }
@@ -98,9 +98,9 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
   }
 
   public void sendMessage(final ClientMessage message) {
-    //if (log.isTraceEnabled()) {
-    //  log.trace("Queue message: " + message.getMessageName());
-   // }
+    if (log.isTraceEnabled()) {
+      log.trace("Queue message: " + message.getMessageName());
+    }
     messages.offer(message);
   }
 
@@ -123,12 +123,9 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
   }
 
   private void handleDirectToClientMsg(DirectToClientMsg msg) {
-    //if (log.isTraceEnabled()) {
-    //  Gson gson = new Gson();
-    //  String json = gson.toJson(msg.getMessage());
-    //  log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
-    //}
-    System.out.println("Handle direct message: " + msg.messageName + " msg=" + msg.json);
+    if (log.isTraceEnabled()) {
+      log.trace("Handle direct message: " + msg.messageName + " msg=" + msg.json);
+    }
 
     final String connId = msg.connId;
     Runnable sender = new Runnable() {
@@ -143,17 +140,15 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
               params.add(msg.messageName);
               params.add(msg.json);
 
-              //        if (log.isTraceEnabled()) {
-              //          Gson gson = new Gson();
-              //          String json = gson.toJson(msg.getMessage());
-              //          log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
-              //        }
-              System.out.println("Send direct message: " + msg.messageName + " msg=" + msg.json);
+              if (log.isTraceEnabled()) {
+                log.debug("Send direct message: " + msg.messageName + " msg=" + msg.json);
+              }
+
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer2x", params.toArray());
             }
           } else {
-            //      log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + userId
-            //          + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
+              log.info("Cannot send message=[" + msg.messageName + "] to [" + connId
+                     + "] as no such session on meeting=[" + msg.meetingId + "]");
           }
         }
       }
@@ -172,13 +167,13 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       long timeLeft = endNanos - System.nanoTime();
       f.get(timeLeft, TimeUnit.NANOSECONDS);
     } catch (ExecutionException e) {
-      // log.warn("ExecutionException while sending direct message on connection[" + userId + "]");
-      // log.warn("ExcecutionException cause: " + e.getMessage());
+      log.warn("ExecutionException while sending direct message on connection[" + connId + "]");
+      log.warn("ExcecutionException cause: " + e.getMessage());
     } catch (InterruptedException e) {
-      //  log.warn("Interrupted exception while sending direct message on connection[" + userId + "]");
+      log.warn("Interrupted exception while sending direct message on connection[" + connId + "]");
       Thread.currentThread().interrupt();
     } catch (TimeoutException e) {
-      // log.warn("Timeout exception while sending direct message on connection[" + userId + "]");
+      log.warn("Timeout exception while sending direct message on connection[" + connId + "]");
       f.cancel(true);
     }
   }
@@ -192,10 +187,10 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       for (IConnection conn : conns) {
         if (conn.isConnected()) {
           String connId = (String) conn.getAttribute("INTERNAL_USER_ID");
-     //     log.info("Disconnecting client=[{}] as bbb-apps isn't running.", connId);
+          log.info("Disconnecting client=[{}] as bbb-apps isn't running.", connId);
           conn.close();
         }
-      }	
+      }
     }
   }
 
@@ -207,10 +202,10 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       for (IConnection conn : conns) {
         if (conn.isConnected()) {
           String connId = (String) conn.getAttribute("INTERNAL_USER_ID");
-       //   log.info("Disconnecting client=[{}] from meeting=[{}]", connId, msg.getMeetingId());
+          log.info("Disconnecting client=[{}] from meeting=[{}]", connId, msg.getMeetingId());
           conn.close();
         }
-      }	
+      }
     }
   }
   
@@ -221,7 +216,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       IConnection conn = getConnection(meetingScope, userId);
       if (conn != null) {
         if (conn.isConnected()) {
-         // log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());
+          log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());
           conn.close();
         }
       }
@@ -242,11 +237,11 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
 
 
   private void sendDirectMessage(final DirectClientMessage msg) {
-    //if (log.isTraceEnabled()) {
-    //  Gson gson = new Gson();
-    //  String json = gson.toJson(msg.getMessage());
-    //  log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
-    //}
+    if (log.isTraceEnabled()) {
+      Gson gson = new Gson();
+      String json = gson.toJson(msg.getMessage());
+      log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
+    }
     Gson gson = new Gson();
     String json = gson.toJson(msg.getMessage());
     System.out.println("Handle direct message: " + msg.getMessageName() + " msg=" + json);
@@ -264,19 +259,19 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
               params.add(msg.getMessageName());
               params.add(msg.getMessage());
 
-      //        if (log.isTraceEnabled()) {
-      //          Gson gson = new Gson();
-      //          String json = gson.toJson(msg.getMessage());
-      //          log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
-      //        }
+              if (log.isTraceEnabled()) {
+                Gson gson = new Gson();
+                String json = gson.toJson(msg.getMessage());
+                log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
+              }
               Gson gson = new Gson();
               String json = gson.toJson(msg.getMessage());
               System.out.println("Send direct message: " + msg.getMessageName() + " msg=" + json);
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             }
           } else {
-      //      log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + userId
-      //          + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
+            log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + userId
+                + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
           }
         }
       }
@@ -295,23 +290,23 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       long timeLeft = endNanos - System.nanoTime();         
       f.get(timeLeft, TimeUnit.NANOSECONDS);   
     } catch (ExecutionException e) {       
-     // log.warn("ExecutionException while sending direct message on connection[" + userId + "]");
-     // log.warn("ExcecutionException cause: " + e.getMessage());
+      log.warn("ExecutionException while sending direct message on connection[" + userId + "]");
+      log.warn("ExcecutionException cause: " + e.getMessage());
     } catch (InterruptedException e) {        
-    //  log.warn("Interrupted exception while sending direct message on connection[" + userId + "]");
+      log.warn("Interrupted exception while sending direct message on connection[" + userId + "]");
       Thread.currentThread().interrupt();
     } catch (TimeoutException e) {               
-     // log.warn("Timeout exception while sending direct message on connection[" + userId + "]");
+      log.warn("Timeout exception while sending direct message on connection[" + userId + "]");
       f.cancel(true);     
     } 
   }
 
   private void sendBroadcastMessage(final BroadcastClientMessage msg) {
-    //if (log.isTraceEnabled()) {
-    //  Gson gson = new Gson();
-    //  String json = gson.toJson(msg.getMessage());
-    //  log.trace("Handle broadcast message: " + msg.getMessageName() + " msg=" + json);
-    //}
+    if (log.isTraceEnabled()) {
+      Gson gson = new Gson();
+      String json = gson.toJson(msg.getMessage());
+      log.trace("Handle broadcast message: " + msg.getMessageName() + " msg=" + json);
+    }
     
     Runnable sender = new Runnable() {
       public void run() {
@@ -321,16 +316,16 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
           params.add(msg.getMessageName());
           params.add(msg.getMessage());
 
-      //    if (log.isTraceEnabled()) {
-      //      Gson gson = new Gson();
-      //      String json = gson.toJson(msg.getMessage());
-      //      log.trace("Broadcast message: " + msg.getMessageName() + " msg=" + json);
-      //    }
+          if (log.isTraceEnabled()) {
+            Gson gson = new Gson();
+            String json = gson.toJson(msg.getMessage());
+            log.trace("Broadcast message: " + msg.getMessageName() + " msg=" + json);
+          }
 
           ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer", params.toArray(), null);
         }
       }
-    };	
+    };
     
     /**
      * We need to add a way to cancel sending when the thread is blocked.
@@ -341,17 +336,17 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     long endNanos = System.nanoTime() + SEND_TIMEOUT;     
     Future<?> f = runExec.submit(sender);
     try {         
-    	// Only wait for the remaining time budget         
-    	long timeLeft = endNanos - System.nanoTime();         
-    	f.get(timeLeft, TimeUnit.NANOSECONDS);   
-    } catch (ExecutionException e) {       
-//    	log.warn("ExecutionException while sending broadcast message[" + msg.getMessageName() + "]");
-    } catch (InterruptedException e) {        
-//    	log.warn("Interrupted exception while sending broadcast message[" + msg.getMessageName() + "]");
-    	Thread.currentThread().interrupt();         
+      // Only wait for the remaining time budget
+      long timeLeft = endNanos - System.nanoTime();
+      f.get(timeLeft, TimeUnit.NANOSECONDS);
+    } catch (ExecutionException e) {
+      log.warn("ExecutionException while sending broadcast message[" + msg.getMessageName() + "]");
+    } catch (InterruptedException e) {
+      log.warn("Interrupted exception while sending broadcast message[" + msg.getMessageName() + "]");
+      Thread.currentThread().interrupt();
     } catch (TimeoutException e) {               
- //   	log.warn("Timeout exception while sending broadcast message[" + msg.getMessageName() + "]");
-    	f.cancel(true);     
+      log.warn("Timeout exception while sending broadcast message[" + msg.getMessageName() + "]");
+      f.cancel(true);
     } 
   }
 
@@ -363,7 +358,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       }
     }
 
-    //   log.warn("Failed to get connection for userId = " + userID);
+    log.warn("Failed to get connection for connId = " + connId);
     return null;
   }
 
@@ -375,7 +370,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       }
     }
 
- //   log.warn("Failed to get connection for userId = " + userID);
+    log.warn("Failed to get connection for userId = " + userID);
     return null;
   }
 
@@ -383,7 +378,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     if (bbbAppScope != null) {
       return bbbAppScope.getContext().resolveScope("bigbluebutton/" + meetingID);
     } else {
-   //   log.error("BigBlueButton Scope not initialized. No messages are going to the Flash client!");
+      log.error("BigBlueButton Scope not initialized. No messages are going to the Flash client!");
     }
     
     return null;

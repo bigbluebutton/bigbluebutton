@@ -96,6 +96,11 @@ On your bbb-apps terminal, run the following commands.
 ```
 cd ~/dev/bigbluebutton/bigbluebutton-apps/
 
+# To make sure the lib folder is clean of old dependencies especially if you've used this
+# dev environment for BBB 1.1, delete the contents of the lib directory. You can only to
+# do once.
+rm lib/*
+
 # Force updating dependencies (bbb-apps-common)
 gradle clean
 
@@ -126,6 +131,13 @@ On your akka-apps terminal, start akka-apps
 
 ```
 cd ~/dev/bigbluebutton/akka-bbb-apps
+
+# To make sure the lib folder is clean of old dependencies especially if you've used this
+# dev environment for BBB 1.1, delete the contents of the lib directory. You can only to
+# do once.
+rm lib_managed/*
+
+sbt clean
 sbt run
 ```
 
@@ -135,6 +147,12 @@ On your akka-fsesl terminal, start akka-fsesl
 
 ```
 cd ~/dev/bigbluebutton/akka-bbb-fsesl
+
+# To make sure the lib folder is clean of old dependencies especially if you've used this
+# dev environment for BBB 1.1, delete the contents of the lib directory. You can only to
+# do once.
+rm lib_managed/*
+
 sbt clean
 sbt run
 ```
@@ -149,6 +167,11 @@ On your common-web terminal, run these commands
 
 ```
 cd ~/dev/bigbluebutton/bbb-common-web/
+
+# To make sure the lib folder is clean of old dependencies especially if you've used this
+# dev environment for BBB 1.1, delete the contents of the lib directory. You can only to
+# do once.
+rm lib_managed/*
 
 # Force updating of dependencies especially bbb-commons-message
 sbt clean
@@ -177,6 +200,12 @@ securitySalt=856d5e0197b1aa0cf79897841142a5f6
 Start bbb-web
 
 ```
+
+# To make sure the lib folder is clean of old dependencies especially if you've used this
+# dev environment for BBB 1.1, delete the contents of the lib directory. You can only to
+# do once.
+rm lib/*
+
 gradle clean
 gradle resolveDeps
 grails clean

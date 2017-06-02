@@ -1,6 +1,7 @@
 package org.bigbluebutton.client
 
 import akka.actor.ActorSystem
+import akka.event.Logging
 import org.bigbluebutton.client.bus._
 import org.bigbluebutton.client.endpoint.redis.{AppsRedisSubscriberActor, MessageSender, RedisPublisher}
 import org.bigbluebutton.client.meeting.MeetingManagerActor
@@ -14,7 +15,11 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW,
   implicit val system = ActorSystem("bbb-apps-common")
   implicit val timeout = akka.util.Timeout(3 seconds)
 
+  val log = Logging(system, getClass)
+
+
   println("*********** meetingManagerChannel = " + meetingManagerChannel)
+  log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val msgFromClientEventBus = new MsgFromClientEventBus
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
@@ -69,21 +74,22 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW,
     */
 
   def connect(connInfo: ConnInfo): Unit = {
-    println("**** ClientGWApplication connect " + connInfo)
+    log.debug("**** ClientGWApplication connect " + connInfo)
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new ConnectMsg(connInfo)))
   }
 
   def disconnect(connInfo: ConnInfo): Unit = {
-    println("**** ClientGWApplication disconnect " + connInfo)
+    log.debug("**** ClientGWApplication disconnect " + connInfo)
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new DisconnectMsg(connInfo)))
   }
 
   def handleMsgFromClient(connInfo: ConnInfo, json: String): Unit = {
-    println("**** ClientGWApplication handleMsgFromClient " + json)
+    log.debug("**** ClientGWApplication handleMsgFromClient " + json)
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
   }
 
   def send(channel: String, json: String): Unit = {
+    log.debug("Sending message {}", json)
     jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, new JsonMsgToSendToAkkaApps(channel, json)))
   }
 
