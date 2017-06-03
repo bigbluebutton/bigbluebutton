@@ -1,50 +1,50 @@
 var page = require('./page');
 
 var landingPage = Object.create(page, {
-    open: {
-        value: function() {
-            return page.open.call(this, 'demo/demoHTML5.jsp');
-        }
+  open: {
+    value: function () {
+      return page.open.call(this, 'demo/demoHTML5.jsp');
     },
-    title: {
-        value: 'Join Meeting via HTML5 Client'
+  },
+  title: {
+    value: 'Join Meeting via HTML5 Client',
+  },
+  url: {
+    value: 'http://localhost:8080/demo/demoHTML5.jsp',
+  },
+  username: {
+    get: function () {
+      return $('input[name=username]');
     },
-    url: {
-        value: 'http://localhost:8080/demo/demoHTML5.jsp'
+  },
+  joinButton: {
+    get: function () {
+      return $('input[type=submit]');
     },
-    username: {
-        get: function() {
-            return $('input[name=username]');
-        }
+  },
+  joinWithButtonClick: {
+    value: function () {
+      this.joinButton.click();
     },
-    joinButton: {
-        get: function() {
-            return $('input[type=submit]');
-        }
+  },
+  joinWithEnterKey: {
+    value: function () {
+      page.pressEnter();
     },
-    joinWithButtonClick: {
-        value: function() {
-            this.joinButton.click();
-        }
+  },
+  loadedHomePage: {
+    get: function () {
+      return $('#app');
     },
-    joinWithEnterKey: {
-        value: function() {
-            page.pressEnter();
-        }
-    },
-    loadedHomePage: {
-        get: function() {
-            return $('#app');
-        }
-    }
+  },
 });
 
 // To use in the future tests that will require login
-browser.addCommand('loginToClient', function(page) {
-    page.open();
-    page.username.waitForExist();
-    page.username.setValue('Maxim');
-    page.joinWithButtonClick();
+browser.addCommand('loginToClient', function (page) {
+  page.open();
+  page.username.waitForExist();
+  page.username.setValue('Maxim');
+  page.joinWithButtonClick();
 });
 
 module.exports = landingPage;
