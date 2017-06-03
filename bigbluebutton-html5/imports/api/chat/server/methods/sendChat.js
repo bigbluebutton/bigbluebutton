@@ -48,6 +48,8 @@ export default function sendChat(credentials, message) {
   let actionName = message.to_userid === requesterUserId ? 'chatSelf' : 'chatPrivate';
   let eventName = 'send_private_chat_message';
 
+  message.message = parseMessage(message.message);
+
   if (message.chat_type === PUBLIC_CHAT_TYPE) {
     eventName = 'send_public_chat_message';
     actionName = 'chatPublic';
