@@ -1,5 +1,7 @@
-var LandingPage = require('../pageobjects/landing.page');
-var chai = require('chai');
+'use strict';
+
+let LandingPage = require('../pageobjects/landing.page');
+let chai = require('chai');
 
 describe('Landing page', function () {
   it('should have correct title', function () {

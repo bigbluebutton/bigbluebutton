@@ -1,12 +1,14 @@
-function Page() {}
+'use strict';
 
-Page.prototype.open = function (path) {
-  browser.url(path);
-};
+class Page {
+  open(path) {
+    browser.url(path);
+  }
 
-Page.prototype.pressEnter = function () {
-  browser.keys('Enter');
-};
+  pressEnter() {
+    browser.keys('Enter');
+  }
+}
 
-module.exports = new Page();
+module.exports = Page;
 

@@ -1,43 +1,41 @@
-var page = require('./page');
+'use strict';
 
-var landingPage = Object.create(page, {
-  open: {
-    value: function () {
-      return page.open.call(this, 'demo/demoHTML5.jsp');
-    },
-  },
-  title: {
-    value: 'Join Meeting via HTML5 Client',
-  },
-  url: {
-    value: 'http://localhost:8080/demo/demoHTML5.jsp',
-  },
-  username: {
-    get: function () {
-      return $('input[name=username]');
-    },
-  },
-  joinButton: {
-    get: function () {
-      return $('input[type=submit]');
-    },
-  },
-  joinWithButtonClick: {
-    value: function () {
-      this.joinButton.click();
-    },
-  },
-  joinWithEnterKey: {
-    value: function () {
-      page.pressEnter();
-    },
-  },
-  loadedHomePage: {
-    get: function () {
-      return $('#app');
-    },
-  },
-});
+let Page = require('./page');
+let pageObject = new Page();
+
+class LandingPage extends Page {
+  open() {
+    super.open('demo/demoHTML5.jsp');
+  }
+
+  get title() {
+    return 'Join Meeting via HTML5 Client';
+  }
+
+  get url() {
+    return 'http://localhost:8080/demo/demoHTML5.jsp';
+  }
+
+  get username() {
+    return $('input[name=username]');
+  }
+
+  get joinButton() {
+    return $('input[type=submit]');
+  }
+
+  joinWithButtonClick() {
+    this.joinButton.click();
+  }
+
+  joinWithEnterKey() {
+    pageObject.pressEnter();
+  }
+
+  get loadedHomePage() {
+    return $('#app');
+  }
+}
 
 // To use in the future tests that will require login
 browser.addCommand('loginToClient', function (page) {
@@ -47,5 +45,5 @@ browser.addCommand('loginToClient', function (page) {
   page.joinWithButtonClick();
 });
 
-module.exports = landingPage;
+module.exports = new LandingPage();
 
