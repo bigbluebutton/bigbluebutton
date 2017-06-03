@@ -154,6 +154,7 @@ export default class PollDrawComponent extends React.Component {
   }
 
   checkSizes() {
+    console.log('checking sizes');
     let maxLineWidth = this.state.maxLineWidth;
     let maxLineHeight = this.state.maxLineHeight;
 
@@ -162,9 +163,9 @@ export default class PollDrawComponent extends React.Component {
       let key = `${this.props.shape.id}_key_${this.state.currentLine}`;
       let votes = `${this.props.shape.id}_votes_${this.state.currentLine}`;
       let percent = `${this.props.shape.id}_percent_${this.state.currentLine}`;
-      let keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
-      let voteSizes = ReactDOM.findDOMNode(this.refs[votes]).getBBox();
-      let percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
+      let keySizes = ReactDOM.findDOMNode(this[key]).getBBox();
+      let voteSizes = ReactDOM.findDOMNode(this[votes]).getBBox();
+      let percSizes = ReactDOM.findDOMNode(this[percent]).getBBox();
 
       //first check if we can still increase the font-size
       if (this.state.fontSizeDirection == 1) {
@@ -221,8 +222,8 @@ export default class PollDrawComponent extends React.Component {
     for (let i = 0; i < this.state.textArray.length; ++i) {
       let key = `${this.props.shape.id}_key_${i}`;
       let percent = `${this.props.shape.id}_percent_${i}`;
-      let keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
-      let percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
+      let keySizes = ReactDOM.findDOMNode(this[key]).getBBox();
+      let percSizes = ReactDOM.findDOMNode(this[percent]).getBBox();
 
       if (keySizes.width > maxLeftWidth) {
         maxLeftWidth = keySizes.width;
@@ -242,8 +243,8 @@ export default class PollDrawComponent extends React.Component {
     }
 
     let digitRef = `${this.props.shape.id}_digit`;
-    let maxDigitWidth = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().width;
-    let maxDigitHeight = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().height;
+    let maxDigitWidth = ReactDOM.findDOMNode(this[digitRef]).getBBox().width;
+    let maxDigitHeight = ReactDOM.findDOMNode(this[digitRef]).getBBox().height;
 
     this.setState({
       maxLeftWidth: maxLeftWidth,
@@ -457,7 +458,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={`${this.props.shape.id}_key_${line[3]}`}
+          ref={(ref) => { this[`${this.props.shape.id}_key_${line[3]}`] = ref; }}
         >
           <tspan>
             {line[0]}
@@ -466,7 +467,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={`${this.props.shape.id}_votes_${line[3]}`}
+          ref={(ref) => { this[`${this.props.shape.id}_votes_${line[3]}`] = ref; }}
         >
           <tspan>
             {line[1]}
@@ -475,7 +476,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={`${this.props.shape.id}_percent_${line[3]}`}
+          ref={(ref) => { this[`${this.props.shape.id}_percent_${line[3]}`] = ref; }}
         >
           <tspan>
             {line[2]}
@@ -500,7 +501,7 @@ export default class PollDrawComponent extends React.Component {
           <text
             fontFamily="Arial"
             fontSize={this.state.calcFontSize}
-            ref={`${this.props.shape.id}_digit`}
+            ref={(ref) => { this[`${this.props.shape.id}_digit`] = ref; }}
           >
             <tspan>
               0

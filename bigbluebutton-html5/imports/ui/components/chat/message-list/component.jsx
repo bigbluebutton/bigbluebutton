@@ -34,13 +34,12 @@ class MessageList extends Component {
   }
 
   scrollTo(position = null) {
-    const { scrollArea } = this.refs;
 
     if (position === null) {
-      position = scrollArea.scrollHeight - scrollArea.clientHeight;
+      position = this.scrollArea.scrollHeight - this.scrollArea.clientHeight;
     }
 
-    scrollArea.scrollTop = position;
+    this.scrollArea.scrollTop = position;
   }
 
   handleScrollUpdate(position, target) {
@@ -67,8 +66,8 @@ class MessageList extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-      const { scrollArea } = this.refs;
-      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
+
+      this.handleScrollUpdate(this.scrollArea.scrollTop, this.scrollArea);
     }
   }
 
@@ -78,14 +77,12 @@ class MessageList extends Component {
       return;
     }
 
-    const { scrollArea } = this.refs;
-
-    let position = scrollArea.scrollTop + scrollArea.offsetHeight;
+    let position = this.scrollArea.scrollTop + this.scrollArea.offsetHeight;
 
     //Compare with <1 to account for the chance scrollArea.scrollTop is a float
     //value in some browsers.
-    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-                              (scrollArea.scrollHeight - position < 1) ||
+    this.shouldScrollBottom = position === this.scrollArea.scrollHeight ||
+                              (this.scrollArea.scrollHeight - position < 1) ||
                               nextProps.scrollPosition === null;
   }
 
@@ -100,17 +97,15 @@ class MessageList extends Component {
   }
 
   componentDidMount() {
-    const { scrollArea } = this.refs;
 
     this.scrollTo(this.props.scrollPosition);
-    scrollArea.addEventListener('scroll', this.handleScrollChange, false);
+    this.scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
   componentWillUnmount() {
-    const { scrollArea } = this.refs;
 
-    this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
-    scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
+    this.handleScrollUpdate(this.scrollArea.scrollTop, this.scrollArea);
+    this.scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
   }
 
   shouldComponentUpdate(nextProps) {
@@ -143,7 +138,7 @@ class MessageList extends Component {
         <div
           role="log"
           tabIndex="0"
-          ref="scrollArea"
+          ref={(ref) => { this.scrollArea = ref; }}
           id={this.props.id}
           className={styles.messageList}
           aria-live="polite"

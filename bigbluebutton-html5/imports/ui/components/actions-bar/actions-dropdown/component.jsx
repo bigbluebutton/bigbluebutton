@@ -57,7 +57,7 @@ class ActionsDropdown extends Component {
     return null; // temporarily disabling the functionality
 
     return (
-      <Dropdown ref="dropdown">
+      <Dropdown>
         <DropdownTrigger>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}

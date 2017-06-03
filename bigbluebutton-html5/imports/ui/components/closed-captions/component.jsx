@@ -29,9 +29,8 @@ export default class ClosedCaptions extends React.Component {
   }
 
   componentWillUpdate() {
-    const { ccScrollArea } = this.refs;
 
-    const node = findDOMNode(ccScrollArea);
+    const node = findDOMNode(this.ccScrollArea);
 
     // number 4 is for the border
     // offset height includes the border, but scrollheight doesn't
@@ -40,8 +39,7 @@ export default class ClosedCaptions extends React.Component {
 
   componentDidUpdate() {
     if (this.shouldScrollBottom) {
-      const { ccScrollArea } = this.refs;
-      const node = findDOMNode(ccScrollArea);
+      const node = findDOMNode(this.ccScrollArea);
       node.scrollTop = node.scrollHeight;
     }
   }
@@ -59,7 +57,7 @@ export default class ClosedCaptions extends React.Component {
           <p> {locale ? locale : 'Locale is not selected'} </p>
         </div>
         <div
-          ref="ccScrollArea"
+          ref={(ref) => { this.ccScrollArea = ref; }}
           className={styles.frame}
           style={{ background: backgroundColor }}>
           {captions[locale] ? captions[locale].captions.map((caption) => (
