@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
+import { findDOMNode } from 'react-dom';
 
 export default class WhiteboardToolbar extends Component {
   constructor(props) {
@@ -22,6 +23,10 @@ export default class WhiteboardToolbar extends Component {
       },
       colorSelected: '#000000',
       fontSizeSelected: 18,
+
+      //keeping the previous color and the thickness icon's radius selected for svg animation
+      prevColorSelected: '#000000',
+      prevIconRadius: 6,
 
       //lists of tools/thickness/colors are not direct children of main toolbar buttons
       //and we want the list to close when onBlur fires at the main toolbar button
@@ -62,6 +67,21 @@ export default class WhiteboardToolbar extends Component {
   componentWillUnmount() {
     //to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    //check if thickness or color have changed and we need to trigger svg animation
+    const { thicknessRadius, thicknessColor, colorColor } = this.refs;
+    if(this.state.thicknessSelected.iconRadius != prevState.thicknessSelected.iconRadius) {
+      var node1 = findDOMNode(thicknessRadius);
+      node1.beginElement();
+    }
+    if(this.state.colorSelected != prevState.colorSelected) {
+      var node2 = findDOMNode(thicknessColor);
+      var node3 = findDOMNode(colorColor);
+      node2.beginElement();
+      node3.beginElement();
+    }
   }
 
   //open a submenu
@@ -120,6 +140,7 @@ export default class WhiteboardToolbar extends Component {
     );
 
     this.setState({
+      prevIconRadius: this.state.thicknessSelected.iconRadius,
       thicknessSelected: thicknessObj,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
@@ -154,6 +175,7 @@ export default class WhiteboardToolbar extends Component {
       fontSizeSelected
     );
     this.setState({
+      prevColorSelected: this.state.colorSelected,
       colorSelected: color,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
@@ -341,7 +363,37 @@ export default class WhiteboardToolbar extends Component {
                 className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "thicknessList" ? '' : styles.notActive)}
                 customIcon={
                   <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-                    <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected.iconRadius} fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
+                    <circle
+                      shapeRendering="geometricPrecision"
+                      cx="50%"
+                      cy="50%"
+                      r={this.state.thicknessSelected.iconRadius}
+                      stroke="black"
+                      strokeWidth="1"
+                    >
+                      <animate
+                        ref="thicknessColor"
+                        attributeName="fill"
+                        attributeType="XML"
+                        from={this.state.prevColorSelected}
+                        to={this.state.colorSelected}
+                        begin={'indefinite'}
+                        dur="0.4s"
+                        repeatCount="0"
+                        fill="freeze"
+                      />
+                      <animate
+                        ref="thicknessRadius"
+                        attributeName="r"
+                        attributeType="XML"
+                        from={this.state.prevIconRadius}
+                        to={this.state.thicknessSelected.iconRadius}
+                        begin={'indefinite'}
+                        dur="0.4s"
+                        repeatCount="0"
+                        fill="freeze"
+                      />
+                    </circle>
                   </svg>
                 }
               />
@@ -362,7 +414,19 @@ export default class WhiteboardToolbar extends Component {
               className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "colorList" ? '' : styles.notActive)}
               customIcon={
               <svg className={styles.customSvgIcon}>
-                <rect x="25%" y="25%" width="50%" height="50%" fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
+                <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
+                  <animate
+                    ref="colorColor"
+                    attributeName="fill"
+                    attributeType="XML"
+                    from={this.state.prevColorSelected}
+                    to={this.state.colorSelected}
+                    begin={'indefinite'}
+                    dur="0.4s"
+                    repeatCount="0"
+                    fill="freeze"
+                  />
+                </rect>
               </svg>
             }
             />
