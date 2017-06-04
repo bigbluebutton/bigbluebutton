@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
 import Cursor from './cursor/component.jsx';
 import PresentationToolbarContainer from './presentation-toolbar/container.jsx';

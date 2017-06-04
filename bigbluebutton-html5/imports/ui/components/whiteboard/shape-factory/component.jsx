@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Ellipse from '../shapes/ellipse/component.jsx';
 import Line from '../shapes/line/component.jsx';
 import Poll from '../shapes/poll/component.jsx';

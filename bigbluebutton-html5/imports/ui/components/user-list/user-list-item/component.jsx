@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Icon from '/imports/ui/components/icon/component';
@@ -18,19 +19,19 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 
 const propTypes = {
-  user: React.PropTypes.shape({
-    name: React.PropTypes.string.isRequired,
-    isPresenter: React.PropTypes.bool.isRequired,
-    isVoiceUser: React.PropTypes.bool.isRequired,
-    isModerator: React.PropTypes.bool.isRequired,
-    image: React.PropTypes.string,
+  user: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    isPresenter: PropTypes.bool.isRequired,
+    isVoiceUser: PropTypes.bool.isRequired,
+    isModerator: PropTypes.bool.isRequired,
+    image: PropTypes.string,
   }).isRequired,
 
-  currentUser: React.PropTypes.shape({
-    id: React.PropTypes.string.isRequired,
+  currentUser: PropTypes.shape({
+    id: PropTypes.string.isRequired,
   }).isRequired,
 
-  userActions: React.PropTypes.shape(),
+  userActions: PropTypes.shape(),
 };
 
 const defaultProps = {
