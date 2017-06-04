@@ -154,7 +154,6 @@ export default class PollDrawComponent extends React.Component {
   }
 
   checkSizes() {
-    console.log('checking sizes');
     let maxLineWidth = this.state.maxLineWidth;
     let maxLineHeight = this.state.maxLineHeight;
 

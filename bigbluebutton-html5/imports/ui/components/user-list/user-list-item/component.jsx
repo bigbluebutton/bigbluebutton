@@ -334,7 +334,7 @@ class UserListItem extends Component {
 
     return (
       <Dropdown
-        ref={(dropdownRef) => { this.dropdown = dropdownRef; }}
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
