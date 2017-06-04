@@ -9,11 +9,7 @@ Assuming that you have the BigBlueButton repository in `/home/firstuser/dev`, na
 $ cd /home/firstuser/dev/bigbluebutton/bigbluebutton-html5/tests/webdriverio
 ```
 
-Create `tools` folder to store various third-party binaries:
-```sh
-$ mkdir tools
-$ cd tools
-```
+Now, you should navigate to the `tools` directory inside `webdriverio`. This folder will store all the Selenium- and browser-related third-party files that you need to download.
 
 Download Selenium jar file:
 ```sh
@@ -38,7 +34,7 @@ Along with the WebDriver, you need to install the browser itself.
 How to install Chrome:
 ```sh
 $ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-$ sudo sh -C 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+$ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
 $ sudo apt-get update
 $ sudo apt-get install google-chrome-stable
 ```
