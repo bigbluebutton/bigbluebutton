@@ -7,9 +7,13 @@ exports.config = {
   ],
   baseUrl: 'http://localhost:8080',
   framework: 'jasmine',
-  reporters: ['dot'],
+  reporters: ['spec', 'junit'],
+  reporterOptions: {
+    junit: {
+      outputDir: './tests/webdriverio/reports'
+    },
+  },
   screenshotPath: 'screenshots',
-  logLevel: 'verbose',
   suites: {
     login: [
       'tests/webdriverio/specs/login.spec.js',
