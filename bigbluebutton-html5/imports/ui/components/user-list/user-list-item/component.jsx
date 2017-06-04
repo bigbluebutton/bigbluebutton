@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Icon from '/imports/ui/components/icon/component';
 import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';

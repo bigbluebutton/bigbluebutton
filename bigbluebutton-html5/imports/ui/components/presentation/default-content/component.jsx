@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './styles.scss';
 import { FormattedMessage, FormattedDate } from 'react-intl';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import Button from '../../button/component';
 
 export default class DefaultContent extends Component {
@@ -12,7 +12,7 @@ export default class DefaultContent extends Component {
 
   render() {
     return (
-      <ReactCSSTransitionGroup
+      <CSSTransitionGroup
         transitionName={ {
           appear: styles.appear,
           appearActive: styles.appearActive,
@@ -170,7 +170,7 @@ export default class DefaultContent extends Component {
             </div>
           </div>
         </div>
-      </ReactCSSTransitionGroup>
+      </CSSTransitionGroup>
     );
   }
 }
