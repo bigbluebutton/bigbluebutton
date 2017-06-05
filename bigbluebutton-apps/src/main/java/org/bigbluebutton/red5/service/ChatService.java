@@ -25,12 +25,9 @@ import java.util.Date;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
-import org.slf4j.Logger;
 
-public class ChatService {	
-	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
+public class ChatService {
 	
 	private MessagePublisher red5BBBInGw;
 	private int maxMessageLength;
@@ -86,7 +83,7 @@ public class ChatService {
 			red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
 		}
 		else {
-			log.warn("sendPublicMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
+		//	log.warn("sendPublicMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
 		}
 	}
 	
@@ -129,7 +126,7 @@ public class ChatService {
 			red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
 		}
 		else {
-			log.warn("sendPrivateMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
+		//	log.warn("sendPrivateMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
 		}
 	}
 }

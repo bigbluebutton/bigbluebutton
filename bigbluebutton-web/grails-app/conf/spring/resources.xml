@@ -31,13 +31,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="redisStorageService" ref="redisStorageService"/>
     </bean>
 
-  <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
+     <bean id="messageSender" class="org.bigbluebutton.api.messaging.MessageSender">
+        <property name="gw" ref="bbbWebApiGWApp" />
+     </bean>
 
-  <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService" 
-       init-method="start" destroy-method="stop">
-    <property name="runEvery" value="${checkBBBServerEvery}"/>
-    <property name="messagingService" ref="messagingService" />
-  </bean>
+    <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
+
+    <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService"
+           init-method="start" destroy-method="stop">
+        <property name="runEvery" value="${checkBBBServerEvery}"/>
+        <property name="publisherService" ref="messagingService" />
+    </bean>
 
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
         <property name="messagingService" ref="messagingService"/>
@@ -46,6 +50,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
+        <property name="gw" ref="bbbWebApiGWApp" />
+    </bean>
+
+    <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
+        <constructor-arg index="0" ref="redisMessageHandler"/>
+    </bean>
+
+  <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
+    <constructor-arg index="0" ref="oldMessageReceivedGW"/>
   </bean>
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>

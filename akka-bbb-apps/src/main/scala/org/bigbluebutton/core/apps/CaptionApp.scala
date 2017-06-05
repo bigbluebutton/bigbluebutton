@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.{ MeetingActor }
 
@@ -12,9 +10,9 @@ trait CaptionApp {
   val outGW: OutMessageGateway
 
   def handleSendCaptionHistoryRequest(msg: SendCaptionHistoryRequest) {
-    var history = liveMeeting.captionModel.getHistory()
+    val history = liveMeeting.captionModel.getHistory()
     //println("Caption history requested " + history)
-    outGW.send(new SendCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, history))
+    outGW.send(new SendCaptionHistoryReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, history))
   }
 
   def handleUpdateCaptionOwnerRequest(msg: UpdateCaptionOwnerRequest) {
@@ -24,7 +22,7 @@ trait CaptionApp {
         liveMeeting.captionModel.changeTranscriptOwner(t, "")
 
         // send notification that owner has changed
-        outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, t, liveMeeting.captionModel.findLocaleCodeByLocale(t), ""))
+        outGW.send(new UpdateCaptionOwnerReply(props.meetingProp.intId, props.recordProp.record, t, liveMeeting.captionModel.findLocaleCodeByLocale(t), ""))
       })
     }
     // create the locale if it doesn't exist
@@ -34,7 +32,7 @@ trait CaptionApp {
       liveMeeting.captionModel.newTranscript(msg.locale, msg.localeCode, msg.ownerID)
     }
 
-    outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, msg.locale, msg.localeCode, msg.ownerID))
+    outGW.send(new UpdateCaptionOwnerReply(props.meetingProp.intId, props.recordProp.record, msg.locale, msg.localeCode, msg.ownerID))
   }
 
   def handleEditCaptionHistoryRequest(msg: EditCaptionHistoryRequest) {
@@ -42,7 +40,7 @@ trait CaptionApp {
       if (t == msg.locale) {
         liveMeeting.captionModel.editHistory(msg.startIndex, msg.endIndex, msg.locale, msg.text)
 
-        outGW.send(new EditCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.localeCode, msg.text))
+        outGW.send(new EditCaptionHistoryReply(props.meetingProp.intId, props.recordProp.record, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.localeCode, msg.text))
       }
     })
   }
@@ -52,7 +50,7 @@ trait CaptionApp {
       liveMeeting.captionModel.changeTranscriptOwner(t, "")
 
       // send notification that owner has changed
-      outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, t, liveMeeting.captionModel.findLocaleCodeByLocale(t), ""))
+      outGW.send(new UpdateCaptionOwnerReply(props.meetingProp.intId, props.recordProp.record, t, liveMeeting.captionModel.findLocaleCodeByLocale(t), ""))
     })
   }
 }

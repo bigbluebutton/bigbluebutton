@@ -1,7 +1,6 @@
 package org.bigbluebutton.core
 
 import akka.actor.Actor
-import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
@@ -20,8 +19,6 @@ import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import org.bigbluebutton.common.messages.AllowUserToShareDesktopReply
 import org.bigbluebutton.core.apps.Page
-
-import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
@@ -38,7 +35,6 @@ import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
-import org.bigbluebutton.core
 
 object MessageSenderActor {
   def props(msgSender: MessageSender): Props =
@@ -705,6 +701,7 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleUserJoined(msg: UserJoined) {
     val json = UsersMessageToJsonConverter.userJoinedToJson(msg)
+    //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 

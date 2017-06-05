@@ -30,7 +30,7 @@ public class Meeting {
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;
-	private String parentMeetingId;
+	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Integer duration = 0;	 
 	private long createdTime = 0;
@@ -43,7 +43,7 @@ public class Meeting {
 	private String viewerPass;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String modOnlyMessage;
+	private String modOnlyMessage = "bbb-None";
 	private String logoutUrl;
 	private int maxUsers;
 	private boolean record;
@@ -63,7 +63,7 @@ public class Meeting {
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList();
 	
-    public Meeting(Builder builder) {
+    public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;

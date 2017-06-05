@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ MeetingActor }
 
 trait SharedNotesApp {
   this: MeetingActor =>
@@ -19,20 +19,20 @@ trait SharedNotesApp {
 
     val (patchID, patch, undo, redo) = liveMeeting.notesModel.patchDocument(msg.noteID, msg.patch, msg.operation)
 
-    if (patch != "") outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, requesterID, msg.noteID, patch, patchID, undo, redo))
+    if (patch != "") outGW.send(new PatchDocumentReply(props.meetingProp.intId, props.recordProp.record, requesterID, msg.noteID, patch, patchID, undo, redo))
   }
 
   def handleGetCurrentDocumentRequest(msg: GetCurrentDocumentRequest) {
     val notesReport = liveMeeting.notesModel.notesReport.toMap
 
-    outGW.send(new GetCurrentDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, notesReport))
+    outGW.send(new GetCurrentDocumentReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, notesReport))
   }
 
   private def createAdditionalNotes(requesterID: String, noteName: String = "") {
     liveMeeting.notesModel.synchronized {
       val noteID = liveMeeting.notesModel.createNote(noteName)
 
-      outGW.send(new CreateAdditionalNotesReply(mProps.meetingID, mProps.recorded, requesterID, noteID, noteName))
+      outGW.send(new CreateAdditionalNotesReply(props.meetingProp.intId, props.recordProp.record, requesterID, noteID, noteName))
     }
   }
 
@@ -44,7 +44,7 @@ trait SharedNotesApp {
     liveMeeting.notesModel.synchronized {
       liveMeeting.notesModel.destroyNote(msg.noteID)
 
-      outGW.send(new DestroyAdditionalNotesReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.noteID))
+      outGW.send(new DestroyAdditionalNotesReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.noteID))
     }
   }
 
@@ -56,7 +56,7 @@ trait SharedNotesApp {
 
   def handleSharedNotesSyncNoteRequest(msg: SharedNotesSyncNoteRequest) {
     liveMeeting.notesModel.getNoteReport(msg.noteID) match {
-      case Some(note) => outGW.send(new SharedNotesSyncNoteReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.noteID, note))
+      case Some(note) => outGW.send(new SharedNotesSyncNoteReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.noteID, note))
       case None =>
     }
   }

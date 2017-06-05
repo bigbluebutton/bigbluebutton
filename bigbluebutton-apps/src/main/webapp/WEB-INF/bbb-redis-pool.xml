@@ -26,10 +26,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util 
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
-  	
+  	<!--
     <bean id="redisPool" class="redis.clients.jedis.JedisPool">
         <constructor-arg index="0" value="${redis.host}"/>
         <constructor-arg index="1" value="${redis.port}"/>
     </bean>
-	       
+	    -->
 </beans>

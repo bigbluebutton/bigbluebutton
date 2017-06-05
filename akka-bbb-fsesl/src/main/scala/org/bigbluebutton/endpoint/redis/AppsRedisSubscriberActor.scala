@@ -1,23 +1,25 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.Props
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy.Resume
-import java.io.{ PrintWriter, StringWriter }
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.net.InetSocketAddress
-import redis.actors.RedisSubscriberActor
-import redis.api.pubsub.{ PMessage, Message }
-import scala.concurrent.duration._
-import akka.actor.ActorRef
-import akka.actor.actorRef2Scala
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
+
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
-import redis.api.servers.ClientSetname
 import org.bigbluebutton.common.converters.FromJsonDecoder
 import org.bigbluebutton.common.messages.PubSubPongMessage
+import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
+
 import akka.actor.ActorSystem
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor.OneForOneStrategy
+import akka.actor.Props
+import akka.actor.SupervisorStrategy.Resume
+import redis.actors.RedisSubscriberActor
+import redis.api.pubsub.Message
+import redis.api.pubsub.PMessage
+import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
@@ -31,9 +33,10 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 }
 
 class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessageReceiver, redisHost: String,
-  redisPort: Int, channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
+  redisPort: Int,
+  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns) {
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -69,7 +72,7 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
   def onPMessage(pmessage: PMessage) {
     //    log.debug(s"pattern message received: $pmessage")
 
-    val msg = decoder.decodeMessage(pmessage.data)
+    val msg = decoder.decodeMessage(pmessage.data.utf8String)
 
     if (msg != null) {
       msg match {
@@ -81,7 +84,7 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
         case _ => // do nothing
       }
     } else {
-      msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data)
+      msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
     }
 
   }

@@ -25,7 +25,8 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import org.bigbluebutton.client.IClientInGW;
+import org.bigbluebutton.client.ConnInfo;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
@@ -44,6 +45,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	private ConnectionInvokerService connInvokerService;
 	private MessagePublisher red5InGW;
+	private IClientInGW clientInGW;
 
 	private final UserConnectionMapper userConnections = new UserConnectionMapper();
 
@@ -145,6 +147,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		boolean record = (Boolean)params[4];
 		
 		String externalUserID = ((String) params[5]).toString();
+
 		String internalUserID = ((String) params[6]).toString();
     	
 		Boolean muted  = false;
@@ -165,7 +168,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		if (params.length >= 9 && ((Boolean) params[9])) {
 			guest = true;
 		}
-		   	    	
+
+		String authToken = ((String) params[10]).toString();
+
 		String userId = internalUserID;
 		String sessionId = Red5.getConnectionLocal().getSessionId();
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
@@ -203,7 +208,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID, muted, sessionId, guest);
+    			voiceBridge, record, externalUserID, muted, sessionId, guest, authToken);
 		connection.setAttribute(Constants.SESSION, bbbSession);        
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
 		connection.setAttribute("USER_SESSION_ID", sessionId);
@@ -239,8 +244,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String logStr =  gson.toJson(logData);
 		
 		log.info("User joining bbb-apps: data={}", logStr);
-
+		System.out.println("User joining bbb-apps: data=" + logStr);
 		userConnections.addUserConnection(userId, connId);
+
+		ConnInfo connInfo = getConnInfo();
+		clientInGW.connect(connInfo);
 
 		return super.roomConnect(connection, params);
         
@@ -268,6 +276,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String userId = bbbSession.getInternalUserID();
 	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
 	    String userFullname = bbbSession.getUsername();
+	    // TODO: Setup auth token properly
+//	    log.error("**** TODO: Setup auth token properly");
+
+		String token = bbbSession.getUsername();
 	    String connId = Red5.getConnectionLocal().getSessionId();
 		String clientId = Red5.getConnectionLocal().getClient().getId();
         String sessionId =  CONN + userId;
@@ -289,15 +301,36 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 		boolean removeUser = userConnections.userDisconnected(userId, connId);
 		if (removeUser) {
-			log.info("User leaving bbb-apps: data={}", logStr);
+		//	log.info("User leaving bbb-apps: data={}", logStr);
+			System.out.println("User leaving bbb-apps: data=" + logStr);
 			red5InGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
 		} else {
 			log.info("User not leaving bbb-apps but just disconnected: data={}", logStr);
 		}
 
+		ConnInfo connInfo = new ConnInfo(meetingId, userId, token, connId, sessionId);
+		clientInGW.disconnect(connInfo);
+
 		super.roomDisconnect(conn);
 	}
-	
+
+	public void onMessageFromClient(String json) {
+		System.out.println("onMessageFromClient \n" + json);
+		ConnInfo connInfo = getConnInfo();
+		clientInGW.handleMsgFromClient(connInfo, json);
+	}
+
+	private ConnInfo getConnInfo() {
+		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+		assert bbbSession != null;
+		String userId = bbbSession.getInternalUserID();
+		String meetingId = Red5.getConnectionLocal().getScope().getName();
+		String connId = Red5.getConnectionLocal().getSessionId();
+		String sessionId =  CONN + connId + "-" + userId;
+		String token = bbbSession.getAuthToken();
+		return new ConnInfo(meetingId, userId, token, connId, sessionId);
+	}
+
 	public void validateToken(Map<String, String> msg) {
 	   String token = (String) msg.get("authToken");
 	        
@@ -320,7 +353,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         Gson gson = new Gson();
         String logStr =  gson.toJson(logData);
             
-        log.info("User validate token bbb-apps: data={}", logStr);
+       // log.info("User validate token bbb-apps: data={}", logStr);
+		System.out.println("User validate token bbb-apps: data=" + logStr);
+				System.out.println("User validate token bbb-apps: data=" + logStr);
         red5InGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
 		
@@ -342,6 +377,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	
 	public void setRed5Publisher(MessagePublisher red5InGW) {
 		this.red5InGW = red5InGW;
+	}
+
+	public void setClientInGW(IClientInGW clientInGW) {
+		this.clientInGW = clientInGW;
 	}
 	
 }

@@ -20,16 +20,11 @@
 package org.bigbluebutton.red5.service;
 
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 
 public class SharedNotesService {
-
-	private static Logger log = Red5LoggerFactory.getLogger( SharedNotesService.class, "bigbluebutton" );
 
 	private SharedNotesApplication sharedNotesApplication;
 
@@ -38,7 +33,6 @@ public class SharedNotesService {
 	}
 
 	public void currentDocument() {
-		log.debug("SharedNotesService.currentDocument");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 
@@ -46,7 +40,6 @@ public class SharedNotesService {
 	}
 
 	public void patchDocument(Map<String, Object> msg) {
-		log.debug("SharedNotesService.patchDocument");
 		String noteID = msg.get("noteID").toString();
 		String patch = msg.get("patch").toString();
 		String operation = msg.get("operation").toString();
@@ -58,7 +51,6 @@ public class SharedNotesService {
 	}
 
 	public void createAdditionalNotes(Map<String, Object> msg) {
-		log.debug("SharedNotesService.createAdditionalNotes");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 		String noteName = msg.get("noteName").toString();
@@ -67,7 +59,6 @@ public class SharedNotesService {
 	}
 
 	public void destroyAdditionalNotes(Map<String, Object> msg) {
-		log.debug("SharedNotesService.destroyAdditionalNotes");
 		String noteID = msg.get("noteID").toString();
 
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
@@ -77,7 +68,6 @@ public class SharedNotesService {
 	}
 
 	public void requestAdditionalNotesSet(Map<String, Object> msg) {
-		log.debug("SharedNotesService.requestAdditionalNotesSet");
 		Integer additionalNotesSetSize = (Integer) msg.get("additionalNotesSetSize");
 
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
@@ -87,7 +77,6 @@ public class SharedNotesService {
 	}
 
 	public void sharedNotesSyncNoteRequest(Map<String, Object> msg) {
-		log.debug("SharedNotesService.sharedNotesSyncNoteRequest");
 		String noteID = msg.get("noteID").toString();
 
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
@@ -97,7 +86,6 @@ public class SharedNotesService {
 	}
 
 	public void setSharedNotesApplication(SharedNotesApplication a) {
-		log.debug("Setting sharedNotes sharedNotesApplication");
 		sharedNotesApplication = a;
 	}
 }

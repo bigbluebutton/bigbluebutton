@@ -4,10 +4,6 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.messages._
 
-import spray.json.JsArray
-import spray.json.JsObject
-import spray.json.JsString
-
 object MeetingMessageToJsonConverter {
   def meetingDestroyedToJson(msg: MeetingDestroyed): String = {
     val payload = new java.util.HashMap[String, Any]()

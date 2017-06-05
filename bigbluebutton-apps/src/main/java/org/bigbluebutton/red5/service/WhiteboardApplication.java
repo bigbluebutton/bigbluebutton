@@ -18,16 +18,13 @@
 */
 package org.bigbluebutton.red5.service;
 
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
-import org.slf4j.Logger;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 
-public class WhiteboardApplication implements IApplication {	
-	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
+public class WhiteboardApplication implements IApplication {
 
 	private MessagePublisher red5BBBInGW;
 

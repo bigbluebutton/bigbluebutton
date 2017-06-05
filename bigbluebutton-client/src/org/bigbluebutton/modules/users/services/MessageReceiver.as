@@ -252,6 +252,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleJoinedMeeting(msg:Object):void {
+		LOGGER.debug("*** handleJoinedMeeting {0} **** \n", [msg.msg]); 
       var map:Object = JSON.parse(msg.msg);
       var userid: String = map.user.userId;
       

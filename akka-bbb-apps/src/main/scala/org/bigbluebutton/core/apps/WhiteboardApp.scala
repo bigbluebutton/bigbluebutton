@@ -42,44 +42,44 @@ trait WhiteboardApp {
     }
     if (liveMeeting.wbModel.hasWhiteboard(wbId)) {
       //        println("WhiteboardApp::handleSendWhiteboardAnnotationRequest - num shapes [" + wb.shapes.length + "]")
-      outGW.send(new SendWhiteboardAnnotationEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wbId, shape))
+      outGW.send(new SendWhiteboardAnnotationEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, wbId, shape))
     }
 
   }
 
   def handleSendCursorPositionRequest(msg: SendCursorPositionRequest) {
-    outGW.send(new CursorPositionUpdatedEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.xPercent, msg.yPercent))
+    outGW.send(new CursorPositionUpdatedEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.xPercent, msg.yPercent))
   }
 
   def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
     val history = liveMeeting.wbModel.getHistory(msg.whiteboardId);
     if (history.length > 0) {
-      outGW.send(new GetWhiteboardShapesReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, history, msg.replyTo))
+      outGW.send(new GetWhiteboardShapesReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.whiteboardId, history, msg.replyTo))
     }
   }
 
   def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
     //println("WB: Received clear whiteboard")
     liveMeeting.wbModel.clearWhiteboard(msg.whiteboardId, msg.requesterID) foreach { fullClear =>
-      outGW.send(new ClearWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, fullClear))
+      outGW.send(new ClearWhiteboardEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.whiteboardId, fullClear))
     }
   }
 
   def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {
     //    println("WB: Received undo whiteboard")
     liveMeeting.wbModel.undoWhiteboard(msg.whiteboardId, msg.requesterID) foreach { last =>
-      outGW.send(new UndoWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, last.id))
+      outGW.send(new UndoWhiteboardEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.whiteboardId, last.id))
     }
   }
 
   def handleModifyWhiteboardAccessRequest(msg: ModifyWhiteboardAccessRequest) {
     liveMeeting.wbModel.modifyWhiteboardAccess(msg.multiUser)
-    outGW.send(new ModifiedWhiteboardAccessEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.multiUser))
+    outGW.send(new ModifiedWhiteboardAccessEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.multiUser))
   }
 
   def handleGetWhiteboardAccessRequest(msg: GetWhiteboardAccessRequest) {
     val multiUser = liveMeeting.wbModel.getWhiteboardAccess()
-    outGW.send(new GetWhiteboardAccessReply(mProps.meetingID, mProps.recorded, msg.requesterID, multiUser))
+    outGW.send(new GetWhiteboardAccessReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, multiUser))
   }
 }

@@ -3,8 +3,7 @@ package org.bigbluebutton.core.pubsub.senders
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.apps.AnnotationVO
-import collection.JavaConverters._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object WhiteboardMessageToJsonConverter {
   private def shapeToMap(shape: AnnotationVO): java.util.Map[String, Any] = {
@@ -20,9 +19,9 @@ object WhiteboardMessageToJsonConverter {
     for ((key, value) <- shape.shape) {
       shapeMap += key -> value
     }
-    res += "shape" -> mapAsJavaMap(shapeMap)
+    res += "shape" -> mapAsJavaMapConverter(shapeMap).asJava
 
-    mapAsJavaMap(res)
+    mapAsJavaMapConverter(res).asJava
   }
 
   def getWhiteboardShapesReplyToJson(msg: GetWhiteboardShapesReply): String = {

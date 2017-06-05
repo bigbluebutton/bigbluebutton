@@ -13,21 +13,27 @@ class DirectChatModelTest extends UnitSpec {
     val between = Set("user1", "user2")
     val directChats = new DirectChats()
     val dc = DirectChats.create(between, directChats)
-    val dm2 = dc.append(dm)
+
+    // Add a message and check that there is only one message
+    dc.append(dm)
     assert(dc.messages.length == 1)
 
-    val dm3 = dc.append(dm)
+    // Add another message and check that there are two messages
+    dc.append(dm)
     assert(dc.messages.length == 2)
 
+    // Find the direct chat
     val dc2 = DirectChats.find(between, directChats)
     dc2 match {
       case Some(directChat) => assert(directChat.messages.length == 2)
       case None => fail("No direct chat found!")
     }
 
-    val dm4 = dc.append(dm)
+    // Append a third message and make sure there are three messages
+    dc.append(dm)
     assert(dc.messages.length == 3)
 
+    // Check that we are updating the correct direct chat in the model.
     val dc3 = DirectChats.find(between, directChats)
     dc3 match {
       case Some(directChat) => assert(directChat.messages.length == 3)

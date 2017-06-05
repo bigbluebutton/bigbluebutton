@@ -110,6 +110,17 @@ package org.bigbluebutton.main.model.users
           }
         }   
             
+        public function onMessageFromServer2x(messageName:String, msg:String):void {
+            trace("onMessageFromServer2x - " + msg);
+            var map:Object = JSON.parse(msg);  
+            var header: Object = map.header as Object;
+            var body: Object = map.body as Object;
+
+            var tokenValid: Boolean = body.valid as Boolean;
+            var userId: String = body.userId as String;
+            trace("onMessageFromServer - " + tokenValid);
+        }
+
         public function onMessageFromServer(messageName:String, msg:Object):void {
           if (!authenticated && (messageName == "validateAuthTokenReply")) {
             handleValidateAuthTokenReply(msg)
@@ -130,13 +141,53 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
         }
 
-        private function validateToken():void {
+        private function validateToken2x():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
           
+			var header:Object = new Object();
+			header.name = "ValidateAuthTokenReqMsg";
+			header.meetingId = confParams.meetingID;
+
+			var body:Object = new Object();
+			body.userId = confParams.internalUserID;
+			body.authToken = confParams.authToken;
+			
+            //var message:Object = new Object();
+            //message["userId"] = confParams.internalUserID;
+            //message["authToken"] = confParams.authToken;
+			
+			var message:Object = new Object();
+			message.header = header;
+			message.body = body;
+                    
+            sendMessage(
+                "onMessageFromClient",// Remote function name
+                // result - On successful result
+                function(result:Object):void { 
+              
+                },
+                // status - On error occurred
+                function(status:Object):void {
+                    LOGGER.error("Error occurred:");
+                    for (var x:Object in status) {
+                        LOGGER.error(x + " : " + status[x]);
+                    } 
+                },
+                JSON.stringify(message)
+            ); //_netConnection.call      
+            
+            _validateTokenTimer = new Timer(10000, 1);
+            _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
+            _validateTokenTimer.start();
+        }
+
+        private function validateToken():void {
+            var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
+            
             var message:Object = new Object();
             message["userId"] = confParams.internalUserID;
             message["authToken"] = confParams.authToken;
-                    
+                                
             sendMessage(
                 "validateToken",// Remote function name
                 // result - On successful result
@@ -297,7 +348,7 @@ package org.bigbluebutton.main.model.users
                                         confParams.room, confParams.voicebridge, 
                                         confParams.record, confParams.externUserID,
                                         confParams.internalUserID, confParams.muteOnStart,
-                                        confParams.lockSettings, confParams.guest);
+                                        confParams.lockSettings, confParams.guest, confParams.authToken);
                    
             } catch(e:ArgumentError) {
                 // Invalid parameters.
@@ -368,6 +419,7 @@ package org.bigbluebutton.main.model.users
                     logData.message = "Successfully connected to bbb-apps.";
                     LOGGER.info(JSON.stringify(logData));
                     validateToken();
+                    validateToken2x();
                     break;
 
                 case "NetConnection.Connect.Failed":
