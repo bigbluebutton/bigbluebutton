@@ -150,15 +150,8 @@ class UserList extends Component {
   }
 
   componentWillUnmount() {
-<<<<<<< HEAD
-    this._msgsList.removeEventListener('keypress', function (event) { }, false);
-
-    this._usersList.removeEventListener('keypress', function (event) { }, false);
-=======
     this._msgsList.removeEventListener('keypress', (event) => {}, false);
-
     this._usersList.removeEventListener('keypress', (event) => {}, false);
->>>>>>> upstream/master
   }
 
   render() {
@@ -207,11 +200,7 @@ class UserList extends Component {
           !this.state.compact ?
             <div className={styles.smallTitle} role="banner">
               {intl.formatMessage(intlMessages.messagesTitle)}
-<<<<<<< HEAD
-            </div> : <hr className={styles.separator}></hr>
-=======
             </div> : <hr className={styles.separator} />
->>>>>>> upstream/master
         }
         <div
           tabIndex={0}
@@ -295,13 +284,8 @@ class UserList extends Component {
           !this.state.compact ?
             <div className={styles.smallTitle} role="banner">
               {intl.formatMessage(intlMessages.usersTitle)}
-<<<<<<< HEAD
-              &nbsp;({users.length})
-          </div> : <hr className={styles.separator}></hr>
-=======
             &nbsp;({users.length})
           </div> : <hr className={styles.separator} />
->>>>>>> upstream/master
         }
         <div
           className={styles.scrollableList}
