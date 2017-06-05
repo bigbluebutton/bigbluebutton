@@ -530,6 +530,7 @@ class ApiController {
               meeting_id() { mkp.yield(us.meetingID) }
               user_id(us.internalUserId)
               auth_token(us.authToken)
+              session_token(session[sessionToken])
             }
           }
         }
@@ -1269,17 +1270,13 @@ class ApiController {
     UserSession us = null;
     Meeting meeting = null;
 
-    if (!session[sessionToken]) {
+    if (meetingService.getUserSession(sessionToken) == null)
       reject = true;
-    } else {
-      if (meetingService.getUserSession(sessionToken) == null)
-        reject = true;
-      else {
-        us = meetingService.getUserSession(sessionToken);
-        meeting = meetingService.getMeeting(us.meetingID);
-        if (meeting == null || meeting.isForciblyEnded()) {
-          reject = true
-        }
+    else {
+      us = meetingService.getUserSession(sessionToken);
+      meeting = meetingService.getMeeting(us.meetingID);
+      if (meeting == null || meeting.isForciblyEnded()) {
+        reject = true
       }
     }
 
