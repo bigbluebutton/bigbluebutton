@@ -74,9 +74,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 				_lastXPosition = x;
 				_lastYPosition = y;
 				
-				var np:Point = _shapeFactory.normalizePoint(x, y);
+				// Need to avoid divide by zero complications (definitely can happen, don't remove check unless you really know what you're doing)
+				if (_shapeFactory.parentHeight != 0 || _shapeFactory.parentWidth != 0) {
+					var np:Point = _shapeFactory.normalizePoint(x, y);
 				
-				_wbCanvas.sendCursorPositionToServer(np.x, np.y);
+					_wbCanvas.sendCursorPositionToServer(np.x, np.y);
+				}
 			}
 		}
 		
