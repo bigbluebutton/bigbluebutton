@@ -54,14 +54,6 @@ const messages = defineMessages({
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
-  userItemStatusAriaLabel: {
-    id: 'app.userlist.useritem.status.arialabel',
-    description: 'adds aria label for user and status',
-  },
-  userItemAriaLabel: {
-    id: 'app.userlist.useritem.nostatus.arialabel',
-    description: 'aria label for user',
-  },
 });
 
 const userActionsTransition = {
@@ -271,14 +263,9 @@ class UserListItem extends Component {
       : null;
 
     let userAriaLabel = (user.emoji.status === 'none')
-      ? intl.formatMessage(messages.userItemAriaLabel,
-          { 0: user.name, 1: presenter, 2: you, })
-      : intl.formatMessage(messages.userItemStatusAriaLabel,
-          { 0: user.name,
-            1: presenter,
-            2: you,
-            3: user.emoji.status, });
-
+      ? (user.name + " " + presenter + " " + you)
+      : (user.name + " " + presenter + " " + you + " " + user.emoji.status);
+      
     let actions = this.getAvailableActions();
     let contents = (
       <div
