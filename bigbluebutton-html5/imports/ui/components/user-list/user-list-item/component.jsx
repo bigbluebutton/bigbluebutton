@@ -162,6 +162,7 @@ class UserListItem extends Component {
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
   checkDropdownDirection() {
+
     if (this.isDropdownActivedByUser()) {
       const dropdown = findDOMNode(this.refs.dropdown);
       const dropdownTrigger = dropdown.children[0];
@@ -183,7 +184,7 @@ class UserListItem extends Component {
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
       }
-
+            
       this.setState(nextState);
     }
   }
@@ -195,6 +196,17 @@ class UserListItem extends Component {
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
+    const list = findDOMNode(this.refs.list);
+
+    if (isActionsOpen, dropdownVisible) {
+      for(let i = 0; i < list.children.length; i++){
+        if(list.children[i].getAttribute('role') === 'menuitem'){
+          list.children[i].focus();
+          continue;
+        }
+      }
+    }
+    
     return isActionsOpen && !dropdownVisible;
   }
 
@@ -303,7 +315,7 @@ class UserListItem extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}>
 
-          <DropdownList>
+          <DropdownList ref="list">
             {
               [
                 (<DropdownListTitle
@@ -360,7 +372,7 @@ class UserListItem extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}>
 
-          <DropdownList>
+          <DropdownList ref="listref">
             {
               [
                 (<DropdownListTitle
