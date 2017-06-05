@@ -25,7 +25,7 @@ export default class DropdownList extends Component {
     this.childrenRefs = [];
     this.handleItemKeyDown = this.handleItemKeyDown.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
-    this.counter = 0;
+    this.focusedItemIndex = 0;
   }
 
   componentWillMount() {
@@ -51,7 +51,7 @@ export default class DropdownList extends Component {
   handleItemKeyDown(event, callback) {
     const { dropdownHide } = this.props;
     const { activeItemIndex } = this.state;
-    
+
     let selectableItems = [];
     for (let i = 0; i < (this._menu.children.length); i++) {
       if (this._menu.children[i].getAttribute("role") === 'menuitem'){
@@ -63,7 +63,7 @@ export default class DropdownList extends Component {
       event.preventDefault();
       event.stopPropagation();
 
-      selectableItems[this.counter].focus();
+      selectableItems[this.focusedItemIndex].focus();
     }
 
     if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(event.keyCode)) {
@@ -74,20 +74,20 @@ export default class DropdownList extends Component {
     }
 
     if (KEY_CODES.ARROW_DOWN === event.which) {
-      this.counter += 1;
+      this.focusedItemIndex += 1;
 
-      if (!selectableItems[this.counter]) {
-        this.counter = 0;
+      if (!selectableItems[this.focusedItemIndex]) {
+        this.focusedItemIndex = 0;
       }
 
       focusMenuItem();
     }
 
     if (KEY_CODES.ARROW_UP === event.which) {
-      this.counter -= 1;
+      this.focusedItemIndex -= 1;
 
-      if (this.counter < 0) {
-        this.counter = selectableItems.length - 1;
+      if (this.focusedItemIndex < 0) {
+        this.focusedItemIndex = selectableItems.length - 1;
       }
       
       focusMenuItem();

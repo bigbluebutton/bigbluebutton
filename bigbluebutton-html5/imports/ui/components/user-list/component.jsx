@@ -93,7 +93,7 @@ class UserList extends Component {
     if (event.keyCode === KEY_CODES.ARROW_UP) {
       this.focusedItemIndex -= 1;
 
-      if (this.focusedItemIndex <= -1) {
+      if (this.focusedItemIndex < 0) {
         this.focusedItemIndex = numberOfItems - 1;
       }
 
