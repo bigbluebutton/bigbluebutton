@@ -40,7 +40,7 @@ class PollingComponent extends React.Component {
           </p>
         </div>
         {poll.answers.map((pollAnswer, index) =>
-          <div
+          (<div
             key={index}
             style={calculatedStyles}
             className={styles.pollButtonWrapper}
@@ -66,11 +66,11 @@ class PollingComponent extends React.Component {
             >
               {`Select this option to vote for ${pollAnswer.key}`}
             </div>
-          </div>
+          </div>),
         )}
       </div>
     );
   }
-};
+}
 
 export default injectIntl(PollingComponent);

@@ -18,6 +18,6 @@ export default function lockAllViewersMic(meetingId) {
     muteToggle({
       meetingId,
       requesterUserId: user.userId,
-    }, userId, true)
+    }, userId, true),
   );
-};
+}

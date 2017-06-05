@@ -14,21 +14,19 @@ import {
 class SettingsContainer extends Component {
   render() {
     return (
-      <Settings {...this.props}/>
+      <Settings {...this.props} />
     );
   }
 }
 
-export default createContainer(function () {
-  return {
-    audio: SettingsService.audio,
-    video: SettingsService.video,
-    application: SettingsService.application,
-    cc: SettingsService.cc,
-    participants: SettingsService.participants,
-    updateSettings,
-    locales: getClosedCaptionLocales(),
-    availableLocales: getAvailableLocales(),
-    isModerator: getUserRoles() === 'MODERATOR',
-  };
-}, SettingsContainer);
+export default createContainer(() => ({
+  audio: SettingsService.audio,
+  video: SettingsService.video,
+  application: SettingsService.application,
+  cc: SettingsService.cc,
+  participants: SettingsService.participants,
+  updateSettings,
+  locales: getClosedCaptionLocales(),
+  availableLocales: getAvailableLocales(),
+  isModerator: getUserRoles() === 'MODERATOR',
+}), SettingsContainer);

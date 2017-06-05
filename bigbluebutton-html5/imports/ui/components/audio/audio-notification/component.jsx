@@ -45,23 +45,24 @@ class AudioNotification extends Component {
 
     if (!color || !message) {
       return null;
-    } else {
-      return (
-        <div
-          role="alert"
-          className={cx(styles.audioNotifications, styles[this.props.color])}>
-          {message}
-          <Button className={styles.closeBtn}
-            label={intl.formatMessage(intlMessages.closeLabel)}
-            icon={'close'}
-            size={'sm'}
-            circle={true}
-            hideLabel={true}
-            onClick={this.handleClose}
-          />
-        </div>
-      );
     }
+    return (
+      <div
+        role="alert"
+        className={cx(styles.audioNotifications, styles[this.props.color])}
+      >
+        {message}
+        <Button
+          className={styles.closeBtn}
+          label={intl.formatMessage(intlMessages.closeLabel)}
+          icon={'close'}
+          size={'sm'}
+          circle
+          hideLabel
+          onClick={this.handleClose}
+        />
+      </div>
+    );
   }
 }
 

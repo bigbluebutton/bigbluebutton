@@ -21,7 +21,7 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
         return Logger.error(`Unsetting the current slide: ${err}`);
       }
 
-      return Logger.info(`Unsetted the current slide`);
+      return Logger.info('Unsetted the current slide');
     },
   };
 
@@ -53,4 +53,4 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
   if (oldSlide) {
     Slides.update(oldSlide._id, oldCurrent.modifier, oldCurrent.callback);
   }
-};
+}

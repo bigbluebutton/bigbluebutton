@@ -11,4 +11,4 @@ export default function handleKickUser({ payload }) {
   check(userId, String);
 
   return kickUser(meetingId, userId);
-};
+}

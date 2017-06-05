@@ -28,19 +28,20 @@ export default class DropdownContent extends Component {
     const { placement, className, children, style } = this.props;
     const { dropdownToggle, dropdownShow, dropdownHide } = this.props;
 
-    let placementName = placement.split(' ').join('-');
+    const placementName = placement.split(' ').join('-');
 
     const boundChildren = Children.map(children, child => cloneElement(child, {
-      dropdownToggle: dropdownToggle,
-      dropdownShow: dropdownShow,
-      dropdownHide: dropdownHide,
+      dropdownToggle,
+      dropdownShow,
+      dropdownHide,
     }));
 
     return (
       <div
         style={style}
         aria-expanded={this.props['aria-expanded']}
-        className={cx(styles.content, styles[placementName], className)}>
+        className={cx(styles.content, styles[placementName], className)}
+      >
         <div className={styles.scrollable}>
           {boundChildren}
         </div>

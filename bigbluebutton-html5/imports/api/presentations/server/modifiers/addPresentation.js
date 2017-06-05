@@ -5,9 +5,9 @@ import Logger from '/imports/startup/server/logger';
 import addSlide from '/imports/api/slides/server/modifiers/addSlide';
 
 const addSlides = (meetingId, presentationId, slides) => {
-  let slidesAdded = [];
+  const slidesAdded = [];
 
-  slides.forEach(slide => {
+  slides.forEach((slide) => {
     slidesAdded.push(addSlide(meetingId, presentationId, slide));
   });
 
@@ -50,4 +50,4 @@ export default function addPresentation(meetingId, presentation) {
   };
 
   return Presentations.upsert(selector, modifier, cb);
-};
+}

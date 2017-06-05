@@ -27,4 +27,4 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
   };
 
   return Slides.remove(selector, cb);
-};
+}

@@ -38,7 +38,7 @@ const intlMessages = defineMessages({
 class AppContainer extends Component {
   render() {
     // inject location on the navbar container
-    let navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
+    const navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
 
     return (
       <App {...this.props} navbar={navbarWithLocation}>
@@ -46,36 +46,36 @@ class AppContainer extends Component {
       </App>
     );
   }
-};
+}
 
 export default withRouter(injectIntl(withModalMounter(createContainer((
   { router, intl, mountModal, baseControls }) => {
     // Check if user is kicked out of the session
-    Users.find({ userId: Auth.userID }).observeChanges({
-      changed(id, fields) {
-        if (fields.user && fields.user.kicked) {
-          Auth.clearCredentials()
+  Users.find({ userId: Auth.userID }).observeChanges({
+    changed(id, fields) {
+      if (fields.user && fields.user.kicked) {
+        Auth.clearCredentials()
             .then(() => {
               router.push('/error/403');
               baseControls.updateErrorState(
                 intl.formatMessage(intlMessages.kickedMessage),
               );
             });
-        }
-      },
-    });
+      }
+    },
+  });
 
     // Close the widow when the current breakout room ends
-    Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
-      removed(old) {
-        Auth.clearCredentials().then(window.close);
-      },
-    });
+  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+    removed(old) {
+      Auth.clearCredentials().then(window.close);
+    },
+  });
 
-    return {
-      closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
-      fontSize: getFontSize(),
-    };
-  }, AppContainer))));
+  return {
+    closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+    fontSize: getFontSize(),
+  };
+}, AppContainer))));
 
 AppContainer.defaultProps = defaultProps;

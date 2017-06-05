@@ -10,7 +10,6 @@ import { BREAK_LINE } from '/imports/utils/lineEndings.js';
  * @param {string} userId
  */
 export default function clearUserSystemMessages(meetingId, userId) {
-
   check(meetingId, String);
   check(userId, String);
 
@@ -23,4 +22,4 @@ export default function clearUserSystemMessages(meetingId, userId) {
   };
 
   return Chat.remove(selector, Logger.info(`Removing system messages from: (${userId})`));
-};
+}

@@ -7,9 +7,8 @@ class PollingContainer extends React.Component {
   render() {
     if (this.props.pollExists) {
       return <PollingComponent poll={this.props.poll} handleVote={this.props.handleVote} />;
-    } else {
-      return null;
     }
+    return null;
   }
 }
 

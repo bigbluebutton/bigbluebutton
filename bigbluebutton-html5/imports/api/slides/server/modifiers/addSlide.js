@@ -11,7 +11,7 @@ const requestWhiteboardHistory = (meetingId, slideId) => {
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.whiteboard;
   const EVENT_NAME = 'request_whiteboard_annotation_history_request';
 
-  let payload = {
+  const payload = {
     meeting_id: meetingId,
     requester_id: 'nodeJSapp',
     whiteboard_id: slideId,
@@ -85,11 +85,11 @@ export default function addSlide(meetingId, presentationId, slide) {
     })
     .catch(reason =>
       Logger.error(`Error parsing image size. ${reason}. slide=${slide.id} uri=${imageUri}`));
-};
+}
 
-const fetchImageSizes = (imageUri) =>
+const fetchImageSizes = imageUri =>
   probe(imageUri)
-  .then(result => {
+  .then((result) => {
     if (!SUPPORTED_TYPES.includes(result.mime)) {
       throw `Invalid image type, received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`;
     }
@@ -99,7 +99,7 @@ const fetchImageSizes = (imageUri) =>
       height: result.height,
     };
   })
-  .catch(reason => {
+  .catch((reason) => {
     Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
     return reason;
   });

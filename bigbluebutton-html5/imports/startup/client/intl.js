@@ -29,20 +29,19 @@ class IntlStartup extends Component {
 
     baseControls.updateLoadingState(true);
     fetch(url)
-      .then(response => {
+      .then((response) => {
         if (response.ok) {
           return response.json();
-        } else {
-          this.setState({ appLocale: 'en' });
-          return response.json();
         }
+        this.setState({ appLocale: 'en' });
+        return response.json();
       })
-      .then(messages => {
+      .then((messages) => {
         this.setState({ messages }, () => {
           baseControls.updateLoadingState(false);
         });
       })
-      .catch(reason => {
+      .catch((reason) => {
         baseControls.updateErrorState(reason);
         baseControls.updateLoadingState(false);
       });
@@ -66,7 +65,7 @@ class IntlStartup extends Component {
       </IntlProvider>
     );
   }
-};
+}
 
 export default IntlStartup;
 

@@ -11,10 +11,10 @@ const SETTINGS = [
 
 class Settings {
   constructor(defaultValues = {}) {
-    SETTINGS.forEach(p => {
+    SETTINGS.forEach((p) => {
       const privateProp = `_${p}`;
       this[privateProp] = {
-        tracker: new Tracker.Dependency,
+        tracker: new Tracker.Dependency(),
         value: undefined,
       };
 
@@ -24,7 +24,7 @@ class Settings {
           return this[privateProp].value;
         },
 
-        set: v => {
+        set: (v) => {
           this[privateProp].value = v;
           this[privateProp].tracker.changed();
         },
@@ -36,16 +36,16 @@ class Settings {
   setDefault(defaultValues) {
     const savedSettings = {};
 
-    SETTINGS.forEach(s => {
+    SETTINGS.forEach((s) => {
       savedSettings[s] = Storage.getItem(`settings_${s}`);
     });
 
-    Object.keys(defaultValues).forEach(key => {
+    Object.keys(defaultValues).forEach((key) => {
       this[key] = _.extend(defaultValues[key], savedSettings[key]);
     });
 
     this.save();
-  };
+  }
 
   save() {
     Object.keys(this).forEach(k => Storage.setItem(`settings${k}`, this[k].value));

@@ -19,7 +19,6 @@ const propTypes = {
 class EmojiMenu extends Component {
   constructor(props) {
     super(props);
-
   }
 
   render() {
@@ -30,8 +29,8 @@ class EmojiMenu extends Component {
    } = this.props;
 
     return (
-      <Dropdown autoFocus={true}>
-        <DropdownTrigger placeInTabOrder={true}>
+      <Dropdown autoFocus>
+        <DropdownTrigger placeInTabOrder>
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
@@ -39,14 +38,15 @@ class EmojiMenu extends Component {
             aria-describedby="currentStatus"
             icon="hand"
             ghost={false}
-            circle={true}
+            circle
             hideLabel={false}
             color="primary"
             size="lg"
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
-            onClick={() => null}>
+            onClick={() => null}
+          >
             <div id="currentStatus" hidden>
               {
                 intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus })

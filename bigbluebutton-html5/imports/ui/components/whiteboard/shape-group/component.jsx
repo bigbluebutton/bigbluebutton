@@ -7,7 +7,7 @@ const propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
 
-  //array of shapes, optional
+  // array of shapes, optional
   shapes: PropTypes.array,
 };
 
@@ -25,13 +25,13 @@ export default class ShapeGroup extends React.Component {
 
     return (
       <g>
-        {shapes ? shapes.map((shape) =>
-          <WhiteboardShapeModel
+        {shapes ? shapes.map(shape =>
+          (<WhiteboardShapeModel
             shape={shape.shape}
             key={shape.shape.id}
-            slideWidth = {width}
-            slideHeight = {height}
-          />
+            slideWidth={width}
+            slideHeight={height}
+          />),
           )
         : null }
       </g>

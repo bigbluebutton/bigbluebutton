@@ -25,6 +25,4 @@ const getClientBuildInfo = function () {
   };
 };
 
-export default createContainer(function () {
-  return getClientBuildInfo();
-}, AboutContainer);
+export default createContainer(() => getClientBuildInfo(), AboutContainer);

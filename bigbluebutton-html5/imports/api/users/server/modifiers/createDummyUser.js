@@ -10,7 +10,7 @@ export default function createDummyUser(meetingId, userId, authToken) {
 
   const User = Users.findOne({ meetingId, userId });
   if (User) {
-    throw new Meteor.Error('existing-user', `Tried to create a dummy user for an existing user`);
+    throw new Meteor.Error('existing-user', 'Tried to create a dummy user for an existing user');
   }
 
   const doc = {
@@ -30,4 +30,4 @@ export default function createDummyUser(meetingId, userId, authToken) {
   };
 
   return Users.insert(doc, cb);
-};
+}

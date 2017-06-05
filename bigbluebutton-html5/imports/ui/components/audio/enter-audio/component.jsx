@@ -23,7 +23,7 @@ class EnterAudio extends React.Component {
       </div>
     );
   }
-};
+}
 
 const intlMessages = defineMessages({
   enterSessionLabel: {

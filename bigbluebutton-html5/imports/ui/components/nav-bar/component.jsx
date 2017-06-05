@@ -41,8 +41,9 @@ const defaultProps = {
 
 const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
   mountModal(<BreakoutJoinConfirmation
-             breakoutURL={breakoutURL}
-             breakoutName={breakoutName}/>);
+    breakoutURL={breakoutURL}
+    breakoutName={breakoutName}
+  />);
 
 class NavBar extends Component {
   constructor(props) {
@@ -77,7 +78,7 @@ class NavBar extends Component {
   render() {
     const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
-    let toggleBtnClasses = {};
+    const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
 
@@ -86,9 +87,9 @@ class NavBar extends Component {
         <div className={styles.left}>
           <Button
             onClick={this.handleToggleUserList}
-            ghost={true}
-            circle={true}
-            hideLabel={true}
+            ghost
+            circle
+            hideLabel
             label={intl.formatMessage(intlMessages.toggleUserListLabel)}
             icon={'user'}
             className={cx(toggleBtnClasses)}
@@ -97,11 +98,12 @@ class NavBar extends Component {
           />
           <div
             id="newMessage"
-            aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}/>
+            aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}
+          />
         </div>
         <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
-          <RecordingIndicator beingRecorded={beingRecorded}/>
+          <RecordingIndicator beingRecorded={beingRecorded} />
         </div>
         <div className={styles.right}>
           <SettingsDropdownContainer />
@@ -126,14 +128,16 @@ class NavBar extends Component {
     return (
       <Dropdown
         isOpen={this.state.isActionsOpen}
-        ref="dropdown">
+        ref="dropdown"
+      >
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName='down-arrow'/>
+            {presentationTitle} <Icon iconName="down-arrow" />
           </h1>
         </DropdownTrigger>
         <DropdownContent
-          placement="bottom">
+          placement="bottom"
+        >
           <DropdownList>
             {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
           </DropdownList>
@@ -149,7 +153,7 @@ class NavBar extends Component {
       isBreakoutRoom,
     } = this.props;
 
-    breakouts.forEach(breakout => {
+    breakouts.forEach((breakout) => {
       if (!breakout.users) {
         return;
       }

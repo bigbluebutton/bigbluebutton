@@ -14,7 +14,7 @@ export default class DropdownListTitle extends Component {
     return (
       <div>
         <li className={styles.title} aria-describedby="labelContext">{this.props.children}</li>
-        <div id="labelContext" aria-label={description}></div>
+        <div id="labelContext" aria-label={description} />
       </div>
     );
   }

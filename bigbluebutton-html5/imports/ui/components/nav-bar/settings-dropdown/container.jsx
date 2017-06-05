@@ -49,7 +49,6 @@ export default class SettingsDropdownContainer extends Component {
   }
 
   render() {
-
     const handleToggleFullscreen = Service.toggleFullScreen;
     const isFullScreen = this.state.isFullScreen;
 

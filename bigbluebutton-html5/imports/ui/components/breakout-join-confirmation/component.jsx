@@ -64,11 +64,12 @@ class BreakoutJoinConfirmation extends Component {
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
-        }}>
+        }}
+      >
         {`${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
       </Modal>
     );
   }
-};
+}
 
 export default withModalMounter(injectIntl(BreakoutJoinConfirmation));

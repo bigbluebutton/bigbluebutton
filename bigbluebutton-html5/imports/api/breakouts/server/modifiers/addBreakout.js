@@ -39,4 +39,4 @@ export default function addBreakout(payload) {
   };
 
   return Breakouts.upsert(selector, modifier, cb);
-};
+}

@@ -19,7 +19,7 @@ export default function changeCurrentPresentation(meetingId, presentationId) {
         return Logger.error(`Unsetting the current presentation: ${err}`);
       }
 
-      return Logger.info(`Unsetted as current presentation`);
+      return Logger.info('Unsetted as current presentation');
     },
   };
 
@@ -50,4 +50,4 @@ export default function changeCurrentPresentation(meetingId, presentationId) {
   if (oldPresentation) {
     Presentations.update(oldPresentation._id, oldCurrent.modifier, oldCurrent.callback);
   }
-};
+}
