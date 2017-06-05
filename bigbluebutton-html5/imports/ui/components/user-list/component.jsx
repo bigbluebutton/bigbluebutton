@@ -111,12 +111,6 @@ class UserList extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this._msgsList.removeEventListener('keydown', function (event) {}, false);
-
-    this._usersList.removeEventListener('keydown', function (event) {}, false);
-  }
-
   render() {
     return (
       <div className={styles.userList}>
