@@ -34,12 +34,12 @@ class UserList extends Component {
 
     this.rovingIndex = this.rovingIndex.bind(this);
     this.focusList = this.focusList.bind(this);
-    this.counter = -1;
+    this.focusedItemIndex = -1;
   }
 
-  focusList(activeElement, list) {
-    activeElement.tabIndex = -1;
-    this.counter = -1;
+  focusList(list) {
+    document.activeElement.tabIndex = -1;
+    this.focusedItemIndex = -1;
     list.tabIndex = 0;
     list.focus();
   }
@@ -50,31 +50,31 @@ class UserList extends Component {
     let active = document.activeElement;
     let list;
     let items;
-    let count;
+    let numberOfItems;
     
     const focusElement = () => {
       active.tabIndex = -1;
-      items.childNodes[this.counter].tabIndex = 0;
-      items.childNodes[this.counter].focus();
+      items.childNodes[this.focusedItemIndex].tabIndex = 0;
+      items.childNodes[this.focusedItemIndex].focus();
     }
     
     switch (listType) {
       case 'users':
         list = this._usersList;
         items = this._userItems;
-        count = users.length;
+        numberOfItems = users.length;
         break;
       case 'messages':
         list = this._msgsList;
         items = this._msgItems;
-        count = openChats.length;
+        numberOfItems = openChats.length;
         break;
     }
 
     if (event.keyCode === KEY_CODES.ESCAPE
-      || this.counter === -1
-      || this.counter > count) {
-        this.focusList(active, list);
+      || this.focusedItemIndex < 0
+      || this.focusedItemIndex > numberOfItems) {
+        this.focusList(list);
     }
 
     if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.ENTER].includes(event.keyCode)) {
@@ -82,19 +82,19 @@ class UserList extends Component {
     }
 
     if (event.keyCode === KEY_CODES.ARROW_DOWN) {
-      this.counter += 1;
+      this.focusedItemIndex += 1;
 
-      if (this.counter == count) {
-        this.counter = 0;
+      if (this.focusedItemIndex == numberOfItems) {
+        this.focusedItemIndex = 0;
       }
       focusElement();
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
-      this.counter -= 1;
+      this.focusedItemIndex -= 1;
 
-      if (this.counter <= -1) {
-        this.counter = count - 1;
+      if (this.focusedItemIndex <= -1) {
+        this.focusedItemIndex = numberOfItems - 1;
       }
 
       focusElement();
