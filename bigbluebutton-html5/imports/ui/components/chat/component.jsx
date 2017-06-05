@@ -35,6 +35,8 @@ class Chat extends Component {
       lastReadMessageTime,
       partnerIsLoggedOut,
       isChatLocked,
+      minMessageLength,
+      maxMessageLength,
       actions,
       intl,
     } = this.props;
@@ -81,6 +83,8 @@ class Chat extends Component {
           chatAreaId={ELEMENT_ID}
           chatTitle={title}
           chatName={chatName}
+          minMessageLength={minMessageLength}
+          maxMessageLength={maxMessageLength}
           handleSendMessage={actions.handleSendMessage}
         />
       </div>

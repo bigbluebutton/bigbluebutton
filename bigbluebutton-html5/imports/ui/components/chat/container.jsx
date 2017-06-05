@@ -99,13 +99,14 @@ export default injectIntl(createContainer(({ params, intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
+    minMessageLength: CHAT_CONFIG.min_message_length,
+    maxMessageLength: CHAT_CONFIG.max_message_length,
     actions: {
-
       handleClosePrivateChat: chatID => ChatService.closePrivateChat(chatID),
 
       handleSendMessage: message => {
         ChatService.updateScrollPosition(chatID, null);
-        let sentMessage = ChatService.sendMessage(chatID, message);
+        return ChatService.sendMessage(chatID, message);
       },
 
       handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),
