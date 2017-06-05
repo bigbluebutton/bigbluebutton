@@ -71,8 +71,7 @@ class UserList extends Component {
         this.focusList(active, list);
     }
 
-    if (event.keyCode === KEY_CODES.ARROW_RIGHT 
-      || event.keyCode === KEY_CODES.ENTER) {
+    if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.ENTER].includes(event.keyCode)) {
         active.firstChild.click();
     }
 
