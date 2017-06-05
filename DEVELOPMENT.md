@@ -216,7 +216,67 @@ grails -Dserver.port=8888 run-war
 If things started without errors, congrats! 
 
 
+## Converting and Adding new messages
+
+In bigbluebutton-apps, from [InMessages.scala](https://github.com/bigbluebutton/bigbluebutton/blob/bbb-2x-mconf/akka-bbb-apps/src/main/scala/org/bigbluebutton/core/api/InMessages.scala) choose the message to convert.
+
+```
+case class UserShareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
+```
+
+In bbb-apps-common, add new message in [BbbCoreEnvelope.scala](https://github.com/bigbluebutton/bigbluebutton/blob/bbb-2x-mconf/bbb-common-message/src/main/scala/org/bigbluebutton/common2/messages/BbbCoreEnvelope.scala)
+
+```
+object UserShareWebcamMsg { val NAME = "UserShareWebcamMsg" }
+case class UserShareWebcamMsg(header: BbbClientMsgHeader, body: UserShareWebcamMsgBody)
+```
+
+Define `UserShareWebcamMsgBody` in `MessageBody.scala`
+
+```
+case class UserShareWebcamMsgBody(userId: String, stream: String)
+```
+
+From the client, send message as
+
+```
+{
+  "header": {
+    "name": "UserShareWebcamMsg",
+    "meetingId": "foo-meetingId",
+    "userId": "bar-userId"
+  },
+  "body": {
+    "streamId": "my-webcam-stream"
+  }
+}
+
+```
+
+In [ReceivedJsonMsgHandlerActor](https://github.com/bigbluebutton/bigbluebutton/blob/bbb-2x-mconf/akka-bbb-apps/src/main/scala/org/bigbluebutton/core/pubsub/senders/ReceivedJsonMsgHandlerActor.scala), deserialize the message with implementation in [ReceivedJsonMsgDeserializer](https://github.com/bigbluebutton/bigbluebutton/blob/bbb-2x-mconf/akka-bbb-apps/src/main/scala/org/bigbluebutton/core/pubsub/senders/ReceivedJsonMsgDeserializer.scala).
 
 
+```
 
+      case UserShareWebcamMsg.NAME =>
+        for {
+          m <- routeUserShareWebcamMsg(jsonNode)
+        } yield {
+          send(envelope, m)
+        }
+```
+
+Route the message in [ReceivedMessageRouter](https://github.com/bigbluebutton/bigbluebutton/blob/bbb-2x-mconf/akka-bbb-apps/src/main/scala/org/bigbluebutton/core2/ReceivedMessageRouter.scala).
+
+```
+  def send(envelope: BbbCoreEnvelope, msg: UserShareWebcamMsg): Unit = {
+    val event = BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
+    publish(event)
+  }
+
+```
+
+Handle the message in [MeestingActor](https://github.com/bigbluebutton/bigbluebutton/blob/bbb-2x-mconf/akka-bbb-apps/src/main/scala/org/bigbluebutton/core/running/MeetingActor.scala) replacing the old implementation.
+
+A complete example would be the `ValidateAuthTokenReqMsg`.
 
