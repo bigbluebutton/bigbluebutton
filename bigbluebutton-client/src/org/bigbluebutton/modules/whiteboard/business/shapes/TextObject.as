@@ -26,11 +26,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
 	
+	import org.bigbluebutton.common.IMETextField;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
 	
-	public class TextObject extends TextField implements GraphicObject {
+	public class TextObject extends IMETextField implements GraphicObject {
 		private var _id:String;
 		private var _type:String;
 		private var _status:String;
