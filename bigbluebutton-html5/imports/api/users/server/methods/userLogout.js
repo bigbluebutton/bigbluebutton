@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 
 import userLeaving from './userLeaving';

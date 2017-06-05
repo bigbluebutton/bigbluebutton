@@ -20,21 +20,23 @@ const injectAclSubscribeCheck = (name, handler) => (
     if (!Acl.can(name, ...credentials)) {
       Logger.error(`acl-not-allowed, the user can't perform the subscription "${name}".`);
       return [];
-
     }
 
     return handler(...credentials);
   }
 );
 
-export default mapToAcl = (name, handler) => {
-  //The Meteor#methods require an object, while the Meteor#subscribe an function.
+const mapToAcl = (name, handler) => {
+  // The Meteor#methods require an object, while the Meteor#subscribe an function.
   if (handler instanceof Function) {
     return injectAclSubscribeCheck(name, handler);
   }
 
   return Object.keys(handler).reduce((previous, current, index) => {
-    previous[current] = injectAclActionCheck(name[index], handler[current]);
-    return previous;
+    const newPrevious = previous;
+    newPrevious[current] = injectAclActionCheck(name[index], handler[current]);
+    return newPrevious;
   }, {});
 };
+
+export default mapToAcl;

@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import switchSlide from './methods/switchSlide';
 import mapToAcl from '/imports/startup/mapToAcl';
+import switchSlide from './methods/switchSlide';
 
 Meteor.methods(mapToAcl(['methods.switchSlide', 'methods.switchSlideMessage'], {
   switchSlide,

@@ -26,7 +26,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   const Meeting = Meetings.findOne({ meetingId });
   if (!Meeting) {
     throw new Meteor.Error(
-      'meeting-not-found', `You need a valid meeting to be able to toggle audio`);
+      'meeting-not-found', 'You need a valid meeting to be able to toggle audio');
   }
 
   check(Meeting.voiceConf, String);

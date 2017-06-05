@@ -1,13 +1,7 @@
 import { Meteor } from 'meteor/meteor';
-import Polls from '/imports/api/polls';
 import { check } from 'meteor/check';
-import { logger } from '/imports/startup/server/logger';
+import Polls from '/imports/api/polls';
 import mapToAcl from '/imports/startup/mapToAcl';
-
-Meteor.publish('polls', function () {
-  const boundPolls = polls.bind(this);
-  return mapToAcl('subscriptions.polls', boundPolls)(arguments);
-});
 
 function polls(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -21,7 +15,13 @@ function polls(credentials) {
     users: requesterUserId,
   };
 
-  let options = {};
+  return Polls.find(selector);
+}
 
-  return Polls.find(selector, options);
-};
+function publish(...args) {
+  const boundPolls = polls.bind(this);
+  return mapToAcl('subscriptions.polls', boundPolls)(args);
+}
+
+Meteor.publish('polls', publish);
+

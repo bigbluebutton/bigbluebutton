@@ -30,7 +30,7 @@ export default function switchSlide(credentials, slideNumber) {
   const Slide = Slides.findOne({
     meetingId,
     presentationId: Presentation.presentation.id,
-    'slide.num': parseInt(slideNumber),
+    'slide.num': parseInt(slideNumber, 2),
   });
 
   if (!Slide) {

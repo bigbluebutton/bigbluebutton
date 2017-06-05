@@ -4,11 +4,6 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('slides', function () {
-  const boundSlides = slides.bind(this);
-  return mapToAcl('subscriptions.slides', boundSlides)(arguments);
-});
-
 function slides(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -19,4 +14,11 @@ function slides(credentials) {
   Logger.info(`Publishing Slides for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Slides.find({ meetingId });
-};
+}
+
+function publish(...args) {
+  const boundSlides = slides.bind(this);
+  return mapToAcl('subscriptions.slides', boundSlides)(args);
+}
+
+Meteor.publish('slides', publish);

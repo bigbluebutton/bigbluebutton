@@ -5,11 +5,6 @@ import Logger from '/imports/startup/server/logger';
 
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('cursor', function () {
-  const boundCursor = cursor.bind(this);
-  return mapToAcl('subscriptions.cursor', boundCursor)(arguments);
-});
-
 function cursor(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -20,4 +15,12 @@ function cursor(credentials) {
   Logger.debug(`Publishing Cursor for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Cursor.find({ meetingId });
-};
+}
+
+function publish(...args) {
+  const boundCursor = cursor.bind(this);
+  return mapToAcl('subscriptions.cursor', boundCursor)(args);
+}
+
+Meteor.publish('cursor', publish);
+

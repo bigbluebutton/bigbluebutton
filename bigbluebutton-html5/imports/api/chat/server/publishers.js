@@ -5,11 +5,6 @@ import Logger from '/imports/startup/server/logger';
 
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('chat', function () {
-  const boundChat = chat.bind(this);
-  return mapToAcl('subscriptions.chat', boundChat)(arguments);
-});
-
 function chat(credentials) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
@@ -36,4 +31,11 @@ function chat(credentials) {
       },
     ],
   });
-};
+}
+
+function publish(...args) {
+  const boundChat = chat.bind(this);
+  return mapToAcl('subscriptions.chat', boundChat)(args);
+}
+
+Meteor.publish('chat', publish);

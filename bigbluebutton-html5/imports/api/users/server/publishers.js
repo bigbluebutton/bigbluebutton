@@ -28,11 +28,6 @@ Meteor.publish('current-user', (credentials) => {
   return Users.find(selector, options);
 });
 
-Meteor.publish('users', function () {
-  const boundUsers = users.bind(this);
-  return mapToAcl('subscriptions.users', boundUsers)(arguments);
-});
-
 function users(credentials) {
   const {
     meetingId,
@@ -66,3 +61,10 @@ function users(credentials) {
 
   return Users.find(selector, options);
 }
+
+function publish(...args) {
+  const boundUsers = users.bind(this);
+  return mapToAcl('subscriptions.users', boundUsers)(args);
+}
+
+Meteor.publish('users', publish);

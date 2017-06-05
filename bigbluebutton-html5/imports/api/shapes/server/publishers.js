@@ -2,13 +2,7 @@ import Shapes from '/imports/api/shapes';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-
 import mapToAcl from '/imports/startup/mapToAcl';
-
-Meteor.publish('shapes', function () {
-  const boundShapes = shapes.bind(this);
-  return mapToAcl('subscriptions.shapes', boundShapes)(arguments);
-});
 
 function shapes(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -20,4 +14,11 @@ function shapes(credentials) {
   Logger.info(`Publishing Shapes for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Shapes.find({ meetingId });
-};
+}
+
+function publish(...args) {
+  const boundShapes = shapes.bind(this);
+  return mapToAcl('subscriptions.shapes', boundShapes)(args);
+}
+
+Meteor.publish('shapes', publish);

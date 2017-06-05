@@ -14,12 +14,6 @@ export default function muteToggle(credentials, userId, isMuted = true) {
   check(requesterUserId, String);
   check(userId, String);
 
-  let action = userId === requesterUserId ? 'muteSelf' : 'muteOther';
-
-  if (!isMuted) {
-    action = `un${action}`;
-  }
-
   const payload = {
     user_id: userId,
     meeting_id: meetingId,

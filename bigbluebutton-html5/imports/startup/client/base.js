@@ -4,7 +4,6 @@ import { createContainer } from 'meteor/react-meteor-data';
 import IntlStartup from './intl';
 
 import Auth from '/imports/ui/services/auth';
-import Acl from '/imports/startup/acl';
 
 import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';

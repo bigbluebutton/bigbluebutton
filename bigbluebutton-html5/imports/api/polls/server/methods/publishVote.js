@@ -8,7 +8,7 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.polling;
   const EVENT_NAME = 'vote_poll_user_request_message';
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  const { meetingId, requesterUserId } = credentials;
 
   const currentPoll = Polls.findOne({
     users: requesterUserId,
@@ -42,12 +42,12 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
     },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Updating Polls collection: ${err}`);
     }
 
-    Logger.info(`Updating Polls collection (meetingId: ${meetingId},
+    return Logger.info(`Updating Polls collection (meetingId: ${meetingId},
                                             pollId: ${currentPoll.poll.id}!)`);
   };
 
