@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
@@ -67,13 +68,15 @@ class DeviceSelector extends Component {
         {...props}
         value={value}
         onChange={this.handleSelectChange}
-        disabled={!options.length}>
+        disabled={!options.length}
+      >
         {
           options.length ?
             options.map((option, i) => (
               <option
                 key={i}
-                value={option.value}>
+                value={option.value}
+              >
                 {option.label}
               </option>
             )) :
@@ -82,7 +85,7 @@ class DeviceSelector extends Component {
       </select>
     );
   }
-};
+}
 
 DeviceSelector.propTypes = propTypes;
 DeviceSelector.defaultProps = defaultProps;

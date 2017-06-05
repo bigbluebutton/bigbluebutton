@@ -15,8 +15,9 @@ class ActionsBarContainer extends Component {
   render() {
     return (
       <ActionsBar
-        {...this.props}>
-          {this.props.children}
+        {...this.props}
+      >
+        {this.props.children}
       </ActionsBar>
     );
   }
@@ -31,7 +32,7 @@ export default withModalMounter(createContainer(({ mountModal }) => {
 
   return {
     isUserPresenter: isPresenter,
-    handleExitAudio: handleExitAudio,
-    handleOpenJoinAudio: handleOpenJoinAudio,
+    handleExitAudio,
+    handleOpenJoinAudio,
   };
 }, ActionsBarContainer));

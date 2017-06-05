@@ -14,7 +14,7 @@ export default function kickUser(credentials, userId) {
   check(requesterUserId, String);
   check(userId, String);
 
-  let payload = {
+  const payload = {
     userid: userId,
     ejected_by: requesterUserId,
     meeting_id: meetingId,
@@ -23,4 +23,4 @@ export default function kickUser(credentials, userId) {
   Logger.verbose(`User '${userId}' was kicked by '${requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

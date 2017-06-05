@@ -11,7 +11,7 @@ export default function requestStunTurn(meetingId, requesterUserId) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  let payload = {
+  const payload = {
     meeting_id: meetingId,
     requester_id: requesterUserId,
   };
@@ -19,4 +19,4 @@ export default function requestStunTurn(meetingId, requesterUserId) {
   Logger.verbose(`User '${requesterUserId}' requested stun/turn from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

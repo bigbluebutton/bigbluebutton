@@ -22,4 +22,4 @@ export default function removePoll(meetingId, pollId) {
   };
 
   return Polls.remove(selector, cb);
-};
+}

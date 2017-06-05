@@ -1,6 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
 import { Meteor } from 'meteor/meteor';
-
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('breakouts', function () {

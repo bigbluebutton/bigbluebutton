@@ -15,7 +15,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   check(requesterUserId, String);
   check(isJoining, Boolean);
 
-  let EVENT_NAME = undefined;
+  let EVENT_NAME;
 
   if (isJoining) {
     EVENT_NAME = 'user_connected_to_global_audio';
@@ -38,12 +38,12 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
 
   if (!User) {
     throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to toggle audio`);
+      'user-not-found', 'You need a valid user to be able to toggle audio');
   }
 
   check(User.user.name, String);
 
-  let payload = {
+  const payload = {
     userid: requesterUserId,
     meeting_id: meetingId,
     voice_conf: Meeting.voiceConf,
@@ -54,4 +54,4 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
     ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

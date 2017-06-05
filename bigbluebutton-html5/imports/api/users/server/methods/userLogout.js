@@ -11,4 +11,4 @@ export default function userLogout(credentials) {
   } catch (e) {
     Logger.error(`Exception while executing userLeaving: ${e}`);
   }
-};
+}

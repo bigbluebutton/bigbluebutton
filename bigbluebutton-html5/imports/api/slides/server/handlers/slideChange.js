@@ -13,4 +13,4 @@ export default function handleSlideChange({ payload }) {
   const presentationId = slideId.split('/')[0];
 
   return changeCurrentSlide(meetingId, presentationId, slideId);
-};
+}

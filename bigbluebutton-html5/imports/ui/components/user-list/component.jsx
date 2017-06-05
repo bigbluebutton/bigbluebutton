@@ -1,6 +1,7 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import styles from './styles.scss';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -46,7 +47,6 @@ class UserList extends Component {
   }
 
   focusListItem(active, direction, element, count) {
-
     function select() {
       element.tabIndex = 0;
       element.focus();
@@ -84,7 +84,7 @@ class UserList extends Component {
   rovingIndex(...Args) {
     const { users, openChats } = this.props;
 
-    let active = document.activeElement;
+    const active = document.activeElement;
     let list;
     let items;
     let count;
@@ -136,7 +136,7 @@ class UserList extends Component {
   }
 
   componentDidMount() {
-    let _this = this;
+    const _this = this;
 
     if (!this.state.compact) {
       this._msgsList.addEventListener('keypress', function (event) {
@@ -150,9 +150,15 @@ class UserList extends Component {
   }
 
   componentWillUnmount() {
+<<<<<<< HEAD
     this._msgsList.removeEventListener('keypress', function (event) { }, false);
 
     this._usersList.removeEventListener('keypress', function (event) { }, false);
+=======
+    this._msgsList.removeEventListener('keypress', (event) => {}, false);
+
+    this._usersList.removeEventListener('keypress', (event) => {}, false);
+>>>>>>> upstream/master
   }
 
   render() {
@@ -201,33 +207,40 @@ class UserList extends Component {
           !this.state.compact ?
             <div className={styles.smallTitle} role="banner">
               {intl.formatMessage(intlMessages.messagesTitle)}
+<<<<<<< HEAD
             </div> : <hr className={styles.separator}></hr>
+=======
+            </div> : <hr className={styles.separator} />
+>>>>>>> upstream/master
         }
         <div
           tabIndex={0}
           className={styles.scrollableList}
-          ref={(r) => this._msgsList = r}>
-          <ReactCSSTransitionGroup
+          ref={r => this._msgsList = r}
+        >
+          <CSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
+            transitionAppear
+            transitionEnter
             transitionLeave={false}
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.chatsList, styles.scrollableList)}>
-            <div ref={(r) => this._msgItems = r}>
+            className={cx(styles.chatsList, styles.scrollableList)}
+          >
+            <div ref={r => this._msgItems = r}>
               {openChats.map(chat => (
                 <ChatListItem
                   compact={this.state.compact}
                   key={chat.id}
                   openChat={openChat}
                   chat={chat}
-                  tabIndex={-1} />
+                  tabIndex={-1}
+                />
               ))}
             </div>
-          </ReactCSSTransitionGroup>
+          </CSSTransitionGroup>
         </div>
       </div>
     );
@@ -282,24 +295,31 @@ class UserList extends Component {
           !this.state.compact ?
             <div className={styles.smallTitle} role="banner">
               {intl.formatMessage(intlMessages.usersTitle)}
+<<<<<<< HEAD
               &nbsp;({users.length})
           </div> : <hr className={styles.separator}></hr>
+=======
+            &nbsp;({users.length})
+          </div> : <hr className={styles.separator} />
+>>>>>>> upstream/master
         }
         <div
           className={styles.scrollableList}
           tabIndex={0}
-          ref={(r) => this._usersList = r}>
-          <ReactCSSTransitionGroup
+          ref={r => this._usersList = r}
+        >
+          <CSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
-            transitionLeave={true}
+            transitionAppear
+            transitionEnter
+            transitionLeave
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.participantsList, styles.scrollableList)}>
-            <div ref={(r) => this._userItems = r}>
+            className={cx(styles.participantsList, styles.scrollableList)}
+          >
+            <div ref={r => this._userItems = r}>
               {
                 users.map(user => (
                   <UserListItem
@@ -313,7 +333,7 @@ class UserList extends Component {
                   />))
               }
             </div>
-          </ReactCSSTransitionGroup>
+          </CSSTransitionGroup>
         </div>
       </div>
     );

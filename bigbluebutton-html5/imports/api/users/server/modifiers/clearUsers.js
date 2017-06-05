@@ -7,4 +7,4 @@ export default function clearUsers(meetingId) {
   }
 
   return Users.remove({}, Logger.info('Cleared Users (all)'));
-};
+}

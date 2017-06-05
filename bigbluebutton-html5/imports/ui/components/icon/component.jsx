@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
 
 const propTypes = {
@@ -16,8 +17,8 @@ export default class Icon extends Component {
     return (
       <i
         className={cx(className, [prependIconName, iconName].join(''))}
-        {...otherProps}>
-      </i>
+        {...otherProps}
+      />
     );
   }
 }

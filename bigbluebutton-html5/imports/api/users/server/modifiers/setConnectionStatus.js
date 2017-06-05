@@ -38,4 +38,4 @@ export default function setConnectionStatus(meetingId, userId, status = 'online'
   };
 
   return Users.update(selector, modifier, cb);
-};
+}

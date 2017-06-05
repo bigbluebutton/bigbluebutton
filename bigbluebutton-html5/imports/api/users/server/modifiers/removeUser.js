@@ -43,4 +43,4 @@ export default function removeUser(meetingId, userId) {
   };
 
   return Users.update(selector, modifier, cb);
-};
+}

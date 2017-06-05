@@ -31,7 +31,7 @@ export default function validateAuthToken(credentials) {
     setConnectionStatus(meetingId, requesterUserId, ONLINE_CONNECTION_STATUS);
   }
 
-  let payload = {
+  const payload = {
     auth_token: requesterToken,
     userid: requesterUserId,
     meeting_id: meetingId,
@@ -46,4 +46,4 @@ export default function validateAuthToken(credentials) {
   }' is trying to validate auth tokenfor meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload, header);
-};
+}

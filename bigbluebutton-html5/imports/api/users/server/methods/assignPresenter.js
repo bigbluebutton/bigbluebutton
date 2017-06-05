@@ -19,12 +19,13 @@ export default function assignPresenter(credentials, userId) {
     meetingId,
     userId,
   });
+
   if (!User) {
     throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to set presenter`);
+      'user-not-found', 'You need a valid user to be able to set presenter');
   }
 
-  let payload = {
+  const payload = {
     new_presenter_id: userId,
     new_presenter_name: User.user.name,
     meeting_id: meetingId,
@@ -35,4 +36,4 @@ export default function assignPresenter(credentials, userId) {
     requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

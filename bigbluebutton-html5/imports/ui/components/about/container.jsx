@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import AboutComponent from './component';
@@ -24,6 +25,4 @@ const getClientBuildInfo = function () {
   };
 };
 
-export default createContainer(function () {
-  return getClientBuildInfo();
-}, AboutContainer);
+export default createContainer(() => getClientBuildInfo(), AboutContainer);

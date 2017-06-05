@@ -26,4 +26,4 @@ export default function clearMeetings() {
 
     return Logger.info('Cleared Meetings (all)');
   });
-};
+}

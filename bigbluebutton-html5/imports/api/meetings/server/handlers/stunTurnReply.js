@@ -30,4 +30,4 @@ export default function handleStunTurnReply({ payload }) {
   };
 
   return Meetings.update(selector, modifier, cb);
-};
+}

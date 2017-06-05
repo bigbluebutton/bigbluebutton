@@ -17,7 +17,7 @@ function polls(credentials) {
   check(requesterToken, String);
 
   const selector = {
-    meetingId: meetingId,
+    meetingId,
     users: requesterUserId,
   };
 

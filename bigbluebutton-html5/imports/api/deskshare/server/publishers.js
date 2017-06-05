@@ -1,6 +1,5 @@
 import Deskshare from '/imports/api/deskshare';
 import { logger } from '/imports/startup/server/logger';
-
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('deskshare', function () {

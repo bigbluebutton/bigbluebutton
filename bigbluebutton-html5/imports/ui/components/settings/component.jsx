@@ -89,14 +89,14 @@ class Settings extends Component {
   }
 
   componentWillMount() {
-    this.props.availableLocales.then(locales => {
+    this.props.availableLocales.then((locales) => {
       this.setState({ availableLocales: locales });
     });
   }
 
   setHtmlFontSize(size) {
     document.getElementsByTagName('html')[0].style.fontSize = size;
-  };
+  }
 
   render() {
     const intl = this.props.intl;
@@ -118,14 +118,15 @@ class Settings extends Component {
           }),
           label: intl.formatMessage(intlMessages.CancelLabel),
           description: intl.formatMessage(intlMessages.CancelLabelDesc),
-        }}>
-          {this.renderModalContent()}
+        }}
+      >
+        {this.renderModalContent()}
       </Modal>
     );
   }
 
   handleUpdateSettings(key, newSettings) {
-    let settings = this.state;
+    const settings = this.state;
     settings.current[key] = newSettings;
     this.setState(settings);
   }
@@ -151,20 +152,20 @@ class Settings extends Component {
       >
         <TabList className={styles.tabList}>
           <Tab className={styles.tabSelector} aria-labelledby="appTab">
-            <Icon iconName='application' className={styles.icon}/>
+            <Icon iconName="application" className={styles.icon} />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
-          {/*<Tab className={styles.tabSelector} aria-labelledby="videoTab">*/}
-            {/*<Icon iconName='video' className={styles.icon}/>*/}
-            {/*<span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>*/}
-          {/*</Tab>*/}
+          {/* <Tab className={styles.tabSelector} aria-labelledby="videoTab">*/}
+          {/* <Icon iconName='video' className={styles.icon}/>*/}
+          {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>*/}
+          {/* </Tab>*/}
           <Tab className={styles.tabSelector} aria-labelledby="ccTab">
-            <Icon iconName='user' className={styles.icon}/>
+            <Icon iconName="user" className={styles.icon} />
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
           </Tab>
           { isModerator ?
             <Tab className={styles.tabSelector} aria-labelledby="usersTab">
-              <Icon iconName='user' className={styles.icon}/>
+              <Icon iconName="user" className={styles.icon} />
               <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span>
             </Tab>
             : null }
@@ -174,25 +175,27 @@ class Settings extends Component {
             availableLocales={this.state.availableLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={this.state.current.application}
-            />
+          />
         </TabPanel>
-        {/*<TabPanel className={styles.tabPanel}>*/}
-          {/*<Video*/}
-            {/*handleUpdateSettings={this.handleUpdateSettings}*/}
-            {/*settings={this.state.current.video}*/}
-            {/*/>*/}
-        {/*</TabPanel>*/}
+        {/* <TabPanel className={styles.tabPanel}>*/}
+        {/* <Video*/}
+        {/* handleUpdateSettings={this.handleUpdateSettings}*/}
+        {/* settings={this.state.current.video}*/}
+        {/* />*/}
+        {/* </TabPanel>*/}
         <TabPanel className={styles.tabPanel}>
           <ClosedCaptions
             settings={this.state.current.cc}
             handleUpdateSettings={this.handleUpdateSettings}
-            locales={this.props.locales}/>
+            locales={this.props.locales}
+          />
         </TabPanel>
         { isModerator ?
           <TabPanel className={styles.tabPanel}>
             <Participants
               settings={this.state.current.participants}
-              handleUpdateSettings={this.handleUpdateSettings}/>
+              handleUpdateSettings={this.handleUpdateSettings}
+            />
           </TabPanel>
           : null }
       </Tabs>

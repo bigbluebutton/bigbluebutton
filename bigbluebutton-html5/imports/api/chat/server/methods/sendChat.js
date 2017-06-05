@@ -52,11 +52,11 @@ export default function sendChat(credentials, message) {
     actionName = 'chatPublic';
   }
 
-  let payload = {
+  const payload = {
     message,
     meeting_id: meetingId,
     requester_id: message.from_userid,
   };
 
   return RedisPubSub.publish(CHANNEL, eventName, payload);
-};
+}

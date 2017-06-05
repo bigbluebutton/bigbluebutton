@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styles from './styles.scss';
 
 export default class RecordingIndicator extends Component {
@@ -13,6 +14,6 @@ export default class RecordingIndicator extends Component {
       return null;
     }
 
-    return (<div className={styles.indicator}></div>);
+    return (<div className={styles.indicator} />);
   }
-};
+}

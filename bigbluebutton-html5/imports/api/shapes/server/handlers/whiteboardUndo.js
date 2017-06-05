@@ -13,4 +13,4 @@ export default function handleWhiteboardUndo({ payload }) {
   check(shapeId, String);
 
   return removeShape(meetingId, whiteboardId, shapeId);
-};
+}

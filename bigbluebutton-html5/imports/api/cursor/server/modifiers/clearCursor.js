@@ -7,4 +7,4 @@ export default function clearCursor(meetingId) {
   }
 
   return Cursor.remove({}, Logger.info('Cleared Cursor (all)'));
-};
+}

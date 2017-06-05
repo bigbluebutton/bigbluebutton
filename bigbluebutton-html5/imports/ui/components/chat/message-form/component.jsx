@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
@@ -48,15 +49,14 @@ class MessageForm extends Component {
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-
   }
 
   handleMessageKeyDown(e) {
-    //TODO Prevent send message pressing enter on mobile and/or virtual keyboard
+    // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
 
-      let event = new Event('submit', {
+      const event = new Event('submit', {
         bubbles: true,
         cancelable: true,
       });
@@ -71,7 +71,7 @@ class MessageForm extends Component {
     const message = e.target.value;
     let error = '';
 
-    const { minMessageLength, maxMessageLength, } = this.props;
+    const { minMessageLength, maxMessageLength } = this.props;
 
     if (message.length < minMessageLength) {
       error = intl.formatMessage(messages.errorMinMessageLength,
@@ -92,20 +92,20 @@ class MessageForm extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    const { disabled, minMessageLength, maxMessageLength, } = this.props;
+    const { disabled, minMessageLength, maxMessageLength } = this.props;
     let message = this.state.message.trim();
 
     if (disabled
       || message.length === 0
       || message.length < minMessageLength
       || message.length > maxMessageLength) {
-      this.setState({ hasErrors: true, });
+      this.setState({ hasErrors: true });
       return false;
     }
 
     // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
 
-    let div = document.createElement('div');
+    const div = document.createElement('div');
     div.appendChild(document.createTextNode(message));
     message = div.innerHTML;
 
@@ -118,7 +118,7 @@ class MessageForm extends Component {
 
   render() {
     const { intl, chatTitle, chatName, disabled,
-      minMessageLength, maxMessageLength, } = this.props;
+      minMessageLength, maxMessageLength } = this.props;
 
     const { hasErrors, error } = this.state;
 
@@ -126,7 +126,8 @@ class MessageForm extends Component {
       <form
         ref="form"
         className={cx(this.props.className, styles.form)}
-        onSubmit={this.handleSubmit}>
+        onSubmit={this.handleSubmit}
+      >
         <div className={styles.wrapper}>
           <TextareaAutosize
             className={styles.input}
@@ -134,8 +135,8 @@ class MessageForm extends Component {
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
             aria-controls={this.props.chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
-            aria-invalid={ hasErrors ? 'true' : 'false' }
-            aria-describedby={ hasErrors ? 'message-input-error' : null }
+            aria-invalid={hasErrors ? 'true' : 'false'}
+            aria-describedby={hasErrors ? 'message-input-error' : null}
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
@@ -150,7 +151,7 @@ class MessageForm extends Component {
             type="submit"
             disabled={disabled}
             label={intl.formatMessage(messages.submitLabel)}
-            hideLabel={true}
+            hideLabel
             icon="send"
             onClick={() => null}
           />

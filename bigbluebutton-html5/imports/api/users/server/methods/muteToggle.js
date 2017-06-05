@@ -20,7 +20,7 @@ export default function muteToggle(credentials, userId, isMuted = true) {
     action = `un${action}`;
   }
 
-  let payload = {
+  const payload = {
     user_id: userId,
     meeting_id: meetingId,
     mute: isMuted,
@@ -31,4 +31,4 @@ export default function muteToggle(credentials, userId, isMuted = true) {
     requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

@@ -2,7 +2,6 @@ import Captions from '/imports/api/captions';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-
 import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('captions', function () {
