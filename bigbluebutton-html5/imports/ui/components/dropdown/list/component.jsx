@@ -94,11 +94,15 @@ export default class DropdownList extends Component {
     }
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)){
+      const { getDropdownMenuParent, isChild } = this.props;
+
       event.preventDefault();
       dropdownHide();
-
-      //find better way to do this
-      document.activeElement.parentElement.parentElement.parentElement.parentElement.focus();
+      
+      if (isChild) {
+        getDropdownMenuParent().focus();
+      }
+      
     }
 
     if (typeof callback === 'function') {

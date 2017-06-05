@@ -106,6 +106,7 @@ class UserListItem extends Component {
     this.handleScroll = this.handleScroll.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
   }
 
   handleScroll() {
@@ -236,6 +237,10 @@ class UserListItem extends Component {
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
 
+  getDropdownMenuParent() {
+     return findDOMNode(this.refs.dropdown);
+  }
+
   onActionsHide() {
     this.setState({
       isActionsOpen: false,
@@ -292,7 +297,7 @@ class UserListItem extends Component {
     }
 
     const { dropdownOffset, dropdownDirection, dropdownVisible, } = this.state;
-
+    
     return (
       <Dropdown
         ref="dropdown"
@@ -315,7 +320,7 @@ class UserListItem extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}>
 
-          <DropdownList ref="list">
+          <DropdownList ref="list" isChild={true} getDropdownMenuParent={this.getDropdownMenuParent}>
             {
               [
                 (<DropdownListTitle
@@ -372,7 +377,7 @@ class UserListItem extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}>
 
-          <DropdownList ref="listref">
+          <DropdownList>
             {
               [
                 (<DropdownListTitle
