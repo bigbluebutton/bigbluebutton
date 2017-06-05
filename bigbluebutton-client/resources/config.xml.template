@@ -65,6 +65,7 @@
 			useWebRTCIfAvailable="true"
 			showPhoneOption="false"
 			showWebRTCStats="false"
+			showWebRTCMOS="false"
 			echoTestApp="9196"
 		/>
 
