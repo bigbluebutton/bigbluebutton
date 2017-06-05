@@ -5,9 +5,9 @@ import Logger from '/imports/startup/server/logger';
 
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('captions', function() {
+Meteor.publish('captions', function () {
   const boundCaptions = captions.bind(this);
-  return mapToAcl('subscriptions.captions',boundCaptions)(arguments);
+  return mapToAcl('subscriptions.captions', boundCaptions)(arguments);
 });
 
 function captions(credentials) {

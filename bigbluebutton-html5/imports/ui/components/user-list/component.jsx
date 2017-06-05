@@ -7,7 +7,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
 import KEY_CODES from '/imports/utils/keyCodes';
-import Auth from '/imports/ui/services/auth/index.js';
 
 const propTypes = {
   openChats: PropTypes.array.isRequired,

@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('presentations', function() {
+Meteor.publish('presentations', function () {
   const boundPresentations = presentations.bind(this);
   return mapToAcl('subscriptions.presentations', boundPresentations)(arguments);
 });

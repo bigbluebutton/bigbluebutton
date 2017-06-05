@@ -26,16 +26,16 @@ export default function addUser(meetingId, user) {
   // override moderator status of html5 client users, depending on a system flag
   let dummyUser = Users.findOne(selector);
   if (dummyUser &&
-      dummyUser.clientType === 'HTML5' &&
-      user.role === ROLE_MODERATOR &&
-      !ALLOW_HTML5_MODERATOR) {
+    dummyUser.clientType === 'HTML5' &&
+    user.role === ROLE_MODERATOR &&
+    !ALLOW_HTML5_MODERATOR) {
     user.role = ROLE_VIEWER;
   }
 
   const userRoles = [];
-  userRoles.push("viewer");
-  userRoles.push(user.presenter ? "presenter" : undefined);
-  userRoles.push(user.role === 'MODERATOR' ? "moderator" :  undefined);
+  userRoles.push('viewer');
+  userRoles.push(user.presenter ? 'presenter' : undefined);
+  userRoles.push(user.role === 'MODERATOR' ? 'moderator' : undefined);
 
   const modifier = {
     $set: {

@@ -4,7 +4,7 @@ import { check } from 'meteor/check';
 import { logger } from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('polls', function() {
+Meteor.publish('polls', function () {
   const boundPolls = polls.bind(this);
   return mapToAcl('subscriptions.polls', boundPolls)(arguments);
 });

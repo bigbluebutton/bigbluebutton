@@ -1,7 +1,6 @@
 import BaseAudioBridge from './base';
 
 import { makeCall } from '/imports/ui/services/api';
-import Auth from '/imports/ui/services/auth/index.js';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const MEDIA_CONFIG = Meteor.settings.public.media;

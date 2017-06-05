@@ -3,7 +3,7 @@ import { logger } from '/imports/startup/server/logger';
 
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('deskshare', function() {
+Meteor.publish('deskshare', function () {
   const boundDeskshare = deskshare.bind(this);
   return mapToAcl('subscriptions.deskshare', boundDeskshare)(arguments);
 });

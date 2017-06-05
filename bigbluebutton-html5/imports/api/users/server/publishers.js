@@ -10,7 +10,7 @@ Meteor.publish('current-user', function (credentials) {
   const {
     meetingId,
     requesterUserId,
-    requesterToken
+    requesterToken,
   } = credentials;
 
   check(meetingId, String);
@@ -34,14 +34,14 @@ Meteor.publish('current-user', function (credentials) {
 
 Meteor.publish('users', function () {
   const boundUsers = users.bind(this);
-  return mapToAcl('subscriptions.users',boundUsers)(arguments);
+  return mapToAcl('subscriptions.users', boundUsers)(arguments);
 });
 
 function users(credentials) {
   const {
     meetingId,
     requesterUserId,
-    requesterToken
+    requesterToken,
   } = credentials;
 
   check(meetingId, String);

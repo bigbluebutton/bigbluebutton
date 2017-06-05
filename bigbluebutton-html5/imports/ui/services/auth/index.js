@@ -185,7 +185,7 @@ class Auth {
           },
         });
       });
-      
+
       makeCall('validateAuthToken');
     });
   }

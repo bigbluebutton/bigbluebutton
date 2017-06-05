@@ -2,36 +2,39 @@ import Acl from '/imports/startup/acl';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 
-const injectAclActionCheck = (name, handler) => {
-  return (...args) => {
+const injectAclActionCheck = (name, handler) => (
+  (...args) => {
     const credentials = args[0];
     if (!Acl.can(name, credentials)) {
-      throw new Meteor.Error('acl-not-allowed', 
+      throw new Meteor.Error('acl-not-allowed',
         `The user can't perform the action "${name}".`);
     }
+
     return handler(...args);
   }
-};
+);
 
-const injectAclSubscribeCheck = (name,handler) => {
-  return (...args) => {
+const injectAclSubscribeCheck = (name, handler) => (
+  (...args) => {
     const credentials = args[args.length - 1];
     if (!Acl.can(name, ...credentials)) {
       Logger.error(`acl-not-allowed, the user can't perform the subscription "${name}".`);
       return [];
+
     }
+
     return handler(...credentials);
   }
-};
+);
 
-export default mapToAcl = (name,handler) => {
+export default mapToAcl = (name, handler) => {
   //The Meteor#methods require an object, while the Meteor#subscribe an function.
-  if(handler instanceof Function){
+  if (handler instanceof Function) {
     return injectAclSubscribeCheck(name, handler);
   }
+
   return Object.keys(handler).reduce((previous, current, index) => {
     previous[current] = injectAclActionCheck(name[index], handler[current]);
     return previous;
-  }, {})
+  }, {});
 };
-  

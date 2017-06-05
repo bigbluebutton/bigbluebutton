@@ -4,8 +4,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
-
-Meteor.publish('slides', function() {
+Meteor.publish('slides', function () {
   const boundSlides = slides.bind(this);
   return mapToAcl('subscriptions.slides', boundSlides)(arguments);
 });
