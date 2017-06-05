@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.whiteboard
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -216,7 +217,8 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
 			if (!_cursors.hasOwnProperty(userId)) {
-				var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
+				var userName:String = UsersUtil.getUserName(userId);
+				var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
 				wbCanvas.addCursor(newCursor);
 				
 				_cursors[userId] = newCursor;
