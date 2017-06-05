@@ -1,5 +1,6 @@
-import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { findDOMNode } from 'react-dom';
 import ShapeHelpers from '../helpers.js';
 
 export default class PollDrawComponent extends React.Component {
@@ -162,9 +163,9 @@ export default class PollDrawComponent extends React.Component {
       let key = `${this.props.shape.id}_key_${this.state.currentLine}`;
       let votes = `${this.props.shape.id}_votes_${this.state.currentLine}`;
       let percent = `${this.props.shape.id}_percent_${this.state.currentLine}`;
-      let keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
-      let voteSizes = ReactDOM.findDOMNode(this.refs[votes]).getBBox();
-      let percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
+      let keySizes = findDOMNode(this.refs[key]).getBBox();
+      let voteSizes = findDOMNode(this.refs[votes]).getBBox();
+      let percSizes = findDOMNode(this.refs[percent]).getBBox();
 
       //first check if we can still increase the font-size
       if (this.state.fontSizeDirection == 1) {
@@ -221,8 +222,8 @@ export default class PollDrawComponent extends React.Component {
     for (let i = 0; i < this.state.textArray.length; ++i) {
       let key = `${this.props.shape.id}_key_${i}`;
       let percent = `${this.props.shape.id}_percent_${i}`;
-      let keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
-      let percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
+      let keySizes = findDOMNode(this.refs[key]).getBBox();
+      let percSizes = findDOMNode(this.refs[percent]).getBBox();
 
       if (keySizes.width > maxLeftWidth) {
         maxLeftWidth = keySizes.width;
@@ -242,8 +243,8 @@ export default class PollDrawComponent extends React.Component {
     }
 
     let digitRef = `${this.props.shape.id}_digit`;
-    let maxDigitWidth = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().width;
-    let maxDigitHeight = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().height;
+    let maxDigitWidth = findDOMNode(this.refs[digitRef]).getBBox().width;
+    let maxDigitHeight = findDOMNode(this.refs[digitRef]).getBBox().height;
 
     this.setState({
       maxLeftWidth: maxLeftWidth,
