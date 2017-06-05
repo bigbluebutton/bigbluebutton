@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import { Match } from 'meteor/check';
+import  deepMerge  from '/imports/utils/deepMerge'
 
 export class Acl {
 
@@ -10,30 +11,30 @@ export class Acl {
 
   can(permission, credentials) {
     check(permission, String);
-    const roles = this.getRole(credentials);
+    const permissions = this.getPermissions(credentials);
 
-    if (roles) {
-      return this.fetchPermission(permission, this.config[roles.toLowerCase()]);
+    if (permissions) {
+      return this.fetchPermission(permission, permissions);
     }
     return false;
   }
 
-  fetchPermission(permission, roles) {
+  fetchPermission(permission, permissions) {
     if (!permission) return false;
 
-    if (Match.test(roles, String)) {
-      return roles.indexOf(permission) > -1;
-    } else if (Match.test(roles, Array)) {
-      return roles.some((internalAcl)=>(this.fetchPermission(permission, internalAcl)));
-    } else if (Match.test(roles, Object)) {
+    if (Match.test(permissions, String)) {
+      return permissions.indexOf(permission) > -1;
+    } else if (Match.test(permissions, Array)) {
+      return permissions.some((internalAcl)=>(this.fetchPermission(permission, internalAcl)));
+    } else if (Match.test(permissions, Object)) {
       if (permission.indexOf(".") > -1) {
-        return this.fetchPermission(permission.substring(permission.indexOf(".") + 1), roles[permission.substring(0, permission.indexOf("."))]);
+        return this.fetchPermission(permission.substring(permission.indexOf(".") + 1), permissions[permission.substring(0, permission.indexOf("."))]);
       }
-      return roles[permission];
+      return permissions[permission];
     }
   }
 
-  getRole(credentials) {
+  getPermissions(credentials) {
     if (!credentials) {
       return false;
     }
@@ -49,6 +50,13 @@ export class Acl {
     if (!user) {
       return false;
     }
-    return user.user.role;
+    const roles = user.user.roles;
+    let permissions = {};
+
+    roles.forEach((role)=>{
+      permissions = deepMerge(permissions,this.config[role]);
+    });
+    
+    return permissions;
   }
 }
