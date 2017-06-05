@@ -34,4 +34,4 @@ export default function resizeSlide(meetingId, presentationId, slideId, slide) {
   };
 
   return Slides.update(selector, modifier, cb);
-};
+}

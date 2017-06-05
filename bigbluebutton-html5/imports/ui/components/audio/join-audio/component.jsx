@@ -51,11 +51,12 @@ class JoinAudio extends React.Component {
     return (
       <div>
         <div className={styles.closeBtn}>
-          <Button className={styles.closeBtn}
+          <Button
+            className={styles.closeBtn}
             label={intl.formatMessage(intlMessages.closeLabel)}
             icon={'close'}
             size={'lg'}
-            hideLabel={true}
+            hideLabel
             onClick={this.handleClose}
           />
         </div>
@@ -64,20 +65,21 @@ class JoinAudio extends React.Component {
           {intl.formatMessage(intlMessages.audioChoiceLabel)}
         </div>
         <div className={styles.center}>
-          <Button className={styles.audioBtn}
+          <Button
+            className={styles.audioBtn}
             label={intl.formatMessage(intlMessages.microphoneLabel)}
             icon={'unmute'}
-            circle={true}
+            circle
             size={'jumbo'}
             onClick={this.openAudio}
           />
 
-          <span className={styles.verticalLine}>
-          </span>
-          <Button className={styles.audioBtn}
+          <span className={styles.verticalLine} />
+          <Button
+            className={styles.audioBtn}
             label={intl.formatMessage(intlMessages.listenOnlyLabel)}
             icon={'listen'}
-            circle={true}
+            circle
             size={'jumbo'}
             onClick={this.openListen}
           />
@@ -85,6 +87,6 @@ class JoinAudio extends React.Component {
       </div>
     );
   }
-};
+}
 
 export default withModalMounter(injectIntl(JoinAudio));

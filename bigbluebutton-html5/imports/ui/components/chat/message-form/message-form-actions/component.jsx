@@ -25,7 +25,7 @@ export default class MessageFormActions extends BaseButton {
       </BaseButton>
     );
   }
-};
+}
 
 MessageFormActions.propTypes = propTypes;
 MessageFormActions.defaultProps = defaultProps;

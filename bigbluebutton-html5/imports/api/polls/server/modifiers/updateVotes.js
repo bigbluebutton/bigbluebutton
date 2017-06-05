@@ -31,7 +31,7 @@ export default function updateVotes(poll, meetingId, requesterId) {
     $set: {
       requester: requesterId,
       poll: {
-        answers: answers,
+        answers,
         num_responders: numResponders,
         num_respondents: numRespondents,
         id,
@@ -48,4 +48,4 @@ export default function updateVotes(poll, meetingId, requesterId) {
   };
 
   return Polls.update(selector, modifier, cb);
-};
+}

@@ -38,4 +38,4 @@ export default function removeMeeting(meetingId) {
   };
 
   return Meetings.remove(selector, cb);
-};
+}

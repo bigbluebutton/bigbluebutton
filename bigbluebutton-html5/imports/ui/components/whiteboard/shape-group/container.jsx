@@ -13,7 +13,7 @@ const propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
 
-  //array of shapes, optional
+  // array of shapes, optional
   shapes: PropTypes.array,
 };
 

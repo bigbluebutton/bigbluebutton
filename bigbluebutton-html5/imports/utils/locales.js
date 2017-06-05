@@ -1,5 +1,5 @@
 const locales = [
-   {
+  {
     locale: 'af_NA',
     name: 'Afrikaans (Namibia)',
   },

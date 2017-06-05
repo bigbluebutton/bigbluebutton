@@ -33,4 +33,4 @@ export default function handleRecordingStatusChange({ payload }) {
   };
 
   return Meetings.update(selector, modifier, cb);
-};
+}

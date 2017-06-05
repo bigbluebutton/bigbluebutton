@@ -1,28 +1,27 @@
 /* jshint node: true */
-'use strict';
+
 
 module.exports = function (grunt) {
-
   require('load-grunt-tasks')(grunt);
 
   // importing the Meteor settings:
-  var SHELL_CONFIG = require('./private/config/server/shell.yaml');
-  var PROD_SHELL_CONFIG = require('./private/config/production/server/shell.yaml');
+  const SHELL_CONFIG = require('./private/config/server/shell.yaml');
+  const PROD_SHELL_CONFIG = require('./private/config/production/server/shell.yaml');
 
   // root URL in development/production:
-  var rootURL = (SHELL_CONFIG.shell.rootURL == undefined)
+  const rootURL = (SHELL_CONFIG.shell.rootURL == undefined)
     ? 'http://127.0.0.1/html5client'
     : SHELL_CONFIG.shell.rootURL;
 
   // command line string containing the Meteor's home directory in production:
-  var prodHomeStr = (PROD_SHELL_CONFIG.shell.home == undefined) ? ''
-                        : ('HOME=' + PROD_SHELL_CONFIG.shell.home + ' ');
+  const prodHomeStr = (PROD_SHELL_CONFIG.shell.home == undefined) ? ''
+                        : (`HOME=${PROD_SHELL_CONFIG.shell.home} `);
 
   // final commands:
-  var METEOR_DEV_COMMAND = 'ROOT_URL=' +
-    rootURL + ' NODE_ENV=development' + ' meteor';
-  var METEOR_PROD_COMMAND = prodHomeStr + 'ROOT_URL=' +
-    rootURL + ' NODE_ENV=production' + ' meteor';
+  const METEOR_DEV_COMMAND = `ROOT_URL=${
+    rootURL} NODE_ENV=development` + ' meteor';
+  const METEOR_PROD_COMMAND = `${prodHomeStr}ROOT_URL=${
+    rootURL} NODE_ENV=production` + ' meteor';
 
   // configure Grunt
   grunt.initConfig({
@@ -88,13 +87,13 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-newer');
 
-  var mode = (grunt.option('mode') == 'production') ? 'production' : 'development';
+  const mode = (grunt.option('mode') == 'production') ? 'production' : 'development';
 
   // sets the default task to run JSCS first (forcing our way past warnings) and then start Meteor:
-  grunt.registerTask('default', ['force:newer:jscs:check', 'concurrent:meteor_watch_' + mode]);
+  grunt.registerTask('default', ['force:newer:jscs:check', `concurrent:meteor_watch_${mode}`]);
 
   // sets the autofix task to fix JSCS warning when possible and then start Meteor:
-  grunt.registerTask('autofix', ['force:newer:jscs:autofix', 'concurrent:meteor_watch_' + mode]);
+  grunt.registerTask('autofix', ['force:newer:jscs:autofix', `concurrent:meteor_watch_${mode}`]);
 
   // runs the linter task:
   grunt.registerTask('quicklint', ['force:jscs:check']);

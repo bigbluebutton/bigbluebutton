@@ -13,12 +13,12 @@ export default class DefaultContent extends Component {
   render() {
     return (
       <CSSTransitionGroup
-        transitionName={ {
+        transitionName={{
           appear: styles.appear,
           appearActive: styles.appearActive,
-        } }
-        transitionAppear={true}
-        transitionEnter={true}
+        }}
+        transitionAppear
+        transitionEnter
         transitionLeave={false}
         transitionAppearTimeout={700}
         transitionEnterTimeout={0}
@@ -35,11 +35,11 @@ export default class DefaultContent extends Component {
                   defaultMessage="Welcome {0}! Your presentation will begin shortly..."
                   values={{ 0: 'James Bond' }}
                 />
-                <br/>
+                <br />
                 Today is {' '}<FormattedDate value={Date.now()} />
-                <br/>
+                <br />
                 Here is some button examples
-                <br/>
+                <br />
               </p>
               <p>
                 <Button
@@ -82,25 +82,25 @@ export default class DefaultContent extends Component {
                 <Button
                   label={'Default'}
                   onClick={this.handleClick}
-                  ghost={true}
+                  ghost
                 />&nbsp;
                 <Button
                   label={'Primary'}
                   onClick={this.handleClick}
                   color={'primary'}
-                  ghost={true}
+                  ghost
                 />&nbsp;
                 <Button
                   label={'Danger'}
                   onClick={this.handleClick}
                   color={'danger'}
-                  ghost={true}
+                  ghost
                 />&nbsp;
                 <Button
                   label={'Success'}
                   onClick={this.handleClick}
                   color={'success'}
-                  ghost={true}
+                  ghost
                 />
               </p>
               <p>
@@ -114,22 +114,22 @@ export default class DefaultContent extends Component {
                   onClick={this.handleClick}
                   color={'primary'}
                   icon={'add'}
-                  ghost={true}
+                  ghost
                 />&nbsp;
                 <Button
                   label={'Icon Right'}
                   onClick={this.handleClick}
                   color={'danger'}
                   icon={'add'}
-                  ghost={true}
-                  iconRight={true}
+                  ghost
+                  iconRight
                 />&nbsp;
                 <Button
                   label={'Icon Right'}
                   onClick={this.handleClick}
                   color={'success'}
                   icon={'add'}
-                  iconRight={true}
+                  iconRight
                 />
               </p>
               <p>
@@ -138,8 +138,8 @@ export default class DefaultContent extends Component {
                   onClick={this.handleClick}
                   color={'primary'}
                   icon={'unmute'}
-                  ghost={true}
-                  circle={true}
+                  ghost
+                  circle
                 />&nbsp;
                 <Button
                   label={'Large'}
@@ -147,15 +147,15 @@ export default class DefaultContent extends Component {
                   color={'danger'}
                   icon={'unmute'}
                   size={'lg'}
-                  ghost={true}
-                  circle={true}
-                /><br/>
+                  ghost
+                  circle
+                /><br />
                 <Button
                   label={'Small'}
                   onClick={this.handleClick}
                   icon={'unmute'}
                   size={'sm'}
-                  circle={true}
+                  circle
                 />&nbsp;
                 <Button
                   label={'Icon Right'}
@@ -163,8 +163,8 @@ export default class DefaultContent extends Component {
                   color={'success'}
                   icon={'unmute'}
                   size={'sm'}
-                  iconRight={true}
-                  circle={true}
+                  iconRight
+                  circle
                 />
               </p>
             </div>

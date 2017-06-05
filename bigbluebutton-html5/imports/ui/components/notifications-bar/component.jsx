@@ -26,7 +26,8 @@ export default class NotificationsBar extends Component {
     return (
       <div
         role="alert"
-        className={cx(styles.notificationsBar, styles[color])}>
+        className={cx(styles.notificationsBar, styles[color])}
+      >
         {this.props.children}
       </div>
     );

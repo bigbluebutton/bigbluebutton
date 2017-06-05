@@ -73,7 +73,7 @@ class ErrorScreen extends Component {
             size={'sm'}
             onClick={this.onClick}
             label={intl.formatMessage(intlMessages.leave)}
-            />
+          />
         </div>
       </div>
     );

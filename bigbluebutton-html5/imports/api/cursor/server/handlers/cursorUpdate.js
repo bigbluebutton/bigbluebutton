@@ -12,4 +12,4 @@ export default function handleCursorUpdate({ payload }) {
   check(y, Number);
 
   return updateCursor(meetingId, x, y);
-};
+}

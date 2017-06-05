@@ -17,8 +17,8 @@ export default class Icon extends Component {
     return (
       <i
         className={cx(className, [prependIconName, iconName].join(''))}
-        {...otherProps}>
-      </i>
+        {...otherProps}
+      />
     );
   }
 }

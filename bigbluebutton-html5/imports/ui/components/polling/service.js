@@ -1,8 +1,8 @@
 import { makeCall } from '/imports/ui/services/api';
 import Polls from '/imports/api/polls';
 
-let mapPolls = function () {
-  let poll = Polls.findOne({});
+const mapPolls = function () {
+  const poll = Polls.findOne({});
   if (!poll) {
     return { pollExists: false };
   }
@@ -15,8 +15,8 @@ let mapPolls = function () {
       pollId: poll.poll.id,
     },
     pollExists: true,
-    amIRequester: amIRequester,
-    handleVote: function (pollId, answerId) {
+    amIRequester,
+    handleVote(pollId, answerId) {
       makeCall('publishVote', pollId, answerId.id);
     },
   };

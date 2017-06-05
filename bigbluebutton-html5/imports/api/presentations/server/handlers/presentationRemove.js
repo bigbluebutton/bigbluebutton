@@ -11,4 +11,4 @@ export default function handlePresentationRemove({ payload }) {
   check(presentationId, String);
 
   return removePresentation(meetingId, presentationId);
-};
+}

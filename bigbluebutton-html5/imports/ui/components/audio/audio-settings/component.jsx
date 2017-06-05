@@ -56,12 +56,13 @@ class AudioSettings extends React.Component {
     return (
       <div>
         <div className={styles.topRow}>
-          <Button className={styles.backBtn}
+          <Button
+            className={styles.backBtn}
             label={intl.formatMessage(intlMessages.backLabel)}
             icon={'left_arrow'}
             size={'md'}
             color={'primary'}
-            ghost={true}
+            ghost
             onClick={this.chooseAudio}
           />
           <div className={cx(styles.title, styles.chooseAudio)}>
@@ -165,7 +166,7 @@ class AudioSettings extends React.Component {
       </div>
     )
   }
-};
+}
 
 const intlMessages = defineMessages({
   backLabel: {
