@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { createContainer } from 'meteor/react-meteor-data';
 
@@ -99,13 +100,14 @@ export default injectIntl(createContainer(({ params, intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
+    minMessageLength: CHAT_CONFIG.min_message_length,
+    maxMessageLength: CHAT_CONFIG.max_message_length,
     actions: {
-
       handleClosePrivateChat: chatID => ChatService.closePrivateChat(chatID),
 
       handleSendMessage: (message) => {
         ChatService.updateScrollPosition(chatID, null);
-        const sentMessage = ChatService.sendMessage(chatID, message);
+        return ChatService.sendMessage(chatID, message);
       },
 
       handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),

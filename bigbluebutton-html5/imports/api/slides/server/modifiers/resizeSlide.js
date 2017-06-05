@@ -1,4 +1,3 @@
-import probe from 'probe-image-size';
 import { check } from 'meteor/check';
 import Slides from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';

@@ -1,10 +1,11 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
 import Cursor from './cursor/component.jsx';
 import PresentationToolbarContainer from './presentation-toolbar/container.jsx';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PollingContainer from '/imports/ui/components/polling/container';
 
 export default class PresentationArea extends React.Component {
@@ -22,7 +23,7 @@ export default class PresentationArea extends React.Component {
       const viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
       const viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
       return (
-        <ReactCSSTransitionGroup
+        <CSSTransitionGroup
           transitionName={{
             enter: styles.enter,
             enterActive: styles.enterActive,
@@ -71,7 +72,7 @@ export default class PresentationArea extends React.Component {
               : null }
             </g>
           </svg>
-        </ReactCSSTransitionGroup>
+        </CSSTransitionGroup>
       );
     }
     return null;

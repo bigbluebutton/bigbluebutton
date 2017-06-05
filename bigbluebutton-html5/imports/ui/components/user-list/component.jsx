@@ -1,6 +1,7 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import styles from './styles.scss';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -207,7 +208,7 @@ class UserList extends Component {
           className={styles.scrollableList}
           ref={r => this._msgsList = r}
         >
-          <ReactCSSTransitionGroup
+          <CSSTransitionGroup
             transitionName={listTransition}
             transitionAppear
             transitionEnter
@@ -229,7 +230,7 @@ class UserList extends Component {
                 />
               ))}
             </div>
-          </ReactCSSTransitionGroup>
+          </CSSTransitionGroup>
         </div>
       </div>
     );
@@ -292,7 +293,7 @@ class UserList extends Component {
           tabIndex={0}
           ref={r => this._usersList = r}
         >
-          <ReactCSSTransitionGroup
+          <CSSTransitionGroup
             transitionName={listTransition}
             transitionAppear
             transitionEnter
@@ -317,7 +318,7 @@ class UserList extends Component {
                   />))
               }
             </div>
-          </ReactCSSTransitionGroup>
+          </CSSTransitionGroup>
         </div>
       </div>
     );
