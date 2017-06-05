@@ -37,6 +37,11 @@ const defaultProps = {
 };
 
 class ErrorScreen extends Component {
+  componentDidMount() {
+    if (window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') {
+      window.webkit.messageHandlers.bbb.postMessage(JSON.stringify({method: 'hangup'}));
+    }
+  }
 
   onClick() {
     window.location = window.location.origin;
