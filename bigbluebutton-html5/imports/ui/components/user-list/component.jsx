@@ -46,12 +46,18 @@ class UserList extends Component {
 
   rovingIndex(event, listType) {
     const { users, openChats } = this.props;
-
+    
     let active = document.activeElement;
     let list;
     let items;
     let count;
-
+    
+    const focusElement = () => {
+      active.tabIndex = -1;
+      items.childNodes[this.counter].tabIndex = 0;
+      items.childNodes[this.counter].focus();
+    }
+    
     switch (listType) {
       case 'users':
         list = this._usersList;
@@ -81,10 +87,7 @@ class UserList extends Component {
       if (this.counter == count) {
         this.counter = 0;
       }
-
-      active.tabIndex = -1;
-      items.childNodes[this.counter].tabIndex = 0;
-      items.childNodes[this.counter].focus();
+      focusElement();
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
@@ -94,9 +97,7 @@ class UserList extends Component {
         this.counter = count - 1;
       }
 
-      active.tabIndex = -1;
-      items.childNodes[this.counter].tabIndex = 0;
-      items.childNodes[this.counter].focus();
+      focusElement();
     }
   }
 

@@ -51,15 +51,22 @@ export default class DropdownList extends Component {
   handleItemKeyDown(event, callback) {
     const { dropdownHide } = this.props;
     const { activeItemIndex } = this.state;
-
+    
     let selectableItems = [];
     for (let i = 0; i < (this._menu.children.length); i++) {
-      if (this._menu.children[i].hasAttribute("role")){
+      if (this._menu.children[i].getAttribute("role") === 'menuitem'){
         selectableItems.push(this._menu.children[i]);
       }
     }
 
-    if (KEY_CODES.ENTER === event.which || KEY_CODES.SPACE === event.which) {
+    const focusMenuItem = () => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      selectableItems[this.counter].focus();
+    }
+
+    if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(event.keyCode)) {
       event.preventDefault();
       event.stopPropagation();
 
@@ -67,32 +74,26 @@ export default class DropdownList extends Component {
     }
 
     if (KEY_CODES.ARROW_DOWN === event.which) {
-      event.preventDefault();
-      event.stopPropagation();
-
       this.counter += 1;
 
       if (!selectableItems[this.counter]) {
         this.counter = 0;
       }
 
-      selectableItems[this.counter].focus();
+      focusMenuItem();
     }
 
     if (KEY_CODES.ARROW_UP === event.which) {
-      event.preventDefault();
-      event.stopPropagation();
-
       this.counter -= 1;
 
       if (this.counter < 0) {
         this.counter = selectableItems.length - 1;
       }
       
-      selectableItems[this.counter].focus();
+      focusMenuItem();
     }
 
-    if (KEY_CODES.ESCAPE === event.which || KEY_CODES.TAB === event.which || KEY_CODES.ARROW_LEFT === event.which) {
+    if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)){
       event.preventDefault();
       dropdownHide();
 
