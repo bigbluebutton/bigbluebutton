@@ -4,7 +4,7 @@
   "scripts": {
     "start": "cd app;./start.sh",
     "preinstall": "npm install grunt-cli",
-    "test": "node_modules/.bin/wdio ./tests/webdriverio/wdio.conf.js",
+    "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "node_modules/jscs/bin/jscs *",
     "autofix": "node_modules/jscs/bin/jscs * --fix"
   },
