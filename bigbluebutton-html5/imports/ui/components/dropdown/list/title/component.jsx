@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styles from '../styles';
 
 const propTypes = {
@@ -13,7 +14,7 @@ export default class DropdownListTitle extends Component {
     return (
       <div>
         <li className={styles.title} aria-describedby="labelContext">{this.props.children}</li>
-        <div id="labelContext" aria-label={description}></div>
+        <div id="labelContext" aria-label={description} />
       </div>
     );
   }

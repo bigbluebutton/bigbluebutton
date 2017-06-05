@@ -19,8 +19,8 @@ export default class AudioModal extends React.Component {
      * initialized to 0
      */
     this.setState({ activeSubmenu: 0 });
-    this.submenus.push({ componentName: JoinAudio, });
-    this.submenus.push({ componentName: AudioSettings, });
+    this.submenus.push({ componentName: JoinAudio });
+    this.submenus.push({ componentName: AudioSettings });
   }
 
   handleSubmenuChange(i) {
@@ -30,7 +30,7 @@ export default class AudioModal extends React.Component {
   renderSubmenu(key) {
     const curr = this.state.activeSubmenu ? 0 : this.state.activeSubmenu;
 
-    let props = {
+    const props = {
       changeMenu: this.handleSubmenuChange.bind(this),
       JOIN_AUDIO: this.JOIN_AUDIO,
       AUDIO_SETTINGS: this.AUDIO_SETTINGS,
@@ -39,7 +39,7 @@ export default class AudioModal extends React.Component {
     };
 
     const Submenu = this.submenus[key].componentName;
-    return <Submenu {...props}/>;
+    return <Submenu {...props} />;
   }
 
   render() {
@@ -51,4 +51,4 @@ export default class AudioModal extends React.Component {
       </ModalBase>
     );
   }
-};
+}

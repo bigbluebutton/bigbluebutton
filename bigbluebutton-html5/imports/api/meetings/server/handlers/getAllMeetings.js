@@ -27,10 +27,10 @@ export default function handleGetAllMettings({ payload }) {
 
   meetingsToRemove.forEach(meeting => removeMeeting(meeting.meetingId));
 
-  let meetingsAdded = [];
-  meetings.forEach(meeting => {
+  const meetingsAdded = [];
+  meetings.forEach((meeting) => {
     meetingsAdded.push(addMeeting(meeting));
   });
 
   return meetingsAdded;
-};
+}

@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import WhiteboardShapeModel from '../shape-factory/component';
 
 const propTypes = {
@@ -6,8 +7,8 @@ const propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
 
-  //array of shapes, optional
-  shapes: React.PropTypes.array,
+  // array of shapes, optional
+  shapes: PropTypes.array,
 };
 
 export default class ShapeGroup extends React.Component {
@@ -24,13 +25,13 @@ export default class ShapeGroup extends React.Component {
 
     return (
       <g>
-        {shapes ? shapes.map((shape) =>
-          <WhiteboardShapeModel
+        {shapes ? shapes.map(shape =>
+          (<WhiteboardShapeModel
             shape={shape.shape}
             key={shape.shape.id}
-            slideWidth = {width}
-            slideHeight = {height}
-          />
+            slideWidth={width}
+            slideHeight={height}
+          />),
           )
         : null }
       </g>

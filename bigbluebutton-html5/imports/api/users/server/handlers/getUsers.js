@@ -26,10 +26,10 @@ export default function handleGetUsers({ payload }) {
 
   usersToRemove.forEach(user => removeUser(meetingId, user.userId));
 
-  let usersAdded = [];
-  users.forEach(user => {
+  const usersAdded = [];
+  users.forEach((user) => {
     usersAdded.push(addUser(meetingId, user));
   });
 
   return usersAdded;
-};
+}

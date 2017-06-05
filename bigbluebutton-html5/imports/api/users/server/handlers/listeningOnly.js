@@ -29,10 +29,10 @@ export default function handleListeningOnly({ payload }) {
 
     if (numChanged) {
       return Logger.info(
-        `Assigned listen only status '${listenOnly}' user=${userId} meeting=${meetingId}`
+        `Assigned listen only status '${listenOnly}' user=${userId} meeting=${meetingId}`,
       );
     }
   };
 
   return Users.update(selector, modifier, cb);
-};
+}

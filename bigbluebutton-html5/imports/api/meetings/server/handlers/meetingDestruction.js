@@ -8,4 +8,4 @@ export default function handleMeetingDestruction({ payload }) {
   check(meetingId, String);
 
   return removeMeeting(meetingId);
-};
+}

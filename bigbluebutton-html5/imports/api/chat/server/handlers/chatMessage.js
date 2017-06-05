@@ -14,4 +14,4 @@ export default function handleChatMessage({ payload, header }) {
   message.from_time = +(header.current_time);
 
   return addChat(meetingId, message);
-};
+}

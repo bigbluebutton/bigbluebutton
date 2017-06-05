@@ -25,4 +25,4 @@ export default function removePresentation(meetingId, presentationId) {
   };
 
   return Presentations.remove(selector, cb);
-};
+}

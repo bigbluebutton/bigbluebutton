@@ -11,4 +11,4 @@ export default function handleUserJoined({ payload }) {
   check(user, Object);
 
   return addUser(meetingId, user);
-};
+}

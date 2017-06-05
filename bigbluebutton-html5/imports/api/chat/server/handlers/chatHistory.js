@@ -14,11 +14,11 @@ export default function handleChatHistory({ payload }) {
   check(meetingId, String);
   check(chatHistory, Array);
 
-  let chatsAdded = [];
+  const chatsAdded = [];
 
-  chatHistory.forEach(message => {
+  chatHistory.forEach((message) => {
     chatsAdded.push(addChat(meetingId, message));
   });
 
   return chatsAdded;
-};
+}

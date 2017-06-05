@@ -20,4 +20,4 @@ export default function clearShapesWhiteboard(meetingId, whiteboardId) {
   };
 
   return Shapes.remove(selector, cb);
-};
+}

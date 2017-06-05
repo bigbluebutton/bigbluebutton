@@ -10,7 +10,7 @@ const STORAGE_KEY = CHAT_CONFIG.storage_key;
 
 class UnreadMessagesTracker {
   constructor() {
-    this._tracker = new Tracker.Dependency;
+    this._tracker = new Tracker.Dependency();
     this._unreadChats = Storage.getItem('UNREAD_CHATS') || {};
   }
 
@@ -20,7 +20,7 @@ class UnreadMessagesTracker {
   }
 
   update(chatID, timestamp = 0) {
-    let currentValue = this.get(chatID);
+    const currentValue = this.get(chatID);
     if (currentValue < timestamp) {
       this._unreadChats[chatID] = timestamp;
       this._tracker.changed();
@@ -31,7 +31,7 @@ class UnreadMessagesTracker {
   }
 
   count(chatID) {
-    let filter = {
+    const filter = {
       'message.from_time': {
         $gt: this.get(chatID),
       },
@@ -48,7 +48,7 @@ class UnreadMessagesTracker {
 
     return Chats.find(filter).count();
   }
-};
+}
 
-let UnreadTrackerSingleton = new UnreadMessagesTracker();
+const UnreadTrackerSingleton = new UnreadMessagesTracker();
 export default UnreadTrackerSingleton;

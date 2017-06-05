@@ -14,7 +14,8 @@ class AudioTest extends React.Component {
     } = this.props;
 
     return (
-      <Button className={styles.testAudioBtn}
+      <Button
+        className={styles.testAudioBtn}
         label={intl.formatMessage(intlMessages.playSoundLabel)}
         icon={'unmute'}
         size={'sm'}
@@ -23,7 +24,7 @@ class AudioTest extends React.Component {
       />
     );
   }
-};
+}
 
 const intlMessages = defineMessages({
   playSoundLabel: {
