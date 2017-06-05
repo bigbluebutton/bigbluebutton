@@ -1,17 +1,18 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
 import cx from 'classnames';
 import generateColor from './color-generator';
 
 const propTypes = {
-  user: React.PropTypes.shape({
-    name: React.PropTypes.string.isRequired,
-    isPresenter: React.PropTypes.bool.isRequired,
-    isVoiceUser: React.PropTypes.bool.isRequired,
-    isModerator: React.PropTypes.bool.isRequired,
-    isOnline: React.PropTypes.bool.isRequired,
-    image: React.PropTypes.string,
+  user: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    isPresenter: PropTypes.bool.isRequired,
+    isVoiceUser: PropTypes.bool.isRequired,
+    isModerator: PropTypes.bool.isRequired,
+    isOnline: PropTypes.bool.isRequired,
+    image: PropTypes.string,
   }).isRequired,
 };
 

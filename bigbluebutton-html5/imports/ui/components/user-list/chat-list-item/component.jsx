@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
@@ -26,10 +27,10 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
 
 const propTypes = {
-  chat: React.PropTypes.shape({
-    id: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    unreadCounter: React.PropTypes.number.isRequired,
+  chat: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
 };
 

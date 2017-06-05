@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import ShapeGroupService from './service';
@@ -13,7 +14,7 @@ const propTypes = {
   height: PropTypes.number.isRequired,
 
   //array of shapes, optional
-  shapes: React.PropTypes.array,
+  shapes: PropTypes.array,
 };
 
 class ShapeGroupContainer extends React.Component {
