@@ -8,6 +8,10 @@ class Page {
   pressEnter() {
     browser.keys('Enter');
   }
+
+  isFirefox() {
+    return browser.desiredCapabilities.browserName == 'firefox';
+  }
 }
 
 module.exports = Page;

@@ -10,7 +10,7 @@ exports.config = {
   reporters: ['spec', 'junit'],
   reporterOptions: {
     junit: {
-      outputDir: './tests/webdriverio/reports'
+      outputDir: './tests/webdriverio/reports',
     },
   },
   screenshotPath: 'screenshots',

@@ -18,15 +18,6 @@ describe('Landing page', function () {
       LandingPage.loadedHomePage.waitForExist(5000);
     });
 
-  it('should allow user to login if the username is specified and then Enter key is pressed',
-    function () {
-      LandingPage.open();
-      LandingPage.username.waitForExist();
-      LandingPage.username.setValue('Maxim');
-      LandingPage.joinWithEnterKey();
-      LandingPage.loadedHomePage.waitForExist(5000);
-    });
-
   it('should not allow user to login if the username is not specified (login using a button)',
     function () {
       LandingPage.open();
@@ -41,15 +32,26 @@ describe('Landing page', function () {
       chai.expect(browser.getUrl()).to.equal(LandingPage.url);
     });
 
-  it('should not allow user to login if the username is not specified (login using Enter key)',
-    function () {
-      LandingPage.open();
+  if (!LandingPage.isFirefox()) {
+    it('should allow user to login if the username is specified and then Enter key is pressed',
+      function () {
+        LandingPage.open();
+        LandingPage.username.waitForExist();
+        LandingPage.username.setValue('Maxim');
+        LandingPage.joinWithEnterKey();
+        LandingPage.loadedHomePage.waitForExist(5000);
+      });
 
-      // we intentionally don't enter username here
+    it('should not allow user to login if the username is not specified (login using Enter key)',
+      function () {
+        LandingPage.open();
 
-      LandingPage.joinWithEnterKey();
-      browser.pause(5000); // amount of time we usually wait for the gome page to appear
-      chai.expect(browser.getUrl()).to.equal(LandingPage.url);
-    });
+        // we intentionally don't enter username here
+
+        LandingPage.joinWithEnterKey();
+        browser.pause(5000); // amount of time we usually wait for the gome page to appear
+        chai.expect(browser.getUrl()).to.equal(LandingPage.url);
+      });
+  }
 });
 

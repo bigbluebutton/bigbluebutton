@@ -41,8 +41,8 @@ $ sudo apt-get install google-chrome-stable
 
 How to install Firefox:
 ```sh
-$ wget sourceforge.net/projects/ubuntuzilla/files/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_52.0-0ubuntu1_amd64.deb
-$ sudo dpkg -i firefox-mozilla-build_52.0-0ubuntu1_amd64.deb
+$ wget sourceforge.net/projects/ubuntuzilla/files/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_53.0.3-0ubuntu1_amd64.deb
+$ sudo dpkg -i firefox-mozilla-build_53.0.3-0ubuntu1_amd64.deb
 ```
 
 In order to run headless browser, we will use Xvfb display server:
