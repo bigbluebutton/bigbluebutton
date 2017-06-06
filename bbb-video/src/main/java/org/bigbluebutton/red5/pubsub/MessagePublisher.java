@@ -1,6 +1,11 @@
 package org.bigbluebutton.red5.pubsub;
 
-import org.bigbluebutton.common.messages.*;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.Constants;
+import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
+import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
+import org.bigbluebutton.common.messages.StartTranscoderRequestMessage;
+import org.bigbluebutton.common.messages.StopTranscoderRequestMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +75,7 @@ public class MessagePublisher {
 	}
 
 	public void stopTranscoderRequest(String meetingId, String userId) {
+		// TODO: transcoderId is getting userId, this may have to change
 		StopTranscoderRequestMessage msg = new StopTranscoderRequestMessage(meetingId, userId);
 		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg.toJson());
 	}
