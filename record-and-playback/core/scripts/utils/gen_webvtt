@@ -242,41 +242,63 @@ class Caption:
         f.write("WEBVTT\n\n".encode('utf-8'))
 
         lines = self.split_lines()
-        for i, line in enumerate(lines):
-            # Don't generate a cue for empty lines
-            if len(line.text) == 0:
-                continue
 
+        i = 0
+        # Don't generate cues for empty lines
+        while i < len(lines):
+            if len(lines[i].text) == 0:
+                del lines[i]
+                continue
+            i += 1
+
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            i += 1
+
+            text = line.text
             start_time = line.start_time
             end_time = line.end_time
-
-            if i + 1 < len(lines):
-                next_start_time = lines[i + 1].start_time
-                # If the next line is close after the current line, make the
-                # timestamps continuous so the subtitle doesn't "blink"
-                if next_start_time - end_time < 1000:
-                    end_time = next_start_time
 
             # Apply some duration cleanup heuristics to give some reasonable
             # line durations
             duration = end_time - start_time
+            # A minimum per-character time for display (up to 3.2s for 32char)
+            if duration < 100 * len(text):
+                duration = 100 * len(text)
+            # Don't show a caption (even a short one) for less than 1s
+            if duration < 1000:
+                duration = 1000
             # Make lines go away if they've been showing for >16 seconds
             if duration > 16000:
                 duration = 16000
-            # A minimum per-character time for display (up to 3.2s for 32char)
-            if duration < 100 * len(line.text):
-                duration = 100 * len(line.text)
-            # Never show a caption (even a short one) for less than 1s
-            if duration < 1000:
-                duration = 1000
-
             end_time = start_time + duration
+
+            if i < len(lines):
+                next_line = lines[i]
+                next_start_time = next_line.start_time
+
+                # If this end time would overlap with the next line, ether
+                # merge them into a single cue or un-overlap them if there's
+                # already multiple lines.
+                if end_time > next_start_time:
+                    if len(text.splitlines()) < 2:
+                        next_line.text = text + "\n" + next_line.text
+                        next_line.start_time = start_time
+                        continue
+                    else:
+                        end_time = next_start_time
+
+                # If the next line is close after the current line, make the
+                # timestamps continuous so the subtitle doesn't "flicker"
+                if next_start_time - end_time < 500:
+                    end_time = next_start_time
 
             f.write("{} --> {}\n".format(
                     webvtt_timestamp(start_time),
                     webvtt_timestamp(end_time)
                     ).encode('utf-8'))
-            f.write(html.escape(line.text, quote=False).encode('utf-8'))
+            f.write(html.escape(text, quote=False).encode('utf-8'))
             f.write("\n\n".encode('utf-8'))
 
     def caption_desc(self):
