@@ -8,4 +8,4 @@ export default function handleMeetingCreation({ payload }) {
   check(meetingId, String);
 
   return addMeeting(payload);
-};
+}

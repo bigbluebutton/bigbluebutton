@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormattedTime } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -55,7 +56,7 @@ export default class MessageListItem extends Component {
   componentDidMount() {
     const scrollArea = document.getElementById(this.props.chatAreaId);
     eventsToBeBound.forEach(
-      e => scrollArea.addEventListener(e, this.handleMessageInViewport, false)
+      e => scrollArea.addEventListener(e, this.handleMessageInViewport, false),
     );
 
     this.handleMessageInViewport();
@@ -64,7 +65,7 @@ export default class MessageListItem extends Component {
   componentWillUnmount() {
     const scrollArea = document.getElementById(this.props.chatAreaId);
     eventsToBeBound.forEach(
-      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false)
+      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false),
     );
   }
 
@@ -113,7 +114,7 @@ export default class MessageListItem extends Component {
                 {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
               </div>
               <time className={styles.time} dateTime={dateTime}>
-                <FormattedTime value={dateTime}/>
+                <FormattedTime value={dateTime} />
               </time>
             </div>
             <div className={styles.messages}>

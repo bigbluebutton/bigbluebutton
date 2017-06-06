@@ -1,22 +1,22 @@
-//This is the code to generate the colors for the user avatar when no image is provided
+// This is the code to generate the colors for the user avatar when no image is provided
 
 const stringToPastelColour = (str) => {
   str = str.trim().toLowerCase();
 
-  let baseRed = 128;
-  let baseGreen = 128;
-  let baseBlue = 128;
+  const baseRed = 128;
+  const baseGreen = 128;
+  const baseBlue = 128;
 
   let seed = 0;
   for (let i = 0; i < str.length; seed = str.charCodeAt(i++) + ((seed << 5) - seed));
-  let a = Math.abs((Math.sin(seed++) * 10000)) % 256;
-  let b = Math.abs((Math.sin(seed++) * 10000)) % 256;
-  let c = Math.abs((Math.sin(seed++) * 10000)) % 256;
+  const a = Math.abs((Math.sin(seed++) * 10000)) % 256;
+  const b = Math.abs((Math.sin(seed++) * 10000)) % 256;
+  const c = Math.abs((Math.sin(seed++) * 10000)) % 256;
 
-  //build colour
-  let red = Math.round((a + baseRed) / 2);
-  let green = Math.round((b + baseGreen) / 2);
-  let blue = Math.round((c + baseBlue) / 2);
+  // build colour
+  const red = Math.round((a + baseRed) / 2);
+  const green = Math.round((b + baseGreen) / 2);
+  const blue = Math.round((c + baseBlue) / 2);
 
   return {
     r: red,
@@ -28,10 +28,10 @@ const stringToPastelColour = (str) => {
 // https://www.w3.org/TR/WCAG20/#relativeluminancedef
 // http://entropymine.com/imageworsener/srgbformula/
 const relativeLuminance = (rgb) => {
-  let tmp = {};
+  const tmp = {};
 
   Object.keys(rgb).forEach((i) => {
-    let c = rgb[i] / 255;
+    const c = rgb[i] / 255;
     if (c <= 0.03928) {
       tmp[i] = c / 12.92;
     } else {
@@ -53,7 +53,7 @@ const contrastRatio = (a, b) => {
   a = relativeLuminance(a);
   b = relativeLuminance(b);
 
-  //Arrange so a is lightest
+  // Arrange so a is lightest
   if (a < b) {
     c = a;
     a = b;
@@ -77,20 +77,20 @@ const shadeColor = (rgb, amt) => {
   else if (g < 0) g = 0;
 
   return {
-    r: r,
-    g: g,
-    b: b,
+    r,
+    g,
+    b,
   };
 };
 
 const addShadeIfNoContrast = (rgb) => {
-  let base = {
+  const base = {
     r: 255,
     g: 255,
     b: 255,
   }; // white
 
-  let cr = contrastRatio(base, rgb);
+  const cr = contrastRatio(base, rgb);
 
   if (cr > 4.5) {
     return rgb;
@@ -102,7 +102,7 @@ const addShadeIfNoContrast = (rgb) => {
 const getColor = (str) => {
   let rgb = stringToPastelColour(str);
   rgb = addShadeIfNoContrast(rgb);
-  return 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
+  return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
 };
 
 export default getColor;

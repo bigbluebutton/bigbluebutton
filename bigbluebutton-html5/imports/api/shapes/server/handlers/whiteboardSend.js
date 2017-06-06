@@ -15,4 +15,4 @@ export default function handleWhiteboardSend({ payload }) {
   check(whiteboardId, String);
 
   return addShape(meetingId, whiteboardId, shape);
-};
+}

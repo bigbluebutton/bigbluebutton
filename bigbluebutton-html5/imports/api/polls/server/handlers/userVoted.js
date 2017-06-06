@@ -13,4 +13,4 @@ export default function userVoted({ payload }) {
   check(requesterId, String);
 
   return updateVotes(poll, meetingId, requesterId);
-};
+}

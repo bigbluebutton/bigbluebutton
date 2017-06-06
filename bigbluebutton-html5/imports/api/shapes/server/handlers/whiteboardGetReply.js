@@ -25,11 +25,11 @@ export default function handleWhiteboardGetReply({ payload }) {
 
   shapesToRemove.forEach(s => removeShape(meetingId, s.shape.wb_id, s.shape.id));
 
-  let shapesAdded = [];
-  shapes.forEach(shape => {
-    let whiteboardId = shape.wb_id;
+  const shapesAdded = [];
+  shapes.forEach((shape) => {
+    const whiteboardId = shape.wb_id;
     shapesAdded.push(addShape(meetingId, whiteboardId, shape));
   });
 
   return shapesAdded;
-};
+}

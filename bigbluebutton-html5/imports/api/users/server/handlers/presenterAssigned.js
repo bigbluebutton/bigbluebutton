@@ -32,7 +32,7 @@ export default function handlePresenterAssigned({ payload }) {
   };
 
   return Users.update(selector, modifier, cb);
-};
+}
 
 const unassignCurrentPresenter = (meetingId, newPresenterId) => {
   const selector = {

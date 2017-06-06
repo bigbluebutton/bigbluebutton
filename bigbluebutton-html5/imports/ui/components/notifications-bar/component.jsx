@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styles from './styles.scss';
 import cx from 'classnames';
 
@@ -25,7 +26,8 @@ export default class NotificationsBar extends Component {
     return (
       <div
         role="alert"
-        className={cx(styles.notificationsBar, styles[color])}>
+        className={cx(styles.notificationsBar, styles[color])}
+      >
         {this.props.children}
       </div>
     );

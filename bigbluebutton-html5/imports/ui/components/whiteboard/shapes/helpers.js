@@ -2,12 +2,12 @@
 const zoomStroke = (thickness, widthRatio, heightRatio) => {
   let ratio;
 
-  ratio = (widthRatio  + heightRatio) / 2;
+  ratio = (widthRatio + heightRatio) / 2;
   return thickness * 100 / ratio;
 };
 
 const formatColor = (color) => {
-  //let color = this.props.shape.shape.shape.color;
+  // let color = this.props.shape.shape.shape.color;
   if (!color) {
     color = '0'; // default value
   }

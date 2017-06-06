@@ -44,12 +44,13 @@ class AboutComponent extends Component {
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
-        }}>
-        {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`} <br/>
+        }}
+      >
+        {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`} <br />
         {`${intl.formatMessage(intlMessages.version)} ${clientBuild}`}
       </Modal>
     );
   }
-};
+}
 
 export default injectIntl(AboutComponent);

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import styles from './styles';
 
 import Icon from '../../../icon/component';
@@ -24,7 +25,7 @@ export default class MessageFormActions extends BaseButton {
       </BaseButton>
     );
   }
-};
+}
 
 MessageFormActions.propTypes = propTypes;
 MessageFormActions.defaultProps = defaultProps;
