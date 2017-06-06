@@ -206,7 +206,7 @@ class UserList extends Component {
         <div
           tabIndex={0}
           className={styles.scrollableList}
-          ref={(ref) => this._msgsList = ref}
+          ref={(ref) => { this._msgsList = ref; }}
         >
           <CSSTransitionGroup
             transitionName={listTransition}
@@ -219,7 +219,7 @@ class UserList extends Component {
             component="div"
             className={cx(styles.chatsList, styles.scrollableList)}
           >
-            <div ref={(ref) => this._msgItems = ref}>
+            <div ref={(ref) => { this._msgItems = ref; }}>
               {openChats.map(chat => (
                 <ChatListItem
                   compact={this.state.compact}
@@ -291,7 +291,7 @@ class UserList extends Component {
         <div
           className={styles.scrollableList}
           tabIndex={0}
-          ref={(ref) => this._usersList = ref}
+          ref={(ref) => { this._usersList = ref; }}
         >
           <CSSTransitionGroup
             transitionName={listTransition}
@@ -304,7 +304,7 @@ class UserList extends Component {
             component="div"
             className={cx(styles.participantsList, styles.scrollableList)}
           >
-            <div ref={(ref) => this._userItems = ref}>
+            <div ref={(ref) => { this._userItems = ref; }}>
               {
                 users.map(user => (
                   <UserListItem
