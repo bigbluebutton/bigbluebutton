@@ -113,10 +113,11 @@ if (request.getParameterMap().isEmpty()) {
 	String meetingId = doc.getElementsByTagName("meeting_id").item(0).getTextContent();
 	String userId = doc.getElementsByTagName("user_id").item(0).getTextContent();
 	String authToken = doc.getElementsByTagName("auth_token").item(0).getTextContent();
+	String sessionToken = doc.getElementsByTagName("session_token").item(0).getTextContent();
 	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
 
 	// redirect towards the html5 client which is waiting for the following parameters
-	String html5url = ip + "/html5client/join/" + meetingId + "/" + userId + "/" + authToken;
+	String html5url = ip + "/html5client/join/" + meetingId + "/" + userId + "/" + authToken + "/" + sessionToken;
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
