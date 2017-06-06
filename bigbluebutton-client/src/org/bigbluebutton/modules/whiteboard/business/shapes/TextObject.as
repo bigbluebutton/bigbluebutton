@@ -26,8 +26,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   import flash.text.TextField;
   import flash.text.TextFieldType;
   import flash.text.TextFormat;
+  
+  import org.bigbluebutton.common.IMETextField;
 
-  public class TextObject extends TextField implements GraphicObject {
+  public class TextObject extends IMETextField implements GraphicObject {
     public static const TYPE_NOT_EDITABLE:String = "dynamic";
     public static const TYPE_EDITABLE:String = "editable";
     
