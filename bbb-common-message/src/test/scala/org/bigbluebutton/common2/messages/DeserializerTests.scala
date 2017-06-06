@@ -72,13 +72,38 @@ class DeserializerTests extends UnitSpec2 with TestFixtures {
 
     map match {
       case Success(envJsNodeMsg) => assert(envJsNodeMsg.core.isInstanceOf[JsonNode])
-        val createMeetingReqMsg = Deserializer.toBbbCommonMsg[CreateMeetingReqMsg](envJsNodeMsg.envelope, envJsNodeMsg.core)
-        createMeetingReqMsg match {
-          case Success(cmrq) => assert(cmrq.isInstanceOf[CreateMeetingReqMsg])
-          case Failure(ex) => fail("Failed to decode CreateMeetingReqMsg " + ex)
+        val (msg, exception) = Deserializer.toBbbCommonMsg[CreateMeetingReqMsg](envJsNodeMsg.core)
+        msg match {
+          case Some(cmrq) => assert(cmrq.isInstanceOf[CreateMeetingReqMsg])
+          case None => fail("Should have successfully decoded CreateMeetingReqMsg ")
         }
       case Failure(ex) => fail("Failed to decode json message " + ex)
     }
   }
 
+  "It" should "be able to deserialize message from client" in {
+    val jsonMsg =
+      """
+        |{
+        |    "header": {
+        |        "name": "foo",
+        |        "meetingId": "mId",
+        |        "userId": "uId"
+        |    },
+        |    "body": {
+        |        "meetingId": "mId",
+        |        "userId": "uId",
+        |        "token": "myToken",
+        |        "replyTo": "replyHere",
+        |        "sessionId": "mySessionId"
+        |    }
+        |}
+      """.stripMargin
+
+    val (result, error) = Deserializer.toBbbCoreMessageFromClient(jsonMsg)
+    result match {
+      case Some(msg) => assert(msg.header.name == "foo")
+      case None => fail("Should have deserialized message but failed with error: " + error)
+    }
+  }
 }

@@ -9,11 +9,30 @@ import scala.util.{Failure, Success, Try}
 
 trait Deserializer {
 
-  def toBbbCommonMsg[V](jsonNode: JsonNode)(implicit m: Manifest[V]): Try[V] = {
+  def toBbbCoreMessageFromClient(json: String): (Option[BbbCoreMessageFromClient], String) = {
+    def convertFromJson(json: String): Try[BbbCoreMessageFromClient] = {
+      for {
+        msg <- fromJson[BbbCoreMessageFromClient](json)
+      } yield msg
+    }
+
+    convertFromJson(json) match {
+      case Success(msg) => (Some(msg), "No Error.")
+      case Failure(ex) => (None, ex.getMessage)
+    }
+
+  }
+
+  def toBbbCommonMsg[V](jsonNode: JsonNode)(implicit m: Manifest[V]): (Option[V], String) = {
     val json = JsonUtil.toJson(jsonNode)
-    for {
-      msg <- fromJson[V](json)
-    } yield msg
+    val result = for {
+      result <- fromJson[V](json)
+    } yield result
+
+    result match {
+      case Success(msg) => (Some(msg), "No Error.")
+      case Failure(ex) => (None, ex.getMessage)
+    }
   }
 
   def toBbbCommonEnvJsNodeMsg(json: String): Try[BbbCommonEnvJsNodeMsg] = {
