@@ -405,6 +405,8 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                 ffmpeg.setInput(input);
                 ffmpeg.setCodec("flv1"); // Sorensen H263
                 ffmpeg.setFormat("flv");
+                ffmpeg.addRtmpOutputConnectionParameter(meetingId);
+                ffmpeg.addRtmpOutputConnectionParameter(transcoderId);
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.setLoglevel("quiet");
                 ffmpeg.setAnalyzeDuration("10000"); // 10ms

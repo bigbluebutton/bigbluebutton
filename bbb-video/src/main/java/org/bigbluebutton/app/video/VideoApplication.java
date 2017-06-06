@@ -449,7 +449,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				// Check if a new stream converter is necessary
 				H263Converter converter;
 				if(!h263Converters.containsKey(streamName) && !isStreamPublished(streamName)) {
-					converter = new H263Converter(streamName);
+					converter = new H263Converter(streamName, publisher);
 					h263Converters.put(streamName, converter);
 				}
 				else {

@@ -1,8 +1,6 @@
 package org.bigbluebutton.app.video.converter;
 
-import org.bigbluebutton.app.video.ffmpeg.FFmpegCommand;
-import org.bigbluebutton.app.video.ffmpeg.ProcessMonitor;
-import org.bigbluebutton.app.video.ffmpeg.ProcessMonitorObserver;
+import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -16,7 +14,7 @@ import org.slf4j.Logger;
  * Converted streams are published in the same scope as the original ones,
  * with 'h263/' appended in the beginning.
  */
-public class H263Converter implements ProcessMonitorObserver{
+public class H263Converter {
 
 	private static Logger log = Red5LoggerFactory.getLogger(H263Converter.class, "video");
 
@@ -25,8 +23,11 @@ public class H263Converter implements ProcessMonitorObserver{
 	private String origin;
 	private Integer numListeners = 0;
 
-	private FFmpegCommand ffmpeg;
-	private ProcessMonitor processMonitor;
+	private MessagePublisher publisher;
+	private Boolean publishing;
+	private String ipAddress;
+	private String meetingId;
+	private String userId;
 	
 	/**
 	 * Creates a H263Converter from a given streamName. It is assumed
@@ -35,38 +36,26 @@ public class H263Converter implements ProcessMonitorObserver{
 	 * 
 	 * @param origin streamName of the stream that should be converted
 	 */
-	public H263Converter(String origin) {
+	public H263Converter(String origin, MessagePublisher publisher) {
 		log.info("Spawn FFMpeg to convert H264 to H263 for stream [{}]", origin);
 		this.origin = origin;
+		this.publisher = publisher;
+		this.publishing = false;
+
 		IConnection conn = Red5.getConnectionLocal();
-		String ip = conn.getHost();
-		String conf = conn.getScope().getName();
-		String inputLive = "rtmp://" + ip + "/video/" + conf + "/" + origin + " live=1";
-
-		String output = "rtmp://" + ip + "/video/" + conf + "/" + H263PREFIX + origin;
-
-		ffmpeg = new FFmpegCommand();
-		ffmpeg.setFFmpegPath("/usr/local/bin/ffmpeg");
-		ffmpeg.setInput(inputLive);
-		ffmpeg.setCodec("flv1"); // Sorensen H263
-		ffmpeg.setFormat("flv");
-		ffmpeg.setOutput(output);
-		ffmpeg.setAudioEnabled(false);
-		ffmpeg.setLoglevel("quiet");
-		ffmpeg.setAnalyzeDuration("10000"); // 10ms
-
+		this.ipAddress = conn.getHost();
+		this.meetingId = conn.getScope().getName();
+		this.userId = getUserId();
 	}
 
 	/**
-	 * Launches the process monitor responsible for FFmpeg.
+	 * Launches the transcoder event responsible for FFmpeg.
 	 */
 	private void startConverter() {
-		if (processMonitor == null){
-			String[] command = ffmpeg.getFFmpegCommand(true);
-			processMonitor = new ProcessMonitor(command,"FFMPEG");
-			processMonitor.setProcessMonitorObserver(this);
-			processMonitor.start();
-		}else log.debug("No need to start transcoder, it is already running");
+		if (!publishing) {
+			publisher.startH264ToH263TranscoderRequest(meetingId, userId, origin, ipAddress);
+			publishing = true;
+		} else log.debug("No need to start transcoder, it is already running");
 	}
 
 	/**
@@ -102,28 +91,17 @@ public class H263Converter implements ProcessMonitorObserver{
 	 * listeners to zero.
 	 */
 	public synchronized void stopConverter() {
-		if(processMonitor != null) {
+		if (publishing) {
 			this.numListeners = 0;
-			processMonitor.forceDestroy();
-			processMonitor = null;
+			publisher.stopTranscoderRequest(meetingId, userId);
+			publishing = false;
 			log.debug("Transcoder force-stopped");
-		}else log.debug("No need to stop transcoder, it already stopped");
+		} else log.debug("No need to stop transcoder, it already stopped");
 	}
 
-    private synchronized void clearConverterData(){
-        if(processMonitor!=null){
-            log.debug("Clearing process monitor's data.");
-            this.numListeners = 0;
-            processMonitor=null;
-        }
-    }
-
-    @Override
-    public void handleProcessFinishedUnsuccessfully(String processName, String processOutput){}
-
-    @Override
-    public void handleProcessFinishedWithSuccess(String processName, String processOutput){
-        log.debug("{} finished successfully [output={}]. ",processName,processOutput);
-        //clearConverterData();
-    }
+	private String getUserId() {
+		String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
+		if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
+		return userid;
+	}
 }

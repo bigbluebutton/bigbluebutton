@@ -57,6 +57,18 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg.toJson());
 	}
 
+	public void startH264ToH263TranscoderRequest(String meetingId, String userId, String streamName, String ipAddress) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(Constants.TRANSCODER_TYPE, Constants.TRANSCODE_H264_TO_H263);
+		params.put(Constants.MODULE, "video");
+		params.put(Constants.LOCAL_IP_ADDRESS, ipAddress);
+		params.put(Constants.DESTINATION_IP_ADDRESS, ipAddress);
+		params.put(Constants.INPUT, streamName);
+		// TODO: transcoderId is getting userId, this may have to change
+		StartTranscoderRequestMessage msg = new StartTranscoderRequestMessage(meetingId, userId, params);
+		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg.toJson());
+	}
+
 	public void stopTranscoderRequest(String meetingId, String userId) {
 		StopTranscoderRequestMessage msg = new StopTranscoderRequestMessage(meetingId, userId);
 		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg.toJson());
