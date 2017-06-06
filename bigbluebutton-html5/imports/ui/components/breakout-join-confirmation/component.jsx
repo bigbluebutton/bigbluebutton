@@ -46,8 +46,16 @@ class BreakoutJoinConfirmation extends Component {
 
     // leave main room's audio when joining a breakout room
     AudioService.exitAudio();
-
-    window.open(breakoutURL);
+    if(breakoutURL) {
+      if(window.navigator.userAgent === 'BigBlueButton') {
+        window.webkit.messageHandlers.bbb.postMessage(JSON.stringify({method: 'mainRoomUrl:'+'https://www.google.ca'}));
+      }
+      window.location = breakoutURL;
+    }else {
+      if(window.navigator.userAgent === 'BigBlueButton') {
+        window.webkit.messageHandlers.bbb.postMessage(JSON.stringify({method: 'setWebviewLocation'}));
+      }
+    }
     mountModal(null);
   }
 
