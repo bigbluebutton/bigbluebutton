@@ -7,6 +7,7 @@
   height:100%;
   overflow-y: auto;
   overflow-x: hidden;
+  position:absolute;
 }
 
 .frame {
@@ -14,8 +15,7 @@
   height: calc(100% - 80px);
   margin: 20px;
   overflow: auto;
-  word-break: break-all;
-
+  
   //if you change the thickness of the border
   //you should also change a corresponding value in the componentWillUpdate
   //otherwise auto-scrolling for closed-captions will break
