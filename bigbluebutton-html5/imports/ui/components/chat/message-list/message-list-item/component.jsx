@@ -102,7 +102,7 @@ export default class MessageListItem extends Component {
     }
 
     return (
-      <div  className={styles.item}>
+      <div className={styles.item}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatar}>
             <UserAvatar user={user} />

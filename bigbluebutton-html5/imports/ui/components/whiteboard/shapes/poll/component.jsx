@@ -167,7 +167,7 @@ export default class PollDrawComponent extends React.Component {
       const voteSizes = findDOMNode(this[votes]).getBBox();
       const percSizes = findDOMNode(this[percent]).getBBox();
 
-      //first check if we can still increase the font-size
+      // first check if we can still increase the font-size
       if (this.state.fontSizeDirection == 1) {
         if (keySizes.width < maxLineWidth && keySizes.height < maxLineHeight &&
           voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight &&
