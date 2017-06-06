@@ -34,12 +34,13 @@ class MessageList extends Component {
   }
 
   scrollTo(position = null) {
+    const { scrollArea } = this;
 
     if (position === null) {
-      position = this.scrollArea.scrollHeight - this.scrollArea.clientHeight;
+      position = scrollArea.scrollHeight - scrollArea.clientHeight;
     }
 
-    this.scrollArea.scrollTop = position;
+    scrollArea.scrollTop = position;
   }
 
   handleScrollUpdate(position, target) {
@@ -66,8 +67,8 @@ class MessageList extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-
-      this.handleScrollUpdate(this.scrollArea.scrollTop, this.scrollArea);
+      const { scrollArea } = this;
+      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     }
   }
 
@@ -77,12 +78,14 @@ class MessageList extends Component {
       return;
     }
 
-    let position = this.scrollArea.scrollTop + this.scrollArea.offsetHeight;
+    const { scrollArea } = this;
+
+    let position = scrollArea.scrollTop + scrollArea.offsetHeight;
 
     //Compare with <1 to account for the chance scrollArea.scrollTop is a float
     //value in some browsers.
-    this.shouldScrollBottom = position === this.scrollArea.scrollHeight ||
-                              (this.scrollArea.scrollHeight - position < 1) ||
+    shouldScrollBottom = position === scrollArea.scrollHeight ||
+                              (scrollArea.scrollHeight - position < 1) ||
                               nextProps.scrollPosition === null;
   }
 
@@ -97,15 +100,17 @@ class MessageList extends Component {
   }
 
   componentDidMount() {
+    const { scrollArea } = this;
 
     this.scrollTo(this.props.scrollPosition);
-    this.scrollArea.addEventListener('scroll', this.handleScrollChange, false);
+    scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
   componentWillUnmount() {
+    const { scrollArea } = this;
 
-    this.handleScrollUpdate(this.scrollArea.scrollTop, this.scrollArea);
-    this.scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
+    this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
+    scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
   }
 
   shouldComponentUpdate(nextProps) {
