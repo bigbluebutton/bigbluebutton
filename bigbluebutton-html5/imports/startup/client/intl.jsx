@@ -8,8 +8,10 @@ const propTypes = {
   children: PropTypes.object.isRequired,
 };
 
+const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
+
 const defaultProps = {
-  locale: window.navigator.userLanguage || window.navigator.language,
+  locale: BROWSER_LANGUAGE,
 };
 
 class IntlStartup extends Component {

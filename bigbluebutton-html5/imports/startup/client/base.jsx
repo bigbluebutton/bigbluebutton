@@ -8,6 +8,8 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import IntlStartup from './intl';
 
+const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
+
 const propTypes = {
   error: PropTypes.object,
   errorCode: PropTypes.number,
@@ -18,7 +20,7 @@ const propTypes = {
 const defaultProps = {
   error: undefined,
   errorCode: undefined,
-  locale: window.navigator.userLanguage || window.navigator.language,
+  locale: BROWSER_LANGUAGE,
 };
 
 class Base extends Component {
