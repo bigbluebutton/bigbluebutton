@@ -20,6 +20,7 @@ task resolveDeps(type: Copy) {
  */
 repositories {
   mavenCentral()
+  mavenLocal()
 	   add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
 		 name = 'remote'
 		   returnFirst = true
@@ -138,6 +139,8 @@ dependencies {
   compile 'redis.clients:jedis:1.5.1'
   providedCompile 'commons-pool:commons-pool:1.5.6'
 	compile 'com.google.code.gson:gson:1.7.1'
+
+  compile 'org.bigbluebutton:bbb-common-message:0.0.16'
 }
 
 test {
