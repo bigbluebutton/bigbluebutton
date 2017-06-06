@@ -62,6 +62,12 @@ export default class WhiteboardToolbar extends Component {
   componentDidMount() {
     //to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
+
+    if(this.state.annotationSelected.sessionValue != "Text") {
+      //trigger initial animation on the thickness circle, otherwise it stays at 0
+      var node = findDOMNode(this.thicknessListIconRadius);
+      node.beginElement();
+    }
   }
 
   componentWillUnmount() {
@@ -71,14 +77,13 @@ export default class WhiteboardToolbar extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     //check if thickness or color have changed and we need to trigger svg animation
-    const { thicknessRadius, thicknessColor, colorColor } = this.refs;
     if(this.state.thicknessSelected.iconRadius != prevState.thicknessSelected.iconRadius) {
-      var node1 = findDOMNode(thicknessRadius);
+      var node1 = findDOMNode(this.thicknessListIconRadius);
       node1.beginElement();
     }
     if(this.state.colorSelected != prevState.colorSelected) {
-      var node2 = findDOMNode(thicknessColor);
-      var node3 = findDOMNode(colorColor);
+      var node2 = findDOMNode(this.thicknessListIconColor);
+      var node3 = findDOMNode(this.colorListIconColor);
       node2.beginElement();
       node3.beginElement();
     }
@@ -367,12 +372,11 @@ export default class WhiteboardToolbar extends Component {
                       shapeRendering="geometricPrecision"
                       cx="50%"
                       cy="50%"
-                      r={this.state.thicknessSelected.iconRadius}
                       stroke="black"
                       strokeWidth="1"
                     >
                       <animate
-                        ref="thicknessColor"
+                        ref={(ref) => { this.thicknessListIconColor = ref; }}
                         attributeName="fill"
                         attributeType="XML"
                         from={this.state.prevColorSelected}
@@ -383,7 +387,7 @@ export default class WhiteboardToolbar extends Component {
                         fill="freeze"
                       />
                       <animate
-                        ref="thicknessRadius"
+                        ref={(ref) => { this.thicknessListIconRadius = ref; }}
                         attributeName="r"
                         attributeType="XML"
                         from={this.state.prevIconRadius}
@@ -416,7 +420,7 @@ export default class WhiteboardToolbar extends Component {
               <svg className={styles.customSvgIcon}>
                 <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
                   <animate
-                    ref="colorColor"
+                    ref={(ref) => { this.colorListIconColor = ref; }}
                     attributeName="fill"
                     attributeType="XML"
                     from={this.state.prevColorSelected}
