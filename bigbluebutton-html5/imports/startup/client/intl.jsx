@@ -4,10 +4,12 @@ import { IntlProvider } from 'react-intl';
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
+  baseControls: PropTypes.object.isRequired,
+  children: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
-  locale: 'en',
+  locale: window.navigator.userLanguage || window.navigator.language,
 };
 
 class IntlStartup extends Component {
@@ -21,11 +23,21 @@ class IntlStartup extends Component {
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
+  componentWillMount() {
+    this.fetchLocalizedMessages(this.state.appLocale);
+  }
+
+  componentWillUpdate(nextProps) {
+    if (this.props.locale !== nextProps.locale) {
+      this.fetchLocalizedMessages(nextProps.locale);
+    }
+  }
 
   fetchLocalizedMessages(locale) {
     const url = `/html5client/locale?locale=${locale}`;
 
     const { baseControls } = this.props;
+    this.setState({ appLocale: locale });
 
     baseControls.updateLoadingState(true);
     fetch(url)
@@ -45,17 +57,6 @@ class IntlStartup extends Component {
         baseControls.updateErrorState(reason);
         baseControls.updateLoadingState(false);
       });
-  }
-
-  componentWillMount() {
-    this.fetchLocalizedMessages(this.state.appLocale);
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.props.locale !== nextProps.locale) {
-      this.setState({ appLocale: nextProps.locale });
-      this.fetchLocalizedMessages(nextProps.locale);
-    }
   }
 
   render() {
