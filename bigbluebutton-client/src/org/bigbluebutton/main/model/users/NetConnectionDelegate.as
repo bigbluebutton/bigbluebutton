@@ -42,7 +42,8 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.options.ApplicationOptions;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-  
+    import org.bigbluebutton.core.connection.messages.*
+
     public class NetConnectionDelegate {
         private static const LOGGER:ILogger = getClassLogger(NetConnectionDelegate);
 
@@ -160,6 +161,17 @@ package org.bigbluebutton.main.model.users
 			message.header = header;
 			message.body = body;
                     
+            var header2: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg",
+                                                confParams.meetingID, 
+                                                confParams.internalUserID)
+
+            var body2: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(confParams.internalUserID,
+                                                confParams.authToken)
+
+            var msg2: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header2, body2)
+
+            LOGGER.debug("******* msg \n" + JSON.stringify(msg2))
+
             sendMessage(
                 "onMessageFromClient",// Remote function name
                 // result - On successful result
