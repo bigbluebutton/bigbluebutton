@@ -230,7 +230,8 @@ class UserListItem extends Component {
   }
 
   getDropdownMenuParent() {
-     return findDOMNode(this.refs.dropdown);
+    //change to callback ref
+    return findDOMNode(this.refs.dropdown);
   }
 
   onActionsHide() {
@@ -307,7 +308,7 @@ class UserListItem extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}>
 
-          <DropdownList ref="list" isChild={true} getDropdownMenuParent={this.getDropdownMenuParent}>
+          <DropdownList ref="list" getDropdownMenuParent={this.getDropdownMenuParent}>
             {
               [
                 (<DropdownListTitle

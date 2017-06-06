@@ -67,16 +67,25 @@ export default class DropdownList extends Component {
     }
 
     if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(event.keyCode)) {
+      const { getDropdownMenuParent } = this.props;
+      
+      if (getDropdownMenuParent) {
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
 
-      document.activeElement.click();
+      document.activeElement.firstChild.click();
     }
 
     if (KEY_CODES.ARROW_DOWN === event.which) {
+      event.preventDefault();
+      event.stopPropagation();
+
       this.focusedItemIndex += 1;
 
-      if (!selectableItems[this.focusedItemIndex]) {
+      if(this.focusedItemIndex > selectableItems.length - 1){
         this.focusedItemIndex = 0;
       }
 
@@ -84,27 +93,38 @@ export default class DropdownList extends Component {
     }
 
     if (KEY_CODES.ARROW_UP === event.which) {
+      event.preventDefault();
+      event.stopPropagation();
+
       this.focusedItemIndex -= 1;
 
       if (this.focusedItemIndex < 0) {
         this.focusedItemIndex = selectableItems.length - 1;
+      }else if (this.focusedItemIndex > selectableItems.length - 1){
+        this.focusedItemIndex = 0;
       }
-      
+
       focusMenuItem();
     }
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)){
-      const { getDropdownMenuParent, isChild } = this.props;
+      const { getDropdownMenuParent } = this.props;
 
       event.preventDefault();
-      dropdownHide();
+      event.stopPropagation();
       
-      if (isChild) {
+      if (getDropdownMenuParent) {
         getDropdownMenuParent().focus();
       }
-      
+
+      dropdownHide();
     }
 
+    if(this.focusedItemIndex > 0 
+    || this.focusedItemIndex < selectableItems.length - 1){
+      this.setState({ activeItemIndex: this.focusedItemIndex });
+    }
+    
     if (typeof callback === 'function') {
       callback(event);
     }
