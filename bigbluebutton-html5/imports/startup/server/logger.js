@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import Winston from 'winston';
 
-let Logger = new Winston.Logger();
+const Logger = new Winston.Logger();
 
 Logger.configure({
-  levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, },
+  levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4 },
   colors: {
     error: 'red',
     warn: 'yellow',
@@ -37,7 +37,7 @@ Meteor.startup(() => {
     }
 
     Logger.add(Winston.transports.File, {
-      filename: filename,
+      filename,
       prettyPrint: true,
     });
   }
@@ -45,4 +45,4 @@ Meteor.startup(() => {
 
 export default Logger;
 
-export let logger = Logger;
+export const logger = Logger;

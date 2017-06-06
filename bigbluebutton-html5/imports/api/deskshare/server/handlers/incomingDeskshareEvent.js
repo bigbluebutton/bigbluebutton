@@ -16,7 +16,7 @@ export default function incomingDeskshareEvent({ payload }) {
   const deskShareInfo = {
     vw: payload.vw,
     vh: payload.vh,
-    voiceBridge: voiceBridge, // payload.voice_bridge
+    voiceBridge, // payload.voice_bridge
     broadcasting: payload.broadcasting,
   };
   modifyDeskshareStatus(meetingId, deskShareInfo);

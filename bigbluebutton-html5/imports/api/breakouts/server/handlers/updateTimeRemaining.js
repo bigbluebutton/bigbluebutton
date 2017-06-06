@@ -17,7 +17,7 @@ export default function handleUpdateTimeRemaining({ payload }) {
 
   const modifier = {
     $set: {
-      timeRemaining: timeRemaining,
+      timeRemaining,
     },
   };
 
@@ -31,7 +31,7 @@ export default function handleUpdateTimeRemaining({ payload }) {
     }
 
     if (numChanged) {
-      return Logger.info(`Updated breakout time remaining for breakouts ` +
+      return Logger.info('Updated breakout time remaining for breakouts ' +
                          `where parentMeetingId=${meetingId}`);
     }
   };

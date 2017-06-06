@@ -17,7 +17,7 @@ export default function handleCaptionOwnerUpdate({ payload }) {
     locale,
   };
 
-  let modifier = {
+  const modifier = {
     $set: {
       'captionHistory.ownerId': ownerId,
     },
@@ -47,4 +47,4 @@ export default function handleCaptionOwnerUpdate({ payload }) {
   };
 
   return Captions.update(selector, modifier, { multi: true }, cb);
-};
+}

@@ -19,7 +19,7 @@ export default function switchSlide(credentials, slideNumber) {
   check(slideNumber, Number);
 
   if (!isAllowedTo('switchSlide', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to switchSlide`);
+    throw new Meteor.Error('not-allowed', 'You are not allowed to switchSlide');
   }
 
   const Presentation = Presentations.findOne({
@@ -29,7 +29,7 @@ export default function switchSlide(credentials, slideNumber) {
 
   if (!Presentation) {
     throw new Meteor.Error(
-      'presentation-not-found', `You need a presentation to be able to switch slides`);
+      'presentation-not-found', 'You need a presentation to be able to switch slides');
   }
 
   const Slide = Slides.findOne({
@@ -43,10 +43,10 @@ export default function switchSlide(credentials, slideNumber) {
       'slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
   }
 
-  let payload = {
+  const payload = {
     page: Slide.slide.id,
     meeting_id: meetingId,
   };
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

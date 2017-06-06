@@ -15,7 +15,7 @@ class Auth {
     this._authToken = Storage.getItem('authToken');
     this._loggedIn = {
       value: false,
-      tracker: new Tracker.Dependency,
+      tracker: new Tracker.Dependency(),
     };
   }
 
@@ -81,7 +81,7 @@ class Auth {
     this.loggedIn = false;
 
     return Promise.resolve(...arguments);
-  };
+  }
 
   logout() {
     if (!this.loggedIn) {
@@ -107,7 +107,7 @@ class Auth {
         }
       });
     });
-  };
+  }
 
   authenticate(force) {
     if (this.loggedIn && !force) return Promise.resolve();
@@ -192,13 +192,13 @@ class Auth {
   }
 
   fetchLogoutUrl() {
-    const url = `/bigbluebutton/api/enter`;
+    const url = '/bigbluebutton/api/enter';
 
     return fetch(url)
       .then(response => response.json())
       .then(data => Promise.resolve(data.response.logoutURL));
   }
-};
+}
 
-let AuthSingleton = new Auth();
+const AuthSingleton = new Auth();
 export default AuthSingleton;

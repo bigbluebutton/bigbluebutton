@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import PresentationToolbarService from './service';
@@ -41,9 +42,8 @@ class PresentationToolbarContainer extends React.Component {
           actions={actions}
         />
       );
-    } else {
-      return null;
     }
+    return null;
   }
 }
 
@@ -63,7 +63,7 @@ export default createContainer((params) => {
         PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides),
       previousSlideHandler: () =>
         PresentationToolbarService.previousSlide(params.currentSlideNum, numberOfSlides),
-      skipToSlideHandler: (event) =>
+      skipToSlideHandler: event =>
         PresentationToolbarService.skipToSlide(event),
     },
   };

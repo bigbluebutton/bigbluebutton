@@ -40,4 +40,4 @@ export default function kickUser(meetingId, userId) {
   };
 
   return Users.update(selector, modifier, cb);
-};
+}

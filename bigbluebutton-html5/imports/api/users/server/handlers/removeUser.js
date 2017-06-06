@@ -11,4 +11,4 @@ export default function handleRemoveUser({ payload }) {
   check(userId, String);
 
   return removeUser(meetingId, userId);
-};
+}
