@@ -213,22 +213,30 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
     }
 
-    private void requestRotateVideoTranscode(IBroadcastStream stream) {
+    private String getStreamName(String streamName) {
+        String parts[] = streamName.split("/");
+        if(parts.length > 1)
+            return parts[parts.length-1];
+        return "";
+    }
+
+    private void requestRotateVideoTranscoder(IBroadcastStream stream) {
         IConnection conn = Red5.getConnectionLocal();
         String userId = getUserId();
         String meetingId = conn.getScope().getName();
         String streamId = stream.getPublishedName();
+        String streamName = getStreamName(streamId);
         String ipAddress = conn.getHost();
 
         switch (VideoRotator.getDirection(streamId)) {
             case VideoRotator.ROTATE_RIGHT:
-                publisher.startRotateRightTranscodeRequest(meetingId, userId, streamId, ipAddress);
+                publisher.startRotateRightTranscoderRequest(meetingId, userId, streamName, ipAddress);
                 break;
             case VideoRotator.ROTATE_LEFT:
-                publisher.startRotateLeftTranscodeRequest(meetingId, userId, streamId, ipAddress);
+                publisher.startRotateLeftTranscoderRequest(meetingId, userId, streamName, ipAddress);
                 break;
             case VideoRotator.ROTATE_UPSIDE_DOWN:
-                publisher.startRotateUpsideDownTranscodeRequest(meetingId, userId, streamId, ipAddress);
+                publisher.startRotateUpsideDownTranscoderRequest(meetingId, userId, streamName, ipAddress);
                 break;
             default:
                 break;
@@ -250,7 +258,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             if(VideoRotator.getDirection(streamId) != null) {
 //                VideoRotator rotator = new VideoRotator(streamId);
                 videoRotators.put(streamId, null);
-                requestRotateVideoTranscode(stream);
+                requestRotateVideoTranscoder(stream);
             }
         }
         else if (recordVideoStream) {
@@ -301,7 +309,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         if(videoRotators.containsKey(streamId)) {
           // Stop rotator
           videoRotators.remove(streamId);
-          // TODO: Call transcode and end video
+          publisher.stopTranscoderRequest(meetingId, userId);
         }
         removeH263PublishedStream(streamId);
       } else if (recordVideoStream) {
