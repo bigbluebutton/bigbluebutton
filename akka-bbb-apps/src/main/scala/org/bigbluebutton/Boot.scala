@@ -2,9 +2,7 @@ package org.bigbluebutton
 
 import akka.event.Logging
 import akka.actor.ActorSystem
-import org.bigbluebutton.endpoint.redis.RedisPublisher
-import org.bigbluebutton.endpoint.redis.KeepAliveRedisPublisher
-import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
+import org.bigbluebutton.endpoint.redis.{ AppsRedisSubscriberActor, KeepAliveRedisPublisher, RedisPublisher, RedisRecorderActor }
 import org.bigbluebutton.core.BigBlueButtonInGW
 import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.OutMessageGateway
@@ -32,16 +30,13 @@ object Boot extends App with SystemConfiguration {
   val redisPublisher = new RedisPublisher(system)
   val msgSender = new MessageSender(redisPublisher)
 
-  val redisDispatcher = new RedisDispatcher(redisHost, redisPort, redisPassword, keysExpiresInSec)
-  val recorderApp = new RecorderApplication(redisDispatcher)
-  recorderApp.start()
+  val redisRecorderActor = system.actorOf(RedisRecorderActor.props(system), "redisRecorderActor")
 
   val messageSenderActor = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
-  val recorderActor = system.actorOf(RecorderActor.props(recorderApp), "recorderActor")
   val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
 
   outgoingEventBus.subscribe(messageSenderActor, outMessageChannel)
-  outgoingEventBus.subscribe(recorderActor, outMessageChannel)
+  outgoingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   outgoingEventBus.subscribe(newMessageSenderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 

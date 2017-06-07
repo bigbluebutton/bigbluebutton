@@ -1,13 +1,11 @@
 package org.bigbluebutton.core.recorder
 
 import akka.actor.Actor
-import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import java.io.{ PrintWriter, StringWriter }
-import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
