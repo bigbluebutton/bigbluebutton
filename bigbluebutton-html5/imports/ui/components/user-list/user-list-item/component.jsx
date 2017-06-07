@@ -157,7 +157,7 @@ class UserListItem extends Component {
   checkDropdownDirection() {
 
     if (this.isDropdownActivedByUser()) {
-      const dropdown = findDOMNode(this.refs.dropdown);
+      const dropdown = findDOMNode(this.dropdown);
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
@@ -189,13 +189,13 @@ class UserListItem extends Component {
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
-    const list = findDOMNode(this.refs.list);
+    const list = findDOMNode(this.list);
 
     if (isActionsOpen, dropdownVisible) {
       for(let i = 0; i < list.children.length; i++){
         if(list.children[i].getAttribute('role') === 'menuitem'){
           list.children[i].focus();
-          continue;
+          break;
         }
       }
     }
@@ -215,7 +215,7 @@ class UserListItem extends Component {
   }
 
   onActionsShow() {
-    const dropdown = findDOMNode(this.refs.dropdown);
+    const dropdown = findDOMNode(this.dropdown);
     const scrollContainer = dropdown.parentElement.parentElement;
     const dropdownTrigger = dropdown.children[0];
 
@@ -230,8 +230,7 @@ class UserListItem extends Component {
   }
 
   getDropdownMenuParent() {
-    //change to callback ref
-    return findDOMNode(this.refs.dropdown);
+    return findDOMNode(this.dropdown);
   }
 
   onActionsHide() {
@@ -288,7 +287,7 @@ class UserListItem extends Component {
     
     return (
       <Dropdown
-        ref="dropdown"
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
@@ -308,7 +307,9 @@ class UserListItem extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}>
 
-          <DropdownList ref="list" getDropdownMenuParent={this.getDropdownMenuParent}>
+          <DropdownList 
+            ref={(ref) => { this.list = ref; }} 
+            getDropdownMenuParent={this.getDropdownMenuParent}>
             {
               [
                 (<DropdownListTitle

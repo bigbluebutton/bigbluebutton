@@ -43,7 +43,7 @@ export default class DropdownList extends Component {
     }
 
     const activeRef = this.childrenRefs[activeItemIndex];
-
+      
     if (activeRef) {
       activeRef.focus();
     }
@@ -104,7 +104,7 @@ export default class DropdownList extends Component {
       }else if (this.focusedItemIndex > selectableItems.length - 1){
         this.focusedItemIndex = 0;
       }
-      console.log(this.focusedItemIndex);
+      
       focusMenuItem();
     }
 
@@ -170,8 +170,11 @@ export default class DropdownList extends Component {
       });
 
     return (
-      <ul style={style} className={cx(styles.list, className)} role="menu" ref={(r) => this._menu = r}>
-        {boundChildren}
+      <ul 
+        style={style} 
+        className={cx(styles.list, className)} 
+        role="menu" ref={(r) => this._menu = r}>
+          {boundChildren}
       </ul>
     );
   }
