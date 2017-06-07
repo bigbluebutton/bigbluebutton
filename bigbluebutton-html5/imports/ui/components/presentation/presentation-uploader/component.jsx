@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl, FormattedDate } from 'react-intl';
+import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
+import cx from 'classnames';
+
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
-import Dropzone from 'react-dropzone';
 import styles from './styles.scss';
-import cx from 'classnames';
 
 const DEFAULT_FILENAME = 'default.pdf';
 
@@ -106,7 +107,7 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
-    const { presentations }  = this.state;
+    const { presentations } = this.state;
 
     this.setState({
       disableActions: true,
@@ -117,7 +118,7 @@ class PresentationUploader extends Component {
   }
 
   handleDismiss() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.setState({
         preventClosing: false,
         disableActions: false,
@@ -126,20 +127,21 @@ class PresentationUploader extends Component {
   }
 
   handleFiledrop(files) {
-    let presentationsToUpload = files.map(file => ({
+    const presentationsToUpload = files.map(file => ({
       id: file.name,
-      file: file,
+      file,
       filename: file.name,
       uploadedAt: new Date(),
       isCurrent: true,
       isUploaded: false,
       isProcessed: false,
-      conversion: { done: false, error: false, },
+      conversion: { done: false, error: false },
     }));
 
     this.setState(({ presentations }) => ({
       presentations: presentations
-        .map(p => {
+        .map((_) => {
+          const p = _;
           p.isCurrent = false;
           return p;
         })
@@ -148,25 +150,27 @@ class PresentationUploader extends Component {
   }
 
   handleCurrentChange(item) {
-    const { presentations }  = this.state;
+    const { presentations } = this.state;
     const currentIndex = presentations.findIndex(p => p.isCurrent);
     const newCurrentIndex = presentations.indexOf(item);
 
-    let commands = {};
+    const commands = {};
     commands[currentIndex] = {
-      $apply: p => {
+      $apply: (_) => {
+        const p = _;
         p.isCurrent = false;
         return p;
       },
     };
     commands[newCurrentIndex] = {
-      $apply: p => {
+      $apply: (_) => {
+        const p = _;
         p.isCurrent = true;
         return p;
       },
     };
 
-    let presentationsUpdated = update(presentations, commands);
+    const presentationsUpdated = update(presentations, commands);
 
     this.setState({
       presentations: presentationsUpdated,
@@ -174,7 +178,7 @@ class PresentationUploader extends Component {
   }
 
   handleRemove(item) {
-    const { presentations }  = this.state;
+    const { presentations } = this.state;
     const toRemoveIndex = presentations.indexOf(item);
     const toRemove = presentations[toRemoveIndex];
 
@@ -190,37 +194,10 @@ class PresentationUploader extends Component {
     });
   }
 
-  render() {
-    const { intl, presentations } = this.props;
-    const { preventClosing, disableActions }  = this.state;
-
-    return (
-      <ModalFullscreen
-        title={intl.formatMessage(intlMessages.title)}
-        preventClosing={preventClosing}
-        confirm={{
-          callback: this.handleConfirm,
-          label: intl.formatMessage(intlMessages.confirmLabel),
-          description: intl.formatMessage(intlMessages.confirmDesc),
-          disabled: disableActions,
-        }}
-        dismiss={{
-          callback: this.handleDismiss,
-          label: intl.formatMessage(intlMessages.dismissLabel),
-          description: intl.formatMessage(intlMessages.dismissDesc),
-          disabled: disableActions,
-        }}>
-        <p>{intl.formatMessage(intlMessages.message)}</p>
-        {this.renderPresentationList()}
-        {this.renderDropzone()}
-      </ModalFullscreen>
-    );
-  }
-
   renderPresentationList() {
-    const { presentations }  = this.state;
+    const { presentations } = this.state;
 
-    let presentationsSorted = presentations
+    const presentationsSorted = presentations
       .sort((a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime())
       .sort((a, b) => b.filename === DEFAULT_FILENAME);
 
@@ -228,7 +205,7 @@ class PresentationUploader extends Component {
       <div className={styles.fileList}>
         <table className={styles.table}>
           <tbody>
-          { presentationsSorted.map(item => this.renderPresentationItem(item))}
+            { presentationsSorted.map(item => this.renderPresentationItem(item))}
           </tbody>
         </table>
       </div>
@@ -236,10 +213,9 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItemStatus(item) {
-    const { intl }  = this.props;
+    const { intl } = this.props;
 
-    if (!item.isUploaded)
-      return intl.formatMessage(intlMessages.fileToUpload);
+    if (!item.isUploaded) { return intl.formatMessage(intlMessages.fileToUpload); }
 
     if (!item.isProcessed && item.conversion.error) {
       const errorMessage = intlMessages[status] || intlMessages.genericError;
@@ -247,7 +223,7 @@ class PresentationUploader extends Component {
     }
 
     if (!item.isProcessed && !item.conversion.error) {
-      if(item.conversion.pages_completed < item.conversion.num_pages) {
+      if (item.conversion.pages_completed < item.conversion.num_pages) {
         return intl.formatMessage(intlMessages.conversionProcessingSlides, {
           current: item.conversion.pages_completed,
           total: item.conversion.num_pages,
@@ -274,9 +250,9 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItem(item) {
-    const { disableActions, presentations }  = this.state;
+    const { disableActions, presentations } = this.state;
 
-    let itemClassName = {};
+    const itemClassName = {};
 
     itemClassName[styles.tableItemNew] = item.id === item.filename;
     itemClassName[styles.tableItemUploading] = false;
@@ -293,7 +269,7 @@ class PresentationUploader extends Component {
         className={cx(itemClassName)}
       >
         <td className={styles.tableItemIcon}>
-          <Icon iconName={'file'}/>
+          <Icon iconName={'file'} />
         </td>
         <th className={styles.tableItemName}>
           <span>{item.filename}</span>
@@ -314,8 +290,9 @@ class PresentationUploader extends Component {
               <ButtonBase
                 className={cx(styles.itemAction, styles.itemActionRemove)}
                 label={'Remove presentation'}
-                onClick={() => this.handleRemove(item)}>
-                <Icon iconName={'delete'}/>
+                onClick={() => this.handleRemove(item)}
+              >
+                <Icon iconName={'delete'} />
               </ButtonBase>
             )}
           </span>)}
@@ -348,10 +325,10 @@ class PresentationUploader extends Component {
         accept={fileValidMimeTypes.join()}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}
-        disablePreview={true}
+        disablePreview
         onDrop={this.handleFiledrop}
       >
-        <Icon className={styles.dropzoneIcon} iconName={'upload'}/>
+        <Icon className={styles.dropzoneIcon} iconName={'upload'} />
         <p className={styles.dropzoneMessage}>
           {intl.formatMessage(intlMessages.dropzoneLabel)}&nbsp;
           <span className={styles.dropzoneLink}>
@@ -361,6 +338,34 @@ class PresentationUploader extends Component {
       </Dropzone>
     );
   }
-};
+
+  render() {
+    const { intl } = this.props;
+    const { preventClosing, disableActions } = this.state;
+
+    return (
+      <ModalFullscreen
+        title={intl.formatMessage(intlMessages.title)}
+        preventClosing={preventClosing}
+        confirm={{
+          callback: this.handleConfirm,
+          label: intl.formatMessage(intlMessages.confirmLabel),
+          description: intl.formatMessage(intlMessages.confirmDesc),
+          disabled: disableActions,
+        }}
+        dismiss={{
+          callback: this.handleDismiss,
+          label: intl.formatMessage(intlMessages.dismissLabel),
+          description: intl.formatMessage(intlMessages.dismissDesc),
+          disabled: disableActions,
+        }}
+      >
+        <p>{intl.formatMessage(intlMessages.message)}</p>
+        {this.renderPresentationList()}
+        {this.renderDropzone()}
+      </ModalFullscreen>
+    );
+  }
+}
 
 export default injectIntl(PresentationUploader);

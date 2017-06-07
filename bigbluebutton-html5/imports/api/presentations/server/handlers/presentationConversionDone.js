@@ -1,4 +1,3 @@
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 
@@ -10,9 +9,9 @@ export default function handlePresentationConversionDone({ payload }) {
   check(meetingId, String);
   check(presentationId, String);
 
-  let statusModifier = {
+  const statusModifier = {
     'conversion.status': status,
-    'conversion.error' : false,
+    'conversion.error': false,
     'conversion.done': true,
     'upload.date': new Date(),
   };
@@ -27,4 +26,4 @@ export default function handlePresentationConversionDone({ payload }) {
   };
 
   return Presentations.upsert(selector, modifier);
-};
+}

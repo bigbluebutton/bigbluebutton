@@ -9,7 +9,7 @@ export default function sharePresentation(credentials, presentationId, shouldSha
   const EVENT_NAME = 'share_presentation';
 
   if (!isAllowedTo('sharePresentation', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to sharePresentation`);
+    throw new Meteor.Error('not-allowed', 'You are not allowed to sharePresentation');
   }
 
   const { meetingId, requesterUserId } = credentials;
@@ -20,14 +20,16 @@ export default function sharePresentation(credentials, presentationId, shouldSha
   check(shouldShare, Boolean);
 
   const currentPresentation = Presentations.findOne({
-    meetingId: meetingId,
+    meetingId,
     'presentation.id': presentationId,
     'presentation.current': true,
   });
 
-  if (currentPresentation && currentPresentation.presentation.id === presentationId) return;
+  if (currentPresentation && currentPresentation.presentation.id === presentationId) {
+    return Promise.resolve();
+  }
 
-  let payload = {
+  const payload = {
     meeting_id: meetingId,
     presentation_id: presentationId,
     share: shouldShare,

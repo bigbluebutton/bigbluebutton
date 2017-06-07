@@ -19,7 +19,7 @@ const getPresentations = () =>
     }));
 
 const uploadPresentation = (file, meetingID, endpoint) => {
-  var data = new FormData();
+  const data = new FormData();
   data.append('Filename', file.filename);
   data.append('presentation_name', file.filename);
   data.append('fileUpload', file);
@@ -37,7 +37,7 @@ const uploadPresentation = (file, meetingID, endpoint) => {
 const uploadPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
   Promise.all(
     presentationsToUpload
-      .map(p => uploadPresentation(p.file, meetingID, uploadEndpoint))
+      .map(p => uploadPresentation(p.file, meetingID, uploadEndpoint)),
   );
 
 const removePresentation = presentationID => call('removePresentation', presentationID);
@@ -55,7 +55,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
       .then(uploadPresentations.bind(null, presentationsToUpload, Auth.meetingID, uploadEndpoint))
       .then(call.bind(null, 'sharePresentation', currentPresentation.id, true))
       .then(resolve)
-      .catch(reject)
+      .catch(reject),
   );
 };
 

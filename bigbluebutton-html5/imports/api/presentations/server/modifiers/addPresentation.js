@@ -37,18 +37,19 @@ export default function addPresentation(meetingId, presentation) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding presentation to collection: ${err}`);
+      Logger.error(`Adding presentation to collection: ${err}`);
+      return;
     }
 
     addSlides(meetingId, presentation.id, presentation.pages);
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
+      Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
+      Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
     }
   };
 

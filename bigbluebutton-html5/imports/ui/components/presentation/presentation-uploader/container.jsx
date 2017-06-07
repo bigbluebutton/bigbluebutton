@@ -1,22 +1,14 @@
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import Service from './service';
 import PresentationUploader from './component';
 
-class PresentationUploaderContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <PresentationUploader {...this.props}>
-        {this.props.children}
-      </PresentationUploader>
-    );
-  }
-}
+const PresentationUploaderContainer = props => (
+  <PresentationUploader {...props}>
+    {props.children}
+  </PresentationUploader>
+);
 
 export default createContainer(() => {
   const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
@@ -30,7 +22,7 @@ export default createContainer(() => {
     handleSave: presentations => Service.persistPresentationChanges(
       currentPresentations,
       presentations,
-      PRESENTATION_CONFIG.uploadEndpoint
+      PRESENTATION_CONFIG.uploadEndpoint,
     ),
   };
 }, PresentationUploaderContainer);
