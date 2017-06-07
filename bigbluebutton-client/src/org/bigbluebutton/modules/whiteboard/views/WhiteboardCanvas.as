@@ -247,7 +247,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function removeCursor():void {
-			CursorManager.removeCursor(CursorManager.currentCursorID);
+			if (CursorManager.currentCursorID != CursorManager.NO_CURSOR) {
+				CursorManager.removeCursor(CursorManager.currentCursorID);
+			}
 		}
 		
 		private function getMouseXY():Point {
@@ -354,6 +356,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private function onDisableWhiteboardEvent(e:WhiteboardButtonEvent):void {
 			e.stopPropagation();
+			
+			removeCursor()
 			
 			this.whiteboardEnabled = false;
 			setWhiteboardInteractable();
