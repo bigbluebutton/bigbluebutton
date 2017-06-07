@@ -329,6 +329,7 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: ChangeUserRole => liveMeeting.handleChangeUserRole(msg)
     case msg: LogoutEndMeeting => liveMeeting.handleLogoutEndMeeting(msg)
     case msg: ClearPublicChatHistoryRequest => liveMeeting.handleClearPublicChatHistoryRequest(msg)
+    case msg: ReconnectionTimeout => liveMeeting.handleReconnectionTimeout(msg)
 
     // Breakout rooms
     case msg: BreakoutRoomsListMessage => liveMeeting.handleBreakoutRoomsList(msg)

@@ -170,6 +170,15 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/moderator_white.png")]
 		public var moderator_white:Class;
 
+		[Embed(source="assets/images/ic_fullscreen_white.png")]
+		public var full_screen_white:Class;
+
+		[Embed(source="assets/images/ic_fullscreen_exit_white.png")]
+		public var full_screen_exit_white:Class;
+
+		[Embed(source="assets/images/ic_close_white.png")]
+		public var close_white:Class;
+
 		[Embed(source="assets/images/presenter_white.png")]
 		public var presenter_white:Class;
 		

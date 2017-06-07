@@ -3,8 +3,11 @@ package org.bigbluebutton.modules.videoconf.views
     import flash.display.DisplayObject;
     import flash.events.MouseEvent;
     import flash.net.NetConnection;
+    import flash.utils.setTimeout;
     
     import mx.containers.Canvas;
+    import mx.core.UIComponent;
+    import mx.core.IUIComponent;
     import mx.events.FlexEvent;
     
     import org.as3commons.logging.api.ILogger;
@@ -301,6 +304,20 @@ package org.bigbluebutton.modules.videoconf.views
             graphic.addEventListener(FlexEvent.REMOVE, onChildRemove);
 
             super.addChild(graphic);
+        }
+
+        public function addStaticComponent(component:IUIComponent):void {
+            component.addEventListener(MouseEvent.CLICK, onVBoxClick);
+            component.addEventListener(FlexEvent.REMOVE, onChildRemove);
+
+            setTimeout(onChildAdd, 150, null);
+            setTimeout(onChildAdd, 4000, null);
+
+            component.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
+                onChildAdd(event);
+            });
+
+            super.addChild(component as DisplayObject);
         }
 
         private function onChildAdd(event:FlexEvent):void {

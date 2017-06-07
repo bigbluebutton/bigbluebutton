@@ -214,7 +214,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
-			if (matcher.matches()) {
+			addH263PublishedStream(streamId);
+			if (streamId.contains("/")) {
+				if(VideoRotator.getDirection(streamId) != null) {
+					VideoRotator rotator = new VideoRotator(streamId);
+					videoRotators.put(streamId, rotator);
+				}
+			} else if (matcher.matches()) {
 				log.info("Start recording of stream=[" + stream.getPublishedName() + "] for meeting=[" + conn.getScope().getName() + "]");
 				Boolean recordVideoStream = true;
 
@@ -223,15 +229,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				stream.addStreamListener(listener);
 				streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
 
-				addH263PublishedStream(streamId);
-				if (streamId.contains("/")) {
-					if(VideoRotator.getDirection(streamId) != null) {
-						VideoRotator rotator = new VideoRotator(streamId);
-						videoRotators.put(streamId, rotator);
-					}
-				} else {
-					recordStream(stream);
-				}
+				recordStream(stream);
 			}
 
 
@@ -265,6 +263,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   		String streamId = stream.getPublishedName();
 
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
+			removeH263ConverterIfNeeded(streamId);
+			if (videoRotators.containsKey(streamId)) {
+				// Stop rotator
+				videoRotators.remove(streamId).stop();
+			}
+			removeH263PublishedStream(streamId);
 			if (matcher.matches()) {
 				IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
 				if (listener != null) {
@@ -285,12 +289,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 			}
 
-			removeH263ConverterIfNeeded(streamId);
-			if (videoRotators.containsKey(streamId)) {
-				// Stop rotator
-				videoRotators.remove(streamId).stop();
-			}
-			removeH263PublishedStream(streamId);
     }
     
     /**

@@ -93,6 +93,8 @@ case class GetRecordingStatus(meetingID: String, userId: String) extends InMessa
 case class AllowUserToShareDesktop(meetingID: String, userID: String) extends InMessage
 case class ActivityResponse(meetingID: String) extends InMessage
 case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
+// same attributes as UserLeaving
+case class ReconnectionTimeout(meetingID: String, userID: String, sessionId: String) extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////////
 // Chat

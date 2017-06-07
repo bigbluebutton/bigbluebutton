@@ -338,6 +338,7 @@ trait UsersApp {
 
       val vu = wUser match {
         case Some(u) => {
+          unshareAllWebcamsForUser(u.userID)
           log.debug("Found  user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + u)
           if (u.voiceUser.joined) {
             /*
@@ -366,18 +367,6 @@ trait UsersApp {
         }
       }
 
-      wUser.foreach { w =>
-        if (!w.joinedWeb) {
-          log.debug("User is in voice only. Mark as user left. metingId=" + mProps.meetingID + " userId=" + msg.userID)
-          /**
-           * If user is not joined through the web (perhaps reconnecting).
-           * Send a user left event to clear up user list of all clients.
-           */
-          val user = usersModel.removeUser(w.userID)
-          outGW.send(new UserLeft(msg.meetingID, mProps.recorded, w))
-        }
-      }
-
       /**
        * Initialize the newly joined user copying voice status in case this
        * join is due to a reconnect.
@@ -387,7 +376,8 @@ trait UsersApp {
         ru.role, ru.guest, waitingForAcceptance = waitingForAcceptance, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
         webcamStreams = new ListSet[String](), phoneUser = false, vu,
-        listenOnly = vu.listenOnly, avatarURL = vu.avatarURL, joinedWeb = true)
+        listenOnly = vu.listenOnly, avatarURL = vu.avatarURL, joinedWeb = true,
+        reconnectionStatus = new ReconnectionStatus("", false, null))
 
       usersModel.addUser(uvo)
 
@@ -416,28 +406,40 @@ trait UsersApp {
     if (usersModel.hasUser(msg.userID)) {
       val user = usersModel.removeUser(msg.userID)
       user foreach { u =>
-        log.info("User left meeting. meetingId=" + mProps.meetingID + " userId=" + u.userID + " user=" + u)
-        outGW.send(new UserLeft(msg.meetingID, mProps.recorded, u))
+        if ((u.voiceUser.joined || u.listenOnly) && !u.reconnectionStatus.reconnecting) {
+          log.info("User left meeting, but that might mean that the user is reconnecting. Marking the user as potential reconnection, and remove him in a few seconds if he doesn't reconnect: mid=[" + msg.meetingID + "] uid=[" + u.userID + "]")
+          val rs = new ReconnectionStatus(msg.sessionId, true, usersModel.getReconnectionDeadline)
+          val uvo = u.copy(hasStream = false, webcamStreams = new ListSet[String](), reconnectionStatus = rs)
+          usersModel.addUser(uvo)
+        } else {
+          log.info("User left meeting: mid=[" + msg.meetingID + "] uid=[" + u.userID + "]")
+          if (u.voiceUser.joined) {
+            log.info("Sending eject to FreeSWITCH: mid=[" + msg.meetingID + "] uid=[" + u.userID + "]")
+            outGW.send(new EjectVoiceUser(mProps.meetingID, mProps.recorded, null, msg.userID, mProps.voiceBridge, u.voiceUser.userId))
+          }
+          outGW.send(new UserLeft(mProps.meetingID, mProps.recorded, u))
 
-        makeSurePresenterIsAssigned(u)
+          makeSurePresenterIsAssigned(u)
 
-        val vu = u.voiceUser
-        if (vu.joined || u.listenOnly) {
-          /**
-           * The user that left is still in the voice conference. Maybe this user just got disconnected
-           * and is reconnecting. Make the user as joined only in the voice conference. If we get a
-           * user left voice conference message, then we will remove the user from the users list.
-           */
-          switchUserToPhoneUser(new UserJoinedVoiceConfMessage(mProps.voiceBridge,
-            vu.userId, u.userID, u.externUserID, vu.callerName,
-            vu.callerNum, vu.muted, vu.talking, vu.avatarURL, u.listenOnly));
+          startCheckingIfWeNeedToEndVoiceConf()
+          stopAutoStartedRecording()
         }
 
         checkCaptionOwnerLogOut(u.userID)
       }
+    }
+  }
 
-      startCheckingIfWeNeedToEndVoiceConf()
-      stopAutoStartedRecording()
+  def handleReconnectionTimeout(msg: ReconnectionTimeout): Unit = {
+    log.info("Reconnection timeout: mid=[" + msg.meetingID + "] uid=[" + msg.userID + "]")
+    usersModel.getUser(msg.userID) match {
+      case Some(u) => {
+        if (u.reconnectionStatus.reconnecting) {
+          log.info("User didn't reconnect in a few seconds: mid=[" + msg.meetingID + "] uid=[" + msg.userID + "]")
+          handleUserLeft(UserLeaving(msg.meetingID, msg.userID, msg.sessionId))
+        }
+      }
+      case None => // do nothing
     }
   }
 
@@ -477,7 +479,8 @@ trait UsersApp {
           Role.VIEWER, guest = false, waitingForAcceptance = false, emojiStatus = "none", presenter = false,
           hasStream = false, locked = getInitialLockStatus(Role.VIEWER),
           webcamStreams = new ListSet[String](),
-          phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, avatarURL = msg.avatarURL, joinedWeb = false)
+          phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, avatarURL = msg.avatarURL, joinedWeb = false,
+          reconnectionStatus = new ReconnectionStatus("", false, null))
 
         usersModel.addUser(uvo)
 
@@ -670,6 +673,14 @@ trait UsersApp {
         } else {
           outGW.send(new GuestAccessDenied(mProps.meetingID, mProps.recorded, user.userID))
         }
+      }
+    }
+  }
+
+  def unshareAllWebcamsForUser(userID: String) {
+    usersModel.getUser(userID) foreach { user =>
+      user.webcamStreams.foreach { stream =>
+        handleUserunshareWebcam(UserUnshareWebcam(mProps.meetingID, user.userID, stream))
       }
     }
   }

@@ -35,22 +35,14 @@ module BigBlueButton
     FFMPEG::Movie.new(video).width
   end
 
-  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset)
+  def self.is_video_valid?(video)
+    FFMPEG::Movie.new(video).valid?
+  end
+
+  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file)
     BigBlueButton.logger.info("Processing webcam videos")
 
-    # Process audio
-    audio_edl = BigBlueButton::AudioEvents.create_audio_edl(
-      "#{temp_dir}/#{meeting_id}")
-    BigBlueButton::EDL::Audio.dump(audio_edl)
-
-    BigBlueButton.logger.info("Applying recording start stop events:")
-    audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, "#{temp_dir}/#{meeting_id}")
-    BigBlueButton::EDL::Audio.dump(audio_edl)
-
-    audio_file = BigBlueButton::EDL::Audio.render(
-      audio_edl, "#{target_dir}/webcams")
-
-    # Process webcam video
+    # Process user video (camera)
     webcam_edl = BigBlueButton::Events.create_webcam_edl(
       "#{temp_dir}/#{meeting_id}")
     user_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(webcam_edl, "#{temp_dir}/#{meeting_id}")
@@ -81,7 +73,7 @@ module BigBlueButton
     ]
     formats.each do |format|
       filename = BigBlueButton::EDL::encode(
-        audio_file, user_video_file, format, "#{target_dir}/webcams", audio_offset)
+        processed_audio_file, user_video_file, format, "#{target_dir}/webcams", audio_offset)
     end
   end
 

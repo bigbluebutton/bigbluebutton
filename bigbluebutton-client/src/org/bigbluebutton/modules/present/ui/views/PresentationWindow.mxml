@@ -80,6 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
+			import mx.controls.TabBar;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
@@ -126,8 +127,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              		
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
-      
-      		public static const TITLE:String = "Presentation";
+
+			public static const TITLE:String = "Presentation";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
 
 			private static const TAB_MAX_WIDTH:Number = 200;
@@ -141,7 +142,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var paused:Boolean = false;
 			
 			[Bindable] 
-      		private var thumbY:Number;
+			private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
 			
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
@@ -402,7 +403,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function becomeViewer():void{
 				setupPresenter(false);
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-				this.customContextMenuItems = new Array();
+				removeContextMenuItems();
 				if (slideView.thumbnailView.visible)
 					showThumbnails();
 			}
@@ -478,6 +479,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				contextMenuItems.push(previousButton);
 								
 				this.customContextMenuItems = contextMenuItems;
+			}
+
+			private function removeContextMenuItems():void{
+				this.customContextMenuItems = new Array();
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
@@ -592,7 +597,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
 
-				addContextMenuItems();
+				if(currentTabIndex == PRESENTATION_TAB_INDEX)
+					addContextMenuItems();
 				
 				updateDownloadBtnTooltip();
 				setPollMenuData();
@@ -617,42 +623,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
-				if (uploadPres.visible){
+				if (uploadPres.visible && currentTabIndex == PRESENTATION_TAB_INDEX){
 					uploadPres.setFocus();
 					openUploadWindow();
 				}
 			}
 			
 			private function remotePrevious(e:ShortcutEvent):void{
-				if (backButton.visible && backButton.enabled){
+				if (backButton.visible && backButton.enabled && currentTabIndex == PRESENTATION_TAB_INDEX){
 					//backButton.setFocus();
 					gotoPreviousSlide();
 				}
 			}
 			
 			private function remoteSelect(e:ShortcutEvent):void{
-				if (btnSlideNum.visible){
+				if (btnSlideNum.visible && currentTabIndex == PRESENTATION_TAB_INDEX){
 					btnSlideNum.setFocus();
 					showThumbnails();
 				}
 			}
 			
 			private function remoteNext(e:ShortcutEvent):void{
-				if (forwardButton.visible && forwardButton.enabled){
+				if (forwardButton.visible && forwardButton.enabled && currentTabIndex == PRESENTATION_TAB_INDEX){
 					//forwardButton.setFocus();
 					gotoNextSlide();
 				}
 			}
 			
 			private function remoteWidth(e:ShortcutEvent):void{
-				if (btnFitToWidth.visible){
+				if (btnFitToWidth.visible && currentTabIndex == PRESENTATION_TAB_INDEX){
 					btnFitToWidth.setFocus();
 					onFitToPage(false);
 				}
 			}
 			
 			private function remotePage(e:ShortcutEvent):void{
-				if (btnFitToPage.visible){
+				if (btnFitToPage.visible && currentTabIndex == PRESENTATION_TAB_INDEX){
 					btnFitToPage.setFocus();
 					onFitToPage(true);
 				}
@@ -850,8 +856,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					btnClosePublish.visible = false;
 					btnPauseScreenshare.visible = false;
 					btnActualSize.visible = false;
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = true;
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = true;
+					enableTab(SCREENSHARE_PUBLISH_TAB_INDEX, true);
 				} else {
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
@@ -863,8 +868,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						btnActualSize.visible = false;
 						btnClosePublish.visible = false;
 						btnPauseScreenshare.visible = false;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+						enableTab(SCREENSHARE_PUBLISH_TAB_INDEX, false);
 					} else if (currentTabIndex == SCREENSHARE_VIEW_TAB_INDEX) {
 						btnActualSize.visible = true;
 						downloadPres.visible = true;
@@ -873,6 +877,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				// Need to call the function later because the heights haven't been validated yet
 				callLater(fitSlideToWindowMaintainingAspectRatio);
+			}
+
+			private function enableTab(tabIndex:Number, enable:Boolean):void {
+				presenterTabs.getTabAt(tabIndex).visible = enable;
+				presenterTabs.getTabAt(tabIndex).includeInLayout = enable;
+				presenterTabs.getTabAt(tabIndex).enabled = enable;
 			}
 			
 			private function pollStoppedHandler(e:PollStoppedEvent):void {
@@ -937,20 +947,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSelectTabEvent(event:MouseEvent):void {
-				onSelectTab();
+				if (event.target.parent is TabBar) {
+					var selectedIndex:uint= TabBar(event.target.parent).getChildIndex(event.target as DisplayObject);
+					if(presenterTabs.getTabAt(selectedIndex).enabled) {
+					   presenterTabs.selectedIndex = selectedIndex;
+					   onSelectTab();
+					}
+				}
 			}
 
 			private function onSelectTab():void {
-				if (presenterTabs.selectedIndex != currentTabIndex) {
-					if(presenterTabs.selectedIndex == PRESENTATION_TAB_INDEX) {
+				if (presenterTabs.selectedIndex == currentTabIndex) return;
+
+				switch (presenterTabs.selectedIndex) {
+					case PRESENTATION_TAB_INDEX:
 						handlePresentationTabSelected();
-					} else if (presenterTabs.selectedIndex == SCREENSHARE_PUBLISH_TAB_INDEX) {
+						break;
+					case SCREENSHARE_PUBLISH_TAB_INDEX:
 						handleDesktopPublishTabSelected();
-					} else {
+						break;
+					case SCREENSHARE_VIEW_TAB_INDEX:
 						handleDesktopViewTabSelected();
-					}
-					updateDownloadBtn();
+						break;
 				}
+				updateDownloadBtn();
 				callLater(fitSlideToWindowMaintainingAspectRatio);
 			}
 
@@ -969,8 +989,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if(!presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible) {
-					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = true;
-					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = true;
+					enableTab(PRESENTATION_TAB_INDEX, true);
 				}
 
 				btnActualSize.visible = false;
@@ -979,9 +998,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (UsersUtil.amIPresenter()) {
 					setControlBarState("presenter");
 					annotationsPermissionChanged(true);
+					addContextMenuItems();
 				} else if(presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible) {
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+					enableTab(SCREENSHARE_PUBLISH_TAB_INDEX, false);
 				}
 			}
 
@@ -997,6 +1016,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					startDeskshareTabCreation();
 					dispatchEvent(new RequestToStartSharing());
 				}
+
+				removeContextMenuItems();
 				presenterControls.visible = false;
 				presenterControls.includeInLayout = false;
 				pollStartBtn.visible = false;
@@ -1029,6 +1050,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					btnClosePublish.visible = true;
 					btnPauseScreenshare.visible = true;
 				}
+
+				removeContextMenuItems();
 			}
 
 			private function changeWhiteboardPageOnly(whiteboardId:String):void {
@@ -1040,8 +1063,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function stopSharing():void {
 				LOGGER.debug("Stopping desktop publish");
-				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).visible = false;
-				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).includeInLayout = false;
+				enableTab(SCREENSHARE_VIEW_TAB_INDEX, false);
 				if (!paused) dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
 				sharing = false;
 				PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = false;
@@ -1082,12 +1104,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (UsersUtil.amIPresenter()) {
 						sharing = true;
 						PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = true;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+						enableTab(SCREENSHARE_PUBLISH_TAB_INDEX, false);
 					}
 					else {
-						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = false;
-						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = false;
+						enableTab(PRESENTATION_TAB_INDEX, false);
 					}
 				} else {
 					LOGGER.debug("viewTabContent is NULL.");

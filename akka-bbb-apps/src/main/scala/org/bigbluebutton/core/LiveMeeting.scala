@@ -71,7 +71,20 @@ class LiveMeeting(val mProps: MeetingProperties,
     }
   }
 
+  private def handleUsersReconnecting() {
+    usersModel.getUsers foreach { u =>
+      if (u.reconnectionStatus.reconnecting) {
+        if (u.reconnectionStatus.deadline.isOverdue()) {
+          handleReconnectionTimeout(ReconnectionTimeout(mProps.meetingID, u.userID, u.reconnectionStatus.sessionId))
+        }
+      }
+    }
+  }
+
   def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
+    // TODO: Maybe this service needs it's own internal message
+    handleUsersReconnecting()
+
     if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)

@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.apps
 
+import scala.concurrent.duration.Deadline
+import scala.concurrent.duration.FiniteDuration
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.UserVO
 import org.bigbluebutton.core.api.Role._
@@ -23,6 +25,7 @@ class UsersModel {
   private var locked = false
   private var meetingMuted = false
   private var recordingVoice = false
+  private var reconnectionInterval = FiniteDuration(30, "seconds")
 
   private var currentPresenter = new Presenter("system", "system", "system")
 
@@ -210,5 +213,9 @@ class UsersModel {
 
   def isVoiceRecording: Boolean = {
     recordingVoice
+  }
+
+  def getReconnectionDeadline: Deadline = {
+    reconnectionInterval.fromNow
   }
 }
