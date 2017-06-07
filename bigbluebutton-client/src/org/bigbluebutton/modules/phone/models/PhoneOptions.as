@@ -56,6 +56,9 @@ package org.bigbluebutton.modules.phone.models {
 
 		[Bindable]
 		public var showWebRTCStats:Boolean = false;
+		
+		[Bindable]
+		public var showWebRTCMOS:Boolean = false;
 
 		public function PhoneOptions() {
 			name = "PhoneModule";

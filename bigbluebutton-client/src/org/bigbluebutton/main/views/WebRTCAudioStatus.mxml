@@ -59,6 +59,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleWebRTCCallStartedEvent(event:WebRTCCallEvent):void {
 				if (phoneOptions.showWebRTCStats) {
 					this.visible = this.includeInLayout = true;
+					
+					audioMOS.text = "";
+					if (phoneOptions.showWebRTCMOS) {
+						audioMOS.visible = audioMOS.includeInLayout = true;
+					}
 				}
 			}
 
@@ -77,6 +82,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function audioMonitor(audio: Object):void {
 				if (audio.hasOwnProperty("intervalEstimatedLossRate")) {
 					var rate:Number = getRateFromHistory(audio.intervalEstimatedLossRate);
+					if (phoneOptions.showWebRTCMOS) {
+						audioMOS.text = rate.toFixed(2);
+					}
 					switch (true) {
 						case rate > 0.50:
 							audioStatus.source = getStyle("weakAudioStatus");
@@ -112,4 +120,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 	<mx:Image id="audioStatus"/>
+	<mx:Label id="audioMOS" x="36" verticalCenter="0"/>
 </mx:Canvas>

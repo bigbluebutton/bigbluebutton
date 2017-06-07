@@ -1173,6 +1173,7 @@ mx|AlertForm {
   almostStrongAudioStatus:  Embed(source='assets/images/almost_strong_audio_status.png');
   almostWeakAudioStatus:    Embed(source='assets/images/almost_weak_audio_status.png');
   weakAudioStatus:          Embed(source='assets/images/weak_audio_status.png');
+  color: #e1e2e5;
 }
 
 .warningButtonStyle {
