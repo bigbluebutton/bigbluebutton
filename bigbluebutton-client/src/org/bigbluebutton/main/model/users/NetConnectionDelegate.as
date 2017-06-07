@@ -112,10 +112,12 @@ package org.bigbluebutton.main.model.users
         }   
             
         public function onMessageFromServer2x(messageName:String, msg:String):void {
-            trace("onMessageFromServer2x - " + msg);
-            //var map:Object = JSON.parse(msg);  
-            //var header: Object = map.header as Object;
-            //var body: Object = map.body as Object;
+            LOGGER.debug("onMessageFromServer2x - " + msg);
+            var map:Object = JSON.parse(msg);  
+            var header: Object = map.header as Object;
+            
+            var msgName: String = header.name
+            notifyListeners(msgName, map);
 
             //var tokenValid: Boolean = body.valid as Boolean;
             //var userId: String = body.userId as String;
