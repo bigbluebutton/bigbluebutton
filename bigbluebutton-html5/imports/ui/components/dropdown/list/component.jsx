@@ -1,4 +1,5 @@
-import React, { Component, PropTypes, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement } from 'react';
+import PropTypes from 'prop-types';
 import styles from './styles';
 import cx from 'classnames';
 import KEY_CODES from '/imports/utils/keyCodes';
@@ -12,8 +13,8 @@ const propTypes = {
         propValue[key].type !== ListSeparator &&
         propValue[key].type !== ListTitle) {
       return new Error(
-        'Invalid prop `' + propFullName + '` supplied to' +
-        ' `' + componentName + '`. Validation failed.'
+        `Invalid prop \`${propFullName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`,
       );
     }
   }),
@@ -79,7 +80,7 @@ export default class DropdownList extends Component {
       document.activeElement.firstChild.click();
     }
 
-    if (KEY_CODES.ARROW_DOWN === event.which) {
+    if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
       event.preventDefault();
       event.stopPropagation();
 
@@ -103,7 +104,7 @@ export default class DropdownList extends Component {
       }else if (this.focusedItemIndex > selectableItems.length - 1){
         this.focusedItemIndex = 0;
       }
-
+      console.log(this.focusedItemIndex);
       focusMenuItem();
     }
 
@@ -118,11 +119,6 @@ export default class DropdownList extends Component {
       }
 
       dropdownHide();
-    }
-
-    if(this.focusedItemIndex > 0 
-    || this.focusedItemIndex < selectableItems.length - 1){
-      this.setState({ activeItemIndex: this.focusedItemIndex });
     }
     
     if (typeof callback === 'function') {
@@ -153,19 +149,18 @@ export default class DropdownList extends Component {
 
         return cloneElement(item, {
           tabIndex: 0,
-          injectRef: ref => {
-            if (ref && !this.childrenRefs.includes(ref))
-              this.childrenRefs.push(ref);
+          injectRef: (ref) => {
+            if (ref && !this.childrenRefs.includes(ref)) { this.childrenRefs.push(ref); }
           },
 
-          onClick: event => {
+          onClick: (event) => {
             let { onClick } = item.props;
             onClick = onClick ? onClick.bind(item) : null;
 
             this.handleItemClick(event, onClick);
           },
 
-          onKeyDown: event => {
+          onKeyDown: (event) => {
             let { onKeyDown } = item.props;
             onKeyDown = onKeyDown ? onKeyDown.bind(item) : null;
 

@@ -257,11 +257,11 @@ class UserListItem extends Component {
       intl,
     } = this.props;
 
-    let you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
+    let you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
     let presenter = (user.isPresenter)
       ? intl.formatMessage(messages.presenter)
-      : null;
+      : '';
 
     let userAriaLabel = (user.emoji.status === 'none')
       ? (user.name + " " + presenter + " " + you)
