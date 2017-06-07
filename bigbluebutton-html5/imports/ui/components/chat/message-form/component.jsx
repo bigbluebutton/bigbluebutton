@@ -61,7 +61,7 @@ class MessageForm extends Component {
         cancelable: true,
       });
 
-      this.refs.form.dispatchEvent(event);
+      this.form.dispatchEvent(event);
     }
   }
 
@@ -124,7 +124,7 @@ class MessageForm extends Component {
 
     return (
       <form
-        ref="form"
+        ref={(ref) => { this.form = ref; }}
         className={cx(this.props.className, styles.form)}
         onSubmit={this.handleSubmit}
       >

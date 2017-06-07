@@ -48,7 +48,7 @@ export default class MessageListItem extends Component {
 
   handleMessageInViewport() {
     window.requestAnimationFrame(() => {
-      const node = this.refs.item;
+      const node = this.item;
       this.setState({ preventRender: !isElementInViewport(node) });
     });
   }
@@ -103,7 +103,7 @@ export default class MessageListItem extends Component {
 
     return (
       <div className={styles.item}>
-        <div className={styles.wrapper} ref="item">
+        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatar}>
             <UserAvatar user={user} />
           </div>
@@ -143,7 +143,7 @@ export default class MessageListItem extends Component {
 
     return (
       <div className={cx(styles.item, styles.systemMessage)}>
-        <div className={styles.content} ref="item">
+        <div className={styles.content} ref={(ref) => { this.item = ref; }}>
           <div className={styles.messages}>
             {messages.map((message, i) => (
               <Message

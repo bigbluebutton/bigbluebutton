@@ -154,7 +154,7 @@ class UserListItem extends Component {
    */
   checkDropdownDirection() {
     if (this.isDropdownActivedByUser()) {
-      const dropdown = findDOMNode(this.refs.dropdown);
+      const dropdown = findDOMNode(this.dropdown);
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
@@ -201,7 +201,7 @@ class UserListItem extends Component {
   }
 
   onActionsShow() {
-    const dropdown = findDOMNode(this.refs.dropdown);
+    const dropdown = findDOMNode(this.dropdown);
     const scrollContainer = dropdown.parentElement.parentElement;
     const dropdownTrigger = dropdown.children[0];
 
@@ -275,7 +275,7 @@ class UserListItem extends Component {
 
     return (
       <Dropdown
-        ref="dropdown"
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
@@ -338,7 +338,7 @@ class UserListItem extends Component {
 
     return (
       <Dropdown
-        ref="dropdown"
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
