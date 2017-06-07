@@ -168,9 +168,9 @@ export default class PollDrawComponent extends React.Component {
       const key = `${this.props.shape.id}_key_${this.state.currentLine}`;
       const votes = `${this.props.shape.id}_votes_${this.state.currentLine}`;
       const percent = `${this.props.shape.id}_percent_${this.state.currentLine}`;
-      const keySizes = findDOMNode(this.refs[key]).getBBox();
-      const voteSizes = findDOMNode(this.refs[votes]).getBBox();
-      const percSizes = findDOMNode(this.refs[percent]).getBBox();
+      const keySizes = findDOMNode(this[key]).getBBox();
+      const voteSizes = findDOMNode(this[votes]).getBBox();
+      const percSizes = findDOMNode(this[percent]).getBBox();
 
       // first check if we can still increase the font-size
       if (this.state.fontSizeDirection == 1) {
@@ -223,8 +223,8 @@ export default class PollDrawComponent extends React.Component {
     for (let i = 0; i < this.state.textArray.length; ++i) {
       const key = `${this.props.shape.id}_key_${i}`;
       const percent = `${this.props.shape.id}_percent_${i}`;
-      const keySizes = findDOMNode(this.refs[key]).getBBox();
-      const percSizes = findDOMNode(this.refs[percent]).getBBox();
+      const keySizes = findDOMNode(this[key]).getBBox();
+      const percSizes = findDOMNode(this[percent]).getBBox();
 
       if (keySizes.width > maxLeftWidth) {
         maxLeftWidth = keySizes.width;
@@ -244,8 +244,8 @@ export default class PollDrawComponent extends React.Component {
     }
 
     const digitRef = `${this.props.shape.id}_digit`;
-    const maxDigitWidth = findDOMNode(this.refs[digitRef]).getBBox().width;
-    const maxDigitHeight = findDOMNode(this.refs[digitRef]).getBBox().height;
+    const maxDigitWidth = findDOMNode(this[digitRef]).getBBox().width;
+    const maxDigitHeight = findDOMNode(this[digitRef]).getBBox().height;
 
     this.setState({
       maxLeftWidth,
@@ -458,7 +458,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={`${this.props.shape.id}_key_${line[3]}`}
+          ref={(ref) => { this[`${this.props.shape.id}_key_${line[3]}`] = ref; }}
         >
           <tspan>
             {line[0]}
@@ -467,7 +467,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={`${this.props.shape.id}_votes_${line[3]}`}
+          ref={(ref) => { this[`${this.props.shape.id}_votes_${line[3]}`] = ref; }}
         >
           <tspan>
             {line[1]}
@@ -476,7 +476,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={`${this.props.shape.id}_percent_${line[3]}`}
+          ref={(ref) => { this[`${this.props.shape.id}_percent_${line[3]}`] = ref; }}
         >
           <tspan>
             {line[2]}
@@ -497,11 +497,12 @@ export default class PollDrawComponent extends React.Component {
       <g>
         {this.state.textArray.map(line =>
             this.renderLine(line),
-          )}
+          )
+        }
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={`${this.props.shape.id}_digit`}
+          ref={(ref) => { this[`${this.props.shape.id}_digit`] = ref; }}
         >
           <tspan>
               0
