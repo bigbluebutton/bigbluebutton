@@ -44,7 +44,7 @@
       var flashvars = {};
       var params = {};
       params.quality = "high";
-      params.bgcolor = "#869ca7";
+      params.bgcolor = "#FFFFFF";
       params.allowfullscreen = "true";
       params.allowfullscreeninteractive = "true";
       if (ffHangWorkaround()) {
@@ -64,16 +64,19 @@
       attributes.name = "BigBlueButton";
       attributes.align = "middle";
       attributes.tabIndex = 0;
+      
       // In Chrome 56 Google started blocking Flash by default so we force the SWF to 
       // be loaded in the DOM rather than relying on the SWFObject code to detect 
       // Flash because it can't.
+      // Edge 15 also hides the fact that Flash is available so adding a hack for that too.
       var browserInfo = determineBrowser();
-      if (browserInfo && browserInfo[0] === "Chrome") {
+      if (browserInfo && ((browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) ||
+                          (browserInfo[0] === "Edge" && browserInfo[1] >= 15))) {
         // Added a sort of callback idea because when this script runs "content" doesn't exist yet
         var fillContent = function(){
           var content = document.getElementById("content");
           if (content) {
-            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#869ca7"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
           }
         };
       } else {

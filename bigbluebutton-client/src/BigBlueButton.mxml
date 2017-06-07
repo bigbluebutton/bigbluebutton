@@ -23,11 +23,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 xmlns:views="*"
                 pageTitle="Mconf-Live"
                 layout="absolute"
-				preinitialize="LogUtil.initLogging(true)"
+				preinitialize="init()"
                 preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
+
+			private function init():void {
+				LogUtil.initLogging(true);
+				setStyle('backgroundColor', '0xFFFFFF');
+			}
 		]]>
 	</mx:Script>
    
