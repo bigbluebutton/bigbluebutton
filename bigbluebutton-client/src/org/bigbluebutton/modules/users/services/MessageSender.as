@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.bigbluebutton.core.connection.messages.*;
 
   public class MessageSender {
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
@@ -176,8 +177,16 @@ package org.bigbluebutton.modules.users.services
 		}
     
     public function addStream(userID:String, streamName:String):void {
+      var header: MsgFromClientHdr = new MsgFromClientHdr("UserBroadcastCamStartMsg",
+                                              UsersUtil.getInternalMeetingID(), 
+                                              UsersUtil.getMyUserID());
+
+      var body: UserBroadcastCamStartMsgBody = new UserBroadcastCamStartMsgBody(streamName);
+
+      var message: UserBroadcastCamStartMsg = new UserBroadcastCamStartMsg(header, body);
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.shareWebcam", 
+      _nc.sendMessage2x( 
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -186,12 +195,20 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured sharing webcam.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        streamName
+        JSON.stringify(message)
       );
     }
     
     public function removeStream(userID:String, streamName:String):void {
   
+      var header: MsgFromClientHdr = new MsgFromClientHdr("UserBroadcastCamStopMsg",
+                                              UsersUtil.getInternalMeetingID(), 
+                                              UsersUtil.getMyUserID());
+
+      var body: UserBroadcastCamStopMsgBody = new UserBroadcastCamStopMsgBody(streamName);
+
+      var message: UserBroadcastCamStopMsg = new UserBroadcastCamStopMsg(header, body);
+
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["webcam"];
         logData.streamId = streamName;
@@ -200,7 +217,7 @@ package org.bigbluebutton.modules.users.services
 
   
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.unshareWebcam", 
+      _nc.sendMessage2x( 
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -209,7 +226,7 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured unsharing webcam.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        streamName
+        JSON.stringify(message)
       );
     }
     

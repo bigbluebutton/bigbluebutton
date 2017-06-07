@@ -57,6 +57,10 @@ package org.bigbluebutton.core.managers {
             connDelegate.sendMessage(service, onSuccess, onFailure, message);
         }
 
+        public function sendMessage2x(onSuccess:Function, onFailure:Function, message:Object = null):void {
+            connDelegate.sendMessage2x(onSuccess, onFailure, message);
+        }
+
         public function forceClose():void {
             connDelegate.forceClose();
         }

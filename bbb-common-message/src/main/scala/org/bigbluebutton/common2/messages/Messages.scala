@@ -51,19 +51,22 @@ case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody
 object GetUsersReqMsg { val NAME = "GetUsersReqMsg" }
 case class GetUsersReqMsg(header: BbbClientMsgHeader, body: GetUsersReqMsgBody) extends BbbCoreMsg
 
-object UserShareWebcamMsg { val NAME = "UserShareWebcamMsg" }
-case class UserShareWebcamMsg(header: BbbClientMsgHeader, body: UserShareWebcamMsgBody)
+object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
+case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartMsgBody) extends BbbCoreMsg
+
+object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
+case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
 
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
 object ValidateAuthTokenRespMsg { val NAME = "ValidateAuthTokenRespMsg" }
 case class ValidateAuthTokenRespMsg(header: BbbClientMsgHeader,
                                     body: ValidateAuthTokenRespMsgBody) extends BbbCoreMsg
 
-object UserSharedWebcamEvtMsg { val NAME = "UserSharedWebcamEvtMsg" }
-case class UserSharedWebcamEvtMsg(header: BbbClientMsgHeader, body: UserSharedWebcamEvtMsgBody)
+object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
+case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg
 
-object UserUnsharedWebcamEvtMsg { val NAME = "UserUnsharedWebcamEvtMsg" }
-case class UserUnsharedWebcamEvtMsg(header: BbbClientMsgHeader, body: UserUnsharedWebcamEvtMsgBody)
+object UserBroadcastCamStoppedEvtMsg { val NAME = "UserUnsharedWebcamEvtMsg" }
+case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
 
 
 /** System Messages **/

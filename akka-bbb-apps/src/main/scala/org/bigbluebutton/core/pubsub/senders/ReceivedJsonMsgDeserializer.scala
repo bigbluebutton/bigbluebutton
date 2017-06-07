@@ -12,38 +12,127 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
 
   object JsonDeserializer extends Deserializer
 
-  def deserializeCreateMeetingReqMsg(jsonNode: JsonNode): Option[CreateMeetingReqMsg] = {
-    val (result, error) = JsonDeserializer.toBbbCommonMsg[CreateMeetingReqMsg](jsonNode)
-    result match {
-      case Some(msg) => Some(msg.asInstanceOf[CreateMeetingReqMsg])
-      case None =>
-        log.error("Failed to deserialize CreateMeetingReqMsg message " + error)
-        None
+  def routeCreateMeetingReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[CreateMeetingReqMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[CreateMeetingReqMsg](jsonNode)
+      result match {
+        case Some(msg) => Some(msg.asInstanceOf[CreateMeetingReqMsg])
+        case None =>
+          log.error("Failed to deserialize CreateMeetingReqMsg message " + error)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: CreateMeetingReqMsg): Unit = {
+      val event = BbbMsgEvent(meetingManagerChannel, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
     }
   }
 
-  def routeValidateAuthTokenReqMsg(jsonNode: JsonNode): Option[ValidateAuthTokenReqMsg] = {
-    val (result, error) = JsonDeserializer.toBbbCommonMsg[ValidateAuthTokenReqMsg](jsonNode)
+  def routeValidateAuthTokenReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[ValidateAuthTokenReqMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[ValidateAuthTokenReqMsg](jsonNode)
 
-    result match {
-      case Some(msg) => Some(msg.asInstanceOf[ValidateAuthTokenReqMsg])
-      case None =>
-        log.error("Failed to deserialize ValidateAuthTokenReqMsg message " + error)
-        None
+      result match {
+        case Some(msg) => Some(msg.asInstanceOf[ValidateAuthTokenReqMsg])
+        case None =>
+          log.error("Failed to deserialize ValidateAuthTokenReqMsg message " + error)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: ValidateAuthTokenReqMsg): Unit = {
+      val event = BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
     }
   }
 
-  def routeRegisterUserReqMsg(jsonNode: JsonNode): Option[RegisterUserReqMsg] = {
-    val (result, error) = JsonDeserializer.toBbbCommonMsg[RegisterUserReqMsg](jsonNode)
+  def routeRegisterUserReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[RegisterUserReqMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[RegisterUserReqMsg](jsonNode)
 
-    result match {
-      case Some(msg) =>
-        // Route via meeting manager as there is a race condition if we send directly to meeting
-        // because the meeting actor might not have been created yet.
-        Some(msg.asInstanceOf[RegisterUserReqMsg])
-      case None =>
-        log.error("Failed to RegisterUserReqMsg message " + error)
-        None
+      result match {
+        case Some(msg) =>
+          Some(msg.asInstanceOf[RegisterUserReqMsg])
+        case None =>
+          log.error("Failed to RegisterUserReqMsg message " + error)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: RegisterUserReqMsg): Unit = {
+      // Route via meeting manager as there is a race condition if we send directly to meeting
+      // because the meeting actor might not have been created yet.
+      val event = BbbMsgEvent(meetingManagerChannel, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
+    }
+  }
+
+  def routeUserBroadcastCamStartMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[UserBroadcastCamStartMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[UserBroadcastCamStartMsg](jsonNode)
+
+      result match {
+        case Some(msg) =>
+          Some(msg.asInstanceOf[UserBroadcastCamStartMsg])
+        case None =>
+          log.error("Failed to UserShareWebcamMsg message " + error)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: UserBroadcastCamStartMsg): Unit = {
+      val event = BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
+    }
+  }
+
+  def routeUserBroadcastCamStopMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[UserBroadcastCamStopMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[UserBroadcastCamStopMsg](jsonNode)
+
+      result match {
+        case Some(msg) =>
+          Some(msg.asInstanceOf[UserBroadcastCamStopMsg])
+        case None =>
+          log.error("Failed to UserShareWebcamMsg message " + error)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: UserBroadcastCamStopMsg): Unit = {
+      val event = BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
     }
   }
 }
