@@ -54,14 +54,6 @@ const messages = defineMessages({
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
-  userItemStatusAriaLabel: {
-    id: 'app.userlist.useritem.status.arialabel',
-    description: 'adds aria label for user and status',
-  },
-  userItemAriaLabel: {
-    id: 'app.userlist.useritem.nostatus.arialabel',
-    description: 'aria label for user',
-  },
 });
 
 const userActionsTransition = {
@@ -97,6 +89,7 @@ class UserListItem extends Component {
     this.handleScroll = this.handleScroll.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
   }
 
   handleScroll() {
@@ -153,8 +146,9 @@ class UserListItem extends Component {
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
   checkDropdownDirection() {
+
     if (this.isDropdownActivedByUser()) {
-      const dropdown = findDOMNode(this.refs.dropdown);
+      const dropdown = findDOMNode(this.dropdown);
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
@@ -174,7 +168,7 @@ class UserListItem extends Component {
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
       }
-
+            
       this.setState(nextState);
     }
   }
@@ -186,6 +180,17 @@ class UserListItem extends Component {
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
+    const list = findDOMNode(this.list);
+
+    if (isActionsOpen, dropdownVisible) {
+      for(let i = 0; i < list.children.length; i++){
+        if(list.children[i].getAttribute('role') === 'menuitem'){
+          list.children[i].focus();
+          break;
+        }
+      }
+    }
+    
     return isActionsOpen && !dropdownVisible;
   }
 
@@ -201,7 +206,7 @@ class UserListItem extends Component {
   }
 
   onActionsShow() {
-    const dropdown = findDOMNode(this.refs.dropdown);
+    const dropdown = findDOMNode(this.dropdown);
     const scrollContainer = dropdown.parentElement.parentElement;
     const dropdownTrigger = dropdown.children[0];
 
@@ -213,6 +218,10 @@ class UserListItem extends Component {
     });
 
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
+  }
+
+  getDropdownMenuParent() {
+    return findDOMNode(this.dropdown);
   }
 
   onActionsHide() {
@@ -238,21 +247,16 @@ class UserListItem extends Component {
       intl,
     } = this.props;
 
-    let you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
+    let you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
     let presenter = (user.isPresenter)
       ? intl.formatMessage(messages.presenter)
-      : null;
+      : '';
 
     let userAriaLabel = (user.emoji.status === 'none')
-      ? intl.formatMessage(messages.userItemAriaLabel,
-          { 0: user.name, 1: presenter, 2: you, })
-      : intl.formatMessage(messages.userItemStatusAriaLabel,
-          { 0: user.name,
-            1: presenter,
-            2: you,
-            3: user.emoji.status, });
-
+      ? (user.name + " " + presenter + " " + you)
+      : (user.name + " " + presenter + " " + you + " " + user.emoji.status);
+      
     let actions = this.getAvailableActions();
     let contents = (
       <div
@@ -271,10 +275,10 @@ class UserListItem extends Component {
     }
 
     const { dropdownOffset, dropdownDirection, dropdownVisible, } = this.state;
-
+    
     return (
       <Dropdown
-        ref="dropdown"
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
@@ -294,7 +298,9 @@ class UserListItem extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}>
 
-          <DropdownList>
+          <DropdownList 
+            ref={(ref) => { this.list = ref; }} 
+            getDropdownMenuParent={this.getDropdownMenuParent}>
             {
               [
                 (<DropdownListTitle
