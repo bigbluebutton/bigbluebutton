@@ -15,8 +15,8 @@ object MessageBody {
   case class GetUsersReqMsgBody(requesterId: String)
   case class UserEmojiStatusChangeReqMsgBody(userId: String, emoji: String)
   case class EjectUserFromMeetingReqMsgBody(userId: String, requesterId: String)
-  case class UserShareWebcamMsgBody(stream: String)
-  case class UserUnshareWebcamMsgBody(stream: String)
+  case class UserBroadcastCamStartMsgBody(stream: String)
+  case class UserBroadcastCamStopMsgBody(stream: String)
   case class ChangeUserStatusReqMsgBody(userId: String, status: String, value: String)
   case class ChangeUserRoleReqMsgBody(userId: String, role: String)
   case class AssignPresenterReqMsgBody(userId: String, requesterId: String)
@@ -26,7 +26,7 @@ object MessageBody {
 
 
 
-  case class UserSharedWebcamEvtMsgBody(userId: String, stream: String)
-  case class UserUnsharedWebcamEvtMsgBody(userId: String, stream: String)
+  case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
+  case class UserBroadcastCamStoppedEvtMsgBody(userId: String, stream: String)
 
 }

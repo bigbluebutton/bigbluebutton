@@ -113,13 +113,13 @@ package org.bigbluebutton.main.model.users
             
         public function onMessageFromServer2x(messageName:String, msg:String):void {
             trace("onMessageFromServer2x - " + msg);
-            var map:Object = JSON.parse(msg);  
-            var header: Object = map.header as Object;
-            var body: Object = map.body as Object;
+            //var map:Object = JSON.parse(msg);  
+            //var header: Object = map.header as Object;
+            //var body: Object = map.body as Object;
 
-            var tokenValid: Boolean = body.valid as Boolean;
-            var userId: String = body.userId as String;
-            trace("onMessageFromServer - " + tokenValid);
+            //var tokenValid: Boolean = body.valid as Boolean;
+            //var userId: String = body.userId as String;
+            //trace("onMessageFromServer - " + tokenValid);
         }
 
         public function onMessageFromServer(messageName:String, msg:Object):void {
@@ -147,14 +147,14 @@ package org.bigbluebutton.main.model.users
                               
             var header: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg",
                                                 confParams.meetingID, 
-                                                confParams.internalUserID)
+                                                confParams.internalUserID);
 
             var body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(confParams.internalUserID,
-                                                confParams.authToken)
+                                                confParams.authToken);
 
-            var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body)
+            var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body);
 
-            LOGGER.debug("******* msg \n" + JSON.stringify(message))
+            LOGGER.debug("******* msg \n" + JSON.stringify(message));
 
             sendMessage2x(
                 // result - On successful result
