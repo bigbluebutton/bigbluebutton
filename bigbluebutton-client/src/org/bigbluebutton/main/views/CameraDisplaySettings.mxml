@@ -18,14 +18,15 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-                xmlns:view="org.bigbluebutton.main.views.*"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:view="org.bigbluebutton.main.views.*"
 				xmlns:common="org.bigbluebutton.common.*"
                 layout="absolute"
                 verticalScrollPolicy="off" horizontalScrollPolicy="off"
                 width="630" height="450" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
                 showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
 		
@@ -210,9 +211,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
       
     ]]>
-  </mx:Script>
+  </fx:Script>
 	
-  <common:TabIndexer startIndex="1" tabIndices="{[textArea, cmbCameraSelector, cmbVideoProfile, btnStartPublish, btnClosePublish]}"/>
+	<fx:Declarations>
+	  <common:TabIndexer startIndex="1" tabIndices="{[textArea, cmbCameraSelector, cmbVideoProfile, btnStartPublish, btnClosePublish]}"/>
+	</fx:Declarations>
   
   <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
     <mx:HBox width="100%" horizontalAlign="left">

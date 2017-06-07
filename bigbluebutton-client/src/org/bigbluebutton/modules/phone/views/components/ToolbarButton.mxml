@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mate="http://mate.asfusion.com/"
            styleName="voiceConfDefaultButtonStyle" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
@@ -29,29 +29,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
-  <mate:Listener type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}" method="handleFlashLeftVoiceConferenceEvent" />
-  <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
-  <mate:Listener type="{FlashJoinedListenOnlyVoiceConferenceEvent.JOINED_LISTEN_ONLY_VOICE_CONFERENCE}" method="handleFlashJoinedListenOnlyConferenceEvent" />
-  <mate:Listener type="{FlashEchoTestStoppedEvent.ECHO_TEST_STOPPED}" method="handleStopEchoTestEvent" />
-  <mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
-  <mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
-  <mate:Listener type="{AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION}" method="handleClosedAudioSelectionWindowEvent" />
-  
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}" method="handleFlashLeftVoiceConferenceEvent" />
+		<mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
+		<mate:Listener type="{FlashJoinedListenOnlyVoiceConferenceEvent.JOINED_LISTEN_ONLY_VOICE_CONFERENCE}" method="handleFlashJoinedListenOnlyConferenceEvent" />
+		<mate:Listener type="{FlashEchoTestStoppedEvent.ECHO_TEST_STOPPED}" method="handleStopEchoTestEvent" />
+		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
+		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
+		<mate:Listener type="{AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION}" method="handleClosedAudioSelectionWindowEvent" />
+	</fx:Declarations>  
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
@@ -60,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(ToolbarButton);      
@@ -267,5 +267,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.setFocus();
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>

@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:mate="http://mate.asfusion.com/"
 		width="400" >
 
+	<fx:Declarations>
 		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="refreshGuestPolicy"/>
 		<mate:Listener type="{BBBEvent.SETTINGS_CONFIRMED}" method="onOkClicked"/>
 		<mate:Listener type="{BBBEvent.SETTINGS_CANCELLED}" method="onCancelClicked"/>
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.events.ItemClickEvent;
-			import mx.managers.PopUpManager;
-
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-
-			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.events.SettingsComponentEvent;
-			import com.asfusion.mate.events.Dispatcher;
 
 			private static const LOGGER:ILogger = getClassLogger(GuestManagement);
 
@@ -79,7 +80,7 @@
 				LOGGER.debug("SENDING TO SERVER POLICY");
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<mx:VBox width="30%">
 		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.guests.Management')}"/>
 	</mx:VBox>

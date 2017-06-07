@@ -19,7 +19,8 @@
 	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
 -->
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*"
-		xmlns:mx="http://www.adobe.com/2006/mxml"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:mate="http://mate.asfusion.com/"
 		implements="org.bigbluebutton.common.IBbbModuleWindow"
 		creationComplete="onCreationComplete()"
@@ -27,11 +28,13 @@
 		showCloseButton="false"
 		minHeight="161" minWidth="191">
 
-	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
-	<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
-	<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+	<fx:Declarations>
+		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
+		<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
+		<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -434,7 +437,7 @@
 			}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 
 	<mx:VBox width="100%" height="100%">
 		<components:SharedNotesRichTextEditor id="richTextEditor"

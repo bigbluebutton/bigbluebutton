@@ -20,7 +20,8 @@
   $Id: $
 --> 
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	verticalAlign="middle"
@@ -28,11 +29,13 @@
 	horizontalAlign="center"
 	creationComplete="onCreationComplete()" > 
 	
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole"/>
+	<fx:Declarations>
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole"/>
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
 			import flash.filters.GlowFilter;
@@ -347,7 +350,7 @@
 				e.item.callback();
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 	<!--mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" /-->

@@ -18,6 +18,6 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="200" height="200">
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" width="200" height="200">
 	
 </mx:Canvas>

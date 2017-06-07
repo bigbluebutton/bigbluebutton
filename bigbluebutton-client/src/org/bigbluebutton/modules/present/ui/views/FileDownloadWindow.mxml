@@ -20,16 +20,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
     xmlns:mate="http://mate.asfusion.com/"
-    layout="absolute"
+	layout="absolute"
     width="580"
     styleName="presentationFileUploadWindowStyle"
     initialize="initData();">
 
-  <mate:Dispatcher id="globalDispatch"/>
+	<fx:Declarations>
+	  <mate:Dispatcher id="globalDispatch"/>
+	</fx:Declarations>
 
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       import mx.collections.ArrayCollection;
@@ -49,7 +52,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
     ]]>
 
-  </mx:Script>
+  </fx:Script>
 
   <mx:VBox width="100%" height="100%">
     <mx:Label text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="0"/>

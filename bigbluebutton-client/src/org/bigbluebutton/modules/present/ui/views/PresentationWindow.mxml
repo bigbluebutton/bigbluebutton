@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<pres:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<pres:CustomMdiWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:thumb="org.bigbluebutton.modules.present.views.*"
 	xmlns:pres="org.bigbluebutton.common.*"
 	xmlns:code="http://code.google.com/p/flexlib/" 
@@ -41,34 +42,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{ResourceUtil.getInstance().getString('bbb.presentation.title')}">
 	
-	<mate:Dispatcher id="globalDispatcher" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
-	<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
-	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
-	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
-	<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
-	<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
-	<mate:Listener type="{ShortcutEvent.SELECT_SLIDES}" method="remoteSelect" />
-	<mate:Listener type="{ShortcutEvent.NEXT_SLIDE}" method="remoteNext" />
-	<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
-	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />	
-	<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
-	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
-	<mate:Listener type="{RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT}" method="handleUpdateDownloadableFilesEvent" />
-	<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
-	<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
-	<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
-	<mate:Listener type="{ShareEvent.CREATE_SCREENSHARE_PUBLISH_TAB}" method="createScreensharePublishTab" />
-	<mate:Listener type="{ShareEvent.CLEAN_SCREENSHARE_PUBLISH_TAB}" method="cleanScreensharePublishTab" />
-	<mate:Listener type="{ShareEvent.OPEN_SCREENSHARE_VIEW_TAB}" method="openScreenshareViewTab" />
-	<mate:Listener type="{ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB}" method="closeScreenshareViewTab" />
-	<mate:Listener type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}" method="handleRefreshScreenshareTab" />
-	<mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="addWhiteboardCanvasToSlideView" />
+	<fx:Declarations>
+		<mate:Dispatcher id="globalDispatcher" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
+		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
+		<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
+		<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
+		<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
+		<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
+		<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
+		<mate:Listener type="{ShortcutEvent.SELECT_SLIDES}" method="remoteSelect" />
+		<mate:Listener type="{ShortcutEvent.NEXT_SLIDE}" method="remoteNext" />
+		<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
+		<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />	
+		<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
+		<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
+		<mate:Listener type="{RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT}" method="handleUpdateDownloadableFilesEvent" />
+		<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
+		<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
+		<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
+		<mate:Listener type="{ShareEvent.CREATE_SCREENSHARE_PUBLISH_TAB}" method="createScreensharePublishTab" />
+		<mate:Listener type="{ShareEvent.CLEAN_SCREENSHARE_PUBLISH_TAB}" method="cleanScreensharePublishTab" />
+		<mate:Listener type="{ShareEvent.OPEN_SCREENSHARE_VIEW_TAB}" method="openScreenshareViewTab" />
+		<mate:Listener type="{ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB}" method="closeScreenshareViewTab" />
+		<mate:Listener type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}" method="handleRefreshScreenshareTab" />
+		
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import flash.geom.Point;
 			
@@ -575,6 +578,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideView.switchToFitToPage(fitToPage);
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
+			
 			
 			override protected function hideAllChildren():void {
 				presentationTab.includeInLayout = false;
@@ -1118,13 +1122,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
-			tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage, btnClosePublish, btnPauseScreenshare, btnActualSize]}"/>
-  	 
-	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
-	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
+	<fx:Declarations>
+		<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
+				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage, btnClosePublish, btnPauseScreenshare, btnActualSize]}"/>
+	  	 
+		<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
+		<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
+	</fx:Declarations>
 
 	<mx:TabNavigator id="presenterTabs" borderStyle="none" width="100%" height="100%" creationPolicy="all" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" backgroundAlpha="0.0">
 		<mx:VBox id="presentationTab" label="{currentPresentation}" width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" verticalAlign="middle" horizontalAlign="center" backgroundAlpha="0.0" verticalScrollPolicy="off" horizontalScrollPolicy="off">
