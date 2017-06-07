@@ -2,7 +2,7 @@ package org.bigbluebutton.client.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg}
+import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, MessageTypes}
 
 object MeetingActor {
   def props(meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
@@ -68,9 +68,9 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
     log.debug("**** MeetingActor handleServerMsg " + msg.envelope.name)
     msgType match {
-      case "direct" => handleDirectMessage(msg)
-      case "broadcast" => handleBroadcastMessage(msg)
-      case "system" => handleSystemMessage(msg)
+      case MessageTypes.DIRECT => handleDirectMessage(msg)
+      case MessageTypes.BROADCAST => handleBroadcastMessage(msg)
+      case MessageTypes.SYSTEM => handleSystemMessage(msg)
     }
   }
 

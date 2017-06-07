@@ -3,9 +3,10 @@ package org.bigbluebutton.client.meeting
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.SystemConfiguration
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, BbbCoreEnvelope}
+import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.util.JsonUtil
 import com.fasterxml.jackson.databind.JsonNode
+
 import scala.util.{Failure, Success}
 
 object UserActor {
@@ -74,33 +75,24 @@ class UserActor(val userId: String,
       }
     }
 
-    val msgAsMap = JsonUtil.toMap[Map[String, Any]](msg.json)
+    object Deserializer extends Deserializer
 
-    msgAsMap match {
-      case Success(map) =>
+    val (result, error) = Deserializer.toBbbCoreMessageFromClient(msg.json)
+    result match {
+      case Some(msgFromClient) =>
+        val routing = Routing.addMsgFromClientRouting(msgFromClient.header.meetingId, msgFromClient.header.userId)
+        val envelope = new BbbCoreEnvelope(msgFromClient.header.name, routing)
+
         for {
-          header <- map.get("header")
-          name <- header.get("name")
-          meetingId <- header.get("meetingId")
+          jsonNode <- convertToJsonNode(msg.json)
         } yield {
-          val meta = collection.immutable.HashMap[String, String](
-            "meetingId" -> msg.connInfo.meetingId,
-            "userId" -> msg.connInfo.userId
-          )
-
-          val envelope = new BbbCoreEnvelope(name.toString, meta)
-
-          for {
-            jsonNode <- convertToJsonNode(msg.json)
-          } yield {
-            val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
-            msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
-          }
+          val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
+          msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
         }
-      case Failure(ex) => log.error("Failed to process client message " + ex)
+
+      case None =>
+        log.error("Failed to convert message with error: " + error)
     }
-
-
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
@@ -115,9 +107,9 @@ class UserActor(val userId: String,
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
     log.debug("**** UserActor handleServerMsg " + msg)
     msgType match {
-      case "direct" => handleDirectMessage(msg)
-      case "broadcast" => handleBroadcastMessage(msg)
-      case "system" => handleSystemMessage(msg)
+      case MessageTypes.DIRECT => handleDirectMessage(msg)
+      case MessageTypes.BROADCAST => handleBroadcastMessage(msg)
+      case MessageTypes.SYSTEM => handleSystemMessage(msg)
     }
   }
 

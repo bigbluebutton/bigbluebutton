@@ -13,31 +13,36 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
   object JsonDeserializer extends Deserializer
 
   def deserializeCreateMeetingReqMsg(jsonNode: JsonNode): Option[CreateMeetingReqMsg] = {
-    JsonDeserializer.toBbbCommonMsg[CreateMeetingReqMsg](jsonNode) match {
-      case Success(msg) => Some(msg.asInstanceOf[CreateMeetingReqMsg])
-      case Failure(ex) =>
-        log.error("Failed to CreateMeetingReqMsg message " + ex)
+    val (result, error) = JsonDeserializer.toBbbCommonMsg[CreateMeetingReqMsg](jsonNode)
+    result match {
+      case Some(msg) => Some(msg.asInstanceOf[CreateMeetingReqMsg])
+      case None =>
+        log.error("Failed to deserialize CreateMeetingReqMsg message " + error)
         None
     }
   }
 
   def routeValidateAuthTokenReqMsg(jsonNode: JsonNode): Option[ValidateAuthTokenReqMsg] = {
-    JsonDeserializer.toBbbCommonMsg[ValidateAuthTokenReqMsg](jsonNode) match {
-      case Success(msg) => Some(msg.asInstanceOf[ValidateAuthTokenReqMsg])
-      case Failure(ex) =>
-        log.error("Failed to ValidateAuthTokenReqMsg message " + ex)
+    val (result, error) = JsonDeserializer.toBbbCommonMsg[ValidateAuthTokenReqMsg](jsonNode)
+
+    result match {
+      case Some(msg) => Some(msg.asInstanceOf[ValidateAuthTokenReqMsg])
+      case None =>
+        log.error("Failed to deserialize ValidateAuthTokenReqMsg message " + error)
         None
     }
   }
 
   def routeRegisterUserReqMsg(jsonNode: JsonNode): Option[RegisterUserReqMsg] = {
-    JsonDeserializer.toBbbCommonMsg[RegisterUserReqMsg](jsonNode) match {
-      case Success(msg) =>
+    val (result, error) = JsonDeserializer.toBbbCommonMsg[RegisterUserReqMsg](jsonNode)
+
+    result match {
+      case Some(msg) =>
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
         Some(msg.asInstanceOf[RegisterUserReqMsg])
-      case Failure(ex) =>
-        log.error("Failed to RegisterUserReqMsg message " + ex)
+      case None =>
+        log.error("Failed to RegisterUserReqMsg message " + error)
         None
     }
   }

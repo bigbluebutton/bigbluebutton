@@ -56,10 +56,11 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   }
 
   def routeMeetingCreatedEvtMsg(jsonNode: JsonNode): Option[MeetingCreatedEvtMsg] = {
-    JsonDeserializer.toBbbCommonMsg[MeetingCreatedEvtMsg](jsonNode) match {
-      case Success(msg) => Some(msg.asInstanceOf[MeetingCreatedEvtMsg])
-      case Failure(ex) =>
-        log.error("Failed to ValidateAuthTokenReqMsg message " + ex)
+    val (result, error) = JsonDeserializer.toBbbCommonMsg[MeetingCreatedEvtMsg](jsonNode)
+    result match {
+      case Some(msg) => Some(msg.asInstanceOf[MeetingCreatedEvtMsg])
+      case None =>
+        log.error("Failed to ValidateAuthTokenReqMsg message with error: " + error)
         None
     }
   }
