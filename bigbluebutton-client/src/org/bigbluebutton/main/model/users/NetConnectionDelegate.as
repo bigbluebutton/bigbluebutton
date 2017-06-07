@@ -144,36 +144,19 @@ package org.bigbluebutton.main.model.users
 
         private function validateToken2x():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
-          
-			var header:Object = new Object();
-			header.name = "ValidateAuthTokenReqMsg";
-			header.meetingId = confParams.meetingID;
-
-			var body:Object = new Object();
-			body.userId = confParams.internalUserID;
-			body.authToken = confParams.authToken;
-			
-            //var message:Object = new Object();
-            //message["userId"] = confParams.internalUserID;
-            //message["authToken"] = confParams.authToken;
-			
-			var message:Object = new Object();
-			message.header = header;
-			message.body = body;
-                    
-            var header2: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg",
+                              
+            var header: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg",
                                                 confParams.meetingID, 
                                                 confParams.internalUserID)
 
-            var body2: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(confParams.internalUserID,
+            var body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(confParams.internalUserID,
                                                 confParams.authToken)
 
-            var msg2: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header2, body2)
+            var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body)
 
-            LOGGER.debug("******* msg \n" + JSON.stringify(msg2))
+            LOGGER.debug("******* msg \n" + JSON.stringify(message))
 
-            sendMessage(
-                "onMessageFromClient",// Remote function name
+            sendMessage2x(
                 // result - On successful result
                 function(result:Object):void { 
               
@@ -192,6 +175,30 @@ package org.bigbluebutton.main.model.users
             _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
             _validateTokenTimer.start();
         }
+
+        public function sendMessage2x(onSuccess:Function, onFailure:Function, json:Object):void {
+
+            var service: String = "onMessageFromClient";
+
+            var responder:Responder =   new Responder(
+                function(result:Object):void { // On successful result
+                    onSuccess("Successfully sent [" + service + "]."); 
+                },
+                function(status:Object):void { // status - On error occurred
+                    var errorReason:String = "Failed to send [" + service + "]:\n"; 
+                    for (var x:Object in status) { 
+                        errorReason += "\t" + x + " : " + status[x]; 
+                    } 
+                }
+            );
+
+            if (json == null) {
+                _netConnection.call(service, responder);
+            } else {
+                _netConnection.call(service, responder, json);
+            }
+        }
+
 
         private function validateToken():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
@@ -304,6 +311,7 @@ package org.bigbluebutton.main.model.users
             dispatcher.dispatchEvent(e);
         }
         
+
         public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
             var responder:Responder =	new Responder(
                 function(result:Object):void { // On successful result
