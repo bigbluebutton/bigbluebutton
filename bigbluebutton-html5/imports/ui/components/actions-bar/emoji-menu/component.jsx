@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
@@ -28,8 +29,8 @@ class EmojiMenu extends Component {
    } = this.props;
 
     return (
-      <Dropdown ref="dropdown">
-        <DropdownTrigger>
+      <Dropdown autoFocus>
+        <DropdownTrigger placeInTabOrder>
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
@@ -37,16 +38,19 @@ class EmojiMenu extends Component {
             aria-describedby="currentStatus"
             icon="hand"
             ghost={false}
-            circle={true}
+            circle
             hideLabel={false}
             color="primary"
             size="lg"
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
-            onClick={() => null}>
+            onClick={() => null}
+          >
             <div id="currentStatus" hidden>
-              {intl.formatMessage(intlMessages.currentStatusDesc, { status: userEmojiStatus}) }
+              {
+                intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus })
+              }
             </div>
           </Button>
         </DropdownTrigger>
@@ -57,54 +61,63 @@ class EmojiMenu extends Component {
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
               onClick={() => actions.setEmojiHandler('raiseHand')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="happy"
               label={intl.formatMessage(intlMessages.happyLabel)}
               description={intl.formatMessage(intlMessages.happyDesc)}
               onClick={() => actions.setEmojiHandler('happy')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="undecided"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
               onClick={() => actions.setEmojiHandler('neutral')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="sad"
               label={intl.formatMessage(intlMessages.sadLabel)}
               description={intl.formatMessage(intlMessages.sadDesc)}
               onClick={() => actions.setEmojiHandler('sad')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="confused"
               label={intl.formatMessage(intlMessages.confusedLabel)}
               description={intl.formatMessage(intlMessages.confusedDesc)}
               onClick={() => actions.setEmojiHandler('confused')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="time"
               label={intl.formatMessage(intlMessages.awayLabel)}
               description={intl.formatMessage(intlMessages.awayDesc)}
               onClick={() => actions.setEmojiHandler('away')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="thumbs_up"
               label={intl.formatMessage(intlMessages.thumbsupLabel)}
               description={intl.formatMessage(intlMessages.thumbsupDesc)}
               onClick={() => actions.setEmojiHandler('thumbsUp')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="thumbs_down"
               label={intl.formatMessage(intlMessages.thumbsdownLabel)}
               description={intl.formatMessage(intlMessages.thumbsdownDesc)}
               onClick={() => actions.setEmojiHandler('thumbsDown')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="applause"
               label={intl.formatMessage(intlMessages.applauseLabel)}
               description={intl.formatMessage(intlMessages.applauseDesc)}
               onClick={() => actions.setEmojiHandler('applause')}
+              tabIndex={-1}
             />
             <DropdownListSeparator />
             <DropdownListItem
@@ -112,6 +125,7 @@ class EmojiMenu extends Component {
               label={intl.formatMessage(intlMessages.clearLabel)}
               description={intl.formatMessage(intlMessages.clearDesc)}
               onClick={() => actions.setEmojiHandler('none')}
+              tabIndex={-1}
             />
           </DropdownList>
         </DropdownContent>
@@ -212,7 +226,7 @@ const intlMessages = defineMessages({
   currentStatusDesc: {
     id: 'app.actionsBar.currentStatusDesc',
     description: 'Aria description for status button',
-  }
+  },
 });
 
 EmojiMenu.propTypes = propTypes;

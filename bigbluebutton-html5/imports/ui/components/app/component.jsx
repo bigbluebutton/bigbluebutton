@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import _ from 'lodash';
@@ -33,7 +34,6 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  init: PropTypes.func.isRequired,
   fontSize: PropTypes.string,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
@@ -52,8 +52,6 @@ class App extends Component {
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
-
-    props.init.call(this);
   }
 
   componentDidMount() {
@@ -84,13 +82,25 @@ class App extends Component {
     );
   }
 
+  renderClosedCaption() {
+    const { closedCaption } = this.props;
+
+    if (!closedCaption) return null;
+
+    return (
+      <div className={styles.closedCaptionBox}>
+        {closedCaption}
+      </div>
+    );
+  }
+
   renderUserList() {
     let { userList, intl } = this.props;
     const { compactUserList } = this.state;
 
     if (!userList) return;
 
-    let userListStyle = {};
+    const userListStyle = {};
     userListStyle[styles.compact] = compactUserList;
     userList = React.cloneElement(userList, {
       compact: compactUserList,
@@ -99,8 +109,9 @@ class App extends Component {
     return (
       <nav
         className={cx(styles.userList, userListStyle)}
-        aria-label={intl.formatMessage(intlMessages.userListLabel)}>
-          {userList}
+        aria-label={intl.formatMessage(intlMessages.userListLabel)}
+      >
+        {userList}
       </nav>
     );
   }
@@ -114,8 +125,9 @@ class App extends Component {
       <section
         className={styles.chat}
         role="region"
-        aria-label={intl.formatMessage(intlMessages.chatLabel)}>
-          {chat}
+        aria-label={intl.formatMessage(intlMessages.chatLabel)}
+      >
+        {chat}
       </section>
     );
   }
@@ -129,8 +141,10 @@ class App extends Component {
       <section
         className={styles.media}
         role="region"
-        aria-label={intl.formatMessage(intlMessages.mediaLabel)}>
-          {media}
+        aria-label={intl.formatMessage(intlMessages.mediaLabel)}
+      >
+        {media}
+        {this.renderClosedCaption()}
       </section>
     );
   }
@@ -144,8 +158,9 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         role="region"
-        aria-label={intl.formatMessage(intlMessages.actionsbarLabel)}>
-          {actionsbar}
+        aria-label={intl.formatMessage(intlMessages.actionsbarLabel)}
+      >
+        {actionsbar}
       </section>
     );
   }

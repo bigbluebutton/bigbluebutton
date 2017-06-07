@@ -1,5 +1,4 @@
-import { check } from 'meteor/check';
-import Logger from '/imports/startup/server/logger';
+import muteToggle from '../methods/muteToggle';
 
 import Users from '/imports/api/users';
 
@@ -19,6 +18,6 @@ export default function lockAllViewersMic(meetingId) {
     muteToggle({
       meetingId,
       requesterUserId: user.userId,
-    }, userId, true)
+    }, userId, true),
   );
-};
+}

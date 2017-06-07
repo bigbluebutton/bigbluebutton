@@ -4,5 +4,5 @@ import { getModal } from './service';
 
 export default createContainer(
   () => ({ modalComponent: getModal() }),
-  ({ modalComponent }) => modalComponent
+  ({ modalComponent }) => modalComponent,
 );

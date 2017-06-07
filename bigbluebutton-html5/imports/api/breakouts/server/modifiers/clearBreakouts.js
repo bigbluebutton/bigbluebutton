@@ -16,5 +16,5 @@ export default function clearBreakouts(meetingId) {
     return Breakouts.remove(selector, cb);
   }
 
-  return Breakouts.remove({}, Logger.info(`Cleared Breakouts (all)`));
+  return Breakouts.remove({}, Logger.info('Cleared Breakouts (all)'));
 }

@@ -1,8 +1,29 @@
-import React, { Component, PropTypes } from 'react';
-
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
 import Icon from '../icon/component';
 import styles from './styles';
-import cx from 'classnames';
+
+const propTypes = {
+  disabled: PropTypes.bool,
+  checked: PropTypes.bool,
+  onChange: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  ariaLabelledBy: PropTypes.string,
+  ariaLabel: PropTypes.string,
+  ariaDescribedBy: PropTypes.string,
+  ariaDesc: PropTypes.string,
+};
+
+const defaultProps = {
+  disabled: false,
+  checked: false,
+  className: null,
+  ariaLabelledBy: null,
+  ariaLabel: null,
+  ariaDescribedBy: null,
+  ariaDesc: null,
+};
 
 export default class Checkbox extends Component {
   constructor(props) {
@@ -13,29 +34,34 @@ export default class Checkbox extends Component {
   }
 
   handleChange() {
-    if (!this.props.disabled)
-      this.onChange();
+    if (!this.props.disabled) return;
+    this.onChange();
   }
 
   render() {
-    const { className, ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy, disabled } = this.props;
+    const {
+      ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy,
+      className, checked, disabled,
+    } = this.props;
 
     return (
       <div className={cx({
         [styles.disabled]: !!disabled,
-      }, styles.container, className)}>
+      }, styles.container, className)}
+      >
         <input
-          type='checkbox'
+          type="checkbox"
           onChange={this.handleChange}
-          checked={this.props.checked}
+          checked={checked}
           className={styles.input}
           aria-labelledby={ariaLabelledBy}
           aria-describedby={ariaDescribedBy}
-          disabled={disabled} />
-        <div onClick={this.handleChange}>
-          { this.props.checked ?
-            <Icon iconName='check' className={cx(styles.icon, styles.checked)}/> :
-            <Icon iconName='circle' className={styles.icon}/>
+          disabled={disabled}
+        />
+        <div role="presentation" onClick={this.handleChange}>
+          { checked ?
+            <Icon iconName="check" className={cx(styles.icon, styles.checked)} /> :
+            <Icon iconName="circle" className={styles.icon} />
           }
         </div>
         <div id={ariaLabelledBy} hidden>{ariaLabel}</div>
@@ -44,3 +70,6 @@ export default class Checkbox extends Component {
     );
   }
 }
+
+Checkbox.propTypes = propTypes;
+Checkbox.defaultProps = defaultProps;

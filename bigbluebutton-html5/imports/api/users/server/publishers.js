@@ -6,7 +6,7 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 import userLeaving from './methods/userLeaving';
 
-Meteor.publish('current-user', function (credentials) {
+Meteor.publish('current-user', (credentials) => {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -40,7 +40,11 @@ Meteor.publish('users', function (credentials) {
   }
 
   this.onStop(() => {
-    userLeaving(credentials, requesterUserId);
+    try {
+      userLeaving(credentials, requesterUserId);
+    } catch (e) {
+      Logger.error(`Exception while executing userLeaving: ${e}`);
+    }
   });
 
   const selector = {

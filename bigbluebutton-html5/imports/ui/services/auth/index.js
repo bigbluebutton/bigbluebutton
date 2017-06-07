@@ -4,7 +4,9 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { makeCall } from '/imports/ui/services/api';
+import { makeCall, logClient } from '/imports/ui/services/api';
+
+const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
@@ -13,7 +15,7 @@ class Auth {
     this._authToken = Storage.getItem('authToken');
     this._loggedIn = {
       value: false,
-      tracker: new Tracker.Dependency,
+      tracker: new Tracker.Dependency(),
     };
   }
 
@@ -79,7 +81,7 @@ class Auth {
     this.loggedIn = false;
 
     return Promise.resolve(...arguments);
-  };
+  }
 
   logout() {
     if (!this.loggedIn) {
@@ -87,13 +89,25 @@ class Auth {
     }
 
     return new Promise((resolve, reject) => {
-      makeCall('userLogout').then(() => {
-        this.fetchLogoutUrl()
+      const credentialsSnapshot = {
+        meetingId: this.meetingID,
+        requesterUserId: this.userID,
+        requesterToken: this.token,
+      };
+
+      // make sure users who did not connect are not added to the meeting
+      // do **not** use the custom call - it relies on expired data
+      Meteor.call('userLogout', credentialsSnapshot, (error, result) => {
+        if (error) {
+          logClient('error', { error, method: 'userLogout', credentialsSnapshot });
+        } else {
+          this.fetchLogoutUrl()
           .then(this.clearCredentials)
           .then(resolve);
+        }
       });
     });
-  };
+  }
 
   authenticate(force) {
     if (this.loggedIn && !force) return Promise.resolve();
@@ -107,6 +121,13 @@ class Auth {
 
     return new Promise((resolve, reject) => {
       Tracker.autorun((c) => {
+        if (!(credentials.meetingId && credentials.requesterToken && credentials.requesterUserId)) {
+          return reject({
+            error: 500,
+            description: 'Authentication subscription failed due to missing credentials.',
+          });
+        }
+
         setTimeout(() => {
           c.stop();
           reject({
@@ -133,7 +154,7 @@ class Auth {
           error: 500,
           description: 'Authentication timeout.',
         });
-      }, 5000);
+      }, CONNECTION_TIMEOUT);
 
       const didValidate = () => {
         this.loggedIn = true;
@@ -171,13 +192,13 @@ class Auth {
   }
 
   fetchLogoutUrl() {
-    const url = `/bigbluebutton/api/enter`;
+    const url = '/bigbluebutton/api/enter';
 
     return fetch(url)
       .then(response => response.json())
       .then(data => Promise.resolve(data.response.logoutURL));
   }
-};
+}
 
-let AuthSingleton = new Auth();
+const AuthSingleton = new Auth();
 export default AuthSingleton;

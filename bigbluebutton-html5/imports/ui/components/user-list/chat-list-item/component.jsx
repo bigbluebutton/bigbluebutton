@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
@@ -26,10 +27,10 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
 
 const propTypes = {
-  chat: React.PropTypes.shape({
-    id: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    unreadCounter: React.PropTypes.number.isRequired,
+  chat: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
 };
 
@@ -43,13 +44,14 @@ class ChatListItem extends Component {
       openChat,
       compact,
       intl,
+      tabIndex,
     } = this.props;
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
     const isCurrentChat = chat.id === openChat;
-    let isSingleMessage = chat.unreadCounter === 1;
+    const isSingleMessage = chat.unreadCounter === 1;
 
-    let linkClasses = {};
+    const linkClasses = {};
     linkClasses[styles.active] = isCurrentChat;
 
     if (chat.name === 'Public Chat') {
@@ -57,40 +59,43 @@ class ChatListItem extends Component {
     }
 
     return (
-      <li className={cx(styles.chatListItem, linkClasses)}>
-        <Link
-          to={linkPath}
-          className={styles.chatListItemLink}
-          role="button"
-          aria-expanded={isCurrentChat}>
-            {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
-            <div className={styles.chatName}>
-              {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
-            </div>
-            {(chat.unreadCounter > 0) ?
-              <div
-                className={styles.unreadMessages}
-                aria-label={isSingleMessage
-                  ? intl.formatMessage(intlMessages.unreadSingular, { count: chat.unreadCounter })
-                  : intl.formatMessage(intlMessages.unreadPlural, { count: chat.unreadCounter })}>
-                <div className={styles.unreadMessagesText} aria-hidden="true">
-                  {chat.unreadCounter}
-                </div>
+      <Link
+        to={linkPath}
+        className={cx(styles.chatListItem, linkClasses)}
+        role="button"
+        aria-expanded={isCurrentChat}
+        tabIndex={tabIndex}
+      >
+        <div className={styles.chatListItemLink}>
+          {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
+          <div className={styles.chatName}>
+            {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
+          </div>
+          {(chat.unreadCounter > 0) ?
+            <div
+              className={styles.unreadMessages}
+              aria-label={isSingleMessage
+                  ? intl.formatMessage(intlMessages.unreadSingular, { 0: chat.unreadCounter })
+                  : intl.formatMessage(intlMessages.unreadPlural, { 0: chat.unreadCounter })}
+            >
+              <div className={styles.unreadMessagesText} aria-hidden="true">
+                {chat.unreadCounter}
               </div>
+            </div>
               : null}
-        </Link>
-      </li>
+        </div>
+      </Link>
     );
   }
 
   renderChatAvatar() {
-    return <UserAvatar user={this.props.chat}/>;
+    return <UserAvatar user={this.props.chat} />;
   }
 
   renderChatIcon() {
     return (
       <div className={styles.chatThumbnail}>
-        <Icon iconName={this.props.chat.icon} className={styles.actionIcon}/>
+        <Icon iconName={this.props.chat.icon} className={styles.actionIcon} />
       </div>
     );
   }

@@ -24,12 +24,12 @@ export default function addUser(meetingId, user) {
   const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
 
   // override moderator status of html5 client users, depending on a system flag
-  let dummyUser = Users.findOne(selector);
+  const dummyUser = Users.findOne(selector);
   if (dummyUser &&
       dummyUser.clientType === 'HTML5' &&
       user.role === ROLE_MODERATOR &&
       !ALLOW_HTML5_MODERATOR) {
-      user.role = ROLE_VIEWER;
+    user.role = ROLE_VIEWER;
   }
 
   const modifier = {
@@ -82,4 +82,4 @@ export default function addUser(meetingId, user) {
   };
 
   return Users.upsert(selector, modifier, cb);
-};
+}

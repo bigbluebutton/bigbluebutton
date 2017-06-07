@@ -1,4 +1,5 @@
-import React, { Component, PropTypes, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement } from 'react';
+import PropTypes from 'prop-types';
 import styles from './styles';
 import cx from 'classnames';
 
@@ -9,19 +10,16 @@ import ListSeparator from './separator/component';
 import ListTitle from './title/component';
 
 const propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
-      if (propValue[key].type !== ListItem &&
-          propValue[key].type !== ListSeparator &&
-          propValue[key].type !== ListTitle) {
-        return new Error(
-          'Invalid prop `' + propFullName + '` supplied to' +
-          ' `' + componentName + '`. Validation failed.'
-        );
-      }
-    }),
-     PropTypes.element,
-  ]).isRequired,
+  children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
+    if (propValue[key].type !== ListItem &&
+        propValue[key].type !== ListSeparator &&
+        propValue[key].type !== ListTitle) {
+      return new Error(
+        `Invalid prop \`${propFullName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`,
+      );
+    }
+  }),
 };
 
 export default class DropdownList extends Component {
@@ -81,7 +79,7 @@ export default class DropdownList extends Component {
       nextActiveItemIndex = this.childrenRefs.length - 1;
     }
 
-    if ([KEY_CODES.TAB, KEY_CODES.ESCAPE].includes(event.which)) {
+    if ([KEY_CODES.ESCAPE].includes(event.which)) {
       nextActiveItemIndex = 0;
       dropdownHide();
     }
@@ -116,19 +114,18 @@ export default class DropdownList extends Component {
 
         return cloneElement(item, {
           tabIndex: 0,
-          injectRef: ref => {
-            if (ref && !this.childrenRefs.includes(ref))
-              this.childrenRefs.push(ref);
+          injectRef: (ref) => {
+            if (ref && !this.childrenRefs.includes(ref)) { this.childrenRefs.push(ref); }
           },
 
-          onClick: event => {
+          onClick: (event) => {
             let { onClick } = item.props;
             onClick = onClick ? onClick.bind(item) : null;
 
             this.handleItemClick(event, onClick);
           },
 
-          onKeyDown: event => {
+          onKeyDown: (event) => {
             let { onKeyDown } = item.props;
             onKeyDown = onKeyDown ? onKeyDown.bind(item) : null;
 

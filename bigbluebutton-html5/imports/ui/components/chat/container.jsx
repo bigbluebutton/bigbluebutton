@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { createContainer } from 'meteor/react-meteor-data';
 
@@ -11,17 +12,14 @@ import ChatService from './service';
 const intlMessages = defineMessages({
   titlePublic: {
     id: 'app.chat.titlePublic',
-    defaultMessage: 'Public Chat',
     description: 'Public chat title',
   },
   titlePrivate: {
     id: 'app.chat.titlePrivate',
-    defaultMessage: 'Private Chat with {name}',
     description: 'Private chat title',
   },
   partnerDisconnected: {
     id: 'app.chat.partnerDisconnected',
-    defaultMessage: '{name} has left the meeting',
     description: 'System chat message when the private chat partnet disconnect from the meeting',
   },
 });
@@ -54,7 +52,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     messages = ChatService.getPrivateMessages(chatID);
   }
 
-  let user = ChatService.getUser(chatID, '{{NAME}}');
+  const user = ChatService.getUser(chatID, '{{NAME}}');
 
   let partnerIsLoggedOut = false;
 
@@ -62,22 +60,22 @@ export default injectIntl(createContainer(({ params, intl }) => {
     partnerIsLoggedOut = !user.isOnline;
 
     if (messages && chatID !== PUBLIC_CHAT_KEY) {
-      let userMessage = messages.find(m => m.sender !== null);
-      let user = ChatService.getUser(chatID, '{{NAME}}');
+      const userMessage = messages.find(m => m.sender !== null);
+      const user = ChatService.getUser(chatID, '{{NAME}}');
 
-      title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
+      title = intl.formatMessage(intlMessages.titlePrivate, { 0: user.name });
       chatName = user.name;
 
       if (!user.isOnline) {
-        let time = Date.now();
-        let id = `partner-disconnected-${time}`;
-        let messagePartnerLoggedOut = {
+        const time = Date.now();
+        const id = `partner-disconnected-${time}`;
+        const messagePartnerLoggedOut = {
           id,
           content: [{
             id,
-            text: intl.formatMessage(intlMessages.partnerDisconnected, { name: user.name }),
+            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: user.name }),
             time,
-          },],
+          }],
           time,
           sender: null,
         };
@@ -102,13 +100,14 @@ export default injectIntl(createContainer(({ params, intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
+    minMessageLength: CHAT_CONFIG.min_message_length,
+    maxMessageLength: CHAT_CONFIG.max_message_length,
     actions: {
-
       handleClosePrivateChat: chatID => ChatService.closePrivateChat(chatID),
 
-      handleSendMessage: message => {
+      handleSendMessage: (message) => {
         ChatService.updateScrollPosition(chatID, null);
-        let sentMessage = ChatService.sendMessage(chatID, message);
+        return ChatService.sendMessage(chatID, message);
       },
 
       handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),

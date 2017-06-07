@@ -5,12 +5,11 @@ import { BREAK_LINE } from '/imports/utils/lineEndings.js';
 
 /**
  * Remove any system message from the user with userId.
- * 
+ *
  * @param {string} meetingId
- * @param {string} userId 
+ * @param {string} userId
  */
 export default function clearUserSystemMessages(meetingId, userId) {
-
   check(meetingId, String);
   check(userId, String);
 
@@ -18,9 +17,9 @@ export default function clearUserSystemMessages(meetingId, userId) {
 
   const selector = {
     meetingId,
-    "message.from_userid": CHAT_CONFIG.type_system,
-    "message.to_userid": userId,
-  }
+    'message.from_userid': CHAT_CONFIG.type_system,
+    'message.to_userid': userId,
+  };
 
   return Chat.remove(selector, Logger.info(`Removing system messages from: (${userId})`));
-};
+}

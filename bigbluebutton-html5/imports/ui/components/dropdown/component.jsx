@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
@@ -7,7 +8,7 @@ import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 
-const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
+const FOCUSABLE_CHILDREN = '[tabindex]:not([tabindex="-1"]), a, input, button';
 
 const intlMessages = defineMessages({
   close: {
@@ -25,8 +26,8 @@ const propTypes = {
 
     if (!children || children.length < 2) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`,
       );
     }
 
@@ -35,15 +36,15 @@ const propTypes = {
 
     if (!trigger) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Missing `DropdownTrigger`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownTrigger\`. Validation failed.`,
       );
     }
 
     if (!content) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Missing `DropdownContent`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownContent\`. Validation failed.`,
       );
     }
   },
@@ -56,7 +57,7 @@ const defaultProps = {
 class Dropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false, };
+    this.state = { isOpen: false };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
     this.handleStateCallback = this.handleStateCallback.bind(this);
@@ -82,26 +83,24 @@ class Dropdown extends Component {
   }
 
   handleShow() {
-    this.setState({ isOpen: true }, this.handleStateCallback);
+    const { addEventListener } = window;
+    addEventListener('click', this.handleWindowClick, false);
 
-    const contentElement = findDOMNode(this.refs.content);
-    contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
+    this.setState({ isOpen: true }, this.handleStateCallback);
   }
 
   handleHide() {
-    this.setState({ isOpen: false }, this.handleStateCallback);
-    const triggerElement = findDOMNode(this.refs.trigger);
-    triggerElement.focus();
-  }
-
-  componentDidMount () {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleWindowClick, false);
-  }
-
-  componentWillUnmount () {
     const { removeEventListener } = window;
     removeEventListener('click', this.handleWindowClick, false);
+
+    const { autoFocus } = this.props;
+
+    this.setState({ isOpen: false }, this.handleStateCallback);
+
+    if (autoFocus) {
+      const triggerElement = findDOMNode(this.refs.trigger);
+      triggerElement.focus();
+    }
   }
 
   handleWindowClick(event) {
@@ -122,7 +121,14 @@ class Dropdown extends Component {
   }
 
   render() {
-    const { children, className, style, intl } = this.props;
+    const {
+      children,
+      className,
+      style, intl,
+      hasPopup,
+      ariaLive,
+      ariaRelevant,
+    } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -143,7 +149,13 @@ class Dropdown extends Component {
     });
 
     return (
-      <div style={style} className={cx(styles.dropdown, className)}>
+      <div
+        style={style}
+        className={cx(styles.dropdown, className)}
+        aria-live={ariaLive}
+        aria-relevant={ariaRelevant}
+        aria-haspopup={hasPopup}
+      >
         {trigger}
         {content}
         { this.state.isOpen ?

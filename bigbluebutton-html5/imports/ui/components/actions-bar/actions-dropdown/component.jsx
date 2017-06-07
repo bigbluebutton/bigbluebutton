@@ -1,5 +1,6 @@
-import React, { Component, PropTypes } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
 import Button from '/imports/ui/components/button/component';
@@ -10,6 +11,15 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
 import PresentationUploderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+
+const propTypes = {
+  intl: intlShape.isRequired,
+  isUserPresenter: PropTypes.bool.isRequired,
+  mountModal: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+};
 
 const intlMessages = defineMessages({
   actionsLabel: {
@@ -58,14 +68,14 @@ class ActionsDropdown extends Component {
     if (!isUserPresenter) return null;
 
     return (
-      <Dropdown ref="dropdown">
+      <Dropdown>
         <DropdownTrigger>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="add"
             color="primary"
             size="lg"
-            circle={true}
+            circle
             onClick={() => null}
           />
         </DropdownTrigger>
@@ -98,5 +108,8 @@ class ActionsDropdown extends Component {
     );
   }
 }
+
+ActionsDropdown.propTypes = propTypes;
+ActionsDropdown.defaultProps = defaultProps;
 
 export default withModalMounter(injectIntl(ActionsDropdown));

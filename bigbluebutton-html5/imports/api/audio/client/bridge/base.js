@@ -2,7 +2,7 @@ export default class BaseAudioBridge {
   constructor() {
   }
 
-  exitAudio () {
+  exitAudio() {
   }
 
   joinListenOnly() {

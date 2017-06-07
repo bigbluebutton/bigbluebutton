@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ModalBase, { withModalState } from '../base/component';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';

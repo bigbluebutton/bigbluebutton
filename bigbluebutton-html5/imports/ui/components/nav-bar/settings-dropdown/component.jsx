@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import styles from '../styles';
@@ -67,6 +68,25 @@ const intlMessages = defineMessages({
 class SettingsDropdown extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      isSettingOpen: false,
+    };
+
+    this.onActionsShow = this.onActionsShow.bind(this);
+    this.onActionsHide = this.onActionsHide.bind(this);
+  }
+
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
   }
 
   render() {
@@ -83,14 +103,19 @@ class SettingsDropdown extends Component {
     }
 
     return (
-      <Dropdown ref="dropdown">
-        <DropdownTrigger>
+      <Dropdown
+        isOpen={this.state.isSettingOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        autoFocus
+      >
+        <DropdownTrigger placeInTabOrder>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
-            ghost={true}
-            circle={true}
-            hideLabel={true}
+            ghost
+            circle
+            hideLabel
             className={cx(styles.btn, styles.btnSettings)}
 
             // FIXME: Without onClick react proptypes keep warning

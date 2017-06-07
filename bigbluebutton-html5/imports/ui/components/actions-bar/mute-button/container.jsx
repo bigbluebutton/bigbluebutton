@@ -16,7 +16,7 @@ class MuteAudioContainer extends React.Component {
 
 export default createContainer((params) => {
   const userId = Auth.userID;
-  const user = Users.findOne({ userId: userId }).user;
+  const user = Users.findOne({ userId }).user;
   const isMuted = user.voiceUser.muted;
   const isInAudio = user.voiceUser.joined;
   const isTalking = user.voiceUser.talking;

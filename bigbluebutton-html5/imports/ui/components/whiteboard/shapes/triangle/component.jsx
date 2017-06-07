@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ShapeHelpers from '../helpers.js';
 
 export default class TriangleDrawComponent extends React.Component {
@@ -9,28 +10,28 @@ export default class TriangleDrawComponent extends React.Component {
   getCoordinates() {
     let path = '';
 
-    //points[0] and points[1] are x and y coordinates of the top left corner of the shape obj
-    //points[2] and points[3] are x and y coordinates of the bottom right corner of the shape obj
-    let xBottomLeft = this.props.shape.points[0];
-    let yBottomLeft = this.props.shape.points[3];
-    let xBottomRight = this.props.shape.points[2];
-    let yBottomRight = this.props.shape.points[3];
-    let xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
-    let yTop = this.props.shape.points[1];
+    // points[0] and points[1] are x and y coordinates of the top left corner of the shape obj
+    // points[2] and points[3] are x and y coordinates of the bottom right corner of the shape obj
+    const xBottomLeft = this.props.shape.points[0];
+    const yBottomLeft = this.props.shape.points[3];
+    const xBottomRight = this.props.shape.points[2];
+    const yBottomRight = this.props.shape.points[3];
+    const xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
+    const yTop = this.props.shape.points[1];
 
-    path = path + 'M' + (xTop / 100 * this.props.slideWidth) +
-        ',' + (yTop / 100 * this.props.slideHeight) +
-        ',' + (xBottomLeft / 100 * this.props.slideWidth) +
-        ',' + (yBottomLeft / 100 * this.props.slideHeight) +
-        ',' + (xBottomRight / 100 * this.props.slideWidth) +
-        ',' + (yBottomRight / 100 * this.props.slideHeight) +
-        'Z';
+    path = `${path}M${xTop / 100 * this.props.slideWidth
+        },${yTop / 100 * this.props.slideHeight
+        },${xBottomLeft / 100 * this.props.slideWidth
+        },${yBottomLeft / 100 * this.props.slideHeight
+        },${xBottomRight / 100 * this.props.slideWidth
+        },${yBottomRight / 100 * this.props.slideHeight
+        }Z`;
 
     return path;
   }
 
   render() {
-    let path = this.getCoordinates();
+    const path = this.getCoordinates();
     return (
       <path
         style={this.props.style}
@@ -39,8 +40,7 @@ export default class TriangleDrawComponent extends React.Component {
         d={path}
         strokeWidth={this.props.shape.thickness}
         strokeLinejoin="round"
-      >
-      </path>
+      />
     );
   }
 }

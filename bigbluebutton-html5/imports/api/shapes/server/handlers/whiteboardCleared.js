@@ -11,4 +11,4 @@ export default function handleWhiteboardCleared({ payload }) {
   check(whiteboardId, String);
 
   return clearShapesWhiteboard(meetingId, whiteboardId);
-};
+}
