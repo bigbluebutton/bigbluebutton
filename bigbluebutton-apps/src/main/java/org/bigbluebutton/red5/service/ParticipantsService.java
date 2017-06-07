@@ -19,14 +19,10 @@
 
 package org.bigbluebutton.red5.service;
 
-import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
@@ -35,7 +31,7 @@ import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import com.google.gson.Gson;
 
 public class ParticipantsService {
-	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
+
 	private MessagePublisher red5InGW;
 	
 	public void assignPresenter(Map<String, String> msg) {
@@ -68,7 +64,7 @@ public class ParticipantsService {
 		String emojiStatus = (String) msg.get("emojiStatus");
 		
 		if (StringUtils.isEmpty(emojiStatus)) {
-	    log.warn("Invalid EmojiStatus from client: meetingId=" + meetingId + ", userId=" + userId + ",emoji=" + emojiStatus);
+	    //log.warn("Invalid EmojiStatus from client: meetingId=" + meetingId + ", userId=" + userId + ",emoji=" + emojiStatus);
 			// Set emojiStatus=none if passed is null.
 			emojiStatus = "none";
 		}
@@ -105,7 +101,7 @@ public class ParticipantsService {
 		Gson gson = new Gson();
 		String logStr =  gson.toJson(logData);
 		
-        log.warn("User unshared webcam. data={}", logStr );
+       // log.warn("User unshared webcam. data={}", logStr );
         
 		red5InGW.unshareWebcam(meetingId, userId, stream);
 	}
@@ -168,7 +164,7 @@ public class ParticipantsService {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		String userId = (String) msg.get("userId");
 		String role = (String) msg.get("role");
-		log.debug("Setting participant role " + roomName + " " + userId + " " + role);
+		//log.debug("Setting participant role " + roomName + " " + userId + " " + role);
 		red5InGW.setParticipantRole(roomName, userId, role);
 	}
 

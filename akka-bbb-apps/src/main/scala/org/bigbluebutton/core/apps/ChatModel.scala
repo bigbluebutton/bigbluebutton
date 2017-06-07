@@ -1,8 +1,14 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.models.{ DirectChats, PublicChats, UserIdAndName }
+import org.bigbluebutton.core.models.{ DirectChats, PublicChats }
 
 import scala.collection.mutable.ArrayBuffer
+
+object ChatModel {
+  def getChatHistory(chatModel: ChatModel): Array[Map[String, String]] = {
+    chatModel.getChatHistory()
+  }
+}
 
 class ChatModel {
 

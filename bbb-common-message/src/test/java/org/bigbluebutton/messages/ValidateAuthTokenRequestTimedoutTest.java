@@ -1,6 +1,6 @@
 package org.bigbluebutton.messages;
 
-import org.bigbluebutton.messages.ValidateAuthTokenRequestTimedout.ValidateAuthTokenRequestTimedoutPayload;
+import org.bigbluebutton.messages.ValidateAuthTokenRequestTimedoutPayload;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,13 +1,9 @@
 package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.core.messaging.Util
-import com.google.gson.Gson
 import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
-
-import collection.JavaConverters._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object UsersMessageToJsonConverter {
   private def userToMap(user: UserVO): java.util.Map[String, Any] = {
@@ -38,9 +34,9 @@ object UsersMessageToJsonConverter {
     vuser += "muted" -> user.voiceUser.muted
     vuser += "talking" -> user.voiceUser.talking
 
-    wuser.put("voiceUser", mapAsJavaMap(vuser))
+    wuser.put("voiceUser", mapAsJavaMapConverter(vuser).asJava)
 
-    mapAsJavaMap(wuser)
+    mapAsJavaMapConverter(wuser).asJava
   }
 
   private def registeredUserToMap(user: RegisteredUser): java.util.Map[String, Any] = {
@@ -54,7 +50,7 @@ object UsersMessageToJsonConverter {
     wuser += "guest" -> user.guest
     wuser += "waiting_for_acceptance" -> user.waitingForAcceptance
 
-    mapAsJavaMap(wuser)
+    mapAsJavaMapConverter(wuser).asJava
   }
 
   private def buildPermissionsHashMap(perms: Permissions): java.util.HashMap[String, java.lang.Boolean] = {

@@ -2,7 +2,6 @@ package org.bigbluebutton.core.bus
 
 import akka.actor.ActorRef
 import akka.event.EventBus
-import akka.event.ActorEventBus
 import akka.event.LookupClassification
 import org.bigbluebutton.core.api.InMessage
 

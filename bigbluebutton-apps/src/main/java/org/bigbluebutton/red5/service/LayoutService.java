@@ -23,14 +23,10 @@ import java.util.Map;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
-import org.slf4j.Logger;
 
 public class LayoutService {
-	
-	private static Logger log = Red5LoggerFactory.getLogger( LayoutService.class, "bigbluebutton" );
-	
+
 	private MessagePublisher red5GW;
 	
 	public void setRed5Publisher(MessagePublisher inGW) {
@@ -44,12 +40,11 @@ public class LayoutService {
 	}
 		
 	public void broadcast(Map<String, Object> message) {
-		log.debug("Received broadcast layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String newlayout = (String) message.get("layout");
 
 		if (newlayout == null || newlayout.isEmpty()) {
-			log.error("Invalid Broadcast Layout message. layout is null or empty.");
+			//log.error("Invalid Broadcast Layout message. layout is null or empty.");
 			return;
 		}
 							
@@ -57,7 +52,6 @@ public class LayoutService {
 	}
 	
 	public void lock(Map<String, Object> message) {
-		log.debug("Received lock layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String newlayout = (String) message.get("layout");
 		Boolean lock = (Boolean) message.get("lock");
@@ -71,12 +65,12 @@ public class LayoutService {
 		}
 		
 		if (lock == null) {
-			log.error("Invalid Lock Layout message. lock in null.");
+			//log.error("Invalid Lock Layout message. lock in null.");
 			return;
 		}
 		
 		if (viewersOnly == null) {
-			log.error("Invalid Lock Layout message. viewersOnly is null");
+			//log.error("Invalid Lock Layout message. viewersOnly is null");
 			return;
 		}
 		

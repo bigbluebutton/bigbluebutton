@@ -3,11 +3,9 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.api.SharedNotesOperation._
 import name.fraser.neil.plaintext.diff_match_patch
-import name.fraser.neil.plaintext.diff_match_patch._
 import scala.collection.mutable.Stack
 import scala.collection.mutable.HashMap
 import scala.collection._
-import java.util.Collections
 
 class SharedNotesModel {
   val notes = new HashMap[String, Note]()

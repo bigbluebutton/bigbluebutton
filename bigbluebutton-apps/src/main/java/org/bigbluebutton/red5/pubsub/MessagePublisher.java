@@ -3,13 +3,13 @@ package org.bigbluebutton.red5.pubsub;
 import java.util.Map;
 
 import org.bigbluebutton.common.messages.*;
-import org.bigbluebutton.red5.pubsub.redis.MessageSender;
+import org.bigbluebutton.client.IClientInGW;
 
 public class MessagePublisher {
 
-	private MessageSender sender;
+	private IClientInGW sender;
 	
-	public void setMessageSender(MessageSender sender) {
+	public void setMessageSender(IClientInGW sender) {
 		this.sender = sender;
 	}
 	

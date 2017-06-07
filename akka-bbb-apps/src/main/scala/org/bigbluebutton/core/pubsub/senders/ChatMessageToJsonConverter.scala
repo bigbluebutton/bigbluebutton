@@ -1,13 +1,9 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
-import com.google.gson.Gson
 import scala.collection.mutable.HashMap
-import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.common.messages.ChatKeyUtil
 

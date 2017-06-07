@@ -2,6 +2,7 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
+
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
@@ -12,17 +13,20 @@ import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import akka.event.Logging
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.models.Roles
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
     eventBus: IncomingEventBus,
-    outGW: OutMessageGateway,
-    val red5DeskShareIP: String,
-    val red5DeskShareApp: String) extends IBigBlueButtonInGW {
+    bbbMsgBus: BbbMsgRouterEventBus,
+    outGW: OutMessageGateway) extends IBigBlueButtonInGW with SystemConfiguration {
 
   val log = Logging(system, getClass)
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW), "bigbluebutton-actor")
+  eventBus.subscribe(bbbActor, meetingManagerChannel)
+
+  /** For OLD Messaged **/
   eventBus.subscribe(bbbActor, "meeting-manager")
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
@@ -46,7 +50,7 @@ class BigBlueButtonInGW(
           //default
           case undef => GuestPolicy.ASK_MODERATOR
         }
-
+        /*
         val mProps = new MeetingProperties(
           msg.payload.id,
           msg.payload.externalId,
@@ -71,6 +75,7 @@ class BigBlueButtonInGW(
         )
 
         eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
+        */
       }
     }
   }
@@ -157,8 +162,8 @@ class BigBlueButtonInGW(
     val disablePrivChat = s.getOrElse("disablePrivateChat", false)
     val disablePubChat = s.getOrElse("disablePublicChat", false)
     val lockedLayout = s.getOrElse("lockedLayout", false)
-    var lockOnJoin = s.getOrElse("lockOnJoin", false)
-    var lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
+    val lockOnJoin = s.getOrElse("lockOnJoin", false)
+    val lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
 
     val permissions = new Permissions(disableCam = disableCam,
       disableMic = disableMic,
@@ -331,22 +336,21 @@ class BigBlueButtonInGW(
 
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.HashMap[String, Page] = {
     var pages = new scala.collection.immutable.HashMap[String, Page]
-    val baseUrl =
-      for (i <- 1 to numPages) {
-        val id = presId + "/" + i
-        val num = i;
-        val current = if (i == 1) true else false
-        val thumbnail = presBaseUrl + "/thumbnail/" + i
-        val swfUri = presBaseUrl + "/slide/" + i
+    for (i <- 1 to numPages) {
+      val id = presId + "/" + i
+      val num = i;
+      val current = if (i == 1) true else false
+      val thumbnail = presBaseUrl + "/thumbnail/" + i
+      val swfUri = presBaseUrl + "/slide/" + i
 
-        val txtUri = presBaseUrl + "/textfiles/" + i
-        val svgUri = presBaseUrl + "/svg/" + i
+      val txtUri = presBaseUrl + "/textfiles/" + i
+      val svgUri = presBaseUrl + "/svg/" + i
 
-        val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
-          txtUri = txtUri, svgUri = svgUri,
-          current = current)
-        pages += (p.id -> p)
-      }
+      val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
+        txtUri = txtUri, svgUri = svgUri,
+        current = current)
+      pages += (p.id -> p)
+    }
 
     pages
   }
@@ -413,8 +417,12 @@ class BigBlueButtonInGW(
    * *****************************************************************
    */
 
-  def getChatHistory(meetingID: String, requesterID: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetChatHistoryRequest(meetingID, requesterID, replyTo)))
+  def getAllChatHistory(meetingID: String, requesterID: String, replyTo: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new GetAllChatHistoryRequest(meetingID, requesterID, replyTo)))
+  }
+
+  def getChatHistory(meetingID: String, requesterID: String, replyTo: String, chatId: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new GetChatHistoryRequest(meetingID, requesterID, replyTo, chatId)))
   }
 
   def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {

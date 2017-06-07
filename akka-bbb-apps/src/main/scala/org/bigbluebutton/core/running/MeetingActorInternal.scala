@@ -1,29 +1,33 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
+
 import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.{ MeetingProperties, OutMessageGateway }
+import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.core.{ OutMessageGateway }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{ Deadline, FiniteDuration }
 
 object MeetingActorInternal {
-  def props(mProps: MeetingProperties,
+  def props(props: DefaultProps,
     eventBus: IncomingEventBus,
     outGW: OutMessageGateway): Props =
-    Props(classOf[MeetingActorInternal], mProps, eventBus, outGW)
+    Props(classOf[MeetingActorInternal], props, eventBus, outGW)
 }
 
 // This actor is an internal audit actor for each meeting actor that
 // periodically sends messages to the meeting actor
-class MeetingActorInternal(val mProps: MeetingProperties,
+class MeetingActorInternal(val props: DefaultProps,
   val eventBus: IncomingEventBus, val outGW: OutMessageGateway)
     extends Actor with ActorLogging with SystemConfiguration {
 
@@ -38,7 +42,7 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   }
 
   private def getInactivityDeadline(): Int = {
-    val time = getMetadata(Metadata.INACTIVITY_DEADLINE, mProps.metadata) match {
+    val time = getMetadata(Metadata.INACTIVITY_DEADLINE, props.metadataProp.metadata) match {
       case Some(result) => result.asInstanceOf[Int]
       case None => inactivityDeadline
     }
@@ -47,7 +51,7 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   }
 
   private def getInactivityTimeLeft(): Int = {
-    val time = getMetadata(Metadata.INACTIVITY_TIMELEFT, mProps.metadata) match {
+    val time = getMetadata(Metadata.INACTIVITY_TIMELEFT, props.metadataProp.metadata) match {
       case Some(result) => result.asInstanceOf[Int]
       case None => inactivityTimeLeft
     }
@@ -74,7 +78,7 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   private var inactivity = InactivityDeadline.fromNow
   private var inactivityWarning: Deadline = null
 
-  private val ExpireMeetingDuration = FiniteDuration(mProps.duration, "minutes")
+  private val ExpireMeetingDuration = FiniteDuration(props.durationProps.duration, "minutes")
   private val ExpireMeetingNeverJoined = FiniteDuration(getExpireNeverJoined(), "seconds")
   private val ExpireMeetingLastUserLeft = FiniteDuration(getExpireLastUserLeft(), "seconds")
   private var meetingExpire = ExpireMeetingNeverJoined.fromNow
@@ -84,13 +88,14 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   context.system.scheduler.schedule(5 seconds, MonitorFrequency, self, "Monitor")
 
   // Query to get voice conference users
-  outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+  outGW.send(new GetUsersInVoiceConference(props.meetingProp.intId, props.recordProp.record,
+    props.voiceProp.voiceConf))
 
-  if (mProps.isBreakout) {
+  if (props.meetingProp.isBreakout) {
     // This is a breakout room. Inform our parent meeting that we have been successfully created.
     eventBus.publish(BigBlueButtonEvent(
-      mProps.parentMeetingID,
-      BreakoutRoomCreated(mProps.parentMeetingID, mProps.meetingID)))
+      props.breakoutProps.parentId,
+      BreakoutRoomCreated(props.breakoutProps.parentId, props.meetingProp.intId)))
   }
 
   def receive = {
@@ -112,27 +117,27 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   }
 
   def handleMonitorNumberOfWebUsers() {
-    eventBus.publish(BigBlueButtonEvent(mProps.meetingID, MonitorNumberOfUsers(mProps.meetingID)))
+    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, MonitorNumberOfUsers(props.meetingProp.intId)))
 
     // Trigger updating users of time remaining on meeting.
-    eventBus.publish(BigBlueButtonEvent(mProps.meetingID, SendTimeRemainingUpdate(mProps.meetingID)))
+    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendTimeRemainingUpdate(props.meetingProp.intId)))
 
-    if (mProps.isBreakout) {
+    if (props.meetingProp.isBreakout) {
       // This is a breakout room. Update the main meeting with list of users in this breakout room.
-      eventBus.publish(BigBlueButtonEvent(mProps.meetingID, SendBreakoutUsersUpdate(mProps.meetingID)))
+      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendBreakoutUsersUpdate(props.meetingProp.intId)))
     }
 
   }
 
   private def handleMonitorActivity() {
     if (inactivity.isOverdue() && inactivityWarning != null && inactivityWarning.isOverdue()) {
-      log.info("Closing meeting {} due to inactivity for {} seconds", mProps.meetingID, InactivityDeadline.toSeconds)
+      log.info("Closing meeting {} due to inactivity for {} seconds", props.meetingProp.intId, InactivityDeadline.toSeconds)
       updateInactivityMonitors()
-      eventBus.publish(BigBlueButtonEvent(mProps.meetingID, EndMeeting(mProps.meetingID)))
+      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
       // Or else make sure to send only one warning message
     } else if (inactivity.isOverdue() && inactivityWarning == null) {
-      log.info("Sending inactivity warning to meeting {}", mProps.meetingID)
-      outGW.send(new InactivityWarning(mProps.meetingID, InactivityTimeLeft.toSeconds))
+      log.info("Sending inactivity warning to meeting {}", props.meetingProp.intId)
+      outGW.send(new InactivityWarning(props.meetingProp.intId, InactivityTimeLeft.toSeconds))
       // We add 5 seconds so clients will have enough time to process the message
       inactivityWarning = (InactivityTimeLeft + (5 seconds)).fromNow
     }
@@ -141,14 +146,14 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   private def handleMonitorExpiration() {
     if (meetingExpire != null && meetingExpire.isOverdue()) {
       // User related meeting expiration methods
-      log.debug("Meeting {} expired. No users", mProps.meetingID)
+      log.debug("Meeting {} expired. No users", props.meetingProp.intId)
       meetingExpire = null
-      eventBus.publish(BigBlueButtonEvent(mProps.meetingID, EndMeeting(mProps.meetingID)))
+      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
     } else if (meetingDuration != null && meetingDuration.isOverdue()) {
       // Default meeting duration
       meetingDuration = null
-      log.debug("Meeting {} expired. Reached it's fixed duration of {}", mProps.meetingID, ExpireMeetingDuration.toString())
-      eventBus.publish(BigBlueButtonEvent(mProps.meetingID, EndMeeting(mProps.meetingID)))
+      log.debug("Meeting {} expired. Reached it's fixed duration of {}", props.meetingProp.intId, ExpireMeetingDuration.toString())
+      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
     }
   }
 
@@ -156,13 +161,13 @@ class MeetingActorInternal(val mProps: MeetingProperties,
     if (msg.hasUser) {
       if (meetingExpire != null) {
         // User joined. Forget about this expiration for now
-        log.debug("Meeting has users. Stopping expiration for meeting {}", mProps.meetingID)
+        log.debug("Meeting has users. Stopping expiration for meeting {}", props.meetingProp.intId)
         meetingExpire = null
       }
     } else {
       if (meetingExpire == null) {
         // User list is empty. Start this meeting expiration method
-        log.debug("Meeting has no users. Starting {} expiration for meeting {}", ExpireMeetingLastUserLeft.toString(), mProps.meetingID)
+        log.debug("Meeting has no users. Starting {} expiration for meeting {}", ExpireMeetingLastUserLeft.toString(), props.meetingProp.intId)
         meetingExpire = ExpireMeetingLastUserLeft.fromNow
       }
     }
@@ -175,16 +180,16 @@ class MeetingActorInternal(val mProps: MeetingProperties,
 
   private def notifyActivity() {
     if (inactivityWarning != null) {
-      outGW.send(new MeetingIsActive(mProps.meetingID))
+      outGW.send(new MeetingIsActive(props.meetingProp.intId))
     }
 
     updateInactivityMonitors()
   }
 
   private def handleActivityResponse(msg: ActivityResponse) {
-    log.info("User endorsed that meeting {} is active", mProps.meetingID)
+    log.info("User endorsed that meeting {} is active", props.meetingProp.intId)
     updateInactivityMonitors()
-    outGW.send(new MeetingIsActive(mProps.meetingID))
+    outGW.send(new MeetingIsActive(props.meetingProp.intId))
   }
 
   private def isMeetingActivity(msg: Object): Boolean = {

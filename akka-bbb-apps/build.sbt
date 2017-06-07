@@ -6,7 +6,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.2"
 
-scalaVersion  := "2.11.7"
+scalaVersion  := "2.12.2"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -14,7 +14,7 @@ scalacOptions ++= Seq(
   "-Xlint",
   "-Ywarn-dead-code",
   "-language:_",
-  "-target:jvm-1.7",
+  "-target:jvm-1.8",
   "-encoding", "UTF-8"
 )
 
@@ -37,35 +37,59 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
+val akkaVersion  = "2.5.1"
+val scalaTestV  = "2.2.6"
+
 libraryDependencies ++= {
-  val akkaVersion  = "2.3.14"
-  val akkaStreamV = "1.0"
-  val scalaTestV  = "2.2.4"
   Seq(
-    "com.typesafe.akka"        %%  "akka-actor"                           % akkaVersion,
-    "com.typesafe.akka"        %%  "akka-testkit"                         % akkaVersion    % "test",
-    "com.typesafe.akka"        %%  "akka-slf4j"                           % akkaVersion,
-    "com.typesafe.akka"        %%  "akka-stream-experimental"             % akkaStreamV,
-    "com.typesafe.akka"        %%  "akka-http-core-experimental"          % akkaStreamV,
-    "com.typesafe.akka"        %%  "akka-http-experimental"               % akkaStreamV,
-    "com.typesafe.akka"        %%  "akka-http-spray-json-experimental"    % akkaStreamV,
-    "com.typesafe.akka"        %%  "akka-http-testkit-experimental"       % akkaStreamV,
-    "org.scalatest"            %   "scalatest_2.11"                       % scalaTestV     % "test",
     "ch.qos.logback"           %   "logback-classic"                      % "1.0.13"       % "runtime",
-    "org.pegdown"              %   "pegdown"                              % "1.4.0",
     "junit"                    %   "junit"                                % "4.11",
-    "com.etaty.rediscala"      %%  "rediscala"                            % "1.4.0",
     "commons-codec"             %  "commons-codec"                        % "1.10",
-    "joda-time"                 %  "joda-time"                            % "2.3",
-    "com.google.code.gson"      %  "gson"                                 % "2.5",
-    "redis.clients"             %  "jedis"                                % "2.7.2",
-    "org.apache.commons"        %  "commons-lang3"                        % "3.2",
-    "org.bigbluebutton"         %  "bbb-common-message"                   % "0.0.19-SNAPSHOT",
-    "io.spray"                 %%  "spray-json"                           % "1.3.2"
+    "org.apache.commons"        %  "commons-lang3"                        % "3.2"
   )
 }
 
+libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
+
+// https://mvnrepository.com/artifact/org.scala-lang/scala-library
+libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"
+// https://mvnrepository.com/artifact/org.scala-lang/scala-compiler
+libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.2"
+
+// https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.12
+libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % "2.5.1"
+
+// https://mvnrepository.com/artifact/com.typesafe.akka/akka-slf4j_2.12
+libraryDependencies += "com.typesafe.akka" % "akka-slf4j_2.12" % "2.5.1"
+
+// https://mvnrepository.com/artifact/com.github.etaty/rediscala_2.12
+libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
+
 libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.8"
+libraryDependencies += "com.google.code.gson" % "gson" % "2.8.0"
+libraryDependencies += "redis.clients" % "jedis" % "2.9.0"
+libraryDependencies += "joda-time" % "joda-time" % "2.9.9"
+libraryDependencies += "io.spray" % "spray-json_2.12" % "1.3.3"
+libraryDependencies += "org.parboiled" % "parboiled-scala_2.12" % "1.1.8"
+
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
+
+
+
+// For generating test reports
+libraryDependencies += "org.pegdown" % "pegdown" % "1.6.0" % "test"
+// https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.12
+libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.1" % "test"
+
+// https://mvnrepository.com/artifact/org.scalactic/scalactic_2.12
+libraryDependencies += "org.scalactic" % "scalactic_2.12" % "3.0.3" % "test"
+
+// https://mvnrepository.com/artifact/org.scalatest/scalatest_2.12
+libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.3" % "test"
+
+libraryDependencies += "org.mockito" % "mockito-core" % "2.7.22" % "test"
+
 
 seq(Revolver.settings: _*)
 

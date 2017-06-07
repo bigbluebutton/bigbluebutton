@@ -3,7 +3,7 @@ package org.bigbluebutton.messages;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
-import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
+import org.bigbluebutton.messages.CreateMeetingRequestPayload;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class CreateMeetingRequestTest {
                 meetingId, externalId, parentId, name, record, voiceConfId,
                 durationInMinutes, autoStartRecording, allowStartStopRecording,
                 webcamsOnlyForModerator, moderatorPassword, viewerPassword,
-                createTime, createDate, isBreakout, sequence, metadata);
+                createTime, createDate, isBreakout, sequence, metadata, "ALWAYS_ALLOW");
         CreateMeetingRequest msg = new CreateMeetingRequest(payload);
         Gson gson = new Gson();
         String json = gson.toJson(msg);

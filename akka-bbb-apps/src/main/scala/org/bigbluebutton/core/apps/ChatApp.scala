@@ -1,36 +1,36 @@
 package org.bigbluebutton.core.apps
 
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.{ OutMessageGateway }
 
 trait ChatApp {
-  this: MeetingActor =>
 
+  val props: DefaultProps
+  val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
   def handleGetChatHistoryRequest(msg: GetChatHistoryRequest) {
     val history = liveMeeting.chatModel.getChatHistory()
-    outGW.send(new GetChatHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.replyTo, history))
+    outGW.send(new GetChatHistoryReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.replyTo, history))
   }
 
   def handleSendPublicMessageRequest(msg: SendPublicMessageRequest) {
-    liveMeeting.chatModel.addNewChatMessage(msg.message.toMap)
-    val pubMsg = msg.message.toMap
+    liveMeeting.chatModel.addNewChatMessage(msg.message)
+    val pubMsg = msg.message
 
-    outGW.send(new SendPublicMessageEvent(mProps.meetingID, mProps.recorded, msg.requesterID, pubMsg))
+    outGW.send(new SendPublicMessageEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, pubMsg))
   }
 
   def handleSendPrivateMessageRequest(msg: SendPrivateMessageRequest) {
-    val privMsg = msg.message.toMap
-    outGW.send(new SendPrivateMessageEvent(mProps.meetingID, mProps.recorded, msg.requesterID, privMsg))
+    val privMsg = msg.message
+    outGW.send(new SendPrivateMessageEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, privMsg))
   }
 
   def handleClearPublicChatHistoryRequest(msg: ClearPublicChatHistoryRequest) {
     liveMeeting.chatModel.clearPublicChatHistory()
-    outGW.send(new ClearPublicChatHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID))
+    outGW.send(new ClearPublicChatHistoryReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID))
   }
 
 }

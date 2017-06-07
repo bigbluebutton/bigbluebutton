@@ -6,7 +6,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.1"
 
-scalaVersion  := "2.11.6"
+scalaVersion  := "2.12.2"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -14,7 +14,7 @@ scalacOptions ++= Seq(
   "-Xlint",
   "-Ywarn-dead-code",
   "-language:_",
-  "-target:jvm-1.7",
+  "-target:jvm-1.8",
   "-encoding", "UTF-8"
 )
 
@@ -38,7 +38,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.3.11"
+  val akkaVersion  = "2.5.1"
   Seq(
     "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
     "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
@@ -46,13 +46,13 @@ libraryDependencies ++= {
     "ch.qos.logback"    	      %  "logback-classic"   % "1.0.3",
     "org.pegdown" 		      %  "pegdown"           % "1.4.0",
     "junit" 				      %  "junit"             % "4.11",
-    "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
+    "com.github.etaty"          % "rediscala_2.12"     % "1.8.0",
     "commons-codec"             %  "commons-codec"     % "1.10",
     "joda-time"                 %  "joda-time"         % "2.3",
     "com.google.code.gson"      %  "gson"              % "1.7.1",
     "redis.clients"             %  "jedis"             % "2.1.0",
     "org.apache.commons"        %  "commons-lang3"     % "3.2",
-    "org.bigbluebutton"         %  "bbb-common-message" % "0.0.19-SNAPSHOT",
+    "org.bigbluebutton"         % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT",
     "org.bigbluebutton"         %  "bbb-fsesl-client"   % "0.0.4"
   )}
 

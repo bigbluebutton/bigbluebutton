@@ -19,7 +19,6 @@
 package org.bigbluebutton.red5.service;
 
 import java.util.Map;
-
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.red5.logging.Red5LoggerFactory;
@@ -29,21 +28,32 @@ import org.slf4j.Logger;
 
 public class WhiteboardService {
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardService.class, "bigbluebutton");
+
 	private WhiteboardApplication application;
 	
 	 private final static String TYPE = "type";
 	 private final static String STATUS = "status";
 	 private final static String COR_ID = "id";
 	 private final static String WB_ID = "whiteboardId";
+	 private final static String TEXT_TYPE = "text";
+	 private final static String TEXT_PROP = "text";
+	 private final static int MAX_TEXT_LEN = 1024;
 	
 	public void setWhiteboardApplication(WhiteboardApplication a){
-		log.debug("Setting whiteboard application instance");
 		this.application = a;
 	}
 		
 	private boolean validMessage(Map<String, Object> shp) {
 		if (shp.containsKey(COR_ID) && shp.containsKey(TYPE) &&
-				shp.containsKey(STATUS) && shp.containsKey(WB_ID)) return true;
+				shp.containsKey(STATUS) && shp.containsKey(WB_ID)) {
+			// Need to add a special case for when the text annotation is too long
+			if (shp.get(TYPE).toString().equals(TEXT_TYPE) && 
+					shp.containsKey(TEXT_PROP) && shp.get(TEXT_PROP).toString().length() > MAX_TEXT_LEN) {
+				log.debug("sendAnnotation detected type is" + TEXT_TYPE + " and message length exceeds max chars of " + MAX_TEXT_LEN + ". Annotation invalid");
+				return false;
+			}
+			return true;
+		}
 		
 		return false;
 	}
@@ -81,7 +91,6 @@ public class WhiteboardService {
 	}
 	
 	public void requestAnnotationHistory(Map<String, Object> message) {
-		log.info("WhiteboardApplication - requestAnnotationHistory");
 		
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
@@ -92,7 +101,6 @@ public class WhiteboardService {
 	}
 		
 	public void clear(Map<String, Object> message) {
-		log.info("WhiteboardApplication - Clearing board");
 
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
@@ -103,7 +111,6 @@ public class WhiteboardService {
 	}
 	
 	public void undo(Map<String, Object> message) {
-		log.info("WhiteboardApplication - Deleting last graphic");
 		
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
@@ -114,12 +121,11 @@ public class WhiteboardService {
 	}
 	
 	public void toggleGrid() {
-		log.info("WhiteboardApplication - Toggling grid mode");
+
 		//application.toggleGrid();
 	}
 		
 	public void modifyWhiteboardAccess(Map<String, Object> message) {
-		log.info("WhiteboardApplication - Setting whiteboard multi user access: " + (Boolean)message.get("multiUser"));
 
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();

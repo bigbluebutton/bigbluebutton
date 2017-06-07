@@ -24,7 +24,7 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
     redis.publish("bigbluebutton:to-bbb-apps:system", json)
   }
 
-  system.scheduler.schedule(10 seconds, 10 seconds)(sendPingMessage())
+  //  system.scheduler.schedule(10 seconds, 10 seconds)(sendPingMessage())
 
   def publish(channel: String, data: String) {
     //println("PUBLISH TO [" + channel + "]: \n [" + data + "]")
