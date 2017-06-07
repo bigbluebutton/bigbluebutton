@@ -1,16 +1,15 @@
-import AuthSingleton from '/imports/ui/services/auth/index.js';
+import { makeCall } from '/imports/ui/services/api';
+import Auth from '/imports/ui/services/auth/index.js';
 import Users from '/imports/api/users';
-import { callServer } from '/imports/ui/services/api/index.js';
 
 let getUserData = () => {
   // Get userId and meetingId
-  const userId = AuthSingleton.getCredentials().requesterUserId;
-  const meetingId = AuthSingleton.getCredentials().meetingId;
+  const credentials = Auth.credentials;
 
   // Find the user object of this specific meeting and userid
   const currentUser = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
+    meetingId: credentials.meetingId,
+    userId: credentials.requesterUserId,
   });
 
   let isUserPresenter;
@@ -24,7 +23,7 @@ let getUserData = () => {
 };
 
 const updateCursor = (coordinates) => {
-  callServer('publishCursorUpdate', coordinates);
+  makeCall('publishCursorUpdate', coordinates);
 };
 
 export default {

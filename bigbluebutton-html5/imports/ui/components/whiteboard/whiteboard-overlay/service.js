@@ -1,8 +1,8 @@
-import { callServer } from '/imports/ui/services/api/index.js';
+import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
 
 const sendAnnotation = (annotation) => {
-  callServer('sendAnnotation', annotation);
+  makeCall('sendAnnotation', annotation);
 };
 
 const getWhiteboardToolbarValues = () => {

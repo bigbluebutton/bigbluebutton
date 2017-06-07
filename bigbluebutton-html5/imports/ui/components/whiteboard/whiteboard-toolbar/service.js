@@ -1,12 +1,12 @@
-import { callServer } from '/imports/ui/services/api/index.js';
+import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
 
 const undoAnnotation = (whiteboardId) => {
-  callServer('undoAnnotation', whiteboardId);
+  makeCall('undoAnnotation', whiteboardId);
 };
 
 const clearWhiteboard = (whiteboardId) => {
-  callServer('clearWhiteboard', whiteboardId);
+  makeCall('clearWhiteboard', whiteboardId);
 };
 
 const setWhiteboardToolbarValues = (tool, thickness, color, fontSize) => {
