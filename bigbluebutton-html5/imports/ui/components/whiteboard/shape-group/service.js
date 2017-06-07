@@ -1,4 +1,6 @@
 import Shapes from '/imports/api/shapes';
+import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
 
 const getCurrentShapes = (whiteboardId) => {
 
@@ -11,6 +13,17 @@ const getCurrentShapes = (whiteboardId) => {
   }).fetch();
 };
 
+const isPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID, });
+
+  if (currentUser && currentUser.user) {
+    return currentUser.user.presenter;
+  }
+
+  return false;
+};
+
 export default {
   getCurrentShapes,
+  isPresenter,
 };

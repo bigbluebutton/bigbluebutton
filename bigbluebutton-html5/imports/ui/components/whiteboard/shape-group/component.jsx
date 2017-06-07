@@ -25,6 +25,8 @@ export default class ShapeGroup extends React.Component {
 
   renderShape(shape, width, height) {
     let Component = this.props.shapeSelector[shape.shape.type];
+    let additionalProps = shape.shape.type == "text" ? { isPresenter: this.props.isPresenter } : null;
+
     if (Component != null) {
       return (
         <Component
@@ -32,6 +34,7 @@ export default class ShapeGroup extends React.Component {
           shape={shape.shape}
           slideWidth={width}
           slideHeight={height}
+          {...additionalProps}
         />
       );
     } else {

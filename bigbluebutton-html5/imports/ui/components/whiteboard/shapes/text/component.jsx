@@ -53,36 +53,50 @@ export default class TextDrawComponent extends React.Component {
     return styles;
   }
 
-  render() {
-    let results = this.getCoordinates();
-    let styles = this.getStyles(results);
-
+  renderViewerTextShape(results, styles) {
     return (
-    <g>
-      <clipPath id="c1">
-        <rect
+      <g>
+        <clipPath id="c1">
+          <rect
+            x={results.x}
+            y={results.y}
+            width={results.width}
+            height={results.height}
+            fill="purple"
+            strokeWidth="2"
+          />
+        </clipPath>
+
+        <foreignObject
+          clipPath="url(#c1)"
           x={results.x}
           y={results.y}
           width={results.width}
           height={results.height}
-          fill="purple"
-          strokeWidth="2"
-        />
-      </clipPath>
-
-      <foreignObject
-        clipPath="url(#c1)"
-        x={results.x}
-        y={results.y}
-        width={results.width}
-        height={results.height}
-      >
-        <p style={styles}>
-          {results.text}
-        </p>
-      </foreignObject>
-    </g>
+        >
+          <p style={styles}>
+            {results.text}
+          </p>
+        </foreignObject>
+      </g>
     );
+  }
+
+  renderPresenterTextShape(results, styles) {
+    return (
+      <g></g>
+    );
+  }
+
+  render() {
+    let results = this.getCoordinates();
+    let styles = this.getStyles(results);
+
+    if(this.props.isPresenter && this.props.shape.status != "textPublished") {
+      return this.renderPresenterTextShape(results, styles);
+    } else {
+      return this.renderViewerTextShape(results, styles);
+    }
   }
 }
 
