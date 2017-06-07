@@ -15,7 +15,6 @@
   height: calc(100% - 80px);
   margin: 20px;
   overflow: auto;
-  
   //if you change the thickness of the border
   //you should also change a corresponding value in the componentWillUpdate
   //otherwise auto-scrolling for closed-captions will break
