@@ -30,6 +30,8 @@ export default class PresentationArea extends React.Component {
     //scale the whiteboard wrapper after the initial load (whiteboardSizeAvailable is rendered)
     //var fn = setTimeout(this.handleResize.bind(this), 0);
 
+    const { presentationPaper, whiteboardSizeAvailable } = this;
+
     //adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
     window.addEventListener('resize', () => {
       setTimeout(this.handleResize.bind(this), 0);
@@ -37,11 +39,11 @@ export default class PresentationArea extends React.Component {
 
     //determining the paperWidth and paperHeight (available space for the svg) on the initial load
     if(this.props.userIsPresenter) {
-      var clientHeight = this.refs.whiteboardSizeAvailable.clientHeight;
-      var clientWidth = this.refs.whiteboardSizeAvailable.clientWidth;
+      var clientHeight = whiteboardSizeAvailable.clientHeight;
+      var clientWidth = whiteboardSizeAvailable.clientWidth;
     } else {
-      var clientHeight = this.refs.presentationPaper.clientHeight;
-      var clientWidth = this.refs.presentationPaper.clientWidth;
+      var clientHeight = presentationPaper.clientHeight;
+      var clientWidth = presentationPaper.clientWidth;
     }
 
     //setting the state of the paperWidth and paperheight (available space for the svg)
@@ -89,17 +91,19 @@ export default class PresentationArea extends React.Component {
   }
 
   handleResize() {
+    const { presentationPaper, whiteboardSizeAvailable } = this;
+
     //if a user is a presenter - this means there is a whiteboardToolBar on the right
     //and we have to get the width/height of the whiteboardSizeAvailable
     //(inner hidden div with absolute position)
     if(this.props.userIsPresenter) {
-      var clientHeight = this.refs.whiteboardSizeAvailable.clientHeight;
-      var clientWidth = this.refs.whiteboardSizeAvailable.clientWidth;
+      var clientHeight = whiteboardSizeAvailable.clientHeight;
+      var clientWidth = whiteboardSizeAvailable.clientWidth;
     //user is not a presenter - we can get the sizes of the presentationPaper
     //direct parent of the svg wrapper
     } else {
-      var clientHeight = this.refs.presentationPaper.clientHeight;
-      var clientWidth = this.refs.presentationPaper.clientWidth;
+      var clientHeight = presentationPaper.clientHeight;
+      var clientWidth = presentationPaper.clientWidth;
     }
 
     //updating the size of the space available for the slide
@@ -112,8 +116,7 @@ export default class PresentationArea extends React.Component {
   //returns a ref to the svg element, which is required by a WhiteboardOverlay
   //to transform screen coordinates to svg coordinate system
   getSvgRef() {
-    const { svggroup } = this.refs;
-    return svggroup;
+    return this.svggroup;
   }
 
   //renders the whole presentation area
@@ -177,7 +180,7 @@ export default class PresentationArea extends React.Component {
             <svg
               width={svgWidth}
               height={svgHeight}
-              ref="svggroup"
+              ref={(ref) => { this.svggroup = ref; }}
               viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
@@ -266,10 +269,13 @@ export default class PresentationArea extends React.Component {
     return (
       <div className={styles.presentationContainer}>
           <div
-            ref="presentationPaper"
+            ref={(ref) => { this.presentationPaper = ref; }}
             className={styles.presentationPaper}
           >
-            <div ref="whiteboardSizeAvailable" className={styles.whiteboardSizeAvailable}/>
+            <div
+              ref={(ref) => { this.whiteboardSizeAvailable = ref; }}
+              className={styles.whiteboardSizeAvailable}
+            />
             {this.state.showSlide ?
               this.renderPresentationArea()
             : null }

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styles from './styles.scss';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
