@@ -1,8 +1,16 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
+import { defineMessages, injectIntl } from 'react-intl';
 
-export default class PollingComponent extends React.Component {
+const intlMessages = defineMessages({
+  pollingTitleLabel: {
+    id: 'app.polling.pollingTitle',
+    description: 'Title label for polling options',
+  },
+});
+
+class PollingComponent extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -32,16 +40,17 @@ export default class PollingComponent extends React.Component {
   render() {
     const poll = this.props.poll;
     const calculatedStyles = this.getStyles();
+    const { intl } = this.props;
 
     return (
       <div className={styles.pollingContainer}>
         <div className={styles.pollingTitle}>
           <p>
-          Polling Options
+            {intl.formatMessage(intlMessages.pollingTitleLabel)}
           </p>
         </div>
         {poll.answers.map((pollAnswer, index) =>
-          <div
+          (<div
             key={index}
             style={calculatedStyles}
             className={styles.pollButtonWrapper}
@@ -67,9 +76,11 @@ export default class PollingComponent extends React.Component {
             >
               {`Select this option to vote for ${pollAnswer.key}`}
             </div>
-          </div>
+          </div>),
         )}
       </div>
     );
   }
-};
+}
+
+export default injectIntl(PollingComponent);

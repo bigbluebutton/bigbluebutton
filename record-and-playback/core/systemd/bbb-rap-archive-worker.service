@@ -1,0 +1,10 @@
+[Unit]
+Description=BigBlueButton recording and playback archive worker
+ConditionPathExistsGlob=/var/bigbluebutton/recording/status/recorded/*.done
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bigbluebutton/core/scripts/rap-archive-worker.rb
+WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+User=tomcat7
+Slice=bbb_record_core.slice

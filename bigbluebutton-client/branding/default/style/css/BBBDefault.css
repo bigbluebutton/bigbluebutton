@@ -15,6 +15,14 @@ ApplicationControlBar {
   dropShadowColor: #000000;
 }
 
+.defaultControlBarStyle {
+	color : #0B333C;
+}
+
+.darkControlBarStyle {
+	color : #ffffff;
+}
+
 Panel {
   borderColor: #dfdfdf;
   borderAlpha: 1;
@@ -495,15 +503,22 @@ TitleWindow {
 
 }
 
-.presentationUploadFileFormatHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
 	paddingLeft: 10;
-	paddingRight: 10
+	paddingRight: 10;
 }
 
-.presentationUploadFileFormatHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
 	fontWeight: bold;
+}
+
+.audioBroswerHintBoxStyle {
+	paddingLeft: 5;
+	paddingRight: 5;
+	paddingBottom : 8;
+	paddingTop : 8;
 }
 
 .desktopShareViewStyle {
@@ -755,6 +770,18 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   borderThicknessRight: 3;
 }
 
+.videoDockStyleFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444c;
+	backgroundColor: #42444c;
+}
+
+.videoDockStyleNoFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444c;
+	backgroundColor: #42444c;
+}
+
 .presentationSlideViewStyle {
   backgroundColor: #b9babc;
 }
@@ -863,6 +890,14 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	borderThicknessTop: 0;
 	borderThicknessBottom: 3;
 	borderThicknessRight: 3;
+}
+
+.defaultShellStyle {
+	backgroundColor: #fefeff;
+}
+
+.darkShellStyle {
+	backgroundColor: #42444c;
 }
 
 .mdiWindowTitle {
@@ -1007,6 +1042,13 @@ AlertForm {
   warningImage:   Embed(source='assets/images/status_warning.png');
   failImage:      Embed(source='assets/images/status_fail.png');
   refreshImage:   Embed(source='assets/images/status_refresh.png');
+}
+
+.webRTCAudioStatusStyle {
+  strongAudioStatus:        Embed(source='assets/images/strong_audio_status.png');
+  almostStrongAudioStatus:  Embed(source='assets/images/almost_strong_audio_status.png');
+  almostWeakAudioStatus:    Embed(source='assets/images/almost_weak_audio_status.png');
+  weakAudioStatus:          Embed(source='assets/images/weak_audio_status.png');
 }
 
 .warningButtonStyle {

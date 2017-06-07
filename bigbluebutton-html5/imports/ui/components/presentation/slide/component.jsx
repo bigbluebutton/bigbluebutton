@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class Slide extends React.Component {
   constructor(props) {
@@ -19,16 +20,16 @@ export default class Slide extends React.Component {
               width={this.props.svgWidth-2}
               height={this.props.svgHeight-2}
               fill="white"
-            >
-            </rect>
-            <image x="0" y="0"
+            />
+            <image
+              x="0"
+              y="0"
               width={this.props.svgWidth}
               height={this.props.svgHeight}
               xlinkHref={this.props.slideHref}
               strokeWidth="0.8"
               style={{ WebkitTapHighlightColor: 'transparent' }}
-            >
-            </image>
+            />
           </g>
         : null }
       </g>

@@ -1,34 +1,28 @@
 @import "../../stylesheets/variables/_all";
 
-.actionsbar {
+.actionsbar,
+.left,
+.center {
   display: flex;
   flex-direction: row;
 }
 
 .left,
-.right,
 .center {
-  display: flex;
-  flex-direction: row;
+  flex: 1;
   justify-content: center;
-  align-items: center;
 
   > * {
     margin: 0 $line-height-computed;
   }
 }
 
-.left,
-.right {
-  flex: 0;
+.left{
+  position: absolute;
 }
 
 .center {
-  flex: 1;
-}
-
-.invisible {
-  visibility: hidden;
+  align-items: center;
 }
 
 .circleGlow > :first-child{

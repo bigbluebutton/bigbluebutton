@@ -16,22 +16,24 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   check(requesterUserId, String);
   check(isJoining, Boolean);
 
+  let EVENT_NAME;
+
   if (isJoining) {
-    let EVENT_NAME = 'user_connected_to_global_audio';
+    EVENT_NAME = 'user_connected_to_global_audio';
     if (!isAllowedTo('joinListenOnly', credentials)) {
-      throw new Meteor.Error('not-allowed', `You are not allowed to joinListenOnly`);
+      throw new Meteor.Error('not-allowed', 'You are not allowed to joinListenOnly');
     }
   } else {
-    let EVENT_NAME = 'user_disconnected_from_global_audio';
+    EVENT_NAME = 'user_disconnected_from_global_audio';
     if (!isAllowedTo('leaveListenOnly', credentials)) {
-      throw new Meteor.Error('not-allowed', `You are not allowed to leaveListenOnly`);
+      throw new Meteor.Error('not-allowed', 'You are not allowed to leaveListenOnly');
     }
   }
 
   const Metting = Meetings.findOne({ meetingId });
   if (!Metting) {
     throw new Meteor.Error(
-      'metting-not-found', `You need a valid meeting to be able to toggle audio`);
+      'metting-not-found', 'You need a valid meeting to be able to toggle audio');
   }
 
   check(Metting.voiceConf, String);
@@ -40,21 +42,23 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
     meetingId,
     userId: requesterUserId,
   });
+
   if (!User) {
     throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to toggle audio`);
+      'user-not-found', 'You need a valid user to be able to toggle audio');
   }
 
   check(User.user.name, String);
 
-  let payload = {
+  const payload = {
     userid: requesterUserId,
     meeting_id: meetingId,
     voice_conf: Metting.voiceConf,
     name: User.user.name,
   };
 
-  Logger.verbose(`User '${requesterUserId}' ${isJoining ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
+  Logger.verbose(`User '${requesterUserId}' ${isJoining
+    ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

@@ -1,29 +1,30 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 
 const propTypes = {
-  //Width of the view box
+  // Width of the view box
   viewBoxWidth: PropTypes.number.isRequired,
 
-  //Height of the view box
+  // Height of the view box
   viewBoxHeight: PropTypes.number.isRequired,
 
-  //x Position of the view box
+  // x Position of the view box
   viewBoxX: PropTypes.number.isRequired,
 
-  //y Position of the view box
+  // y Position of the view box
   viewBoxY: PropTypes.number.isRequired,
 
-  //Defines the cursor x position
+  // Defines the cursor x position
   cursorX: PropTypes.number.isRequired,
 
-  //Defines the cursor y position
+  // Defines the cursor y position
   cursorY: PropTypes.number.isRequired,
 
-  //Slide to view box width ratio
+  // Slide to view box width ratio
   widthRatio: PropTypes.number.isRequired,
 
-  //Slide physical size to original size ratio
+  // Slide physical size to original size ratio
   physicalWidthRatio: PropTypes.number.isRequired,
 
   /**

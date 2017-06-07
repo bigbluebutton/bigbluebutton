@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
@@ -11,38 +12,39 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 const intlMessages = defineMessages({
   actionsLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
+    description: 'Actions button label',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
-    defaultMessage: 'Upload a presentation',
+    description: 'Upload a presentation option label',
   },
   initPollLabel: {
     id: 'app.actionsBar.actionsDropdown.initPollLabel',
-    defaultMessage: 'Initiate a poll',
+    description: 'Initiate a poll option label',
   },
   desktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
-    defaultMessage: 'Share your screen',
+    description: 'Desktop Share option label',
   },
   presentationDesc: {
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
-    defaultMessage: 'Upload your presentation',
+    description: 'adds context to upload presentation option',
   },
   initPollDesc: {
     id: 'app.actionsBar.actionsDropdown.initPollDesc',
-    defaultMessage: 'Initiate a poll',
+    description: 'adds context to init Poll option',
   },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
-    defaultMessage: 'Share your screen with others',
+    description: 'adds context to desktop share option',
   },
 });
 
-const presentation = () => {console.log('Should show the uploader component');};
+const presentation = () => { console.log('Should show the uploader component'); };
 
-const polling = () => {console.log('Should initiate a polling');};
+const polling = () => { console.log('Should initiate a polling'); };
 
-const shareScreen = () => {console.log('Should start screen sharing');};
+const shareScreen = () => { console.log('Should start screen sharing'); };
 
 class ActionsDropdown extends Component {
   constructor(props) {
@@ -50,7 +52,11 @@ class ActionsDropdown extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, isUserPresenter } = this.props;
+
+    // if (!isUserPresenter) return null;
+    return null; // temporarily disabling the functionality
+
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
@@ -59,7 +65,7 @@ class ActionsDropdown extends Component {
             icon="add"
             color="primary"
             size="lg"
-            circle={true}
+            circle
             onClick={() => null}
           />
         </DropdownTrigger>

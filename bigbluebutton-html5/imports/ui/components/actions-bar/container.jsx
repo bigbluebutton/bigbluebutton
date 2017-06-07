@@ -1,8 +1,11 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import ActionsBar from './component';
 import Service from './service';
-import { joinListenOnly } from '/imports/api/phone';
+import AudioService from '../audio/service';
+
+import AudioModal from '../audio/audio-modal/component';
 
 class ActionsBarContainer extends Component {
   constructor(props) {
@@ -10,19 +13,26 @@ class ActionsBarContainer extends Component {
   }
 
   render() {
-    const handleJoinListenOnly = () => joinListenOnly();
-
     return (
       <ActionsBar
-       handleJoinListenOnly={handleJoinListenOnly}
-      {...this.props}>
+        {...this.props}
+      >
         {this.props.children}
       </ActionsBar>
     );
   }
 }
 
-export default createContainer(() => {
-  let data = Service.isUserPresenter();
-  return data;
-}, ActionsBarContainer);
+export default withModalMounter(createContainer(({ mountModal }) => {
+  const isPresenter = Service.isUserPresenter();
+
+  const handleExitAudio = () => AudioService.exitAudio();
+  const handleOpenJoinAudio = () =>
+    mountModal(<AudioModal handleJoinListenOnly={AudioService.joinListenOnly} />);
+
+  return {
+    isUserPresenter: isPresenter,
+    handleExitAudio,
+    handleOpenJoinAudio,
+  };
+}, ActionsBarContainer));

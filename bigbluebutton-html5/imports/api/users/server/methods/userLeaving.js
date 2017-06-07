@@ -21,13 +21,15 @@ export default function userLeaving(credentials, userId) {
   check(requesterUserId, String);
   check(userId, String);
 
-  const User = Users.findOne({
+  const selector = {
     meetingId,
     userId,
-  });
+  };
+
+  const User = Users.findOne(selector);
   if (!User) {
     throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to toggle audio`);
+      'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
   }
 
   if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
@@ -38,11 +40,31 @@ export default function userLeaving(credentials, userId) {
     listenOnlyToggle(credentials, false);
   }
 
-  let payload = {
+  if (User.validated) {
+    const modifier = {
+      $set: {
+        validated: null,
+      },
+    };
+
+    const cb = (err, numChanged) => {
+      if (err) {
+        return Logger.error(`Invalidating user: ${err}`);
+      }
+
+      if (numChanged) {
+        return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
+      }
+    };
+
+    Users.update(selector, modifier, cb);
+  }
+
+  const payload = {
     meeting_id: meetingId,
     userid: userId,
   };
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

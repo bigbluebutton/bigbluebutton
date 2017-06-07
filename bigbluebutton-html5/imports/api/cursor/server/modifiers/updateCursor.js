@@ -35,4 +35,4 @@ export default function updateCursor(meetingId, x = 0, y = 0) {
   };
 
   return Cursor.upsert(selector, modifier, cb);
-};
+}

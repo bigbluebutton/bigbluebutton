@@ -52,4 +52,4 @@ export default function addMeeting(meeting) {
   };
 
   return Meetings.upsert(selector, modifier, cb);
-};
+}

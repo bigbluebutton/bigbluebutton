@@ -4,8 +4,10 @@ import Meetings from '/imports/api/meetings';
 
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import Storage from '/imports/ui/services/storage/session';
 
-import { callServer } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
+import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -20,9 +22,12 @@ const PUBLIC_CHAT_USERNAME = CHAT_CONFIG.public_username;
 
 const ScrollCollection = new Mongo.Collection(null);
 
+// session for closed chat list
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
-const mapUser = (user) => ({
+const mapUser = user => ({
   id: user.userid,
   name: user.name,
   emoji: {
@@ -33,33 +38,20 @@ const mapUser = (user) => ({
   isModerator: user.role === 'MODERATOR',
   isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
+  isOnline: user.connection_status === 'online',
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isLocked: user.locked,
-  isLoggedOut: false,
-});
-
-const loggedOutUser = (userID, userName) => ({
-  id: userID,
-  name: userName,
-  emoji: {
-    status: 'none',
-  },
-  isPresenter: false,
-  isModerator: false,
-  isCurrent: false,
-  isVoiceUser: false,
-  isLoggedOut: true,
 });
 
 const mapMessage = (messagePayload) => {
   const { message } = messagePayload;
 
-  let mappedMessage = {
+  const mappedMessage = {
     id: messagePayload._id,
     content: messagePayload.content,
-    time: message.from_time, //+ message.from_tz_offset,
+    time: message.from_time, // + message.from_tz_offset,
     sender: null,
   };
 
@@ -71,8 +63,8 @@ const mapMessage = (messagePayload) => {
 };
 
 const reduceMessages = (previous, current, index, array) => {
-  let lastMessage = previous[previous.length - 1];
-  let currentPayload = current.message;
+  const lastMessage = previous[previous.length - 1];
+  const currentPayload = current.message;
 
   current.content = [];
   current.content.push({
@@ -85,37 +77,36 @@ const reduceMessages = (previous, current, index, array) => {
     return previous.concat(current);
   }
 
-  let lastPayload = lastMessage.message;
+  const lastPayload = lastMessage.message;
 
   // Check if the last message is from the same user and time discrepancy
   // between the two messages exceeds window and then group current message
   // with the last one
 
   if (lastPayload.from_userid === currentPayload.from_userid
-   && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
+    && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(current.content.pop());
     return previous;
-  } else {
-    return previous.concat(current);
   }
+  return previous.concat(current);
 };
 
 const getUser = (userID, userName) => {
   const user = Users.findOne({ userId: userID });
-  if (user) {
-    return mapUser(user.user);
-  } else {
-    return loggedOutUser(userID, userName);
+  if (!user) {
+    return null;
   }
+
+  return mapUser(user.user);
 };
 
 const getPublicMessages = () => {
-  let publicMessages = Chats.find({
+  const publicMessages = Chats.find({
     'message.chat_type': { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
   }, {
     sort: ['message.from_time'],
   })
-  .fetch();
+    .fetch();
 
   return publicMessages
     .reduce(reduceMessages, [])
@@ -123,7 +114,7 @@ const getPublicMessages = () => {
 };
 
 const getPrivateMessages = (userID) => {
-  let messages = Chats.find({
+  const messages = Chats.find({
     'message.chat_type': PRIVATE_CHAT_TYPE,
     $or: [
       { 'message.to_userid': userID },
@@ -180,8 +171,8 @@ const sendMessage = (receiverID, message) => {
    * The server only really needs the message, from_userid, to_userid and from_lang
    */
 
-  let messagePayload = {
-    message: message,
+  const messagePayload = {
+    message,
     chat_type: isPublic ? PUBLIC_CHAT_TYPE : PRIVATE_CHAT_TYPE,
     from_userid: sender.id,
     from_username: sender.name,
@@ -193,26 +184,41 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  callServer('sendChat', messagePayload);
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
-  return messagePayload;
+  // Remove the chat that user send messages from the session.
+  if (_.indexOf(currentClosedChats, receiver.id) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
+  }
+
+  return makeCall('sendChat', messagePayload);
 };
 
 const getScrollPosition = (receiverID) => {
-  let scroll = ScrollCollection.findOne({ receiver: receiverID }) || { position: null };
+  const scroll = ScrollCollection.findOne({ receiver: receiverID }) || { position: null };
   return scroll.position;
 };
 
 const updateScrollPosition =
   (receiverID, position) => ScrollCollection.upsert(
     { receiver: receiverID },
-    { $set: { position: position } },
+    { $set: { position } },
   );
 
 const updateUnreadMessage = (receiverID, timestamp) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
   return UnreadMessages.update(receiverID, timestamp);
+};
+
+const closePrivateChat = (chatID) => {
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+
+  if (_.indexOf(currentClosedChats, chatID) < 0) {
+    currentClosedChats.push(chatID);
+
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
+  }
 };
 
 export default {
@@ -226,4 +232,5 @@ export default {
   updateScrollPosition,
   updateUnreadMessage,
   sendMessage,
+  closePrivateChat,
 };

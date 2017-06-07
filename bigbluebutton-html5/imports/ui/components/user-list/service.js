@@ -2,14 +2,17 @@ import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
-
-import { callServer } from '/imports/ui/services/api';
+import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+
+// session for closed chat list
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 /* TODO: Same map is done in the chat/service we should share this someway */
 
@@ -29,14 +32,15 @@ const mapUser = user => ({
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,
-  isLoggedOut: !user ? true : false,
+  isOnline: user.connection_status === 'online',
+  isLocked: user.locked,
 });
 
-const mapOpenChats = chat => {
-  let currentUserId = Auth.userID;
-  return chat.message.from_userid !== Auth.userID
-                                    ? chat.message.from_userid
-                                    : chat.message.to_userid;
+const mapOpenChats = (chat) => {
+  const currentUserId = Auth.userID;
+  return chat.message.from_userid !== currentUserId
+    ? chat.message.from_userid
+    : chat.message.to_userid;
 };
 
 const sortUsersByName = (a, b) => {
@@ -159,9 +163,9 @@ const userFindSorting = {
 };
 
 const getUsers = () => {
-  let users = Users
-  .find({}, userFindSorting)
-  .fetch();
+  const users = Users
+    .find({ 'user.connection_status': 'online' }, userFindSorting)
+    .fetch();
 
   return users
     .map(u => u.user)
@@ -169,15 +173,14 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
-const getOpenChats = chatID => {
-  window.Users = Users;
-
+const getOpenChats = (chatID) => {
   let openChats = Chat
-  .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
-  .fetch()
-  .map(mapOpenChats);
+    .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
+    .fetch()
+    .map(mapOpenChats);
 
-  let currentUserId = Auth.userID;
+  const currentUserId = Auth.userID;
+
   if (chatID) {
     openChats.push(chatID);
   }
@@ -185,13 +188,34 @@ const getOpenChats = chatID => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-  .find({ 'user.userid': { $in: openChats } })
-  .map(u => u.user)
-  .map(mapUser)
-  .map(op => {
-    op.unreadCounter = UnreadMessages.count(op.id);
-    return op;
+    .find({ 'user.userid': { $in: openChats } })
+    .map(u => u.user)
+    .map(mapUser)
+    .map((op) => {
+      op.unreadCounter = UnreadMessages.count(op.id);
+      return op;
+    });
+
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  const filteredChatList = [];
+
+  openChats.forEach((op) => {
+    // When a new private chat message is received, ensure the conversation view is restored.
+    if (op.unreadCounter > 0) {
+      if (_.indexOf(currentClosedChats, op.id) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.id));
+      }
+    }
+
+    // Compare openChats with session and push it into filteredChatList
+    // if one of the openChat is not in session.
+    // It will pass to openChats.
+    if (_.indexOf(currentClosedChats, op.id) < 0) {
+      filteredChatList.push(op);
+    }
   });
+
+  openChats = filteredChatList;
 
   openChats.push({
     id: 'public',
@@ -201,52 +225,18 @@ const getOpenChats = chatID => {
   });
 
   return openChats
-  .sort(sortChats);
+    .sort(sortChats);
 };
 
 getCurrentUser = () => {
-  let currentUserId = Auth.userID;
-  let currentUser = Users.findOne({ 'user.userid': currentUserId });
+  const currentUserId = Auth.userID;
+  const currentUser = Users.findOne({ 'user.userid': currentUserId });
 
   return (currentUser) ? mapUser(currentUser.user) : null;
-};
-
-const userActions = {
-  openChat: {
-    label: 'Chat',
-    handler: (router, user) => router.push(`/users/chat/${user.id}`),
-    icon: 'chat',
-  },
-  clearStatus: {
-    label: 'Clear Status',
-    handler: user => callServer('setEmojiStatus', user.id, 'none'),
-    icon: 'clear_status',
-  },
-  setPresenter: {
-    label: 'Make Presenter',
-    handler: user => callServer('assignPresenter', user.id),
-    icon: 'presentation',
-  },
-  kick: {
-    label: 'Kick User',
-    handler: user => callServer('kickUser', user.id),
-    icon: 'circle_close',
-  },
-  mute: {
-    label: 'Mute Audio',
-    handler: user=> callServer('muteUser', user.id),
-    icon: 'audio_off',
-  },
-  unmute: {
-    label: 'Unmute Audio',
-    handler: user=> callServer('unmuteUser', user.id),
-    icon: 'audio_on',
-  },
 };
 
 export default {
   getUsers,
   getOpenChats,
   getCurrentUser,
-  userActions,
 };

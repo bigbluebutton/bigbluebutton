@@ -219,18 +219,18 @@ package org.bigbluebutton.modules.layout.managers
 				var e:SyncLayoutEvent = new SyncLayoutEvent(layout);
 				_globalDispatcher.dispatchEvent(e);
 			}
-		}
-		
-		private function applyLayout(layout:LayoutDefinition):void {
-			_detectContainerChange = false;
-			if (layout != null) {
-        layout.applyToCanvas(_canvas);
-        dispatchSwitchedLayoutEvent(layout.name);
-      }
-      //trace(LOG + " applyLayout layout [" + layout.name +  "]");	
-			updateCurrentLayout(layout);
-			_detectContainerChange = true;
-		}
+        }
+
+        private function applyLayout(layout:LayoutDefinition):void {
+            _detectContainerChange = false;
+            if (layout != null) {
+                layout.applyToCanvas(_canvas);
+                dispatchSwitchedLayoutEvent(layout.name);
+            }
+            //trace(LOG + " applyLayout layout [" + layout.name +  "]");	
+            updateCurrentLayout(layout);
+            _detectContainerChange = true;
+        }
 
     public function handleLockLayoutEvent(e: LockLayoutEvent):void {
       
@@ -239,13 +239,13 @@ package org.bigbluebutton.modules.layout.managers
     
     public function handleLayoutLockedEvent(e: LayoutLockedEvent):void {
       _locked = e.locked;
-      checkPermissionsOverWindow();
+      checkPermissionsOverAllWindows();
     }
 
     public function lockSettingsChanged():void {
       var myUser:BBBUser = UserManager.getInstance().getConference().getMyUser();
       _locked = myUser.lockedLayout;
-      checkPermissionsOverWindow();
+      checkPermissionsOverAllWindows();
     }
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
@@ -257,72 +257,76 @@ package org.bigbluebutton.modules.layout.managers
 		public function remoteLockLayout():void {
 			//trace(LOG + " remote lock received");
 			_locked = true;
-			checkPermissionsOverWindow();
+			checkPermissionsOverAllWindows();
 		}
 		
     public function remoteSyncLayout(event:RemoteSyncLayoutEvent):void {
       //trace(LOG + " remote lock received");
       
-      checkPermissionsOverWindow();
+      checkPermissionsOverAllWindows();
     }
     
 		public function remoteUnlockLayout():void {
 			//trace(LOG + " remote unlock received");
 			_locked = false;
-			checkPermissionsOverWindow();
+			checkPermissionsOverAllWindows();
 		}
 		
-		private function checkPermissionsOverWindow(window:MDIWindow=null):void {
+		private function checkPermissionsOverWindow(window:MDIWindow):void {
 			if (UsersUtil.amIModerator()) return;
 			if (window != null && !LayoutDefinition.ignoreWindow(window)) {
 				(window as CustomMdiWindow).unlocked = !_locked;
-			} else {
-				for each (window in _canvas.windowManager.windowList) {
-					checkPermissionsOverWindow(window);
-				}
 			}
 		}
-		
-		private function onContainerResized(e:ResizeEvent):void {
-      //trace(LOG + "Canvas is changing as user is resizing browser");
-      /*
-      *	the main canvas has been resized
-      *	while the user is resizing the window, this event is dispatched 
-      *	multiple times, so we use a timer to re-apply the current layout
-      *	only once, when the user finished his action
-      */
-      _applyCurrentLayoutTimer.reset();
-      _applyCurrentLayoutTimer.start();
-		}
-			
-    private function onActionOverWindowFinished(e:MDIManagerEvent):void {
-      if (LayoutDefinition.ignoreWindow(e.window))
-        return;
-      
-      checkPermissionsOverWindow(e.window);
-      //trace(LOG + "Window is being resized. Event=[" + e.type + "]");
-      //updateCurrentLayout(null);
-      /*
-       * 	All events must be delayed because the window doesn't actually 
-	   *    change size until after the animation has finished.
-       */
-      _sendCurrentLayoutUpdateTimer.reset();
-      _sendCurrentLayoutUpdateTimer.start();
-    }
-		
-		private function updateCurrentLayout(layout:LayoutDefinition):LayoutDefinition {
-      //trace(LOG + "updateCurrentLayout");
-      if (layout != null) {
-        if (_currentLayout) _currentLayout.currentLayout = false;
-        _currentLayout = layout;
-        //trace(LOG + "updateCurrentLayout - currentLayout = [" + layout.name + "]");
-        layout.currentLayout = true;
-      } else {
-        _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
-        //trace(LOG + "updateCurrentLayout - layout is NULL! Setting currentLayout = [" + _currentLayout.name + "]");
-      }
 
-			return _currentLayout;
+		private function checkPermissionsOverAllWindows():void {
+			if (UsersUtil.amIModerator()) return;
+			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
+				checkPermissionsOverWindow(window);
+			}
 		}
+
+        private function onContainerResized(e:ResizeEvent):void {
+            //trace(LOG + "Canvas is changing as user is resizing browser");
+            /*
+             *	the main canvas has been resized
+             *	while the user is resizing the window, this event is dispatched
+             *	multiple times, so we use a timer to re-apply the current layout
+             *	only once, when the user finished his action
+             */
+            _applyCurrentLayoutTimer.reset();
+            _applyCurrentLayoutTimer.start();
+        }
+
+        private function onActionOverWindowFinished(e:MDIManagerEvent):void {
+            if (LayoutDefinition.ignoreWindow(e.window))
+                return;
+
+            checkPermissionsOverWindow(e.window);
+            //trace(LOG + "Window is being resized. Event=[" + e.type + "]");
+            //updateCurrentLayout(null);
+            /*
+             * 	All events must be delayed because the window doesn't actually
+             *    change size until after the animation has finished.
+             */
+            _sendCurrentLayoutUpdateTimer.reset();
+            _sendCurrentLayoutUpdateTimer.start();
+        }
+
+        private function updateCurrentLayout(layout:LayoutDefinition):LayoutDefinition {
+            //trace(LOG + "updateCurrentLayout");
+            if (layout != null) {
+                if (_currentLayout)
+                    _currentLayout.currentLayout = false;
+                _currentLayout = layout;
+                //trace(LOG + "updateCurrentLayout - currentLayout = [" + layout.name + "]");
+                layout.currentLayout = true;
+            } else {
+                _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
+                    //trace(LOG + "updateCurrentLayout - layout is NULL! Setting currentLayout = [" + _currentLayout.name + "]");
+            }
+
+            return _currentLayout;
+        }
 	}
 }

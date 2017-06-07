@@ -1,9 +1,11 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import styles from '../styles';
 
-import { showModal } from '/imports/ui/components/app/service';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
@@ -19,100 +21,101 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
-    defaultMessage: 'Options',
+    description: 'Options button label',
   },
   fullscreenLabel: {
     id: 'app.navBar.settingsDropdown.fullscreenLabel',
-    defaultMessage: 'Make fullscreen',
+    description: 'Make fullscreen option label',
   },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
-    defaultMessage: 'Open settings',
+    description: 'Open settings option label',
   },
   aboutLabel: {
     id: 'app.navBar.settingsDropdown.aboutLabel',
-    defaultMessage: 'About',
+    description: 'About option label',
   },
   aboutDesc: {
     id: 'app.navBar.settingsDropdown.aboutDesc',
-    defaultMessage: 'About',
+    description: 'Describes about option',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
-    defaultMessage: 'Logout',
+    description: 'Leave session button label',
   },
   fullscreenDesc: {
     id: 'app.navBar.settingsDropdown.fullscreenDesc',
-    defaultMessage: 'Make the settings menu fullscreen',
+    description: 'Describes fullscreen option',
   },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
-    defaultMessage: 'Change the general settings',
+    description: 'Describes settings option',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
-    defaultMessage: 'Leave the meeting',
+    description: 'Describes leave session option',
+  },
+  exitFullScreenDesc: {
+    id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
+    description: 'Describes exit fullscreen option',
+  },
+  exitFullScreenLabel: {
+    id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
+    description: 'Exit fullscreen option label',
   },
 });
-
-const toggleFullScreen = () => {
-  let element = document.documentElement;
-
-  if (document.fullscreenEnabled
-    || document.mozFullScreenEnabled
-    || document.webkitFullscreenEnabled) {
-
-    // If the page is already fullscreen, exit fullscreen
-    if (document.fullscreenElement
-      || document.webkitFullscreenElement
-      || document.mozFullScreenElement
-      || document.msFullscreenElement) {
-
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-
-    // If the page is not currently fullscreen, make fullscreen
-    } else {
-      if (element.requestFullscreen) {
-        element.requestFullscreen();
-      } else if (element.mozRequestFullScreen) {
-        element.mozRequestFullScreen();
-      } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen();
-      } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
-      }
-    }
-  }
-};
-
-const openSettings = () => showModal(<SettingsMenuContainer  />);
-
-const openAbout = () => showModal(<AboutContainer />);
-
-const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
 
 class SettingsDropdown extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      isSettingOpen: false,
+    };
+
+    this.onActionsShow = this.onActionsShow.bind(this);
+    this.onActionsHide = this.onActionsHide.bind(this);
+  }
+
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, mountModal, isFullScreen } = this.props;
+
+    let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullScreenIcon = 'fullscreen';
+
+    if (isFullScreen) {
+      fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
+      fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+      fullScreenIcon = 'exit_fullscreen';
+    }
+
     return (
-      <Dropdown ref="dropdown">
-        <DropdownTrigger>
+      <Dropdown
+        isOpen={this.state.isSettingOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        autoFocus
+      >
+        <DropdownTrigger placeInTabOrder>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
-            ghost={true}
-            circle={true}
-            hideLabel={true}
+            ghost
+            circle
+            hideLabel
             className={cx(styles.btn, styles.btnSettings)}
 
             // FIXME: Without onClick react proptypes keep warning
@@ -123,28 +126,29 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon="fullscreen"
-              label={intl.formatMessage(intlMessages.fullscreenLabel)}
-              description={intl.formatMessage(intlMessages.fullscreenDesc)}
-              onClick={toggleFullScreen.bind(this)}
+              icon={fullScreenIcon}
+              label={fullScreenLabel}
+              description={fullScreenDesc}
+              onClick={this.props.handleToggleFullscreen}
             />
             <DropdownListItem
-              icon="more"
+              icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
-              onClick={openSettings.bind(this)}
+              onClick={() => mountModal(<SettingsMenuContainer />)}
             />
             <DropdownListItem
+              icon="about"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
-              onClick={openAbout.bind(this)}
+              onClick={() => mountModal(<AboutContainer />)}
             />
             <DropdownListSeparator />
             <DropdownListItem
               icon="logout"
               label={intl.formatMessage(intlMessages.leaveSessionLabel)}
               description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-              onClick={openLogoutConfirmation.bind(this)}
+              onClick={() => mountModal(<LogoutConfirmation />)}
             />
           </DropdownList>
         </DropdownContent>
@@ -153,4 +157,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default injectIntl(SettingsDropdown);
+export default withModalMounter(injectIntl(SettingsDropdown));

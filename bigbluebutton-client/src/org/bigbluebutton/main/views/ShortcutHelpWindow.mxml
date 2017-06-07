@@ -71,7 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.sendMessage',
 											  'bbb.shortcutkey.chat.closePrivate'];
 			
-			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
+			private var userResource:Array = ['bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
 											  'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall', 'bbb.shortcutkey.users.focusBreakoutRooms',
 											  'bbb.shortcutkey.users.listenToBreakoutRoom', 'bbb.shortcutkey.users.joinBreakoutRoom'];
 			
@@ -99,14 +99,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function populateModules():void{
 				categoryAC.addItem(generalString);
-				if (ShortcutOptions.usersActive)
-					categoryAC.addItem(userString);
 				
-				if (ShortcutOptions.presentationActive)
-					categoryAC.addItem(presentationString);
-				
-				if (ShortcutOptions.chatActive)
-					categoryAC.addItem(chatString);
+				if (Capabilities.playerType == "ActiveX") {
+					if (ShortcutOptions.usersActive)
+						categoryAC.addItem(userString);
+					
+					if (ShortcutOptions.presentationActive)
+						categoryAC.addItem(presentationString);
+					
+					if (ShortcutOptions.chatActive)
+						categoryAC.addItem(chatString);
+				} else {
+					browserWarningText.visible = browserWarningText.includeInLayout = true;
+				}
 			}
 			
 			private function reloadKeys():void {
@@ -249,10 +254,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-	<common:TabIndexer id="headerIndexer" startIndex="101" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn]}"/>
-	<common:TabIndexer startIndex="115" tabIndices="{[categories, keyList]}"/>
+	<common:TabIndexer id="headerIndexer" startIndex="115" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn]}"/>
+	<common:TabIndexer startIndex="119" tabIndices="{[categories, keyList]}"/>
 
-	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " 
+	<mx:ComboBox id="categories" accessibilityName="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.dropdown.accessibilityName')}" 
 				 editable="false" 
 				 change="changeArray()">
 		<mx:ArrayCollection id="categoryAC">
@@ -264,6 +269,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			-->
       	</mx:ArrayCollection>
 	</mx:ComboBox>
+	<mx:Text id="browserWarningText" visible="false" includeInLayout="false" text="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.browserWarning.text')}" />
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
 		<mx:columns>
 			<mx:DataGridColumn dataField="shortcut" width="150" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.shortcut')}"/>

@@ -4,15 +4,16 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
 import addChat from '/imports/api/chat/server/modifiers/addChat';
+import clearUserSystemMessages from '/imports/api/chat/server/modifiers/clearUserSystemMessages';
 
 export default function handleValidateAuthToken({ payload }) {
   const meetingId = payload.meeting_id;
   const userId = payload.userid;
-  const validStatus = payload.valid;
+  const validStatus = JSON.parse(payload.valid);
 
   check(meetingId, String);
   check(userId, String);
-  check(validStatus, String);
+  check(validStatus, Boolean);
 
   const selector = {
     meetingId,
@@ -21,14 +22,11 @@ export default function handleValidateAuthToken({ payload }) {
 
   const User = Users.findOne(selector);
 
-  if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able validate the token`);
-  }
+  // If we dont find the user on our collection is a flash user and we can skip
+  if (!User) return;
 
-  if (User.validated === validStatus) {
-    return;
-  }
+  // User already flagged so we skip
+  if (User.validated === validStatus) return;
 
   const modifier = {
     $set: {
@@ -43,15 +41,18 @@ export default function handleValidateAuthToken({ payload }) {
 
     if (numChanged) {
       if (validStatus) {
+        clearUserSystemMessages(meetingId, userId);
         addWelcomeChatMessage(meetingId, userId);
       }
 
-      return Logger.info(`Validated auth token as '${validStatus}' user=${userId} meeting=${meetingId}`);
+      return Logger.info(`Validated auth token as ${validStatus
+       }${+' user='}${userId} meeting=${meetingId}`,
+      );
     }
   };
 
   return Users.update(selector, modifier, cb);
-};
+}
 
 const addWelcomeChatMessage = (meetingId, userId) => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -59,9 +60,9 @@ const addWelcomeChatMessage = (meetingId, userId) => {
 
   const Meeting = Meetings.findOne({ meetingId });
 
-  let welcomeMessage = APP_CONFIG.defaultWelcomeMessage
-      .concat(APP_CONFIG.defaultWelcomeMessageFooter)
-      .replace(/%%CONFNAME%%/, Meeting.meetingName);
+  const welcomeMessage = APP_CONFIG.defaultWelcomeMessage
+    .concat(APP_CONFIG.defaultWelcomeMessageFooter)
+    .replace(/%%CONFNAME%%/, Meeting.meetingName);
 
   const message = {
     chat_type: CHAT_CONFIG.type_system,

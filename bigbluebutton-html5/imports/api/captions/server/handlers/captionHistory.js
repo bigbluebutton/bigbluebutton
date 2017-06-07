@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
@@ -20,21 +20,23 @@ export default function handleCaptionHistory({ payload }) {
   check(meetingId, String);
   check(captionHistory, Object);
 
-  let captionsAdded = [];
+  const captionsAdded = [];
   _.each(captionHistory, (caption, locale) => {
-    let ownerId = caption[0];
+    const ownerId = caption[0];
     let captions = caption[1].slice(0);
-    let chunks = [];
+    const chunks = [];
 
     if (captions.length === 0) {
       chunks.push('');
-    } else while (captions.length > 0) {
-      if (captions.length > CAPTION_CHUNK_LENGTH) {
-        chunks.push(captions.slice(0, CAPTION_CHUNK_LENGTH));
-        captions = captions.slice(CAPTION_CHUNK_LENGTH);
-      } else {
-        chunks.push(captions);
-        captions = captions.slice(captions.length);
+    } else {
+      while (captions.length > 0) {
+        if (captions.length > CAPTION_CHUNK_LENGTH) {
+          chunks.push(captions.slice(0, CAPTION_CHUNK_LENGTH));
+          captions = captions.slice(CAPTION_CHUNK_LENGTH);
+        } else {
+          chunks.push(captions);
+          captions = captions.slice(captions.length);
+        }
       }
     }
 
@@ -47,7 +49,7 @@ export default function handleCaptionHistory({ payload }) {
     Captions.remove(selectorToRemove);
 
     chunks.forEach((captions, index) => {
-      let captionHistoryObject = {
+      const captionHistoryObject = {
         locale,
         ownerId,
         captions,
@@ -57,8 +59,7 @@ export default function handleCaptionHistory({ payload }) {
 
       captionsAdded.push(addCaption(meetingId, locale, captionHistoryObject));
     });
-
   });
 
   return captionsAdded;
-};
+}

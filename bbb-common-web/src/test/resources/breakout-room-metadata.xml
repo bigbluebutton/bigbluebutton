@@ -1,0 +1,25 @@
+<recording>
+    <id>3c97908bb2dc4f794914776d639405709479c3da-1490721543626</id>
+    <state>published</state>
+    <published>true</published>
+    <start_time>1490721543626</start_time>
+    <end_time>1490721560835</end_time>
+    <participants>1</participants>
+
+    <meta>
+        <meeting-name>grailserror</meeting-name>
+        <room-id>bn-19631b57</room-id>
+        <isBreakout>false</isBreakout>
+        <meetingName>grailserror</meetingName>
+        <gl-listed>false</gl-listed>
+        <gl-token>bn-19631b57-grailserror</gl-token>
+        <gl-webhooks-callback-url>http://localhost/b/rooms/bn-19631b57/grailserror/callback</gl-webhooks-callback-url>
+        <meetingId>77f6566f80654ce7dff9e14b2c01cbd99fb75abc</meetingId>
+    </meta>
+    <playback>
+        <format>presentation</format>
+        <link>http://demo.bigbluebutton.org/playback/presentation/0.9.0/playback.html?meetingId=3c97908bb2dc4f794914776d639405709479c3da-1490721543626</link>
+        <processing_time>20772</processing_time>
+        <duration>9807</duration>
+    </playback>
+</recording>

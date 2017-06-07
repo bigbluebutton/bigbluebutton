@@ -10,7 +10,7 @@ export default function addPoll(meetingId, requesterId, poll) {
   check(meetingId, String);
 
   let selector = {
-    meetingId: meetingId,
+    meetingId,
   };
 
   const options = {
@@ -51,4 +51,4 @@ export default function addPoll(meetingId, requesterId, poll) {
   };
 
   return Polls.upsert(selector, modifier, cb);
-};
+}

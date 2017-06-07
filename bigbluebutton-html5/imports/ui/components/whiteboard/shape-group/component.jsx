@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Ellipse from '../shapes/ellipse/component.jsx';
 import Line from '../shapes/line/component.jsx';
 import Poll from '../shapes/poll/component.jsx';
@@ -7,14 +8,13 @@ import Text from '../shapes/text/component.jsx';
 import Triangle from '../shapes/triangle/component.jsx';
 import Pencil from '../shapes/pencil/component.jsx';
 
-
 const propTypes = {
   // initial width and height of the slide are required to calculate the coordinates for each shape
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
 
-  //array of shapes, optional
-  shapes: React.PropTypes.array,
+  // array of shapes, optional
+  shapes: PropTypes.array,
 };
 
 export default class ShapeGroup extends React.Component {

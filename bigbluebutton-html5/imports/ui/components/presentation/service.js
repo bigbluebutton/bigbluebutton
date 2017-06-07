@@ -22,7 +22,7 @@ const getCurrentSlide = () => {
 };
 
 const isPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID, });
+  const currentUser = Users.findOne({ userId: Auth.userID });
 
   if (currentUser && currentUser.user) {
     return currentUser.user.presenter;

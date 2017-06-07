@@ -15,7 +15,7 @@ export default function addShape(meetingId, whiteboardId, shape) {
     'shape.id': shape.id,
   };
 
-  let modifier = {
+  const modifier = {
     $set: {
       meetingId,
       whiteboardId,
@@ -83,4 +83,4 @@ export default function addShape(meetingId, whiteboardId, shape) {
   };
 
   return Shapes.upsert(selector, modifier, cb);
-};
+}

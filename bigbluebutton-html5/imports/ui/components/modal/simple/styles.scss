@@ -1,0 +1,44 @@
+@import "../../../stylesheets/variables/_all";
+@import "../base/styles";
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  padding: ($line-height-computed / 2) $line-height-computed;
+}
+
+.content {
+  overflow: auto;
+  color: $color-text;
+  font-weight: normal;
+  padding: $line-height-computed 0;
+}
+
+.header {
+  display: flex;
+  padding: ($line-height-computed / 2) 0;
+  border-bottom: $border-size solid $color-gray-lighter;
+  flex-shrink: 0;
+}
+
+.title {
+  @extend %text-elipsis;
+  flex: 1;
+  margin: 0;
+  font-weight: 400;
+}
+
+.dismiss {
+  flex: 0;
+  > span:first-child {
+    border-color: transparent;
+    background-color: transparent;
+
+    > i { color: $color-text; }
+  }
+}
+
+.overlay {
+  @extend .overlay;
+  background-color: rgba(0, 0, 0, .5);
+}

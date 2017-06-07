@@ -1,10 +1,11 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
 import CursorContainer from './cursor/container.jsx';
 import PresentationToolbarContainer from './presentation-toolbar/container.jsx';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PollingContainer from '/imports/ui/components/polling/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
@@ -159,84 +160,83 @@ export default class PresentationArea extends React.Component {
             transition: 'height 0.2s',
           }}
         >
-        <ReactCSSTransitionGroup
-          transitionName={ {
-            enter: styles.enter,
-            enterActive: styles.enterActive,
-            appear: styles.appear,
-            appearActive: styles.appearActive,
-          } }
-          transitionAppear={true}
-          transitionEnter={true}
-          transitionLeave={false}
-          transitionAppearTimeout={400}
-          transitionEnterTimeout={400}
-          transitionLeaveTimeout={400}
-        >
-          <svg
-            width={svgWidth}
-            height={svgHeight}
-            ref="svggroup"
-            viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            className={styles.svgStyles}
-            key={slideObj.id}
+          <CSSTransitionGroup
+            transitionName={{
+              enter: styles.enter,
+              enterActive: styles.enterActive,
+              appear: styles.appear,
+              appearActive: styles.appearActive,
+            }}
+            transitionAppear={true}
+            transitionEnter={true}
+            transitionLeave={false}
+            transitionAppearTimeout={400}
+            transitionEnterTimeout={400}
+            transitionLeaveTimeout={400}
           >
-            <defs>
-              <clipPath id="viewBox">
-                <rect x={x} y={y} width="100%" height="100%" fill="none"/>
-              </clipPath>
-            </defs>
-            <g clipPath="url(#viewBox)">
-              <Slide
-                id="slideComponent"
-                slideHref={this.props.currentSlide.slide.img_uri}
-                svgWidth={svgWidth}
-                svgHeight={svgHeight}
-              />
-              <ShapeGroupContainer
-                width={svgWidth}
-                height={svgHeight}
-                whiteboardId = {slideObj.id}
-              />
-              <CursorContainer
-                viewBoxWidth={viewBoxWidth}
-                viewBoxHeight={viewBoxHeight}
-                viewBoxX={x}
-                viewBoxY={y}
-                widthRatio={slideObj.width_ratio}
-                physicalWidthRatio={adjustedSizes.width / svgWidth}
-              />
-            </g>
-            {this.props.userIsPresenter ?
-              <PresentationOverlayContainer
-                viewBoxX={x}
-                viewBoxY={y}
-                viewBoxWidth={viewBoxWidth}
-                viewBoxHeight={viewBoxHeight}
-                slideWidth={svgWidth}
-                slideHeight={svgHeight}
-              >
-                <WhiteboardOverlayContainer
-                  getSvgRef={this.getSvgRef.bind(this)}
+            <svg
+              width={svgWidth}
+              height={svgHeight}
+              ref="svggroup"
+              viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              className={styles.svgStyles}
+              key={slideObj.id}
+            >
+              <defs>
+                <clipPath id="viewBox">
+                  <rect x={x} y={y} width="100%" height="100%" fill="none" />
+                </clipPath>
+              </defs>
+              <g clipPath="url(#viewBox)">
+                <Slide
+                  id="slideComponent"
+                  slideHref={this.props.currentSlide.slide.img_uri}
+                  svgWidth={svgWidth}
+                  svgHeight={svgHeight}
+                />
+                <ShapeGroupContainer
+                  width={svgWidth}
+                  height={svgHeight}
                   whiteboardId = {slideObj.id}
-                  slideWidth={svgWidth}
-                  slideHeight={svgHeight}
+                />
+                <CursorContainer
+                  viewBoxWidth={viewBoxWidth}
+                  viewBoxHeight={viewBoxHeight}
+                  viewBoxX={x}
+                  viewBoxY={y}
+                  widthRatio={slideObj.width_ratio}
+                  physicalWidthRatio={adjustedSizes.width / svgWidth}
+                />
+              </g>
+              {this.props.userIsPresenter ?
+                <PresentationOverlayContainer
                   viewBoxX={x}
                   viewBoxY={y}
                   viewBoxWidth={viewBoxWidth}
                   viewBoxHeight={viewBoxHeight}
-                />
-              </PresentationOverlayContainer>
-            : null }
-          </svg>
-        </ReactCSSTransitionGroup>
+                  slideWidth={svgWidth}
+                  slideHeight={svgHeight}
+                >
+                  <WhiteboardOverlayContainer
+                    getSvgRef={this.getSvgRef.bind(this)}
+                    whiteboardId = {slideObj.id}
+                    slideWidth={svgWidth}
+                    slideHeight={svgHeight}
+                    viewBoxX={x}
+                    viewBoxY={y}
+                    viewBoxWidth={viewBoxWidth}
+                    viewBoxHeight={viewBoxHeight}
+                  />
+                </PresentationOverlayContainer>
+              : null }
+            </svg>
+          </CSSTransitionGroup>
         </div>
       );
-    } else {
-      return null;
     }
+    return null;
   }
 
   renderPresentationToolbar() {
@@ -247,9 +247,8 @@ export default class PresentationArea extends React.Component {
           presentationId={this.props.currentSlide.presentationId}
         />
       );
-    } else {
-      return null;
     }
+    return null;
   }
 
   renderWhiteboardToolbar() {

@@ -25,10 +25,10 @@ export default function handlePresentationInfoReply({ payload }) {
 
   presentationsToRemove.forEach(p => removePresentation(meetingId, p.presentation.id));
 
-  let presentationsAdded = [];
-  presentations.forEach(presentation => {
+  const presentationsAdded = [];
+  presentations.forEach((presentation) => {
     presentationsAdded.push(addPresentation(meetingId, presentation));
   });
 
   return presentationsAdded;
-};
+}

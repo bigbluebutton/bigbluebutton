@@ -1,36 +1,44 @@
-import React, { Component, PropTypes, cloneElement } from 'react';
+import React, { Component, cloneElement } from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
-import App from './component';
-import {
-  subscribeForData,
-  wasUserKicked,
-  redirectToLogoutUrl,
-  getModal,
-  getCaptionsStatus,
-  getFontSize,
-} from './service';
-import { setDefaultSettings, getSettingsFor } from '/imports/ui/components/settings/service';
+import { withRouter } from 'react-router';
+import { defineMessages, injectIntl } from 'react-intl';
 
+import {
+  getFontSize,
+  getCaptionsStatus,
+} from './service';
+
+import { withModalMounter } from '../modal/service';
+
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
+import Breakouts from '/imports/api/breakouts';
+
+import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import ClosedCaptionsContainer from '../closed-captions/container';
-import UserListService from '../user-list/service';
-import Auth from '/imports/ui/services/auth';
+import AudioModalContainer from '../audio/audio-modal/component';
+import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
-
-  //CCs UI is commented till the next pull request
-  captions: <ClosedCaptionsContainer />,
 };
+
+const intlMessages = defineMessages({
+  kickedMessage: {
+    id: 'app.error.kicked',
+    description: 'Message when the user is kicked out of the meeting',
+  },
+});
 
 class AppContainer extends Component {
   render() {
     // inject location on the navbar container
-    let navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
+    const navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
 
     return (
       <App {...this.props} navbar={navbarWithLocation}>
@@ -40,50 +48,34 @@ class AppContainer extends Component {
   }
 }
 
-let loading = true;
-const loadingDep = new Tracker.Dependency;
+export default withRouter(injectIntl(withModalMounter(createContainer((
+  { router, intl, mountModal, baseControls }) => {
+    // Check if user is kicked out of the session
+  Users.find({ userId: Auth.userID }).observeChanges({
+    changed(id, fields) {
+      if (fields.user && fields.user.kicked) {
+        Auth.clearCredentials()
+            .then(() => {
+              router.push('/error/403');
+              baseControls.updateErrorState(
+                intl.formatMessage(intlMessages.kickedMessage),
+              );
+            });
+      }
+    },
+  });
 
-const getLoading = () => {
-  loadingDep.depend();
-  return loading;
-};
-
-const setLoading = (val) => {
-  if (val !== loading) {
-    loading = val;
-    loadingDep.changed();
-  }
-};
-
-const checkUnreadMessages = () => {
-  return UserListService.getOpenChats().map(chat=> chat.unreadCounter)
-                        .filter(userID => userID !== Auth.userID);
-};
-
-const openChats = (chatID) => {
-  // get currently opened chatID
-  return UserListService.getOpenChats(chatID).map(chat => chat.id);
-}
-
-export default createContainer(({ params }) => {
-  Promise.all(subscribeForData())
-  .then(() => {
-    setLoading(false);
+    // Close the widow when the current breakout room ends
+  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+    removed(old) {
+      Auth.clearCredentials().then(window.close);
+    },
   });
 
   return {
-    wasKicked: wasUserKicked(),
-    isLoading: getLoading(),
-    modal: getModal(),
-    unreadMessageCount: checkUnreadMessages(),
-    openChats: openChats(params.chatID),
-    openChat: params.chatID,
-    getCaptionsStatus,
-    redirectToLogoutUrl,
-    setDefaultSettings,
+    closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
-    applicationSettings: getSettingsFor('application'),
   };
-}, AppContainer);
+}, AppContainer))));
 
 AppContainer.defaultProps = defaultProps;

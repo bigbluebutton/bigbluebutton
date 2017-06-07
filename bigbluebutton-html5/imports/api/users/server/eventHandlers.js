@@ -1,6 +1,7 @@
 import RedisPubSub from '/imports/startup/server/redis';
 import handleGetUsers from './handlers/getUsers';
 import handleRemoveUser from './handlers/removeUser';
+import handleKickUser from './handlers/kickUser';
 import handlePresenterAssigned from './handlers/presenterAssigned';
 import handleEmojiStatus from './handlers/emojiStatus';
 import handleLockedStatusChange from './handlers/lockedStatusChange';
@@ -12,7 +13,7 @@ import handleListeningOnly from './handlers/listeningOnly';
 RedisPubSub.on('validate_auth_token_reply', handleValidateAuthToken);
 RedisPubSub.on('get_users_reply', handleGetUsers);
 RedisPubSub.on('user_joined_message', handleUserJoined);
-RedisPubSub.on('user_eject_from_meeting', handleRemoveUser);
+RedisPubSub.on('user_eject_from_meeting', handleKickUser);
 RedisPubSub.on('disconnect_user_message', handleRemoveUser);
 RedisPubSub.on('user_left_message', handleRemoveUser);
 RedisPubSub.on('presenter_assigned_message', handlePresenterAssigned);

@@ -1,214 +1,172 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl } from 'react-intl';
 
-import React, { Component, PropTypes } from 'react';
-import { FormattedMessage } from 'react-intl';
+import _ from 'lodash';
 
-import LoadingScreen from '../loading-screen/component';
-import KickedScreen from '../kicked-screen/component';
+import ModalContainer from '../modal/container';
 
 import NotificationsBarContainer from '../notifications-bar/container';
-import AudioNotificationContainer from '../audio-notification/container';
+import AudioNotificationContainer from '../audio/audio-notification/container';
+import AudioContainer from '../audio/container';
+import ChatNotificationContainer from '../chat/notification/container';
 
-import LocalStorage from '/imports/ui/services/storage/local.js';
-
-import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
+const intlMessages = defineMessages({
+  userListLabel: {
+    id: 'app.userlist.Label',
+    description: 'Aria-label for Userlist Nav',
+  },
+  chatLabel: {
+    id: 'app.chat.Label',
+    description: 'Aria-label for Chat Section',
+  },
+  mediaLabel: {
+    id: 'app.media.Label',
+    description: 'Aria-label for Media Section',
+  },
+  actionsbarLabel: {
+    id: 'app.actionsBar.Label',
+    description: 'Aria-label for ActionsBar Section',
+  },
+});
+
 const propTypes = {
+  fontSize: PropTypes.string,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
-  sidebarRight: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  captions: PropTypes.element,
-  modal: PropTypes.element,
-  unreadMessageCount: PropTypes.array,
-  openChats: PropTypes.array,
 };
 
-export default class App extends Component {
+const defaultProps = {
+  fontSize: '16px',
+};
+
+class App extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
-
-    this.setDefaultSettings = props.setDefaultSettings;
   }
 
-  setHtmlFontSize(size) {
-    document.getElementsByTagName('html')[0].style.fontSize = size;
-  };
-
   componentDidMount() {
-    this.setDefaultSettings();
-    this.setHtmlFontSize(this.props.fontSize);
+    document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
   renderNavBar() {
     const { navbar } = this.props;
 
-    if (navbar) {
-      return (
-        <header className={styles.navbar}>
-          {navbar}
-        </header>
-      );
-    }
+    if (!navbar) return null;
 
-    return false;
+    return (
+      <header className={styles.navbar}>
+        {navbar}
+      </header>
+    );
   }
 
   renderSidebar() {
     const { sidebar } = this.props;
 
-    if (sidebar) {
-      return (
-        <aside className={styles.sidebar}>
-          {sidebar}
-        </aside>
-      );
-    }
+    if (!sidebar) return null;
 
-    return false;
-  }
-
-  renderUserList() {
-    let { userList } = this.props;
-    const { compactUserList } = this.state;
-
-    let userListStyle = {};
-    userListStyle[styles.compact] = compactUserList;
-    if (userList) {
-      userList = React.cloneElement(userList, {
-        compact: compactUserList,
-      });
-
-      return (
-        <nav className={cx(styles.userList, userListStyle)}>
-          {userList}
-        </nav>
-      );
-    }
-
-    return false;
-  }
-
-  renderChat() {
-    const { chat } = this.props;
-
-    if (chat) {
-      return (
-        <section className={styles.chat} role="log">
-          {chat}
-        </section>
-      );
-    }
-
-    return false;
-  }
-
-  renderMedia() {
-    const { media } = this.props;
-
-    if (media) {
-      return (
-        <section className={styles.media}>
-          {media}
-        </section>
-      );
-    }
-
-    return false;
-  }
-
-  renderClosedCaptions() {
-    const { captions } = this.props;
-    if (captions && this.props.getCaptionsStatus()) {
-      return (
-        <section className={styles.closedCaptions}>
-          {captions}
-        </section>
-      );
-    }
-  }
-
-  renderActionsBar() {
-    const { actionsbar } = this.props;
-
-    if (actionsbar) {
-      return (
-        <section className={styles.actionsbar}>
-          {actionsbar}
-        </section>
-      );
-    }
-
-    return false;
-  }
-
-  renderAudioElement() {
     return (
-      <audio id="remote-media" autoPlay="autoplay"></audio>
+      <aside className={styles.sidebar}>
+        {sidebar}
+      </aside>
     );
   }
 
-  renderModal() {
-    const { modal } = this.props;
+  renderClosedCaption() {
+    const { closedCaption } = this.props;
 
-    if (modal) {
-      return (<div>{modal}</div>);
-    }
+    if (!closedCaption) return null;
 
-    return false;
+    return (
+      <div className={styles.closedCaptionBox}>
+        {closedCaption}
+      </div>
+    );
   }
 
-  playSoundForUnreadMessages() {
-    const snd = new Audio('/html5client/resources/sounds/notify.mp3');
-    snd.play();
-  }
+  renderUserList() {
+    let { userList, intl } = this.props;
+    const { compactUserList } = this.state;
 
-  componentDidUpdate(prevProps) {
+    if (!userList) return;
 
-    let { unreadMessageCount, openChats, openChat } = this.props;
-
-    unreadMessageCount.forEach((chat, i) => {
-      // When starting the new chat, if prevProps is undefined or null, it is assigned 0.
-      if (!prevProps.unreadMessageCount[i]) {
-        prevProps.unreadMessageCount[i] = 0;
-      }
-
-      // compare openChats(chatID) to chatID of currently opened chat room
-      if (openChats[i] !== openChat) {
-        let shouldPlaySound = this.props.applicationSettings.chatAudioNotifications;
-
-        if (shouldPlaySound && chat > prevProps.unreadMessageCount[i]) {
-          this.playSoundForUnreadMessages();
-        }
-      }
+    const userListStyle = {};
+    userListStyle[styles.compact] = compactUserList;
+    userList = React.cloneElement(userList, {
+      compact: compactUserList,
     });
+
+    return (
+      <nav
+        className={cx(styles.userList, userListStyle)}
+        aria-label={intl.formatMessage(intlMessages.userListLabel)}
+      >
+        {userList}
+      </nav>
+    );
+  }
+
+  renderChat() {
+    const { chat, intl } = this.props;
+
+    if (!chat) return null;
+
+    return (
+      <section
+        className={styles.chat}
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.chatLabel)}
+      >
+        {chat}
+      </section>
+    );
+  }
+
+  renderMedia() {
+    const { media, intl } = this.props;
+
+    if (!media) return null;
+
+    return (
+      <section
+        className={styles.media}
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.mediaLabel)}
+      >
+        {media}
+        {this.renderClosedCaption()}
+      </section>
+    );
+  }
+
+  renderActionsBar() {
+    const { actionsbar, intl } = this.props;
+
+    if (!actionsbar) return null;
+
+    return (
+      <section
+        className={styles.actionsbar}
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.actionsbarLabel)}
+      >
+        {actionsbar}
+      </section>
+    );
   }
 
   render() {
-    if (this.props.wasKicked) {
-      return (
-        <KickedScreen>
-          <FormattedMessage
-            id="app.kickMessage"
-            description="Message when the user is kicked out of the meeting"
-            defaultMessage="You have been kicked out of the meeting"
-          />
-          <br/><br/>
-          <Button
-            label={'OK'}
-            onClick={this.props.redirectToLogoutUrl}/>
-        </KickedScreen>
-      );
-    }
-
-    if (this.props.isLoading) {
-      return <LoadingScreen/>;
-    }
+    const { modal, params } = this.props;
 
     return (
       <main className={styles.main}>
@@ -223,13 +181,15 @@ export default class App extends Component {
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
-          {this.renderClosedCaptions()}
         </section>
-        {this.renderAudioElement()}
-        {this.renderModal()}
+        <ModalContainer />
+        <AudioContainer />
+        <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );
   }
 }
 
 App.propTypes = propTypes;
+App.defaultProps = defaultProps;
+export default injectIntl(App);

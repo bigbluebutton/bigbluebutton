@@ -5,7 +5,28 @@ import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 import userLeaving from './methods/userLeaving';
-import validateAuthToken from './methods/validateAuthToken';
+
+Meteor.publish('current-user', (credentials) => {
+  const { meetingId, requesterUserId, requesterToken } = credentials;
+
+  check(meetingId, String);
+  check(requesterUserId, String);
+  check(requesterToken, String);
+
+  const selector = {
+    meetingId,
+    userId: requesterUserId,
+    authToken: requesterToken,
+  };
+
+  const options = {
+    fields: {
+      user: false,
+    },
+  };
+
+  return Users.find(selector, options);
+});
 
 Meteor.publish('users', function (credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -14,22 +35,20 @@ Meteor.publish('users', function (credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  validateAuthToken(credentials);
-
-  // TODO(auth): We need to fix the Authentication flow to enable ACL
-  // if (!isAllowedTo('subscribeUsers', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
-  // }
+  if (!isAllowedTo('subscribeUsers', credentials)) {
+    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
+  }
 
   this.onStop(() => {
-    userLeaving(credentials, requesterUserId);
+    try {
+      userLeaving(credentials, requesterUserId);
+    } catch (e) {
+      Logger.error(`Exception while executing userLeaving: ${e}`);
+    }
   });
 
   const selector = {
     meetingId,
-    'user.connection_status': {
-      $in: ['online', ''],
-    },
   };
 
   const options = {

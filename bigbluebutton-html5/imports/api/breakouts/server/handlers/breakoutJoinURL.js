@@ -1,14 +1,12 @@
 import Breakouts from '/imports/api/breakouts';
-import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
-import { XMLHttpRequest } from 'xmlhttprequest';
+
 import xml2js from 'xml2js';
 import url from 'url';
 const xmlParser = new xml2js.Parser();
 
-const getUrlParams = urlToParse => {
+const getUrlParams = (urlToParse) => {
   const options = { parseQueryString: true };
   const parsedUrl = url.parse(urlToParse, options);
   return parsedUrl.query;
@@ -41,9 +39,9 @@ export default function handleBreakoutJoinURL({ payload }) {
     breakout = Breakouts.findOne(selector);
 
     const { response } = parsedXML;
-    let users = breakout.users;
+    const users = breakout.users;
 
-    let user = {
+    const user = {
       userId: payload.userId,
       urlParams: {
         meetingId: response.meeting_id[0],

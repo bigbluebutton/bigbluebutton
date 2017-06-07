@@ -16,10 +16,10 @@ export default function kickUser(credentials, userId) {
   check(userId, String);
 
   if (!isAllowedTo('kickUser', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to kickUser`);
+    throw new Meteor.Error('not-allowed', 'You are not allowed to kickUser');
   }
 
-  let payload = {
+  const payload = {
     userid: userId,
     ejected_by: requesterUserId,
     meeting_id: meetingId,
@@ -28,4 +28,4 @@ export default function kickUser(credentials, userId) {
   Logger.verbose(`User '${userId}' was kicked by '${requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

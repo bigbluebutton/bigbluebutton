@@ -44,6 +44,9 @@
 .icon-bbb-fullscreen:before {
   content: "\e92a";
 }
+.icon-bbb-exit_fullscreen:before {
+    content: "\e935";
+}
 .icon-bbb-settings:before {
   content: "\e92b";
 }
@@ -183,4 +186,10 @@
 }
 .icon-bbb-thumbs_down:before {
   content: "\e92c";
+}
+.icon-bbb-send:before {
+    content: "\e934";
+}
+.icon-bbb-about:before {
+    content: "\e933";
 }

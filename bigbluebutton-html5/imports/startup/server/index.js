@@ -1,7 +1,10 @@
 import { Meteor } from 'meteor/meteor';
-import Locales from '/imports/locales';
+import _ from 'lodash';
 import Logger from './logger';
 import Redis from './redis';
+import locales from '../../utils/locales';
+
+const availableLocales = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -9,7 +12,7 @@ Meteor.startup(() => {
 });
 
 WebApp.connectHandlers.use('/check', (req, res, next) => {
-  let payload = { html5clientStatus: 'running' };
+  const payload = { html5clientStatus: 'running' };
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
@@ -17,24 +20,50 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
 });
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
-  let defaultLocale = 'en';
-  let [locale, region] = req.query.locale.split('-');
+  const APP_CONFIG = Meteor.settings.public.app;
+  const defaultLocale = APP_CONFIG.defaultLocale;
+  const localeRegion = req.query.locale.split('-');
+  let messages = {};
+  const locales = [defaultLocale, localeRegion[0]];
+  let statusCode = 200;
+  if (localeRegion.length > 1) {
+    locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
+  }
 
-  const defaultMessages = Locales[defaultLocale];
+  locales.forEach((locale) => {
+    try {
+      const data = Assets.getText(`locales/${locale}.json`);
+      messages = Object.assign(messages, JSON.parse(data));
+    } catch (e) {
+      // Variant Also Negotiates Status-Code, to alert the client that we
+      // do not support the following lang.
+      // https://en.wikipedia.org/wiki/Content_negotiation
+      statusCode = 506;
+    }
+  });
 
-  let messages = Object.assign(
-    {},
-    defaultMessages,
-    Locales[locale],
-    Locales[`${locale}-${region}`],
-  );
+  res.setHeader('Content-Type', 'application/json');
+  res.writeHead(statusCode);
+  res.end(JSON.stringify(messages));
+});
+
+WebApp.connectHandlers.use('/locales', (req, res) => {
+  if (!availableLocales.length) {
+    locales.forEach((l) => {
+      try {
+        Assets.absoluteFilePath(`locales/${l.locale}.json`);
+        availableLocales.push(l);
+      } catch (e) {
+        // Getting here means the locale is not available on the files.
+      }
+    });
+  }
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(messages));
-
+  res.end(JSON.stringify(availableLocales));
 });
 
 export const eventEmitter = Redis.emitter;
 
-export let redisPubSub = Redis;
+export const redisPubSub = Redis;

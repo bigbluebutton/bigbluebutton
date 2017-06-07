@@ -3,13 +3,12 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
 const getCurrentShapes = (whiteboardId) => {
-
   if (!whiteboardId) {
     return null;
   }
 
   return Shapes.find({
-    whiteboardId: whiteboardId,
+    whiteboardId,
   }).fetch();
 };
 
