@@ -34,7 +34,7 @@ export default class Checkbox extends Component {
   }
 
   handleChange() {
-    if (!this.props.disabled) return;
+    if (this.props.disabled) return;
     this.onChange();
   }
 

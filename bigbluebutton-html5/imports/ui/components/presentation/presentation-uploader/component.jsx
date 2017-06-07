@@ -73,7 +73,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const isProcessingOrUploading = _ => !_.isProcessed || !_.isUploaded;
+const isProcessingOrUploading = item => item && (!item.isProcessed || !item.isUploaded);
 
 class PresentationUploader extends Component {
   constructor(props) {
