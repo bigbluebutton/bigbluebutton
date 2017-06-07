@@ -65,7 +65,7 @@ case class ValidateAuthTokenRespMsg(header: BbbClientMsgHeader,
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg
 
-object UserBroadcastCamStoppedEvtMsg { val NAME = "UserUnsharedWebcamEvtMsg" }
+object UserBroadcastCamStoppedEvtMsg { val NAME = "UserBroadcastCamStoppedEvtMsg" }
 case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
 
 

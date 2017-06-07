@@ -68,9 +68,15 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      // LOGGER.debug(" received message " + messageName);
+      LOGGER.debug(" received message " + messageName);
 
       switch (messageName) {
+        case "UserBroadcastCamStartedEvtMsg": 
+          handleUserBroadcastCamStartedEvtMsg(message);
+          break;
+        case "UserBroadcastCamStoppedEvtMsg": 
+          handleUserBroadcastCamStoppedEvtMsg(message);
+          break;  
         case "getUsersReply":
           handleGetUsersReply(message);
           break;
@@ -124,12 +130,6 @@ package org.bigbluebutton.modules.users.services
           break;
         case "userEmojiStatus":
           handleEmojiStatusHand(message);
-          break;
-        case "userSharedWebcam":
-          handleUserSharedWebcam(message);
-          break;
-        case "userUnsharedWebcam":
-          handleUserUnsharedWebcam(message);
           break;
         case "getRecordingStatusReply":
           handleGetRecordingStatusReply(message);
@@ -602,24 +602,32 @@ package org.bigbluebutton.modules.users.services
       UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
     }
 
-    private function handleUserSharedWebcam(msg:Object):void {
-        var map:Object = JSON.parse(msg.msg);
-        UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
+    private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
+        var userId: String = msg.body.userId as String; 
+        var stream: String = msg.body.stream as String;
+
+        
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["webcam"];
+        logData.message = "UserBroadcastCamStartedEvtMsg server message";
+        logData.user.webcamStream = stream;
+        LOGGER.info(JSON.stringify(logData));
+
+        UserManager.getInstance().getConference().sharedWebcam(userId, stream);
     }
 
-    private function handleUserUnsharedWebcam(msg: Object):void {  
-	  var map:Object = JSON.parse(msg.msg);
-	  
-       var logData:Object = UsersUtil.initLogData();
-       logData.tags = ["webcam"];
-       logData.message = "UserUnsharedWebcam server message";
-       logData.user.webcamStream = map.webcamStream;
-       logData.user.serverTimestamp = map.serverTimestamp;
+    private function handleUserBroadcastCamStoppedEvtMsg(msg: Object):void {  
+        var userId: String = msg.body.userId as String; 
+        var stream: String = msg.body.stream as String;
 
-	  LOGGER.info(JSON.stringify(logData));
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["webcam"];
+        logData.message = "UserBroadcastCamStoppedEvtMsg server message";
+        logData.user.webcamStream = stream;
+        LOGGER.info(JSON.stringify(logData));
 	  
-      UserManager.getInstance().getConference().unsharedWebcam(map.userId, map.webcamStream);
-	  sendStreamStoppedEvent(map.userId, map.webcamStream);
+        UserManager.getInstance().getConference().unsharedWebcam(userId, stream);
+        sendStreamStoppedEvent(userId, stream);
     }
 	
 	private function sendStreamStoppedEvent(userId: String, streamId: String):void{
