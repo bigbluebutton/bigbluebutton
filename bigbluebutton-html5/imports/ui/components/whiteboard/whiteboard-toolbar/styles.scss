@@ -115,6 +115,8 @@ $number-of-vertical-main-toolbar-buttons: 5;
 .textThickness {
   margin: auto;
   color: $color-white;
+
+  //color transiton should match color transition for the svg Color and Thickness icons in the component.jsx
   transition: color 0.4s, font-size 0.3s;
 }
 

@@ -77,16 +77,30 @@ export default class WhiteboardToolbar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    //check if thickness or color have changed and we need to trigger svg animation
-    if(this.state.thicknessSelected.iconRadius != prevState.thicknessSelected.iconRadius) {
-      var node1 = findDOMNode(this.thicknessListIconRadius);
-      node1.beginElement();
-    }
-    if(this.state.colorSelected != prevState.colorSelected) {
-      var node2 = findDOMNode(this.thicknessListIconColor);
-      var node3 = findDOMNode(this.colorListIconColor);
-      node2.beginElement();
-      node3.beginElement();
+    // if color or thickness were changed
+    // we might need to trigger svg animation for Color and Thickness icons
+    this.animateSvgIcons(prevState);
+  }
+
+  animateSvgIcons(prevState) {
+    // if Text tool is selected - we only need to update the Color icon with the new color
+    if(this.state.annotationSelected.sessionValue == "Text") {
+      if(this.state.colorSelected != prevState.colorSelected) {
+        const node = findDOMNode(this.colorListIconColor);
+        node.beginElement();
+      }
+    // if any other tool except Text is selected - we might potentially update:
+    // 1) Color icon with the new color; 2) Thickness icon with the new radius and color
+    } else {
+      if(this.state.colorSelected != prevState.colorSelected) {
+        const node = findDOMNode(this.colorListIconColor);
+        const node2 = findDOMNode(this.thicknessListIconColor);
+        node.beginElement();
+        node2.beginElement();
+      } else if(this.state.thicknessSelected.iconRadius != prevState.thicknessSelected.iconRadius) {
+        const node = findDOMNode(this.thicknessListIconRadius);
+        node.beginElement();
+      }
     }
   }
 
