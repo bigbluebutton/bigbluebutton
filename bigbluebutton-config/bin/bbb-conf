@@ -289,7 +289,7 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	/etc/init.d/monit stop
 
@@ -322,6 +322,13 @@ stop_bigbluebutton () {
         if [ -f /etc/init.d/bbb-fsesl-akka ]; then
                 /etc/init.d/bbb-fsesl-akka stop
         fi
+
+        if [ -f /etc/init/bbb-transcode-akka.conf ]; then
+                service bbb-transcode-akka stop
+        fi
+        if [ -f /etc/init.d/bbb-transcode-akka ]; then
+                /etc/init.d/bbb-transcode-akka stop
+        fi
    fi
 }
 
@@ -334,7 +341,7 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	$FREESWITCH_INIT_D start
 	
@@ -386,6 +393,13 @@ start_bigbluebutton () {
         fi
         if [ -f /etc/init.d/bbb-fsesl-akka ]; then
                 /etc/init.d/bbb-fsesl-akka start
+        fi
+
+        if [ -f /etc/init/bbb-transcode-akka.conf ]; then
+                service bbb-transcode-akka start
+        fi
+        if [ -f /etc/init.d/bbb-transcode-akka ]; then
+                /etc/init.d/bbb-transcode-akka start
         fi
 
 
@@ -459,7 +473,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-fsesl-akka"
+	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
@@ -1615,6 +1629,7 @@ if [ $ZIP ]; then
 	tar rfh /tmp/$LOG_FILE.tar $SERVLET_LOGS			> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-apps-akka	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-transcode-akka	> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-fsesl-akka	> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
 	if [ $DISTRIB_ID == "ubuntu" ]; then
@@ -1912,6 +1927,10 @@ if [ $CLEAN ]; then
 	if [ -d /var/log/bbb-apps-akka ]; then
 		rm -f /var/log/bbb-apps-akka/*
         fi
+
+	if [ -d /var/log/bbb-transcode-akka ]; then
+		rm -f /var/log/bbb-transcode-akka/*
+	fi
 
 	start_bigbluebutton
 	check_state

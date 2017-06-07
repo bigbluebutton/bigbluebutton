@@ -202,6 +202,36 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	log.info("streamPublishStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
     }
     
+    private String getStreamName(String streamName) {
+        String parts[] = streamName.split("/");
+        if(parts.length > 1)
+            return parts[parts.length-1];
+        return "";
+    }
+
+    private void requestRotateVideoTranscoder(IBroadcastStream stream) {
+        IConnection conn = Red5.getConnectionLocal();
+        String userId = getUserId();
+        String meetingId = conn.getScope().getName();
+        String streamId = stream.getPublishedName();
+        String streamName = getStreamName(streamId);
+        String ipAddress = conn.getHost();
+
+        switch (VideoRotator.getDirection(streamId)) {
+            case VideoRotator.ROTATE_RIGHT:
+                publisher.startRotateRightTranscoderRequest(meetingId, userId, streamName, ipAddress);
+                break;
+            case VideoRotator.ROTATE_LEFT:
+                publisher.startRotateLeftTranscoderRequest(meetingId, userId, streamName, ipAddress);
+                break;
+            case VideoRotator.ROTATE_UPSIDE_DOWN:
+                publisher.startRotateUpsideDownTranscoderRequest(meetingId, userId, streamName, ipAddress);
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
@@ -217,8 +247,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			addH263PublishedStream(streamId);
 			if (streamId.contains("/")) {
 				if(VideoRotator.getDirection(streamId) != null) {
-					VideoRotator rotator = new VideoRotator(streamId);
-					videoRotators.put(streamId, rotator);
+					//VideoRotator rotator = new VideoRotator(streamId);
+					videoRotators.put(streamId, null);
+					requestRotateVideoTranscoder(stream);
 				}
 			} else if (matcher.matches()) {
 				log.info("Start recording of stream=[" + stream.getPublishedName() + "] for meeting=[" + conn.getScope().getName() + "]");
@@ -266,7 +297,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			removeH263ConverterIfNeeded(streamId);
 			if (videoRotators.containsKey(streamId)) {
 				// Stop rotator
-				videoRotators.remove(streamId).stop();
+				videoRotators.remove(streamId);
+				publisher.stopTranscoderRequest(meetingId, userId);
 			}
 			removeH263PublishedStream(streamId);
 			if (matcher.matches()) {
@@ -336,7 +368,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				// Check if a new stream converter is necessary
 				H263Converter converter;
 				if(!h263Converters.containsKey(streamName) && !isStreamPublished(streamName)) {
-					converter = new H263Converter(streamName);
+					converter = new H263Converter(streamName, publisher);
 					h263Converters.put(streamName, converter);
 				}
 				else {

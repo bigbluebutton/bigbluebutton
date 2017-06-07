@@ -21,7 +21,7 @@ public class VideoRotator {
 	public static final String ROTATE_UPSIDE_DOWN = "rotate_left/rotate_left";
 
 	private String streamName;
-	private FFmpegCommand.ROTATE direction;
+//	private FFmpegCommand.ROTATE direction;
 
 	private FFmpegCommand ffmpeg;
 	private ProcessMonitor processMonitor;
@@ -36,9 +36,9 @@ public class VideoRotator {
 	 */
 	public VideoRotator(String origin) {
 		this.streamName = getStreamName(origin);
-		this.direction = getDirection(origin);
+//		this.direction = getDirection(origin);
 
-		log.debug("Setting up VideoRotator: StreamName={}, Direction={}",this.streamName,this.direction);
+//		log.debug("Setting up VideoRotator: StreamName={}, Direction={}",this.streamName,this.direction);
 		IConnection conn = Red5.getConnectionLocal();
 		String ip = conn.getHost();
 		String conf = conn.getScope().getName();
@@ -52,7 +52,7 @@ public class VideoRotator {
 		ffmpeg.setFormat("flv");
 		ffmpeg.setOutput(output);
 		ffmpeg.setLoglevel("warning");
-		ffmpeg.setRotation(direction);
+//		ffmpeg.setRotation(direction);
 		ffmpeg.setAnalyzeDuration("10000"); // 10ms
 
 		start();
@@ -73,9 +73,9 @@ public class VideoRotator {
 	/**
 	 * Get the rotate direction from the streamName string.
 	 * @param streamName Name of the stream with rotate direction
-	 * @return FFmpegCommand.ROTATE for the given direction if present, null otherwise
+	 * @return String for the given direction if present, null otherwise
 	 */
-	public static FFmpegCommand.ROTATE getDirection(String streamName) {
+	public static String getDirection(String streamName) {
 		int index = streamName.lastIndexOf("/");
 		String parts[] =  {
 				streamName.substring(0, index),
@@ -84,11 +84,11 @@ public class VideoRotator {
 
 		switch(parts[0]) {
 			case ROTATE_LEFT:
-				return FFmpegCommand.ROTATE.LEFT;
+				return ROTATE_LEFT;
 			case ROTATE_RIGHT:
-				return FFmpegCommand.ROTATE.RIGHT;
+				return ROTATE_RIGHT;
 			case ROTATE_UPSIDE_DOWN:
-				return FFmpegCommand.ROTATE.UPSIDE_DOWN;
+				return ROTATE_UPSIDE_DOWN;
 			default:
 				return null;
 		}
@@ -98,7 +98,7 @@ public class VideoRotator {
 	 * Start FFmpeg process to rotate and re-publish the stream.
 	 */
 	public void start() {
-		log.debug("Spawn FFMpeg to rotate [{}] stream [{}]", direction.name(), streamName);
+//		log.debug("Spawn FFMpeg to rotate [{}] stream [{}]", direction.name(), streamName);
 		String[] command = ffmpeg.getFFmpegCommand(true);
 		if (processMonitor == null) {
 			processMonitor = new ProcessMonitor(command,"FFMPEG");
@@ -110,7 +110,7 @@ public class VideoRotator {
 	 * Stop FFmpeg process that is rotating and re-publishing the stream.
 	 */
 	public void stop() {
-		log.debug("Stopping FFMpeg from rotate [{}] stream [{}]", direction.name(), streamName);
+//		log.debug("Stopping FFMpeg from rotate [{}] stream [{}]", direction.name(), streamName);
 		if(processMonitor != null) {
 			processMonitor.destroy();
 			processMonitor = null;

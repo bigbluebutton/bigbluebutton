@@ -23,10 +23,12 @@ class LiveMeeting(val mProps: MeetingProperties,
   val presModel: PresentationModel,
   val breakoutModel: BreakoutRoomModel,
   val captionModel: CaptionModel,
-  val notesModel: SharedNotesModel)(implicit val context: ActorContext)
+  val notesModel: SharedNotesModel,
+  val videoModel: VideoModel)(implicit val context: ActorContext)
     extends UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with BreakoutRoomApp with CaptionApp with SharedNotesApp {
+    with BreakoutRoomApp with CaptionApp with SharedNotesApp
+    with VideoApp {
 
   val log = Logging(context.system, getClass)
 
@@ -130,6 +132,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   def handleEndMeeting(msg: EndMeeting) {
     // Broadcast users the meeting will end
     outGW.send(new MeetingEnding(msg.meetingId))
+    outGW.send(new StopMeetingTranscoders(msg.meetingID))
 
     meetingModel.meetingHasEnded
 

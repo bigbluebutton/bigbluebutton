@@ -13,11 +13,7 @@ import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, CaptionApp, SharedNotesApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, CaptionModel, SharedNotesModel }
-import org.bigbluebutton.core.apps.PresentationModel
-import org.bigbluebutton.core.apps.BreakoutRoomApp
-import org.bigbluebutton.core.apps.BreakoutRoomModel
+import org.bigbluebutton.core.apps._
 
 object MeetingActorInternal {
   def props(mProps: MeetingProperties,
@@ -240,12 +236,14 @@ class MeetingActor(val mProps: MeetingProperties,
   val breakoutModel = new BreakoutRoomModel()
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
+  val videoModel = new VideoModel()
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
   val liveMeeting = new LiveMeeting(mProps, eventBus, outGW,
     chatModel, layoutModel, meetingModel, usersModel, pollModel,
-    wbModel, presModel, breakoutModel, captionModel, notesModel)
+    wbModel, presModel, breakoutModel, captionModel, notesModel,
+    videoModel)
 
   /**
    * Put the internal message injector into another actor so this
@@ -368,6 +366,13 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: DestroyAdditionalNotesRequest => liveMeeting.handleDestroyAdditionalNotesRequest(msg)
     case msg: RequestAdditionalNotesSetRequest => liveMeeting.handleRequestAdditionalNotesSetRequest(msg)
     case msg: SharedNotesSyncNoteRequest => liveMeeting.handleSharedNotesSyncNoteRequest(msg)
+
+    // Transcoder
+    case msg: StartTranscoderReply => liveMeeting.handleStartTranscoderReply(msg)
+    case msg: UpdateTranscoderReply => liveMeeting.handleUpdateTranscoderReply(msg)
+    case msg: StopTranscoderReply => liveMeeting.handleStopTranscoderReply(msg)
+    case msg: TranscoderStatusUpdate => liveMeeting.handleTranscoderStatusUpdate(msg)
+    case msg: StartProbingReply => liveMeeting.handleStartProbingReply(msg)
 
     case _ => // do nothing
   }

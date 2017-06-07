@@ -145,6 +145,7 @@ class BigBlueButtonActor(val system: ActorSystem,
         context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
           // Disconnect all clients
           outGW.send(new DisconnectAllUsers(msg.meetingID))
+          outGW.send(new StopMeetingTranscoders(msg.meetingID))
           log.info("Destroyed meetingId={}", msg.meetingID)
           outGW.send(new MeetingDestroyed(msg.meetingID))
 
