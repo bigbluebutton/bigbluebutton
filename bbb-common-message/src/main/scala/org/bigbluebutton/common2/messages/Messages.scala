@@ -35,8 +35,9 @@ case class CreateMeetingReqMsg(header: BbbCoreBaseHeader,
 object RegisterUserReqMsg { val NAME = "RegisterUserReqMsg" }
 case class RegisterUserReqMsg(header: BbbCoreHeaderWithMeetingId,
                               body: RegisterUserReqMsgBody) extends BbbCoreMsg
+
 object ValidateAuthTokenReqMsg { val NAME = "ValidateAuthTokenReqMsg" }
-case class ValidateAuthTokenReqMsg(header: BbbCoreHeaderWithMeetingId,
+case class ValidateAuthTokenReqMsg(header: BbbClientMsgHeader,
                                    body: ValidateAuthTokenReqMsgBody) extends BbbCoreMsg
 
 

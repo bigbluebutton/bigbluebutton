@@ -22,7 +22,8 @@ object Boot extends App with SystemConfiguration {
   val eventBus = new IncomingEventBus
   val outgoingEventBus = new OutgoingEventBus
   val outBus2 = new OutEventBus2
-  val outGW = new OutMessageGateway(outgoingEventBus, outBus2)
+  val recordingEventBus = new RecordingEventBus
+  val outGW = new OutMessageGateway(outgoingEventBus, outBus2, recordingEventBus)
 
   val redisPublisher = new RedisPublisher(system)
   val msgSender = new MessageSender(redisPublisher)
@@ -33,6 +34,7 @@ object Boot extends App with SystemConfiguration {
   val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
 
   outgoingEventBus.subscribe(messageSenderActor, outMessageChannel)
+
   outgoingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   outgoingEventBus.subscribe(newMessageSenderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
@@ -41,6 +43,7 @@ object Boot extends App with SystemConfiguration {
 
   val fromAkkaAppsMsgSenderActorRef = system.actorOf(FromAkkaAppsMsgSenderActor.props(msgSender))
   outBus2.subscribe(fromAkkaAppsMsgSenderActorRef, outBbbMsgMsgChannel)
+  outBus2.subscribe(redisRecorderActor, recordServiceMessageChannel)
 
   val bbbInGW = new BigBlueButtonInGW(system, eventBus, bbbMsgBus, outGW)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)

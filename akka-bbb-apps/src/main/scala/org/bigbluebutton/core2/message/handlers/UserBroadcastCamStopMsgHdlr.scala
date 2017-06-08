@@ -22,12 +22,15 @@ trait UserBroadcastCamStopMsgHdlr {
       val event = UserBroadcastCamStoppedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
+
+      record(event)
     }
 
     for {
       uvo <- Users.userUnsharedWebcam(msg.header.userId, liveMeeting.users, msg.body.stream)
     } yield {
       broadcastEvent(msg)
+
     }
   }
 }
