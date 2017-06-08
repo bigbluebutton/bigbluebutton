@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.red5.pubsub;
+package org.bigbluebutton.deskshare.server.red5.pubsub;
 
 import org.apache.commons.pool.impl.GenericObjectPool;
 

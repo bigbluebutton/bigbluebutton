@@ -135,11 +135,4 @@ public interface IBigBlueButtonInGW {
 	void destroyAdditionalNotes(String meetingID, String requesterID, String noteID);
 	void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize);
 	void sharedNotesSyncNoteRequest(String meetingID, String requesterID, String noteID);
-
-	//Transcode
-	void startTranscoderReply(String meetingId, String transcoderId, Map<String,String> params);
-	void updateTranscoderReply(String meetingId, String transcoderId, Map<String,String> params);
-	void stopTranscoderReply(String meetingId, String transcoderId);
-	void transcoderStatusUpdate(String meetingId, String transcoderId, Map<String,String> params);
-	void startProbingReply(String meetingId, String transcoderId, Map<String,String> params);
 }

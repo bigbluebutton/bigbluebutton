@@ -236,14 +236,12 @@ class MeetingActor(val mProps: MeetingProperties,
   val breakoutModel = new BreakoutRoomModel()
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
-  val videoModel = new VideoModel()
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
   val liveMeeting = new LiveMeeting(mProps, eventBus, outGW,
     chatModel, layoutModel, meetingModel, usersModel, pollModel,
-    wbModel, presModel, breakoutModel, captionModel, notesModel,
-    videoModel)
+    wbModel, presModel, breakoutModel, captionModel, notesModel)
 
   /**
    * Put the internal message injector into another actor so this
@@ -366,13 +364,6 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: DestroyAdditionalNotesRequest => liveMeeting.handleDestroyAdditionalNotesRequest(msg)
     case msg: RequestAdditionalNotesSetRequest => liveMeeting.handleRequestAdditionalNotesSetRequest(msg)
     case msg: SharedNotesSyncNoteRequest => liveMeeting.handleSharedNotesSyncNoteRequest(msg)
-
-    // Transcoder
-    case msg: StartTranscoderReply => liveMeeting.handleStartTranscoderReply(msg)
-    case msg: UpdateTranscoderReply => liveMeeting.handleUpdateTranscoderReply(msg)
-    case msg: StopTranscoderReply => liveMeeting.handleStopTranscoderReply(msg)
-    case msg: TranscoderStatusUpdate => liveMeeting.handleTranscoderStatusUpdate(msg)
-    case msg: StartProbingReply => liveMeeting.handleStartProbingReply(msg)
 
     case _ => // do nothing
   }
