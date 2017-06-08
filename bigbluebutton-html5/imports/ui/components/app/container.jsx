@@ -7,6 +7,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import {
   getFontSize,
   getCaptionsStatus,
+  meetingIsBreakout,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -71,6 +72,21 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       Auth.clearCredentials().then(window.close);
     },
   });
+
+  if((window.navigator.userAgent === 'BigBlueButton') && !meetingIsBreakout()) {
+    const messageToSwift = {
+      method: 'mainRoomUrl',
+      url: [
+        window.location.origin,
+        'html5client/join',
+        Auth.meetingID,
+        Auth.userID,
+        Auth.token,
+      ].join('/'),
+    };
+
+    window.webkit.messageHandlers.bbb.postMessage(JSON.stringify(messageToSwift));
+  }
 
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,

@@ -19,11 +19,13 @@
 }
 
 .presentationPaper {
+  width: 100%;
   display: flex;
   flex: 1;
 }
 
 .presentationTransitions {
+  width: 100%;
   flex: 1;
   display: flex;
 }
@@ -34,6 +36,7 @@
 }
 
 .presentationContainer {
+  width: 100%;
   display: flex;
   flex: 1;
   flex-flow: column;

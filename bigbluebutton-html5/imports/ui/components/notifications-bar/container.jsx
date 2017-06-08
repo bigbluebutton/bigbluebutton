@@ -171,7 +171,7 @@ export default injectIntl(createContainer(({ intl }) => {
       if (timeRemaining > 0) {
         data.message = intl.formatMessage(
           intlMessages.breakoutTimeRemaining,
-          { time: humanizeSeconds(timeRemaining) },
+          { 0: humanizeSeconds(timeRemaining) },
         );
       } else {
         clearInterval(timeRemainingInterval);

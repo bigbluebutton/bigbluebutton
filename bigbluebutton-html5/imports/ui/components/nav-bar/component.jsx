@@ -119,7 +119,7 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
-    if (!breakouts.length) {
+    if (!breakouts.length || (window.navigator.userAgent!="BigBlueButton" && isBreakoutRoom)) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );

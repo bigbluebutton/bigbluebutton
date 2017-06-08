@@ -11,6 +11,7 @@ export function joinRouteHandler(nextState, replace, callback) {
   }
 
   const { meetingID, userID, authToken } = nextState.params;
+
   Auth.set(meetingID, userID, authToken);
   replace({ pathname: '/' });
   callback();
