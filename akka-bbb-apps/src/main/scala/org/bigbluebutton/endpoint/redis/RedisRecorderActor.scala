@@ -6,7 +6,7 @@ import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.recorders.events._
 import redis.RedisClient
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.JavaConversions._
 import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.immutable.StringOps
@@ -27,13 +27,16 @@ class RedisRecorderActor(val system: ActorSystem)
   val COLON = ":"
 
   def record(session: String, message: collection.immutable.Map[String, String]): Unit = {
-    val msgid = redis.incr("global:nextRecordedMsgId")
-    var key = "recording" + COLON + session + COLON + msgid
-    redis.hmset(key, message)
-    redis.expire(key, keysExpiresInSec)
-    key = "meeting" + COLON + session + COLON + "recordings"
-    redis.rpush(key, msgid.toString)
-    redis.expire(key, keysExpiresInSec)
+    for {
+      msgid <- redis.incr("global:nextRecordedMsgId")
+      key = "recording" + COLON + session + COLON + msgid
+      _ <- redis.hmset(key.mkString, message)
+      _ <- redis.expire(key.mkString, keysExpiresInSec)
+      key2 = "meeting" + COLON + session + COLON + "recordings"
+      _ <- redis.rpush(key2.mkString, msgid.toString)
+      result <- redis.expire(key2.mkString, keysExpiresInSec)
+    } yield result
+
   }
 
   def receive = {
