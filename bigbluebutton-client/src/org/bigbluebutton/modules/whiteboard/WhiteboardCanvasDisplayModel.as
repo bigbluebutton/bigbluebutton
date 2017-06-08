@@ -187,12 +187,6 @@ package org.bigbluebutton.modules.whiteboard
           _annotationsList.push(gobj);
         }
       }
-            
-      if (_annotationsList.length > 0) {
-        for (var ij:int = 0; ij < this._annotationsList.length; ij++){
-          redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
-        }
-      }
 	}
         
         public function changeWhiteboard(wbId:String):void{
