@@ -300,7 +300,8 @@ class UserListItem extends Component {
 
           <DropdownList 
             ref={(ref) => { this.list = ref; }} 
-            getDropdownMenuParent={this.getDropdownMenuParent}>
+            getDropdownMenuParent={this.getDropdownMenuParent}
+            onActionsHide={this.onActionsHide}>
             {
               [
                 (<DropdownListTitle

@@ -26,9 +26,14 @@ export default class DropdownList extends Component {
     this.childrenRefs = [];
     this.handleItemKeyDown = this.handleItemKeyDown.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
+    this.handleItemKeyDownWithparent = this.handleItemKeyDownWithparent.bind(this);
     this.focusedItemIndex = 0;
   }
 
+  componentDidMount() {
+    this._menu.addEventListener('keydown', event=>this.handleItemKeyDownWithparent(event));
+  }
+  
   componentWillMount() {
     this.setState({
       activeItemIndex: 0,
@@ -49,7 +54,85 @@ export default class DropdownList extends Component {
     }
   }
 
+  handleItemKeyDownWithparent(event) {
+    const { onActionsHide, getDropdownMenuParent, } = this.props;
+
+      if (!getDropdownMenuParent) {
+
+        let selectableItems = [];
+        for (let i = 0; i < (this._menu.children.length); i++) {
+          if (this._menu.children[i].getAttribute("role") === 'menuitem'){
+            selectableItems.push(this._menu.children[i]);
+          }
+        }
+
+        const focusMenuItem = () => {
+          selectableItems[this.focusedItemIndex].focus();
+        }
+
+        if (KEY_CODES.ARROW_UP === event.which) {
+          event.stopPropagation();
+
+          this.focusedItemIndex -= 1;
+
+          if (this.focusedItemIndex < 0) {
+            this.focusedItemIndex = selectableItems.length - 1;
+          }else if (this.focusedItemIndex > selectableItems.length - 1) {
+            this.focusedItemIndex = 0;
+          }
+          
+          focusMenuItem();
+          return;
+        }
+
+        if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
+          event.stopPropagation();
+
+          this.focusedItemIndex += 1;
+
+          if(this.focusedItemIndex > selectableItems.length - 1){
+            this.focusedItemIndex = 0;
+          }
+
+          focusMenuItem();
+          return;
+        }
+
+        if ([KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
+          event.stopPropagation();
+          document.activeElement.firstChild.click();
+          return;
+        }
+
+        if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+          const { dropdownHide } = this.props;
+          event.stopPropagation();
+          dropdownHide();
+          return;
+        }
+
+    }else{
+
+        if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+          const { getDropdownMenuParent, dropdownHide, } = this.props;
+
+          event.stopPropagation();
+        
+          if (getDropdownMenuParent) {
+            getDropdownMenuParent().focus();
+          }
+
+          dropdownHide();
+          return;
+        }
+
+        document.activeElement.firstChild.click();
+        onActionsHide();
+    }
+  }
+
   handleItemKeyDown(event, callback) {
+
     const { dropdownHide } = this.props;
     const { activeItemIndex } = this.state;
 
@@ -61,32 +144,21 @@ export default class DropdownList extends Component {
     }
 
     const focusMenuItem = () => {
-      event.preventDefault();
-      event.stopPropagation();
-
       selectableItems[this.focusedItemIndex].focus();
     }
 
     if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(event.keyCode)) {
-      const { getDropdownMenuParent } = this.props;
-      
-      if (getDropdownMenuParent) {
-        return;
-      }
-
-      event.preventDefault();
       event.stopPropagation();
-
+      
       document.activeElement.firstChild.click();
     }
 
     if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
-      event.preventDefault();
       event.stopPropagation();
 
       this.focusedItemIndex += 1;
 
-      if(this.focusedItemIndex > selectableItems.length - 1){
+      if (this.focusedItemIndex > selectableItems.length - 1) {
         this.focusedItemIndex = 0;
       }
 
@@ -94,24 +166,22 @@ export default class DropdownList extends Component {
     }
 
     if (KEY_CODES.ARROW_UP === event.which) {
-      event.preventDefault();
       event.stopPropagation();
 
       this.focusedItemIndex -= 1;
 
       if (this.focusedItemIndex < 0) {
         this.focusedItemIndex = selectableItems.length - 1;
-      }else if (this.focusedItemIndex > selectableItems.length - 1){
+      }else if (this.focusedItemIndex > selectableItems.length - 1) {
         this.focusedItemIndex = 0;
       }
       
       focusMenuItem();
     }
 
-    if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)){
+    if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
       const { getDropdownMenuParent } = this.props;
 
-      event.preventDefault();
       event.stopPropagation();
       
       if (getDropdownMenuParent) {
@@ -156,7 +226,6 @@ export default class DropdownList extends Component {
           onClick: (event) => {
             let { onClick } = item.props;
             onClick = onClick ? onClick.bind(item) : null;
-
             this.handleItemClick(event, onClick);
           },
 
