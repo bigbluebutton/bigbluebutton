@@ -178,11 +178,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var deltaCanvasMouseY:Number = this.mouseY - prevMouseY;
 				prevMouseX = this.mouseX;
 				prevMouseY = this.mouseY;				
-				slideModel.onMove(deltaCanvasMouseX, deltaCanvasMouseY); 
-				slideModel.printViewedRegion();
-				slideModel.displayPresenterView();
-				fitSlideToLoader();		
-				notifyOthersOfZoomEvent();
+				var xyChange:Boolean = slideModel.onMove(deltaCanvasMouseX, deltaCanvasMouseY);
+				if (xyChange) {
+					slideModel.printViewedRegion();
+					slideModel.displayPresenterView();
+					fitSlideToLoader();
+					notifyOthersOfZoomEvent();
+				}
 			}
 						
 			/**
@@ -232,12 +234,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
+				var newZoomPercentage:Number = zoomPercentage;
 				if (presenterIsZoomingOut(e.delta)) {
-					zoomPercentage -= ZOOM_STEP;
+					newZoomPercentage -= ZOOM_STEP;
 				} else {
-					zoomPercentage += ZOOM_STEP;
+					newZoomPercentage += ZOOM_STEP;
 				}
-				zoomSlide(zoomPercentage, this.mouseX, this.mouseY);		
+				zoomSlide(newZoomPercentage, this.mouseX, this.mouseY);
 			}
 			
 			public function switchToFitToPage(ftp:Boolean):void {
@@ -251,17 +254,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
-				zoomPercentage = zoom;
-				if (zoomPercentage <= SlideViewModel.HUNDRED_PERCENT) {
-					zoomPercentage = SlideViewModel.HUNDRED_PERCENT;
-				} else if (zoomPercentage >= SlideViewModel.MAX_ZOOM_PERCENT) {
-					zoomPercentage = SlideViewModel.MAX_ZOOM_PERCENT
+				if (zoom <= SlideViewModel.HUNDRED_PERCENT) {
+					zoom = SlideViewModel.HUNDRED_PERCENT;
+				} else if (zoom >= SlideViewModel.MAX_ZOOM_PERCENT) {
+					zoom = SlideViewModel.MAX_ZOOM_PERCENT
 				}
-				slideModel.onZoom(zoomPercentage, mouseX, mouseY);
-				slideModel.printViewedRegion();
-				slideModel.displayPresenterView();
-				fitSlideToLoader();	
-				notifyOthersOfZoomEvent();	
+				
+				if (zoom != zoomPercentage) {
+					zoomPercentage = zoom;
+					
+					slideModel.onZoom(zoomPercentage, mouseX, mouseY);
+					slideModel.printViewedRegion();
+					slideModel.displayPresenterView();
+					fitSlideToLoader();
+					notifyOthersOfZoomEvent();
+				}
 			}
 									
 			private function notifyOthersOfZoomEvent():void {
