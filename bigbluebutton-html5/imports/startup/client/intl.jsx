@@ -51,7 +51,10 @@ class IntlStartup extends Component {
         return response.json();
       })
       .then((messages) => {
-        this.setState({ messages }, () => {
+        if (messages.statusCode === 506) {
+          this.setState({ appLocale: 'en' });
+        }
+        this.setState({ messages: messages.messages }, () => {
           baseControls.updateLoadingState(false);
         });
       })
