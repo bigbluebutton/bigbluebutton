@@ -202,11 +202,16 @@ export default class DropdownList extends Component {
   }
 
   handleItemClick(event, callback) {
+    const { getDropdownMenuParent,  onActionsHide} = this.props;
     const { dropdownHide } = this.props;
 
-    this.setState({ activeItemIndex: null });
-
-    dropdownHide();
+    console.log("click");
+    if ( getDropdownMenuParent ) {
+      onActionsHide();
+    }else{
+      this.setState({ activeItemIndex: null });
+      dropdownHide();
+    }
 
     if (typeof callback === 'function') {
       callback(event);
