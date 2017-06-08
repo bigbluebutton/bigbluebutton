@@ -8,12 +8,9 @@ import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.MessageSenderActor
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
-import org.bigbluebutton.core.service.recorder.RedisDispatcher
-import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.JsonMessageSenderActor
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
-import org.bigbluebutton.core.recorder.RecorderActor
 import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
 
 object Boot extends App with SystemConfiguration {
