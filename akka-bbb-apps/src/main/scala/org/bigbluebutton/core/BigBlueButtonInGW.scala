@@ -541,30 +541,4 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def sharedNotesSyncNoteRequest(meetingId: String, userId: String, noteId: String) {
     bbbActor ! new SharedNotesSyncNoteRequest(meetingId, userId, noteId)
   }
-
-  /**
-   * *******************************************************************
-   * Message Interface for transcode
-   * *****************************************************************
-   */
-
-  def startTranscoderReply(meetingId: String, transcoderId: String, params: java.util.Map[String, String]) {
-    bbbActor ! new StartTranscoderReply(meetingId, transcoderId, mapAsScalaMap(params).toMap)
-  }
-
-  def updateTranscoderReply(meetingId: String, transcoderId: String, params: java.util.Map[String, String]) {
-    bbbActor ! new UpdateTranscoderReply(meetingId, transcoderId, mapAsScalaMap(params).toMap)
-  }
-
-  def stopTranscoderReply(meetingId: String, transcoderId: String) {
-    bbbActor ! new StopTranscoderReply(meetingId, transcoderId)
-  }
-
-  def transcoderStatusUpdate(meetingId: String, transcoderId: String, params: java.util.Map[String, String]) {
-    bbbActor ! new TranscoderStatusUpdate(meetingId, transcoderId, mapAsScalaMap(params).toMap)
-  }
-
-  def startProbingReply(meetingId: String, transcoderId: String, params: java.util.Map[String, String]) {
-    bbbActor ! new StartProbingReply(meetingId, transcoderId, mapAsScalaMap(params).toMap)
-  }
 }

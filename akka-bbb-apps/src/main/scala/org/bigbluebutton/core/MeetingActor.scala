@@ -22,7 +22,7 @@ object MeetingActor {
 class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with SharedNotesApp with VideoApp with ActorLogging with SystemConfiguration {
+    with SharedNotesApp with ActorLogging with SystemConfiguration {
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
@@ -32,7 +32,6 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
   val notesModel = new SharedNotesModel()
-  val videoModel = new VideoModel()
 
   private val InactivityDeadline = FiniteDuration(getInactivityDeadline(), "seconds")
   private val InactivityTimeLeft = FiniteDuration(getInactivityTimeLeft(), "seconds")
@@ -223,16 +222,6 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
         handleSharedNotesSyncNoteRequest(msg)
       case msg: ReconnectionTimeout =>
         handleReconnectionTimeout(msg)
-      case msg: StartTranscoderReply =>
-        handleStartTranscoderReply(msg)
-      case msg: UpdateTranscoderReply =>
-        handleUpdateTranscoderReply(msg)
-      case msg: StopTranscoderReply =>
-        handleStopTranscoderReply(msg)
-      case msg: TranscoderStatusUpdate =>
-        handleTranscoderStatusUpdate(msg)
-      case msg: StartProbingReply =>
-        handleStartProbingReply(msg)
 
       case msg: EndMeeting => handleEndMeeting(msg)
       case StopMeetingActor => //exit
