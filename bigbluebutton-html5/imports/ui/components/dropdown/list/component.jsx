@@ -205,7 +205,6 @@ export default class DropdownList extends Component {
     const { getDropdownMenuParent,  onActionsHide} = this.props;
     const { dropdownHide } = this.props;
 
-    console.log("click");
     if ( getDropdownMenuParent ) {
       onActionsHide();
     }else{
