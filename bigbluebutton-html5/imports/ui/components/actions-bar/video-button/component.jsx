@@ -15,7 +15,7 @@ export default class JoinVideo extends React.Component {
         color={'primary'}
         icon={'video_off'}
         size={'lg'}
-        circle={true}
+        circle
         style={{ visibility: 'hidden' }}
       />
     );

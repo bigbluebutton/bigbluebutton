@@ -24,4 +24,4 @@ export default function removeShape(meetingId, whiteboardId, shapeId) {
   };
 
   return Shapes.remove(selector, cb);
-};
+}

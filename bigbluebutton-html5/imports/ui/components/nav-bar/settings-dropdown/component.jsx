@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import styles from '../styles';
@@ -110,9 +111,9 @@ class SettingsDropdown extends Component {
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
-            ghost={true}
-            circle={true}
-            hideLabel={true}
+            ghost
+            circle
+            hideLabel
             className={cx(styles.btn, styles.btnSettings)}
 
             // FIXME: Without onClick react proptypes keep warning

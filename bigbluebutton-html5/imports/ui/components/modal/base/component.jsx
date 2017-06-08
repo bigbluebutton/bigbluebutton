@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactModal from 'react-modal';
 import styles from './styles.scss';
 
@@ -25,12 +26,12 @@ export default class ModalBase extends Component {
       </ReactModal>
     );
   }
-};
+}
 
 ModalBase.propTypes = propTypes;
 ModalBase.defaultProps = defaultProps;
 
-export const withModalState = (ComponentToWrap) =>
+export const withModalState = ComponentToWrap =>
   class ModalStateWrapper extends Component {
     constructor(props) {
       super(props);
@@ -52,11 +53,11 @@ export const withModalState = (ComponentToWrap) =>
     }
 
     render() {
-      return <ComponentToWrap
+      return (<ComponentToWrap
         {...this.props}
         modalHide={this.hide}
         modalShow={this.show}
         modalisOpen={this.state.isOpen}
-      />;
+      />);
     }
   };

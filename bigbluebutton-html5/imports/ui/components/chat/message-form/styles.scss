@@ -4,9 +4,14 @@
   flex-grow: 0;
   flex-shrink: 0;
   align-self: flex-end;
+  width: 100%;
+  position: relative;
+  margin-bottom: -$sm-padding-x;
+}
+
+.wrapper {
   display: flex;
   flex-direction: row;
-  width: 100%;
 }
 
 .actions {
@@ -70,5 +75,16 @@
 
   > [class*=" icon-bbb-"] {
     color: $color-gray-light;
+  }
+}
+
+.info {
+  font-size: $font-size-base * .75;
+  color: $color-gray-light;
+  text-align: right;
+  padding: $border-size 0;
+
+  &:before {
+    content: "\00a0"; // non-breaking space
   }
 }

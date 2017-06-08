@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 
@@ -67,7 +68,7 @@ class ErrorScreen extends Component {
             size={'sm'}
             onClick={this.onClick}
             label={intl.formatMessage(intlMessages.leave)}
-            />
+          />
         </div>
       </div>
     );

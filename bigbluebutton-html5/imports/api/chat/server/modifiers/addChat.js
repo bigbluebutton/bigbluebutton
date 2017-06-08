@@ -7,11 +7,11 @@ const parseMessage = (message) => {
   message = message || '';
 
   // Replace \r and \n to <br/>
-  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_LINE + '$2');
+  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
 
   // Replace flash links to html valid ones
-  message = message.split(`<a href='event:`).join(`<a target="_blank" href='`);
-  message = message.split(`<a href="event:`).join(`<a target="_blank" href="`);
+  message = message.split('<a href=\'event:').join('<a target="_blank" href=\'');
+  message = message.split('<a href="event:').join('<a target="_blank" href="');
 
   return message;
 };
@@ -67,4 +67,4 @@ export default function addChat(meetingId, message) {
   };
 
   return Chat.upsert(selector, modifier, cb);
-};
+}

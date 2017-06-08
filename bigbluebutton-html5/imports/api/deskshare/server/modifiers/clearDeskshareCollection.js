@@ -3,12 +3,12 @@ import { logger } from '/imports/startup/server/logger';
 
 export function clearDeskshareCollection(meetingId) {
   if (meetingId != null) {
-    Deskshare.remove({ meetingId: meetingId }, function () {
+    Deskshare.remove({ meetingId }, function () {
       logger.info(`cleared Deskshare Collection (meetingId: ${this.meetingId}!)`);
     });
   } else {
-    Deskshare.remove({}, function () {
-      logger.info(`cleared Deskshare Collection (all meetings)!`);
+    Deskshare.remove({}, () => {
+      logger.info('cleared Deskshare Collection (all meetings)!');
     });
   }
 }

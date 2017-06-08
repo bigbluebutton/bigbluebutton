@@ -3,9 +3,8 @@ import Logger from '/imports/startup/server/logger';
 
 export default function clearPresentations(meetingId) {
   if (meetingId) {
-    return Presentations.remove({ meetingId: meetingId },
+    return Presentations.remove({ meetingId },
       Logger.info(`Cleared Presentations (${meetingId})`));
-  } else {
-    return Presentations.remove({}, Logger.info('Cleared Presentations (all)'));
   }
-};
+  return Presentations.remove({}, Logger.info('Cleared Presentations (all)'));
+}

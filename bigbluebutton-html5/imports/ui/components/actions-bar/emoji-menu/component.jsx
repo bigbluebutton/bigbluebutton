@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
@@ -18,7 +19,6 @@ const propTypes = {
 class EmojiMenu extends Component {
   constructor(props) {
     super(props);
-
   }
 
   render() {
@@ -38,14 +38,15 @@ class EmojiMenu extends Component {
             aria-describedby="currentStatus"
             icon="hand"
             ghost={false}
-            circle={true}
+            circle
             hideLabel={false}
             color="primary"
             size="lg"
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
-            onClick={() => null}>
+            onClick={() => null}
+          >
             <div id="currentStatus" hidden>
               {
                 intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus })

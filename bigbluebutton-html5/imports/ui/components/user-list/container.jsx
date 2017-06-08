@@ -31,7 +31,8 @@ class UserListContainer extends Component {
         openChat={openChat}
         isBreakoutRoom={isBreakoutRoom}
         makeCall={makeCall}
-        userActions={userActions}>
+        userActions={userActions}
+      >
         {children}
       </UserList>
     );

@@ -15,7 +15,7 @@ class EnterAudioContainer extends Component {
       mountModal,
     } = this.props;
 
-    let handleJoin = () => {
+    const handleJoin = () => {
       mountModal(null);
       return isFullAudio ? AudioService.joinMicrophone() : AudioService.joinListenOnly();
     };

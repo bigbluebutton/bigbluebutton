@@ -35,6 +35,8 @@ class Chat extends Component {
       lastReadMessageTime,
       partnerIsLoggedOut,
       isChatLocked,
+      minMessageLength,
+      maxMessageLength,
       actions,
       intl,
     } = this.props;
@@ -47,8 +49,9 @@ class Chat extends Component {
             <Link
               to="/users"
               role="button"
-              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}>
-                <Icon iconName="left_arrow"/> {title}
+              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
+            >
+              <Icon iconName="left_arrow" /> {title}
             </Link>
           </div>
           <div className={styles.closeIcon}>
@@ -58,8 +61,9 @@ class Chat extends Component {
                 <Link
                   to="/users"
                   role="button"
-                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}>
-                    <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
+                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+                >
+                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
                 </Link>)
             }
           </div>
@@ -81,6 +85,8 @@ class Chat extends Component {
           chatAreaId={ELEMENT_ID}
           chatTitle={title}
           chatName={chatName}
+          minMessageLength={minMessageLength}
+          maxMessageLength={maxMessageLength}
           handleSendMessage={actions.handleSendMessage}
         />
       </div>

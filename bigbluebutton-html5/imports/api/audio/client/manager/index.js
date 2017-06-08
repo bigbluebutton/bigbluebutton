@@ -19,7 +19,7 @@ export default class AudioManager {
     this.microphoneLockEnforced = userData.microphoneLockEnforced;
   }
 
-  exitAudio () {
+  exitAudio() {
     this.bridge.exitAudio(this.isListenOnly);
   }
 

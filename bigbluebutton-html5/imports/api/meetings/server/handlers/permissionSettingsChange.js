@@ -50,4 +50,4 @@ export default function handlePermissionSettingsChange({ payload }) {
   };
 
   return Meetings.update(selector, modifier, cb);
-};
+}

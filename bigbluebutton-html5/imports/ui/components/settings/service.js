@@ -5,13 +5,11 @@ import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
 
 const getClosedCaptionLocales = () => {
-  //list of unique locales in the Captions Collection
+  // list of unique locales in the Captions Collection
   const locales = _.uniq(Captions.find({}, {
     sort: { locale: 1 },
     fields: { locale: true },
-  }).fetch().map(function (obj) {
-    return obj.locale;
-  }), true);
+  }).fetch().map(obj => obj.locale), true);
 
   return locales;
 };

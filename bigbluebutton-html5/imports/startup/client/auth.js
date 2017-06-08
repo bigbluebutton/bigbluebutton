@@ -14,21 +14,21 @@ export function joinRouteHandler(nextState, replace, callback) {
   Auth.set(meetingID, userID, authToken);
   replace({ pathname: '/' });
   callback();
-};
+}
 
 export function logoutRouteHandler(nextState, replace, callback) {
   const { meetingID, userID, authToken } = nextState.params;
 
   Auth.logout()
-    .then(logoutURL => {
+    .then((logoutURL) => {
       window.location = logoutURL || window.location.origin;
       callback();
     })
-    .catch(reason => {
+    .catch((reason) => {
       replace({ pathname: '/error/500' });
       callback();
     });
-};
+}
 
 export function authenticatedRouteHandler(nextState, replace, callback) {
   const credentialsSnapshot = {
@@ -45,7 +45,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
 
   Auth.authenticate()
     .then(callback)
-    .catch(reason => {
+    .catch((reason) => {
       logClient('error', {
         error: reason,
         method: 'authenticatedRouteHandler',
@@ -63,13 +63,12 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });
-};
+}
 
 function _addReconnectObservable() {
   let lastStatus = null;
 
   Tracker.autorun(() => {
-
     lastStatus = updateStatus(Meteor.status(), lastStatus);
 
     if (shouldAuthenticate(Meteor.status(), lastStatus)) {

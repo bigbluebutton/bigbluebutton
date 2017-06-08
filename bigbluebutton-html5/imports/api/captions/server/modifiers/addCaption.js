@@ -18,13 +18,13 @@ export default function addCaption(meetingId, locale, captionHistory, id = false
     selector['captionHistory.index'] = captionHistory.index;
   }
 
-  let modifier = {
+  const modifier = {
     $set: {
       meetingId,
       locale,
       'captionHistory.locale': locale,
       'captionHistory.ownerId': captionHistory.ownerId,
-      'captionHistory.captions':captionHistory.captions,
+      'captionHistory.captions': captionHistory.captions,
       'captionHistory.next': captionHistory.next,
       'captionHistory.index': captionHistory.index,
     },
@@ -46,4 +46,4 @@ export default function addCaption(meetingId, locale, captionHistory, id = false
   };
 
   return Captions.upsert(selector, modifier, cb);
-};
+}

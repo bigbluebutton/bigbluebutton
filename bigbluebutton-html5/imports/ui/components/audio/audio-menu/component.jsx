@@ -33,7 +33,7 @@ class JoinAudioOptions extends React.Component {
           color={'danger'}
           icon={'audio_off'}
           size={'lg'}
-          circle={true}
+          circle
         />
       );
     }
@@ -45,7 +45,7 @@ class JoinAudioOptions extends React.Component {
         color={'primary'}
         icon={'audio_on'}
         size={'lg'}
-        circle={true}
+        circle
       />
     );
   }

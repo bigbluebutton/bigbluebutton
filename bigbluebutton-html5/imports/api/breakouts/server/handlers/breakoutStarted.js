@@ -19,7 +19,7 @@ export default function handleBreakoutRoomStarted({ payload }) {
     $set: {
       users: [],
       timeRemaining: Number(timeRemaining),
-      externalMeetingId: externalMeetingId,
+      externalMeetingId,
     },
   };
 
@@ -29,7 +29,7 @@ export default function handleBreakoutRoomStarted({ payload }) {
     }
 
     if (numChanged) {
-      return Logger.info(`Updated timeRemaining and externalMeetingId ` +
+      return Logger.info('Updated timeRemaining and externalMeetingId ' +
                          `for breakout id=${meetingId}`);
     }
   };
