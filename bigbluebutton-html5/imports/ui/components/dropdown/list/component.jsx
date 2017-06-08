@@ -126,8 +126,13 @@ export default class DropdownList extends Component {
           return;
         }
 
-        document.activeElement.firstChild.click();
-        onActionsHide();
+       if ([KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
+          event.stopPropagation();
+          document.activeElement.firstChild.click();
+          onActionsHide();
+          return;
+        }
+
     }
   }
 
