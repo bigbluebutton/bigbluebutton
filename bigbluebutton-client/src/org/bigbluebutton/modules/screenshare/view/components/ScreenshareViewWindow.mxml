@@ -320,6 +320,7 @@
 			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void {
 				LOGGER.debug("ScreenshareViewWindow: acceptOverlayCanvas");
 				whiteboardCanvas = overlay;
+				whiteboardCanvas.displayWhiteboardById("deskshare");
 			}
 			
 			public function removeOverlayCanvas():void {
