@@ -57,7 +57,7 @@ export default class TextDrawComponent extends React.Component {
   renderViewerTextShape(results, styles) {
     return (
       <g>
-        <clipPath id="c1">
+        <clipPath id={this.props.shape.id}>
           <rect
             x={results.x}
             y={results.y}
@@ -69,7 +69,7 @@ export default class TextDrawComponent extends React.Component {
         </clipPath>
 
         <foreignObject
-          clipPath="url(#c1)"
+          clipPath={`url(#${this.props.shape.id})`}
           x={results.x}
           y={results.y}
           width={results.width}
