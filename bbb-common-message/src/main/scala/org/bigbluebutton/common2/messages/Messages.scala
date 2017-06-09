@@ -10,9 +10,9 @@ object MessageTypes {
 }
 
 // seal trait to force all classes that extends this trait to be defined in this file.
-sealed trait BbbCoreMsg
+trait BbbCoreMsg
 sealed trait BbbCommonMsg
-sealed trait BbbCoreHeader
+trait BbbCoreHeader
 
 case class RoutingEnvelope(msgType: String, meetingId: String, userId: String)
 case class BbbMsgToClientEnvelope(name: String, routing: RoutingEnvelope)
@@ -55,6 +55,8 @@ case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadc
 
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
+
+
 
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
 object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}

@@ -1,0 +1,36 @@
+package org.bigbluebutton.freeswitch
+
+import akka.actor.{ Actor, ActorLogging, Props }
+import com.fasterxml.jackson.databind.JsonNode
+import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common2.messages.BbbCoreEnvelope
+import org.bigbluebutton.freeswitch.bus.{ ReceivedJsonMsg }
+import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication
+
+object RxJsonMsgHdlrActor {
+  def props(fsApp: FreeswitchApplication): Props =
+    Props(classOf[RxJsonMsgHdlrActor], fsApp)
+}
+
+class RxJsonMsgHdlrActor(fsApp: FreeswitchApplication) extends Actor with ActorLogging
+    with SystemConfiguration with RxJsonMsgDeserializer {
+  def receive = {
+    case msg: ReceivedJsonMsg =>
+      log.debug("handling {} - {}", msg.channel, msg.data)
+      handleReceivedJsonMessage(msg)
+    case _ => // do nothing
+  }
+
+  def handleReceivedJsonMessage(msg: ReceivedJsonMsg): Unit = {
+    for {
+      envJsonNode <- JsonDeserializer.toBbbCommonEnvJsNodeMsg(msg.data)
+    } yield handle(envJsonNode.envelope, envJsonNode.core)
+  }
+
+  def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    log.debug("Route envelope name " + envelope.name)
+    envelope.name match {
+      case _ => // do nothing
+    }
+  }
+}
