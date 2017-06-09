@@ -31,14 +31,13 @@ case class BbbCoreHeaderBody(header: BbbCoreHeader, body: JsonNode)
 object CreateMeetingReqMsg { val NAME = "CreateMeetingReqMsg" }
 case class CreateMeetingReqMsg(header: BbbCoreBaseHeader,
                                body: CreateMeetingReqMsgBody) extends BbbCoreMsg
-object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
-case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
-                                body: MeetingCreatedEvtBody) extends BbbCoreMsg
+
 object RegisterUserReqMsg { val NAME = "RegisterUserReqMsg" }
 case class RegisterUserReqMsg(header: BbbCoreHeaderWithMeetingId,
                               body: RegisterUserReqMsgBody) extends BbbCoreMsg
+
 object ValidateAuthTokenReqMsg { val NAME = "ValidateAuthTokenReqMsg" }
-case class ValidateAuthTokenReqMsg(header: BbbCoreHeaderWithMeetingId,
+case class ValidateAuthTokenReqMsg(header: BbbClientMsgHeader,
                                    body: ValidateAuthTokenReqMsgBody) extends BbbCoreMsg
 
 
@@ -58,6 +57,10 @@ object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
 
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
+object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
+case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
+                                body: MeetingCreatedEvtBody) extends BbbCoreMsg
+
 object ValidateAuthTokenRespMsg { val NAME = "ValidateAuthTokenRespMsg" }
 case class ValidateAuthTokenRespMsg(header: BbbClientMsgHeader,
                                     body: ValidateAuthTokenRespMsgBody) extends BbbCoreMsg

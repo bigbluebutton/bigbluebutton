@@ -67,7 +67,6 @@ libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
 
 libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.8"
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.0"
-libraryDependencies += "redis.clients" % "jedis" % "2.9.0"
 libraryDependencies += "joda-time" % "joda-time" % "2.9.9"
 libraryDependencies += "io.spray" % "spray-json_2.12" % "1.3.3"
 libraryDependencies += "org.parboiled" % "parboiled-scala_2.12" % "1.1.8"

@@ -22,6 +22,8 @@ trait UserBroadcastCamStartMsgHdlr {
       val event = UserBroadcastCamStartedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
+
+      record(event)
     }
 
     for {

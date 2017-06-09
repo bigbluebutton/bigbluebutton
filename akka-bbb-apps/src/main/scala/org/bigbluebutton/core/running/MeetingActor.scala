@@ -454,4 +454,10 @@ class MeetingActor(val props: DefaultProps,
     outGW.send(new MeetingHasEnded(props.meetingProp.intId, userId))
     outGW.send(new DisconnectUser(props.meetingProp.intId, userId))
   }
+
+  def record(msg: BbbCoreMsg): Unit = {
+    if (liveMeeting.props.recordProp.record) {
+      outGW.record(msg)
+    }
+  }
 }
