@@ -16,8 +16,10 @@ const browserHistory = useRouterHistory(createHistory)({
 export const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/logout" onEnter={logoutRouteHandler} />
-    <Route path="/join/:meetingID/:userID/:authToken"
-      component={LoadingScreen} onEnter={joinRouteHandler} />
+    <Route
+      path="/join"
+      component={LoadingScreen} onEnter={joinRouteHandler}
+    />
     <Route path="/" component={Base} onEnter={authenticatedRouteHandler} >
       <IndexRoute components={{}} />
       <Route name="users" path="users" components={{ userList: UserListContainer }} />

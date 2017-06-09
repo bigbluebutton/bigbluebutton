@@ -100,30 +100,22 @@ if (request.getParameterMap().isEmpty()) {
 		meetingname =  request.getParameter("meetingname");
 	}
 
+	String defaultPassword = "ap";
 	boolean isModerator = false;
 	if (request.getParameter("isModerator") != null) {
 		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
+		defaultPassword = "mp";
 	}
 
-	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null, isModerator);
-	Document doc = null;
-	doc = parseXml(getURL(joinURL));
-
-	//Extract data from the xml
-	String meetingId = doc.getElementsByTagName("meeting_id").item(0).getTextContent();
-	String userId = doc.getElementsByTagName("user_id").item(0).getTextContent();
-	String authToken = doc.getElementsByTagName("auth_token").item(0).getTextContent();
-	String sessionToken = doc.getElementsByTagName("session_token").item(0).getTextContent();
 	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
-
-	// redirect towards the html5 client which is waiting for the following parameters
-	String html5url = ip + "/html5client/join/" + meetingId + "/" + userId + "/" + authToken + "/" + sessionToken;
+	String html5url = ip + "/html5client/join";
+	String joinURL = getJoinMeetingURL(username, meetingname, defaultPassword, html5url );
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
 
 <script language="javascript" type="text/javascript">
-	window.location.href="<%=html5url%>";
+	window.location.href="<%=joinURL%>";
 </script>
 
 <%

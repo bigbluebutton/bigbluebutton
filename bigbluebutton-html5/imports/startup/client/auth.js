@@ -5,14 +5,16 @@ import { logClient } from '/imports/ui/services/api';
 const STATUS_CONNECTING = 'connecting';
 
 export function joinRouteHandler(nextState, replace, callback) {
-  if (!nextState || !nextState.params.authToken) {
+  const { sessionToken } = nextState.location.query;
+  console.log(`sessionToken=${sessionToken}`);
+
+  if (!nextState || !sessionToken) {
     replace({ pathname: '/error/404' });
     callback();
   }
 
-  const { meetingID, userID, authToken } = nextState.params;
-  Auth.set(meetingID, userID, authToken);
-  replace({ pathname: '/' });
+  // Auth.set(meetingID, userID, authToken); // TODO
+  // replace({ pathname: '/' });
   callback();
 };
 
