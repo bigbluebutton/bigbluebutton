@@ -98,6 +98,8 @@ class UserList extends Component {
         this.focusedItemIndex = numberOfItems - 1;
       }
 
+      console.log("Users List =" + this.focusedItemIndex)
+
       focusElement();
     }
   }

@@ -24,177 +24,83 @@ export default class DropdownList extends Component {
   constructor(props) {
     super(props);
     this.childrenRefs = [];
+    this.menuRefs = [];
     this.handleItemKeyDown = this.handleItemKeyDown.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
-    this.handleItemKeyDownWithparent = this.handleItemKeyDownWithparent.bind(this);
-    this.focusedItemIndex = 0;
   }
 
   componentDidMount() {
-    this._menu.addEventListener('keydown', event=>this.handleItemKeyDownWithparent(event));
+    this._menu.addEventListener('keydown', event=>this.handleItemKeyDown(event));
   }
   
   componentWillMount() {
     this.setState({
-      activeItemIndex: 0,
-    });
+      focusedIndex: 0,
+    })
   }
   
   componentDidUpdate(prevProps, prevState) {
-    let { activeItemIndex } = this.state;
+    let { focusedIndex } = this.state;
 
-    if (activeItemIndex === null) {
-      activeItemIndex = 0;
+    this.menuRefs = [];
+
+    for (let i = 0; i < (this._menu.children.length); i++) {
+      if (this._menu.children[i].getAttribute("role") === 'menuitem'){
+        this.menuRefs.push(this._menu.children[i]);
+      }
     }
 
-    const activeRef = this.childrenRefs[activeItemIndex];
+    const activeRef = this.menuRefs[focusedIndex];
       
     if (activeRef) {
       activeRef.focus();
     }
   }
 
-  handleItemKeyDownWithparent(event) {
-    const { onActionsHide, getDropdownMenuParent, } = this.props;
-
-      if (!getDropdownMenuParent) {
-
-        let selectableItems = [];
-        for (let i = 0; i < (this._menu.children.length); i++) {
-          if (this._menu.children[i].getAttribute("role") === 'menuitem'){
-            selectableItems.push(this._menu.children[i]);
-          }
-        }
-
-        const focusMenuItem = () => {
-          selectableItems[this.focusedItemIndex].focus();
-        }
-
-        if (KEY_CODES.ARROW_UP === event.which) {
-          event.stopPropagation();
-
-          this.focusedItemIndex -= 1;
-
-          if (this.focusedItemIndex < 0) {
-            this.focusedItemIndex = selectableItems.length - 1;
-          }else if (this.focusedItemIndex > selectableItems.length - 1) {
-            this.focusedItemIndex = 0;
-          }
-          
-          focusMenuItem();
-          return;
-        }
-
-        if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
-          event.stopPropagation();
-
-          this.focusedItemIndex += 1;
-
-          if(this.focusedItemIndex > selectableItems.length - 1){
-            this.focusedItemIndex = 0;
-          }
-
-          focusMenuItem();
-          return;
-        }
-
-        if ([KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
-          event.stopPropagation();
-          document.activeElement.firstChild.click();
-          return;
-        }
-
-        if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
-          const { dropdownHide } = this.props;
-          event.stopPropagation();
-          dropdownHide();
-          return;
-        }
-
-    }else{
-
-        if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
-          const { getDropdownMenuParent, dropdownHide, } = this.props;
-
-          event.stopPropagation();
-        
-          if (getDropdownMenuParent) {
-            getDropdownMenuParent().focus();
-          }
-
-          dropdownHide();
-          return;
-        }
-
-       if ([KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
-          event.stopPropagation();
-          document.activeElement.firstChild.click();
-          onActionsHide();
-          return;
-        }
-
-    }
-  }
-
   handleItemKeyDown(event, callback) {
+    const { onActionsHide, getDropdownMenuParent, } = this.props;
+    let nextFocusedIndex = this.state.focusedIndex;
 
-    const { dropdownHide } = this.props;
-    const { activeItemIndex } = this.state;
-
-    let selectableItems = [];
-    for (let i = 0; i < (this._menu.children.length); i++) {
-      if (this._menu.children[i].getAttribute("role") === 'menuitem'){
-        selectableItems.push(this._menu.children[i]);
-      }
-    }
-
-    const focusMenuItem = () => {
-      selectableItems[this.focusedItemIndex].focus();
-    }
-
-    if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(event.keyCode)) {
+    if (KEY_CODES.ARROW_UP === event.which) {
       event.stopPropagation();
-      
-      document.activeElement.firstChild.click();
+
+      nextFocusedIndex -= 1;
+
+      if (nextFocusedIndex < 0) {
+        nextFocusedIndex = this.menuRefs.length - 1;
+      }else if (nextFocusedIndex > this.menuRefs.length - 1) {
+        nextFocusedIndex = 0;
+      }
     }
 
     if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
       event.stopPropagation();
 
-      this.focusedItemIndex += 1;
+      nextFocusedIndex += 1;
 
-      if (this.focusedItemIndex > selectableItems.length - 1) {
-        this.focusedItemIndex = 0;
+      if(nextFocusedIndex > this.menuRefs.length - 1){
+        nextFocusedIndex = 0;
       }
-
-      focusMenuItem();
     }
 
-    if (KEY_CODES.ARROW_UP === event.which) {
+    if ([KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
       event.stopPropagation();
-
-      this.focusedItemIndex -= 1;
-
-      if (this.focusedItemIndex < 0) {
-        this.focusedItemIndex = selectableItems.length - 1;
-      }else if (this.focusedItemIndex > selectableItems.length - 1) {
-        this.focusedItemIndex = 0;
-      }
-      
-      focusMenuItem();
+      document.activeElement.firstChild.click();
     }
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
-      const { getDropdownMenuParent } = this.props;
-
+      const { dropdownHide } = this.props;
+          
       event.stopPropagation();
-      
+      event.preventDefault();
+          
+      dropdownHide();
       if (getDropdownMenuParent) {
         getDropdownMenuParent().focus();
       }
-
-      dropdownHide();
     }
+
+    this.setState({focusedIndex: nextFocusedIndex})
     
     if (typeof callback === 'function') {
       callback(event);
@@ -208,7 +114,7 @@ export default class DropdownList extends Component {
     if ( getDropdownMenuParent ) {
       onActionsHide();
     }else{
-      this.setState({ activeItemIndex: null });
+      this.setState({ focusedIndex: null });
       dropdownHide();
     }
 
