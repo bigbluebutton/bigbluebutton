@@ -12,7 +12,7 @@ The use cases for BigBlueButton are
   * Small group collaboration 
   * On-line classes
 
-The BigBlueButton server runs under Ubuntu 16.04 64-bit.  Using packages provided by the project, the overall time for setting up a new server should be about 30 minutes.
+The BigBlueButton server runs under Ubuntu 16.04 64-bit.  Using packages provided by the project, the overall time for setting up a new server should be about 30 minutes (we gaurantee it or your money back :-).
 
 For more information on the latest release -- including installation instructions, GreenLight front-end, integrating BigBlueButton with you applications, and detailed technical documentation -- see [http://docs.bigbluebutton.org/](http://docs.bigbluebutton.org/).
 
