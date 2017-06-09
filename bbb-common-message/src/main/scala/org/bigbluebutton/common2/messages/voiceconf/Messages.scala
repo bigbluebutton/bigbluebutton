@@ -26,12 +26,12 @@ case class TransferUserToVoiceConfMsgBody(fromVoiceConf: String, toVoiceConf: St
 object StartRecordingVoiceConfMsg { val NAME = "StartRecordingVoiceConfMsg" }
 case class StartRecordingVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
                                       body: StartRecordingVoiceConfMsgBody) extends BbbCoreMsg
-case class StartRecordingVoiceConfMsgBody(voiceConf: String)
+case class StartRecordingVoiceConfMsgBody(voiceConf: String, meetingId: String)
 
 object StopRecordingVoiceConfMsg { val NAME = "StopRecordingVoiceConfMsg" }
 case class StopRecordingVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
                                       body: StopRecordingVoiceConfMsgBody) extends BbbCoreMsg
-case class StopRecordingVoiceConfMsgBody(voiceConf: String, stream: String)
+case class StopRecordingVoiceConfMsgBody(voiceConf: String, meetingId: String, stream: String)
 
 object DeskshareStartRtmpBroadcastVoiceConfMsg { val NAME = "DeskshareStartRtmpBroadcastVoiceConfMsg" }
 case class DeskshareStartRtmpBroadcastVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,

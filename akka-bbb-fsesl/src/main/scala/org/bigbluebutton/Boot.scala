@@ -1,6 +1,6 @@
 package org.bigbluebutton
 
-import akka.actor.{ ActorSystem, Props }
+import akka.actor.{ ActorSystem }
 
 import org.freeswitch.esl.client.manager.DefaultManagerConnection
 import org.bigbluebutton.endpoint.redis.{ AppsRedisSubscriberActor, RedisPublisher }

@@ -12,7 +12,7 @@ object FromAkkaAppsMsgSenderActor {
 }
 
 class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
-  extends Actor with ActorLogging with SystemConfiguration {
+    extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)

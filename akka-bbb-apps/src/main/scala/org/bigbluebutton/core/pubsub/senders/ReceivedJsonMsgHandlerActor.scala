@@ -4,6 +4,7 @@ import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.voiceconf._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
 
@@ -46,6 +47,16 @@ class ReceivedJsonMsgHandlerActor(
         routeUserBroadcastCamStartMsg(envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeUserBroadcastCamStopMsg(envelope, jsonNode)
+      case RecordingStartedVoiceConfEvtMsg.NAME =>
+        routeRecordingStartedVoiceConfEvtMsg(envelope, jsonNode)
+      case UserJoinedVoiceConfEvtMsg.NAME =>
+        routeUserJoinedVoiceConfEvtMsg(envelope, jsonNode)
+      case UserLeftVoiceConfEvtMsg.NAME =>
+        routeUserLeftVoiceConfEvtMsg(envelope, jsonNode)
+      case UserMutedInVoiceConfEvtMsg.NAME =>
+        routeUserMutedInVoiceConfEvtMsg(envelope, jsonNode)
+      case UserTalkingInVoiceConfEvtMsg.NAME =>
+        routeUserTalkingInVoiceConfEvtMsg(envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing
