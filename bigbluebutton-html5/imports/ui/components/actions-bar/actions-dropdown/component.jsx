@@ -58,7 +58,7 @@ class ActionsDropdown extends Component {
     return null; // temporarily disabling the functionality
 
     return (
-      <Dropdown ref="dropdown">
+      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}
