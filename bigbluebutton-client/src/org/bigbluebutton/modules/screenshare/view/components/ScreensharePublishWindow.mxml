@@ -21,26 +21,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:Canvas
-  xmlns:mx="http://www.adobe.com/2006/mxml" 
+  xmlns:mx="library://ns.adobe.com/flex/mx" 
+  xmlns:fx="http://ns.adobe.com/mxml/2009"
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:common="org.bigbluebutton.common.*"
   creationComplete="onCreationComplete()"	
   verticalScrollPolicy="off" horizontalScrollPolicy="off"
   width="700" height="350">
   
-  <mate:Listener type="{StartShareRequestSuccessEvent.START_SHARE_REQUEST_SUCCESS}" method="handleStartShareRequestSuccessEvent" />
-  <!--mate:Listener type="{ScreenSharePausedEvent.SCREENSHARE_PAUSED}" method="handleScreenSharePausedEvent" /-->
-  <mate:Listener type="{ShareStoppedEvent.SHARE_STOPPED}" method="handleScreenShareShareStoppedEvent" />
-  <mate:Listener type="{ViewStreamEvent.START}" method="handleStartViewStreamEvent" />
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
-  <mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
-  <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-  <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
-  <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
+	<fx:Declarations>
+	  <mate:Listener type="{StartShareRequestSuccessEvent.START_SHARE_REQUEST_SUCCESS}" method="handleStartShareRequestSuccessEvent" />
+	  <!--mate:Listener type="{ScreenSharePausedEvent.SCREENSHARE_PAUSED}" method="handleScreenSharePausedEvent" /-->
+	  <mate:Listener type="{ShareStoppedEvent.SHARE_STOPPED}" method="handleScreenShareShareStoppedEvent" />
+	  <mate:Listener type="{ViewStreamEvent.START}" method="handleStartViewStreamEvent" />
+	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
+	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
+	  <mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
+	  <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	  <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
+	  <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
+	  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
+	</fx:Declarations>
     
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
 		
@@ -536,10 +539,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         dispatchEvent(new ShareEvent(ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB));
       }
     ]]>
-  </mx:Script>
+  </fx:Script>
   
-	<common:TabIndexer id="tabIndexer" startIndex="{dsOptions.baseTabIndex + 1}"
-					   tabIndices="{[helpButton, shareTypeCombo, startBtn, cancelBtn]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="{dsOptions.baseTabIndex + 1}"
+						   tabIndices="{[helpButton, shareTypeCombo, startBtn, cancelBtn]}"/>
+	</fx:Declarations>
 	
   <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
   <mx:Box id="publishView" height="100%" width="100%" styleName="desktopShareViewStyle">

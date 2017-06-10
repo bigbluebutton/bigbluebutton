@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 width="90%" 
 		 creationComplete="onCreationComplete()"
 		 verticalScrollPolicy="off" 
 		 horizontalScrollPolicy="off" 
 		 toolTip="{data as String}" 
 		 verticalAlign="middle">
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
 		
@@ -43,7 +44,7 @@
         dispatchEvent(rEvent);
       }
     ]]>
-  </mx:Script>
+  </fx:Script>
   <mx:Label id="presentationNameLabel" width="{this.width-isDownloadable.width-showBtn.width-deleteBtn.width-30}" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
   <mx:Image id="isDownloadable" visible="{data.downloadable as Boolean}"
              toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}"

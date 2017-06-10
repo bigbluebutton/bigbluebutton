@@ -20,7 +20,8 @@
   $Id: $
 -->
 
-<mdi:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+<mdi:CustomMdiWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:fx="http://ns.adobe.com/mxml/2009"
 					 xmlns:mdi="org.bigbluebutton.common.*"
 					 xmlns:flc="flexlib.controls.*"
 					 implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -30,17 +31,19 @@
 					 title="{ResourceUtil.getInstance().getString('bbb.users.title')}"
 					 showCloseButton="false">
 
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
-	<mate:Listener type="{ShortcutEvent.OPEN_BREAKOUT_ROOMS}" method="handleOpenBreakoutRooms" />
-	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
-	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
-	<mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
+		<mate:Listener type="{ShortcutEvent.OPEN_BREAKOUT_ROOMS}" method="handleOpenBreakoutRooms" />
+		<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
+		<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
+		<mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -613,9 +616,11 @@
                 return names.join("\n");
             }
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
+	<fx:Declarations>
+		<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
+	</fx:Declarations>
 	
 	<views:BBBDataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" draggableColumns="false"

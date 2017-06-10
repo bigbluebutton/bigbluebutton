@@ -115,7 +115,7 @@ package org.bigbluebutton.main.events {
 		-Create a locale string for the hotkey and the description
 		-Add modifier+hotkey string to keyCombos, instantiate it as the relevant ShortCutEvent:
 			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.chat') as String)] = ShortcutEvent.FOCUS_CHAT_WINDOW;
-		-Add a <mate> tag in the MXML file (before mx:Script) which will process the event:
+		-Add a <mate> tag in the MXML file (before fx:Script) which will process the event:
 			<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
 		-Add the hotkey locale to one of the resource arrays in ShortcutHelpWindow.mxml
 	

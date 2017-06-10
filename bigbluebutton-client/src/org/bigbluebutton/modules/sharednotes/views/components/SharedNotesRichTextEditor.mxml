@@ -194,8 +194,8 @@
  @playerversion AIR 1.1
  @productversion Flex 3
  -->
- <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
-    <mx:Metadata>
+ <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
+    <fx:Metadata>
         <![CDATA[
         /**
         * Dispatched when the user changes the contents or format of the text in the
@@ -245,40 +245,43 @@
         [Exclude(name="toolBar2", kind="property")]
         [Exclude(name="underlineButton", kind="property")]
         ]]>
-    </mx:Metadata>
-    <mx:Array id="fontFamilyArray">
-        <mx:String>_sans</mx:String>
-        <mx:String>_serif</mx:String>
-        <mx:String>_typewriter</mx:String>
-        <mx:String>Arial</mx:String>
-        <mx:String>Courier</mx:String>
-        <mx:String>Courier New</mx:String>
-        <mx:String>Geneva</mx:String>
-        <mx:String>Georgia</mx:String>
-        <mx:String>Helvetica</mx:String>
-        <mx:String>Times New Roman</mx:String>
-        <mx:String>Times</mx:String>
-        <mx:String>Verdana</mx:String>
-    </mx:Array>
-    <mx:Array id="fontSizeArray">
-        <mx:String>8</mx:String>
-        <mx:String>9</mx:String>
-        <mx:String>10</mx:String>
-        <mx:String>11</mx:String>
-        <mx:String>12</mx:String>
-        <mx:String>14</mx:String>
-        <mx:String>16</mx:String>
-        <mx:String>18</mx:String>
-        <mx:String>20</mx:String>
-        <mx:String>22</mx:String>
-        <mx:String>24</mx:String>
-        <mx:String>26</mx:String>
-        <mx:String>28</mx:String>
-        <mx:String>36</mx:String>
-        <mx:String>48</mx:String>
-        <mx:String>72</mx:String>
-    </mx:Array>
-    <mx:Script>
+    </fx:Metadata>
+	 <fx:Declarations>
+    <fx:Array id="fontFamilyArray">
+        <fx:String>_sans</fx:String>
+        <fx:String>_serif</fx:String>
+        <fx:String>_typewriter</fx:String>
+        <fx:String>Arial</fx:String>
+        <fx:String>Courier</fx:String>
+        <fx:String>Courier New</fx:String>
+        <fx:String>Geneva</fx:String>
+        <fx:String>Georgia</fx:String>
+        <fx:String>Helvetica</fx:String>
+        <fx:String>Times New Roman</fx:String>
+        <fx:String>Times</fx:String>
+        <fx:String>Verdana</fx:String>
+    </fx:Array>
+    <fx:Array id="fontSizeArray">
+        <fx:String>8</fx:String>
+        <fx:String>9</fx:String>
+        <fx:String>10</fx:String>
+        <fx:String>11</fx:String>
+        <fx:String>12</fx:String>
+        <fx:String>14</fx:String>
+        <fx:String>16</fx:String>
+        <fx:String>18</fx:String>
+        <fx:String>20</fx:String>
+        <fx:String>22</fx:String>
+        <fx:String>24</fx:String>
+        <fx:String>26</fx:String>
+        <fx:String>28</fx:String>
+        <fx:String>36</fx:String>
+        <fx:String>48</fx:String>
+        <fx:String>72</fx:String>
+    </fx:Array>
+	 </fx:Declarations>
+
+    <fx:Script>
     <![CDATA[
 
     import org.as3commons.logging.api.ILogger;
@@ -1261,7 +1264,7 @@
         }
     }
     ]]>
-    </mx:Script>
+    </fx:Script>
     <!--- @private -->
     <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
     <mx:TextArea id="textArea"
@@ -1322,12 +1325,12 @@
                     buttonWidth="20"
                     itemClick="setTextStyles('align', ToggleButtonBar(event.currentTarget).dataProvider.getItemAt(ToggleButtonBar(event.currentTarget).selectedIndex).action);">
                 <mx:dataProvider>
-                    <mx:Array>
-                        <mx:Object icon="@Embed('assets/icon_align_left.png')" action="left"/>
-                        <mx:Object icon="@Embed('assets/icon_align_center.png')" action="center"/>
-                        <mx:Object icon="@Embed('assets/icon_align_right.png')" action="right"/>
-                        <mx:Object icon="@Embed('assets/icon_align_justify.png')" action="justify"/>
-                    </mx:Array>
+                    <fx:Array>
+                        <fx:Object icon="@Embed('assets/icon_align_left.png')" action="left"/>
+                        <fx:Object icon="@Embed('assets/icon_align_center.png')" action="center"/>
+                        <fx:Object icon="@Embed('assets/icon_align_right.png')" action="right"/>
+                        <fx:Object icon="@Embed('assets/icon_align_justify.png')" action="justify"/>
+                    </fx:Array>
                 </mx:dataProvider>
             </mx:ToggleButtonBar>
             <mx:Button id="bulletButton"

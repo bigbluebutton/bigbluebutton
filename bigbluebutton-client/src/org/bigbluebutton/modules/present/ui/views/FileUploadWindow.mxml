@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-                xmlns:mate="http://mate.asfusion.com/"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
                 layout="absolute"
                 width="580"
                 height="410"
@@ -30,23 +31,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 styleName="presentationFileUploadWindowStyle"
                 initialize="initData();">
 
-    <mate:Dispatcher id="globalDispatch" />
-    <mate:Listener type="{UploadProgressEvent.UPLOAD_PROGRESS_UPDATE}" method="handleUploadProgressUpdate" />
-    <mate:Listener type="{UploadCompletedEvent.UPLOAD_COMPLETED}" method="handleUploadCompletedEvent" />
-    <mate:Listener type="{UploadIoErrorEvent.UPLOAD_IO_ERROR}" method="handleUploadIoError" />
-    <mate:Listener type="{UploadSecurityErrorEvent.UPLOAD_SECURITY_ERROR}" method="handleUploadSecurityError" />
-    <mate:Listener type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" method="handleConversionCompleted" />
-    <mate:Listener type="{ConversionUpdateEvent.CONVERSION_UPDATE}" method="handleConvertUpdate" />
-    <mate:Listener type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" method="handleThumbnailsProgressEvent" />
-	<mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
-	<mate:Listener type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" method="handleOfficeDocumentConversionInvalid"/>
-	<mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
-    <mate:Listener type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" method="handleSupportedDocument"/>	
-    <mate:Listener type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" method="handleUnsupportedDocument"/>
-    <mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
-    <mate:Listener type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" method="handlePageCountExceeded"/>
-	<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />
-  <mx:Script>
+	<fx:Declarations>
+		<mate:Dispatcher id="globalDispatch" />
+		<mate:Listener type="{UploadProgressEvent.UPLOAD_PROGRESS_UPDATE}" method="handleUploadProgressUpdate" />
+		<mate:Listener type="{UploadCompletedEvent.UPLOAD_COMPLETED}" method="handleUploadCompletedEvent" />
+		<mate:Listener type="{UploadIoErrorEvent.UPLOAD_IO_ERROR}" method="handleUploadIoError" />
+		<mate:Listener type="{UploadSecurityErrorEvent.UPLOAD_SECURITY_ERROR}" method="handleUploadSecurityError" />
+		<mate:Listener type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" method="handleConversionCompleted" />
+		<mate:Listener type="{ConversionUpdateEvent.CONVERSION_UPDATE}" method="handleConvertUpdate" />
+		<mate:Listener type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" method="handleThumbnailsProgressEvent" />
+		<mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
+		<mate:Listener type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" method="handleOfficeDocumentConversionInvalid"/>
+		<mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
+		<mate:Listener type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" method="handleSupportedDocument"/>	
+		<mate:Listener type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" method="handleUnsupportedDocument"/>
+		<mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
+		<mate:Listener type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" method="handlePageCountExceeded"/>
+		<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />	
+	</fx:Declarations>
+  <fx:Script>
     <![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.utils.StringUtil;
@@ -316,7 +319,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
   ]]>
 
-  </mx:Script>
+  </fx:Script>
 
   <mx:VBox width="100%" height="100%" verticalAlign="top">
     <mx:TextArea borderSkin="{null}"

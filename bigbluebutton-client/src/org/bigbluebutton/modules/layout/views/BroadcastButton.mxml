@@ -18,7 +18,8 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<views:LayoutButton xmlns:mx="http://www.adobe.com/2006/mxml" 
+<views:LayoutButton xmlns:mx="library://ns.adobe.com/flex/mx" 
+					xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   creationComplete="init()" 
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
@@ -26,7 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   styleName="broadcastLayoutButtonStyle"
 		   click="onClick(event)">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 
@@ -48,5 +49,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.visible = this.includeInLayout = this.enabled = amIModerator;
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </views:LayoutButton>

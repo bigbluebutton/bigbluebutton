@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:mate="http://mate.asfusion.com/"
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
 	xmlns:fimage="org.bigbluebutton.common.model.*"
   width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
@@ -32,12 +33,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	styleName="presentationSlideViewStyle"
   xmlns:views="org.bigbluebutton.modules.present.views.*">
      
-  <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
-  <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
-  <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
-	<mx:Script>
+	<fx:Declarations>
+	  <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
+	  <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
+	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
+	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
+	  <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -175,11 +178,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var deltaCanvasMouseY:Number = this.mouseY - prevMouseY;
 				prevMouseX = this.mouseX;
 				prevMouseY = this.mouseY;				
-				slideModel.onMove(deltaCanvasMouseX, deltaCanvasMouseY); 
-				slideModel.printViewedRegion();
-				slideModel.displayPresenterView();
-				fitSlideToLoader();		
-				notifyOthersOfZoomEvent();
+				var xyChange:Boolean = slideModel.onMove(deltaCanvasMouseX, deltaCanvasMouseY);
+				if (xyChange) {
+					slideModel.printViewedRegion();
+					slideModel.displayPresenterView();
+					fitSlideToLoader();
+					notifyOthersOfZoomEvent();
+				}
 			}
 						
 			/**
@@ -229,12 +234,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
+				var newZoomPercentage:Number = zoomPercentage;
 				if (presenterIsZoomingOut(e.delta)) {
-					zoomPercentage -= ZOOM_STEP;
+					newZoomPercentage -= ZOOM_STEP;
 				} else {
-					zoomPercentage += ZOOM_STEP;
+					newZoomPercentage += ZOOM_STEP;
 				}
-				zoomSlide(zoomPercentage, this.mouseX, this.mouseY);		
+				zoomSlide(newZoomPercentage, this.mouseX, this.mouseY);
 			}
 			
 			public function switchToFitToPage(ftp:Boolean):void {
@@ -248,17 +254,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
-				zoomPercentage = zoom;
-				if (zoomPercentage <= SlideViewModel.HUNDRED_PERCENT) {
-					zoomPercentage = SlideViewModel.HUNDRED_PERCENT;
-				} else if (zoomPercentage >= SlideViewModel.MAX_ZOOM_PERCENT) {
-					zoomPercentage = SlideViewModel.MAX_ZOOM_PERCENT
+				if (zoom <= SlideViewModel.HUNDRED_PERCENT) {
+					zoom = SlideViewModel.HUNDRED_PERCENT;
+				} else if (zoom >= SlideViewModel.MAX_ZOOM_PERCENT) {
+					zoom = SlideViewModel.MAX_ZOOM_PERCENT
 				}
-				slideModel.onZoom(zoomPercentage, mouseX, mouseY);
-				slideModel.printViewedRegion();
-				slideModel.displayPresenterView();
-				fitSlideToLoader();	
-				notifyOthersOfZoomEvent();	
+				
+				if (zoom != zoomPercentage) {
+					zoomPercentage = zoom;
+					
+					slideModel.onZoom(zoomPercentage, mouseX, mouseY);
+					slideModel.printViewedRegion();
+					slideModel.displayPresenterView();
+					fitSlideToLoader();
+					notifyOthersOfZoomEvent();
+				}
 			}
 									
 			private function notifyOthersOfZoomEvent():void {
@@ -313,6 +323,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           slideLoader.source = page.swfData;
           LOGGER.debug("Displaying page [{0}]", [e.pageId]);
 //          positionPage(page);
+          if (whiteboardCanvas != null) {
+            whiteboardCanvas.displayWhiteboardById(page.id);
+          }
           
           //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
           slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
@@ -380,9 +393,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{
 				whiteboardCanvas = overlay;
-                // add the canvas below the thumbnails
+				
+				var currPage:Page = PresentationModel.getInstance().getCurrentPage();
+				if (currPage != null) {
+					whiteboardCanvas.displayWhiteboardById(currPage.id);
+				}
+				
 				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
-				zoomCanvas(slideLoader.width, slideLoader.height);
 				fitSlideToLoader();
 				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
@@ -416,7 +433,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" 
                            x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
 		                   creationComplete="listenForSlideLoadedCompleteEvent()" 

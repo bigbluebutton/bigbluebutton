@@ -18,7 +18,8 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/" 
 				xmlns:common="org.bigbluebutton.common.*"
 				width="300" height="400" 
@@ -27,7 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.events.CloseEvent;
 			
@@ -72,9 +73,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				PopUpUtil.removePopUp(this);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer startIndex="1" tabIndices="{[titleText, saveBtn, cancelBtn]}"/>
+	<fx:Declarations>
+		<common:TabIndexer startIndex="1" tabIndices="{[titleText, saveBtn, cancelBtn]}"/>
+	</fx:Declarations>
 	
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
 		<mx:TextArea borderSkin="{null}" editable="false" selectable="false" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.title')}" styleName="lockSettingsWindowTitleStyle"

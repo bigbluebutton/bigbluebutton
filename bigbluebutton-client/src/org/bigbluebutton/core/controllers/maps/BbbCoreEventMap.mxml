@@ -20,23 +20,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<EventMap xmlns="http://mate.asfusion.com/" 
-          xmlns:mx="http://www.adobe.com/2006/mxml">
+<EventMap xmlns="http://mate.asfusion.com/"
+		  xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:mx="library://ns.adobe.com/flex/mx">
   
-  <EventHandlers type="{EventConstants.GET_MY_ROLE_REQ}">
-    <MethodInvoker generator="{BbbCoreEventDelegate}" method="handleGetMyRoleReq" />
-  </EventHandlers>
-  
-  <!-- ============== INJECTORS =================== --> 
-  <Injectors target="{BbbCoreEventDelegate}">
-    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-  </Injectors>	
-  
-	<mx:Script>
+	<fx:Declarations>
+		<EventHandlers type="{EventConstants.GET_MY_ROLE_REQ}">
+			<MethodInvoker generator="{BbbCoreEventDelegate}" method="handleGetMyRoleReq" />
+		</EventHandlers>
+		
+		<!-- ============== INJECTORS =================== --> 
+		<Injectors target="{BbbCoreEventDelegate}">
+			<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+		</Injectors>	
+	</fx:Declarations>
+	<fx:Script>
 	<![CDATA[
     import org.bigbluebutton.core.EventConstants;
     import org.bigbluebutton.core.controllers.BbbCoreEventDelegate;
 	]]>
-	</mx:Script>
+	</fx:Script>
 
 </EventMap>

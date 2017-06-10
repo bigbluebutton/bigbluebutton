@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx"
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
     xmlns:mate="http://mate.asfusion.com/"
     creationComplete="onCreationComplete()"
     initialize="init()"
@@ -28,15 +29,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     width="100%" height="100%" xmlns:containers="flexlib.containers.*"
     verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*">
 
-  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
-  <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-  <mate:Listener type="{EventConstants.START_PRIVATE_CHAT}" method="handleStartPrivateChatMessageEvent"/>
-  <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
-  <mate:Listener type="{ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT}" method="dispatchSaveChatEvent" />
-  <mate:Listener type="{ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT}" method="dispatchCopyChatEvent" />
-  <mate:Listener type="{ShortcutEvent.CLOSE_PRIVATE}" method="remoteClosePrivate" />
+	<fx:Declarations>
+		<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+		<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+		<mate:Listener type="{EventConstants.START_PRIVATE_CHAT}" method="handleStartPrivateChatMessageEvent"/>
+		<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
+		<mate:Listener type="{ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT}" method="dispatchSaveChatEvent" />
+		<mate:Listener type="{ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT}" method="dispatchCopyChatEvent" />
+		<mate:Listener type="{ShortcutEvent.CLOSE_PRIVATE}" method="remoteClosePrivate" />		
+	</fx:Declarations>
   
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -409,9 +412,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer id="tabIndexer" startIndex="{chatOptions.baseTabIndex + 4}" tabIndices="{[chatTabs]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="{chatOptions.baseTabIndex + 4}" tabIndices="{[chatTabs]}"/>
+	</fx:Declarations>
 	
 	<containers:SuperTabNavigator includeInLayout="false" id="chatTabs" 
                                   width="100%" height="100%" change="onTabNavChange()" 

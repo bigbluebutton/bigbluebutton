@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	styleName="recordButtonStyleNormal"
@@ -33,11 +34,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	mouseOver="onRecordButtonMouseOver(event)"
 	mouseOut="onRecordButtonMouseOut(event)" >
 
-	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
-	<mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConference" />
-	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStarted" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+		<mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConference" />
+		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStarted" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -257,5 +260,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				updateButton(this.selected);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>

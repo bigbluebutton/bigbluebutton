@@ -18,16 +18,17 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<views:LayoutButton xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" 
+<views:LayoutButton xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
+		   creationComplete="init()"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.saveButton.toolTip')}"
 		   styleName="saveLayoutButtonStyle"
 		   click="onClick(event)"
 		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 
@@ -48,5 +49,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.enabled = amIModerator;
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </views:LayoutButton>

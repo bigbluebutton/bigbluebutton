@@ -18,9 +18,9 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:UIComponent xmlns:mx="http://www.adobe.com/2006/mxml">
+<mx:UIComponent xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[      
 			import flash.filters.DropShadowFilter;
 			
@@ -67,8 +67,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				filters = [myFilter];
 			}                      
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
+	<!--
 	<mx:states>
 		<mx:State name="down">
 			<mx:SetProperty target="{myFilter}" 
@@ -77,5 +78,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							name="distance" value="2"/>
 		</mx:State>
 	</mx:states>    
-	
+	-->
 </mx:UIComponent>

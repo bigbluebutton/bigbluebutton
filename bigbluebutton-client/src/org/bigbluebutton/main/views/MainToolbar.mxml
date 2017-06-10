@@ -20,33 +20,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:ApplicationControlBar xmlns:mx="library://ns.adobe.com/flex/mx" 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/" xmlns:common="org.bigbluebutton.common.*"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	enabled="true" visible="{showToolbar}"
 	initialize="init()">   
 	
-	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
-	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
-	<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
-	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
-	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
-	<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
-	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
-	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
-	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
-	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
-	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
-	<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
-	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
-	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
-	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
-	<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
-  
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
+		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
+		<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
+		<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
+		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
+		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
+		<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
+		<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
+		<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
+		<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
+		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
+		<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
+		<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
+		<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -508,11 +510,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				refreshModeratorButtonsVisibility(null);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
-	<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
-					   tabIndices="{[recordBtn, muteMeBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
+		<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
+						   tabIndices="{[recordBtn, muteMeBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+	</fx:Declarations>
 
     
     <mx:HBox id="logoHolder" paddingRight="12" >

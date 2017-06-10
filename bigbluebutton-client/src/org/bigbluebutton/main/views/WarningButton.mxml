@@ -19,19 +19,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   xmlns:mate="http://mate.asfusion.com/" 
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:mate="http://mate.asfusion.com/"
 		   styleName="warningButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.clientstatus.title')}"
 		   click="handleButtonClick();"
 		   move="handleMove();"
 		   creationComplete="onCreationComplete();"
 		   visible="false" includeInLayout="false">
-	<mate:Listener type="{ClientStatusEvent.SUCCESS_MESSAGE_EVENT}" method="handleSuccessMessageEvent" />
-	<mate:Listener type="{ClientStatusEvent.WARNING_MESSAGE_EVENT}" method="handleWarningMessageEvent" />
-	<mate:Listener type="{ClientStatusEvent.FAIL_MESSAGE_EVENT}" method="handleFailMessageEvent" />
 	
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{ClientStatusEvent.SUCCESS_MESSAGE_EVENT}" method="handleSuccessMessageEvent" />
+		<mate:Listener type="{ClientStatusEvent.WARNING_MESSAGE_EVENT}" method="handleWarningMessageEvent" />
+		<mate:Listener type="{ClientStatusEvent.FAIL_MESSAGE_EVENT}" method="handleFailMessageEvent" />
+	</fx:Declarations>
+	
+	<fx:Script>
 		<![CDATA[
 			import flash.globalization.DateTimeFormatter;
 			import flash.globalization.DateTimeStyle;
@@ -152,5 +156,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				hideNotification();
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>

@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-           xmlns:mate="http://mate.asfusion.com/"
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:mate="http://mate.asfusion.com/"
            styleName="deskshareDefaultButtonStyle"
            height="24"
            toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
@@ -30,10 +31,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            mouseOut = "mouseOutHandler(event)"
            implements="org.bigbluebutton.common.IBbbToolbarComponent">
   
-  <mate:Listener type="{ShortcutEvent.SHARE_DESKTOP}" method="remoteClick" />
-  <mate:Listener type="{ShareWindowEvent.CLOSE}" method="closeFocus" />
+	<fx:Declarations>
+	  <mate:Listener type="{ShortcutEvent.SHARE_DESKTOP}" method="remoteClick" />
+	  <mate:Listener type="{ShareWindowEvent.CLOSE}" method="closeFocus" />
+	</fx:Declarations>
   
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       import org.bigbluebutton.main.events.ShortcutEvent;
@@ -127,5 +130,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         this.setFocus();
       }
     ]]>
-  </mx:Script>
+  </fx:Script>
 </mx:Button>

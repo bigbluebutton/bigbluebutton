@@ -19,8 +19,9 @@
 -->
 
 <EventMap xmlns="http://mate.asfusion.com/"
-	xmlns:mx="http://www.adobe.com/2006/mxml">
-	<mx:Script>
+		  xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
@@ -34,84 +35,86 @@
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import mx.events.FlexEvent;
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<!--
-	This is the main event map for the chat module, think of it as the application controller.
-	-->
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+	<fx:Declarations>
 		<!--
-		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		This is the main event map for the chat module, think of it as the application controller.
 		-->
-		<ObjectBuilder generator="{SharedNotesEventMapDelegate}"/>
-		<ObjectBuilder generator="{SharedNotesManager}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{StartSharedNotesModuleEvent.START_SHAREDNOTES_MODULE_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="setModuleAttributes" arguments="{event.attributes}"/>
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addMainWindow"/>
-		<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
-	</EventHandlers>
-
-	<EventHandlers type="{StopSharedNotesModuleEvent.STOP_SHAREDNOTES_MODULE_EVENT}">
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="stopSharedNotesRemoveAll"/>
-		<!-- <MethodInvoker generator="{SharedNotesManager}" method="disconnectFromSharedNotes"/> -->
-	</EventHandlers>
-
-	<EventHandlers type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
-	</EventHandlers>
-
-	<EventHandlers type="{CurrentDocumentEvent.CURRENT_DOCUMENT}">
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addRemoteDocuments" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{SendPatchEvent.SEND_PATCH_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="patchDocument" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="createAdditionalNotes" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}">
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="createAdditionalNotes" arguments="{[event.payload.notesId, event.payload.noteName]}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{SharedNotesEvent.	DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}">
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="requestAdditionalNotesSet" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{SharedNotesEvent.SYNC_NOTE_REQUEST_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="sharedNotesSyncNoteRequest" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAllAdditionalNotes" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}">
-		<EventAnnouncer generator="{GetCurrentDocumentEvent}" type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}"/>
-	</EventHandlers>
-
-	<Injectors target="{SharedNotesManager}">
-		<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
-		<PropertyInjector targetKey="sender" source="{MessageSender}"/>
-	</Injectors>
-
-	<Injectors target="{MessageReceiver}">
-		<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-	</Injectors>
-
-	<Injectors target="{MessageSender}">
-		<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-	</Injectors>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<!--
+			The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+			-->
+			<ObjectBuilder generator="{SharedNotesEventMapDelegate}"/>
+			<ObjectBuilder generator="{SharedNotesManager}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{StartSharedNotesModuleEvent.START_SHAREDNOTES_MODULE_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="setModuleAttributes" arguments="{event.attributes}"/>
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addMainWindow"/>
+			<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{StopSharedNotesModuleEvent.STOP_SHAREDNOTES_MODULE_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="stopSharedNotesRemoveAll"/>
+			<!-- <MethodInvoker generator="{SharedNotesManager}" method="disconnectFromSharedNotes"/> -->
+		</EventHandlers>
+	
+		<EventHandlers type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{CurrentDocumentEvent.CURRENT_DOCUMENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addRemoteDocuments" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SendPatchEvent.SEND_PATCH_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="patchDocument" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="createAdditionalNotes" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="createAdditionalNotes" arguments="{[event.payload.notesId, event.payload.noteName]}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.	DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="requestAdditionalNotesSet" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.SYNC_NOTE_REQUEST_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="sharedNotesSyncNoteRequest" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAllAdditionalNotes" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}">
+			<EventAnnouncer generator="{GetCurrentDocumentEvent}" type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}"/>
+		</EventHandlers>
+	
+		<Injectors target="{SharedNotesManager}">
+			<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
+			<PropertyInjector targetKey="sender" source="{MessageSender}"/>
+		</Injectors>
+	
+		<Injectors target="{MessageReceiver}">
+			<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+		</Injectors>
+	
+		<Injectors target="{MessageSender}">
+			<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+		</Injectors>
+	</fx:Declarations>
 </EventMap>

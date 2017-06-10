@@ -20,23 +20,12 @@ package org.bigbluebutton.modules.whiteboard.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
-	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
-	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
 	import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 	
 	public class WhiteboardManager
 	{

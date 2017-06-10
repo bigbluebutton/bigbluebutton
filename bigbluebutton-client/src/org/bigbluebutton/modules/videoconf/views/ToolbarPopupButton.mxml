@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" styleName="webcamDefaultButtonStyle"
+<mx:PopUpButton xmlns:mx="library://ns.adobe.com/flex/mx" styleName="webcamDefaultButtonStyle"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()"
 		   initialize="init()"
@@ -31,13 +32,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   selected="false"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
-	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
-	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
-	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	<fx:Declarations>
+		<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
+		<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
+		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -281,5 +284,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:PopUpButton>

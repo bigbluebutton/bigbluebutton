@@ -20,17 +20,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:HBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns="flexlib.containers.*" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC"
 	cornerRadius="5" borderStyle="solid"
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0"
 	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*"
 	creationComplete="onCreationComplete()">
 	
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
-	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableTextToolbar" />
-	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
+		<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableTextToolbar" />
+		<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
 			import flexlib.mdi.containers.MDIWindow;
 			
@@ -173,7 +175,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				repositionToolbar();
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 
 	<mx:ColorPicker width="20" height="20"  change="onFontColorChange(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>

@@ -1,8 +1,13 @@
-Application {
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace flexlib "http://code.google.com/p/flexlib/";
+@namespace users "org.bigbluebutton.modules.users.views.*";
+@namespace poll "org.bigbluebutton.modules.polling.views.*";
+
+mx|Application {
   backgroundColor: #ffffff;
 }
 
-ApplicationControlBar {
+mx|ApplicationControlBar {
   highlightAlphas: 0.1, 0;
   fillAlphas: 0, 0;
   fillColors: #32343b, #32343b;
@@ -23,7 +28,7 @@ ApplicationControlBar {
 	color : #ffffff;
 }
 
-Panel {
+mx|Panel {
   borderColor: #dfdfdf;
   borderAlpha: 1;
   shadowDistance: 1;
@@ -31,7 +36,7 @@ Panel {
   titleStyleName: "mypanelTitle";
 }
 
-ToolTip {
+mx|ToolTip {
 	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
 	backgroundAlpha : 0.9;
 	cornerRadius    : 3;
@@ -126,7 +131,7 @@ ToolTip {
 	fontWeight: bold;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle {
+mx|Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -208,7 +213,8 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   icon: Embed('assets/images/ic_thumb_down_16px.png');
 }
 
-DataGrid {
+
+mx|DataGrid {
   backgroundColor: #e1e2e5;
   rollOverColor: #f3f3f3;
   textRollOverColor: #3f3f41;
@@ -230,7 +236,6 @@ DataGrid {
 
 .whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
-.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle,
 .chatClearButtonStyle, .multiUserWhiteboardOnButtonStyle, .multiUserWhiteboardOffButtonStyle
 {
   textIndent: 0;
@@ -510,7 +515,7 @@ DataGrid {
   icon:   Embed('assets/images/webcam-private-chat.png');
 }
 
-TitleWindow {
+mx|TitleWindow {
   borderColor: #b9babc;
   borderAlpha: 1;
   borderThicknessLeft: 10;
@@ -795,7 +800,7 @@ TitleWindow {
 	icon:   Embed('assets/images/headset.png');
 }
 
-.micSettingsWindowCancelButtonStyle, inactivityWarningWindowCancelButtonStyle {
+.micSettingsWindowCancelButtonStyle, .inactivityWarningWindowCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
@@ -820,7 +825,7 @@ TitleWindow {
 	fontWeight: bold;
 }
 
-MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
+flexlib|MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
 	backgroundSize: '100%';
 	
 	cornerRadius: 5;
@@ -1083,7 +1088,7 @@ https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
   fillAlphas: 0.45, 0.25;  
 }
 
-Alert {
+mx|Alert {
 	borderColor: #DFDFDF;
 	backgroundColor: #EFEFEF;
 	borderAlpha: 1;
@@ -1093,7 +1098,7 @@ Alert {
 	messageStyleName: "alertMessageStyle";
 }
 
-AlertForm {
+mx|AlertForm {
 	paddingTop: 8;
 	fontSize: 13;
 }
@@ -1168,6 +1173,7 @@ AlertForm {
   almostStrongAudioStatus:  Embed(source='assets/images/almost_strong_audio_status.png');
   almostWeakAudioStatus:    Embed(source='assets/images/almost_weak_audio_status.png');
   weakAudioStatus:          Embed(source='assets/images/weak_audio_status.png');
+  color: #e1e2e5;
 }
 
 .warningButtonStyle {
@@ -1206,7 +1212,7 @@ AlertForm {
   icon:   Embed('assets/images/ic_send_16px.png');
 }
 
-PollChoicesModal {
+poll|PollChoicesModal {
 	fontSize: 14;
 	paddingLeft: 16;
 	paddingRight: 16;
@@ -1225,7 +1231,7 @@ PollChoicesModal {
 	selectionColor: #f3f3f3;
 }
 
-EmojiGrid {
+users|EmojiGrid {
 	backgroundColor: #ffffff;
 	horizontalAlign: center;
 	paddingLeft: 0;
@@ -1243,7 +1249,7 @@ EmojiGrid {
 	horizontalGap: 6;
 }
 
-RoomActionsRenderer {
+users|RoomActionsRenderer {
 	paddingLeft  : 5;
 	paddingRight : 5;
 }

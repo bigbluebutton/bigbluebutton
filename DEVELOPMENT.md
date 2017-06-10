@@ -108,12 +108,6 @@ gradle resolveDeps
 gradle war deploy
 ```
 
-Remove old `bbb-web` app from tomcat
-
-```
-sudo rm /var/lib/tomcat7/webapps/bigbluebutton.war
-```
-
 ## Manually start services
 
 ### Run Red5
@@ -137,6 +131,10 @@ cd ~/dev/bigbluebutton/akka-bbb-apps
 # do once.
 rm lib_managed/*
 
+# We need to stop the existing packaged akka-apps
+sudo systemctl stop bbb-apps-akka
+
+# Now we can run our own
 sbt clean
 sbt run
 ```
@@ -153,6 +151,10 @@ cd ~/dev/bigbluebutton/akka-bbb-fsesl
 # do once.
 rm lib_managed/*
 
+# We need to stop the existing packaged akka-fsesl
+sudo systemctl stop bbb-fsesl-akka
+
+# Now we can run our own
 sbt clean
 sbt run
 ```
@@ -180,6 +182,14 @@ sbt publish publishLocal
 
 
 ### Run bbb-web
+
+
+First we need to remove the old `bbb-web` app from tomcat to avoid duplicate messages
+
+```
+sudo cp /var/lib/tomcat7/webapps/bigbluebutton.war /var/lib/tomcat7/webapps/bigbluebutton.war-packaged
+sudo rm -r /var/lib/tomcat7/webapps/bigbluebutton
+```
 
 On your bbb-web terminal, start bbb-web
 

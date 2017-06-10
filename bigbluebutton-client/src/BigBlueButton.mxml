@@ -19,13 +19,17 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-                xmlns:views="*"
-                pageTitle="BigBlueButton" 
-                layout="absolute"
+<mx:Application xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:views="*"
+				pageTitle="BigBlueButton" 
+				layout="absolute"
 				preinitialize="init()"
-                preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
-	<mx:Script>
+				preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
+	
+	<fx:Style source="assets/halo.css" />
+	
+	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
 
@@ -34,7 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				setStyle('backgroundColor', '0xFFFFFF');
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
    
   <views:BigBlueButtonMainContainer id="bbbShell"/>
  

@@ -21,7 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:flexmdi="flexlib.mdi.containers.*"
 		xmlns:logModule="org.bigbluebutton.modules.log.view.components.*"
 		xmlns:views="org.bigbluebutton.main.views.*"
@@ -41,49 +42,49 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	update as the height property needs a value different from thec current one to be updated.
 		
 	-->
-	
-	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
-	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
-	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
-	<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />	
-	<mate:Listener type="{MeetingNotFoundEvent.MEETING_NOT_FOUND}" method="handleMeetingNotFoundEvent" />
-	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="handleLogout" />
-    <mate:Listener type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" method="handleLogout" />
-	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_FAILED}" method="attemptReconnect" />
-	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
-	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
-	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-	<mate:Listener type="{ExitApplicationEvent.EXIT_APPLICATION}" method="handleExitApplicationEvent" />
-	<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
-	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
-	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
-	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
-	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
-	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
-	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
-	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
-  
-	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
-	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
-	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
-	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
-	<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
-	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
-	<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
-	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
-	
-	<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
-
-	<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
-	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
-	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
-	<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
-	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
-	<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
-	<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
-	<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
+	<fx:Declarations>
+		<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
+		<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
+		<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
+		<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />	
+		<mate:Listener type="{MeetingNotFoundEvent.MEETING_NOT_FOUND}" method="handleMeetingNotFoundEvent" />
+		<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="handleLogout" />
+	    <mate:Listener type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" method="handleLogout" />
+		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_FAILED}" method="attemptReconnect" />
+		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
+		<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
+		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
+		<mate:Listener type="{ExitApplicationEvent.EXIT_APPLICATION}" method="handleExitApplicationEvent" />
+		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
+		<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
+		<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
+		<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
+		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
+		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
+		<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
+		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
 	  
-	<mx:Script>
+		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
+		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
+		<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
+		<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+		<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
+		<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
+		<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
+		<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
+		
+		<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+	
+		<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
+		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
+		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
+		<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
+		<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
+		<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
+		<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
+		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -971,15 +972,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<mx:Resize id="shrinkControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{footerHeight}" heightTo="0" effectEnd="onControlBarEffectEnd()" />
-	<mx:Resize id="enlargeControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{footerHeight}" effectEnd="onControlBarEffectEnd()" />
-	<mx:Resize id="shrinkToolbar" target="{toolbar}" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{toolbarHeight}" heightTo="0" effectEnd="onToolbarEffectEnd()" />
-	<mx:Resize id="enlargeToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{toolbarHeight}" effectEnd="onToolbarEffectEnd()" />
+	<fx:Declarations>
+		<mx:Resize id="shrinkControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{footerHeight}" heightTo="0" effectEnd="onControlBarEffectEnd()" />
+		<mx:Resize id="enlargeControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{footerHeight}" effectEnd="onControlBarEffectEnd()" />
+		<mx:Resize id="shrinkToolbar" target="{toolbar}" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{toolbarHeight}" heightTo="0" effectEnd="onToolbarEffectEnd()" />
+		<mx:Resize id="enlargeToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{toolbarHeight}" effectEnd="onToolbarEffectEnd()" />
+	</fx:Declarations>
 	
-	<common:TabIndexer id="tabIndexer" startIndex="100000"
-					   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="100000"
+						   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
+	</fx:Declarations>
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 

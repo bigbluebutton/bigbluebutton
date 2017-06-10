@@ -20,16 +20,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-         xmlns:mate="http://mate.asfusion.com/"
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mate="http://mate.asfusion.com/"
 		 xmlns:common="org.bigbluebutton.common.*"
          implements="org.bigbluebutton.modules.chat.views.IChatTab"
          creationComplete="onCreationComplete()">
   
-  <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-  <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	<fx:Declarations>
+  		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
   
-    <mx:Script>
+    <fx:Script>
         <![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -149,9 +152,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
             
         ]]>
-    </mx:Script>
+    </fx:Script>
     
-	<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox]}"/>
+	</fx:Declarations>
     
     <mx:Label id="lblSelect" styleName="chatOptionsLabel"
 			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 

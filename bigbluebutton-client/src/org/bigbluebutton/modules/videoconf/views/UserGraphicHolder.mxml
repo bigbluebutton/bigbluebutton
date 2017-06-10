@@ -20,20 +20,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
-        xmlns:mate="http://mate.asfusion.com/"
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:mate="http://mate.asfusion.com/"
         xmlns:views="org.bigbluebutton.modules.videoconf.views.*"
         initialize="init()"
         creationComplete="onCreationComplete()"
         backgroundColor="white" width="320" height="240"
         mouseOver="onCanvasMouseOver()" mouseOut="onCanvasMouseOut()" >
 
-    <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-    <mate:Listener type="{PresenterStatusEvent.PRESENTER_NAME_CHANGE}" method="handlePresenterChangedEvent" />
-    <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserVoiceChangedEvent" />
-    <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceChangedEvent" />
+	<fx:Declarations>
+	    <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+	    <mate:Listener type="{PresenterStatusEvent.PRESENTER_NAME_CHANGE}" method="handlePresenterChangedEvent" />
+	    <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserVoiceChangedEvent" />
+	    <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceChangedEvent" />
+	</fx:Declarations>
 
-    <mx:Script>
+    <fx:Script>
         <![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -291,10 +294,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
         ]]>
-    </mx:Script>
+    </fx:Script>
 
-    <mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0" />
-    <mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
+	<fx:Declarations>
+	    <mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0" />
+	    <mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
+	</fx:Declarations>
 
     <mx:Canvas id="canvas" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
         <views:UserAvatar id="avatar" width="100%" height="100%" visible="false" includeInLayout="false" />

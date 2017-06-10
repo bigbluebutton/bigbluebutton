@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-			xmlns:mx="http://www.adobe.com/2006/mxml"
+			xmlns:mx="library://ns.adobe.com/flex/mx"
+			xmlns:fx="http://ns.adobe.com/mxml/2009"
 			xmlns:containers="flexlib.containers.*"
 			xmlns:mate="http://mate.asfusion.com/"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -28,10 +29,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			showCloseButton="false"
 			creationComplete="onCreationComplete()">
 	
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -242,7 +245,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<mx:Box width="100%" height="100%" horizontalAlign="left">
 		<containers:SuperTabNavigator id="captionTabs"
 									  width="100%" height="100%" minTabWidth="20"
