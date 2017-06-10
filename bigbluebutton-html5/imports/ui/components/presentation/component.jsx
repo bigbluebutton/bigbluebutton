@@ -180,7 +180,7 @@ export default class PresentationArea extends React.Component {
             <svg
               width={svgWidth}
               height={svgHeight}
-              ref={(ref) => { this.svggroup = ref; }}
+              ref={(ref) => { if(ref != null) { this.svggroup = ref; } }}
               viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
