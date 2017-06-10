@@ -420,7 +420,8 @@ trait UsersApp {
   }
 
   def handleUserJoinedVoiceFromPhone(msg: UserJoinedVoiceConfMessage) = {
-    log.info("User joining from phone.  meetingId=" + props.meetingProp.intId + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
+    log.info("User joining from phone.  meetingId=" + props.meetingProp.intId + " userId=" + msg.userId
+      + " extUserId=" + msg.externUserId)
 
     Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users) match {
       case Some(user) => {
