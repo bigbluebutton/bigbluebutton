@@ -68,7 +68,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ShareEvent.OPEN_SCREENSHARE_VIEW_TAB}" method="openScreenshareViewTab" />
 		<mate:Listener type="{ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB}" method="closeScreenshareViewTab" />
 		<mate:Listener type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}" method="handleRefreshScreenshareTab" />
-		<mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="addWhiteboardCanvasToSlideView" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -104,7 +103,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
-			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -508,14 +506,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
       }
 
-      private function addWhiteboardCanvasToSlideView(e:PageLoadedEvent = null):void{
+      private function addWhiteboardCanvasToSlideView():void{
         if(whiteboardOverlay != null) {
-           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
-           changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
-           slideView.acceptOverlayCanvas(whiteboardOverlay);
-           if (screenshareView) {
-             screenshareView.removeOverlayCanvas();
-           }
+          LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
+          slideView.acceptOverlayCanvas(whiteboardOverlay);
+          if (screenshareView) {
+            screenshareView.removeOverlayCanvas();
+          }
         } else {
           LOGGER.debug("addWhiteboardCanvasToSlideView: NOT adding whiteboard canvas to Slide View.");
           delayedWhiteboardOverlayAdd = "slide";
@@ -525,7 +522,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function addWhiteboardCanvasToScreenshareView():void {
         if(whiteboardOverlay != null) {
           LOGGER.debug("addWhiteboardCanvasToScreenshareView: Adding whiteboard canvas to Screenshare View");
-          changeWhiteboardPageOnly("deskshare");
           slideView.removeOverlayCanvas();
           if (screenshareView) {
             screenshareView.acceptOverlayCanvas(whiteboardOverlay);
@@ -982,15 +978,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					pollStartBtn.visible = true;
 					btnClosePublish.visible = true;
 					btnPauseScreenshare.visible = true;
-				}
-			}
-
-			private function changeWhiteboardPageOnly(whiteboardId:String):void {
-				if (whiteboardOverlay) {
-					LOGGER.debug("Telling the WhiteboardCanvas to switch ids. Id: " + whiteboardId);
-					whiteboardOverlay.displayWhiteboardById(whiteboardId);
-				} else {
-					LOGGER.debug("No WhiteboardCanvas overlayed cannot switch ids. Id: " + whiteboardId);
 				}
 			}
 
