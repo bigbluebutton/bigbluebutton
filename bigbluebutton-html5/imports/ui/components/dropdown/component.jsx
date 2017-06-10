@@ -105,13 +105,15 @@ class Dropdown extends Component {
   }
 
   handleWindowClick(event) {
-    const dropdownElement = findDOMNode(this);
-    const shouldUpdateState = event.target !== dropdownElement &&
+    if(this.state.isOpen){
+      const dropdownElement = findDOMNode(this);
+      const shouldUpdateState = event.target !== dropdownElement &&
                               !dropdownElement.contains(event.target) &&
                               this.state.isOpen;
 
-    if (shouldUpdateState) {
-      this.handleHide();
+      if (shouldUpdateState) {
+        this.handleHide();
+      }
     }
   }
 
