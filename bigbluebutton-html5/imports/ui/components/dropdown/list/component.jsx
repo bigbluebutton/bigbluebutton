@@ -36,7 +36,7 @@ export default class DropdownList extends Component {
   componentWillMount() {
     this.setState({
       focusedIndex: 0,
-    })
+    });
   }
   
   componentDidUpdate(prevProps, prevState) {
@@ -45,7 +45,7 @@ export default class DropdownList extends Component {
     this.menuRefs = [];
 
     for (let i = 0; i < (this._menu.children.length); i++) {
-      if (this._menu.children[i].getAttribute("role") === 'menuitem'){
+      if (this._menu.children[i].getAttribute("role") === 'menuitem') {
         this.menuRefs.push(this._menu.children[i]);
       }
     }
@@ -78,7 +78,7 @@ export default class DropdownList extends Component {
 
       nextFocusedIndex += 1;
 
-      if(nextFocusedIndex > this.menuRefs.length - 1){
+      if (nextFocusedIndex > this.menuRefs.length - 1) {
         nextFocusedIndex = 0;
       }
     }
@@ -100,7 +100,7 @@ export default class DropdownList extends Component {
       }
     }
 
-    this.setState({focusedIndex: nextFocusedIndex})
+    this.setState({focusedIndex: nextFocusedIndex});
     
     if (typeof callback === 'function') {
       callback(event);

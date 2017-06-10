@@ -57,7 +57,7 @@ const messages = defineMessages({
   userAriaLabel: {
     id: 'app.userlist.userAriaLabel',
     description: 'aria label for each user in the userlist',
-  }
+  },
 });
 
 const userActionsTransition = {
@@ -187,8 +187,8 @@ class UserListItem extends Component {
     const list = findDOMNode(this.list);
 
     if (isActionsOpen, dropdownVisible) {
-      for(let i = 0; i < list.children.length; i++){
-        if(list.children[i].getAttribute('role') === 'menuitem'){
+      for (let i = 0; i < list.children.length; i++) {
+        if (list.children[i].getAttribute('role') === 'menuitem') {
           list.children[i].focus();
           break;
         }
