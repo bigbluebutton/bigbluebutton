@@ -25,6 +25,7 @@
     "app.userlist.menu.kickUser.label": "Kick user",
     "app.userlist.menu.muteUserAudio.label": "Mute user",
     "app.userlist.menu.unmuteUserAudio.label": "Unmute user",
+    "app.userlist.userAriaLabel": "user : {0}  role: {1}  person: {2}  status: {3}",
     "app.chat.Label": "Chat",
     "app.chat.emptyLogLabel": "Chat log empty",
     "app.media.Label": "Media",
