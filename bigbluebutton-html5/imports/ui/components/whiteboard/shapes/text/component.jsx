@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ShapeHelpers from '../helpers.js';
+import TextShapeService from './service.js';
 
 export default class TextDrawComponent extends React.Component {
   constructor(props) {
@@ -9,6 +10,12 @@ export default class TextDrawComponent extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return this.props.shape.version != nextProps.shape.version;
+  }
+
+  componentDidMount() {
+    if(this.props.isPresenter && this.props.shape.status != "textPublished") {
+      this.focus();
+    }
   }
 
   getCoordinates() {
@@ -33,7 +40,7 @@ export default class TextDrawComponent extends React.Component {
     };
   }
 
-  getStyles(results) {
+  getViewerStyles(results) {
     const styles = {
       WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
       pointerEvents: 'none',
@@ -54,7 +61,25 @@ export default class TextDrawComponent extends React.Component {
     return styles;
   }
 
-  renderViewerTextShape(results, styles) {
+  getPresenterStyles(results) {
+    const styles = {
+      border: '1px solid black',
+      width: "100%",
+      height: "100%",
+      resize: 'none',
+      overflow: 'hidden',
+      outline: 'none',
+      color: results.fontColor,
+      fontSize: results.calcedFontSize,
+      padding: "0",
+    };
+
+    return styles;
+  }
+
+  renderViewerTextShape(results) {
+    const styles = this.getViewerStyles(results);
+
     return (
       <g>
         <clipPath id={this.props.shape.id}>
@@ -63,8 +88,6 @@ export default class TextDrawComponent extends React.Component {
             y={results.y}
             width={results.width}
             height={results.height}
-            fill="purple"
-            strokeWidth="2"
           />
         </clipPath>
 
@@ -83,20 +106,54 @@ export default class TextDrawComponent extends React.Component {
     );
   }
 
-  renderPresenterTextShape(results, styles) {
+  renderPresenterTextShape(results) {
+    const styles = this.getPresenterStyles(results);
+
+    // since textarea has a 1 px border which moves the text inside 1px down and right
+    // we need to adjust and center foreign object (textarea's wrapper) accordingly
+    // thus text won't make a 1px jump (top-left) after publishing
+    const x = results.x - 1;
+    const y = results.y - 1;
+    const width = results.width + 2;
+    const height = results.height + 2;
+
     return (
-      <g></g>
+      <g>
+        <foreignObject
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          style={{pointerEvents: 'none'}}
+        >
+          <textarea
+            maxLength="1024"
+            ref={(ref) => { this.textArea = ref; }}
+            onChange={this.onChangeHandler.bind(this)}
+            onBlur={this.focus.bind(this)}
+            style={styles}
+          />
+        </foreignObject>
+      </g>
     );
+  }
+
+  onChangeHandler(event) {
+    TextShapeService.setTextShapeValue(event.target.value);
+  }
+
+  focus() {
+    // Explicitly focus the text input using the raw DOM API
+    this.textArea.focus();
   }
 
   render() {
     let results = this.getCoordinates();
-    let styles = this.getStyles(results);
 
     if(this.props.isPresenter && this.props.shape.status != "textPublished") {
-      return this.renderPresenterTextShape(results, styles);
+      return this.renderPresenterTextShape(results);
     } else {
-      return this.renderViewerTextShape(results, styles);
+      return this.renderViewerTextShape(results);
     }
   }
 }

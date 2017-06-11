@@ -19,8 +19,8 @@ export default class WhiteboardToolbar extends Component {
         sessionValue: 'Hand',
       },
       thicknessSelected: {
-        iconRadius: 6,
-        sessionRadius: 6,
+        iconRadius: 4,
+        sessionRadius: 3,
       },
       colorSelected: '#000000',
       fontSizeSelected: 18,

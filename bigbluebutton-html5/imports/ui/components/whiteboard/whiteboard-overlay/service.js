@@ -17,7 +17,13 @@ const getWhiteboardToolbarValues = () => {
   }
 };
 
+const getTextShapeValue = () => {
+  let textShapeValue = Storage.getItem('whiteboardTextShapeValue');
+  return textShapeValue ? textShapeValue : '';
+};
+
 export default {
   sendAnnotation,
   getWhiteboardToolbarValues,
+  getTextShapeValue,
 };
