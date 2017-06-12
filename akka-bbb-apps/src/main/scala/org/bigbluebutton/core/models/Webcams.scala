@@ -8,7 +8,7 @@ object Webcams {
   }
 
   def findWebcamsForUser(webcams: Webcams, userId: String): Vector[WebcamStream] = {
-    webcams.toVector.filter(w => w.userId == userId)
+    webcams.toVector.filter(w => w.stream.userId == userId)
   }
 
   def userSharedWebcam(userId: String, webcams: Webcams, streamId: String): Option[UserVO] = {
@@ -62,4 +62,4 @@ class Webcams {
   }
 }
 
-case class WebcamStream(userId: String, stream: Stream)
+case class WebcamStream(streamId: String, stream: Stream)
