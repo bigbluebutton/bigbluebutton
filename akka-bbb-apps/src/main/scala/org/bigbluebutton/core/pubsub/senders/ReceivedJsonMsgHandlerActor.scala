@@ -43,6 +43,8 @@ class ReceivedJsonMsgHandlerActor(
         routeValidateAuthTokenReqMsg(envelope, jsonNode)
       case RegisterUserReqMsg.NAME =>
         routeRegisterUserReqMsg(envelope, jsonNode)
+      case UserJoinMeetingReqMsg.NAME =>
+        routeUserJoinMeetingReqMsg(envelope, jsonNode)
       case UserBroadcastCamStartMsg.NAME =>
         routeUserBroadcastCamStartMsg(envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>

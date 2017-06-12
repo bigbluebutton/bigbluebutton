@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.messages.voiceconf
 
-import org.bigbluebutton.common2.messages.{BbbCoreHeader, BbbCoreHeaderWithMeetingId, BbbCoreMsg}
+import org.bigbluebutton.common2.messages.{BbbClientMsgHeader, BbbCoreHeader, BbbCoreHeaderWithMeetingId, BbbCoreMsg}
 
 /*** Message from Akka Apps to FS Conference ***/
 object EjectAllFromVoiceConfMsg { val NAME = "EjectAllFromVoiceConfMsg" }
@@ -60,9 +60,9 @@ case class RecordingStartedVoiceConfEvtMsgBody(voiceConf: String, stream: String
 object UserJoinedVoiceConfEvtMsg { val NAME = "UserJoinedVoiceConfEvtMsg" }
 case class UserJoinedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
                                      body: UserJoinedVoiceConfEvtMsgBody) extends BbbCoreMsg
-case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, userId: String,
+case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, intId: String,
                                          callerIdName: String, callerIdNum: String, muted: Boolean,
-                                         talking: Boolean, avatarUrl: String)
+                                         talking: Boolean, callingWith: String)
 
 object UserLeftVoiceConfEvtMsg { val NAME = "UserLeftVoiceConfEvtMsg" }
 case class UserLeftVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
@@ -104,3 +104,10 @@ case class DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(header: BbbCoreVoiceConf
 case class DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
                                                             stream: String, vidWidth: String, vidHeight: String,
                                                             timestamp: String)
+
+/*** Message going to clients from Akka Apps ***/
+object UserJoinedVoiceConfToClientEvtMsg { val NAME = "UserJoinedVoiceConfToClientEvtMsg" }
+case class UserJoinedVoiceConfToClientEvtMsg(header: BbbClientMsgHeader, body: UserJoinedVoiceConfToClientEvtMsgBody) extends BbbCoreMsg
+case class UserJoinedVoiceConfToClientEvtMsgBody(intId: String, voiceUserId: String, callerName: String,
+                                                 callerNum: String, muted: Boolean,
+                                                 talking: Boolean, callingWith: String, listenOnly: Boolean)

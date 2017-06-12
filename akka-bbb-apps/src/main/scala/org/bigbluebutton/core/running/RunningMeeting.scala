@@ -4,8 +4,8 @@ import akka.actor.ActorContext
 import org.bigbluebutton.common2.domain.{ DefaultProps, Meeting2x }
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
-import org.bigbluebutton.core.{ OutMessageGateway }
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core2.MeetingStatus2x
 
 object RunningMeeting {
@@ -28,14 +28,19 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val users = new Users
   val registeredUsers = new RegisteredUsers
   val meetingStatux2x = new MeetingStatus2x
+  val webcams = new Webcams
+  val voiceUsers = new VoiceUsers
+  val voiceUsersState = new VoiceUsersState
+  val users2x = new Users2x
+  val usersState = new UsersState
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
   val liveMeeting = new LiveMeeting(props, meetingStatux2x, chatModel, layoutModel,
-    users, registeredUsers, pollModel,
-    wbModel, presModel, breakoutModel, captionModel, notesModel)
+    users, registeredUsers, pollModel, wbModel, presModel, breakoutModel, captionModel,
+    notesModel, webcams, voiceUsers, voiceUsersState, users2x, usersState)
 
   val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outGW, liveMeeting), props.meetingProp.intId)
 

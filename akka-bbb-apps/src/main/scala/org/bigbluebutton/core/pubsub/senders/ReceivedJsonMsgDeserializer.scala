@@ -85,6 +85,33 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
     }
   }
 
+  def routeUserJoinMeetingReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[UserJoinMeetingReqMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[UserJoinMeetingReqMsg](jsonNode)
+
+      result match {
+        case Some(msg) =>
+          Some(msg.asInstanceOf[UserJoinMeetingReqMsg])
+        case None =>
+          log.error("Failed to deserialize message. error: {} \n msg: ", error, jsonNode)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: UserJoinMeetingReqMsg): Unit = {
+      // Route via meeting manager as there is a race condition if we send directly to meeting
+      // because the meeting actor might not have been created yet.
+      val event = BbbMsgEvent(msg.header.userId, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
+    }
+  }
+
   def routeUserBroadcastCamStartMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
     def deserialize(jsonNode: JsonNode): Option[UserBroadcastCamStartMsg] = {
       val (result, error) = JsonDeserializer.toBbbCommonMsg[UserBroadcastCamStartMsg](jsonNode)

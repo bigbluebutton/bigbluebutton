@@ -5,7 +5,8 @@ import org.bigbluebutton.common2.messages.MessageBody._
 
 object MessageTypes {
   val DIRECT = "DIRECT"
-  val BROADCAST = "BROADCAST"
+  val BROADCAST_TO_MEETING = "BROADCAST_TO_MEETING" // Send to all clients in the meeting
+  val BROADCAST_TO_ALL = "BROADCAST_TO_ALL" // Send to all clients
   val SYSTEM = "SYSTEM"
 }
 
@@ -41,8 +42,9 @@ case class ValidateAuthTokenReqMsg(header: BbbClientMsgHeader,
                                    body: ValidateAuthTokenReqMsgBody) extends BbbCoreMsg
 
 
-object UserJoinReqMsg { val NAME = "UserJoinReqMsg" }
-case class UserJoinReqMsg(header: BbbClientMsgHeader, body: UserJoinReqMsgBody) extends BbbCoreMsg
+object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
+case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends BbbCoreMsg
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
 
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends BbbCoreMsg
@@ -66,6 +68,13 @@ case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
 object ValidateAuthTokenRespMsg { val NAME = "ValidateAuthTokenRespMsg" }
 case class ValidateAuthTokenRespMsg(header: BbbClientMsgHeader,
                                     body: ValidateAuthTokenRespMsgBody) extends BbbCoreMsg
+
+object UserJoinedMeetingEvtMsg { val NAME = "UserJoinedMeetingEvtMsg" }
+case class UserJoinedMeetingEvtMsg(header: BbbClientMsgHeader,
+                                   body: UserJoinedMeetingEvtMsgBody) extends BbbCoreMsg
+case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
+                                       guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
+                                       presenter: Boolean, locked: Boolean, avatar: String)
 
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg

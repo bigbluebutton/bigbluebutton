@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 
 class LiveMeeting(val props: DefaultProps,
@@ -19,7 +19,12 @@ class LiveMeeting(val props: DefaultProps,
   val presModel: PresentationModel,
   val breakoutModel: BreakoutRoomModel,
   val captionModel: CaptionModel,
-  val notesModel: SharedNotesModel)
+  val notesModel: SharedNotesModel,
+  val webcams: Webcams,
+  val voiceUsers: VoiceUsers,
+  val voiceUsersState: VoiceUsersState,
+  val users2x: Users2x,
+  val usersState: UsersState)
     extends ChatModelTrait {
 
   def hasMeetingEnded(): Boolean = {
