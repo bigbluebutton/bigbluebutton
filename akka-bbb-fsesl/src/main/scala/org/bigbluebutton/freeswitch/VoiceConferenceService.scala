@@ -3,6 +3,11 @@ package org.bigbluebutton.freeswitch
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.endpoint.redis.RedisPublisher
+import org.bigbluebutton.common.messages.VoiceConfRecordingStartedMessage
+import org.bigbluebutton.common.messages.UserJoinedVoiceConfMessage
+import org.bigbluebutton.common.messages.UserLeftVoiceConfMessage
+import org.bigbluebutton.common.messages.UserMutedInVoiceConfMessage
+import org.bigbluebutton.common.messages.UserTalkingInVoiceConfMessage
 import org.bigbluebutton.common.messages.DeskShareStartedEventMessage
 import org.bigbluebutton.common.messages.DeskShareStoppedEventMessage
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStartedEventMessage
@@ -12,6 +17,8 @@ import org.bigbluebutton.common2.messages.voiceconf._
 import org.bigbluebutton.common2.util.JsonUtil
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService with SystemConfiguration {
+
+  val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system"
 
   def voiceConfRecordingStarted(voiceConfId: String, recordStream: String, recording: java.lang.Boolean, timestamp: String) {
     val header = BbbCoreVoiceConfHeader(RecordingStartedVoiceConfEvtMsg.NAME, voiceConfId)
@@ -23,6 +30,9 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
+
+    val oldmsg = new VoiceConfRecordingStartedMessage(voiceConfId, recordStream, recording, timestamp)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userJoinedVoiceConf(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
@@ -40,6 +50,9 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
+
+    val oldmsg = new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum, muted, talking, avatarURL)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userLeftVoiceConf(voiceConfId: String, voiceUserId: String) {
@@ -54,6 +67,9 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
+
+    val oldmsg = new UserLeftVoiceConfMessage(voiceConfId, voiceUserId)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userLockedInVoiceConf(voiceConfId: String, voiceUserId: String, locked: java.lang.Boolean) {
@@ -72,6 +88,9 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
+
+    val oldmsg = new UserMutedInVoiceConfMessage(voiceConfId, voiceUserId, muted)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userTalkingInVoiceConf(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
@@ -86,12 +105,15 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
+
+    val oldmsg = new UserTalkingInVoiceConfMessage(voiceConfId, voiceUserId, talking)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def deskShareStarted(voiceConfId: String, callerIdNum: String, callerIdName: String) {
     println("******** FreeswitchConferenceService send deskShareStarted to BBB " + voiceConfId)
-    val msg = new DeskShareStartedEventMessage(voiceConfId, callerIdNum, callerIdName)
-    sender.publish(fromVoiceConfRedisChannel, msg.toJson())
+    val oldmsg = new DeskShareStartedEventMessage(voiceConfId, callerIdNum, callerIdName)
+    sender.publish(fromVoiceConfRedisChannel, oldmsg.toJson())
   }
 
   def deskShareEnded(voiceConfId: String, callerIdNum: String, callerIdName: String) {
@@ -104,6 +126,7 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStarted to BBB " + voiceConfId)
     val msg = new DeskShareRTMPBroadcastStartedEventMessage(voiceConfId, streamname, vw, vh, timestamp)
     sender.publish(fromVoiceConfRedisChannel, msg.toJson())
+
   }
 
   def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
