@@ -1,9 +1,9 @@
 package org.bigbluebutton.core2.message.handlers
 
-import org.bigbluebutton.common2.messages.MessageBody.{ UserBroadcastCamStartedEvtMsgBody }
+import org.bigbluebutton.common2.messages.MessageBody.UserBroadcastCamStartedEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.{ MediaStream, WebcamStream, Webcams }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UserBroadcastCamStartMsgHdlr {
@@ -14,7 +14,7 @@ trait UserBroadcastCamStartMsgHdlr {
   def handleUserBroadcastCamStartMsg(msg: UserBroadcastCamStartMsg): Unit = {
 
     def broadcastEvent(msg: UserBroadcastCamStartMsg): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(UserBroadcastCamStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserBroadcastCamStartedEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
@@ -26,8 +26,11 @@ trait UserBroadcastCamStartMsgHdlr {
       record(event)
     }
 
+    val stream = new MediaStream(msg.body.stream, msg.body.stream, msg.header.userId, Set.empty, Set.empty)
+    val webcamStream = new WebcamStream(msg.body.stream, stream)
+
     for {
-      uvo <- Users.userSharedWebcam(msg.header.userId, liveMeeting.users, msg.body.stream)
+      uvo <- Webcams.addWebcamBroadcastStream(liveMeeting.webcams, webcamStream)
     } yield {
       broadcastEvent(msg)
     }

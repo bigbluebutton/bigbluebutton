@@ -5,14 +5,15 @@ import org.bigbluebutton.common2.messages.MessageBody._
 
 object MessageTypes {
   val DIRECT = "DIRECT"
-  val BROADCAST = "BROADCAST"
+  val BROADCAST_TO_MEETING = "BROADCAST_TO_MEETING" // Send to all clients in the meeting
+  val BROADCAST_TO_ALL = "BROADCAST_TO_ALL" // Send to all clients
   val SYSTEM = "SYSTEM"
 }
 
 // seal trait to force all classes that extends this trait to be defined in this file.
-sealed trait BbbCoreMsg
+trait BbbCoreMsg
 sealed trait BbbCommonMsg
-sealed trait BbbCoreHeader
+trait BbbCoreHeader
 
 case class RoutingEnvelope(msgType: String, meetingId: String, userId: String)
 case class BbbMsgToClientEnvelope(name: String, routing: RoutingEnvelope)
@@ -41,8 +42,9 @@ case class ValidateAuthTokenReqMsg(header: BbbClientMsgHeader,
                                    body: ValidateAuthTokenReqMsgBody) extends BbbCoreMsg
 
 
-object UserJoinReqMsg { val NAME = "UserJoinReqMsg" }
-case class UserJoinReqMsg(header: BbbClientMsgHeader, body: UserJoinReqMsgBody) extends BbbCoreMsg
+object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
+case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends BbbCoreMsg
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
 
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends BbbCoreMsg
@@ -56,6 +58,8 @@ case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadc
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
 
+
+
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
 object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
 case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
@@ -64,6 +68,13 @@ case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
 object ValidateAuthTokenRespMsg { val NAME = "ValidateAuthTokenRespMsg" }
 case class ValidateAuthTokenRespMsg(header: BbbClientMsgHeader,
                                     body: ValidateAuthTokenRespMsgBody) extends BbbCoreMsg
+
+object UserJoinedMeetingEvtMsg { val NAME = "UserJoinedMeetingEvtMsg" }
+case class UserJoinedMeetingEvtMsg(header: BbbClientMsgHeader,
+                                   body: UserJoinedMeetingEvtMsgBody) extends BbbCoreMsg
+case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
+                                       guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
+                                       presenter: Boolean, locked: Boolean, avatar: String)
 
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg

@@ -27,10 +27,11 @@ class ReceivedJsonMsgHandlerTraitTests extends UnitSpec
     val header = BbbCoreBaseHeader(CreateMeetingReqMsg.NAME)
     val body = CreateMeetingReqMsgBody(defaultProps)
     val req = CreateMeetingReqMsg(header, body)
+    val eventMsg = BbbMsgEvent(meetingManagerChannel, BbbCommonEnvCoreMsg(envelope, req))
 
     object JsonDeserializer extends Deserializer
 
-    classUnderTest.send(envelope, req)
+    classUnderTest.publish(eventMsg)
 
     // Then verify the class under test used the mock object as expected
     // The disconnect user shouldn't be called as user has ability to eject another user

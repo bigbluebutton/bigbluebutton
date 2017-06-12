@@ -11,16 +11,16 @@ object FromAkkaAppsMsgSenderActor {
   def props(msgSender: MessageSender): Props = Props(classOf[FromAkkaAppsMsgSenderActor], msgSender)
 }
 
-class FromAkkaAppsMsgSenderActor(msgSender: MessageSender) extends Actor with ActorLogging with SystemConfiguration {
+class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
+    extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-    case _ => println("************* FromAkkaAppsMsgSenderActor Cannot handle message ")
+    case _ => log.warning("Cannot handle message ")
   }
 
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     val json = JsonUtil.toJson(msg)
-    println("****** Publishing " + json)
     msgSender.send(fromAkkaAppsRedisChannel, json)
   }
 }

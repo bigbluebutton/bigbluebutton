@@ -1,9 +1,9 @@
 package org.bigbluebutton.core2.message.handlers
 
-import org.bigbluebutton.common2.messages.MessageBody.{ UserBroadcastCamStoppedEvtMsgBody }
+import org.bigbluebutton.common2.messages.MessageBody.UserBroadcastCamStoppedEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.{ Users, Webcams }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UserBroadcastCamStopMsgHdlr {
@@ -14,7 +14,7 @@ trait UserBroadcastCamStopMsgHdlr {
   def handleUserBroadcastCamStopMsg(msg: UserBroadcastCamStopMsg): Unit = {
 
     def broadcastEvent(msg: UserBroadcastCamStopMsg): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(UserBroadcastCamStoppedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserBroadcastCamStoppedEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
@@ -27,7 +27,7 @@ trait UserBroadcastCamStopMsgHdlr {
     }
 
     for {
-      uvo <- Users.userUnsharedWebcam(msg.header.userId, liveMeeting.users, msg.body.stream)
+      uvo <- Webcams.removeWebcamBroadcastStream(liveMeeting.webcams, msg.body.stream)
     } yield {
       broadcastEvent(msg)
 

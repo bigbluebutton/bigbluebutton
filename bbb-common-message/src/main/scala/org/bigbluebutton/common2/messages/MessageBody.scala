@@ -10,7 +10,7 @@ object MessageBody {
                                     extUserId: String, authToken: String, avatarURL: String,
                                     guest: Boolean, authed: Boolean)
   case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean)
-  case class UserJoinReqMsgBody(userId: String, authToken: String)
+
   case class UserLeaveReqMsgBody(userId: String, sessionId: String)
   case class GetUsersReqMsgBody(requesterId: String)
   case class UserEmojiStatusChangeReqMsgBody(userId: String, emoji: String)

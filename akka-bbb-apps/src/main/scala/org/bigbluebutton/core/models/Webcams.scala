@@ -6,9 +6,20 @@ object Webcams {
   }
 
   def findWebcamsForUser(webcams: Webcams, userId: String): Vector[WebcamStream] = {
-    webcams.toVector.filter(w => w.userId == userId)
+    webcams.toVector.filter(w => w.stream.userId == userId)
   }
 
+  def addWebcamBroadcastStream(webcams: Webcams, webcamStream: WebcamStream): Option[WebcamStream] = {
+    webcams.save(webcamStream)
+    Some(webcamStream)
+  }
+
+  def removeWebcamBroadcastStream(webcams: Webcams, streamId: String): Option[WebcamStream] = {
+    for {
+      stream <- findWithStreamId(webcams, streamId)
+      removedStream <- webcams.remove(streamId)
+    } yield removedStream
+  }
 }
 
 class Webcams {
@@ -28,4 +39,4 @@ class Webcams {
   }
 }
 
-case class WebcamStream(userId: String, stream: Stream)
+case class WebcamStream(streamId: String, stream: MediaStream)

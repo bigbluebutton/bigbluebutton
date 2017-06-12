@@ -6,16 +6,13 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
-
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common.converters.FromJsonDecoder
-import org.bigbluebutton.common.messages.PubSubPongMessage
 import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
-
 import akka.actor.ActorSystem
 import akka.actor.OneForOneStrategy
 import akka.actor.Props
 import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.freeswitch.bus.{ InJsonMsg, InsonMsgBus, ReceivedJsonMsg }
 import redis.actors.RedisSubscriberActor
 import redis.api.pubsub.Message
 import redis.api.pubsub.PMessage
@@ -26,13 +23,14 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq("time")
   val patterns = Seq("bigbluebutton:to-voice-conf:*", "bigbluebutton:from-bbb-apps:*")
 
-  def props(system: ActorSystem, msgReceiver: RedisMessageReceiver): Props =
-    Props(classOf[AppsRedisSubscriberActor], system, msgReceiver,
+  def props(system: ActorSystem, msgReceiver: RedisMessageReceiver, inJsonMgBus: InsonMsgBus): Props =
+    Props(classOf[AppsRedisSubscriberActor], system, msgReceiver, inJsonMgBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessageReceiver, redisHost: String,
+class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessageReceiver,
+  inJsonMgBus: InsonMsgBus, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
@@ -48,7 +46,7 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
     }
   }
 
-  val decoder = new FromJsonDecoder()
+  //  val decoder = new FromJsonDecoder()
 
   var lastPongReceivedOn = 0L
   system.scheduler.schedule(10 seconds, 10 seconds)(checkPongMessage())
@@ -67,26 +65,17 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
 
   def onMessage(message: Message) {
     log.debug(s"message received: $message")
+    if (message.channel == toVoiceConfRedisChannel) {
+      val receivedJsonMessage = new ReceivedJsonMsg(message.channel, message.data.utf8String)
+      log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
+      inJsonMgBus.publish(InJsonMsg(toFsAppsJsonChannel, receivedJsonMessage))
+    }
   }
 
   def onPMessage(pmessage: PMessage) {
     //    log.debug(s"pattern message received: $pmessage")
 
-    val msg = decoder.decodeMessage(pmessage.data.utf8String)
-
-    if (msg != null) {
-      msg match {
-        case m: PubSubPongMessage => {
-          if (m.payload.system == "BbbFsESL") {
-            lastPongReceivedOn = System.currentTimeMillis()
-          }
-        }
-        case _ => // do nothing
-      }
-    } else {
-      msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
-    }
-
+    msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
   }
 
   def handleMessage(msg: String) {
