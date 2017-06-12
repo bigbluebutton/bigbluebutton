@@ -29,16 +29,19 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bbb-delete:before {
+  content: "\e936";
+}
 .icon-bbb-mute:before {
   content: "\e932";
 }
 .icon-bbb-unmute:before {
   content: "\e931";
 }
-.icon-bbb_file:before {
+.icon-bbb-file:before {
   content: "\e92e";
 }
-.icon-bbb_upload:before {
+.icon-bbb-upload:before {
   content: "\e92f";
 }
 .icon-bbb-fullscreen:before {

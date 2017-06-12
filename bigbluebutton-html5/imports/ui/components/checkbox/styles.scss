@@ -11,6 +11,11 @@
   width: 1px;
 }
 
+.disabled .icon {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
 .icon {
   cursor: pointer;
   font-size: 1.35rem;

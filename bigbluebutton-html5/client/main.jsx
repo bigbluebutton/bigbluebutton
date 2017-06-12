@@ -6,4 +6,3 @@ import { renderRoutes } from '/imports/startup/client/routes';
 Meteor.startup(() => {
   render(renderRoutes(), document.getElementById('app'));
 });
-
