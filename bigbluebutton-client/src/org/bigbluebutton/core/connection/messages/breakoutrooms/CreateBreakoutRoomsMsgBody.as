@@ -16,11 +16,23 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.core.connection.messages {
+package org.bigbluebutton.core.connection.messages.breakoutrooms {
 
-	public class UserUnsharedWebcamMessage {
-		public var userId:String;
+	public class CreateBreakoutRoomsMsgBody {
 
-		public var stream:String;
+		public var meetingId:String;
+
+		public var durationInMinutes:int;
+
+		public var record:Boolean;
+
+		public var rooms:Array;
+
+		public function CreateBreakoutRoomsMsgBody(meetingId:String, durationInMinutes:int, record:Boolean, rooms:Array) {
+			this.meetingId = meetingId;
+			this.durationInMinutes = durationInMinutes;
+			this.record = record;
+			this.rooms = rooms;
+		}
 	}
 }

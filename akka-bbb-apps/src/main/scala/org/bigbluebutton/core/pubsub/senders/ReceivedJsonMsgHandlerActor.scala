@@ -48,6 +48,10 @@ class ReceivedJsonMsgHandlerActor(
         routeUserBroadcastCamStartMsg(envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeUserBroadcastCamStopMsg(envelope, jsonNode)
+      case BreakoutRoomsListMsg.NAME =>
+        routeBreakoutRoomsListMsg(envelope, jsonNode)
+      case CreateBreakoutRoomsMsg.NAME =>
+        routeCreateBreakoutRoomsMsg(envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

@@ -31,7 +31,7 @@ case class BbbCoreHeaderBody(header: BbbCoreHeader, body: JsonNode)
 object CreateMeetingReqMsg { val NAME = "CreateMeetingReqMsg" }
 case class CreateMeetingReqMsg(header: BbbCoreBaseHeader,
                                body: CreateMeetingReqMsgBody) extends BbbCoreMsg
-object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
+object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg" }
 case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
                                 body: MeetingCreatedEvtBody) extends BbbCoreMsg
 object RegisterUserReqMsg { val NAME = "RegisterUserReqMsg" }
@@ -40,7 +40,6 @@ case class RegisterUserReqMsg(header: BbbCoreHeaderWithMeetingId,
 object ValidateAuthTokenReqMsg { val NAME = "ValidateAuthTokenReqMsg" }
 case class ValidateAuthTokenReqMsg(header: BbbCoreHeaderWithMeetingId,
                                    body: ValidateAuthTokenReqMsgBody) extends BbbCoreMsg
-
 
 object UserJoinReqMsg { val NAME = "UserJoinReqMsg" }
 case class UserJoinReqMsg(header: BbbClientMsgHeader, body: UserJoinReqMsgBody) extends BbbCoreMsg
@@ -54,8 +53,76 @@ case class GetUsersReqMsg(header: BbbClientMsgHeader, body: GetUsersReqMsgBody) 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
 case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartMsgBody) extends BbbCoreMsg
 
-object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
+object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg" }
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
+
+////////////////////////////////////////////////////////////////////////////////////// 
+// Breakout room
+/////////////////////////////////////////////////////////////////////////////////////
+
+// Iconming messages
+// Sent by user to request the breakout rooms list of a room
+object BreakoutRoomsListMsg { val NAME = "BreakoutRoomsListMsg" }
+case class BreakoutRoomsListMsg(header: BbbClientMsgHeader, body: BreakoutRoomsListMsgBody) extends BbbCoreMsg
+
+// Sent by user to request creation of breakout rooms
+object CreateBreakoutRoomsMsg { val NAME = "CreateBreakoutRoomsMsg" }
+case class CreateBreakoutRoomsMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsMsgBody) extends BbbCoreMsg
+
+object RequestBreakoutJoinURLMsg { val NAME = "RequestBreakoutJoinURLMsg" }
+case class RequestBreakoutJoinURLMsg(header: BbbClientMsgHeader, body: RequestBreakoutJoinURLMsgBody) extends BbbCoreMsg
+
+// Sent by breakout actor to tell meeting actor that breakout room has been created.
+object BreakoutRoomCreatedMsg { val NAME = "BreakoutRoomCreatedMsg" }
+case class BreakoutRoomCreatedMsg(header: BbbClientMsgHeader, body: BreakoutRoomCreatedMsgBody) extends BbbCoreMsg
+
+// Sent by breakout actor to tell meeting actor the list of users in the breakout room.
+object BreakoutRoomUsersUpdateMsg { val NAME = "BreakoutRoomUsersUpdateMsg" }
+case class BreakoutRoomUsersUpdateMsg(header: BbbClientMsgHeader, body: BreakoutRoomUsersUpdateMsgBody) extends BbbCoreMsg
+
+// Send by internal actor to tell the breakout actor to send it's list of users to the main meeting actor.
+object SendBreakoutUsersUpdateMsg { val NAME = "SendBreakoutUsersUpdateMsg" }
+case class SendBreakoutUsersUpdateMsg(header: BbbClientMsgHeader, body: SendBreakoutUsersUpdateMsgBody) extends BbbCoreMsg
+
+// Sent by user to request ending all the breakout rooms
+object EndAllBreakoutRoomsMsg { val NAME = "EndAllBreakoutRoomsMsg" }
+case class EndAllBreakoutRoomsMsg(header: BbbClientMsgHeader, body: EndAllBreakoutRoomsMsgBody) extends BbbCoreMsg
+
+// Sent by breakout actor to tell meeting actor that breakout room has been ended
+object BreakoutRoomEndedMsg { val NAME = "BreakoutRoomEndedMsg" }
+case class BreakoutRoomEndedMsg(header: BbbClientMsgHeader, body: BreakoutRoomEndedMsgBody) extends BbbCoreMsg
+
+// Sent by user actor to ask for voice conference transfer 
+object TransferUserToMeetingRequestMsg { val NAME = "TransferUserToMeetingRequestMsg" }
+case class TransferUserToMeetingRequestMsg(header: BbbClientMsgHeader, body: TransferUserToMeetingRequestMsgBody) extends BbbCoreMsg
+
+// Outgoing messages
+object BreakoutRoomsListEvtMsg { val NAME = "BreakoutRoomsListEvtMsg" }
+case class BreakoutRoomsListEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomsListEvtMsgBody) extends BbbCoreMsg
+
+object CreateBreakoutRoomEvtMsg { val NAME = "CreateBreakoutRoomEvtMsg" }
+case class CreateBreakoutRoomEvtMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomEvtMsgBody) extends BbbCoreMsg
+
+object EndBreakoutRoomEvtMsg { val NAME = "EndBreakoutRoomEvtMsg" }
+case class EndBreakoutRoomEvtMsg(header: BbbClientMsgHeader, body: EndBreakoutRoomEvtMsgBody) extends BbbCoreMsg
+
+object BreakoutRoomJoinURLEvtMsg { val NAME = "BreakoutRoomJoinURLEvtMsg" }
+case class BreakoutRoomJoinURLEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomJoinURLEvtMsgBody) extends BbbCoreMsg
+
+object BreakoutRoomStartedEvtMsg { val NAME = "BreakoutRoomStartedEvtMsg" }
+case class BreakoutRoomStartedEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomStartedEvtMsgBody) extends BbbCoreMsg
+
+object UpdateBreakoutUsersEvtMsg { val NAME = "UpdateBreakoutUsersEvtMsg" }
+case class UpdateBreakoutUsersEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutUsersEvtMsgBody) extends BbbCoreMsg
+
+object MeetingTimeRemainingUpdateEvtMsg { val NAME = "MeetingTimeRemainingUpdateEvtMsg" }
+case class MeetingTimeRemainingUpdateEvtMsg(header: BbbClientMsgHeader, body: MeetingTimeRemainingUpdateEvtMsgBody) extends BbbCoreMsg
+
+object BreakoutRoomsTimeRemainingUpdateEvtMsg { val NAME = "BreakoutRoomsTimeRemainingUpdateEvtMsg" }
+case class BreakoutRoomsTimeRemainingUpdateEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomsTimeRemainingUpdateEvtMsgBody) extends BbbCoreMsg
+
+object BreakoutRoomEndedEvtMsg { val NAME = "BreakoutRoomEndedEvtMsg" }
+case class BreakoutRoomEndedEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomEndedEvtMsgBody) extends BbbCoreMsg
 
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
 object ValidateAuthTokenRespMsg { val NAME = "ValidateAuthTokenRespMsg" }
@@ -68,10 +135,7 @@ case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserB
 object UserBroadcastCamStoppedEvtMsg { val NAME = "UserBroadcastCamStoppedEvtMsg" }
 case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
 
-
 /** System Messages **/
 case class AkkaAppsCheckAliveReqBody(timestamp: Long)
 case class AkkaAppsCheckAliveReqMsg(header: BbbCoreHeader, body: AkkaAppsCheckAliveReqBody)
 case class AkkaAppsCheckAliveReq(envelope: BbbCoreEnvelope, msg: AkkaAppsCheckAliveReqMsg) extends BbbCoreMsg
-
-

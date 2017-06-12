@@ -3,7 +3,7 @@ package org.bigbluebutton.core.pubsub.senders
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.core.bus.{ BbbMsgEvent, BbbMsgRouterEventBus, ReceivedJsonMessage }
+import org.bigbluebutton.core.bus.{ BbbMsgEvent }
 
 import scala.util.{ Failure, Success }
 
@@ -125,6 +125,56 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
     }
 
     def send(envelope: BbbCoreEnvelope, msg: UserBroadcastCamStopMsg): Unit = {
+      val event = BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
+    }
+  }
+
+  def routeBreakoutRoomsListMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[BreakoutRoomsListMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[BreakoutRoomsListMsg](jsonNode)
+
+      result match {
+        case Some(msg) =>
+          Some(msg.asInstanceOf[BreakoutRoomsListMsg])
+        case None =>
+          log.error("Failed to BreakoutRoomsListMsg message " + error)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: BreakoutRoomsListMsg): Unit = {
+      val event = BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
+      publish(event)
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      send(envelope, m)
+    }
+  }
+
+  def routeCreateBreakoutRoomsMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[CreateBreakoutRoomsMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[CreateBreakoutRoomsMsg](jsonNode)
+
+      result match {
+        case Some(msg) =>
+          Some(msg.asInstanceOf[CreateBreakoutRoomsMsg])
+        case None =>
+          log.error("Failed to BreakoutRoomsListMsg message " + error)
+          None
+      }
+    }
+
+    def send(envelope: BbbCoreEnvelope, msg: CreateBreakoutRoomsMsg): Unit = {
       val event = BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
       publish(event)
     }

@@ -150,25 +150,25 @@ package org.bigbluebutton.modules.users.services
           handleUserLocked(message);
           break;
 		// Breakout room feature
-		case "breakoutRoomsList":
+		case "BreakoutRoomsListEvtMsg":
 		  handleBreakoutRoomsList(message)
 		  break;
-		case "breakoutRoomJoinURL":
+		case "BreakoutRoomJoinURLEvtMsg":
 		  handleBreakoutRoomJoinURL(message);
 		  break;
-		case "updateBreakoutUsers":
+		case "UpdateBreakoutUsersEvtMsg":
 		  handleUpdateBreakoutUsers(message);
 		  break;
-		case "timeRemainingUpdate":
+		case "TimeRemainingUpdateEvtMsg":
 	      handleTimeRemainingUpdate(message);
 		  break;
-		case "breakoutRoomsTimeRemainingUpdate":
+		case "BreakoutRoomsTimeRemainingUpdateEvtMsg":
 		  handleBreakoutRoomsTimeRemainingUpdate(message);
 		  break;
-		case "breakoutRoomStarted":
+		case "BreakoutRoomStartedEvtMsg":
 		  handleBreakoutRoomStarted(message);
 		  break;
-		case "breakoutRoomClosed":
+		case "BreakoutRoomClosedEvtMsg":
 		  handleBreakoutRoomClosed(message);
 		  break;
         case "userEjectedFromMeeting":
@@ -605,7 +605,6 @@ package org.bigbluebutton.modules.users.services
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
         var userId: String = msg.body.userId as String; 
         var stream: String = msg.body.stream as String;
-
         
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["webcam"];
@@ -709,73 +708,75 @@ package org.bigbluebutton.modules.users.services
           onAllowedToJoin = null;
         }
       }
-    }
-    
-    /**
-     * Callback from the server from many of the bellow nc.call methods
-     */
-    public function handleParticipantStatusChange(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);	
-      UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
-      
-      if (msg.status == "presenter"){
-        var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
-        e.userID = map.userID;
-        
-        dispatcher.dispatchEvent(e);
-      }		
-    }
-	
-	private function handleBreakoutRoomsList(msg:Object):void{
-		var map:Object = JSON.parse(msg.msg);
-		for each(var room : Object in map.rooms)
-		{
-			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
-			breakoutRoom.meetingId = room.meetingId;
-			breakoutRoom.externalMeetingId = room.externalMeetingId;
-			breakoutRoom.name = room.name;
-			breakoutRoom.sequence = room.sequence;
-			UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
 		}
-		UserManager.getInstance().getConference().breakoutRoomsReady = map.roomsReady;
-	}
-	
-	private function handleBreakoutRoomJoinURL(msg:Object):void{
-		var map:Object = JSON.parse(msg.msg);
-		var externalMeetingId : String = StringUtils.substringBetween(map.redirectJoinURL, "meetingID=", "&");
-		var breakoutRoom : BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId);
-		var sequence : int = breakoutRoom.sequence;
-		
-		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
-		event.joinURL = map.redirectJoinURL;
-		event.breakoutMeetingSequence = sequence;
-		dispatcher.dispatchEvent(event);
-		
-		// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
-		setTimeout(function() : void {UserManager.getInstance().getConference().setLastBreakoutRoomInvitation(sequence)}, 1000);
-	}
-	
+
+		/**
+		 * Callback from the server from many of the bellow nc.call methods
+		 */
+		public function handleParticipantStatusChange(msg:Object):void {
+			var map:Object = JSON.parse(msg.msg);
+			UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
+
+			if (msg.status == "presenter") {
+				var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
+				e.userID = map.userID;
+
+				dispatcher.dispatchEvent(e);
+			}
+		}
+
+		private function handleBreakoutRoomsList(msg:Object):void {
+			var rooms:Array = msg.body.rooms as Array;
+			var roomsReady:Boolean = msg.body.roomsReady as Boolean;
+			for each (var room:Object in rooms) {
+				var breakoutRoom:BreakoutRoom = new BreakoutRoom();
+				breakoutRoom.meetingId = room.meetingId;
+				breakoutRoom.externalMeetingId = room.externalMeetingId;
+				breakoutRoom.name = room.name;
+				breakoutRoom.sequence = room.sequence;
+				UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+			}
+			UserManager.getInstance().getConference().breakoutRoomsReady = roomsReady;
+		}
+
+		private function handleBreakoutRoomJoinURL(msg:Object):void {
+			var map:Object = JSON.parse(msg.body);
+			var externalMeetingId:String = StringUtils.substringBetween(map.redirectJoinURL, "meetingID=", "&");
+			var breakoutRoom:BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId);
+			var sequence:int = breakoutRoom.sequence;
+
+			var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
+			event.joinURL = map.redirectJoinURL;
+			event.breakoutMeetingSequence = sequence;
+			dispatcher.dispatchEvent(event);
+
+			// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
+			setTimeout(function():void {
+				UserManager.getInstance().getConference().setLastBreakoutRoomInvitation(sequence)
+			}, 1000);
+		}
+
 	private function handleUpdateBreakoutUsers(msg:Object):void{
-		var map:Object = JSON.parse(msg.msg);
+		var map:Object = JSON.parse(msg.body);
 		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutMeetingId, map.users);
 	}
 
 	private function handleTimeRemainingUpdate(msg:Object):void {
-		var map:Object = JSON.parse(msg.msg);
+		var map:Object = JSON.parse(msg.body);
 		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT);
 		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}
 	
 	private function handleBreakoutRoomsTimeRemainingUpdate(msg:Object):void {
-		var map:Object = JSON.parse(msg.msg);
+		var map:Object = JSON.parse(msg.body);
 		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
 		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}
 	
 	private function handleBreakoutRoomStarted(msg:Object):void{
-		var map:Object = JSON.parse(msg.msg);	
+		var map:Object = JSON.parse(msg.body);	
 		var breakoutRoom : BreakoutRoom = new BreakoutRoom();
 		breakoutRoom.meetingId = map.breakoutMeetingId;
 		breakoutRoom.externalMeetingId = map.externalMeetingId;
@@ -785,7 +786,7 @@ package org.bigbluebutton.modules.users.services
 	}
 	
 	private function handleBreakoutRoomClosed(msg:Object):void{
-		var map:Object = JSON.parse(msg.msg);	
+		var map:Object = JSON.parse(msg.body);	
 		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutMeetingId);
 	}
 

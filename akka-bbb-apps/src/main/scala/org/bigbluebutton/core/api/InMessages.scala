@@ -1,10 +1,11 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.core.api.GuestPolicy._
-import org.bigbluebutton.core.api.SharedNotesOperation._
+import org.bigbluebutton.common2.messages.MessageBody.{BreakoutUserVO}
+import org.bigbluebutton.core.api.GuestPolicy.GuestPolicy
+import org.bigbluebutton.core.api.SharedNotesOperation.SharedNotesOperation
 import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.apps.BreakoutUser
+
 import spray.json.JsObject
 
 case class InMessageHeader(name: String)
@@ -54,7 +55,7 @@ case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutMeetingId:
 // Sent by breakout actor to tell meeting actor that breakout room has been created.
 case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor the list of users in the breakout room.    
-case class BreakoutRoomUsersUpdate(meetingId: String, breakoutMeetingId: String, users: Vector[BreakoutUser]) extends InMessage
+case class BreakoutRoomUsersUpdate(meetingId: String, breakoutMeetingId: String, users: Vector[BreakoutUserVO]) extends InMessage
 // Send by internal actor to tell the breakout actor to send it's list of users to the main meeting actor.    
 case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
 // Sent by user to request ending all the breakout rooms

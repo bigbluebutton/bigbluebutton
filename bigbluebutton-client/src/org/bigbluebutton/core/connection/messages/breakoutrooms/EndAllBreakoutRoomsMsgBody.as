@@ -16,11 +16,14 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.core.connection.messages {
+package org.bigbluebutton.core.connection.messages.breakoutrooms {
 
-	public class UserUnsharedWebcamMessage {
-		public var userId:String;
+	public class EndAllBreakoutRoomsMsgBody {
 
-		public var stream:String;
+		public var meetingId:String;
+
+		public function EndAllBreakoutRoomsMsgBody(meetingId:String) {
+			this.meetingId = meetingId;
+		}
 	}
 }

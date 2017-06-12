@@ -16,11 +16,16 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.core.connection.messages {
+package org.bigbluebutton.core.connection.messages.breakoutrooms {
+	import org.bigbluebutton.core.connection.messages.BbbCommonMsg;
 
-	public class UserUnsharedWebcamMessage {
-		public var userId:String;
+	public class ListenInOnBreakoutMsg extends BbbCommonMsg {
 
-		public var stream:String;
+		public var body:ListenInOnBreakoutMsgBody;
+
+		public function ListenInOnBreakoutMsg(body:ListenInOnBreakoutMsgBody) {
+			super();
+			this.body = body;
+		}
 	}
 }

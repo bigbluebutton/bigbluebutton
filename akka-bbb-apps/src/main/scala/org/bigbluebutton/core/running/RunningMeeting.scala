@@ -4,7 +4,7 @@ import akka.actor.ActorContext
 import org.bigbluebutton.common2.domain.{ DefaultProps, Meeting2x }
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.{ OutMessageGateway }
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -22,7 +22,7 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
-  val breakoutModel = new BreakoutRoomModel()
+  val breakoutRooms = new BreakoutRooms()
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
   val users = new Users
@@ -35,7 +35,7 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   // easy to test.
   val liveMeeting = new LiveMeeting(props, meetingStatux2x, chatModel, layoutModel,
     users, registeredUsers, pollModel,
-    wbModel, presModel, breakoutModel, captionModel, notesModel)
+    wbModel, presModel, breakoutRooms, captionModel, notesModel)
 
   val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outGW, liveMeeting), props.meetingProp.intId)
 

@@ -1,9 +1,11 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.core.util.RandomStringGenerator
-import com.softwaremill.quicklens._
-
 import scala.collection.immutable.ListSet
+
+import org.bigbluebutton.core.util.RandomStringGenerator
+
+import com.softwaremill.quicklens.ModifyPimp
+import com.softwaremill.quicklens.modify
 
 object Roles {
   val MODERATOR_ROLE = "MODERATOR"
@@ -15,7 +17,7 @@ object Roles {
 object Users {
 
   def newUser(userId: String, lockStatus: Boolean, ru: RegisteredUser, waitingForAcceptance: Boolean,
-    vu: VoiceUser, users: Users): Option[UserVO] = {
+              vu: VoiceUser, users: Users): Option[UserVO] = {
     val uvo = new UserVO(userId, ru.externId, ru.name,
       ru.role, ru.guest, ru.authed, waitingForAcceptance = waitingForAcceptance, emojiStatus = "none", presenter = false,
       hasStream = false, locked = lockStatus,
@@ -39,7 +41,7 @@ object Users {
   def hasUserWithId(id: String, users: Users): Boolean = {
     findWithId(id, users) match {
       case Some(u) => true
-      case None => false
+      case None    => false
     }
   }
   def numUsers(users: Users): Int = users.toVector.size
@@ -75,7 +77,7 @@ object Users {
   def isModerator(id: String, users: Users): Boolean = {
     Users.findWithId(id, users) match {
       case Some(user) => return user.role == Roles.MODERATOR_ROLE && !user.waitingForAcceptance
-      case None => return false
+      case None       => return false
     }
   }
   def generateWebUserId(users: Users): String = {
@@ -198,8 +200,8 @@ object Users {
   }
 
   def switchUserToPhoneUser(user: UserVO, users: Users, voiceUserId: String, userId: String,
-    callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean,
-    avatarURL: String, listenOnly: Boolean): UserVO = {
+                            callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean,
+                            avatarURL: String, listenOnly: Boolean): UserVO = {
     val vu = new VoiceUser(voiceUserId, userId, callerIdName,
       callerIdNum, joined = true, locked = false,
       muted, talking, avatarURL, listenOnly)
@@ -210,8 +212,8 @@ object Users {
   }
 
   def restoreMuteState(user: UserVO, users: Users, voiceUserId: String, userId: String,
-    callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean,
-    avatarURL: String, listenOnly: Boolean): UserVO = {
+                       callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean,
+                       avatarURL: String, listenOnly: Boolean): UserVO = {
     val vu = new VoiceUser(voiceUserId, userId, callerIdName,
       callerIdNum, joined = true, locked = false,
       muted, talking, avatarURL, listenOnly)
@@ -222,7 +224,7 @@ object Users {
   }
 
   def makeUserPhoneUser(vu: VoiceUser, users: Users, webUserId: String, externUserId: String,
-    callerIdName: String, lockStatus: Boolean, listenOnly: Boolean, avatarURL: String): UserVO = {
+                        callerIdName: String, lockStatus: Boolean, listenOnly: Boolean, avatarURL: String): UserVO = {
     val uvo = new UserVO(webUserId, externUserId, callerIdName,
       Roles.VIEWER_ROLE, guest = false, authed = false, waitingForAcceptance = false, emojiStatus = "none", presenter = false,
       hasStream = false, locked = lockStatus,
@@ -255,11 +257,11 @@ class Users {
 case class UserIdAndName(id: String, name: String)
 
 case class UserVO(id: String, externalId: String, name: String, role: String,
-  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emojiStatus: String,
-  presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
-  phoneUser: Boolean, voiceUser: VoiceUser, listenOnly: Boolean, avatarURL: String,
-  joinedWeb: Boolean)
+                  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emojiStatus: String,
+                  presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
+                  phoneUser: Boolean, voiceUser: VoiceUser, listenOnly: Boolean, avatarURL: String,
+                  joinedWeb: Boolean)
 
 case class VoiceUser(userId: String, webUserId: String, callerName: String,
-  callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
-  talking: Boolean, avatarURL: String, listenOnly: Boolean)
+                     callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
+                     talking: Boolean, avatarURL: String, listenOnly: Boolean)

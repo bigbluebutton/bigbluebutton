@@ -147,14 +147,10 @@ package org.bigbluebutton.main.model.users
         private function validateToken2x():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
                               
-            var header: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg",
-                                                confParams.meetingID, 
-                                                confParams.internalUserID);
-
             var body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(confParams.internalUserID,
                                                 confParams.authToken);
 
-            var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body);
+            var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(body);
 
             LOGGER.debug("******* msg \n" + JSON.stringify(message));
 
