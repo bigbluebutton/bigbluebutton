@@ -108,7 +108,7 @@ class UserActor(val userId: String,
     log.debug("**** UserActor handleServerMsg " + msg)
     msgType match {
       case MessageTypes.DIRECT => handleDirectMessage(msg)
-      case MessageTypes.BROADCAST => handleBroadcastMessage(msg)
+      case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
       case MessageTypes.SYSTEM => handleSystemMessage(msg)
     }
   }
