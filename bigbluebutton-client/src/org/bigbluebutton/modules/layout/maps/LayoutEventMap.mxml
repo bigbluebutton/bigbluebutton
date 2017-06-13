@@ -18,13 +18,14 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
-	<mx:Script>
+<EventMap xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="http://mate.asfusion.com/">
+	<fx:Script>
 		<![CDATA[
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
@@ -42,88 +43,105 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.services.MessageReceiver;
       import org.bigbluebutton.modules.layout.services.MessageSender;
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		<ObjectBuilder generator="{LayoutEventMapDelegate}" constructorArguments="{scope.dispatcher}" />
-		<ObjectBuilder generator="{LayoutManager}" />
-	</EventHandlers>
+	<fx:Declarations>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<ObjectBuilder generator="{LayoutEventMapDelegate}" constructorArguments="{scope.dispatcher}" />
+			<ObjectBuilder generator="{LayoutManager}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{StartLayoutModuleEvent.START_LAYOUT_MODULE_EVENT}">        
+			<ObjectBuilder generator="{LayoutService}"  />
+	   		<MethodInvoker generator="{LayoutEventMapDelegate}" method="startModule" arguments="{event.attributes}" />
+	   		<MethodInvoker generator="{LayoutManager}" method="loadServerLayouts" arguments="{event.attributes.layoutConfig}" />
+	    </EventHandlers>
+	    
+		<EventHandlers type="{ViewInitializedEvent.VIEW_INITIALIZED_EVENT}">
+	   		<MethodInvoker generator="{LayoutManager}" method="setCanvas" arguments="{event.canvas}" />
+	    <MethodInvoker generator="{LayoutService}" method="getCurrentLayout"/>
+	    </EventHandlers>
+	       
+	    <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
+	   		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
+	    </EventHandlers>
+	            
+	    <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}">
+	      <MethodInvoker generator="{LayoutEventMapDelegate}" method="refreshRole" arguments="{event}"/>
+	    </EventHandlers>
 	
-	<EventHandlers type="{StartLayoutModuleEvent.START_LAYOUT_MODULE_EVENT}">        
-		<ObjectBuilder generator="{LayoutService}"  />
-   		<MethodInvoker generator="{LayoutEventMapDelegate}" method="startModule" arguments="{event.attributes}" />
-   		<MethodInvoker generator="{LayoutManager}" method="loadServerLayouts" arguments="{event.attributes.layoutConfig}" />
-    </EventHandlers>
-    
-	<EventHandlers type="{ViewInitializedEvent.VIEW_INITIALIZED_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="setCanvas" arguments="{event.canvas}" />
-    <MethodInvoker generator="{LayoutService}" method="getCurrentLayout"/>
-    </EventHandlers>
-       
-    <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
-   		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
-    </EventHandlers>
-            
-    <EventHandlers type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="applyDefaultLayout" />
-    </EventHandlers>
-
-  <EventHandlers type="{EventConstants.LOCK_LAYOUT_REQ}">
-    <MethodInvoker generator="{LayoutManager}" method="lockLayout"/>
-  </EventHandlers>
-
-  <EventHandlers type="{EventConstants.UNLOCK_LAYOUT_REQ}">
-    <MethodInvoker generator="{LayoutService}" method="unlockLayout"/>
-  </EventHandlers>
-  
-    <EventHandlers type="{LayoutEvent.BROADCAST_LAYOUT_EVENT}">
-      <MethodInvoker generator="{LayoutManager}" method="broadcastLayout" />
-    </EventHandlers>
-
-  <EventHandlers type="{LayoutLockedEvent.LAYOUT_LOCKED}">
-    <MethodInvoker generator="{LayoutManager}" method="handleLayoutLockedEvent" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{LockLayoutEvent.LOCK_LAYOUT}">
-    <MethodInvoker generator="{LayoutService}" method="handleLockLayoutEvent" arguments="{event}" />
-  </EventHandlers>
-   
-
-  <EventHandlers type="{SyncLayoutEvent.SYNC_LAYOUT_EVENT}">
-    <MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{event.layout}" />
-  </EventHandlers>
-  
-    <EventHandlers type="{LayoutFromRemoteEvent.LAYOUT_FROM_REMOTE}">
-   		<MethodInvoker generator="{LayoutManager}" method="applyRemoteLayout" arguments="{event}" />
-    </EventHandlers>
-  
-    <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
-    </EventHandlers>
+	    <EventHandlers type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}">
+	   		<MethodInvoker generator="{LayoutManager}" method="applyDefaultLayout" />
+	    </EventHandlers>
 	
-    <EventHandlers type="{LayoutEvent.ADD_CURRENT_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" />
-    </EventHandlers>
-  
-  <EventHandlers type="{EventConstants.SWITCH_LAYOUT_REQ}">
-    <MethodInvoker generator="{LayoutManager}" method="switchToLayout" arguments="{event.message.layoutName}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{ChangeLayoutEvent.CHANGE_LAYOUT}">
-    <MethodInvoker generator="{LayoutManager}" method="switchToLayout" arguments="{event.layoutName}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{RemoteSyncLayoutEvent.REMOTE_SYNC_LAYOUT_EVENT}">
-    <MethodInvoker generator="{LayoutManager}" method="remoteSyncLayout" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{LockControlEvent.CHANGED_LOCK_SETTINGS}">
-    <MethodInvoker generator="{LayoutManager}" method="lockSettingsChanged"/>
-  </EventHandlers>
-
-  <Injectors target="{LayoutService}">
-    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
-    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
-  </Injectors>
+	  <EventHandlers type="{EventConstants.LOCK_LAYOUT_REQ}">
+	    <MethodInvoker generator="{LayoutManager}" method="lockLayout"/>
+	  </EventHandlers>
 	
+	  <EventHandlers type="{EventConstants.UNLOCK_LAYOUT_REQ}">
+	    <MethodInvoker generator="{LayoutService}" method="unlockLayout"/>
+	  </EventHandlers>
+	  
+	    <EventHandlers type="{LayoutEvent.BROADCAST_LAYOUT_EVENT}">
+	      <MethodInvoker generator="{LayoutManager}" method="broadcastLayout" />
+	    </EventHandlers>
+	
+	  <EventHandlers type="{LayoutLockedEvent.LAYOUT_LOCKED}">
+	    <MethodInvoker generator="{LayoutManager}" method="handleLayoutLockedEvent" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{LockLayoutEvent.LOCK_LAYOUT}">
+	    <MethodInvoker generator="{LayoutService}" method="handleLockLayoutEvent" arguments="{event}" />
+	  </EventHandlers>
+	   
+	
+	  <EventHandlers type="{SyncLayoutEvent.SYNC_LAYOUT_EVENT}">
+	    <MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{event.layout}" />
+	  </EventHandlers>
+	  
+	    <EventHandlers type="{LayoutFromRemoteEvent.LAYOUT_FROM_REMOTE}">
+	   		<MethodInvoker generator="{LayoutManager}" method="applyRemoteLayout" arguments="{event}" />
+	    </EventHandlers>
+	
+	  <EventHandlers type="{LayoutEvent.SYNC_LAYOUT_EVENT}">
+	    <MethodInvoker generator="{LayoutManager}" method="syncLayout" />
+	  </EventHandlers>
+	  
+	    <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
+	   		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
+	    </EventHandlers>
+		
+	    <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT}">
+	      <MethodInvoker generator="{LayoutManager}" method="saveLayoutsWindow" />
+	    </EventHandlers>
+	
+	    <EventHandlers type="{LayoutEvent.LOAD_LAYOUTS_EVENT}">
+	      <MethodInvoker generator="{LayoutManager}" method="loadLayoutsFromFile" />
+	    </EventHandlers>
+	
+	    <EventHandlers type="{LayoutEvent.ADD_CURRENT_LAYOUT_EVENT}">
+	      <MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" arguments="{event}"/>
+	    </EventHandlers>
+	  
+	  <EventHandlers type="{EventConstants.SWITCH_LAYOUT_REQ}">
+	    <MethodInvoker generator="{LayoutManager}" method="switchToLayout" arguments="{event.message.layoutName}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ChangeLayoutEvent.CHANGE_LAYOUT}">
+	    <MethodInvoker generator="{LayoutManager}" method="switchToLayout" arguments="{event.layoutName}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{RemoteSyncLayoutEvent.REMOTE_SYNC_LAYOUT_EVENT}">
+	    <MethodInvoker generator="{LayoutManager}" method="remoteSyncLayout" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{LockControlEvent.CHANGED_LOCK_SETTINGS}">
+	    <MethodInvoker generator="{LayoutManager}" method="lockSettingsChanged"/>
+	  </EventHandlers>
+	
+	  <Injectors target="{LayoutService}">
+	    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
+	    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
+	  </Injectors>
+	</fx:Declarations>
 </EventMap>

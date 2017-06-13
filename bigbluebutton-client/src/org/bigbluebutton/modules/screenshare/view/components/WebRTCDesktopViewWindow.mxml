@@ -21,7 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*"
-	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:common="org.bigbluebutton.common.*"
 	width="600" height="400"
 	initialize="init()"
@@ -31,34 +32,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	showCloseButton="false"
 	resize="fitToWindow()" >
 
-	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<fx:Declarations>
+		<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.core.UIComponent;
-
+			
 			import flexlib.mdi.events.MDIWindowEvent;
-
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
 			private var screenHeight:Number = Capabilities.screenResolutionY;
 			private var screenWidth:Number = Capabilities.screenResolutionX;
-
-			private var images:Images = new Images();
-			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
-			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 
 			private var video:Video;
 			private var ns:NetStream;
@@ -87,7 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var dsOptions:ScreenshareOptions;
 
 			private function init():void{
-				dsOptions = new ScreenshareOptions();
+				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 			}
 
 			private function displayVideo():void{
@@ -376,9 +375,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
+	<fx:Declarations>
+		<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
+	</fx:Declarations>
 
 	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
 		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"

@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
@@ -43,21 +44,24 @@ package org.bigbluebutton.modules.whiteboard.services
         case "WhiteboardRequestAnnotationHistoryReply":
           handleRequestAnnotationHistoryReply(message);
           break;
-        case "WhiteboardIsWhiteboardEnabledReply":
-          handleIsWhiteboardEnabledReply(message);
+        case "WhiteboardGetWhiteboardAccessReply":
+          handleGetWhiteboardAccessReply(message);
           break;
-        case "WhiteboardEnableWhiteboardCommand":
-          handleEnableWhiteboardCommand(message);
-          break;    
+        case "WhiteboardAccessModifiedCommand":
+          handleWhiteboardAccessModifiedCommand(message);
+          break;
         case "WhiteboardNewAnnotationCommand":
           handleNewAnnotationCommand(message);
           break;  
         case "WhiteboardClearCommand":
           handleClearCommand(message);
-          break;  
+          break;
         case "WhiteboardUndoCommand":
           handleUndoCommand(message);
-          break;  			
+          break;
+        case "WhiteboardCursorPositionUpdatedCommand":
+          handleCursorPositionUpdatedCommand(message);
+          break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
@@ -66,37 +70,40 @@ package org.bigbluebutton.modules.whiteboard.services
     private function handleClearCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);      
       
-      if (map.hasOwnProperty("whiteboardId")) {
-        whiteboardModel.clear(map.whiteboardId);
+      if (map.hasOwnProperty("whiteboardId") && map.hasOwnProperty("fullClear") && map.hasOwnProperty("userId")) {
+        whiteboardModel.clear(map.whiteboardId, map.fullClear, map.userId);
       }
       
     }
 
     private function handleUndoCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);      
-      if (map.hasOwnProperty("whiteboardId")) {
-        whiteboardModel.undo(map.whiteboardId);
+      if (map.hasOwnProperty("whiteboardId") && map.hasOwnProperty("shapeId")) {
+        whiteboardModel.removeAnnotation(map.whiteboardId, map.shapeId);
       }
     }
 
-    private function handleEnableWhiteboardCommand(message:Object):void {
+    private function handleWhiteboardAccessModifiedCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);
-            
-      whiteboardModel.enable(map.enabled);
+      
+      whiteboardModel.accessModified(map.multiUser);
+    }
+    
+    private function handleGetWhiteboardAccessReply(message:Object):void {
+      var map:Object = JSON.parse(message.msg);
+      
+      whiteboardModel.accessModified(map.multiUser);
     }
     
     private function handleNewAnnotationCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);
       var shape:Object = map.shape as Object;
       var an:Object = shape.shape as Object;
-      
+	  
       var annotation:Annotation = new Annotation(shape.id, shape.type, an);
       annotation.status = shape.status;
+      annotation.userId = shape.userId;
       whiteboardModel.addAnnotation(annotation);
-    }
-
-    private function handleIsWhiteboardEnabledReply(message:Object):void {
-      var map:Object = JSON.parse(message.msg);
     }
 
     private function handleRequestAnnotationHistoryReply(message:Object):void {
@@ -111,6 +118,7 @@ package org.bigbluebutton.modules.whiteboard.services
           var shape:Object = an.shapes as Object;                    
           var annotation:Annotation = new Annotation(an.id, an.type, shape);
           annotation.status = an.status;
+          annotation.userId = an.userId;
           tempAnnotations.push(annotation);
         }   
                 
@@ -118,6 +126,12 @@ package org.bigbluebutton.modules.whiteboard.services
           whiteboardModel.addAnnotationFromHistory(map.whiteboardId, tempAnnotations);
         }
       }
+    }
+    
+    private function handleCursorPositionUpdatedCommand(message:Object):void {
+      var map:Object = JSON.parse(message.msg);
+      
+      whiteboardModel.updateCursorPosition(map.requesterId, map.xPercent, map.yPercent);
     }
   }
 }

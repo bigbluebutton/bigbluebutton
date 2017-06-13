@@ -1,13 +1,9 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
-import com.google.gson.Gson
 import scala.collection.mutable.HashMap
-import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.common.messages.ChatKeyUtil
 
@@ -62,6 +58,15 @@ object ChatMessageToJsonConverter {
     payload.put(Constants.MESSAGE, mapAsJavaMap(ChatMessageToJsonConverter.chatMessageToMap(msg.message)))
 
     val header = Util.buildHeader(MessageNames.SEND_PRIVATE_CHAT_MESSAGE, None)
+    Util.buildJson(header, payload)
+  }
+
+  def clearPublicChatHistoryReplyToJson(msg: ClearPublicChatHistoryReply): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+
+    val header = Util.buildHeader(MessageNames.CLEAR_PUBLIC_CHAT_HISTORY_REPLY, None)
     Util.buildJson(header, payload)
   }
 }

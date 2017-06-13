@@ -9,11 +9,12 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf?v=VERSION" />
+    <branding logo="logo.png" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://www.bigbluebutton.org&quot; target=&quot;_blank&quot;&gt;http://www.bigbluebutton.org&lt;/a&gt;&lt;/u&gt;" background="" toolbarColor="" toolbarColorAlphas="" />
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
+            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="true"
             showRecordingNotification="true" logoutOnStopRecording="false"/>
     <meeting muteOnStart="false" />
     <breakoutRooms enabled="true" record="false" />
@@ -28,7 +29,6 @@
 			dependsOn="UsersModule"	
 			privateEnabled="true"  
 			fontSize="12"
-			position="top-right"
 			baseTabIndex="801"
 			colorPickerIsVisible="false"
 			maxMessageLength="1024"
@@ -45,47 +45,43 @@
 		<module name="ScreenshareModule"
 			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
-			showButton="true"
+			showButton="false"
+			tryWebRTCFirst="false"
+			chromeExtensionLink=""
+			chromeExtensionKey=""
 			baseTabIndex="201"
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
+			dependsOn="UsersModule"
 			autoJoin="true"
 			listenOnlyMode="true"
+			forceListenOnly="false"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
 			useWebRTCIfAvailable="true"
 			showPhoneOption="false"
 			showWebRTCStats="false"
+			showWebRTCMOS="false"
 			echoTestApp="9196"
-			dependsOn="UsersModule"
 		/>
 
 		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
-			dependson = "UsersModule"
+			dependsOn="UsersModule"
 			baseTabIndex="401"
-			controlsForPresenter = "false"
-			autoStart = "false"
+			autoStart="false"
 			skipCamSettingsCheck="false"
-			showButton = "true"
-			showCloseButton = "true"
-			publishWindowVisible = "true"
-			viewerWindowMaxed = "false"
-			viewerWindowLocation = "top"
-			smoothVideo="false"
+			showButton="true"
 			applyConvolutionFilter="false"
 			convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1"
 			filterBias="0"
 			filterDivisor="4"
-			displayAvatar = "false"
-			focusTalking = "false"
-			glowColor = "0x4A931D"
-			glowBlurSize = "30.0"
-			priorityRatio = "0.67"
+			displayAvatar="false"
+			priorityRatio="0.67"
 		/>
 		
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
@@ -103,13 +99,14 @@
 		
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="UsersModule"
 			host="http://HOST" 
 			showPresentWindow="true"
 			showWindowControls="true"
 			openExternalFileUploadDialog="false"
-			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"
+			enableDownload="true"
 		/>
 		
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
@@ -122,7 +119,17 @@
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
-			enableEdit="false"
+			enableEdit="true"
+		/>
+
+		<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=VERSION"
+			uri="rtmp://HOST/bigbluebutton"
+			dependsOn="UsersModule"
+			refreshDelay="500"
+			enableMultipleNotes="true"
+			toolbarVisibleByDefault="false"
+			showToolbarButton="true"
+			fontSize="12"
 		/>
 
 <!--

@@ -18,16 +18,13 @@
 */
 package org.bigbluebutton.red5.service;
 
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
-import org.slf4j.Logger;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 
-public class WhiteboardApplication implements IApplication {	
-	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
+public class WhiteboardApplication implements IApplication {
 
 	private MessagePublisher red5BBBInGW;
 
@@ -99,6 +96,10 @@ public class WhiteboardApplication implements IApplication {
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> shape) {
 		red5BBBInGW.sendWhiteboardAnnotation(meetingID, requesterID, shape);
 	}
+	
+	public void sendCursorPosition(String meetingID, String requesterID, Double xPercent, Double yPercent) {
+		red5BBBInGW.sendCursorPosition(meetingID, requesterID, xPercent, yPercent);
+	}
 
 	public void clearWhiteboard(String meetingID, String requesterID, String whiteboardId) {
 		red5BBBInGW.clearWhiteboard(meetingID, requesterID, whiteboardId);
@@ -108,14 +109,12 @@ public class WhiteboardApplication implements IApplication {
 		red5BBBInGW.undoWhiteboard(meetingID, requesterID, whiteboardId);
 	}
 
-	public void setWhiteboardEnable(String meetingID, String requesterID, Boolean enable) {
-		red5BBBInGW.enableWhiteboard(meetingID, requesterID, enable);
+	public void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser) {
+		red5BBBInGW.modifyWhiteboardAccess(meetingID, requesterID, multiUser);
 	}
 
-	public void setIsWhiteboardEnabled(String meetingID, String requesterID) {
-		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
-		String replyTo = meetingID + "/" + requesterID; 
-		red5BBBInGW.isWhiteboardEnabled(meetingID, requesterID, replyTo);
+	public void getWhiteboardAccess(String meetingID, String requesterID) {
+		red5BBBInGW.getWhiteboardAccess(meetingID, requesterID);
 	}
 
 }

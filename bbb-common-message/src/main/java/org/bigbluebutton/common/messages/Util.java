@@ -74,7 +74,8 @@ public class Util {
 				&& user.has(Constants.EMOJI_STATUS) && user.has(Constants.PHONE_USER)
 				&& user.has(Constants.PRESENTER) && user.has(Constants.LOCKED)
 				&& user.has(Constants.EXTERN_USERID) && user.has(Constants.ROLE)
-				&& user.has(Constants.VOICEUSER) && user.has(Constants.WEBCAM_STREAM)){
+				&& user.has(Constants.VOICEUSER) && user.has(Constants.WEBCAM_STREAM)
+				&& user.has(Constants.GUEST) && user.has(Constants.WAITING_FOR_ACCEPTANCE)){
 				
 			Map<String, Object> userMap = new HashMap<String, Object>();					
 
@@ -89,6 +90,8 @@ public class Util {
 			String extUserId = user.get(Constants.EXTERN_USERID).getAsString();
 			String role = user.get(Constants.ROLE).getAsString();
 			String avatarURL = user.get(Constants.AVATAR_URL).getAsString();
+			Boolean guest = user.get(Constants.GUEST).getAsBoolean();
+			Boolean waitingForAcceptance = user.get(Constants.WAITING_FOR_ACCEPTANCE).getAsBoolean();
 			
 			JsonArray webcamStreamJArray = user.get(Constants.WEBCAM_STREAM).getAsJsonArray();
 			ArrayList<String> webcamStreams = extractWebcamStreams(webcamStreamJArray);
@@ -103,6 +106,8 @@ public class Util {
 			userMap.put("phoneUser", phoneUser);
 			userMap.put("locked", locked);
 			userMap.put("role", role);
+			userMap.put("guest", guest);
+			userMap.put("waitingForAcceptance", waitingForAcceptance);
 			userMap.put("presenter", presenter);
 			userMap.put("avatarURL", avatarURL);
 			
@@ -269,7 +274,7 @@ public class Util {
 			int color = annotationElement.get("color").getAsInt();
 			String status = annotationElement.get(Constants.STATUS).getAsString();
 			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
-			int thickness = annotationElement.get("thickness").getAsInt();
+			Float thickness = annotationElement.get("thickness").getAsFloat();
 			String type = annotationElement.get("type").getAsString();
 
 			JsonArray pointsJsonArray = annotationElement.get("points").getAsJsonArray();
@@ -282,6 +287,21 @@ public class Util {
 				if (pf != null) {
 					pointsArray.add(pf);
 				}
+			}
+      
+			//the final pencil annotation has a commands property
+			if (annotationElement.has("commands")) {
+				JsonArray commandsJsonArray = annotationElement.get("commands").getAsJsonArray();
+				ArrayList<Integer> commandsArray = new ArrayList<Integer>();
+				Iterator<JsonElement> commandIter = commandsJsonArray.iterator();
+				while (commandIter.hasNext()){
+					JsonElement p = commandIter.next();
+					Integer ci = p.getAsInt();
+					if (ci != null) {
+						commandsArray.add(ci);
+					}
+				}
+				finalAnnotation.put("commands", commandsArray);
 			}
 
 			finalAnnotation.put("transparency", transparency);
@@ -425,16 +445,19 @@ public class Util {
 
 	public Map<String, Object> extractPresentation(JsonObject presObj) {
 		if (presObj.has(Constants.ID) && presObj.has(Constants.NAME)
-				&& presObj.has(Constants.CURRENT) && presObj.has(Constants.PAGES)) {
+				&& presObj.has(Constants.CURRENT) && presObj.has(Constants.PAGES)
+				&& presObj.has(Constants.DOWNLOADABLE)) {
 			Map<String, Object> pres = new HashMap<String, Object>();
 
 			String presId = presObj.get(Constants.ID).getAsString();
 			String presName = presObj.get(Constants.NAME).getAsString();
 			Boolean currentPres = presObj.get(Constants.CURRENT).getAsBoolean();
+			Boolean downloadable = presObj.get(Constants.DOWNLOADABLE).getAsBoolean();
 
 			pres.put("id", presId);
 			pres.put("name", presName);
 			pres.put("current", currentPres);
+			pres.put("downloadable", downloadable);
 
 			JsonArray pagesJsonArray = presObj.get(Constants.PAGES).getAsJsonArray();
 
@@ -520,17 +543,20 @@ public class Util {
 		if (annotationElement.has(Constants.ID)
 				&& annotationElement.has("shape")
 				&& annotationElement.has("status")
-				&& annotationElement.has("shape_type")){
+				&& annotationElement.has("shape_type")
+				&& annotationElement.has("user_id")){
 
 			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
 
 			String id = annotationElement.get(Constants.ID).getAsString();
 			String status = annotationElement.get("status").getAsString();
 			String type = annotationElement.get("shape_type").getAsString();
+			String userId = annotationElement.get("user_id").getAsString();
 
 			finalAnnotation.put(Constants.ID, id);
 			finalAnnotation.put("type", type);
 			finalAnnotation.put("status", status);
+			finalAnnotation.put("userId", userId);
 
 			JsonElement shape = annotationElement.get("shape");
 			Map<String, Object> shapesMap;
@@ -740,4 +766,55 @@ public class Util {
 		return collection;
 	}
 	
+	class Note {
+		String name = "";
+		String document = "";
+		Integer patchCounter = 0;
+		Boolean undo = false;
+		Boolean redo = false;
+
+		public Note(String name, String document, Integer patchCounter, Boolean undo, Boolean redo) {
+			this.name = name;
+			this.document = document;
+			this.patchCounter = patchCounter;
+			this.undo = undo;
+			this.redo = redo;
+		}
+	}
+
+	public Object extractNote(JsonObject noteObject) {
+		String name = noteObject.get("name").getAsString();
+		String document = noteObject.get("document").getAsString();
+		Integer patchCounter = noteObject.get("patchCounter").getAsInt();
+		Boolean undo = noteObject.get("undo").getAsBoolean();
+		Boolean redo = noteObject.get("redo").getAsBoolean();
+
+		Note note = new Note(name, document, patchCounter, undo, redo);
+
+		return (Object) note;
+	}
+
+	public Map<String, Object> extractNotes(JsonObject notes) {
+		Map<String, Object> notesMap = new HashMap<String, Object>();
+
+		for (Map.Entry<String, JsonElement> entry : notes.entrySet()) {
+			JsonObject obj = entry.getValue().getAsJsonObject();
+			Object note = extractNote(obj);
+			notesMap.put(entry.getKey(), note);
+		}
+
+		return notesMap;
+	}
+
+	public Map<String, String> extractMetadata(JsonObject metadata) {
+		Map<String, String> metadataMap = new HashMap<String, String>();
+
+		for (Map.Entry<String, JsonElement> entry : metadata.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue().getAsString();
+			metadataMap.put(key, value);
+		}
+
+		return metadataMap;
+	}
 }

@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-import org.bigbluebutton.core.service.recorder.RecordEvent;
-
 public abstract class AbstractWhiteboardRecordEvent extends RecordEvent {
 	
 	public AbstractWhiteboardRecordEvent() {

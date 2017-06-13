@@ -18,11 +18,15 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-public class CursorUpdateRecordEvent extends AbstractPresentationRecordEvent{
+public class CursorUpdateRecordEvent extends AbstractWhiteboardRecordEvent{
 	
 	public CursorUpdateRecordEvent() {
 		super();
 		setEvent("CursorMoveEvent");
+	}
+	
+	public void setUserId(String userId) {
+		eventMap.put("userId", userId);
 	}
 	
 	public void setXPercent(double percent) {

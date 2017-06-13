@@ -11,7 +11,6 @@ import akka.testkit.ImplicitSender
 import akka.testkit.TestKit
 import scala.concurrent.duration._
 import scala.collection.immutable
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.WordSpecLike
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Matchers

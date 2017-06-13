@@ -5,6 +5,7 @@ package org.bigbluebutton.modules.polling.views {
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
@@ -12,6 +13,16 @@ package org.bigbluebutton.modules.polling.views {
 	
 	public class QuickPollButton extends Button {
 		private static const LOGGER:ILogger = getClassLogger(QuickPollButton);      
+
+		override public function set visible(vsb:Boolean):void {
+			if (vsb) {
+				// This button should only be visible when there is a polling at the current slide's text
+				var page:Page = PresentationModel.getInstance().getCurrentPage();
+				super.visible = page != null ? parseSlideText(page.txtData) : false;
+			} else {
+				super.visible = false;
+			}
+		}
 
 		public function QuickPollButton() {
 			super();
@@ -23,13 +34,10 @@ package org.bigbluebutton.modules.polling.views {
 		}
 		
 		private function handlePageLoadedEvent(e:PageLoadedEvent):void {
-			var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-			if (page != null) {
-				parseSlideText(page.txtData);
-			}
+			visible = UsersUtil.amIPresenter();
 		}
 		
-		private function parseSlideText(text:String):void {
+		private function parseSlideText(text:String):Boolean {
 			var numRegex:RegExp = new RegExp("\n[^\s][\.\)]", "g");
 			var ynRegex:RegExp = new RegExp((ResourceUtil.getInstance().getString("bbb.polling.answer.Yes")+
 				"\s*/\s*"+
@@ -56,21 +64,21 @@ package org.bigbluebutton.modules.polling.views {
 				}
 				label = constructedLabel;
 				name = "A-"+len;
-				visible = true;
+				return true;
 			} else if (text.search(ynRegex) > -1 || text.search(nyRegex) > -1) {
 				label = ResourceUtil.getInstance().getString("bbb.polling.answer.Yes")+
 						"/"+
 						ResourceUtil.getInstance().getString("bbb.polling.answer.No");
 				name = "YN";
-				visible = true;
+				return true;
 			} else if (text.search(tfRegex) > -1 || text.search(ftRegex) > -1) {
 				label = ResourceUtil.getInstance().getString("bbb.polling.answer.True")+
 					"/"+
 					ResourceUtil.getInstance().getString("bbb.polling.answer.False");
 				name = "TF";
-				visible = true;
+				return true;
 			} else {
-				visible = false;
+				return false;
 			}
 		}
 	}

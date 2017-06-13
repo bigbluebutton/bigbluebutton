@@ -20,17 +20,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx" 
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:maps="org.bigbluebutton.modules.phone.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()">
 	
-	<maps:PhoneEventMap id="phoneLocalEventMap"/>
-  <maps:WebRTCEventMap id="webRTCEventMap"/>
-  <maps:FlashCallEventMap id="flashCallEventMap"/>
+	<fx:Declarations>
+		<maps:PhoneEventMap id="phoneLocalEventMap"/>
+		<maps:WebRTCEventMap id="webRTCEventMap"/>
+		<maps:FlashCallEventMap id="flashCallEventMap"/>
+	</fx:Declarations>
   
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -106,5 +109,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(event);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Module>

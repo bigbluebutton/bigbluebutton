@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:mate="http://mate.asfusion.com/"
 	icon="{phoneIcon}" click="startSound()" label="BOOO!"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
@@ -30,7 +30,7 @@
 
 	<mate:Listener type="{ShortcutEvent.PAUSE_REMOTE_STREAM}" method="remoteClick" />
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -113,5 +113,5 @@
 				return MainToolbar.ALIGN_LEFT;
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>

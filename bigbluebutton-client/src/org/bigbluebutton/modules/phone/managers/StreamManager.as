@@ -32,7 +32,8 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.modules.phone.PhoneOptions;
+	import org.bigbluebutton.core.Options;
+	import org.bigbluebutton.modules.phone.models.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.FlashMicAccessAllowedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashMicAccessDeniedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashMicUnavailableEvent;
@@ -85,7 +86,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}	
 		
 		private function setupMicrophone():void {
-			var phoneOptions:PhoneOptions = new PhoneOptions();
+			var phoneOptions:PhoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
 
 			if ((BBB.getFlashPlayerVersion() >= 10.3) && (phoneOptions.enabledEchoCancel)) {
 				LOGGER.debug("Using acoustic echo cancellation.");		

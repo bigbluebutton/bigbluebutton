@@ -30,11 +30,13 @@ package org.bigbluebutton.main.model.users {
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
+	import org.bigbluebutton.main.model.options.LockOptions;
 	
 	public class Conference {
 		public var userEjectedFromMeeting:Boolean = false;
@@ -59,6 +61,9 @@ package org.bigbluebutton.main.model.users {
 		[Bindable]
 		public var record:Boolean;
 		
+		[Bindable]
+		public var numAdditionalSharedNotes:Number = 0;
+
 		private static const LOGGER:ILogger = getClassLogger(Conference);
 		
 		private var lockSettings:LockSettingsVO;
@@ -381,6 +386,10 @@ package org.bigbluebutton.main.model.users {
 			return me.userID;
 		}
 		
+		public function getMyself():BBBUser {
+			return me;
+		}
+
 		public function setMyUserid(userID:String):void {
 			me.userID = userID;
 		}
@@ -403,6 +412,19 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setMyRole(role:String):void {
 			me.role = role;
+			applyLockSettings();
+		}
+
+		public function amIGuest():Boolean {
+			return me.guest;
+		}
+
+		public function amIWaitingForAcceptance():Boolean {
+			return me.waitingForAcceptance;
+		}
+
+		public function setGuest(guest:Boolean):void {
+			me.guest = guest;
 		}
 		
 		public function setMyRoom(room:String):void {
@@ -466,6 +488,15 @@ package org.bigbluebutton.main.model.users {
 				var s:Status = new Status(status, value);
 				aUser.changeStatus(s);
 			}
+
+			users.refresh();
+		}
+
+		public function newUserRole(userID:String, role:String):void {
+			var aUser:BBBUser = getUser(userID);
+			if (aUser != null) {
+				aUser.role = role;
+			}
 			users.refresh();
 		}
 		
@@ -482,54 +513,8 @@ package org.bigbluebutton.main.model.users {
 		 * Read default lock settings from config.xml
 		 * */
 		public function configLockSettings():void {
-			var config:Config = BBB.getConfigManager().config;
-			var disableCam:Boolean,
-				disableMic:Boolean,
-				disablePrivateChat:Boolean,
-				disablePublicChat:Boolean,
-				lockedLayout:Boolean,
-				lockOnJoin:Boolean,
-				lockOnJoinConfigurable:Boolean;
-			var lockConfig:XML;
-			if (config != null) {
-				lockConfig = config.lock;
-			}
-			try {
-				disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disableCam = false; //If not set, default to false
-			}
-			try {
-				disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disableMic = false; //If not set, default to false
-			}
-			try {
-				disablePrivateChat = (lockConfig.@disablePrivateChatForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disablePrivateChat = false; //If not set, default to false
-			}
-			try {
-				disablePublicChat = (lockConfig.@disablePublicChatForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disablePublicChat = false; //If not set, default to false
-			}
-			try {
-				lockedLayout = (lockConfig.@lockLayoutForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				lockedLayout = false; //If not set, default to false
-			}
-			try {
-				lockOnJoin = (lockConfig.@lockOnJoin.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				lockOnJoin = true; //If not set, default to true
-			}
-			try {
-				lockOnJoinConfigurable = (lockConfig.@lockOnJoinConfigurable.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				lockOnJoinConfigurable = false; //If not set, default to false
-			}
-			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout, lockOnJoin, lockOnJoinConfigurable);
+			var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
+			lockSettings = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, lockOptions.disablePrivateChat, lockOptions.disablePublicChat, lockOptions.lockedLayout, lockOptions.lockOnJoin, lockOptions.lockOnJoinConfigurable);
 			setLockSettings(lockSettings);
 		}
 		

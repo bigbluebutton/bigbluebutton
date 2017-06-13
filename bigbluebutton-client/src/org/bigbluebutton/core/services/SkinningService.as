@@ -21,18 +21,19 @@ package org.bigbluebutton.core.services
 	import mx.styles.IStyleManager2;
 	import mx.styles.StyleManager;
 	
-	import org.bigbluebutton.core.BBB;
+	import org.as3commons.lang.StringUtils;
+	import org.bigbluebutton.core.Options;
+	import org.bigbluebutton.main.model.options.SkinningOptions;
 	
 	public class SkinningService
 	{
 		private var myStyleManager: IStyleManager2;
 		
 		public function loadSkins():void {
-		//	IStyleManager2.loadStyleDeclarations(skin);
-			var skin:String = BBB.getConfigManager().config.skinning.url;
-			if (skin != "") {
+			var skinOptions:SkinningOptions = Options.getOptions(SkinningOptions) as SkinningOptions;
+			if (!StringUtils.isEmpty(skinOptions.url)) {
 				myStyleManager = StyleManager.getStyleManager(null);
-				myStyleManager.loadStyleDeclarations(skin); 
+				myStyleManager.loadStyleDeclarations(skinOptions.url); 
 			}
 		}
 	}

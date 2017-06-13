@@ -57,7 +57,13 @@ package org.bigbluebutton.modules.polling.service
       var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
       if (curPres != null) {
         var date:Date = new Date();
-        var pollId: String = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+
+        var pollId:String;
+        if(PresentationModel.getInstance().getCurrentPresentation().sharingDesktop)
+           pollId = "deskshare/1/" + date.time;
+        else
+           pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+
         return pollId;
       }
       

@@ -18,14 +18,17 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.external.ExternalInterface;
-	import flash.net.NetConnection;	
+	import flash.net.NetConnection;
+	
 	import mx.collections.ArrayCollection;
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
@@ -34,11 +37,16 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
+	import org.bigbluebutton.main.events.LogoutEvent;
+	import org.bigbluebutton.main.events.ResponseModeratorEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.options.ApplicationOptions;
+	import org.bigbluebutton.main.model.options.MeetingOptions;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -56,6 +64,7 @@ package org.bigbluebutton.main.model.users
 		private var hostURI:String;		
 		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
+		private var reconnecting:Boolean = false;
 		
     private var _connectionManager:ConnectionManager;
     private var msgReceiver:MessageReceiver = new MessageReceiver();
@@ -63,12 +72,30 @@ package org.bigbluebutton.main.model.users
     
 		public function UserService() {
 			dispatcher = new Dispatcher();
+			msgReceiver.onAllowedToJoin = function():void {
+				onAllowedToJoin();
+			}
+		}
+
+		private function onAllowedToJoin():void {
+			sender.queryForParticipants();
+			sender.queryForRecordingStatus();
+			sender.queryForGuestPolicy();
+
+			if (!_conferenceParameters.isBreakout) {
+				sender.queryForBreakoutRooms(_conferenceParameters.meetingID);
+			}
+
+			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
+			loadCommand.conferenceParameters = _conferenceParameters;
+			dispatcher.dispatchEvent(loadCommand);
 		}
 		
 		public function startService(e:UserServicesEvent):void {      
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
-			joinService.load(BBB.getConfigManager().config.application.host);
+			var applicationOptions : ApplicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
+			joinService.load(applicationOptions.host);
 		}
 		
 		private function joinListener(success:Boolean, result:Object):void {
@@ -78,6 +105,7 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyName(result.username);
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
+				UserManager.getInstance().getConference().setGuest(result.guest);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
 				UserManager.getInstance().getConference().setMyCustomData(result.customdata);
 				UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
@@ -102,26 +130,22 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.isBreakout = result.isBreakout;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
+				_conferenceParameters.guest = (result.guest);
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
-        _conferenceParameters.authToken = result.authToken;
+				_conferenceParameters.authToken = result.authToken;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;
 				_conferenceParameters.meetingID = result.meetingID;
 				_conferenceParameters.externUserID = result.externUserID;
 				_conferenceParameters.internalUserID = result.internalUserId;
-				_conferenceParameters.logoutUrl = result.logoutUrl;
+				_conferenceParameters.logoutUrl = processLogoutUrl(result);
 				_conferenceParameters.record = (result.record != "false");
 				
-				var muteOnStart:Boolean;
-				try {
-					muteOnStart = (config.meeting.@muteOnStart.toUpperCase() == "TRUE");
-				} catch(e:Error) {
-					muteOnStart = false;
-				}
+				var meetingOptions : MeetingOptions = Options.getOptions(MeetingOptions) as MeetingOptions;
 				
-				_conferenceParameters.muteOnStart = muteOnStart;
+				_conferenceParameters.muteOnStart = meetingOptions.muteOnStart;
 				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
 				// assign the meeting name to the document title
@@ -139,18 +163,45 @@ package org.bigbluebutton.main.model.users
 				connect();
 			}
 		}
+
+		private function processLogoutUrl(confInfo:Object):String {
+			var logoutUrl:String = confInfo.logoutUrl;
+			var rules:Object = {
+				"%%FULLNAME%%": confInfo.username,
+				"%%CONFNAME%%": confInfo.conferenceName,
+				"%%DIALNUM%%": confInfo.dialnumber,
+				"%%CONFNUM%%": confInfo.voicebridge
+			}
+
+			for (var attr:String in rules) {
+				logoutUrl = logoutUrl.replace(new RegExp(attr, "g"), rules[attr]);
+			}
+
+			return logoutUrl;
+		}
 		
     private function connect():void{
       _connectionManager = BBB.initConnectionManager();
       _connectionManager.connect();
     }
 	
+	public function logoutEndMeeting():void{
+		if (this.isModerator()) {
+			var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
+			sender.logoutEndMeeting(myUserId);
+		}
+	}
+
     public function logoutUser():void {
       disconnect(true);
     }
     
     public function disconnect(onUserAction:Boolean):void {
       _connectionManager.disconnect(onUserAction);
+		}
+
+		public function activityResponse():void {
+			sender.activityResponse();
 		}
 		
 		private function queryForRecordingStatus():void {
@@ -167,14 +218,30 @@ package org.bigbluebutton.main.model.users
 		public function userLoggedIn(e:UsersConnectionEvent):void {
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
-			sender.queryForParticipants();
-			sender.queryForRecordingStatus();
-			if (!_conferenceParameters.isBreakout) {
-				sender.queryForBreakoutRooms(_conferenceParameters.meetingID);
+
+			var waitingForAcceptance:Boolean = true;
+			if (UserManager.getInstance().getConference().hasUser(e.userid)) {
+				LOGGER.debug("userLoggedIn - conference has this user");
+				waitingForAcceptance = UserManager.getInstance().getConference().getUser(e.userid).waitingForAcceptance;
 			}
-			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
-			loadCommand.conferenceParameters = _conferenceParameters;
-			dispatcher.dispatchEvent(loadCommand);
+
+			if (reconnecting && !waitingForAcceptance) {
+				LOGGER.debug("userLoggedIn - reconnecting and allowed to join");
+				onAllowedToJoin();
+				reconnecting = false;
+			}
+		}
+
+		public function denyGuest():void {
+			dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
+		}
+
+		public function setGuestPolicy(event:BBBEvent):void {
+			sender.setGuestPolicy(event.payload['guestPolicy']);
+		}
+
+		public function guestDisconnect():void {
+			_connectionManager.guestDisconnect();
 		}
 
 		public function isModerator():Boolean {
@@ -201,6 +268,10 @@ package org.bigbluebutton.main.model.users
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
 			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes, e.record);
 		}
+
+		public function responseToGuest(e:ResponseModeratorEvent):void {
+			sender.responseToGuest(e.userid, e.resp);
+		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
 			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutMeetingId, e.userId);
@@ -221,6 +292,17 @@ package org.bigbluebutton.main.model.users
 
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) sender.kickUser(e.userid);
+		}
+
+		public function changeRole(e:ChangeRoleEvent):void {
+			if (this.isModerator()) sender.changeRole(e.userid, e.role);
+		}
+
+		public function onReconnecting(e:BBBEvent):void {
+			if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
+				LOGGER.debug("onReconnecting");
+				reconnecting = true;
+			}
 		}
 		
 		/**

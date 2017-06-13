@@ -23,14 +23,10 @@ import java.util.Map;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
-import org.slf4j.Logger;
 
 public class PollingService {
-	
-	private static Logger log = Red5LoggerFactory.getLogger( PollingService.class, "bigbluebutton" );
-	
+
 	private MessagePublisher red5GW;
 	
 	public void setRed5Publisher(MessagePublisher inGW) {

@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+  import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   
   public class MessageReceiver implements IMessageListener
@@ -57,6 +58,9 @@ package org.bigbluebutton.modules.chat.services
         case "ChatRequestMessageHistoryReply":
           handleChatRequestMessageHistoryReply(message);
           break;	
+        case "ChatClearPublicMessageCommand":
+          handleChatClearPublicMessageCommand(message);
+          break;
         default:
           //   LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
@@ -122,6 +126,13 @@ package org.bigbluebutton.modules.chat.services
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PRIVATE_CHAT);
       pcCoreEvent.message = message;
       dispatcher.dispatchEvent(pcCoreEvent);      
+    }
+
+    private function handleChatClearPublicMessageCommand(message:Object):void {
+      LOGGER.debug("Handling clear chat history message");
+
+      var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
+      dispatcher.dispatchEvent(clearChatEvent);
     }
   }
 }

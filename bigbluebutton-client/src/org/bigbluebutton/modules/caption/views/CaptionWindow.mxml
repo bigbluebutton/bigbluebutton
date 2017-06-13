@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-			xmlns:mx="http://www.adobe.com/2006/mxml"
+			xmlns:mx="library://ns.adobe.com/flex/mx"
+			xmlns:fx="http://ns.adobe.com/mxml/2009"
 			xmlns:containers="flexlib.containers.*"
 			xmlns:mate="http://mate.asfusion.com/"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -28,10 +29,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			showCloseButton="false"
 			creationComplete="onCreationComplete()">
 	
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -43,6 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flexlib.controls.tabBarClasses.SuperTab;
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -65,10 +69,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var optionsTab:OptionsTab;
 			private var textTab:TextTab;
 			
-			private var captionOptions:CaptionOptions = new CaptionOptions();
+			private var captionOptions:CaptionOptions;
 			
 			override protected function createChildren():void {
 				super.createChildren();
+				
+				captionOptions = Options.getOptions(CaptionOptions) as CaptionOptions;
 				
 				optionsTab = new OptionsTab();
 				optionsTab.setChangeCallback(optionChange);
@@ -104,11 +110,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (UserManager.getInstance().getConference().amIModerator()) {
 					transcriptsCollection = new ArrayCollection();
 					
-					var names:Array = ResourceUtil.getInstance().localeNames;
-					var codes:Array = ResourceUtil.getInstance().localeCodes;
+					var locales:Array = ResourceUtil.getInstance().locales;
 					
-					for (var i:int=0; i<names.length; i++) {
-						transcriptsCollection.addItem({locale: names[i], localeCode: codes[i]});
+					for each(var item:* in locales) {
+						transcriptsCollection.addItem({locale: item.name, localeCode: item.code});
 					}
 				} else {
 					transcriptsCollection = t.transcriptCollection;
@@ -240,7 +245,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<mx:Box width="100%" height="100%" horizontalAlign="left">
 		<containers:SuperTabNavigator id="captionTabs"
 									  width="100%" height="100%" minTabWidth="20"

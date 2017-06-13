@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.bigbluebutton.core.connection.messages.*;
 
   public class MessageSender {
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
@@ -176,8 +177,16 @@ package org.bigbluebutton.modules.users.services
 		}
     
     public function addStream(userID:String, streamName:String):void {
+      var header: MsgFromClientHdr = new MsgFromClientHdr("UserBroadcastCamStartMsg",
+                                              UsersUtil.getInternalMeetingID(), 
+                                              UsersUtil.getMyUserID());
+
+      var body: UserBroadcastCamStartMsgBody = new UserBroadcastCamStartMsgBody(streamName);
+
+      var message: UserBroadcastCamStartMsg = new UserBroadcastCamStartMsg(header, body);
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.shareWebcam", 
+      _nc.sendMessage2x( 
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -186,12 +195,20 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured sharing webcam.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        streamName
+        JSON.stringify(message)
       );
     }
     
     public function removeStream(userID:String, streamName:String):void {
   
+      var header: MsgFromClientHdr = new MsgFromClientHdr("UserBroadcastCamStopMsg",
+                                              UsersUtil.getInternalMeetingID(), 
+                                              UsersUtil.getMyUserID());
+
+      var body: UserBroadcastCamStopMsgBody = new UserBroadcastCamStopMsgBody(streamName);
+
+      var message: UserBroadcastCamStopMsg = new UserBroadcastCamStopMsg(header, body);
+
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["webcam"];
         logData.streamId = streamName;
@@ -200,7 +217,7 @@ package org.bigbluebutton.modules.users.services
 
   
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.unshareWebcam", 
+      _nc.sendMessage2x( 
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -209,10 +226,29 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured unsharing webcam.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        streamName
+        JSON.stringify(message)
       );
     }
     
+    public function logoutEndMeeting(userID:String):void {
+      var message:Object = new Object();
+      message["userId"] = userID;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.logoutEndMeeting",
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured logout and end meeting.";
+                LOGGER.info(JSON.stringify(logData));
+        },
+        message
+      );
+    }
+
     public function queryForRecordingStatus():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
@@ -248,6 +284,22 @@ package org.bigbluebutton.modules.users.services
 		);
 	}
     
+
+    public function activityResponse():void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.activityResponse", // Remote function name
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured activity response.";
+                LOGGER.info(JSON.stringify(logData));
+        }
+      ); //_netConnection.call
+    }
+
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
       var message:Object = new Object();
       message["userId"] = userID;
@@ -486,6 +538,89 @@ package org.bigbluebutton.modules.users.services
         },
         newLockSettings
       );      
+    }
+
+    public function changeRole(userID:String, role:String):void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      var message:Object = new Object();
+      message["userId"] = userID;
+      message["role"] = role;
+
+      _nc.sendMessage(
+        "participants.setParticipantRole",// Remote function name
+        function(result:String):void { // On successful result
+          LOGGER.debug(result);
+        },
+        function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured change role.";
+                LOGGER.info(JSON.stringify(logData));
+        },
+        message
+      );
+    }
+
+    public function queryForGuestPolicy():void {
+      LOGGER.debug("queryForGuestPolicy");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.getGuestPolicy",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured query guest policy.";
+                LOGGER.info(JSON.stringify(logData));
+         }
+       );
+    }
+
+    public function setGuestPolicy(policy:String):void {
+      LOGGER.debug("setGuestPolicy - new policy:[" + policy + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.setGuestPolicy",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured set guest policy.";
+                LOGGER.info(JSON.stringify(logData));
+         },
+         policy
+       );
+    }
+
+    public function responseToGuest(userId:String, response:Boolean):void {
+      LOGGER.debug("responseToGuest - userId:[" + userId + "] response:[" + response + "]");
+
+      var message:Object = new Object();
+      message["userId"] = userId;
+      message["response"] = response;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.responseToGuest",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured response guest.";
+                LOGGER.info(JSON.stringify(logData));
+         },
+         message
+       );
+    }
+
+    public function responseToAllGuests(response:Boolean):void {
+      responseToGuest(null, response);
     }
   }
 }

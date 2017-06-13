@@ -22,8 +22,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 <EventMap xmlns="http://mate.asfusion.com/"
-	xmlns:mx="http://www.adobe.com/2006/mxml">
-	<mx:Script>
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009">
+	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -36,34 +37,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import mx.events.FlexEvent;
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<!--
-	This is the main event map for the chat module, think of it as the application controller.
-	-->
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+	<fx:Declarations>
 		<!--
-		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		This is the main event map for the chat module, think of it as the application controller.
 		-->
-		<ObjectBuilder generator="{PhoneEventMapDelegate}" />
-	</EventHandlers>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<!--
+			The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+			-->
+			<ObjectBuilder generator="{PhoneEventMapDelegate}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
+			<MethodInvoker generator="{PhoneEventMapDelegate}" method="addToolbarButton"/>
+	    </EventHandlers>
+	    
+	    <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
+	    	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
+	    </EventHandlers>
 	
-	<EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="addToolbarButton"/>
-    </EventHandlers>
-    
-    <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
-    	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
-    </EventHandlers>
+		<EventHandlers type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}">     
+			<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton" arguments="{event.listenOnlyCall}"/>
+	    </EventHandlers>
+	    
+	    <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
+			<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
+	    </EventHandlers>
+	</fx:Declarations>
 
-	<EventHandlers type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}">     
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton" arguments="{event.listenOnlyCall}"/>
-    </EventHandlers>
-    
-    <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
-    </EventHandlers>
-        
-
-    
 </EventMap>

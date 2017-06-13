@@ -19,16 +19,12 @@
 package org.bigbluebutton.red5.service;
 
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 
 public class PresentationService {	
-  private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
 
   private PresentationApplication presentationApplication;
 
@@ -41,7 +37,6 @@ public class PresentationService {
 
   public void getSlideInfo() {
     IScope scope = Red5.getConnectionLocal().getScope();
-    log.debug("Getting slide info for meeting [{}]", scope.getName());
     presentationApplication.getSlideInfo(scope.getName(), getBbbSession().getInternalUserID());		
   }
 
@@ -52,7 +47,6 @@ public class PresentationService {
 
   public void getPresentationInfo() {
     IScope scope = Red5.getConnectionLocal().getScope();
-    log.debug("Getting presentation info for meeting [{}]", scope.getName());
     presentationApplication.getPresentationInfo(scope.getName(), getBbbSession().getInternalUserID());
   }
 
@@ -60,8 +54,6 @@ public class PresentationService {
     String pageId = (String) msg.get("page");
 
     IScope scope = Red5.getConnectionLocal().getScope();
-    log.debug("Got GotoSlide for meeting [{}] page=[{}]", scope.getName(), pageId);
-
     presentationApplication.gotoSlide(scope.getName(), pageId);
   }
 
@@ -73,29 +65,6 @@ public class PresentationService {
     presentationApplication.sharePresentation(scope.getName(), presentationID, share);
   }
 
-  public void sendCursorUpdate(Map<String, Object> msg) {
-    IScope scope = Red5.getConnectionLocal().getScope();
-
-    Double xPercent;
-    if (msg.get("xPercent") instanceof Integer) {
-      Integer tempXOffset = (Integer) msg.get("xPercent");
-      xPercent = tempXOffset.doubleValue();
-    } else {
-      xPercent = (Double) msg.get("xPercent");
-    }
-
-    Double yPercent;
-
-    if (msg.get("yPercent") instanceof Integer) {
-      Integer tempYOffset = (Integer) msg.get("yPercent");
-      yPercent = tempYOffset.doubleValue();
-    } else {
-      yPercent = (Double) msg.get("yPercent");
-    }
-
-    presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
-  }
-
   public void resizeAndMoveSlide(Map<String, Object> msg) {
     Double xOffset;
     if (msg.get("xOffset") instanceof Integer) {
@@ -105,7 +74,7 @@ public class PresentationService {
       xOffset = (Double) msg.get("xOffset");
     }
     if (Double.isNaN(xOffset)) {
-      log.warn("resizeAndMoveSlide came with xOffset as NaN, setting it to 0");
+     // log.warn("resizeAndMoveSlide came with xOffset as NaN, setting it to 0");
       xOffset = 0.0;
     }
 
@@ -118,7 +87,7 @@ public class PresentationService {
       yOffset = (Double) msg.get("yOffset");
     }
     if (Double.isNaN(yOffset)) {
-      log.warn("resizeAndMoveSlide came with yOffset as NaN, setting it to 0");
+      //log.warn("resizeAndMoveSlide came with yOffset as NaN, setting it to 0");
       yOffset = 0.0;
     }
 
@@ -130,7 +99,7 @@ public class PresentationService {
       widthRatio = (Double) msg.get("widthRatio");
     }
     if (Double.isNaN(widthRatio)) {
-      log.warn("resizeAndMoveSlide came with widthRatio as NaN, setting it to 100");
+     // log.warn("resizeAndMoveSlide came with widthRatio as NaN, setting it to 100");
       widthRatio = 100.0;
     }
 
@@ -143,7 +112,7 @@ public class PresentationService {
       heightRatio = (Double) msg.get("heightRatio");
     }
     if (Double.isNaN(heightRatio)) {
-      log.warn("resizeAndMoveSlide came with heightRatio as NaN, setting it to 100");
+      //log.warn("resizeAndMoveSlide came with heightRatio as NaN, setting it to 100");
       heightRatio = 100.0;
     }
 

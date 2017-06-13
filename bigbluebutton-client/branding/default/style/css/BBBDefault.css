@@ -1,8 +1,13 @@
-Application {
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace flexlib "http://code.google.com/p/flexlib/";
+@namespace users "org.bigbluebutton.modules.users.views.*";
+@namespace poll "org.bigbluebutton.modules.polling.views.*";
+
+mx|Application {
   backgroundColor: #ffffff;
 }
 
-ApplicationControlBar {
+mx|ApplicationControlBar {
   highlightAlphas: 0.1, 0;
   fillAlphas: 0, 0;
   fillColors: #32343b, #32343b;
@@ -23,7 +28,7 @@ ApplicationControlBar {
 	color : #ffffff;
 }
 
-Panel {
+mx|Panel {
   borderColor: #dfdfdf;
   borderAlpha: 1;
   shadowDistance: 1;
@@ -31,7 +36,7 @@ Panel {
   titleStyleName: "mypanelTitle";
 }
 
-ToolTip {
+mx|ToolTip {
 	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
 	backgroundAlpha : 0.9;
 	cornerRadius    : 3;
@@ -56,6 +61,17 @@ ToolTip {
   paddingTop: 3;
   paddingLeft: 3;
   paddingRight: 3;
+}
+
+.chatToolbarStyle {
+  backgroundColor: #CCCCCC;
+  cornerRadius: 5;
+  borderStyle: solid;
+  borderThickness: 1;
+  paddingBottom: 2;
+  paddingTop: 2;
+  paddingLeft: 2;
+  paddingRight: 2;
 }
 
 .meetingNameLabelStyle {
@@ -115,7 +131,7 @@ ToolTip {
 	fontWeight: bold;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
+mx|Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -185,7 +201,20 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   icon: Embed('assets/images/logout.png');
 }
 
-DataGrid {
+.settingsButtonStyle {
+  icon: Embed('assets/images/ic_settings_16px.png');
+}
+
+.acceptButtonStyle {
+  icon: Embed('assets/images/ic_thumb_up_16px.png');
+}
+
+.denyButtonStyle {
+  icon: Embed('assets/images/ic_thumb_down_16px.png');
+}
+
+
+mx|DataGrid {
   backgroundColor: #e1e2e5;
   rollOverColor: #f3f3f3;
   textRollOverColor: #3f3f41;
@@ -207,7 +236,7 @@ DataGrid {
 
 .whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
-.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
+.chatClearButtonStyle, .multiUserWhiteboardOnButtonStyle, .multiUserWhiteboardOffButtonStyle
 {
   textIndent: 0;
   paddingLeft: 0;
@@ -226,6 +255,16 @@ DataGrid {
   fontSize: 12;
 }
 
+.multiUserWhiteboardOnButtonStyle 
+{
+	icon: Embed('assets/images/multiuserwhiteboardon.png');
+}
+
+.multiUserWhiteboardOffButtonStyle 
+{
+	icon: Embed('assets/images/multiuserwhiteboardoff.png');
+}
+
 .whiteboardUndoButtonStyle 
 {
   icon: Embed('assets/images/undo.png');
@@ -237,6 +276,10 @@ DataGrid {
 
 .whiteboardClearButtonStyle {
   icon: Embed('assets/images/delete.png');    
+}
+
+.chatClearButtonStyle {
+  icon: Embed('assets/images/delete.png');
 }
 
 .whiteboardScribbleButtonStyle{
@@ -301,7 +344,8 @@ DataGrid {
 
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle,
+.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesEnabledUndoButtonStyle, .sharedNotesDisabledUndoButtonStyle, .sharedNotesEnabledRedoButtonStyle, .sharedNotesDisabledRedoButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -320,8 +364,36 @@ DataGrid {
   fontSize: 12;
 }
 
+.sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
+  icon: Embed('assets/images/ic_save_16px.png');
+}
+
+.sharedNotesNewButtonStyle {
+  icon: Embed('assets/images/ic_note_add_16px.png');
+}
+
+.sharedNotesEnabledUndoButtonStyle {
+  icon: Embed('assets/images/arrows_undo_icon.png');
+}
+
+.sharedNotesDisabledUndoButtonStyle {
+  icon: Embed('assets/images/arrows_undo_icon_grey.png');
+}
+
+.sharedNotesEnabledRedoButtonStyle {
+  icon: Embed('assets/images/arrows_redo_icon.png');
+}
+
+.sharedNotesDisabledRedoButtonStyle {
+  icon: Embed('assets/images/arrows_redo_icon_grey.png');
+}
+
+.sharedNotesFormatButtonStyle {
+  icon: Embed('assets/images/ic_note_format_16px.png');
+}
+
 .presentationUploadButtonStyle {
-  icon:   Embed('assets/images/upload.png');   
+  icon:   Embed('assets/images/ic_file_upload_16px.png');
 }
 
 .pollStartButtonStyle {
@@ -329,19 +401,19 @@ DataGrid {
 }
 
 .presentationBackButtonStyle {
-  icon:   Embed('assets/images/left-arrow.png'); 
+  icon:   Embed('assets/images/ic_arrow_back_24px.png');
 }
 
 .presentationBackButtonDisabledStyle {
-	icon:   Embed('assets/images/left-arrow-disabled.png'); 
+	icon:   Embed('assets/images/ic_arrow_back_grey_24px.png');
 }
 
 .presentationForwardButtonStyle {
-  icon:   Embed('assets/images/right-arrow.png'); 
+  icon:   Embed('assets/images/ic_arrow_forward_24px.png');
 }
 
 .presentationForwardButtonDisabledStyle {
-	icon:   Embed('assets/images/right-arrow-disabled.png'); 
+	icon:   Embed('assets/images/ic_arrow_forward_grey_24px.png');
 }
 
 .presentationFitToWidthButtonStyle {
@@ -350,6 +422,14 @@ DataGrid {
 
 .presentationFitToPageButtonStyle {
   icon:   Embed('assets/images/fit-to-screen.png'); 
+}
+
+.presentationDownloadButtonStyle {
+  icon:   Embed('assets/images/ic_file_download_16px.png');
+}
+
+.presentationDownloadButtonDisabledStyle {
+  icon:   Embed('assets/images/ic_file_download_grey_16px.png');
 }
 
 .presentationZoomSliderStyle{
@@ -383,6 +463,18 @@ DataGrid {
   textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 17;
+}
+
+.deskshareWarningLabelStyle {
+  fontWeight: bold;
+  fontSize: 18;
+  fontFamily: Arial;
+  color: #003399;
+}
+
+.deskshareWarningBackgroundStyle {
+  backgroundAlpha: 0.6;
+  backgroundColor: #78797e;
 }
 
 .videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
@@ -423,7 +515,7 @@ DataGrid {
   icon:   Embed('assets/images/webcam-private-chat.png');
 }
 
-TitleWindow {
+mx|TitleWindow {
   borderColor: #b9babc;
   borderAlpha: 1;
   borderThicknessLeft: 10;
@@ -667,9 +759,22 @@ TitleWindow {
   fontWeight: bold;    
 }
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
   fontFamily: Arial;
   fontSize: 14;    
+}
+
+.micSettingsWindowOpenDialogLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;
+  fontWeight: bold;
+  color: #e1e2e5;
+}
+
+.micSettingsWindowShareMicrophoneLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;
+  color: #5e5f63;
 }
 
 .micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
@@ -695,7 +800,7 @@ TitleWindow {
 	icon:   Embed('assets/images/headset.png');
 }
 
-.micSettingsWindowCancelButtonStyle {
+.micSettingsWindowCancelButtonStyle, .inactivityWarningWindowCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
@@ -720,7 +825,7 @@ TitleWindow {
 	fontWeight: bold;
 }
 
-MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
+flexlib|MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
 	backgroundSize: '100%';
 	
 	cornerRadius: 5;
@@ -983,7 +1088,7 @@ https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
   fillAlphas: 0.45, 0.25;  
 }
 
-Alert {
+mx|Alert {
 	borderColor: #DFDFDF;
 	backgroundColor: #EFEFEF;
 	borderAlpha: 1;
@@ -993,7 +1098,7 @@ Alert {
 	messageStyleName: "alertMessageStyle";
 }
 
-AlertForm {
+mx|AlertForm {
 	paddingTop: 8;
 	fontSize: 13;
 }
@@ -1012,6 +1117,18 @@ AlertForm {
 	fontFamily: Arial;
 	fontSize: 14;  
 	fontWeight: bold;    
+}
+
+.logoutWindowStyle {
+	borderColor: #DFDFDF;
+	backgroundColor: #EFEFEF;
+	borderAlpha: 1;
+	shadowDistance: 1;
+	dropShadowColor: #FFFFFF;
+	color: #000000;
+	headerHeight: 32;
+	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially */
+	modalTransparencyDuration: 250;
 }
 
 .lockSettingsDefaultLabelStyle {
@@ -1037,6 +1154,13 @@ AlertForm {
   icon:   Embed('assets/images/control-record-stop.png');
 }
 
+.bandwidthButtonStyle {
+  paddingTop: 0;
+  paddingBottom: 0;
+  height: 22;
+  icon:   Embed('assets/images/ic_swap_vert_16px.png');
+}
+
 .statusImageStyle {
   successImage:   Embed(source='assets/images/status_success.png');
   warningImage:   Embed(source='assets/images/status_warning.png');
@@ -1049,6 +1173,7 @@ AlertForm {
   almostStrongAudioStatus:  Embed(source='assets/images/almost_strong_audio_status.png');
   almostWeakAudioStatus:    Embed(source='assets/images/almost_weak_audio_status.png');
   weakAudioStatus:          Embed(source='assets/images/weak_audio_status.png');
+  color: #e1e2e5;
 }
 
 .warningButtonStyle {
@@ -1071,7 +1196,23 @@ AlertForm {
   paddingTop: 0;
 }
 
-PollChoicesModal {
+.addLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_add_circle_outline_16px.png');
+}
+
+.saveLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_download_16px.png');
+}
+
+.loadLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_upload_16px.png');
+}
+
+.broadcastLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_send_16px.png');
+}
+
+poll|PollChoicesModal {
 	fontSize: 14;
 	paddingLeft: 16;
 	paddingRight: 16;
@@ -1090,7 +1231,7 @@ PollChoicesModal {
 	selectionColor: #f3f3f3;
 }
 
-EmojiGrid {
+users|EmojiGrid {
 	backgroundColor: #ffffff;
 	horizontalAlign: center;
 	paddingLeft: 0;
@@ -1108,7 +1249,7 @@ EmojiGrid {
 	horizontalGap: 6;
 }
 
-RoomActionsRenderer {
+users|RoomActionsRenderer {
 	paddingLeft  : 5;
 	paddingRight : 5;
 }
@@ -1144,4 +1285,52 @@ RoomActionsRenderer {
 	backgroundColor: #CCCCCC;
 	verticalAlign: middle;
 	horizontalAlign: center;
+}
+
+.moodStyle {
+  icon:   Embed('assets/images/ic_mood_black_18dp.png');
+}
+
+.moodRaiseHandStyle {
+  icon:   Embed('assets/images/icon-3-high-five.png');
+}
+
+.moodAgreedStyle {
+  icon:   Embed('assets/images/icon-6-thumb-up.png');
+}
+
+.moodDisagreedStyle {
+  icon:   Embed('assets/images/icon-7-thumb-down.png');
+}
+
+.moodSpeakFasterStyle {
+  icon:   Embed('assets/images/ic_fast_forward_black_18dp.png');
+}
+
+.moodSpeakSlowerStyle {
+  icon:   Embed('assets/images/ic_fast_rewind_black_18dp.png');
+}
+
+.moodSpeakLouderStyle {
+  icon:   Embed('assets/images/ic_volume_up_black_18dp.png');
+}
+
+.moodSpeakSofterStyle {
+  icon:   Embed('assets/images/ic_volume_down_black_18dp.png');
+}
+
+.moodBeRightBackStyle {
+  icon:   Embed('assets/images/ic_access_time_black_18dp.png');
+}
+
+.moodHappyStyle {
+  icon:   Embed('assets/images/icon-6-smiling-face.png');
+}
+
+.moodSadStyle {
+  icon:   Embed('assets/images/icon-7-sad-face.png');
+}
+
+.chatCopyButtonStyle{
+  icon:   Embed('assets/images/ic_content_copy_black_16px.png');
 }
