@@ -35,8 +35,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
       callingWith = msg.body.callingWith, callerName = msg.body.callerIdName, callerNum = msg.body.callerIdNum,
       muted = msg.body.muted, talking = msg.body.talking, listenOnly = false)
 
-    VoiceUsers.add(liveMeeting.voiceUsers, voiceUser)
-    VoiceUsersState.add(liveMeeting.voiceUsersState, voiceUserState)
+    VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 
     broadcastEvent(voiceUserState)
   }

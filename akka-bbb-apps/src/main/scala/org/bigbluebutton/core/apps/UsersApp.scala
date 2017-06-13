@@ -12,75 +12,7 @@ trait UsersApp {
 
   val outGW: OutMessageGateway
 
-  def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
-    log.info("Handling UserConnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.userid)
 
-    val user = Users.findWithId(msg.userid, liveMeeting.users)
-    user foreach { u =>
-      if (MeetingStatus2x.addGlobalAudioConnection(liveMeeting.status, msg.userid)) {
-        for {
-          uvo <- Users.joinedVoiceListenOnly(msg.userid, liveMeeting.users)
-        } yield {
-          log.info("UserConnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " user=" + uvo)
-          outGW.send(new UserListeningOnly(props.meetingProp.intId, props.recordProp.record, uvo.id, uvo.listenOnly))
-        }
-      }
-    }
-  }
-
-  def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
-    log.info("Handling UserDisconnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.userid)
-
-    val user = Users.findWithId(msg.userid, liveMeeting.users)
-    user foreach { u =>
-      if (MeetingStatus2x.removeGlobalAudioConnection(liveMeeting.status, msg.userid)) {
-        if (!u.joinedWeb) {
-          for {
-            uvo <- Users.userLeft(u.id, liveMeeting.users)
-          } yield {
-            log.info("Not web user. Send user left message. meetingId=" + props.meetingProp.intId + " userId=" + u.id + " user=" + u)
-            outGW.send(new UserLeft(props.meetingProp.intId, props.recordProp.record, uvo))
-          }
-        } else {
-          for {
-            uvo <- Users.leftVoiceListenOnly(u.id, liveMeeting.users)
-          } yield {
-            log.info("UserDisconnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " user=" + uvo)
-            outGW.send(new UserListeningOnly(props.meetingProp.intId, props.recordProp.record, uvo.id, uvo.listenOnly))
-          }
-        }
-      }
-    }
-  }
-
-  def handleMuteAllExceptPresenterRequest(msg: MuteAllExceptPresenterRequest) {
-    if (msg.mute) {
-      MeetingStatus2x.muteMeeting(liveMeeting.status)
-    } else {
-      MeetingStatus2x.unmuteMeeting(liveMeeting.status)
-    }
-    outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record,
-      MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
-
-    usersWhoAreNotPresenter foreach { u =>
-      outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
-        u.id, props.voiceProp.voiceConf, u.voiceUser.userId, msg.mute))
-    }
-  }
-
-  def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
-    if (msg.mute) {
-      MeetingStatus2x.muteMeeting(liveMeeting.status)
-    } else {
-      MeetingStatus2x.unmuteMeeting(liveMeeting.status)
-    }
-    outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record,
-      MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
-    Users.getUsers(liveMeeting.users) foreach { u =>
-      outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
-        u.id, props.voiceProp.voiceConf, u.voiceUser.userId, msg.mute))
-    }
-  }
 
   def handleValidateAuthToken(msg: ValidateAuthToken) {
     log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)

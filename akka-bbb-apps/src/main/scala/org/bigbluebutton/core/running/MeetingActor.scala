@@ -16,7 +16,7 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.handlers.{ UserBroadcastCamStartMsgHdlr, UserBroadcastCamStopMsgHdlr, UserJoinMeetingReqMsgHdlr, UserJoinedVoiceConfEvtMsgHdlr }
+import org.bigbluebutton.core2.message.handlers._
 
 import scala.concurrent.duration._
 
@@ -38,7 +38,11 @@ class MeetingActor(val props: DefaultProps,
     with UserBroadcastCamStartMsgHdlr
     with UserBroadcastCamStopMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
-    with UserJoinMeetingReqMsgHdlr {
+    with UserJoinMeetingReqMsgHdlr
+    with UserConnectedToGlobalAudioHdlr
+    with UserDisconnectedFromGlobalAudioHdlr
+    with MuteAllExceptPresenterRequestHdlr
+    with MuteMeetingRequestHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {

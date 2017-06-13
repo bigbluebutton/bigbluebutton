@@ -76,6 +76,11 @@ case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: Strin
                                        guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
                                        presenter: Boolean, locked: Boolean, avatar: String)
 
+object UserLeftMeetingEvtMsg { val NAME = "UserLeftMeetingEvtMsg"}
+case class UserLeftMeetingEvtMsg(header: BbbClientMsgHeader,
+                                 body: UserLeftMeetingEvtMsgBody) extends BbbCoreMsg
+case class UserLeftMeetingEvtMsgBody(intId: String)
+
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg
 
