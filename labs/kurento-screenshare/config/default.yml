@@ -1,0 +1,8 @@
+kurentoUrl: "wss://kurento-desktopsharing.mconf.com/kurento"
+kurentoIp: "104.131.115.8"
+localIpAddress: "104.131.5.8"
+acceptSelfSignedCertificate: false
+redisHost : "127.0.0.1"
+redisPort : "6379"
+minVideoPort: 30000
+maxVideoPort: 33000
