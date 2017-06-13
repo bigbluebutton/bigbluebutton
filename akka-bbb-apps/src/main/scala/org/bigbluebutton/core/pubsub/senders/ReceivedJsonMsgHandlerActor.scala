@@ -68,6 +68,12 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.userId, envelope, m)
         }
+      case StartPollReqMsg.NAME =>
+        for {
+          m <- deserialize[StartPollReqMsg](jsonNode)
+        } yield {
+          send(meetingManagerChannel, envelope, m)
+        }
       case UserBroadcastCamStartMsg.NAME =>
         for {
           m <- deserialize[UserBroadcastCamStartMsg](jsonNode)

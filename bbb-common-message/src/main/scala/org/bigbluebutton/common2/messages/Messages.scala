@@ -58,6 +58,8 @@ case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadc
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
 
+object StartPollReqMsg { val NAME = "StartPollReqMsg"}
+case class StartPollReqMsg(header: BbbClientMsgHeader, body: StartPollReqMsgBody) extends BbbCoreMsg
 
 
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
@@ -81,6 +83,9 @@ case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserB
 
 object UserBroadcastCamStoppedEvtMsg { val NAME = "UserBroadcastCamStoppedEvtMsg" }
 case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
+
+object StartPollRespMsg { val NAME = "StartPollRespMsg" }
+case class StartPollRespMsg(header: BbbClientMsgHeader, body: StartPollRespMsgBody) extends BbbCoreMsg
 
 
 /** System Messages **/

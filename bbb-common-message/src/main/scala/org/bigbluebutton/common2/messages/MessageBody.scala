@@ -23,10 +23,12 @@ object MessageBody {
   case class SetRecordingReqMsgBody(recording: Boolean, requesterId: String)
   case class GetRecordingStatusReqMsgBody(requesterId: String)
   case class AllowUserToShareDesktopReqMsgBody(userId: String)
+  case class StartPollReqMsgBody(requesterId: String, pollId: String, pollType: String)
 
 
 
   case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
   case class UserBroadcastCamStoppedEvtMsgBody(userId: String, stream: String)
+  case class StartPollRespMsgBody(userId: String, pollId: String, pollType: String)
 
 }

@@ -14,9 +14,9 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users, Polls }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.handlers.{ UserBroadcastCamStartMsgHdlr, UserBroadcastCamStopMsgHdlr, UserJoinMeetingReqMsgHdlr, UserJoinedVoiceConfEvtMsgHdlr }
+import org.bigbluebutton.core2.message.handlers._
 
 import scala.concurrent.duration._
 
@@ -36,9 +36,10 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomApp with CaptionApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
-    with UserBroadcastCamStopMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
-    with UserJoinMeetingReqMsgHdlr {
+    with UserJoinMeetingReqMsgHdlr
+    with StartPollReqMsgHdlr
+    with UserBroadcastCamStopMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -67,6 +68,7 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+    case msg: StartPollReqMsg => handleStartPollReqMsg(msg)
     //======================================
 
     //=======================================
@@ -190,8 +192,8 @@ class MeetingActor(val props: DefaultProps,
       case m: UserJoinMeetingReqMsg => handle(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
-
       case m: UserJoinedVoiceConfEvtMsg => handle(m)
+      case m: StartPollReqMsg => handleStartPollReqMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }
