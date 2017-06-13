@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.screenshare.model
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var baseTabIndex:int;
 		[Bindable] public var tryWebRTCFirst:Boolean = false;
+		[Bindable] public var tryKurentoWebRTC:Boolean = false;
 		[Bindable] public var chromeExtensionLink:String = null;
                 [Bindable] public var chromeExtensionKey:String = null;
     [Bindable] public var helpUrl:String;
@@ -43,6 +44,9 @@ package org.bigbluebutton.modules.screenshare.model
 				}
 				if (vxml.@tryWebRTCFirst != undefined) {
 					tryWebRTCFirst = (vxml.@tryWebRTCFirst.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@tryKurentoWebRTC!= undefined) {
+					tryKurentoWebRTC = (vxml.@tryKurentoWebRTC.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@chromeExtensionLink != undefined) {
 					chromeExtensionLink = vxml.@chromeExtensionLink.toString();
