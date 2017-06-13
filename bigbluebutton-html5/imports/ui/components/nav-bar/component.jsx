@@ -2,9 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
-
-import { showModal } from '/imports/ui/components/app/service';
-
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
@@ -15,7 +12,19 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import { defineMessages, injectIntl } from 'react-intl';
+
+const intlMessages = defineMessages({
+  toggleUserListLabel: {
+    id: 'app.navBar.userListToggleBtnLabel',
+    description: 'Toggle button label',
+  },
+  newMessages: {
+    id: 'app.navbar.toggleUserList.newMessages',
+    description: 'label for toggleUserList btn when showing red notification',
+  },
+});
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -29,10 +38,10 @@ const defaultProps = {
   beingRecorded: false,
 };
 
-const openBreakoutJoinConfirmation = (breakoutURL, breakoutName) =>
-          showModal(<BreakoutJoinConfirmation
-                        breakoutURL={breakoutURL}
-                        breakoutName={breakoutName}/>);
+const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
+  mountModal(<BreakoutJoinConfirmation
+             breakoutURL={breakoutURL}
+             breakoutName={breakoutName}/>);
 
 class NavBar extends Component {
   constructor(props) {
@@ -55,13 +64,17 @@ class NavBar extends Component {
   }
 
   inviteUserToBreakout(breakout, breakoutURL) {
+    const {
+      mountModal,
+    } = this.props;
+
     this.setState({ didSendBreakoutInvite: true }, () => {
-      openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name);
+      openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name, mountModal);
     });
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded } = this.props;
+    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
     let toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -75,12 +88,17 @@ class NavBar extends Component {
             ghost={true}
             circle={true}
             hideLabel={true}
-            label={'Toggle User-List'}
+            label={intl.formatMessage(intlMessages.toggleUserListLabel)}
             icon={'user'}
             className={cx(toggleBtnClasses)}
+            aria-expanded={isExpanded}
+            aria-describedby="newMessage"
           />
+          <div
+            id="newMessage"
+            aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}/>
         </div>
-        <div className={styles.center}>
+        <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
@@ -98,7 +116,7 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
-    if (isBreakoutRoom) {
+    if (isBreakoutRoom || !breakouts.length) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -150,6 +168,7 @@ class NavBar extends Component {
   renderBreakoutItem(breakout) {
     const {
       getBreakoutJoinURL,
+      mountModal,
     } = this.props;
 
     const breakoutName = breakout.name;
@@ -160,7 +179,7 @@ class NavBar extends Component {
         className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName)}
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName, mountModal)}
       />
     );
   }
@@ -168,5 +187,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-
-export default NavBar;
+export default withModalMounter(injectIntl(NavBar));

@@ -4,6 +4,7 @@
   @extend %list-item;
   cursor: pointer;
   padding: 0;
+  text-decoration: none;
 }
 
 .chatListItemLink {
@@ -14,6 +15,7 @@
   padding-right: $sm-padding-x;
   padding-top: $sm-padding-y;
   padding-bottom: $sm-padding-y;
+  width: 100%;
 
   .chatListItem:first-child > & {
     padding-top: $sm-padding-y * 1.85;
@@ -48,12 +50,14 @@
 
 .chatName {
   @extend %flex-column;
+  @extend %text-elipsis;
   flex-grow: 1;
   justify-content: center;
 }
 
 .chatNameMain {
   @extend %no-margin;
+  @extend %text-elipsis;
   font-size: 0.95rem;
   font-weight: 400;
   margin-left: $sm-padding-x;

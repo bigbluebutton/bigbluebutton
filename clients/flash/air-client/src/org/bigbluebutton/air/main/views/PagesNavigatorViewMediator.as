@@ -13,6 +13,7 @@ package org.bigbluebutton.air.main.views {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
+	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.models.IUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
@@ -35,11 +36,14 @@ package org.bigbluebutton.air.main.views {
 			if (event.keyCode == Keyboard.BACK) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				uiSession.pushPage(PageEnum.EXIT);
+				if (uiSession.currentPage != PageEnum.MAIN && view.getElementAt(0) is NoTabView) {
+					(view.getElementAt(0) as NoTabView).triggerLeftMenuTap(event);
+				}
 			}
 		}
 		
 		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
+			//@fixme pageName is sometimes null, it should never happen
 			trace("PagesNavigatorViewMediator request change page to: " + pageName);
 			switch (animation) {
 				case TransitionAnimationEnum.APPEAR:  {

@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
 import _ from 'lodash';
 import cx from 'classnames';
-
 import Icon from '/imports/ui/components/icon/component';
 
 const propTypes = {
@@ -20,7 +19,7 @@ export default class DropdownListItem extends Component {
 
   renderDefault() {
     let children = [];
-    const { icon, label } = this.props;
+    const { icon, label, } = this.props;
 
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon}/> : null),
@@ -29,16 +28,17 @@ export default class DropdownListItem extends Component {
   }
 
   render() {
-    const { label, description, children,
-      injectRef, tabIndex, onClick, onKeyDown,
-      className, style, } = this.props;
+    const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
+      className, style, separator, intl, placeInTabOrder, } = this.props;
+
+    let index = (placeInTabOrder) ? 0 : -1;
 
     return (
       <li
         ref={injectRef}
         onClick={onClick}
         onKeyDown={onKeyDown}
-        tabIndex={tabIndex}
+        tabIndex={index}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
         className={cx(styles.item, className)}

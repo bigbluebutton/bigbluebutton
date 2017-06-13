@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graphic version="2.0" xmlns="http://ns.adobe.com/fxg/2008" viewHeight="58" viewWidth="58">
+  <Group scaleGridLeft="14" scaleGridRight="14" scaleGridTop="14" scaleGridBottom="14">
+   <Ellipse x="5" y="5" height="48" width="48">
+     <fill>
+       <SolidColor color="#FFFFFF"/>
+     </fill>
+ 		<filters>
+          <DropShadowFilter distance="0" alpha=".6" strength=".3" angle="0" blurX="5" blurY="5"/>
+      </filters>
+    </Ellipse>
+  </Group>
+</Graphic>

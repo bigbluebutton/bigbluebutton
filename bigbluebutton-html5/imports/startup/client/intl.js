@@ -15,8 +15,9 @@ class IntlStartup extends Component {
 
     this.state = {
       messages: {},
+      appLocale : this.props.locale,
     };
-
+    
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
 
@@ -27,7 +28,14 @@ class IntlStartup extends Component {
 
     baseControls.updateLoadingState(true);
     fetch(url)
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          this.setState({appLocale: 'en'});
+          return response.json();
+        }
+      })
       .then(messages => {
         this.setState({ messages }, () => {
           baseControls.updateLoadingState(false);
@@ -40,18 +48,19 @@ class IntlStartup extends Component {
   }
 
   componentWillMount() {
-    this.fetchLocalizedMessages(this.props.locale);
+    this.fetchLocalizedMessages(this.state.appLocale);
   }
 
   componentWillUpdate(nextProps, nextState) {
     if (this.props.locale !== nextProps.locale) {
+      this.setState({appLocale: nextProps.locale});
       this.fetchLocalizedMessages(nextProps.locale);
     }
   }
 
   render() {
     return (
-      <IntlProvider locale={this.props.locale} messages={this.state.messages}>
+      <IntlProvider locale={this.state.appLocale} messages={this.state.messages}>
         {this.props.children}
       </IntlProvider>
     );

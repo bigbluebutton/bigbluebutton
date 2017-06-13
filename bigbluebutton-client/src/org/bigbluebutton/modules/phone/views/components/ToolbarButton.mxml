@@ -89,32 +89,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var conference:Conference = UserManager.getInstance().getConference();
 				var thisUser:BBBUser = conference.getMyUser();
 
-				return ((phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
-						|| thisUser.disableMyMic);
+				return thisUser.disableMyMic;
 			}
 
 			private function get defaultListenOnlyMode():Boolean {
 				return (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly);
 			}
-			
+
 			public function remoteClick(event:ShortcutEvent):void{
 				this.selected = true;
 				startPhone();
 			}
-			
-			
+
 			private function mouseOverHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-          this.styleName = "voiceConfInactiveButtonStyle";
+				if (_currentState == ACTIVE_STATE)
+					this.styleName = "voiceConfInactiveButtonStyle";
 				else
-          this.styleName = "voiceConfActiveButtonStyle"; 			
+					this.styleName = "voiceConfActiveButtonStyle";
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-          this.styleName = "voiceConfActiveButtonStyle";
+				if (_currentState == ACTIVE_STATE)
+					this.styleName = "voiceConfActiveButtonStyle";
 				else
-          this.styleName = "voiceConfDefaultButtonStyle";			
+					this.styleName = "voiceConfDefaultButtonStyle";
 			}
 
 			private function joinAudio():void {

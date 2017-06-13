@@ -109,7 +109,7 @@ package org.bigbluebutton.modules.whiteboard.views {
                 var tbWidth:Number = Math.abs(_mouseXMove - _mouseXDown);
                 var tbHeight:Number = Math.abs(_mouseYMove - _mouseYDown);
 
-                if (tbHeight == 0 && tbWidth == 0) {
+                if (tbHeight == 0 && tbWidth == 0 && !_wbCanvas.finishedTextEdit) {
                     tbWidth = _singleClickWidth;
                     tbHeight = _singleClickHeight;
                     if (_mouseXDown + _singleClickWidth > _wbCanvas.width || _mouseYDown + _singleClickHeight > _wbCanvas.height) {

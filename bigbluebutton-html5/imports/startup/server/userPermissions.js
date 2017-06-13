@@ -129,11 +129,23 @@ export function isAllowedTo(action, credentials) {
   });
 
   const allowedToInitiateRequest =
-    null != user &&
-    authToken === user.authToken &&
+    user &&
+    user.authToken === authToken &&
     user.validated &&
-    'HTML5' === user.clientType &&
-    null != user.user;
+    user.clientType === 'HTML5' &&
+    user.user &&
+    user.user.connection_status === 'online';
+
+  const listOfSafeActions = [
+    'logoutSelf',
+  ];
+
+  const requestIsSafe = listOfSafeActions.includes(action);
+
+  if (requestIsSafe) {
+    logger.info(`permissions: requestIsSafe for ${action} by userId=${userId} allowed`);
+    return true;
+  }
 
   if (allowedToInitiateRequest) {
     let result = false;

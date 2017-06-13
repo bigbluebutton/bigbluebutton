@@ -2,3 +2,4 @@
 app:
   # Flag for HTTPS.
   httpsConnection: true
+  connectionTimeout: 10000

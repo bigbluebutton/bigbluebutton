@@ -10,6 +10,7 @@ const propTypes = {
     isPresenter: React.PropTypes.bool.isRequired,
     isVoiceUser: React.PropTypes.bool.isRequired,
     isModerator: React.PropTypes.bool.isRequired,
+    isOnline: React.PropTypes.bool.isRequired,
     image: React.PropTypes.string,
   }).isRequired,
 };
@@ -23,7 +24,7 @@ export default class UserAvatar extends Component {
       user,
     } = this.props;
 
-    const avatarColor = !user.isLoggedOut ? generateColor(user.name) : '#fff';
+    const avatarColor = user.isOnline ? generateColor(user.name) : '#fff';
 
     let avatarStyles = {
       backgroundColor: avatarColor,
@@ -31,11 +32,11 @@ export default class UserAvatar extends Component {
     };
 
     return (
-      <div className={!user.isLoggedOut ? styles.userAvatar : styles.userLogout}
-           style={avatarStyles}>
-        <span>
+      <div className={user.isOnline ? styles.userAvatar : styles.userLogout}
+           style={avatarStyles} aria-hidden="true">
+        <div>
           {this.renderAvatarContent()}
-        </span>
+        </div>
         {this.renderUserStatus()}
         {this.renderUserMediaStatus()}
       </div>
@@ -45,10 +46,31 @@ export default class UserAvatar extends Component {
   renderAvatarContent() {
     const user = this.props.user;
 
-    let content = user.name.slice(0, 2);
+    let content = <span aria-hidden="true">{user.name.slice(0, 2)}</span>;
 
     if (user.emoji.status !== 'none') {
-      content = <Icon iconName={user.emoji.status}/>;
+      let iconEmoji = undefined;
+
+      switch (user.emoji.status) {
+        case 'thumbsUp':
+          iconEmoji = 'thumbs_up';
+          break;
+        case 'thumbsDown':
+          iconEmoji = 'thumbs_down';
+          break;
+        case 'raiseHand':
+          iconEmoji = 'hand';
+          break;
+        case 'away':
+          iconEmoji = 'time';
+          break;
+        case 'neutral':
+          iconEmoji = 'undecided';
+          break;
+        default:
+          iconEmoji = user.emoji.status;
+      }
+      content = <span aria-label={user.emoji.status}><Icon iconName={iconEmoji}/></span>;
     }
 
     return content;

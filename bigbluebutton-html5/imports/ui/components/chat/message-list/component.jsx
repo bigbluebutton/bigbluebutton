@@ -1,4 +1,3 @@
-
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
@@ -14,8 +13,11 @@ const propTypes = {
 const intlMessages = defineMessages({
   moreMessages: {
     id: 'app.chat.moreMessages',
-    defaultMessage: 'More messages below',
     description: 'Chat message when the user has unread messages below the scroll',
+  },
+  emptyLogLabel: {
+    id: 'app.chat.emptyLogLabel',
+    description: 'aria-label used when chat log is empty',
   },
 });
 
@@ -71,7 +73,6 @@ class MessageList extends Component {
   }
 
   componentWillUpdate(nextProps) {
-
     if (this.props.chatId !== nextProps.chatId) {
       this.shouldScrollBottom = false;
       return;
@@ -84,7 +85,8 @@ class MessageList extends Component {
     //Compare with <1 to account for the chance scrollArea.scrollTop is a float
     //value in some browsers.
     this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-                              (scrollArea.scrollHeight - position < 1);
+                              (scrollArea.scrollHeight - position < 1) ||
+                              nextProps.scrollPosition === null;
   }
 
   componentDidUpdate(prevProps) {
@@ -112,29 +114,42 @@ class MessageList extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (this.props.chatId !== nextProps.chatId
-      || this.props.hasUnreadMessages !== nextProps.hasUnreadMessages
-      || this.props.messages.length !== nextProps.messages.length
-      || !_.isEqual(this.props.messages, nextProps.messages)) {
-      return true;
+    const {
+      chatId,
+      hasUnreadMessages,
+      partnerIsLoggedOut,
+    } = this.props;
+
+    const switchingCorrespondent = chatId !== nextProps.chatId;
+    const hasNewUnreadMessages = hasUnreadMessages !== nextProps.hasUnreadMessages;
+
+    // check if the messages include <user has left the meeting>
+    const lastMessage = nextProps.messages[nextProps.messages.length - 1];
+    if (lastMessage) {
+      const userLeftIsDisplayed = lastMessage.id.includes('partner-disconnected');
+      if (!(partnerIsLoggedOut && userLeftIsDisplayed)) return true;
     }
+
+    if (switchingCorrespondent || hasNewUnreadMessages) return true;
 
     return false;
   }
 
   render() {
-    const { messages } = this.props;
+    const { messages, intl } = this.props;
 
     return (
       <div className={styles.messageListWrapper}>
         <div
-          tabIndex="0"
           role="log"
-          aria-atomic="true"
-          aria-relevant="additions"
+          tabIndex="0"
           ref="scrollArea"
-          className={styles.messageList}
           id={this.props.id}
+          className={styles.messageList}
+          aria-live="polite"
+          aria-atomic="false"
+          aria-relevant="additions"
+          aria-label={intl.formatMessage(intlMessages.emptyLogLabel)}
         >
           {messages.map((message) => (
             <MessageListItem
