@@ -57,7 +57,7 @@ class Caption:
 
     def apply_edit(self, i, j, timestamp, text):
         del_timestamp = None
-        if j > i:
+        if j > i and i < len(self.timestamps):
             if self._del_timestamps[i] is not None:
                 del_timestamp = self._del_timestamps[i]
             else:
