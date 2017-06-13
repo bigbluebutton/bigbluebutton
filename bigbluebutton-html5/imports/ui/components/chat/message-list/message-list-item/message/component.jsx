@@ -40,7 +40,7 @@ export default class MessageListItem extends Component {
   handleMessageInViewport(e) {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
-        const node = this.refs.text;
+        const node = this.text;
         const scrollArea = document.getElementById(this.props.chatAreaId);
 
         if (isElementInViewport(node)) {
@@ -62,7 +62,7 @@ export default class MessageListItem extends Component {
       return;
     }
 
-    const node = this.refs.text;
+    const node = this.text;
 
     if (isElementInViewport(node)) {
       this.props.handleReadMessage(this.props.time);
@@ -93,7 +93,7 @@ export default class MessageListItem extends Component {
 
     return (
       <p
-        ref="text"
+        ref={(ref) => { this.text = ref; }}
         dangerouslySetInnerHTML={{ __html: text }}
         className={this.props.className}
       />
