@@ -21,7 +21,7 @@ trait BreakoutRoomsListMsgHdlr {
 
       log.info("Sending breakout rooms list to {} with containing {} room(s)", props.meetingProp.intId, breakoutRooms.length)
 
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(BreakoutRoomsListEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(BreakoutRoomsListEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 

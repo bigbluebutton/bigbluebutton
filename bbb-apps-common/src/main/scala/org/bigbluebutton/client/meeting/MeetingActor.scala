@@ -1,6 +1,7 @@
 package org.bigbluebutton.client.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
+import org.bigbluebutton.client.SystemConfiguration
 import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, MessageTypes}
 
@@ -11,7 +12,9 @@ object MeetingActor {
 }
 
 class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
-                   msgToClientEventBus: MsgToClientEventBus) extends Actor with ActorLogging {
+                   msgToClientEventBus: MsgToClientEventBus)
+  extends Actor with ActorLogging
+    with SystemConfiguration{
 
   private val userMgr = new UsersManager
 
@@ -69,7 +72,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
     log.debug("**** MeetingActor handleServerMsg " + msg.envelope.name)
     msgType match {
       case MessageTypes.DIRECT => handleDirectMessage(msg)
-      case MessageTypes.BROADCAST => handleBroadcastMessage(msg)
+      case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
       case MessageTypes.SYSTEM => handleSystemMessage(msg)
     }
   }
@@ -93,7 +96,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
 
   def handleBroadcastMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
-    forwardToUser(msg)
+    msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, BroadcastMsgToMeeting(meetingId, msg)))
   }
 
   def handleSystemMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {

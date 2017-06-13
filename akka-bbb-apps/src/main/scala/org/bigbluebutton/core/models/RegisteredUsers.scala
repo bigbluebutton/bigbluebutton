@@ -63,14 +63,7 @@ class RegisteredUsers {
   }
 }
 
-case class RegisteredUser(
-  id: String,
-  externId: String,
-  name: String,
-  role: String,
-  authToken: String,
-  avatarURL: String,
-  guest: Boolean,
-  authed: Boolean,
-  waitingForAcceptance: Boolean)
+case class RegisteredUser(id: String, externId: String, name: String, role: String,
+  authToken: String, avatarURL: String, guest: Boolean,
+  authed: Boolean, waitingForAcceptance: Boolean)
 

@@ -19,7 +19,7 @@ trait EndAllBreakoutRoomsMsgHdlr {
 
       log.info("EndAllBreakoutRooms event received for meetingId={}", props.meetingProp.intId)
 
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(EndBreakoutRoomEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(EndBreakoutRoomEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 

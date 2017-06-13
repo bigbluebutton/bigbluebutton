@@ -323,6 +323,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           slideLoader.source = page.swfData;
           LOGGER.debug("Displaying page [{0}]", [e.pageId]);
 //          positionPage(page);
+          if (whiteboardCanvas != null) {
+            whiteboardCanvas.displayWhiteboardById(page.id);
+          }
           
           //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
           slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
@@ -390,9 +393,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{
 				whiteboardCanvas = overlay;
-                // add the canvas below the thumbnails
+				
+				var currPage:Page = PresentationModel.getInstance().getCurrentPage();
+				if (currPage != null) {
+					whiteboardCanvas.displayWhiteboardById(currPage.id);
+				}
+				
 				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
-				zoomCanvas(slideLoader.width, slideLoader.height);
 				fitSlideToLoader();
 				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);

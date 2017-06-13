@@ -14,7 +14,7 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
   redis.clientSetname("BbbAppsAkkaPub")
 
   def publish(channel: String, data: String) {
-    println("PUBLISH TO [" + channel + "]: \n [" + data + "]")
+    //println("PUBLISH TO [" + channel + "]: \n [" + data + "]")
     redis.publish(channel, ByteString(data))
   }
 

@@ -18,7 +18,7 @@ import redis.api.servers.ClientSetname
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
   val TO_AKKA_APPS = "bbb:to-akka-apps"
-  val channels = Seq("time", toAkkaAppsRedisChannel)
+  val channels = Seq(toAkkaAppsRedisChannel, fromVoiceConfRedisChannel)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
 
   def props(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus): Props =
@@ -49,7 +49,7 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: In
 
   def onMessage(message: Message) {
     //log.error(s"SHOULD NOT BE RECEIVING: $message")
-    if (message.channel == toAkkaAppsRedisChannel) {
+    if (message.channel == toAkkaAppsRedisChannel || message.channel == fromVoiceConfRedisChannel) {
       val receivedJsonMessage = new ReceivedJsonMessage(message.channel, message.data.utf8String)
       log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
       jsonMsgBus.publish(IncomingJsonMessage(toAkkaAppsJsonChannel, receivedJsonMessage))

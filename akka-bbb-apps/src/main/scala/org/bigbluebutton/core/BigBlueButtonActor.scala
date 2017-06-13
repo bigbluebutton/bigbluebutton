@@ -106,6 +106,8 @@ class BigBlueButtonActor(val system: ActorSystem,
         eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+        bbbMsgBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         RunningMeetings.add(meetings, m)
 

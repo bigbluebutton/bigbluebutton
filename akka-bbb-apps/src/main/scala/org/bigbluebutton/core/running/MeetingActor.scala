@@ -8,6 +8,7 @@ import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
@@ -37,10 +38,12 @@ class MeetingActor(val props: DefaultProps,
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserBroadcastCamStopMsgHdlr
+    with UserJoinedVoiceConfEvtMsgHdlr
+    with UserJoinMeetingReqMsgHdlr
     with BreakoutRoomsListMsgHdlr
     with CreateBreakoutRoomsMsgHdlr
     with EndAllBreakoutRoomsMsgHdlr
-    with RequestBreakoutJoinURLMsgHdlr {
+    with RequestBreakoutJoinURLMsgHdlr  {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -191,13 +194,17 @@ class MeetingActor(val props: DefaultProps,
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: ValidateAuthTokenReqMsg  => handleValidateAuthTokenReqMsg(m)
-      case m: RegisterUserReqMsg       => handleRegisterUserReqMsg(m)
+      case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
+      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
+      case m: UserJoinMeetingReqMsg => handle(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg  => handleUserBroadcastCamStopMsg(m)
+      case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
+
       case m: BreakoutRoomsListMsg     => handleBreakoutRoomsListMsg(m)
       case m: CreateBreakoutRoomsMsg   => handleCreateBreakoutRoomsMsg(m)
-      case _                           => println("***** Cannot handle " + msg.envelope.name)
+      
+      case m: UserJoinedVoiceConfEvtMsg => handle(m)
+      case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -463,5 +470,11 @@ class MeetingActor(val props: DefaultProps,
   def sendMeetingHasEnded(userId: String) {
     outGW.send(new MeetingHasEnded(props.meetingProp.intId, userId))
     outGW.send(new DisconnectUser(props.meetingProp.intId, userId))
+  }
+
+  def record(msg: BbbCoreMsg): Unit = {
+    if (liveMeeting.props.recordProp.record) {
+      outGW.record(msg)
+    }
   }
 }

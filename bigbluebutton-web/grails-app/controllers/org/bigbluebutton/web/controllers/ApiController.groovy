@@ -376,9 +376,12 @@ class ApiController {
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
 
-    String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
+    // For users joining using the phone, we will prepend "v_" so it will be easier
+    // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
+    String internalUserID = "w_" + RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
-    String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    String authToken =  RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
     String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
 

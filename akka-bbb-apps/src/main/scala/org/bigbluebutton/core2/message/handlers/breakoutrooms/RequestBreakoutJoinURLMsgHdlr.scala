@@ -37,7 +37,7 @@ trait RequestBreakoutJoinURLMsgHdlr {
         noRedirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, noRedirectBaseString,
           BreakoutRoomsUtil.calculateChecksum(apiCall, noRedirectBaseString, bbbWebSharedSecret))
       } yield {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST, props.meetingProp.intId, msg.header.userId)
+        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
         val envelope = BbbCoreEnvelope(BreakoutRoomJoinURLEvtMsg.NAME, routing)
         val header = BbbClientMsgHeader(BreakoutRoomJoinURLEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 

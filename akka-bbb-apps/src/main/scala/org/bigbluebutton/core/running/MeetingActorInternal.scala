@@ -105,9 +105,9 @@ class MeetingActorInternal(val props: DefaultProps,
   }
 
   def handleMonitor() {
-    handleMonitorActivity()
+    //  handleMonitorActivity()
     handleMonitorNumberOfWebUsers()
-    handleMonitorExpiration()
+    //  handleMonitorExpiration()
   }
 
   def handleMessage(msg: Object) {

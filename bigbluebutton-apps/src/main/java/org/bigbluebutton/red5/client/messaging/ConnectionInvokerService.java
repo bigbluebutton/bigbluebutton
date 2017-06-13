@@ -119,6 +119,8 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       handleDisconnectAllMessage((DisconnectAllMessage) message);
     } else if (message instanceof DirectToClientMsg) {
       handleDirectToClientMsg((DirectToClientMsg) message);
+    } else if (message instanceof BroadcastToMeetingMsg) {
+      handleBroadcastToMeetingMsg((BroadcastToMeetingMsg) message);
     }
   }
 
@@ -174,6 +176,51 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       Thread.currentThread().interrupt();
     } catch (TimeoutException e) {
       log.warn("Timeout exception while sending direct message on connection[" + connId + "]");
+      f.cancel(true);
+    }
+  }
+
+  private void handleBroadcastToMeetingMsg(final BroadcastToMeetingMsg msg) {
+    if (log.isTraceEnabled()) {
+      log.trace("Handle broadcast message: " + msg.messageName + " msg=" + msg.json);
+    }
+
+    Runnable sender = new Runnable() {
+      public void run() {
+        IScope meetingScope = getScope(msg.meetingId);
+        if (meetingScope != null) {
+          List<Object> params = new ArrayList<Object>();
+          params.add(msg.messageName);
+          params.add(msg.json);
+
+          if (log.isTraceEnabled()) {
+            log.trace("Broadcast message: " + msg.messageName + " msg=" + msg.json);
+          }
+
+          ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer2x", params.toArray(), null);
+        }
+      }
+    };
+
+    /**
+     * We need to add a way to cancel sending when the thread is blocked.
+     * Red5 uses a semaphore to guard the rtmp connection and we've seen
+     * instances where our thread is blocked preventing us from sending messages
+     * to other connections. (ralam nov 19, 2015)
+     */
+    long endNanos = System.nanoTime() + SEND_TIMEOUT;
+    Future<?> f = runExec.submit(sender);
+    try {
+      // Only wait for the remaining time budget
+      long timeLeft = endNanos - System.nanoTime();
+      f.get(timeLeft, TimeUnit.NANOSECONDS);
+    } catch (ExecutionException e) {
+      log.warn("ExecutionException while sending broadcast message: " + msg.messageName + " msg=" + msg.json);
+    } catch (InterruptedException e) {
+      log.warn("Interrupted exception while sending broadcast message: " + msg.messageName + " msg=" + msg.json);
+      Thread.currentThread().interrupt();
+    } catch (TimeoutException e) {
+      log.warn("Timeout exception while sending broadcast message: " + msg.messageName + " msg=" + msg.json);
       f.cancel(true);
     }
   }
