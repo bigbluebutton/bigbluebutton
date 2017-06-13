@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, ObjectM
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.annotation.JsonInclude
+import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, BbbCoreMessageFromClient, BbbCoreMsg}
 
+import scala.reflect.runtime.universe._
 import scala.util.Try
 
 
@@ -27,12 +29,24 @@ object JsonUtil {
     fromJson[Map[String, V]](json)
   }
 
-  def fromJson[T](json: String)(implicit m: Manifest[T]): Try[T] = {
+  def fromJson[T](json: String)(implicit tag: Manifest[T]): Try[T] = {
     for {
       result <- Try(mapper.readValue[T](json))
     } yield result
-
   }
+
+  def fromJsonToBbbCommonEnvJsNodeMsg(json: String): Try[BbbCommonEnvJsNodeMsg] = {
+    for {
+      result <- Try(mapper.readValue[BbbCommonEnvJsNodeMsg](json))
+    } yield result
+  }
+
+  def fromJsonToBbbCoreMessageFromClient(json: String): Try[BbbCoreMessageFromClient] = {
+    for {
+      result <- Try(mapper.readValue[BbbCoreMessageFromClient](json))
+    } yield result
+  }
+
 
   def toJsonNode(json: String): Try[JsonNode] = {
     fromJson[JsonNode](json)
