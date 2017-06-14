@@ -17,6 +17,7 @@ export default class AudioManager {
     this.bridge = audioBridge;
     this.isListenOnly = false;
     this.microphoneLockEnforced = userData.microphoneLockEnforced;
+    this.currentState = this.CallStates.init;
 
     callbackToAudioBridge = function (audio) {
       switch (audio.status) {
@@ -57,6 +58,12 @@ export default class AudioManager {
     // TODO: transfer from initialized state
     // TODO: transfer from echo test to conference
     // this.bridge.transferToConference();
+  }
+
+  webRTCCallFailed(inEchoTest, errorcode, cause) {
+    if (this.currentState !== this.CallStates.reconecting) {
+      this.currentState = this.CallStates.reconecting;
+    }
   }
 
   getMicId() {
@@ -122,5 +129,8 @@ AudioManager.CallStates = class {
   }
   static get inListenOnly() {
     return "in listen only state";
+  }
+  static get reconnecting() {
+    return "reconecting";
   }
 };
