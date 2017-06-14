@@ -8,6 +8,8 @@ package org.bigbluebutton.core.model
 		var webcams: Webcams = new Webcams();
 		var voiceUsers: VoiceUsers2x = new VoiceUsers2x();
 		var users: Users2x = new Users2x();
+		var guestsWaitingForApproval: GuestsWatingForApproval = new GuestsWatingForApproval();
+		var meetingStatus: MeetingStatus = new MeetingStatus();
 		
 		public function LiveMeeting(enforcer: LiveMeetingSingletonEnforcer)
 		{
