@@ -1,8 +1,13 @@
-Application {
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace flexlib "http://code.google.com/p/flexlib/";
+@namespace users "org.bigbluebutton.modules.users.views.*";
+@namespace poll "org.bigbluebutton.modules.polling.views.*";
+
+mx|Application {
   backgroundColor: #000000;
 }
 
-ApplicationControlBar {
+mx|ApplicationControlBar {
   highlightAlphas: 0.1, 0;
   fillAlphas: 0, 0;
   fillColors: #000000, #000000;
@@ -15,7 +20,7 @@ ApplicationControlBar {
   dropShadowColor: #000000;
 }
 
-Panel {
+mx|Panel {
   borderColor: #000000;
   borderAlpha: 1;
   shadowDistance: 1;
@@ -23,7 +28,7 @@ Panel {
   titleStyleName: "mypanelTitle";
 }
 
-ToolTip {
+mx|ToolTip {
 	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
 	backgroundAlpha : 0.9;
 	cornerRadius    : 3;
@@ -46,7 +51,7 @@ ToolTip {
   paddingRight: 3;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
+mx|Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -73,7 +78,7 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textSelectedColor: #504f3d;
 }
 
-DataGrid {
+mx|DataGrid {
   backgroundColor: #000000;
   rollOverColor: #f3f3f3;
   textRollOverColor: #5e5f63;
@@ -353,7 +358,7 @@ DataGrid {
   titleStyleName: "micSettingsWindowTitleStyle";
 }
 
-.micSettingsWindowTitleStyle, webcamSettingsWindowTitleStyle {
+.micSettingsWindowTitleStyle, .webcamSettingsWindowTitleStyle {
   fontFamily: Arial;
   fontSize: 20;  
   fontWeight: bold;
@@ -401,7 +406,7 @@ DataGrid {
   icon:   Embed('assets/images/questionmark.png');
 }
 
-MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
+flexlib|MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
 	backgroundSize: '100%';
 	
 	cornerRadius: 5;
