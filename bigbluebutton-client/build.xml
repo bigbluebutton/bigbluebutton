@@ -56,6 +56,7 @@
 				<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale" />
 				<delete>
 					<fileset dir="${OUTPUT_DIR}/locale">
+						<exclude name="**/*.swf.cache" />
 						<include name="**/*" />
 					</fileset>
 				</delete>
@@ -79,7 +80,7 @@
 
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="${DEBUG}" incremental="true" swf-version="13" default-background-color="0xFFFFFF" optimize="true">
+			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="${DEBUG}" show-unused-type-selector-warnings="false" incremental="true" swf-version="13" default-background-color="0xFFFFFF" optimize="true">
 				<compiler.library-path dir="." append="true">
 					<include name="libs" />
 				</compiler.library-path>
@@ -89,7 +90,10 @@
 
 	<target name="branding-black" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${BASE_DIR}/branding/default/style/css/${blackTheme}" output="${OUTPUT_DIR}/branding/css/${blackTheme}.swf" debug="${DEBUG}" incremental="true" swf-version="13" optimize="true">
+			<mxmlc file="${BASE_DIR}/branding/default/style/css/${blackTheme}" output="${OUTPUT_DIR}/branding/css/${blackTheme}.swf" debug="${DEBUG}" show-unused-type-selector-warnings="false" incremental="true" swf-version="13" optimize="true">
+				<compiler.library-path dir="." append="true">
+					<include name="libs" />
+				</compiler.library-path>
 			</mxmlc>
 		</sequential>
 	</target>
@@ -298,6 +302,7 @@
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<default-background-color>0xFFFFFF</default-background-color>
 				<source-path path-element="@{flex}/frameworks" />
+				<show-unused-type-selector-warnings>false</show-unused-type-selector-warnings>
 
 				<theme dir="@{flex}/frameworks/themes/Halo">
 					<include name="halo.swc" />
@@ -491,6 +496,7 @@
 				<delete>
 					<fileset dir="${OUTPUT_DIR}">
 						<exclude name="locale/*.swf" />
+						<exclude name="**/*.swf.cache" />
 						<exclude name=".gitignore" />
 					</fileset>
 					<dirset dir="${OUTPUT_DIR}">
