@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
@@ -7,7 +8,7 @@ import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 
-const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
+const FOCUSABLE_CHILDREN = '[tabindex]:not([tabindex="-1"]), a, input, button';
 
 const intlMessages = defineMessages({
   close: {
@@ -25,8 +26,8 @@ const propTypes = {
 
     if (!children || children.length < 2) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`,
       );
     }
 
@@ -35,15 +36,15 @@ const propTypes = {
 
     if (!trigger) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Missing `DropdownTrigger`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownTrigger\`. Validation failed.`,
       );
     }
 
     if (!content) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Missing `DropdownContent`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownContent\`. Validation failed.`,
       );
     }
   },
@@ -56,7 +57,7 @@ const defaultProps = {
 class Dropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false, };
+    this.state = { isOpen: false };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
     this.handleStateCallback = this.handleStateCallback.bind(this);
@@ -89,7 +90,6 @@ class Dropdown extends Component {
   }
 
   handleHide() {
-
     const { removeEventListener } = window;
     removeEventListener('click', this.handleWindowClick, false);
 
@@ -98,7 +98,7 @@ class Dropdown extends Component {
     this.setState({ isOpen: false }, this.handleStateCallback);
 
     if (autoFocus) {
-      const triggerElement = findDOMNode(this.refs.trigger);
+      const triggerElement = findDOMNode(this.trigger);
       triggerElement.focus();
     }
   }
@@ -134,14 +134,14 @@ class Dropdown extends Component {
     let content = children.find(x => x.type === DropdownContent);
 
     trigger = React.cloneElement(trigger, {
-      ref: 'trigger',
+      ref: (ref) => { this.trigger = ref; },
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
     });
 
     content = React.cloneElement(content, {
-      ref: 'content',
+      ref: (ref) => { this.content = ref; },
       'aria-expanded': this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
@@ -150,11 +150,12 @@ class Dropdown extends Component {
 
     return (
       <div
-      style={style}
-      className={cx(styles.dropdown, className)}
-      aria-live={ariaLive}
-      aria-relevant={ariaRelevant}
-      aria-haspopup={hasPopup}>
+        style={style}
+        className={cx(styles.dropdown, className)}
+        aria-live={ariaLive}
+        aria-relevant={ariaRelevant}
+        aria-haspopup={hasPopup}
+      >
         {trigger}
         {content}
         { this.state.isOpen ?

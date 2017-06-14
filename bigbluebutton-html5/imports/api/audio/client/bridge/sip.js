@@ -27,7 +27,7 @@ export default class SIPBridge extends BaseAudioBridge {
   exitAudio(isListenOnly, afterExitCall = () => {}) {
     // To be called when the hangup is confirmed
     const hangupCallback = function () {
-      console.log('Exited Voice Conference, listenOnly=' + isListenOnly);
+      console.log(`Exited Voice Conference, listenOnly=${isListenOnly}`);
 
       // notify BBB-apps we are leaving the call if we are in listen only mode
       if (isListenOnly) {
@@ -60,10 +60,7 @@ export default class SIPBridge extends BaseAudioBridge {
         // try again periodically
         setTimeout(checkToHangupCall, MEDIA_CONFIG.WebRTCHangupRetryInterval);
       }
-    })
-
-    // automatically run function
-    (this, afterExitCall);
+    })(this, afterExitCall);
 
     return false;
   }

@@ -73,7 +73,7 @@ class AudioNotificationContainer extends Component {
 }
 
 export default injectIntl(createContainer(({ intl }) => {
-  let messages = {};
+  const messages = {};
   messages.audioFailure = intl.formatMessage(intlMessages.audioFailed);
   messages.mediaFailure = intl.formatMessage(intlMessages.mediaFailed);
   return messages;

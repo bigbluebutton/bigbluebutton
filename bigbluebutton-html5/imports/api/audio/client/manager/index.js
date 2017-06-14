@@ -41,7 +41,7 @@ export default class AudioManager {
     };
   }
 
-  exitAudio () {
+  exitAudio() {
     this.bridge.exitAudio(this.isListenOnly);
   }
 

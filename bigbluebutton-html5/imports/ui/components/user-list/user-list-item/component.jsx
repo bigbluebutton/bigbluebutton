@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Icon from '/imports/ui/components/icon/component';
 import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
@@ -18,19 +18,19 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 
 const propTypes = {
-  user: React.PropTypes.shape({
-    name: React.PropTypes.string.isRequired,
-    isPresenter: React.PropTypes.bool.isRequired,
-    isVoiceUser: React.PropTypes.bool.isRequired,
-    isModerator: React.PropTypes.bool.isRequired,
-    image: React.PropTypes.string,
+  user: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    isPresenter: PropTypes.bool.isRequired,
+    isVoiceUser: PropTypes.bool.isRequired,
+    isModerator: PropTypes.bool.isRequired,
+    image: PropTypes.string,
   }).isRequired,
 
-  currentUser: React.PropTypes.shape({
-    id: React.PropTypes.string.isRequired,
+  currentUser: PropTypes.shape({
+    id: PropTypes.string.isRequired,
   }).isRequired,
 
-  userActions: React.PropTypes.shape(),
+  userActions: PropTypes.shape(),
 };
 
 const defaultProps = {
@@ -83,15 +83,6 @@ const userNameSubTransition = {
 };
 
 class UserListItem extends Component {
-  componentDidMount() {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleClickOutsideDropdown, false);
-  }
-
-  componentWillUnmount() {
-    const { removeEventListener } = window;
-    removeEventListener('click', this.handleClickOutsideDropdown, false);
-  }
 
   constructor(props) {
     super(props);
@@ -133,15 +124,15 @@ class UserListItem extends Component {
     } = userActions;
 
     const hasAuthority = currentUser.isModerator || user.isCurrent;
-    let allowedToChatPrivately = !user.isCurrent;
-    let allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
-    let allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
-    let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
+    const allowedToChatPrivately = !user.isCurrent;
+    const allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
+    const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+    const allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
     // if currentUser is a moderator, allow kicking other users
-    let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+    const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
-    let allowedToSetPresenter =
+    const allowedToSetPresenter =
       (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 
     return _.compact([
@@ -163,13 +154,13 @@ class UserListItem extends Component {
    */
   checkDropdownDirection() {
     if (this.isDropdownActivedByUser()) {
-      const dropdown = findDOMNode(this.refs.dropdown);
+      const dropdown = findDOMNode(this.dropdown);
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
       const scrollContainer = dropdown.parentElement.parentElement;
 
-      let nextState = {
+      const nextState = {
         dropdownVisible: true,
       };
 
@@ -210,7 +201,7 @@ class UserListItem extends Component {
   }
 
   onActionsShow() {
-    const dropdown = findDOMNode(this.refs.dropdown);
+    const dropdown = findDOMNode(this.dropdown);
     const scrollContainer = dropdown.parentElement.parentElement;
     const dropdownTrigger = dropdown.children[0];
 
@@ -238,7 +229,7 @@ class UserListItem extends Component {
       compact,
     } = this.props;
 
-    let userItemContentsStyle = {};
+    const userItemContentsStyle = {};
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
     userItemContentsStyle[styles.active] = this.state.isActionsOpen;
 
@@ -247,26 +238,27 @@ class UserListItem extends Component {
       intl,
     } = this.props;
 
-    let you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
+    const you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
 
-    let presenter = (user.isPresenter)
+    const presenter = (user.isPresenter)
       ? intl.formatMessage(messages.presenter)
       : null;
 
-    let userAriaLabel = (user.emoji.status === 'none')
+    const userAriaLabel = (user.emoji.status === 'none')
       ? intl.formatMessage(messages.userItemAriaLabel,
-          { username: user.name, presenter: presenter, you: you, })
+          { username: user.name, presenter, you })
       : intl.formatMessage(messages.userItemStatusAriaLabel,
-          { username: user.name,
-            presenter: presenter,
-            you: you,
-            status: user.emoji.status, });
+        { username: user.name,
+          presenter,
+          you,
+          status: user.emoji.status });
 
-    let actions = this.getAvailableActions();
-    let contents = (
+    const actions = this.getAvailableActions();
+    const contents = (
       <div
         className={cx(styles.userListItem, userItemContentsStyle)}
-        aria-label={userAriaLabel}>
+        aria-label={userAriaLabel}
+      >
         <div className={styles.userItemContents} aria-hidden="true">
           <UserAvatar user={user} />
           {this.renderUserName()}
@@ -279,11 +271,11 @@ class UserListItem extends Component {
       return contents;
     }
 
-    const { dropdownOffset, dropdownDirection, dropdownVisible, } = this.state;
+    const { dropdownOffset, dropdownDirection, dropdownVisible } = this.state;
 
     return (
       <Dropdown
-        ref="dropdown"
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
@@ -291,7 +283,8 @@ class UserListItem extends Component {
         autoFocus={false}
         hasPopup="true"
         ariaLive="assertive"
-        ariaRelevant="additions">
+        ariaRelevant="additions"
+      >
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
@@ -301,16 +294,18 @@ class UserListItem extends Component {
             [dropdownDirection]: `${dropdownOffset}px`,
           }}
           className={styles.dropdownContent}
-          placement={`right ${dropdownDirection}`}>
+          placement={`right ${dropdownDirection}`}
+        >
 
           <DropdownList>
             {
               [
                 (<DropdownListTitle
-                    description={intl.formatMessage(messages.menuTitleContext)}
-                    key={_.uniqueId('dropdown-list-title')}>
-                      {user.name}
-                 </DropdownListTitle>),
+                  description={intl.formatMessage(messages.menuTitleContext)}
+                  key={_.uniqueId('dropdown-list-title')}
+                >
+                  {user.name}
+                </DropdownListTitle>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
             }
@@ -326,8 +321,8 @@ class UserListItem extends Component {
       intl,
     } = this.props;
 
-    let actions = this.getAvailableActions();
-    let contents = (
+    const actions = this.getAvailableActions();
+    const contents = (
       <div className={styles.userItemContents}>
         <UserAvatar user={user} />
         {this.renderUserName()}
@@ -339,16 +334,17 @@ class UserListItem extends Component {
       return contents;
     }
 
-    const { dropdownOffset, dropdownDirection, dropdownVisible, } = this.state;
+    const { dropdownOffset, dropdownDirection, dropdownVisible } = this.state;
 
     return (
       <Dropdown
-        ref="dropdown"
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={styles.dropdown}
-        autoFocus={false}>
+        autoFocus={false}
+      >
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
@@ -358,16 +354,18 @@ class UserListItem extends Component {
             [dropdownDirection]: `${dropdownOffset}px`,
           }}
           className={styles.dropdownContent}
-          placement={`right ${dropdownDirection}`}>
+          placement={`right ${dropdownDirection}`}
+        >
 
           <DropdownList>
             {
               [
                 (<DropdownListTitle
-                    description={intl.formatMessage(messages.menuTitleContext)}
-                    key={_.uniqueId('dropdown-list-title')}>
-                      {user.name}
-                 </DropdownListTitle>),
+                  description={intl.formatMessage(messages.menuTitleContext)}
+                  key={_.uniqueId('dropdown-list-title')}
+                >
+                  {user.name}
+                </DropdownListTitle>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
             }
@@ -404,8 +402,7 @@ class UserListItem extends Component {
     const { disablePrivateChat,
             disableCam,
             disableMic,
-            loSckedLayout,
-            disablePublicChat, } = meeting.roomLockSettings;
+            disablePublicChat } = meeting.roomLockSettings;
 
     return (
       <div className={styles.userName}>
@@ -417,12 +414,11 @@ class UserListItem extends Component {
           {(user.isLocked && (disablePrivateChat
             || disableCam
             || disableMic
-            || lockedLayout
             || disablePublicChat)) ?
-            <span> {(user.isCurrent ? ' | ' : null)}
-              <Icon iconName='lock' />
-              {intl.formatMessage(messages.locked)}
-            </span> : null}
+              <span> {(user.isCurrent ? ' | ' : null)}
+                <Icon iconName="lock" />
+                {intl.formatMessage(messages.locked)}
+              </span> : null}
         </span>
       </div>
     );
@@ -448,7 +444,7 @@ class UserListItem extends Component {
       audioChatIcon = !user.isMuted ? 'unmute' : 'mute';
     }
 
-    let audioIconClassnames = {};
+    const audioIconClassnames = {};
 
     audioIconClassnames[styles.userIconsContainer] = true;
     audioIconClassnames[styles.userIconGlowing] = user.isTalking;
@@ -463,7 +459,7 @@ class UserListItem extends Component {
         {
           user.isSharingWebcam ?
             <span className={styles.userIconsContainer}>
-              <Icon iconName='video' />
+              <Icon iconName="video" />
             </span>
             : null
         }
@@ -485,12 +481,13 @@ class UserListItem extends Component {
     } = this.props;
 
     const userAction = (
-      <DropdownListItem key={_.uniqueId('action-item-')}
+      <DropdownListItem
+        key={_.uniqueId('action-item-')}
         icon={action.icon}
         label={action.label}
         defaultMessage={action.label}
         onClick={action.handler.bind(this, ...parameters)}
-        placeInTabOrder={true}
+        placeInTabOrder
       />
     );
 

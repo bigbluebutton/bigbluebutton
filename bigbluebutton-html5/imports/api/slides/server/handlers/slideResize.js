@@ -14,4 +14,4 @@ export default function handleSlideResize({ payload }) {
   const presentationId = slideId.split('/')[0];
 
   return resizeSlide(meetingId, presentationId, slideId, slide);
-};
+}

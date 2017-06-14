@@ -45,14 +45,14 @@ export default function handleValidateAuthToken({ payload }) {
         addWelcomeChatMessage(meetingId, userId);
       }
 
-      return Logger.info('Validated auth token as ' + validStatus +
-       +' user=' + userId + ' meeting=' + meetingId
+      return Logger.info(`Validated auth token as ${validStatus
+       }${+' user='}${userId} meeting=${meetingId}`,
       );
     }
   };
 
   return Users.update(selector, modifier, cb);
-};
+}
 
 const addWelcomeChatMessage = (meetingId, userId) => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -60,7 +60,7 @@ const addWelcomeChatMessage = (meetingId, userId) => {
 
   const Meeting = Meetings.findOne({ meetingId });
 
-  let welcomeMessage = APP_CONFIG.defaultWelcomeMessage
+  const welcomeMessage = APP_CONFIG.defaultWelcomeMessage
     .concat(APP_CONFIG.defaultWelcomeMessageFooter)
     .replace(/%%CONFNAME%%/, Meeting.meetingName);
 

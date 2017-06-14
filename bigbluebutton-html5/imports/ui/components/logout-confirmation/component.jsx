@@ -46,11 +46,12 @@ class LeaveConfirmation extends Component {
           callback: () => null,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
-        }}>
+        }}
+      >
         {intl.formatMessage(intlMessages.message)}
       </Modal>
     );
   }
-};
+}
 
 export default withRouter(injectIntl(LeaveConfirmation));

@@ -32,4 +32,4 @@ export default function updateVoiceUser(meetingId, userId, voiceUser) {
   };
 
   return Users.update(selector, modifier, cb);
-};
+}

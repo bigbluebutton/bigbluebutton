@@ -48,6 +48,8 @@ export default function sendChat(credentials, message) {
   let actionName = message.to_userid === requesterUserId ? 'chatSelf' : 'chatPrivate';
   let eventName = 'send_private_chat_message';
 
+  message.message = parseMessage(message.message);
+
   if (message.chat_type === PUBLIC_CHAT_TYPE) {
     eventName = 'send_public_chat_message';
     actionName = 'chatPublic';
@@ -55,14 +57,14 @@ export default function sendChat(credentials, message) {
 
   if (!isAllowedTo(actionName, credentials)
     && message.from_userid !== requesterUserId) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to sendChat`);
+    throw new Meteor.Error('not-allowed', 'You are not allowed to sendChat');
   }
 
-  let payload = {
+  const payload = {
     message,
     meeting_id: meetingId,
     requester_id: message.from_userid,
   };
 
   return RedisPubSub.publish(CHANNEL, eventName, payload);
-};
+}

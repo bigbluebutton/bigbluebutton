@@ -60,11 +60,11 @@ export default function userLeaving(credentials, userId) {
     Users.update(selector, modifier, cb);
   }
 
-  let payload = {
+  const payload = {
     meeting_id: meetingId,
     userid: userId,
   };
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

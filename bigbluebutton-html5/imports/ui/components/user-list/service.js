@@ -36,8 +36,8 @@ const mapUser = user => ({
   isLocked: user.locked,
 });
 
-const mapOpenChats = chat => {
-  let currentUserId = Auth.userID;
+const mapOpenChats = (chat) => {
+  const currentUserId = Auth.userID;
   return chat.message.from_userid !== currentUserId
     ? chat.message.from_userid
     : chat.message.to_userid;
@@ -163,7 +163,7 @@ const userFindSorting = {
 };
 
 const getUsers = () => {
-  let users = Users
+  const users = Users
     .find({ 'user.connection_status': 'online' }, userFindSorting)
     .fetch();
 
@@ -173,14 +173,13 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
-const getOpenChats = chatID => {
-
+const getOpenChats = (chatID) => {
   let openChats = Chat
     .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
     .fetch()
     .map(mapOpenChats);
 
-  let currentUserId = Auth.userID;
+  const currentUserId = Auth.userID;
 
   if (chatID) {
     openChats.push(chatID);
@@ -192,16 +191,15 @@ const getOpenChats = chatID => {
     .find({ 'user.userid': { $in: openChats } })
     .map(u => u.user)
     .map(mapUser)
-    .map(op => {
+    .map((op) => {
       op.unreadCounter = UnreadMessages.count(op.id);
       return op;
     });
 
-  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  let filteredChatList = [];
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  const filteredChatList = [];
 
   openChats.forEach((op) => {
-
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
       if (_.indexOf(currentClosedChats, op.id) > -1) {
@@ -231,8 +229,8 @@ const getOpenChats = chatID => {
 };
 
 getCurrentUser = () => {
-  let currentUserId = Auth.userID;
-  let currentUser = Users.findOne({ 'user.userid': currentUserId });
+  const currentUserId = Auth.userID;
+  const currentUser = Users.findOne({ 'user.userid': currentUserId });
 
   return (currentUser) ? mapUser(currentUser.user) : null;
 };

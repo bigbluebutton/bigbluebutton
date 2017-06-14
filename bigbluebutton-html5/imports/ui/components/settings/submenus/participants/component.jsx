@@ -101,7 +101,6 @@ class ApplicationMenu extends BaseMenu {
   }
 
   getLockItems() {
-
     const { intl } = this.props;
 
     return [
@@ -149,7 +148,6 @@ class ApplicationMenu extends BaseMenu {
   }
 
   render() {
-
     const { intl } = this.props;
 
     return (
@@ -168,13 +166,14 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div
-                className={cx(styles.formElement, styles.pullContentRight)}>
-              <Toggle
-                icons={false}
-                defaultChecked={this.state.settings.muteAll}
-                onChange={() => this.handleToggle('muteAll')}
-                ariaLabelledBy={'muteLabel'}
-                ariaLabel={intl.formatMessage(intlMessages.muteAllLabel)}
+                className={cx(styles.formElement, styles.pullContentRight)}
+              >
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.settings.muteAll}
+                  onChange={() => this.handleToggle('muteAll')}
+                  ariaLabelledBy={'muteLabel'}
+                  ariaLabel={intl.formatMessage(intlMessages.muteAllLabel)}
                 />
               </div>
             </div>
@@ -189,24 +188,23 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
-              <Toggle
-                icons={false}
-                defaultChecked={this.state.settings.lockAll}
-                onChange={() => this.handleToggle('lockAll')}
-                ariaLabelledBy={'lockLabel'}
-                ariaLabel={intl.formatMessage(intlMessages.lockAllLabel)}
-                 />
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.settings.lockAll}
+                  onChange={() => this.handleToggle('lockAll')}
+                  ariaLabelledBy={'lockLabel'}
+                  ariaLabel={intl.formatMessage(intlMessages.lockAllLabel)}
+                />
               </div>
             </div>
           </div>
-          {this.getLockItems().map((item, i)  => this.renderLockItem(item, i))}
+          {this.getLockItems().map((item, i) => this.renderLockItem(item, i))}
         </div>
       </div>
     );
   }
 
   renderLockItem({ label, key, ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy }, i) {
-
     return (
       <div key={i} className={cx(styles.row, styles.spacedLeft)}>
         <div className={styles.col}>
@@ -218,7 +216,8 @@ class ApplicationMenu extends BaseMenu {
         </div>
         <div className={styles.col}>
           <div
-            className={cx(styles.formElement, styles.pullContentRight)}>
+            className={cx(styles.formElement, styles.pullContentRight)}
+          >
             <Checkbox
               onChange={() => this.handleToggle(key)}
               checked={this.state.settings[key]}
@@ -226,12 +225,12 @@ class ApplicationMenu extends BaseMenu {
               ariaLabelledBy={ariaLabelledBy}
               ariaDesc={ariaDesc}
               ariaDescribedBy={ariaDescribedBy}
-              />
+            />
           </div>
         </div>
       </div>
     );
   }
-};
+}
 
 export default injectIntl(ApplicationMenu);
