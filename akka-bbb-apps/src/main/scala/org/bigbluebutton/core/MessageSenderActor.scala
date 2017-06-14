@@ -35,6 +35,7 @@ import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
+import scala.collection.JavaConverters
 
 object MessageSenderActor {
   def props(msgSender: MessageSender): Props =
@@ -331,7 +332,7 @@ class MessageSenderActor(val service: MessageSender)
     res += "width_ratio" -> page.widthRatio
     res += "height_ratio" -> page.heightRatio
 
-    mapAsJavaMap(res)
+    JavaConverters.mapAsJavaMap(res)
   }
 
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {

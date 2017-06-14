@@ -1,10 +1,7 @@
 package org.bigbluebutton.api2.meeting
 
-import akka.actor.{Actor, ActorLogging}
-import org.bigbluebutton.api.domain.UserSession
-import org.bigbluebutton.common.messages.UserJoinedVoiceMessage
-
-
+import akka.actor.Actor
+import akka.actor.ActorLogging
 
 object MeetingActor {
 

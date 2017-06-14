@@ -7,9 +7,8 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.recorders.events._
 import redis.RedisClient
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.collection.JavaConversions._
-import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.immutable.StringOps
+import scala.collection.JavaConverters
 
 object RedisRecorderActor {
   def props(system: ActorSystem): Props = Props(classOf[RedisRecorderActor], system)
@@ -75,7 +74,7 @@ class RedisRecorderActor(val system: ActorSystem)
 
   private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
     if (msg.recorded) {
-      val message = mapAsJavaMap(msg.message)
+      val message = JavaConverters.mapAsJavaMap(msg.message)
       val ev = new PublicChatRecordEvent()
       ev.setTimestamp(TimestampGenerator.generateTimestamp())
       ev.setMeetingId(msg.meetingID)
@@ -84,7 +83,7 @@ class RedisRecorderActor(val system: ActorSystem)
       ev.setMessage(message.get("message"))
       ev.setColor(message.get("fromColor"))
 
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
 
     }
   }
@@ -94,7 +93,7 @@ class RedisRecorderActor(val system: ActorSystem)
       val ev = new ClearPublicChatRecordEvent()
       ev.setTimestamp(TimestampGenerator.generateTimestamp())
       ev.setMeetingId(msg.meetingID)
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
 
@@ -109,7 +108,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setTimestamp(TimestampGenerator.generateTimestamp())
       event.setPresentationName(msg.presentation.id)
       event.setOriginalFilename(msg.presentation.name)
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
 
   }
@@ -130,7 +129,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setYOffset(msg.page.yOffset)
       event.setWidthRatio(msg.page.widthRatio)
       event.setHeightRatio(msg.page.heightRatio)
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
   }
 
@@ -150,7 +149,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setWidthRatio(msg.page.widthRatio)
       event.setHeightRatio(msg.page.heightRatio)
 
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
   }
 
@@ -160,7 +159,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setMeetingId(msg.meetingID)
       event.setTimestamp(TimestampGenerator.generateTimestamp())
       event.setPresentationName(msg.presentationID)
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
   }
 
@@ -172,7 +171,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setPresentationName(msg.presentation.id)
       event.setOriginalFilename(msg.presentation.name)
       event.setShare(true)
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
   }
 
@@ -181,7 +180,7 @@ class RedisRecorderActor(val system: ActorSystem)
       val ev = new ParticipantEndAndKickAllRecordEvent()
       ev.setTimestamp(TimestampGenerator.generateTimestamp())
       ev.setMeetingId(msg.meetingID)
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
 
@@ -195,7 +194,7 @@ class RedisRecorderActor(val system: ActorSystem)
       ev.setMeetingId(msg.meetingID)
       ev.setRole(msg.user.role.toString)
 
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
 
@@ -207,7 +206,7 @@ class RedisRecorderActor(val system: ActorSystem)
       evt.setBridge(msg.confNum)
       evt.setRecordingTimestamp(msg.timestamp)
       evt.setFilename(msg.recordingFile)
-      record(msg.meetingID, mapAsScalaMap(evt.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
 
@@ -219,7 +218,7 @@ class RedisRecorderActor(val system: ActorSystem)
       evt.setBridge(msg.confNum)
       evt.setRecordingTimestamp(msg.timestamp)
       evt.setFilename(msg.recordingFile)
-      record(msg.meetingID, mapAsScalaMap(evt.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
 
@@ -232,7 +231,7 @@ class RedisRecorderActor(val system: ActorSystem)
       ev.setParticipant(msg.user.voiceUser.userId)
       ev.setMuted(msg.user.voiceUser.muted)
 
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
 
@@ -245,7 +244,7 @@ class RedisRecorderActor(val system: ActorSystem)
       evt.setParticipant(msg.user.id)
       evt.setTalking(msg.user.voiceUser.talking)
 
-      record(msg.meetingID, mapAsScalaMap(evt.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
 
@@ -261,7 +260,7 @@ class RedisRecorderActor(val system: ActorSystem)
       evt.setMuted(msg.user.voiceUser.muted)
       evt.setTalking(msg.user.voiceUser.talking)
 
-      record(msg.meetingID, mapAsScalaMap(evt.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
 
@@ -272,7 +271,7 @@ class RedisRecorderActor(val system: ActorSystem)
       evt.setTimestamp(TimestampGenerator.generateTimestamp())
       evt.setBridge(msg.confNum)
       evt.setParticipant(msg.user.voiceUser.userId)
-      record(msg.meetingID, mapAsScalaMap(evt.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
 
@@ -284,7 +283,7 @@ class RedisRecorderActor(val system: ActorSystem)
       evt.setUserId(msg.userId)
       evt.setRecordingStatus(msg.recording.toString)
 
-      record(msg.meetingID, mapAsScalaMap(evt.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
 
@@ -295,7 +294,7 @@ class RedisRecorderActor(val system: ActorSystem)
       ev.setUserId(msg.user.id)
       ev.setMeetingId(msg.meetingID)
 
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
 
   }
@@ -336,7 +335,7 @@ class RedisRecorderActor(val system: ActorSystem)
       ev.setStatus(msg.status)
       ev.setValue(msg.value.toString)
 
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
 
@@ -349,7 +348,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setName(msg.presenter.presenterName)
       event.setAssignedBy(msg.presenter.assignedBy)
 
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
 
   }
@@ -387,8 +386,8 @@ class RedisRecorderActor(val system: ActorSystem)
         event.setPresentation(getPresentationId(msg.whiteboardId))
         event.setPageNumber(getPageNum(msg.whiteboardId))
         event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(mapAsJavaMap(msg.shape.shape))
-        record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.shape))
+        record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
       } else if ((msg.shape.shapeType == WhiteboardKeyUtil.POLL_RESULT_TYPE)) {
         val event = new AddShapeWhiteboardRecordEvent()
         event.setMeetingId(msg.meetingID)
@@ -396,8 +395,8 @@ class RedisRecorderActor(val system: ActorSystem)
         event.setPresentation(getPresentationId(msg.whiteboardId))
         event.setPageNumber(getPageNum(msg.whiteboardId))
         event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(mapAsJavaMap(msg.shape.shape))
-        record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.shape))
+        record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
       } else {
         val event = new AddShapeWhiteboardRecordEvent()
         event.setMeetingId(msg.meetingID)
@@ -405,8 +404,8 @@ class RedisRecorderActor(val system: ActorSystem)
         event.setPresentation(getPresentationId(msg.whiteboardId))
         event.setPageNumber(getPageNum(msg.whiteboardId))
         event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(mapAsJavaMap(msg.shape.shape))
-        record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.shape))
+        record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
       }
     }
 
@@ -421,7 +420,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setXPercent(msg.xPercent)
       event.setYPercent(msg.yPercent)
 
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
   }
 
@@ -433,7 +432,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setPresentation(getPresentationId(msg.whiteboardId))
       event.setPageNumber(getPageNum(msg.whiteboardId))
       event.setWhiteboardId(msg.whiteboardId)
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
 
   }
@@ -447,7 +446,7 @@ class RedisRecorderActor(val system: ActorSystem)
       event.setPageNumber(getPageNum(msg.whiteboardId))
       event.setWhiteboardId(msg.whiteboardId)
       event.setShapeId(msg.shapeId)
-      record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
 
   }
@@ -462,7 +461,7 @@ class RedisRecorderActor(val system: ActorSystem)
       ev.setLocale(msg.locale)
       ev.setLocaleCode(msg.localeCode)
       ev.setText(msg.text)
-      record(msg.meetingID, mapAsScalaMap(ev.toMap).toMap)
+      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
 
@@ -472,7 +471,7 @@ class RedisRecorderActor(val system: ActorSystem)
     event.setStreamPath(msg.streamPath)
     event.setTimestamp(TimestampGenerator.generateTimestamp())
 
-    record(msg.conferenceName, mapAsScalaMap(event.toMap).toMap)
+    record(msg.conferenceName, JavaConverters.mapAsScalaMap(event.toMap).toMap)
   }
 
   private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
@@ -481,7 +480,7 @@ class RedisRecorderActor(val system: ActorSystem)
     event.setStreamPath(msg.streamPath)
     event.setTimestamp(TimestampGenerator.generateTimestamp())
 
-    record(msg.conferenceName, mapAsScalaMap(event.toMap).toMap)
+    record(msg.conferenceName, JavaConverters.mapAsScalaMap(event.toMap).toMap)
   }
 
   private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
@@ -491,6 +490,6 @@ class RedisRecorderActor(val system: ActorSystem)
     event.setBroadcasting(msg.broadcasting)
     event.setTimestamp(TimestampGenerator.generateTimestamp())
 
-    record(msg.meetingID, mapAsScalaMap(event.toMap).toMap)
+    record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
   }
 }
