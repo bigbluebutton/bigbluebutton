@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.running
 
-import java.io.{ PrintWriter, StringWriter }
+import java.io.{PrintWriter, StringWriter}
 
 import akka.actor._
 import akka.actor.ActorLogging
@@ -14,9 +14,10 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models.{RegisteredUsers, Users}
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
+import org.bigbluebutton.core2.message.handlers.users._
 
 import scala.concurrent.duration._
 
@@ -42,7 +43,20 @@ class MeetingActor(val props: DefaultProps,
     with UserConnectedToGlobalAudioHdlr
     with UserDisconnectedFromGlobalAudioHdlr
     with MuteAllExceptPresenterRequestHdlr
-    with MuteMeetingRequestHdlr {
+    with MuteMeetingRequestHdlr
+    with IsMeetingMutedRequestHdlr
+    with MuteUserRequestHdlr
+    with EjectUserFromVoiceRequestHdlr
+    with GetLockSettingsHdlr
+    with SetLockSettingsHdlr
+    with LockUserRequestHdlr
+    with InitLockSettingsHdlr
+    with InitAudioSettingsHdlr
+    with UserEmojiStatusHdlr
+    with EjectUserFromMeetingHdlr
+with UserShareWebcamHdlr
+with UserUnshareWebcamHdlr
+with ChangeUserStatusHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {

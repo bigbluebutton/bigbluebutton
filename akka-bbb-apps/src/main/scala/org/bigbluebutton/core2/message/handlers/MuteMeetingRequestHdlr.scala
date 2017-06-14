@@ -1,13 +1,12 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.voiceconf.{MuteUserInVoiceConfMsg, MuteUserInVoiceConfMsgBody}
+import org.bigbluebutton.common2.messages.voiceconf.{ MuteUserInVoiceConfMsg, MuteUserInVoiceConfMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{MeetingMuted, MuteMeetingRequest, MuteVoiceUser}
-import org.bigbluebutton.core.models.{Users, Users2x, VoiceUserState, VoiceUsers}
+import org.bigbluebutton.core.api.{ MeetingMuted, MuteMeetingRequest, MuteVoiceUser }
+import org.bigbluebutton.core.models.{ Users, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
-
 
 trait MuteMeetingRequestHdlr {
   this: MeetingActor =>
@@ -20,6 +19,7 @@ trait MuteMeetingRequestHdlr {
     } else {
       MeetingStatus2x.unmuteMeeting(liveMeeting.status)
     }
+
     outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record,
       MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
 
@@ -41,8 +41,8 @@ trait MuteMeetingRequestHdlr {
 
     }
 
-    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach {vu =>
-      if (! vu.listenOnly) {
+    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
+      if (!vu.listenOnly) {
         muteUserInVoiceConf(vu)
       }
     }

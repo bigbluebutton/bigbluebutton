@@ -1,9 +1,9 @@
-package org.bigbluebutton.core2.message.handlers
+package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfEvtMsg, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody }
+import org.bigbluebutton.common2.messages.voiceconf.{UserJoinedVoiceConfEvtMsg, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody}
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{ VoiceUser2x, VoiceUserState, VoiceUsers, VoiceUsersState }
+import org.bigbluebutton.core.models.{VoiceUser2x, VoiceUserState, VoiceUsers}
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UserJoinedVoiceConfEvtMsgHdlr {

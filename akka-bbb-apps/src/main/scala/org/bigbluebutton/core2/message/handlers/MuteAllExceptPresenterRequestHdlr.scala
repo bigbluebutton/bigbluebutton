@@ -44,10 +44,10 @@ trait MuteAllExceptPresenterRequestHdlr {
 
     // I think the correct flow would be to find those who are presenters and exclude them
     // from the list of voice users. The remaining, mute.
-    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach {vu =>
-      if (! vu.listenOnly) {
+    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
+      if (!vu.listenOnly) {
         Users2x.findWithIntId(liveMeeting.users2x, vu.intId) match {
-          case Some(u) => if (! u.presenter) muteUserInVoiceConf(vu)
+          case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu)
           case None => muteUserInVoiceConf(vu)
         }
       }

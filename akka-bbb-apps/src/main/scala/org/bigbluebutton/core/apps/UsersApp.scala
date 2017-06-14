@@ -12,8 +12,6 @@ trait UsersApp {
 
   val outGW: OutMessageGateway
 
-
-
   def handleValidateAuthToken(msg: ValidateAuthToken) {
     log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
     RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers) match {
@@ -47,107 +45,10 @@ trait UsersApp {
 
   }
 
-  def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
-    outGW.send(new IsMeetingMutedReply(props.meetingProp.intId, props.recordProp.record,
-      msg.requesterID, MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
-  }
-
-  def handleMuteUserRequest(msg: MuteUserRequest) {
-    log.info("Received mute user request. meetingId=" + props.meetingProp.intId + " userId=" + msg.userID + " mute=" + msg.mute)
-    for {
-      u <- Users.findWithId(msg.userID, liveMeeting.users)
-    } yield {
-      log.info("Send mute user request. meetingId=" + props.meetingProp.intId + " userId=" + u.id + " user=" + u)
-      outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record,
-        msg.requesterID, u.id, props.voiceProp.voiceConf, u.voiceUser.userId, msg.mute))
-    }
-  }
-
-  def handleEjectUserRequest(msg: EjectUserFromVoiceRequest) {
-    log.info("Received eject user request. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-
-    for {
-      u <- Users.findWithId(msg.userId, liveMeeting.users)
-    } yield {
-      if (u.voiceUser.joined) {
-        log.info("Ejecting user from voice.  meetingId=" + props.meetingProp.intId + " userId=" + u.id)
-        outGW.send(new EjectVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.ejectedBy, u.id,
-          props.voiceProp.voiceConf, u.voiceUser.userId))
-      }
-    }
-  }
-
-  def handleGetLockSettings(msg: GetLockSettings) {
-    //println("*************** Reply with current lock settings ********************")
-
-    //reusing the existing handle for NewPermissionsSettings to reply to the GetLockSettings request
-    outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.userId,
-      MeetingStatus2x.getPermissions(liveMeeting.status),
-      Users.getUsers(liveMeeting.users).toArray))
-  }
-
-  def handleSetLockSettings(msg: SetLockSettings) {
-    if (!liveMeeting.permissionsEqual(msg.settings)) {
-      liveMeeting.newPermissions(msg.settings)
-      outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.setByUser,
-        MeetingStatus2x.getPermissions(liveMeeting.status),
-        Users.getUsers(liveMeeting.users).toArray))
-
-      handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
-    }
-  }
-
-  def handleLockUserRequest(msg: LockUserRequest) {
-    for {
-      uvo <- Users.lockUser(msg.userID, msg.lock, liveMeeting.users)
-    } yield {
-      log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " locked=" + uvo.locked)
-      outGW.send(new UserLocked(props.meetingProp.intId, uvo.id, uvo.locked))
-    }
-  }
-
-  def handleInitLockSettings(msg: InitLockSettings) {
-    if (!MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
-      MeetingStatus2x.initializePermissions(liveMeeting.status)
-      liveMeeting.newPermissions(msg.settings)
-      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings,
-        Users.getUsers(liveMeeting.users).toArray))
-    }
-  }
-
-  def handleInitAudioSettings(msg: InitAudioSettings) {
-    if (!MeetingStatus2x.audioSettingsInitialized(liveMeeting.status)) {
-      MeetingStatus2x.initializeAudioSettings(liveMeeting.status)
-
-      if (MeetingStatus2x.isMeetingMuted(liveMeeting.status) != msg.muted) {
-        handleMuteAllExceptPresenterRequest(
-          new MuteAllExceptPresenterRequest(props.meetingProp.intId,
-            msg.requesterID, msg.muted));
-      }
-    }
-  }
-
   def usersWhoAreNotPresenter(): Array[UserVO] = {
     Users.usersWhoAreNotPresenter(liveMeeting.users).toArray
   }
 
-  def handleUserEmojiStatus(msg: UserEmojiStatus) {
-    for {
-      uvo <- Users.setEmojiStatus(msg.userId, liveMeeting.users, msg.emojiStatus)
-    } yield {
-      outGW.send(new UserChangedEmojiStatus(props.meetingProp.intId, props.recordProp.record, msg.emojiStatus, uvo.id))
-    }
-  }
-
-  def handleChangeUserRole(msg: ChangeUserRole) {
-    for {
-      uvo <- Users.changeRole(msg.userID, liveMeeting.users, msg.role)
-    } yield {
-      RegisteredUsers.updateRegUser(uvo, liveMeeting.registeredUsers)
-      val userRole = if (msg.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
-      outGW.send(new UserRoleChange(props.meetingProp.intId, props.recordProp.record, msg.userID, userRole))
-    }
-  }
 
   def makeSurePresenterIsAssigned(user: UserVO): Unit = {
     if (user.presenter) {
@@ -178,48 +79,7 @@ trait UsersApp {
     }
   }
 
-  def handleEjectUserFromMeeting(msg: EjectUserFromMeeting) {
-    for {
-      user <- Users.userLeft(msg.userId, liveMeeting.users)
-    } yield {
-      if (user.voiceUser.joined) {
-        outGW.send(new EjectVoiceUser(props.meetingProp.intId, props.recordProp.record,
-          msg.ejectedBy, msg.userId, props.voiceProp.voiceConf, user.voiceUser.userId))
-      }
-      RegisteredUsers.remove(msg.userId, liveMeeting.registeredUsers)
-      makeSurePresenterIsAssigned(user)
 
-      log.info("Ejecting user from meeting.  meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
-      outGW.send(new UserEjectedFromMeeting(props.meetingProp.intId, props.recordProp.record, msg.userId, msg.ejectedBy))
-      outGW.send(new DisconnectUser(props.meetingProp.intId, msg.userId))
-
-      outGW.send(new UserLeft(msg.meetingID, props.recordProp.record, user))
-    }
-  }
-
-  def handleUserShareWebcam(msg: UserShareWebcam) {
-    for {
-      uvo <- Users.userSharedWebcam(msg.userId, liveMeeting.users, msg.stream)
-    } yield {
-      log.info("User shared webcam.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " stream=" + msg.stream)
-      outGW.send(new UserSharedWebcam(props.meetingProp.intId, props.recordProp.record, uvo.id, msg.stream))
-    }
-  }
-
-  def handleUserunshareWebcam(msg: UserUnshareWebcam) {
-    for {
-      uvo <- Users.userUnsharedWebcam(msg.userId, liveMeeting.users, msg.stream)
-    } yield {
-      log.info("User unshared webcam.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " stream=" + msg.stream)
-      outGW.send(new UserUnsharedWebcam(props.meetingProp.intId, props.recordProp.record, uvo.id, msg.stream))
-    }
-  }
-
-  def handleChangeUserStatus(msg: ChangeUserStatus): Unit = {
-    if (Users.hasUserWithId(msg.userID, liveMeeting.users)) {
-      outGW.send(new UserStatusChange(props.meetingProp.intId, props.recordProp.record, msg.userID, msg.status, msg.value))
-    }
-  }
 
   def handleGetUsers(msg: GetUsers): Unit = {
     outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, Users.getUsers(liveMeeting.users).toArray))
