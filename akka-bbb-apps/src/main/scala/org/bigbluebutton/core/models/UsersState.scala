@@ -70,6 +70,3 @@ class UsersState {
   }
 }
 
-case class UserState(intId: String, extId: String, name: String, role: String,
-  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
-  presenter: Boolean, avatar: String)

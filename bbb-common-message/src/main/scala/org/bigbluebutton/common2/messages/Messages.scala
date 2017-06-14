@@ -69,17 +69,9 @@ object ValidateAuthTokenRespMsg { val NAME = "ValidateAuthTokenRespMsg" }
 case class ValidateAuthTokenRespMsg(header: BbbClientMsgHeader,
                                     body: ValidateAuthTokenRespMsgBody) extends BbbCoreMsg
 
-object UserJoinedMeetingEvtMsg { val NAME = "UserJoinedMeetingEvtMsg" }
-case class UserJoinedMeetingEvtMsg(header: BbbClientMsgHeader,
-                                   body: UserJoinedMeetingEvtMsgBody) extends BbbCoreMsg
-case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
-                                       guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
-                                       presenter: Boolean, locked: Boolean, avatar: String)
 
-object UserLeftMeetingEvtMsg { val NAME = "UserLeftMeetingEvtMsg"}
-case class UserLeftMeetingEvtMsg(header: BbbClientMsgHeader,
-                                 body: UserLeftMeetingEvtMsgBody) extends BbbCoreMsg
-case class UserLeftMeetingEvtMsgBody(intId: String)
+
+
 
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg

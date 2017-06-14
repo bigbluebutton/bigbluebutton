@@ -1,9 +1,13 @@
 package org.bigbluebutton.core.models
 
+import com.softwaremill.quicklens._
+
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {
     users.toVector find (u => u.intId == intId)
   }
+
+  def findAll(users: Users2x): Vector[UserState] = users.toVector
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
     users.save(user)
@@ -18,6 +22,38 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
+  def changeRole(users: Users2x, intId: String, newRole: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUserState = modify(u)(_.role).setTo(newRole)
+      users.save(newUserState)
+      newUserState
+    }
+  }
+
+  def ejectFromMeeting(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      _ <- users.remove(intId)
+      ejectedUser <- users.removeFromCache(intId)
+    } yield {
+      ejectedUser
+    }
+  }
+
+  def makePresenter(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.presenter).setTo(true).modify(_.role).setTo(Roles.PRESENTER_ROLE)
+      newUser
+    }
+  }
+
+  def findModerator(users: Users2x): Option[UserState] = {
+    val mods = users.toVector.filter(u => u.role == Roles.MODERATOR_ROLE)
+    if (mods.length > 1) Some(mods.head) else None
+  }
 }
 
 class Users2x {
@@ -61,4 +97,8 @@ class Users2x {
     usersCache.values.find(u => u.intId == intId)
   }
 }
+
+case class UserState(intId: String, extId: String, name: String, role: String,
+  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
+  presenter: Boolean, avatar: String)
 

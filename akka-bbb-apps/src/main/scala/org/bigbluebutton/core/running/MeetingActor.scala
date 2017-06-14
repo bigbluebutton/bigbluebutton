@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.running
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 
 import akka.actor._
 import akka.actor.ActorLogging
@@ -13,8 +13,12 @@ import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
+import org.bigbluebutton.core.apps.presentation.PresentationApp2x
+import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
+import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{RegisteredUsers, Users}
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
@@ -54,9 +58,14 @@ class MeetingActor(val props: DefaultProps,
     with InitAudioSettingsHdlr
     with UserEmojiStatusHdlr
     with EjectUserFromMeetingHdlr
-with UserShareWebcamHdlr
-with UserUnshareWebcamHdlr
-with ChangeUserStatusHdlr {
+    with UserShareWebcamHdlr
+    with UserUnshareWebcamHdlr
+    with ChangeUserStatusHdlr
+    with GetUsersHdlr
+    with UserJoiningHdlr
+    with UserLeavingHdlr
+    with ChangeUserRoleHdlr
+    with UserJoinedVoiceConfMessageHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -79,6 +88,11 @@ with ChangeUserStatusHdlr {
   eventBus.subscribe(actorMonitor, props.meetingProp.intId)
   eventBus.subscribe(actorMonitor, props.voiceProp.voiceConf)
   eventBus.subscribe(actorMonitor, props.screenshareProps.screenshareConf)
+
+  val usersApp2x = new UsersApp2x(liveMeeting, outGW = outGW)
+  val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
+  val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
+  val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
 
   def receive = {
     //=============================
@@ -104,7 +118,7 @@ with ChangeUserStatusHdlr {
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
     case msg: GetUsers => handleGetUsers(msg)
     case msg: ChangeUserStatus => handleChangeUserStatus(msg)
-    case msg: EjectUserFromMeeting => handleEjectUserFromMeeting(msg)
+    case msg: EjectUserFromMeeting => handle(msg)
     case msg: UserEmojiStatus => handleUserEmojiStatus(msg)
     case msg: UserShareWebcam => handleUserShareWebcam(msg)
     case msg: UserUnshareWebcam => handleUserunshareWebcam(msg)
@@ -156,7 +170,7 @@ with ChangeUserStatusHdlr {
     case msg: RespondToPollRequest => handleRespondToPollRequest(msg)
     case msg: GetPollRequest => handleGetPollRequest(msg)
     case msg: GetCurrentPollRequest => handleGetCurrentPollRequest(msg)
-    case msg: ChangeUserRole => handleChangeUserRole(msg)
+    case msg: ChangeUserRole => handle(msg)
     case msg: LogoutEndMeeting => handleLogoutEndMeeting(msg)
     case msg: ClearPublicChatHistoryRequest => handleClearPublicChatHistoryRequest(msg)
 

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{InitAudioSettings, MuteAllExceptPresenterRequest}
+import org.bigbluebutton.core.api.{ InitAudioSettings, MuteAllExceptPresenterRequest }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 

@@ -3,7 +3,7 @@ package org.bigbluebutton.core2.message.handlers.users
 import org.bigbluebutton.common2.messages.MessageBody.UserBroadcastCamStartedEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{MediaStream, WebcamStream, Webcams}
+import org.bigbluebutton.core.models.{ MediaStream, WebcamStream, Webcams }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UserBroadcastCamStartMsgHdlr {
