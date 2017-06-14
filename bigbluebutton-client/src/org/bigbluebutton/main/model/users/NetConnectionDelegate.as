@@ -111,13 +111,47 @@ package org.bigbluebutton.main.model.users
           }
         }   
             
+        private function handleValidateAuthTokenReply2x(body: Object):void {  
+            stopValidateTokenTimer();
+ 
+            var tokenValid: Boolean = body.valid as Boolean;
+            var userId: String = body.userId as String;
+ 
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps", "connected"];
+            logData.tokenValid = tokenValid;
+            logData.status = "validate_token_response_received";
+            logData.message = "Received validate token response from server.";
+            LOGGER.info(JSON.stringify(logData));
+            
+            if (tokenValid) {
+                authenticated = true;
+            } else {
+                dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+            }
+      
+            if (reconnecting) {
+              onReconnect();
+              reconnecting = false;
+            }
+        }
+
         public function onMessageFromServer2x(messageName:String, msg:String):void {
             LOGGER.debug("onMessageFromServer2x - " + msg);
             var map:Object = JSON.parse(msg);  
             var header: Object = map.header as Object;
+            var body: Object = map.body as Object;
             
             var msgName: String = header.name
-            notifyListeners(msgName, map);
+          if (!authenticated && (messageName == "ValidateAuthTokenRespMsg")) {
+            handleValidateAuthTokenReply2x(body)
+          } else if (messageName == "validateAuthTokenTimedOut") {
+            handleValidateAuthTokenTimedOut(msg)
+          } else if (authenticated) {
+            notifyListeners(messageName, msg);
+          } else {
+            LOGGER.debug("Ignoring message=[{0}] as our token hasn't been validated yet.", [messageName]);
+          } 
 
             //var tokenValid: Boolean = body.valid as Boolean;
             //var userId: String = body.userId as String;
