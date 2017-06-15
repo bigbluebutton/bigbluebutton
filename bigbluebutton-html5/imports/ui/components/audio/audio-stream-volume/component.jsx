@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { logClient } from '/imports/ui/services/api';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 const propTypes = {
   low: PropTypes.number,
@@ -51,11 +52,7 @@ class AudioStreamVolume extends Component {
   }
 
   componentWillUnmount() {
-    if (window.navigator.userAgent === 'BigBlueButton') {
-      window.webkit.messageHandlers.bbb
-            .postMessage(JSON.stringify({ method: 'requestMicrophoneLevelStop' }));
-      return;
-    }
+    IosHandler.requestMicrophoneLevelStop();
 
     this.closeAudioContext();
   }
@@ -64,8 +61,7 @@ class AudioStreamVolume extends Component {
 
     if (window.navigator.userAgent === 'BigBlueButton') {
       console.log('request mic level start')
-      window.webkit.messageHandlers.bbb
-            .postMessage(JSON.stringify({ method: 'requestMicrophoneLevelStart' }));
+      IosHandler.requestMicrophoneLevelStart();
       window.addEventListener('audioInputChange',
       (e) => {
         console.log('eventlistener for volume change', e.detail.message);

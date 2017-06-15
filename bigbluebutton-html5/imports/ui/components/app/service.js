@@ -17,8 +17,14 @@ function meetingIsBreakout() {
   return (breakouts && breakouts.some(b => b.breakoutMeetingId === Auth.meetingID));
 }
 
+function getBreakoutIds() {
+  console.log('getBreakoutIds', Breakouts.find().fetch().map(b => b.breakoutMeetingId));
+  return Breakouts.find().fetch().map(b => b.breakoutMeetingId);
+}
+
 export {
   getCaptionsStatus,
   getFontSize,
   meetingIsBreakout,
+  getBreakoutIds,
 };

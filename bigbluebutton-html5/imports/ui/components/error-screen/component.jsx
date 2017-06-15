@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 import styles from './styles.scss';
 
@@ -39,12 +40,11 @@ const defaultProps = {
 
 class ErrorScreen extends Component {
   componentDidMount() {
-    if (window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') {
-      window.webkit.messageHandlers.bbb.postMessage(JSON.stringify({method: 'hangup'}));
-    }
+    IosHandler.hangupCall();
   }
 
   onClick() {
+    IosHandler.leaveRoom();
     window.location = window.location.origin;
   }
 

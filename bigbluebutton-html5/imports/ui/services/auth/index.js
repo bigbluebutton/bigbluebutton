@@ -137,7 +137,7 @@ class Auth {
         }, 5000);
         window.me = Users.find().fetch();
         window.UsersCollection = Users;
-	
+
 const subscription = Meteor.subscribe('current-user', credentials);
         if (!subscription.ready()) return;
 
@@ -168,6 +168,8 @@ const subscription = Meteor.subscribe('current-user', credentials);
       Tracker.autorun((c) => {
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const query = Users.find(selector);
+
+        console.log('aaa', query);
 
         const handle = query.observeChanges({
           changed: (id, fields) => {

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 const intlMessages = defineMessages({
   title: {
@@ -33,7 +34,7 @@ const intlMessages = defineMessages({
 class LeaveConfirmation extends Component {
   render() {
     const { intl, router } = this.props;
-
+    IosHandler.leaveRoom();
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}

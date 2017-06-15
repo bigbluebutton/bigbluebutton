@@ -188,8 +188,12 @@
   content: "\e92c";
 }
 .icon-bbb-send:before {
-    content: "\e934";
+  content: "\e934";
 }
 .icon-bbb-about:before {
-    content: "\e933";
+  content: "\e933";
+}
+
+.upside-down {
+  transform: rotate(180deg);
 }

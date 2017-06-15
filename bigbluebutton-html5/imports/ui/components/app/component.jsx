@@ -5,6 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 
 import ModalContainer from '../modal/container';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
@@ -56,6 +57,11 @@ class App extends Component {
 
   componentDidMount() {
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+
+    window.addEventListener('requestBreakoutRooms',
+    (e) => {
+      IosHandler.updateBreakoutRooms(this.props.breakoutIds);
+    });
   }
 
   renderNavBar() {

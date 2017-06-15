@@ -3,11 +3,13 @@ import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 import {
   getFontSize,
   getCaptionsStatus,
   meetingIsBreakout,
+  getBreakoutIds,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -69,26 +71,24 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
     // Close the widow when the current breakout room ends
   Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
     removed(old) {
-      Auth.clearCredentials().then(window.close);
+      const {
+        meetingID
+      } = Auth;
+
+      Auth.clearCredentials().then(() => {
+        if(window.navigator.userAgent === 'BigBlueButton') {
+          iosHandler.leaveRoom();
+        } else {
+          window.close;
+        }
+      });
     },
   });
 
-  if((window.navigator.userAgent === 'BigBlueButton') && !meetingIsBreakout()) {
-    const messageToSwift = {
-      method: 'mainRoomUrl',
-      url: [
-        window.location.origin,
-        'html5client/join',
-        Auth.meetingID,
-        Auth.userID,
-        Auth.token,
-      ].join('/'),
-    };
-
-    window.webkit.messageHandlers.bbb.postMessage(JSON.stringify(messageToSwift));
-  }
+  window.bks = Breakouts;
 
   return {
+    breakoutIds: getBreakoutIds(),
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
   };

@@ -76,11 +76,19 @@ class NavBar extends Component {
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
+    const {
+      hasUnreadMessages,
+      beingRecorded,
+      isExpanded,
+      intl,
+      breakouts,
+    } = this.props;
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
+
+    const isIosApp = window.navigator.userAgent === 'BigBlueButton';
 
     return (
       <div className={styles.navbar}>
@@ -119,7 +127,7 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
-    if (!breakouts.length || (window.navigator.userAgent!="BigBlueButton" && isBreakoutRoom)) {
+    if (!breakouts.length || (window.navigator.userAgent != "BigBlueButton" && isBreakoutRoom)) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -132,7 +140,7 @@ class NavBar extends Component {
       >
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName="down-arrow" />
+            {presentationTitle} <Icon iconName="up_arrow upside-down" />
           </h1>
         </DropdownTrigger>
         <DropdownContent
