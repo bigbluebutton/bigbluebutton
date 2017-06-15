@@ -52,7 +52,10 @@ class AudioStreamVolume extends Component {
   }
 
   componentWillUnmount() {
-    IosHandler.requestMicrophoneLevelStop();
+    if (window.navigator.userAgent === 'BigBlueButton') {
+      IosHandler.requestMicrophoneLevelStop();
+      return;
+    }
 
     this.closeAudioContext();
   }

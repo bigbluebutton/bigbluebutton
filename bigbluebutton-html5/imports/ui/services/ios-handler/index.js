@@ -11,6 +11,7 @@ class IosHandler {
 
   postMessage(message) {
     if (this.isIosApp) {
+      console.log('isIosApp', message);
       return this.messageHandler.postMessage(JSON.stringify(message));
     }
   }
