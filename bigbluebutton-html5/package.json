@@ -2,7 +2,9 @@
   "name": "bbb-html5-client",
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
-    "start": "cd app;./start.sh",
+    "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:production; else npm run start:development; fi",
+    "start:production": "./start.sh",
+    "start:development": "./start.sh",
     "preinstall": "npm install grunt-cli",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js"
