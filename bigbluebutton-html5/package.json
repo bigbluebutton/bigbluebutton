@@ -2,9 +2,16 @@
   "name": "bbb-html5-client",
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
-    "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:production; else npm run start:development; fi",
-    "start:production": "./start.sh",
-    "start:development": "./start.sh",
+    "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:prod; else npm run start:dev; fi",
+
+    "start:prod": "if test $npm_config_rootURL; then npm run start:prod:customRootURL; else npm run start:prod:defaultRootURL; fi",
+    "start:prod:customRootURL": "if test $npm_config_prodHome; then HOME=$npm_config_prodHome ROOT_URL=$npm_config_rootURL NODE_ENV=production meteor; else ROOT_URL=$npm_config_rootURL NODE_ENV=production meteor; fi",
+    "start:prod:defaultRootURL": "if test $npm_config_prodHome; then HOME=$npm_config_prodHome ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor; else ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor; fi",
+
+    "start:dev": "if test $npm_config_rootURL; then npm run start:dev:customRootURL; else npm run start:dev:defaultRootURL; fi",
+    "start:dev:customRootURL": "ROOT_URL=$npm_config_rootURL NODE_ENV=development meteor",
+    "start:dev:defaultRootURL": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
+
     "preinstall": "npm install grunt-cli",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js"
