@@ -1,14 +1,19 @@
 package org.bigbluebutton.core.models
 
+import java.util.ArrayList
+import com.google.gson.Gson
+
+import org.bigbluebutton.core.apps.{ AnnotationVO }
+import org.bigbluebutton.common.messages.WhiteboardKeyUtil
+import org.bigbluebutton.common2.domain._
+
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
 
 object Polls {
 
-  def handleStartPollReqMsg(userId: String, pollId: String, pollType: String, lm: LiveMeeting): Option[Poll] = {
-
-    //    log.debug("Received StartPollRequest for pollType=[" + pollType + "]")
+  def handleStartPollReqMsg(userId: String, pollId: String, pollType: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
     println("Received StartPollReqMsg for pollType=[" + pollType + "]")
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
       for {
@@ -22,25 +27,192 @@ object Polls {
     for {
       page <- lm.presModel.getCurrentPage()
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
-      // pollId: String = pageId + "/" + System.currentTimeMillis()
+      stampedPollId: String = pageId + "/" + System.currentTimeMillis() // TODO - is the timestamp needed?
       numRespondents: Int = Users.numUsers(lm.users) - 1 // subtract the presenter
 
-      poll <- createPoll(pollId, numRespondents)
-      simplePoll <- getSimplePoll(pollId, lm.polls)
+      poll <- createPoll(stampedPollId, numRespondents)
+      simplePoll <- getSimplePoll(poll.id, lm.polls)
     } yield {
-      startPoll(poll.id, lm.polls)
-      // outGW.send(new PollStartedMessage(props.meetingProp.intId, props.recordProp.record, userId, pollId, simplePoll))
+      startPoll(simplePoll.id, lm.polls)
+      simplePoll
     }
-
-    lm.polls.currentPoll // TODO had to add this line to comply with Option[Poll]
   }
 
-  //  def getRunningPollThatStartsWith(pollId: String, polls: Polls): Option[PollVO] = {
-  //    for {
-  //      poll <- polls.values find { poll => poll.id.startsWith(pollId) && poll.isRunning() }
-  //    } yield poll.toPollVO()
+  def handleStopPollReqMsg(userId: String, lm: LiveMeeting): Option[String] = {
+    for {
+      page <- lm.presModel.getCurrentPage()
+      curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
+    } yield {
+      stopPoll(curPoll.id, lm.polls)
+      curPoll.id
+    }
+  }
+
+  def handleShowPollResultReqMsg(requesterId: String, pollId: String, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
+    //    def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Unit = {
+    //      for {
+    //        page <- lm.presModel.getCurrentPage()
+    //        pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
+    //        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId, requesterId, -1)
+    //      } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(props.meetingProp.intId, requesterId, annotation))
+    //    }
+
+    for {
+      result <- getSimplePollResult(pollId, lm.polls)
+      shape = pollResultToWhiteboardShape(result)
+    } yield {
+      //      send(result, shape)
+      showPollResult(pollId, lm.polls)
+      // outGW.send(new PollShowResultMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, msg.pollId, result))
+      result
+    }
+  }
+
+  def handleHidePollResultReqMsg(requesterId: String, pollId: String, lm: LiveMeeting): Option[String] = {
+    for {
+      poll <- getPoll(pollId, lm.polls)
+    } yield {
+      hidePollResult(pollId, lm.polls)
+      // outGW.send(new PollHideResultMessage(props.meetingProp.intId, props.recordProp.record, requesterId, pollId))
+      pollId
+    }
+  }
+
+  def handleGetCurrentPollReqMsg(requesterId: String, lm: LiveMeeting): (Boolean, Option[PollVO]) = {
+    val poll = for {
+      page <- lm.presModel.getCurrentPage()
+      curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
+    } yield curPoll
+
+    poll match {
+      case Some(p) => {
+        if (p.started && p.stopped && p.showResult) {
+          // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, true, Some(p)))
+          (true, Some(p))
+        } else {
+          // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
+          (false, None)
+        }
+      }
+      case None => {
+        // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
+        (false, None)
+      }
+    }
+  }
+
+  def handleRespondToPollReqMsg(requesterId: String, pollId: String, questionId: Int, answerId: Int,
+    lm: LiveMeeting): Option[(String, String, SimplePollResultOutVO)] = {
+
+    for {
+      curPres <- Users.getCurrentPresenter(lm.users)
+      poll <- getSimplePollResult(pollId, lm.polls)
+      pvo <- handleRespondToPoll(poll, requesterId, pollId, questionId, answerId, lm)
+    } yield {
+      (curPres.id, pollId, pvo)
+    }
+
+  }
+
+  def handleStartCustomPollReqMsg(requesterId: String, pollId: String, pollType: String,
+    answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
+    // log.debug("Received StartCustomPollRequest for pollType=[" + pollType + "]")
+
+    def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
+      for {
+        poll <- PollFactory.createPoll(pollId, pollType, numRespondents, Some(answers))
+      } yield {
+        lm.polls.save(poll)
+        poll
+      }
+    }
+
+    for {
+      page <- lm.presModel.getCurrentPage()
+      pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
+      stampedPollId: String = pageId + "/" + System.currentTimeMillis()
+      numRespondents: Int = Users.numUsers(lm.users) - 1 // subtract the presenter
+      poll <- createPoll(stampedPollId, numRespondents)
+      simplePoll <- getSimplePoll(stampedPollId, lm.polls)
+    } yield {
+      startPoll(poll.id, lm.polls)
+      simplePoll
+      //outGW.send(new PollStartedMessage(props.meetingProp.intId, props.recordProp.record, requesterId, pollId, simplePoll))
+    }
+  }
+
   //
-  //  }
+  // Helper methods:
+  //
+  private def handleRespondToPoll(poll: SimplePollResultOutVO, requesterId: String, pollId: String, questionId: Int,
+    answerId: Int, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
+    /*
+   * Hardcode to zero as we are assuming the poll has only one question.
+   * Our data model supports multiple question polls but for this
+   * release, we only have a simple poll which has one question per poll.
+   * (ralam june 23, 2015)
+   */
+    val questionId = 0
+
+    def storePollResult(responder: Responder): Option[SimplePollResultOutVO] = {
+      respondToQuestion(poll.id, questionId, answerId, responder, lm.polls)
+      for {
+        updatedPoll <- getSimplePollResult(poll.id, lm.polls)
+      } yield updatedPoll
+
+    }
+
+    for {
+      user <- Users.findWithId(requesterId, lm.users)
+      responder = new Responder(user.id, user.name)
+      updatedPoll <- storePollResult(responder)
+      // curPres <- Users.getCurrentPresenter(lm.users)
+    } yield {
+      // outGW.send(new UserRespondedToPollMessage(props.meetingProp.intId, props.recordProp.record, curPres.id, pollId, updatedPoll))
+      updatedPoll
+    }
+
+  }
+
+  private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
+    val shape = new scala.collection.mutable.HashMap[String, Object]()
+    shape += "num_respondents" -> new Integer(result.numRespondents)
+    shape += "num_responders" -> new Integer(result.numResponders)
+    shape += "type" -> "poll_result"
+    shape += "id" -> result.id
+    shape += "status" -> "DRAW_END"
+
+    val answers = new ArrayBuffer[java.util.HashMap[String, Object]]
+    result.answers.foreach(ans => {
+      val amap = new java.util.HashMap[String, Object]()
+      amap.put("id", ans.id: java.lang.Integer)
+      amap.put("key", ans.key)
+      amap.put("num_votes", ans.numVotes: java.lang.Integer)
+      answers += amap
+    })
+
+    val gson = new Gson()
+    shape += "result" -> gson.toJson(answers.toArray)
+
+    // Hardcode poll result display location for now to display result
+    // in bottom-right corner.
+    val display = new ArrayList[Double]()
+    val shapeHeight = 6.66 * answers.size
+    display.add(66.0)
+    display.add(100 - shapeHeight)
+    display.add(34.0)
+    display.add(shapeHeight)
+
+    shape += "points" -> display
+    shape.toMap
+  }
+
+  def getRunningPollThatStartsWith(pollId: String, polls: Polls): Option[PollVO] = {
+    for {
+      poll <- polls.polls.values find { poll => poll.id.startsWith(pollId) && poll.isRunning() }
+    } yield poll.toPollVO()
+
+  }
   //
   //  def numPolls(polls: Polls): Int = {
   //    polls.size
@@ -57,16 +229,16 @@ object Polls {
   //  def getCurrentPoll(model: PollModel): Option[PollVO] = {
   //    model.currentPoll
   //  }
-  //
-  //  def getPolls(model: PollModel): Array[PollVO] = {
-  //    val poll = new ArrayBuffer[PollVO]
-  //    model.polls.values.foreach(p => {
-  //      poll += p.toPollVO
-  //    })
-  //
-  //    poll.toArray
-  //  }
-  //
+
+  def getPolls(polls: Polls): Array[PollVO] = {
+    val poll = new ArrayBuffer[PollVO]
+    polls.polls.values.foreach(p => {
+      poll += p.toPollVO()
+    })
+
+    poll.toArray
+  }
+
   //  def clearPoll(pollID: String, model: PollModel): Boolean = {
   //    var success = false
   //    model.polls.get(pollID) match {
@@ -102,10 +274,10 @@ object Polls {
   //    success
   //  }
   //
-  //  def stopPoll(pollId: String, model: PollModel) {
-  //    model.polls.get(pollId) foreach (p => p.stop())
-  //  }
-  //
+  def stopPoll(pollId: String, polls: Polls) {
+    polls.get(pollId) foreach (p => p.stop())
+  }
+
   //  def hasPoll(pollId: String, model: PollModel): Boolean = {
   //    model.polls.get(pollId) != None
   //  }
@@ -115,43 +287,43 @@ object Polls {
     polls.get(pollId) foreach (p => pvo = Some(p.toSimplePollOutVO()))
     pvo
   }
-  //
-  //  def getSimplePollResult(pollId: String, model: PollModel): Option[SimplePollResultOutVO] = {
-  //    var pvo: Option[SimplePollResultOutVO] = None
-  //    model.polls.get(pollId) foreach (p => pvo = Some(p.toSimplePollResultOutVO()))
-  //    pvo
-  //  }
-  //
-  //  def getPoll(pollId: String, model: PollModel): Option[PollVO] = {
-  //    var pvo: Option[PollVO] = None
-  //    model.polls.get(pollId) foreach (p => pvo = Some(p.toPollVO()))
-  //    pvo
-  //  }
-  //
-  //  def hidePollResult(pollId: String, model: PollModel) {
-  //    model.polls.get(pollId) foreach {
-  //      p =>
-  //        p.hideResult()
-  //        model.currentPoll = None
-  //    }
-  //  }
-  //
-  //  def showPollResult(pollId: String, model: PollModel) {
-  //    model.polls.get(pollId) foreach {
-  //      p =>
-  //        p.showResult
-  //        model.currentPoll = Some(p.toPollVO())
-  //    }
-  //  }
-  //
-  //  def respondToQuestion(pollId: String, questionID: Int, responseID: Int, responder: Responder, model: PollModel) {
-  //    model.polls.get(pollId) match {
-  //      case Some(p) => {
-  //        p.respondToQuestion(questionID, responseID, responder)
-  //      }
-  //      case None =>
-  //    }
-  //  }
+
+  def getSimplePollResult(pollId: String, polls: Polls): Option[SimplePollResultOutVO] = {
+    var pvo: Option[SimplePollResultOutVO] = None
+    polls.get(pollId) foreach (p => pvo = Some(p.toSimplePollResultOutVO()))
+    pvo
+  }
+
+  def getPoll(pollId: String, polls: Polls): Option[PollVO] = {
+    var pvo: Option[PollVO] = None
+    polls.get(pollId) foreach (p => pvo = Some(p.toPollVO()))
+    pvo
+  }
+
+  def hidePollResult(pollId: String, polls: Polls) {
+    polls.get(pollId) foreach {
+      p =>
+        p.hideResult()
+        polls.currentPoll = None
+    }
+  }
+
+  def showPollResult(pollId: String, polls: Polls) {
+    polls.get(pollId) foreach {
+      p =>
+        p.showResult
+        polls.currentPoll = Some(p)
+    }
+  }
+
+  def respondToQuestion(pollId: String, questionID: Int, responseID: Int, responder: Responder, polls: Polls) {
+    polls.polls.get(pollId) match {
+      case Some(p) => {
+        p.respondToQuestion(questionID, responseID, responder)
+      }
+      case None =>
+    }
+  }
 
 }
 
@@ -283,20 +455,8 @@ case class QuestionResponsesVO(val questionID: String, val responseIDs: Array[St
 case class PollResponseVO(val pollID: String, val responses: Array[QuestionResponsesVO])
 case class ResponderVO(responseID: String, user: Responder)
 
-case class AnswerVO(val id: Int, val key: String, val text: Option[String], val responders: Option[Array[Responder]])
-case class QuestionVO(val id: Int, val questionType: String, val multiResponse: Boolean, val questionText: Option[String], val answers: Option[Array[AnswerVO]])
-case class PollVO(val id: String, val questions: Array[QuestionVO], val title: Option[String], val started: Boolean, val stopped: Boolean, val showResult: Boolean)
-
-case class Responder(val userId: String, name: String)
-
 case class ResponseOutVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
 case class QuestionOutVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseOutVO])
-
-case class SimpleAnswerOutVO(id: Int, key: String)
-case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
-
-case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
-case class SimplePollResultOutVO(id: String, answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
 
 class Poll(val id: String, val questions: Array[Question], val numRespondents: Int, val title: Option[String]) {
   private var _started: Boolean = false

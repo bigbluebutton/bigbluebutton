@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.messages
 
-import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.domain._
 
 object MessageBody {
   case class CreateMeetingReqMsgBody(props: DefaultProps)
@@ -24,11 +24,24 @@ object MessageBody {
   case class GetRecordingStatusReqMsgBody(requesterId: String)
   case class AllowUserToShareDesktopReqMsgBody(userId: String)
   case class StartPollReqMsgBody(requesterId: String, pollId: String, pollType: String)
+  case class StartCustomPollReqMsgBody(requesterId: String, pollId: String, pollType: String, answers: Seq[String])
+  case class StopPollReqMsgBody(requesterId: String)
+  case class ShowPollResultReqMsgBody(requesterId: String, pollId: String)
+  case class HidePollResultReqMsgBody(requesterId: String, pollId: String)
+  case class GetCurrentPollReqMsgBody(requesterId: String)
+  case class RespondToPollReqMsgBody(requesterId: String, pollId: String, questionId: Int, answerId: Int)
 
+  //
+  /** Event messages sent by Akka apps as result of receiving incoming messages ***/
+  //
 
 
   case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
   case class UserBroadcastCamStoppedEvtMsgBody(userId: String, stream: String)
-  case class StartPollRespMsgBody(userId: String, pollId: String, pollType: String)
-
+  case class PollStartedEvtMsgBody(userId: String, pollId: String, poll: SimplePollOutVO)
+  case class PollStoppedEvtMsgBody(userId: String, pollId: String)
+  case class PollShowResultEvtMsgBody(userId: String, pollId: String, poll: SimplePollResultOutVO)
+  case class PollHideResultEvtMsgBody(userId: String, pollId: String)
+  case class GetCurrentPollRespMsgBody(userId: String, pollId: String, hasPoll: Boolean, poll: PollVO)
+  case class UserRespondedToPollEvtMsgBody(presenterId: String, pollId: String, poll: SimplePollResultOutVO)
 }

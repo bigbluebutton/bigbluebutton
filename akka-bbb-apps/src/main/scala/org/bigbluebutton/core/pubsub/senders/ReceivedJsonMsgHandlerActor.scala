@@ -68,9 +68,45 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.userId, envelope, m)
         }
+      case StartCustomPollReqMsg.NAME =>
+        for {
+          m <- deserialize[StartCustomPollReqMsg](jsonNode)
+        } yield {
+          send(meetingManagerChannel, envelope, m)
+        }
       case StartPollReqMsg.NAME =>
         for {
           m <- deserialize[StartPollReqMsg](jsonNode)
+        } yield {
+          send(meetingManagerChannel, envelope, m)
+        }
+      case StopPollReqMsg.NAME =>
+        for {
+          m <- deserialize[StopPollReqMsg](jsonNode)
+        } yield {
+          send(meetingManagerChannel, envelope, m)
+        }
+      case ShowPollResultReqMsg.NAME =>
+        for {
+          m <- deserialize[ShowPollResultReqMsg](jsonNode)
+        } yield {
+          send(meetingManagerChannel, envelope, m)
+        }
+      case HidePollResultReqMsg.NAME =>
+        for {
+          m <- deserialize[HidePollResultReqMsg](jsonNode)
+        } yield {
+          send(meetingManagerChannel, envelope, m)
+        }
+      case GetCurrentPollReqMsg.NAME =>
+        for {
+          m <- deserialize[GetCurrentPollReqMsg](jsonNode)
+        } yield {
+          send(meetingManagerChannel, envelope, m)
+        }
+      case RespondToPollReqMsg.NAME =>
+        for {
+          m <- deserialize[RespondToPollReqMsg](jsonNode)
         } yield {
           send(meetingManagerChannel, envelope, m)
         }

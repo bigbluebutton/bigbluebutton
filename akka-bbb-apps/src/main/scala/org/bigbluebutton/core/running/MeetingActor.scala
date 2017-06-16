@@ -36,6 +36,12 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomApp with CaptionApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
+    with StartCustomPollReqMsgHdlr
+    with StopPollReqMsgHdlr
+    with ShowPollResultReqMsgHdlr
+    with HidePollResultReqMsgHdlr
+    with GetCurrentPollReqMsgHdlr
+    with RespondToPollReqMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with StartPollReqMsgHdlr

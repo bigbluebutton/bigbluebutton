@@ -1,20 +1,20 @@
 package org.bigbluebutton.core2.message.handlers
 
+import org.bigbluebutton.common2.domain.SimplePollOutVO
 import org.bigbluebutton.common2.messages.MessageBody.PollStartedEvtMsgBody
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.domain.SimplePollOutVO
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.MeetingActor
 
-trait StartPollReqMsgHdlr {
+trait StartCustomPollReqMsgHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
-  def handleStartPollReqMsg(msg: StartPollReqMsg): Unit = {
+  def handleStartCustomPollReqMsg(msg: StartCustomPollReqMsg): Unit = {
 
-    def broadcastEvent(msg: StartPollReqMsg, poll: SimplePollOutVO): Unit = {
+    def broadcastEvent(msg: StartCustomPollReqMsg, poll: SimplePollOutVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PollStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(PollStartedEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
@@ -26,7 +26,7 @@ trait StartPollReqMsgHdlr {
     }
 
     for {
-      pvo <- Polls.handleStartPollReqMsg(msg.header.userId, msg.body.pollId, msg.body.pollType, liveMeeting)
+      pvo <- Polls.handleStartCustomPollReqMsg(msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.answers, liveMeeting)
     } yield {
       broadcastEvent(msg, pvo)
     }
