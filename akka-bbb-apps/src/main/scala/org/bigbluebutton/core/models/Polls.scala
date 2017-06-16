@@ -27,7 +27,7 @@ object Polls {
     for {
       page <- lm.presModel.getCurrentPage()
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
-      stampedPollId: String = pageId + "/" + System.currentTimeMillis() // TODO - is the timestamp needed?
+      stampedPollId: String = pageId + "/" + System.currentTimeMillis()
       numRespondents: Int = Users.numUsers(lm.users) - 1 // subtract the presenter
 
       poll <- createPoll(stampedPollId, numRespondents)
@@ -63,7 +63,6 @@ object Polls {
     } yield {
       //      send(result, shape)
       showPollResult(pollId, lm.polls)
-      // outGW.send(new PollShowResultMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, msg.pollId, result))
       result
     }
   }
@@ -73,7 +72,6 @@ object Polls {
       poll <- getPoll(pollId, lm.polls)
     } yield {
       hidePollResult(pollId, lm.polls)
-      // outGW.send(new PollHideResultMessage(props.meetingProp.intId, props.recordProp.record, requesterId, pollId))
       pollId
     }
   }
@@ -87,15 +85,12 @@ object Polls {
     poll match {
       case Some(p) => {
         if (p.started && p.stopped && p.showResult) {
-          // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, true, Some(p)))
           Some(p)
         } else {
-          // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
           None
         }
       }
       case None => {
-        // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
         None
       }
     }
@@ -116,7 +111,6 @@ object Polls {
 
   def handleStartCustomPollReqMsg(requesterId: String, pollId: String, pollType: String,
     answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
-    // log.debug("Received StartCustomPollRequest for pollType=[" + pollType + "]")
 
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
       for {
@@ -137,7 +131,6 @@ object Polls {
     } yield {
       startPoll(poll.id, lm.polls)
       simplePoll
-      //outGW.send(new PollStartedMessage(props.meetingProp.intId, props.recordProp.record, requesterId, pollId, simplePoll))
     }
   }
 
@@ -166,9 +159,7 @@ object Polls {
       user <- Users.findWithId(requesterId, lm.users)
       responder = new Responder(user.id, user.name)
       updatedPoll <- storePollResult(responder)
-      // curPres <- Users.getCurrentPresenter(lm.users)
     } yield {
-      // outGW.send(new UserRespondedToPollMessage(props.meetingProp.intId, props.recordProp.record, curPres.id, pollId, updatedPoll))
       updatedPoll
     }
 
@@ -574,7 +565,7 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
   }
 
   def numResponders(): Int = {
-    responders.length;
+    responders.length
   }
 
   def getResponders(): Array[Responder] = {
@@ -594,7 +585,6 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
 
 class Polls {
   private val polls = new HashMap[String, Poll]()
-  //  private var polls: collection.immutable.HashMap[String, PollVO] = new collection.immutable.HashMap[String, PollVO]
   private var currentPoll: Option[Poll] = None
 
   private def save(poll: Poll): Poll = {
@@ -611,9 +601,5 @@ class Polls {
   private def get(id: String): Option[Poll] = {
     polls.get(id)
   }
-
-  //  private def setCurrentPoll(poll: PollVO) = {
-  //    currentPoll = poll
-  //  }
 
 }
