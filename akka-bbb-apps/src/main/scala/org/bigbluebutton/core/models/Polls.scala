@@ -9,7 +9,7 @@ import org.bigbluebutton.common2.domain._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.LiveMeeting
 
 object Polls {
 
@@ -243,13 +243,12 @@ object Polls {
   //    success
   //  }
   //
-  def startPoll(pollId: String, polls: Polls): Poll = {
+  def startPoll(pollId: String, polls: Polls) {
     polls.get(pollId) foreach {
       p =>
         p.start()
         polls.currentPoll = Some(p)
     }
-    polls.currentPoll.get
   }
   //
   //  def removePoll(pollID: String, model: PollModel): Boolean = {
