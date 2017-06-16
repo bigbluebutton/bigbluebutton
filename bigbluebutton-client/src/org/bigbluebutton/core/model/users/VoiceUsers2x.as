@@ -4,9 +4,9 @@ package org.bigbluebutton.core.model.users
   
   public class VoiceUsers2x
   {
-   
+    
     private var _users:ArrayCollection = new ArrayCollection();
-           
+    
     private function add(user: VoiceUser2x):void {
       _users.addItem(user);
     }
@@ -59,15 +59,15 @@ package org.bigbluebutton.core.model.users
       
       return -1;
     }
-        
+    
     public function userJoined(vu: VoiceUser2x):void {
       add(vu);    
     }
-
+    
     public function userLeft(intId: String):VoiceUser2x {
       return remove(intId);
     }
-  
+    
   }
 }
 
