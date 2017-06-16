@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.model.users
 {
+	import mx.collections.ArrayCollection;
  
   public class GuestPolicy
   {
@@ -8,10 +9,6 @@ package org.bigbluebutton.core.model.users
    
     private var _guests:ArrayCollection = new ArrayCollection();
            
-    public function getGuestsWaitingForApproval(): ArrayCollection {
-      new ArrayCollection(ObjectUtil.copy(_guests.source))
-    }
-
     public function add(user: Guest):void {
       _guests.addItem(user);
     }
@@ -30,7 +27,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _guests.length; i++) {
         user = _guests.getItemAt(i) as Guest;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return {index:i, user:user};;
         }
       }
@@ -44,7 +41,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _guests.length; i++) {
         user = _guests.getItemAt(i) as Guest;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return user;
         }
       }				
@@ -57,7 +54,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _guests.length; i++) {
         user = _guests.getItemAt(i) as Guest;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return i;
         }
       }

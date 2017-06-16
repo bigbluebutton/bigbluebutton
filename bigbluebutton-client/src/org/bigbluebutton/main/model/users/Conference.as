@@ -29,37 +29,15 @@ package org.bigbluebutton.main.model.users {
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
-	import org.bigbluebutton.core.model.Config;
-	import org.bigbluebutton.core.model.MeetingModel;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	import org.bigbluebutton.main.model.options.LockOptions;
 	
 	public class Conference {
-		public var userEjectedFromMeeting:Boolean = false;
-		public var meetingName:String;
-		
-		public var externalMeetingID:String;
-		
-		public var internalMeetingID:String;
-		
-		public var externalUserID:String;
-		
-		public var avatarURL:String;
-		
-		public var voiceBridge:String;
-		
-		public var dialNumber:String;
-		
-		public var isBreakout:Boolean;
-		
-		public var iAskedToLogout:Boolean
-		
-		[Bindable]
-		public var record:Boolean;
 		
 		[Bindable]
 		public var numAdditionalSharedNotes:Number = 0;
@@ -69,9 +47,6 @@ package org.bigbluebutton.main.model.users {
 		private var lockSettings:LockSettingsVO;
 		
 		private var _myCamSettings:ArrayCollection = null;
-		
-		[Bindable]
-		private var me:BBBUser = null;
 		
 		[Bindable]
 		public var users:ArrayCollection = null;
@@ -87,7 +62,6 @@ package org.bigbluebutton.main.model.users {
 		private var defaultLayout:String;
 		
 		public function Conference():void {
-			me = new BBBUser();
 			users = new ArrayCollection();
 			sort = new Sort();
 			sort.compareFunction = sortFunction;
@@ -151,7 +125,7 @@ package org.bigbluebutton.main.model.users {
 			if (hasUser(newuser.userID)) {
 				removeUser(newuser.userID);
 			}
-			if (newuser.userID == me.userID) {
+			if (newuser.userID == LiveMeeting.inst().me.id) {
 				newuser.me = true;
 			}
 			users.addItem(newuser);
@@ -291,150 +265,56 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
 		
-		public function whatsMyRole():String {
-			return me.role;
-		}
-		
-		[Bindable]
-		public function get amIPresenter():Boolean {
-			return me.presenter;
-		}
-		
-		public function set amIPresenter(presenter:Boolean):void {
-			me.presenter = presenter;
-			applyLockSettings();
-		}
-		
-		[Bindable]
-		public function get myEmojiStatus():String {
-			return me.emojiStatus;
-		}
-		
-		public function set myEmojiStatus(emoji:String):void {
-			me.emojiStatus = emoji;
-		}
-		
-		public function amIThisUser(userID:String):Boolean {
-			return me.userID == userID;
-		}
-		
-		public function getMyRole():String {
-			return me.role;
-		}
-		
-		public function amIModerator():Boolean {
-			return me.role == Role.MODERATOR;
-		}
 		
 		public function muteMyVoice(mute:Boolean):void {
 			voiceMuted = mute;
 		}
 		
 		public function isMyVoiceMuted():Boolean {
-			return me.voiceMuted;
+			return LiveMeeting.inst().myStatus.voiceMuted;
 		}
 		
 		[Bindable]
 		public function set voiceMuted(m:Boolean):void {
-			me.voiceMuted = m;
+      LiveMeeting.inst().myStatus.voiceMuted = m;
 		}
 		
 		public function get voiceMuted():Boolean {
-			return me.voiceMuted;
+			return LiveMeeting.inst().myStatus.voiceMuted;
 		}
 		
 		public function setMyVoiceJoined(joined:Boolean):void {
-			voiceJoined = joined;
+      LiveMeeting.inst().myStatus.voiceJoined = joined;
 		}
 		
 		public function amIVoiceJoined():Boolean {
-			return me.voiceJoined;
+			return LiveMeeting.inst().myStatus.voiceJoined;
 		}
 		
 		/** Hook to make the property Bindable **/
 		[Bindable]
 		public function set voiceJoined(j:Boolean):void {
-			me.voiceJoined = j;
+      LiveMeeting.inst().myStatus.voiceJoined = j;
 		}
 		
 		public function get voiceJoined():Boolean {
-			return me.voiceJoined;
+			return LiveMeeting.inst().myStatus.voiceJoined;
 		}
 		
 		[Bindable]
 		public function set locked(locked:Boolean):void {
-			me.userLocked = locked;
+      LiveMeeting.inst().myStatus.userLocked = locked;
 		}
 		
 		public function get locked():Boolean {
-			return me.userLocked;
-		}
-		
-		public function setUserEjectedFromMeeting():void {
-			userEjectedFromMeeting = true;
-		}
-		
-		public function getUserEjectedFromMeeting():Boolean {
-			return userEjectedFromMeeting;
-		}
-		
-		public function getMyExternalUserID():String {
-			return externalUserID;
-		}
-		
-		public function getMyUserId():String {
-			return me.userID;
-		}
-		
-		public function getMyself():BBBUser {
-			return me;
-		}
-
-		public function setMyUserid(userID:String):void {
-			me.userID = userID;
-		}
-		
-		public function setMyName(name:String):void {
-			me.name = name;
-		}
-		
-		public function getMyName():String {
-			return me.name;
-		}
-		
-		public function setMyCustomData(customdata:Object):void {
-			me.customdata = customdata;
-		}
-		
-		public function getMyCustomData():Object {
-			return me.customdata;
+			return LiveMeeting.inst().myStatus.userLocked;
 		}
 		
 		public function setMyRole(role:String):void {
-			me.role = role;
-			applyLockSettings();
+			LiveMeeting.inst().me.role = role;
+			UsersUtil.applyLockSettings();
 		}
-
-		public function amIGuest():Boolean {
-			return me.guest;
-		}
-
-		public function amIWaitingForAcceptance():Boolean {
-			return me.waitingForAcceptance;
-		}
-
-		public function setGuest(guest:Boolean):void {
-			me.guest = guest;
-		}
-		
-		public function setMyRoom(room:String):void {
-			me.room = room;
-		}
-		
-		public function setMyAuthToken(token:String):void {
-			me.authToken = token;
-		}
-		
+				
 		public function removeAllParticipants():void {
 			//users.removeAll();
 			//users.refresh();
@@ -454,9 +334,9 @@ package org.bigbluebutton.main.model.users {
 		}
 
         public function sharedWebcam(userId:String, stream:String):void {
-            var webcamsOnlyForModerator:Boolean = MeetingModel.getInstance().meeting.webcamsOnlyForModerator;
+            var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
             if (!webcamsOnlyForModerator || 
-				(webcamsOnlyForModerator && (amIModerator() || userIsModerator(userId)))
+				(webcamsOnlyForModerator && (UsersUtil.amIModerator() || userIsModerator(userId)))
 			) {
                 var aUser:BBBUser = getUser(userId);
                 if (aUser != null) {
@@ -514,7 +394,10 @@ package org.bigbluebutton.main.model.users {
 		 * */
 		public function configLockSettings():void {
 			var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
-			lockSettings = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, lockOptions.disablePrivateChat, lockOptions.disablePublicChat, lockOptions.lockedLayout, lockOptions.lockOnJoin, lockOptions.lockOnJoinConfigurable);
+			lockSettings = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, 
+        lockOptions.disablePrivateChat, lockOptions.disablePublicChat, 
+        lockOptions.lockedLayout, lockOptions.lockOnJoin, 
+        lockOptions.lockOnJoinConfigurable);
 			setLockSettings(lockSettings);
 		}
 		
@@ -522,7 +405,7 @@ package org.bigbluebutton.main.model.users {
 			var eachUser:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
 				eachUser = users.getItemAt(i) as BBBUser;
-				if (eachUser.userID == me.userID) {
+				if (eachUser.userID == LiveMeeting.inst().me.id) {
 					return eachUser;
 				}
 			}
@@ -535,15 +418,11 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
-			applyLockSettings();
+			UsersUtil.applyLockSettings();
 			users.refresh(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
 		}
 		
-		public function applyLockSettings():void {
-			var myUser:BBBUser = getMyUser();
-			if (myUser != null)
-				myUser.applyLockSettings();
-		}
+
 		
 		/* Breakout room feature */
 		public function addBreakoutRoom(newRoom:BreakoutRoom):void {
@@ -709,19 +588,19 @@ package org.bigbluebutton.main.model.users {
 			}
 		}
 
-		public function getUserAvatarURL(userID:String):String { // David, to get specific user avatar url
-                        if(userID != null ){
-                                var p:Object = getUserIndex(userID);
-                                if (p != null) {
-                                        var u:BBBUser = p.participant as BBBUser;
-                                        LOGGER.info("getUserAvatarURL user =" + JSON.stringify(u));
-                                        if(u.avatarURL == null || u.avatarURL == ""){
-                                                return this.avatarURL;
-                                        }
-                                        return u.avatarURL;
-                                }
-                        }
-                        return this.avatarURL;
-               }
-	}
+    public function getUserAvatarURL(userID:String):String { // David, to get specific user avatar url
+      if(userID != null ){
+        var p:Object = getUserIndex(userID);
+        if (p != null) {
+          var u:BBBUser = p.participant as BBBUser;
+          LOGGER.info("getUserAvatarURL user =" + JSON.stringify(u));
+          if(u.avatarURL == null || u.avatarURL == ""){
+            return LiveMeeting.inst().me.avatarURL;
+          }
+          return u.avatarURL;
+        }
+      }
+      return LiveMeeting.inst().me.avatarURL;
+    }
+  }
 }

@@ -36,7 +36,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -252,11 +251,11 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetExternalMeetingID():String {
-      return UserManager.getInstance().getConference().externalMeetingID;
+      return UsersUtil.getExternalMeetingID();
     }
 
     private function handleGetInternalMeetingID():String {
-      return UserManager.getInstance().getConference().internalMeetingID;
+      return UsersUtil.getInternalMeetingID();
     }
     
     private function handleGetSessionToken():String {
@@ -352,20 +351,20 @@ package org.bigbluebutton.main.api
     
     private function handleMuteMeRequest():void {
       var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-      e.userid = UserManager.getInstance().getConference().getMyUserId();
+      e.userid = UsersUtil.getMyUserID();
       e.mute = true;
       _dispatcher.dispatchEvent(e);
     }
 
     private function handleUnmuteMeRequest():void {
       var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-      e.userid = UserManager.getInstance().getConference().getMyUserId();
+      e.userid = UsersUtil.getMyUserID();
       e.mute = false;
       _dispatcher.dispatchEvent(e);
     }
     
     private function handleGetMyRoleRequestSync():String {
-      return UserManager.getInstance().getConference().whatsMyRole();
+      return UsersUtil.getMyRole();
     }
     
     private function handleGetMyRoleRequestAsynch():void {

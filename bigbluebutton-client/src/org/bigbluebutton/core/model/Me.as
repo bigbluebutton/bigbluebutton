@@ -2,45 +2,30 @@ package org.bigbluebutton.core.model
 {
   public class Me
   {
-    private var _id: String;
-    private var _name: String;
-    private var _externalId: String;
-    private var _token: String;
-    private var _layout: String;
-    private var _avatarURL: String;
-    private var _logoutURL: String;
+    public var id:String = "";
+    public var name:String = "";
+    public var externalId:String = "";
+    public var authToken:String = "";
+    public var layout:String = "";
+    public var logoutURL:String = "";
     
-    public function Me(builder: MeBuilder) {
-      _id = builder.id;
-      _name = builder.name;
-      _externalId = builder.externalId;
-      _token = builder.token;
-      _layout = builder.layout;
-      _logoutURL = builder.logoutURL;
+    public var welcome:String = "";
+    public var avatarURL:String = "";
+    public var dialNumber:String = "";
+    
+    public var guest:Boolean = true;
+    public var authed:Boolean = false;
+    public var customData:Object = new Object();
+    
+    private var _role:String =  "viewer";
+    
+    
+    public function get role():String {
+      return _role.toUpperCase();
     }
     
-    public function get id():String {
-      return _id;
-    }
-    
-    public function get name():String {
-      return _name;
-    }
-    
-    public function get externalId():String {
-      return _externalId;
-    }
-    
-    public function get layout():String {
-      return _layout;
-    }
-    
-    public function get avatarURL():String {
-      return _avatarURL;
-    }
-    
-    public function get logoutURL():String {
-      return _logoutURL;
+    public function set role(value: String):void {
+      _role = role;
     }
   }
 }

@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.model.users
 {
+	import mx.collections.ArrayCollection;
  
   public class Users2x
   {
@@ -24,7 +25,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as User2x;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return {index:i, user:user};;
         }
       }
@@ -38,7 +39,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as User2x;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return user;
         }
       }				
@@ -51,7 +52,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as User2x;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return i;
         }
       }

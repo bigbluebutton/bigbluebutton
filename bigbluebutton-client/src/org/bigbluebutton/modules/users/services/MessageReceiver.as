@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.core.model.MeetingModel;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -242,7 +242,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function sendRecordingStatusUpdate(recording:Boolean):void {
-      MeetingModel.getInstance().recording = recording;
+      LiveMeeting.inst().meetingStatus.isRecording = recording;
       
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
@@ -261,14 +261,14 @@ package org.bigbluebutton.modules.users.services
       dispatcher.dispatchEvent(e);      
 
       // If the user was the presenter he's reconnecting and must become viewer
-      if (UserManager.getInstance().getConference().amIPresenter) {
+      if (UsersUtil.amIPresenter()) {
         sendSwitchedPresenterEvent(false, UsersUtil.getPresenterUserID());
-        UserManager.getInstance().getConference().amIPresenter = false;
+        UsersUtil.setMeAsPresenter(false);
         var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
         dispatcher.dispatchEvent(viewerEvent);
       }
 
-      var myRole:String = UserManager.getInstance().getConference().whatsMyRole();
+      var myRole:String = UsersUtil.getMyRole();
       var role:String = map.user.role;
       // If a (pro/de)moted user refresh his browser he must reassing his role for permissions
       if (role != myRole) {
@@ -282,7 +282,7 @@ package org.bigbluebutton.modules.users.services
     private function handleMeetingMuted(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("meetingMuted")) {
-        MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+        LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
         dispatcher.dispatchEvent(new MeetingMutedEvent());
       }
     }
@@ -294,9 +294,9 @@ package org.bigbluebutton.modules.users.services
       var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
                                                  perm.disablePrivateChat, perm.disablePublicChat, perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
-      MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+	  LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
       
-      UserManager.getInstance().getConference().applyLockSettings();
+      UsersUtil.applyLockSettings();
     }
     
     private function handleInactivityWarning(msg:Object):void {
@@ -398,7 +398,7 @@ package org.bigbluebutton.modules.users.services
        * Let's store the voice userid so we can do push to talk.
        */
       if (l != null) {
-        if (_conference.getMyUserId() == l.userID) {
+        if (UsersUtil.getMyUserID() == l.userID) {
           _conference.muteMyVoice(false);
           _conference.setMyVoiceJoined(false);
         }
@@ -531,7 +531,7 @@ package org.bigbluebutton.modules.users.services
           processUserVoice(user);
         }
         
-        UserManager.getInstance().getConference().applyLockSettings();
+        UsersUtil.applyLockSettings();
       }	 
     }
     
@@ -566,10 +566,11 @@ package org.bigbluebutton.modules.users.services
       
       var meeting:Conference = UserManager.getInstance().getConference();
       
-      if (meeting.amIThisUser(newPresenterID)) {
+      if (UsersUtil.isMe(newPresenterID)) {
         sendSwitchedPresenterEvent(true, newPresenterID);
         
-        meeting.amIPresenter = true;				
+        UsersUtil.setMeAsPresenter(true);
+        
         var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
         e.userID = newPresenterID;
         e.presenterName = newPresenterName;
@@ -580,7 +581,7 @@ package org.bigbluebutton.modules.users.services
       } else {	
         sendSwitchedPresenterEvent(false, newPresenterID);
         
-        meeting.amIPresenter = false;
+        UsersUtil.setMeAsPresenter(false);
         var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
         viewerEvent.userID = newPresenterID;
         viewerEvent.presenterName = newPresenterName;
@@ -658,7 +659,7 @@ package org.bigbluebutton.modules.users.services
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
       user.avatarURL = joinedUser.avatarURL;
-      user.me = (user.userID == UserManager.getInstance().getConference().getMyUserId());
+      user.me = (user.userID == UsersUtil.getMyUserID());
 
       UserManager.getInstance().getConference().addUser(user);
       
@@ -793,7 +794,7 @@ package org.bigbluebutton.modules.users.services
       var map:Object = JSON.parse(msg.msg);
       LOGGER.debug("*** received participant role change [" + map.userID + "," + map.role + "]");
       UserManager.getInstance().getConference().newUserRole(map.userID, map.role);
-      if(UserManager.getInstance().getConference().amIThisUser(map.userID)) {
+      if(UsersUtil.isMe(map.userID)) {
         UserManager.getInstance().getConference().setMyRole(map.role);
         var e:ChangeMyRole = new ChangeMyRole(map.role);
         dispatcher.dispatchEvent(e);

@@ -220,7 +220,7 @@ package org.bigbluebutton.main.api
     public function handleGetMyRoleResponse(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_ROLE_RESP;
-      payload.myRole = UserManager.getInstance().getConference().whatsMyRole();
+      payload.myRole = UsersUtil.getMyRole();
       broadcastEvent(payload);        
     }
 

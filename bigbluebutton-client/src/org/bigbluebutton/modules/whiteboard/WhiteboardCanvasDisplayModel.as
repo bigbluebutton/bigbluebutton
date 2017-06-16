@@ -109,7 +109,7 @@ package org.bigbluebutton.modules.whiteboard
 			
 			if (o.type == AnnotationType.TEXT && 
 				o.status != AnnotationStatus.DRAW_END && 
-				o.userId == UserManager.getInstance().getConference().getMyUserId()) {
+				o.userId == UsersUtil.getMyUserID()) {
 				textUpdateListener.newTextObject(gobj as TextObject);
 			}
 		}

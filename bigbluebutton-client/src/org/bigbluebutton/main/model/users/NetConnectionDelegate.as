@@ -34,15 +34,19 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.connection.messages.MsgFromClientHdr;
+	import org.bigbluebutton.core.connection.messages.ValidateAuthTokenReqMsg;
+	import org.bigbluebutton.core.connection.messages.ValidateAuthTokenReqMsgBody;
+	import org.bigbluebutton.core.events.TokenValidEvent;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
+	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.options.ApplicationOptions;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-    import org.bigbluebutton.core.connection.messages.*
 
     public class NetConnectionDelegate {
         private static const LOGGER:ILogger = getClassLogger(NetConnectionDelegate);
@@ -121,11 +125,12 @@ package org.bigbluebutton.main.model.users
             logData.tags = ["apps", "connected"];
             logData.tokenValid = tokenValid;
             logData.status = "validate_token_response_received";
-            logData.message = "Received validate token response from server.";
+            logData.message = "Received validate token response from server. 2x";
             LOGGER.info(JSON.stringify(logData));
             
             if (tokenValid) {
                 authenticated = true;
+				dispatcher.dispatchEvent(new TokenValidEvent());
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
             }
@@ -179,14 +184,16 @@ package org.bigbluebutton.main.model.users
         }
 
         private function validateToken2x():void {
-            var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
+          var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
+          var intUserId: String = LiveMeeting.inst().me.id;
+          var authToken: String = LiveMeeting.inst().me.authToken;
                               
             var header: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg",
-                                                confParams.meetingID, 
-                                                confParams.internalUserID);
+                                                intMeetingId, 
+                                                intUserId);
 
-            var body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(confParams.internalUserID,
-                                                confParams.authToken);
+            var body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(intUserId,
+              authToken);
 
             var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body);
 
@@ -237,11 +244,13 @@ package org.bigbluebutton.main.model.users
 
 
         private function validateToken():void {
-            var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
-            
+
+          var intUserId: String = LiveMeeting.inst().me.id;
+          var authToken: String = LiveMeeting.inst().me.authToken;
+          
             var message:Object = new Object();
-            message["userId"] = confParams.internalUserID;
-            message["authToken"] = confParams.authToken;
+            message["userId"] = intUserId;
+            message["authToken"] = authToken;
                                 
             sendMessage(
                 "validateToken",// Remote function name
@@ -369,8 +378,7 @@ package org.bigbluebutton.main.model.users
         }
 
         public function connect():void {
-            var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
-
+            var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
                 
             try {
                 var appURL:String = _applicationOptions.uri;
@@ -380,12 +388,12 @@ package org.bigbluebutton.main.model.users
                 BandwidthMonitor.getInstance().serverURL = result.server;
             
                 var protocol:String = "rtmp";
-                var uri:String = appURL + "/" + confParams.room;
+                var uri:String = appURL + "/" + intMeetingId;
             
                 if (BBB.initConnectionManager().isTunnelling) {
-                    bbbAppsUrl = "rtmpt://" + result.server + "/" + result.app + "/" + confParams.room;
+                    bbbAppsUrl = "rtmpt://" + result.server + "/" + result.app + "/" + intMeetingId;
                 } else {
-                    bbbAppsUrl = "rtmp://" + result.server + ":1935/" + result.app + "/" + confParams.room;
+                    bbbAppsUrl = "rtmp://" + result.server + ":1935/" + result.app + "/" + intMeetingId;
                 }
 
                 var logData:Object = UsersUtil.initLogData();
@@ -400,11 +408,22 @@ package org.bigbluebutton.main.model.users
                 connectionTimer.addEventListener(TimerEvent.TIMER, connectionTimeout);
                 connectionTimer.start();
 
-                _netConnection.connect(bbbAppsUrl, confParams.username, confParams.role,
-                                        confParams.room, confParams.voicebridge, 
-                                        confParams.record, confParams.externUserID,
-                                        confParams.internalUserID, confParams.muteOnStart,
-                                        confParams.lockSettings, confParams.guest, confParams.authToken);
+                var username: String = LiveMeeting.inst().me.name;
+                var role: String = LiveMeeting.inst().me.role;
+                var voiceConf: String = LiveMeeting.inst().meeting.voiceConf;
+                var recorded: Boolean = LiveMeeting.inst().meeting.recorded;
+                var intUserId: String = LiveMeeting.inst().me.id;
+                var extUserId: String = LiveMeeting.inst().me.externalId;
+                var muteOnStart: Boolean = LiveMeeting.inst().meeting.muteOnStart;
+                var guest: Boolean = LiveMeeting.inst().me.guest;
+                var authToken: String = LiveMeeting.inst().me.authToken;
+                var lockSettings: LockSettingsVO = LiveMeeting.inst().meetingStatus.lockSettings;
+                
+                _netConnection.connect(bbbAppsUrl, username, role,
+                                        intMeetingId, voiceConf, 
+                                        recorded, extUserId,
+                                        intUserId, muteOnStart,
+                                        lockSettings.toMap(), guest, authToken);
                    
             } catch(e:ArgumentError) {
                 // Invalid parameters.

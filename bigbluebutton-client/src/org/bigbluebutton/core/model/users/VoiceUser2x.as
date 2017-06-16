@@ -2,13 +2,13 @@ package org.bigbluebutton.core.model.users
 {
 
 	public class VoiceUser2x {
-		var intId: String;
-		var voiceUserId: String;
-		var callingWith: String;
-		var callerName: String;
-  		var callerNum: String;
-  		var muted: Boolean;
-  		var talking: Boolean;
-  		var listenOnly: Boolean;
+		public var intId: String;
+		public var voiceUserId: String;
+		public var callingWith: String;
+		public var callerName: String;
+		public var callerNum: String;
+		public var muted: Boolean;
+		public var talking: Boolean;
+		public var listenOnly: Boolean;
 	}
 }

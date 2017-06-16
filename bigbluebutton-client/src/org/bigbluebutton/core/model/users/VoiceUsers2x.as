@@ -2,8 +2,6 @@ package org.bigbluebutton.core.model.users
 {
   import mx.collections.ArrayCollection;
   
-  import org.bigbluebutton.core.model.Me;
-
   public class VoiceUsers2x
   {
    
@@ -27,7 +25,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as VoiceUser2x;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return {index:i, user:user};;
         }
       }
@@ -41,7 +39,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as VoiceUser2x;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return user;
         }
       }				
@@ -54,7 +52,7 @@ package org.bigbluebutton.core.model.users
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as VoiceUser2x;
         
-        if (user.id == userId) {
+        if (user.intId == userId) {
           return i;
         }
       }

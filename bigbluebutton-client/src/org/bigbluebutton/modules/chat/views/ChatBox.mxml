@@ -181,7 +181,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
 				
-				if (publicChat && UserManager.getInstance().getConference().isBreakout){
+				if (publicChat && UsersUtil.isBreakout()){
 					var timerListener : Listener = new Listener();
 					timerListener.type = BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT;
 					timerListener.method = handleRemaininTimeBreakout;

@@ -26,19 +26,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}"
 		   styleName="addLayoutButtonStyle"
 		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   enabled="{UsersUtil.amIModerator()}">
 	
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
+      import org.bigbluebutton.core.UsersUtil;
 			import flash.events.Event;
 			
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.managers.PopUpManager;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();

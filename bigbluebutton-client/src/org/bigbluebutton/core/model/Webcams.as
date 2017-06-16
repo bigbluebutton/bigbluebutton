@@ -1,8 +1,10 @@
 package org.bigbluebutton.core.model
 {
+	import mx.collections.ArrayCollection;
+
 	public class Webcams
 	{
-		private var _webcams:ArrayCollection = new ArrayCollection();
+		private var _webcams: ArrayCollection = new ArrayCollection();
 		
 		public function add(stream: MediaStream):void {
 			_webcams.addItem(stream);
@@ -22,7 +24,7 @@ package org.bigbluebutton.core.model
 			for (var i:int = 0; i < _webcams.length; i++) {
 				stream = _webcams.getItemAt(i) as MediaStream;
 				
-				if (stream.id == userId) {
+				if (stream.streamId == streamId) {
 					return {index:i, stream:stream};;
 				}
 			}

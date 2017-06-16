@@ -9,8 +9,7 @@ package org.bigbluebutton.core.model.users
   public class UsersModel
   {
     private static var instance:UsersModel = null;
-    private var _me:Me;
-    
+   
     private var _users:ArrayCollection = new ArrayCollection();
     
     public function UsersModel(enforcer: UsersModelSingletonEnforcer) {
@@ -25,15 +24,7 @@ package org.bigbluebutton.core.model.users
       }
       return instance;
     }
-    
-    public function set me(value: Me):void {
-      _me = value;
-    }
-    
-    public function get me():Me {
-      return _me;
-    }
-    
+        
     private function add(user: UserVO):void {
       _users.addItem(user);
     }

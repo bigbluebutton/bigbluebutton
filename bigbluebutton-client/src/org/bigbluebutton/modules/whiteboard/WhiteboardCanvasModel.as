@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.whiteboard
   
   import mx.containers.Canvas;
   
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
@@ -115,7 +116,7 @@ package org.bigbluebutton.modules.whiteboard
 
     /** Helper method to test whether this user is the presenter */
     private function get isPresenter():Boolean {
-      return UserManager.getInstance().getConference().amIPresenter;
+      return UsersUtil.amIPresenter();
     }
   }
 }

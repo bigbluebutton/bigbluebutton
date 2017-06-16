@@ -25,7 +25,7 @@ package org.bigbluebutton.modules.chat.services
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.model.MeetingModel;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -95,7 +95,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendWelcomeMessage():void {
 	  LOGGER.debug("sendWelcomeMessage");
-      var welcome:String = BBB.initUserConfigManager().getWelcomeMessage();
+      var welcome:String = LiveMeeting.inst().me.welcome;
       if (welcome != "") {
         var welcomeMsg:ChatMessageVO = new ChatMessageVO();
         welcomeMsg.chatType = ChatConstants.PUBLIC_CHAT;
@@ -118,7 +118,7 @@ package org.bigbluebutton.modules.chat.services
       }	
       
       if (UsersUtil.amIModerator()) {
-        if (MeetingModel.getInstance().modOnlyMessage != null) {
+        if (LiveMeeting.inst().meeting.modOnlyMessage != null) {
           var moderatorOnlyMsg:ChatMessageVO = new ChatMessageVO();
           moderatorOnlyMsg.chatType = ChatConstants.PUBLIC_CHAT;
           moderatorOnlyMsg.fromUserID = SPACE;
@@ -128,7 +128,7 @@ package org.bigbluebutton.modules.chat.services
           moderatorOnlyMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
           moderatorOnlyMsg.toUserID = SPACE;
           moderatorOnlyMsg.toUsername = SPACE;
-          moderatorOnlyMsg.message = MeetingModel.getInstance().modOnlyMessage;
+          moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
           
           var moderatorOnlyMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
           moderatorOnlyMsgEvent.message = moderatorOnlyMsg;

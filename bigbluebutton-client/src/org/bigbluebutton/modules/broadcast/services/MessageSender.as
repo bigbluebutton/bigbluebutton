@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.broadcast.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.core.managers.UserManager;
 
@@ -65,7 +66,7 @@ package org.bigbluebutton.modules.broadcast.services
     public function sendWhatIsTheCurrentStreamRequest():void {
       var message:Object = new Object();
       message["messageID"] = "BroadcastWhatIsTheCurrentStreamRequest";	
-      message["requestedBy"] = UserManager.getInstance().getConference().getMyUserId();
+      message["requestedBy"] = UsersUtil.getMyUserID();
         
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("bigbluebutton.sendMessage", 

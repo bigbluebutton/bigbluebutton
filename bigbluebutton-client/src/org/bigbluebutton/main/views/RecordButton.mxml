@@ -42,26 +42,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.net.navigateToURL;
-			
-			import mx.controls.Alert;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.core.model.MeetingModel;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.model.options.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.net.navigateToURL;
+      
+      import mx.controls.Alert;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.model.options.LayoutOptions;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(RecordButton);
 
@@ -147,8 +147,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				resourcesChanged();
 
-				if (UserManager.getInstance().getConference().record) {
-					this.enabled = UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording;
+				if (LiveMeeting.inst().meeting.recorded) {
+					this.enabled = UsersUtil.amIModerator() 
+						&& LiveMeeting.inst().meeting.allowStartStopRecording;
 				}
 
 				if (! this.enabled) {
@@ -175,8 +176,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function showRecordingNotification():void {
 				if (firstAudioJoin && this.visible && !this.selected 
 						&& getLayoutOptions().showRecordingNotification
-						&& UserManager.getInstance().getConference().amIModerator()
-						&& MeetingModel.getInstance().meeting.allowStartStopRecording
+						&& UsersUtil.amIModerator()
+						&& LiveMeeting.inst().meeting.allowStartStopRecording
 						&& this.enabled) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
 					// we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially
@@ -201,21 +202,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onRecordButtonMouseOver(event:MouseEvent):void {
-				if (UserManager.getInstance().getConference().amIModerator() && UserManager.getInstance().getConference().record) {
+				if (UsersUtil.amIModerator() && LiveMeeting.inst().meeting.recorded) {
 					this.styleName = this.selected? "recordButtonStyleStop": "recordButtonStyleStart";
 				}
 			}
 
 			private function onRecordButtonMouseOut(event:MouseEvent):void {
-				if (UserManager.getInstance().getConference().amIModerator() && UserManager.getInstance().getConference().record) {
+				if (UsersUtil.amIModerator() && LiveMeeting.inst().meeting.recorded) {
 					this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
 				}
 			}
 
 			private function updateToolTip():void {
-				if (UserManager.getInstance().getConference().record) {
-					if (UserManager.getInstance().getConference().amIModerator()) {
-						if (MeetingModel.getInstance().meeting.allowStartStopRecording) {
+				if (LiveMeeting.inst().meeting.recorded) {
+					if (UsersUtil.amIModerator()) {
+						if (LiveMeeting.inst().meeting.allowStartStopRecording) {
 							if (this.selected) {
 								this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
 							} else {
@@ -232,9 +233,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						}
 					}
 				} else {
-					if (UserManager.getInstance().getConference().amIModerator()) {
-						if (MeetingModel.getInstance().meeting.isMetadata("wont-record-message")) {
-							this.toolTip = MeetingModel.getInstance().meeting.metadata["wont-record-message"];
+					if (UsersUtil.amIModerator()) {
+						if (LiveMeeting.inst().meeting.metadata.hasOwnProperty("wont-record-message")) {
+							this.toolTip = LiveMeeting.inst().meeting.metadata["wont-record-message"];
 						} else {
 							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.wontRecord');
 						}

@@ -32,16 +32,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			
-			import org.bigbluebutton.core.PopUpUtil;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BreakoutRoomEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      
+      import org.bigbluebutton.core.PopUpUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			[Bindable]
 			private var roomsProvider:Array;
@@ -69,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS);
 				// event.meetingId is filled in the event handler for BreakoutRoomEvent in UserService class
 				event.rooms = new Array();
-				var parentMeetingName:String = UserManager.getInstance().getConference().meetingName;
+				var parentMeetingName:String = UsersUtil.getMeetingName();
 				var roomResource:String = ResourceUtil.getInstance().getString('bbb.users.breakout.room');
 				for (var i:int = 0; i < (roomsCombo.selectedIndex + 2); i++) {
 					var users:Array = BreakoutList(roomsContainer.getChildAt(i)).users.source;
@@ -127,7 +128,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var me:BBBUser;
 				// Copy users to avoid removing the references from the original ArrayCollection
 				for (var l:int = 0; l < originalUsers.length; l++) {
-					if (!UserManager.getInstance().getConference().amIThisUser(BBBUser(originalUsers[l]).userID)) {
+					if (! UsersUtil.isMe((BBBUser(originalUsers[l]).userID))) {
 						users.addItem(BBBUser.copy(originalUsers[l]));
 					} // Put the current user to the unassigned box because he is the moderator
 					else {

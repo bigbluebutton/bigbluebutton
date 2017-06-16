@@ -114,13 +114,13 @@ package org.bigbluebutton.modules.videoconf.maps
 
       if (!_ready) return;
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Viewing [{1} stream [{2}]", [me, userID, stream]);
-      if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
+      if (! UsersUtil.isMe(userID)) {
         openViewWindowFor(userID);
       }
     }
 
     public function handleStreamStoppedEvent(event:StreamStoppedEvent):void {
-      if (UserManager.getInstance().getConference().amIThisUser(event.userId)) {
+      if (UsersUtil.isMe(event.userId)) {
         closePublishWindowByStream(event.streamId);
       } else {
         closeViewWindowWithStream(event.userId, event.streamId);

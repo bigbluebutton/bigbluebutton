@@ -65,7 +65,8 @@ class MeetingActor(val props: DefaultProps,
     with UserJoiningHdlr
     with UserLeavingHdlr
     with ChangeUserRoleHdlr
-    with UserJoinedVoiceConfMessageHdlr {
+    with UserJoinedVoiceConfMessageHdlr
+    with ValidateAuthTokenReqMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -241,30 +242,6 @@ class MeetingActor(val props: DefaultProps,
 
       log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.extUserId + " user=" + regUser)
       outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
-    }
-  }
-
-  def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg): Unit = {
-    log.debug("****** RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
-
-    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, props.meetingProp.intId, msg.body.userId)
-    val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
-    val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, props.meetingProp.intId, msg.body.userId)
-
-    RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
-      case Some(u) =>
-        log.info("ValidateToken success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
-
-        val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, true)
-        val event = ValidateAuthTokenRespMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        outGW.send(msgEvent)
-      case None =>
-        log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
-        val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, false)
-        val event = ValidateAuthTokenRespMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        outGW.send(msgEvent)
     }
   }
 
