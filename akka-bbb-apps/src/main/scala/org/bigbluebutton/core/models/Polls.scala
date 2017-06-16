@@ -78,7 +78,7 @@ object Polls {
     }
   }
 
-  def handleGetCurrentPollReqMsg(requesterId: String, lm: LiveMeeting): (Boolean, Option[PollVO]) = {
+  def handleGetCurrentPollReqMsg(requesterId: String, lm: LiveMeeting): Option[PollVO] = {
     val poll = for {
       page <- lm.presModel.getCurrentPage()
       curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
@@ -88,15 +88,15 @@ object Polls {
       case Some(p) => {
         if (p.started && p.stopped && p.showResult) {
           // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, true, Some(p)))
-          (true, Some(p))
+          Some(p)
         } else {
           // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
-          (false, None)
+          None
         }
       }
       case None => {
         // outGW.send(new GetCurrentPollReplyMessage(props.meetingProp.intId, props.recordProp.record, msg.requesterId, false, None))
-        (false, None)
+        None
       }
     }
   }

@@ -12,24 +12,28 @@ trait GetCurrentPollReqMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handleGetCurrentPollReqMsg(msg: GetCurrentPollReqMsg): Unit = {
+  def handleGetCurrentPollReqMsg(msgIn: GetCurrentPollReqMsg): Unit = {
 
-    def broadcastEvent(msg: GetCurrentPollReqMsg, hasPoll: Boolean, pvo: PollVO): Unit = {
+    def broadcastEvent(msg: GetCurrentPollReqMsg, hasPoll: Boolean, pvo: Option[PollVO]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(GetCurrentPollRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetCurrentPollRespMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-      val body = GetCurrentPollRespMsgBody(msg.header.userId, pvo.id, hasPoll, pvo)
+      val body = GetCurrentPollRespMsgBody(msg.header.userId, hasPoll, pvo)
       val event = GetCurrentPollRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
     }
 
-    val (hasPoll, optionPollVO) = Polls.handleGetCurrentPollReqMsg(msg.header.userId, liveMeeting)
-    for {
-      pollVO <- optionPollVO
-    } yield {
-      broadcastEvent(msg, hasPoll, pollVO)
+    val pollVO = Polls.handleGetCurrentPollReqMsg(msgIn.header.userId, liveMeeting)
+
+    pollVO match {
+      case Some(poll) => {
+        broadcastEvent(msgIn, true, pollVO)
+      }
+      case None => {
+        broadcastEvent(msgIn, false, None)
+      }
     }
   }
 }

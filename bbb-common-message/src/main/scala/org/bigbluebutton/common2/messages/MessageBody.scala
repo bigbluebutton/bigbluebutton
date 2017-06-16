@@ -42,6 +42,6 @@ object MessageBody {
   case class PollStoppedEvtMsgBody(userId: String, pollId: String)
   case class PollShowResultEvtMsgBody(userId: String, pollId: String, poll: SimplePollResultOutVO)
   case class PollHideResultEvtMsgBody(userId: String, pollId: String)
-  case class GetCurrentPollRespMsgBody(userId: String, pollId: String, hasPoll: Boolean, poll: PollVO)
+  case class GetCurrentPollRespMsgBody(userId: String, hasPoll: Boolean, poll: Option[PollVO])
   case class UserRespondedToPollEvtMsgBody(presenterId: String, pollId: String, poll: SimplePollResultOutVO)
 }
