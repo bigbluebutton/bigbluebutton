@@ -292,8 +292,9 @@ class UserListItem extends Component {
         className={styles.dropdown}
         autoFocus={false}
         aria-haspopup="true"
-        aria-live="assertive"
-        aria-relevant="additions">
+        aria-live="polite"
+        aria-relevant="additions"
+        aria-label={userAriaLabel}>
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
