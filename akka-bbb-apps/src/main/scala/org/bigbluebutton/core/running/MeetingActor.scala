@@ -74,7 +74,6 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
-    case msg: StartPollReqMsg => handleStartPollReqMsg(msg)
     //======================================
 
     //=======================================
@@ -200,6 +199,13 @@ class MeetingActor(val props: DefaultProps,
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handle(m)
       case m: StartPollReqMsg => handleStartPollReqMsg(m)
+      case m: StartCustomPollReqMsg => handleStartCustomPollReqMsg(m)
+      case m: StopPollReqMsg => handleStopPollReqMsg(m)
+      case m: ShowPollResultReqMsg => handleShowPollResultReqMsg(m)
+      case m: HidePollResultReqMsg => handleHidePollResultReqMsg(m)
+      case m: GetCurrentPollReqMsg => handleGetCurrentPollReqMsg(m)
+      case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
+
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }

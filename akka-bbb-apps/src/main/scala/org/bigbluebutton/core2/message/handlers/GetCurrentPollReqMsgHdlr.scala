@@ -12,7 +12,7 @@ trait GetCurrentPollReqMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handleGetCurrentPollRespMsg(msg: GetCurrentPollReqMsg): Unit = {
+  def handleGetCurrentPollReqMsg(msg: GetCurrentPollReqMsg): Unit = {
 
     def broadcastEvent(msg: GetCurrentPollReqMsg, hasPoll: Boolean, pvo: PollVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
