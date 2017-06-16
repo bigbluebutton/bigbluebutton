@@ -171,7 +171,6 @@ package org.bigbluebutton.main.model.users
     }
     
     [Bindable] public var room:String = "";
-    [Bindable] public var authToken:String = "";
     [Bindable] public var selected:Boolean = false;
     
     private var _voiceMuted:Boolean = false;
@@ -368,7 +367,6 @@ package org.bigbluebutton.main.model.users
     
     public static function copy(user:BBBUser):BBBUser {
       var n:BBBUser = new BBBUser();
-      n.authToken = user.authToken;
       n.me = user.me;
       n.userID = user.userID;
       n.externUserID = user.externUserID;
