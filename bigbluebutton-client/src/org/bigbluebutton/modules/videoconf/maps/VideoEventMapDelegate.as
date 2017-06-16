@@ -309,7 +309,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
       _isWaitingActivation = false;
 
-      var arr: ArrayCollection = UsersUtil.amIPublishing();
+      var arr: ArrayCollection = UsersUtil.myCamSettings();
       for (var i:int = 0; i < arr.length; i++) {
         var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
         streamList.addItem(e.stream);

@@ -26,6 +26,8 @@ package org.bigbluebutton.core
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
+  import org.bigbluebutton.core.vo.LockSettingsVO;
+  import org.bigbluebutton.main.model.options.LockOptions;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.util.SessionTokenUtil;
   
@@ -73,16 +75,16 @@ package org.bigbluebutton.core
     return LiveMeeting.inst().meeting.recorded;
   }
   
-    public static function amIPublishing():ArrayCollection {
-     return UserManager.getInstance().getConference().amIPublishing() as ArrayCollection;
+    public static function myCamSettings():ArrayCollection {
+     return LiveMeeting.inst().myStatus.myCamSettings() as ArrayCollection;
     }
 
     public static function addCameraSettings(camSettings:CameraSettingsVO):void {
-      UserManager.getInstance().getConference().addCameraSettings(camSettings);
+      LiveMeeting.inst().myStatus.addCameraSettings(camSettings);
     }
 
     public static function removeCameraSettings(camIndex:int):void {
-      UserManager.getInstance().getConference().removeCameraSettings(camIndex);
+      LiveMeeting.inst().myStatus.removeCameraSettings(camIndex);
     }
 
     public static function hasWebcamStream(userID:String):Boolean {
@@ -101,6 +103,14 @@ package org.bigbluebutton.core
       }
       
       return null;
+    }
+    
+    public static function setDefaultLayout(defaultLayout:String):void {
+      LiveMeeting.inst().meeting.defaultLayout = defaultLayout;
+    }
+    
+    public static function getDefaultLayout():String {
+      return LiveMeeting.inst().meeting.defaultLayout;
     }
     
     public static function getUserIDs():ArrayCollection {
@@ -285,6 +295,29 @@ package org.bigbluebutton.core
       var myUser:BBBUser = getMyself();
       if (myUser != null)
         myUser.applyLockSettings();
+    }
+    
+    /**
+     * Read default lock settings from config.xml
+     * */
+    public static function configLockSettings():void {
+      var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
+      var lockSettings:LockSettingsVO = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, 
+        lockOptions.disablePrivateChat, lockOptions.disablePublicChat, 
+        lockOptions.lockedLayout, lockOptions.lockOnJoin, 
+        lockOptions.lockOnJoinConfigurable);
+      
+      setLockSettings(lockSettings);
+    }
+    
+    public static function getLockSettings():LockSettingsVO {
+      return LiveMeeting.inst().meetingStatus.lockSettings;
+    }
+    
+    public static function setLockSettings(lockSettings:LockSettingsVO):void {
+      LiveMeeting.inst().meetingStatus.lockSettings = lockSettings;
+      UsersUtil.applyLockSettings();
+      UserManager.getInstance().getConference().refreshUsers(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
     }
     
   }

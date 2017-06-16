@@ -238,7 +238,7 @@ package org.bigbluebutton.modules.users.services
 	  														map.lockedLayout,
 	  														map.lockOnJoin,
 	  														map.lockOnJoinConfigurable);
-      UserManager.getInstance().getConference().setLockSettings(lockSettings);
+      UsersUtil.setLockSettings(lockSettings);
     }
     
     private function sendRecordingStatusUpdate(recording:Boolean):void {
@@ -293,7 +293,7 @@ package org.bigbluebutton.modules.users.services
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
                                                  perm.disablePrivateChat, perm.disablePublicChat, perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
-      UserManager.getInstance().getConference().setLockSettings(lockSettings);
+      UsersUtil.setLockSettings(lockSettings);
 	  LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
       
       UsersUtil.applyLockSettings();
@@ -452,7 +452,7 @@ package org.bigbluebutton.modules.users.services
         bbbEvent.payload.userID = bu.userID;            
         globalDispatcher.dispatchEvent(bbbEvent);
         
-        if (_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
+        if (UsersUtil.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
           var ev:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
           ev.userid = voiceUser.userId;
           ev.mute = true;

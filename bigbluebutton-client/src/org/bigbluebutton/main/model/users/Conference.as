@@ -32,7 +32,6 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.model.LiveMeeting;
-	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	import org.bigbluebutton.main.model.options.LockOptions;
@@ -43,10 +42,6 @@ package org.bigbluebutton.main.model.users {
 		public var numAdditionalSharedNotes:Number = 0;
 
 		private static const LOGGER:ILogger = getClassLogger(Conference);
-		
-		private var lockSettings:LockSettingsVO;
-		
-		private var _myCamSettings:ArrayCollection = null;
 		
 		[Bindable]
 		public var users:ArrayCollection = null;
@@ -59,8 +54,6 @@ package org.bigbluebutton.main.model.users {
 		
 		private var sort:Sort;
 		
-		private var defaultLayout:String;
-		
 		public function Conference():void {
 			users = new ArrayCollection();
 			sort = new Sort();
@@ -68,7 +61,7 @@ package org.bigbluebutton.main.model.users {
 			users.sort = sort;
 			users.refresh();
 			breakoutRooms = new ArrayCollection();
-			_myCamSettings = new ArrayCollection();
+
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -132,34 +125,7 @@ package org.bigbluebutton.main.model.users {
 			users.refresh();
 		}
 
-		public function addCameraSettings(camSettings: CameraSettingsVO): void {
-			if(!_myCamSettings.contains(camSettings)) {
-				_myCamSettings.addItem(camSettings);
-			}
-		}
 
-		public function removeCameraSettings(camIndex:int): void {
-			if (camIndex != -1) {
-				for(var i:int = 0; i < _myCamSettings.length; i++) {
-					if (_myCamSettings.getItemAt(i) != null && _myCamSettings.getItemAt(i).camIndex == camIndex) {
-						_myCamSettings.removeItemAt(i);
-						return;
-					}
-				}
-			}
-		}
-
-		public function amIPublishing():ArrayCollection {
-			return _myCamSettings;
-		}
-
-		public function setDefaultLayout(defaultLayout:String):void {
-			this.defaultLayout = defaultLayout;
-		}
-
-		public function getDefaultLayout():String {
-			return defaultLayout;
-		}
 
 		public function hasUser(userID:String):Boolean {
 			var p:Object = getUserIndex(userID);
@@ -389,18 +355,7 @@ package org.bigbluebutton.main.model.users {
 			return uids;
 		}
 		
-		/**
-		 * Read default lock settings from config.xml
-		 * */
-		public function configLockSettings():void {
-			var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
-			lockSettings = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, 
-        lockOptions.disablePrivateChat, lockOptions.disablePublicChat, 
-        lockOptions.lockedLayout, lockOptions.lockOnJoin, 
-        lockOptions.lockOnJoinConfigurable);
-			setLockSettings(lockSettings);
-		}
-		
+
 		public function getMyUser():BBBUser {
 			var eachUser:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
@@ -411,14 +366,8 @@ package org.bigbluebutton.main.model.users {
 			}
 			return null;
 		}
-		
-		public function getLockSettings():LockSettingsVO {
-			return lockSettings;
-		}
-		
-		public function setLockSettings(lockSettings:LockSettingsVO):void {
-			this.lockSettings = lockSettings;
-			UsersUtil.applyLockSettings();
+			
+		public function refreshUsers():void {
 			users.refresh(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
 		}
 		

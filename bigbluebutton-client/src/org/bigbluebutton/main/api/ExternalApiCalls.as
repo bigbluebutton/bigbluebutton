@@ -161,7 +161,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
-      var camSettingsArray:ArrayCollection = UsersUtil.amIPublishing();
+      var camSettingsArray:ArrayCollection = UsersUtil.myCamSettings();
       var payload:Object = new Object();
       var camArray: ArrayCollection = new ArrayCollection();
       for (var i:int = 0; i < camSettingsArray.length; i++) {

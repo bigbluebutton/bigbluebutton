@@ -222,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				updateCopyrightText();
 				loadBackground();
 
-				UserManager.getInstance().getConference().configLockSettings();
+				UsersUtil.configLockSettings();
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;
@@ -926,8 +926,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
             private function openLockSettingsWindow(event:LockControlEvent):void {
-                var conference:Conference = UserManager.getInstance().getConference();
-                var lsv:LockSettingsVO = conference.getLockSettings();
+                var lsv:LockSettingsVO = UsersUtil.getLockSettings();
 
                 var popUp:IFlexDisplayObject = PopUpUtil.createModalPopUp(mdiCanvas, LockSettings, false);
                 if (popUp) {

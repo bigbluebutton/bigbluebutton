@@ -402,7 +402,7 @@ package org.bigbluebutton.main.model.users
     }
     
     public function applyLockSettings():void {
-      var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+      var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
       var amNotModerator:Boolean = !UsersUtil.amIModerator();
       var amNotPresenter:Boolean = !UsersUtil.amIPresenter();
       var lockAppliesToMe:Boolean = me && amNotModerator && amNotPresenter && userLocked;

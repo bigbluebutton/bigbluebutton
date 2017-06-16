@@ -192,7 +192,7 @@ package org.bigbluebutton.main.api
       var obj:Object = new Object();
       var camArray: ArrayCollection = new ArrayCollection();
 
-      var camSettingsArray:ArrayCollection = UsersUtil.amIPublishing();
+      var camSettingsArray:ArrayCollection = UsersUtil.myCamSettings();
       for (var i:int = 0; i < camSettingsArray.length; i++) {
         var camSettings:CameraSettingsVO = camSettingsArray.getItemAt(i) as CameraSettingsVO;
         var cam:Object = new Object();

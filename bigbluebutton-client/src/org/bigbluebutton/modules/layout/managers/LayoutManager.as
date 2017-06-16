@@ -268,7 +268,7 @@ package org.bigbluebutton.modules.layout.managers
       var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
       var defaultLayout:LayoutDefinition = _layoutModel.getLayout(layoutOptions.defaultLayout);
            
-      var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
+      var sessionDefaulLayout:String = UsersUtil.getDefaultLayout();
             
       if (sessionDefaulLayout != "NOLAYOUT") {
         var sesLayout:LayoutDefinition = _layoutModel.getLayout(sessionDefaulLayout);

@@ -179,7 +179,7 @@
 				// reset the mute image filter so the talking indicator doesn't stick
 				muteImg.filters = null;
 				
-				var ls:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				var ls:LockSettingsVO = UsersUtil.getLockSettings();
 				
 				if (data != null) {
 					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();

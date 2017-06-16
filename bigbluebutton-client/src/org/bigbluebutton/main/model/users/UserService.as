@@ -101,8 +101,6 @@ package org.bigbluebutton.main.model.users
 			if (success) {        
 				var meetingOptions : MeetingOptions = Options.getOptions(MeetingOptions) as MeetingOptions;
         
-        LiveMeeting.inst().meetingStatus.lockSettings = UserManager.getInstance().getConference().getLockSettings();
-				
         LiveMeeting.inst().me.id = result.intUserId
         LiveMeeting.inst().me.name = result.username;
         LiveMeeting.inst().me.externalId = result.extUserId;

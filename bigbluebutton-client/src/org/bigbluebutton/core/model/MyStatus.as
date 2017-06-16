@@ -18,6 +18,9 @@
  */
 package org.bigbluebutton.core.model
 {
+  import mx.collections.ArrayCollection;
+  
+  import org.bigbluebutton.core.vo.CameraSettingsVO;
  
   public class MyStatus {   
     
@@ -40,6 +43,29 @@ package org.bigbluebutton.core.model
     
     public var isPresenter: Boolean = false;
     public var myEmojiStatus: String = "none";
+    
+    private var _myCamSettings:ArrayCollection = new ArrayCollection();
+
+    public function addCameraSettings(camSettings: CameraSettingsVO): void {
+      if(!_myCamSettings.contains(camSettings)) {
+        _myCamSettings.addItem(camSettings);
+      }
+    }
+    
+    public function removeCameraSettings(camIndex:int): void {
+      if (camIndex != -1) {
+        for(var i:int = 0; i < _myCamSettings.length; i++) {
+          if (_myCamSettings.getItemAt(i) != null && _myCamSettings.getItemAt(i).camIndex == camIndex) {
+            _myCamSettings.removeItemAt(i);
+            return;
+          }
+        }
+      }
+    }
+    
+    public function myCamSettings():ArrayCollection {
+      return _myCamSettings;
+    }
     
   }
 }
