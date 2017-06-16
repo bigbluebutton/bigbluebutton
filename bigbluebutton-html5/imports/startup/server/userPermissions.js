@@ -60,7 +60,6 @@ const moderator = {
 // holds the values for whether the viewer user is allowed to perform an action (true)
 // or false if not allowed. Some actions have dynamic values depending on the current lock settings
 const viewer = function (meetingId, userId) {
-
   let meeting;
   let user;
 
@@ -111,9 +110,6 @@ const viewer = function (meetingId, userId) {
     // emojis
     setEmojiStatus: true,
     clearEmojiStatus: true,
-
-    // user control
-    setPresenter: true,
 
     // captions
     subscribeCaptions: true,
