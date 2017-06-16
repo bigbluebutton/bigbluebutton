@@ -2,10 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ShapeHelpers from '../helpers.js';
 import TextShapeService from './service.js';
+import { findDOMNode } from 'react-dom';
 
 export default class TextDrawComponent extends React.Component {
   constructor(props) {
     super(props);
+
+    this.handleFocus = this.handleFocus.bind(this);
+    this.handleOnBlur = this.handleOnBlur.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -14,7 +18,7 @@ export default class TextDrawComponent extends React.Component {
 
   componentDidMount() {
     if(this.props.isPresenter && this.props.shape.status != "textPublished") {
-      this.focus();
+      this.handleFocus();
     }
   }
 
@@ -127,10 +131,11 @@ export default class TextDrawComponent extends React.Component {
           style={{pointerEvents: 'none'}}
         >
           <textarea
+            id={this.props.shape.id}
             maxLength="1024"
             ref={(ref) => { this.textArea = ref; }}
             onChange={this.onChangeHandler.bind(this)}
-            onBlur={this.focus.bind(this)}
+            onBlur={this.handleOnBlur}
             style={styles}
           />
         </foreignObject>
@@ -142,7 +147,15 @@ export default class TextDrawComponent extends React.Component {
     TextShapeService.setTextShapeValue(event.target.value);
   }
 
-  focus() {
+  handleOnBlur(event) {
+
+    // it'd be better to use ref to focus onBlur (handleFocus), but it doesn't want to work in FF
+    // so we are back to the old way of doing things, getElementById and setTimeout
+    let node = document.getElementById(this.props.shape.id);
+    setTimeout(function() { node.focus(); }, 1);
+  }
+
+  handleFocus() {
     // Explicitly focus the text input using the raw DOM API
     this.textArea.focus();
   }
