@@ -736,15 +736,15 @@ package org.bigbluebutton.modules.users.services
 			breakoutRoom.externalMeetingId = room.externalMeetingId;
 			breakoutRoom.name = room.name;
 			breakoutRoom.sequence = room.sequence;
-			UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+      LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
 		}
-		UserManager.getInstance().getConference().breakoutRoomsReady = map.roomsReady;
+    LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = map.roomsReady;
 	}
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
 		var externalMeetingId : String = StringUtils.substringBetween(map.redirectJoinURL, "meetingID=", "&");
-		var breakoutRoom : BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId);
+		var breakoutRoom : BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoomByExternalId(externalMeetingId);
 		var sequence : int = breakoutRoom.sequence;
 		
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
@@ -753,7 +753,7 @@ package org.bigbluebutton.modules.users.services
 		dispatcher.dispatchEvent(event);
 		
 		// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
-		setTimeout(function() : void {UserManager.getInstance().getConference().setLastBreakoutRoomInvitation(sequence)}, 1000);
+		setTimeout(function() : void {LiveMeeting.inst().breakoutRooms.setLastBreakoutRoomInvitation(sequence)}, 1000);
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{
@@ -782,13 +782,27 @@ package org.bigbluebutton.modules.users.services
 		breakoutRoom.externalMeetingId = map.externalMeetingId;
 		breakoutRoom.name = map.name;
 		breakoutRoom.sequence = map.sequence;
-		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+    LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
 	}
 	
 	private function handleBreakoutRoomClosed(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);	
-		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutMeetingId);
+    switchUserFromBreakoutToMainVoiceConf(map.breakoutMeetingId);
+    var breakoutRoom: BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoom(map.breakoutMeetingId);
+    LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(map.breakoutMeetingId);    
+		UserManager.getInstance().getConference().removeBreakoutRoomFromUser(breakoutRoom);
 	}
+  
+  private function switchUserFromBreakoutToMainVoiceConf(breakoutId: String): void {
+    // We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+    if (LiveMeeting.inst().breakoutRooms.isListeningToBreakoutRoom(breakoutId)) {
+      var dispatcher:Dispatcher = new Dispatcher();
+      var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+      e.breakoutMeetingId = breakoutId;
+      e.listen = false;
+      dispatcher.dispatchEvent(e);
+    }
+  }
 
     public function handleParticipantRoleChange(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);

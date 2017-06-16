@@ -29,6 +29,7 @@ package org.bigbluebutton.core
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.model.options.LockOptions;
   import org.bigbluebutton.main.model.users.BBBUser;
+  import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.util.SessionTokenUtil;
   
   public class UsersUtil
@@ -320,5 +321,8 @@ package org.bigbluebutton.core
       UserManager.getInstance().getConference().refreshUsers(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
     }
     
+    public static function getBreakoutRoom(id: String): BreakoutRoom {
+      return LiveMeeting.inst().breakoutRooms.getBreakoutRoom(id);
+    }
   }
 }

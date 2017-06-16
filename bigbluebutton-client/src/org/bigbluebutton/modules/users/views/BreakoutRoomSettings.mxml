@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.PopUpUtil;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -110,7 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							usersInvited ||= true;
 							var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
 							event.userId = user.userID;
-							event.breakoutMeetingId = UserManager.getInstance().getConference().getBreakoutRoomBySequence(i + 1).externalMeetingId;
+							event.breakoutMeetingId = LiveMeeting.inst().breakoutRooms.getBreakoutRoomBySequence(i + 1).externalMeetingId;
 							dispatcher.dispatchEvent(event);
 						}
 					}
@@ -196,7 +197,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					users.addItem(BBBUser.copy(originalUsers[l]));
 				}
 				// Create breakout rooms lists
-				var rooms:int = UserManager.getInstance().getConference().breakoutRooms.length;
+				var rooms:int = LiveMeeting.inst().breakoutRooms.breakoutRooms.length;
 				var user:BBBUser;
 				roomsContainer.removeAllChildren();
 				for (var r:int = 0; r < rooms; r++) {

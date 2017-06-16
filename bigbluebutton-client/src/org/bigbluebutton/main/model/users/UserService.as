@@ -247,7 +247,7 @@ package org.bigbluebutton.main.model.users
 			} else {
 				sender.listenInOnBreakout(e.breakoutMeetingId, LiveMeeting.inst().meeting.internalId, LiveMeeting.inst().me.id);
 			}
-			UserManager.getInstance().getConference().setBreakoutRoomInListen(e.listen, e.breakoutMeetingId);
+			LiveMeeting.inst().breakoutRooms.setBreakoutRoomInListen(e.listen, e.breakoutMeetingId);
 		}
 
 		public function endAllBreakoutRooms(e:BreakoutRoomEvent):void {

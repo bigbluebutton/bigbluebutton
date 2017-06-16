@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+     xmlns:mate="http://mate.asfusion.com/"
 		 verticalScrollPolicy="off"
 		 horizontalScrollPolicy="off"
 		 verticalAlign="middle"
 		 creationComplete="onCreationCompleteHandler(event)">
+  <fx:Declarations>
+    <mate:Listener type="{BreakoutRoomsReadyEvent.BREAKOUT_ROOMS_READY_EVENT}" method="handleBreakoutRoomsReadyEvent" />	
+  </fx:Declarations>
 	<fx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
@@ -13,7 +17,9 @@
       
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.BreakoutRoomsReadyEvent;
       import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.model.users.BreakoutRoom;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -26,11 +32,18 @@
 			[Bindable]
 			private var moderator:Boolean = false;
 
+      [Bindable]
+      private var breakoutRoomsReady: Boolean = false;
+      
 			protected function onCreationCompleteHandler(event:FlexEvent):void {
 				moderator = UsersUtil.amIModerator();
 
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 			}
+      
+      private function handleBreakoutRoomsReadyEvent(event: BreakoutRoomsReadyEvent): void {
+        breakoutRoomsReady = LiveMeeting.inst().breakoutRooms.breakoutRoomsReady;
+      }
 
 			private function dataChangeHandler(event:FlexEvent):void {
 				if (BreakoutRoom(data).listenStatus == BreakoutRoom.SELF) {
@@ -62,7 +75,7 @@
 			   width="20"
 			   height="20"
 			   icon="{images.join}"
-			   visible="{(UserManager.getInstance().getConference().breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently)}"
+			   visible="{(breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently)}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
 			   click="requestBreakoutJoinUrl(event)" />
 	<mx:Button id="listenBtn"

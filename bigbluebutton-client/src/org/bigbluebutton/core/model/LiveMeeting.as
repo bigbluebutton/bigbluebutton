@@ -18,6 +18,8 @@ package org.bigbluebutton.core.model
     public var meeting: Meeting = new Meeting();
     public var config: Config;
     
+    public var breakoutRooms: BreakoutRooms = new BreakoutRooms();
+    
     public function LiveMeeting(enforcer: LiveMeetingSingletonEnforcer)
     {
       if (enforcer == null){
