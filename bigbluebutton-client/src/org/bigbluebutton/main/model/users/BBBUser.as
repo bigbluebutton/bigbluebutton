@@ -415,8 +415,7 @@ package org.bigbluebutton.main.model.users
       
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
-      
-      
+            
       if (lockAppliesToMe) {
         //If it's sharing webcam, stop it
         if (disableMyCam && hasStream){

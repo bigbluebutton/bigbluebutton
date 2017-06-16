@@ -17,6 +17,7 @@ package org.bigbluebutton.core.model
     public var meetingStatus: MeetingStatus = new MeetingStatus();
     public var meeting: Meeting = new Meeting();
     public var config: Config;
+    public var sharedNotes: SharedNotes = new SharedNotes();
     
     public var breakoutRooms: BreakoutRooms = new BreakoutRooms();
     

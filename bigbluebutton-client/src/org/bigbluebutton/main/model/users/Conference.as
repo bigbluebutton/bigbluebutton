@@ -30,9 +30,6 @@ package org.bigbluebutton.main.model.users {
   
   public class Conference {
     
-    [Bindable]
-    public var numAdditionalSharedNotes:Number = 0;
-    
     private static const LOGGER:ILogger = getClassLogger(Conference);
     
     [Bindable]
