@@ -21,126 +21,135 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
-
-	public class MessageSender
-	{	
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+	
+	public class MessageSender {
 		private static const LOGGER:ILogger = getClassLogger(MessageSender);
-
+		
 		public function modifyAccess(e:WhiteboardAccessEvent):void {
-//			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
-			var message:Object = new Object();
-			message["multiUser"] = e.multiUser;
+			var message:Object = {
+				header: {name: "ModifyWhiteboardAccessPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {multiUser: e.multiUser}
+			};
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.modifyWhiteboardAccess", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
 				},
-				message
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
 			);
 		}
 		
 		public function getWhiteboardAccess():void {
+			var message:Object = {
+				header: {name: "GetWhiteboardAccessReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {requesterId: UsersUtil.getMyUserID()}
+			};
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.getWhiteboardAccess", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
 				},
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 
-				}
-			);
-		}
-		
-		/**
-		 * Sends a call out to the red5 server to notify the clients to toggle grid mode
-		 * 
-		 */		
-		public function toggleGrid():void{
-//			LogUtil.debug("Sending [whiteboard.toggleGrid] to server.");
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.toggleGrid", 
-				function(result:String):void { // On successful result
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				}
+				},
+				JSON.stringify(message)
 			);
 		}
 		
 		/**
 		 * Sends a call out to the red5 server to notify the clients to undo a GraphicObject
 		 * 
-		 */		
+		 */
 		public function undoGraphic(wbId:String):void{
-	        var msg:Object = new Object();
-	        msg["whiteboardId"] = wbId;
-
+			var message:Object = {
+				header: {name: "UndoWhiteboardPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {whiteboardId: wbId}
+			};
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.undo", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
 				},
-        msg
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
 			);
 		}
 		
 		/**
-		 * Sends a call out to the red5 server to notify the clients that the board needs to be cleared 
+		 * Sends a call out to the red5 server to notify the clients that the board needs to be cleared
 		 * 
-		 */		
-		public function clearBoard(wbId:String):void{
-	        var msg:Object = new Object();
-	        msg["whiteboardId"] = wbId;
-      
+		 */
+		public function clearBoard(wbId:String):void {
+			var message:Object = {
+				header: {name: "ClearWhiteboardPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {whiteboardId: wbId}
+			};
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.clear", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
 				},
-        msg
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
 			);
 		}
-
-    public function requestAnnotationHistory(wbId:String):void{
-            var msg:Object = new Object();
-            msg["whiteboardId"] = wbId;
-            
-            var _nc:ConnectionManager = BBB.initConnectionManager();
-            _nc.sendMessage("whiteboard.requestAnnotationHistory", 
-                function(result:String):void { // On successful result
-                },	                   
-                function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-                },
-                msg
-            );
-        }
-
+		
+		public function requestAnnotationHistory(wbId:String):void {
+			var message:Object = {
+				header: {name: "GetWhiteboardAnnotationsReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {whiteboardId: wbId}
+			};
+			
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage2x(
+				function(result:String):void { // On successful result
+				},
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
+			);
+		}
+		
 		/**
 		 * Sends a shape to the Shared Object on the red5 server, and then triggers an update across all clients
 		 * @param shape The shape sent to the SharedObject
 		 * 
-		 */		
+		 */
 		public function sendShape(e:WhiteboardDrawEvent):void {
-            			
+			var message:Object = {
+				header: {name: "SendWhiteboardAnnotationPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: { annotation: {
+					id: e.annotation.id,
+					status: e.annotation.annotation.status,
+					annotationType: e.annotation.type,
+					annotationInfo: e.annotation.annotation,
+					wbId: e.annotation.whiteboardId,
+					userId: UsersUtil.getMyUserID(),
+					position: -1}
+				}
+			};
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.sendAnnotation",               
-					function(result:String):void { // On successful result
-//						LogUtil.debug(result); 
-					},	                   
-					function(status:String):void { // status - On error occurred
-						LOGGER.error(status); 
-					},
-					e.annotation.annotation
+			_nc.sendMessage2x(
+				function(result:String):void { // On successful result
+					// LogUtil.debug(result);
+				},
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
 			);
 		}
 		
@@ -151,19 +160,20 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */
 		public function sendCursorPosition(xPercent:Number, yPercent:Number):void {
-			var message:Object = new Object();
-			message["xPercent"] = xPercent;
-			message["yPercent"] = yPercent;
+			var message:Object = {
+				header: {name: "SendCursorPositionPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {xPercent: xPercent, yPercent: yPercent}
+			};
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.sendCursorPosition", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
-					//LOGGER.debug(result); 
+					//LOGGER.debug(result);
 				},
 				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
+					LOGGER.error(status);
 				},
-				message
+				JSON.stringify(message)
 			);
 		}
 	}

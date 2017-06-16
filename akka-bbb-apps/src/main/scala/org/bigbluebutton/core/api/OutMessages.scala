@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.CurrentPresentationInfo
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.apps.Page
@@ -141,14 +140,7 @@ case class UserRespondedToPollMessage(meetingID: String, recorded: Boolean, pres
 case class RespondToPollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
 case class GetCurrentPollReplyMessage(meetingID: String, recorded: Boolean, requesterId: String, hasPoll: Boolean, poll: Option[PollVO]) extends IOutMessage
 
-// Whiteboard
-case class GetWhiteboardShapesReply(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapes: Array[AnnotationVO], replyTo: String) extends IOutMessage
-case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shape: AnnotationVO) extends IOutMessage
-case class CursorPositionUpdatedEvent(meetingID: String, recorded: Boolean, requesterID: String, xPercent: Double, yPercent: Double) extends IOutMessage
-case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, fullClear: Boolean) extends IOutMessage
-case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapeId: String) extends IOutMessage
-case class ModifiedWhiteboardAccessEvent(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage
-case class GetWhiteboardAccessReply(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage
+// No idea what part this is for
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
 // Caption

@@ -2,12 +2,13 @@ package org.bigbluebutton.core.util.jhotdraw;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BezierWrapper {
   
   private BezierWrapper() {}
   
-  public static PathData lineSimplifyAndCurve(ArrayList<Float> points, int oWidth, int oHeight) {
+  public static PathData lineSimplifyAndCurve(List<Float> points, int oWidth, int oHeight) {
     ArrayList<Point2D.Double> startingLine = new ArrayList<Point2D.Double>();
     //denormalize and turn into point2d
     for (int i=0; i<points.size(); i+=2) {
@@ -34,7 +35,7 @@ public class BezierWrapper {
   }
   
   private static Double denormalize(Float val, int max) {
-    return val/100d*max;
+    return ((double) val)/100d*max;
   }
   
   private static Float normalize(Double val, int max) {

@@ -14,6 +14,8 @@ sealed trait BbbCoreMsg
 sealed trait BbbCommonMsg
 sealed trait BbbCoreHeader
 
+trait StandardMsg extends BbbCoreMsg { def header: BbbClientMsgHeader }
+
 case class RoutingEnvelope(msgType: String, meetingId: String, userId: String)
 case class BbbMsgToClientEnvelope(name: String, routing: RoutingEnvelope)
 case class BbbCoreEnvelope(name: String, routing: collection.immutable.Map[String, String])
@@ -56,6 +58,28 @@ case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadc
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
 
+/** Whiteboard Messages */
+object SendCursorPositionPubMsg { val NAME = "SendCursorPositionPubMsg"}
+case class SendCursorPositionPubMsg(header: BbbClientMsgHeader, body: SendCursorPositionPubMsgBody) extends StandardMsg
+
+object SendWhiteboardAnnotationPubMsg { val NAME = "SendWhiteboardAnnotationPubMsg"}
+case class SendWhiteboardAnnotationPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationPubMsgBody) extends StandardMsg
+
+object GetWhiteboardAnnotationsReqMsg { val NAME = "GetWhiteboardAnnotationsReqMsg"}
+case class GetWhiteboardAnnotationsReqMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsReqMsgBody) extends StandardMsg
+
+object ClearWhiteboardPubMsg { val NAME = "ClearWhiteboardPubMsg"}
+case class ClearWhiteboardPubMsg(header: BbbClientMsgHeader, body: ClearWhiteboardPubMsgBody) extends StandardMsg
+
+object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg"}
+case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
+
+object ModifyWhiteboardAccessPubMsg { val NAME = "ModifyWhiteboardAccessPubMsg"}
+case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessPubMsgBody) extends StandardMsg
+
+object GetWhiteboardAccessReqMsg { val NAME = "GetWhiteboardAccessReqMsg"}
+case class GetWhiteboardAccessReqMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessReqMsgBody) extends StandardMsg
+
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
 object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
 case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
@@ -71,6 +95,27 @@ case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserB
 object UserBroadcastCamStoppedEvtMsg { val NAME = "UserBroadcastCamStoppedEvtMsg" }
 case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
 
+/** Whiteboard Messages */
+object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
+case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
+
+object SendWhiteboardAnnotationEvtMsg { val NAME = "SendWhiteboardAnnotationEvtMsg" }
+case class SendWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationEvtMsgBody) extends BbbCoreMsg
+
+object GetWhiteboardAnnotationsRespMsg { val NAME = "GetWhiteboardAnnotationsRespMsg" }
+case class GetWhiteboardAnnotationsRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsRespMsgBody) extends BbbCoreMsg
+
+object ClearWhiteboardEvtMsg { val NAME = "ClearWhiteboardEvtMsg" }
+case class ClearWhiteboardEvtMsg(header: BbbClientMsgHeader, body: ClearWhiteboardEvtMsgBody) extends BbbCoreMsg
+
+object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
+case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg
+
+object ModifyWhiteboardAccessEvtMsg { val NAME = "ModifyWhiteboardAccessEvtMsg" }
+case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessEvtMsgBody) extends BbbCoreMsg
+
+object GetWhiteboardAccessRespMsg { val NAME = "GetWhiteboardAccessRespMsg" }
+case class GetWhiteboardAccessRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessRespMsgBody) extends BbbCoreMsg
 
 /** System Messages **/
 case class AkkaAppsCheckAliveReqBody(timestamp: Long)

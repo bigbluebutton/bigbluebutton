@@ -135,4 +135,29 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
       send(envelope, m)
     }
   }
+
+  def deserialize[B <: BbbCoreMsg](jsonNode: JsonNode)(implicit tag: Manifest[B]): Option[B] = {
+    val (result, error) = JsonDeserializer.toBbbCommonMsg[B](jsonNode)
+
+    result match {
+      case Some(msg) =>
+        Some(msg.asInstanceOf[B])
+      case None =>
+        log.error("Failed to deserialize message " + error)
+        None
+    }
+  }
+
+  def send(channel: String, envelope: BbbCoreEnvelope, msg: BbbCoreMsg): Unit = {
+    val event = BbbMsgEvent(channel, BbbCommonEnvCoreMsg(envelope, msg))
+    publish(event)
+  }
+
+  def routeGenericMsg[B <: StandardMsg](envelope: BbbCoreEnvelope, jsonNode: JsonNode)(implicit tag: Manifest[B]): Unit = {
+    for {
+      m <- deserialize[B](jsonNode)
+    } yield {
+      send(m.header.meetingId, envelope, m)
+    }
+  }
 }

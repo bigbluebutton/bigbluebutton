@@ -2,7 +2,6 @@ package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.GuestPolicy._
 import org.bigbluebutton.core.api.SharedNotesOperation._
-import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.apps.BreakoutUser
 import spray.json.JsObject
@@ -187,17 +186,7 @@ case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String,
 case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean) extends InMessage
 case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String) extends InMessage
 
-/////////////////////////////////////////////////////////////////////////////////////
-// Whiteboard
-/////////////////////////////////////////////////////////////////////////////////////
-
-case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage
-case class SendCursorPositionRequest(meetingID: String, requesterID: String, xPercent: Double, yPercent: Double) extends InMessage
-case class GetWhiteboardShapesRequest(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) extends InMessage
-case class ClearWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage
-case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage
-case class ModifyWhiteboardAccessRequest(meetingID: String, requesterID: String, multiUser: Boolean) extends InMessage
-case class GetWhiteboardAccessRequest(meetingID: String, requesterID: String) extends InMessage
+// No idea what part this is for
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
 
 // Caption
