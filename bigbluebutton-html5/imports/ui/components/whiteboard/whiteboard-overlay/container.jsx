@@ -22,6 +22,7 @@ class WhiteboardOverlayContainer extends React.Component {
 
 export default createContainer(() => ({
   sendAnnotation: WhiteboardOverlayService.sendAnnotation,
+  setTextShapeActiveId: WhiteboardOverlayService.setTextShapeActiveId,
+  resetTextShapeValue: WhiteboardOverlayService.resetTextShapeValue,
   drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
-  textShapeValue: WhiteboardOverlayService.getTextShapeValue(),
 }), WhiteboardOverlayContainer);

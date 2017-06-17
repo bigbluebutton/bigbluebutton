@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ShapeHelpers from '../helpers.js';
-import TextShapeService from './service.js';
 import { findDOMNode } from 'react-dom';
 
 export default class TextDrawComponent extends React.Component {
@@ -13,11 +12,12 @@ export default class TextDrawComponent extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return this.props.shape.version != nextProps.shape.version;
+    return this.props.shape.version != nextProps.shape.version ||
+      this.props.isActive != nextProps.isActive;
   }
 
   componentDidMount() {
-    if(this.props.isPresenter && this.props.shape.status != "textPublished") {
+    if(this.props.isActive && this.props.shape.status != "textPublished") {
       this.handleFocus();
     }
   }
@@ -59,6 +59,9 @@ export default class TextDrawComponent extends React.Component {
       wordBreak: 'normal',
       textAlign: 'left',
       margin: 0,
+
+      // padding to match the border of the text area and the flash client's default 1px padding
+      padding: 1,
       color: results.fontColor,
       fontSize: results.calcedFontSize,
     };
@@ -67,6 +70,7 @@ export default class TextDrawComponent extends React.Component {
 
   getPresenterStyles(results) {
     const styles = {
+      fontFamily: 'Arial',
       border: '1px solid black',
       width: "100%",
       height: "100%",
@@ -113,21 +117,13 @@ export default class TextDrawComponent extends React.Component {
   renderPresenterTextShape(results) {
     const styles = this.getPresenterStyles(results);
 
-    // since textarea has a 1 px border which moves the text inside 1px down and right
-    // we need to adjust and center foreign object (textarea's wrapper) accordingly
-    // thus text won't make a 1px jump (top-left) after publishing
-    const x = results.x - 1;
-    const y = results.y - 1;
-    const width = results.width + 2;
-    const height = results.height + 2;
-
     return (
       <g>
         <foreignObject
-          x={x}
-          y={y}
-          width={width}
-          height={height}
+          x={results.x}
+          y={results.y}
+          width={results.width}
+          height={results.height}
           style={{pointerEvents: 'none'}}
         >
           <textarea
@@ -144,7 +140,7 @@ export default class TextDrawComponent extends React.Component {
   }
 
   onChangeHandler(event) {
-    TextShapeService.setTextShapeValue(event.target.value);
+    this.props.setTextShapeValue(event.target.value);
   }
 
   handleOnBlur(event) {
@@ -163,7 +159,7 @@ export default class TextDrawComponent extends React.Component {
   render() {
     let results = this.getCoordinates();
 
-    if(this.props.isPresenter && this.props.shape.status != "textPublished") {
+    if(this.props.isActive && this.props.shape.status != "textPublished") {
       return this.renderPresenterTextShape(results);
     } else {
       return this.renderViewerTextShape(results);

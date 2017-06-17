@@ -4,7 +4,7 @@ import Ellipse from '../shapes/ellipse/component.jsx';
 import Line from '../shapes/line/component.jsx';
 import Poll from '../shapes/poll/component.jsx';
 import Rectangle from '../shapes/rectangle/component.jsx';
-import Text from '../shapes/text/component.jsx';
+import Text from '../shapes/text/container.jsx';
 import Triangle from '../shapes/triangle/component.jsx';
 import Pencil from '../shapes/pencil/component.jsx';
 
@@ -25,7 +25,6 @@ export default class ShapeGroup extends React.Component {
 
   renderShape(shape, width, height) {
     let Component = this.props.shapeSelector[shape.shape.type];
-    let additionalProps = shape.shape.type == "text" ? { isPresenter: this.props.isPresenter } : null;
 
     if (Component != null) {
       return (
@@ -34,7 +33,6 @@ export default class ShapeGroup extends React.Component {
           shape={shape.shape}
           slideWidth={width}
           slideHeight={height}
-          {...additionalProps}
         />
       );
     } else {

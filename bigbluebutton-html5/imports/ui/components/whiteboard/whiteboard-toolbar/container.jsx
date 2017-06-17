@@ -16,7 +16,6 @@ class WhiteboardToolbarContainer extends React.Component {
 }
 
 export default createContainer(() => ({
-  undoAnnotation: WhiteboardToolbarService.undoAnnotation,
-  clearWhiteboard: WhiteboardToolbarService.clearWhiteboard,
-  setWhiteboardToolbarValues: WhiteboardToolbarService.setWhiteboardToolbarValues,
+  actions: WhiteboardToolbarService.actions,
+  textShapeActiveId: WhiteboardToolbarService.getTextShapeActiveId(),
 }), WhiteboardToolbarContainer);

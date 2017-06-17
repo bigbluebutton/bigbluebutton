@@ -32,13 +32,11 @@ class ShapeGroupContainer extends React.Component {
 export default createContainer((params) => {
   const { whiteboardId, width, height } = params;
   const shapes = ShapeGroupService.getCurrentShapes(whiteboardId);
-  const isPresenter = ShapeGroupService.isPresenter();
 
   return {
     shapes,
     width,
     height,
-    isPresenter,
   };
 }, ShapeGroupContainer);
 

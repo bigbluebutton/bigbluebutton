@@ -27,7 +27,7 @@ export default class WhiteboardToolbar extends Component {
 
       //keeping the previous color and the thickness icon's radius selected for svg animation
       prevColorSelected: '#000000',
-      prevIconRadius: 6,
+      prevIconRadius: 4,
 
       //lists of tools/thickness/colors are not direct children of main toolbar buttons
       //and we want the list to close when onBlur fires at the main toolbar button
@@ -52,11 +52,15 @@ export default class WhiteboardToolbar extends Component {
 
     //setting default or resetting current drawing settings in the session
     const { annotationSelected, thicknessSelected, colorSelected, fontSizeSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(
+    this.props.actions.setWhiteboardToolbarValues(
       annotationSelected.sessionValue,
       thicknessSelected.sessionRadius,
       this.HEXToINTColor(colorSelected),
       fontSizeSelected,
+      {
+        textShapeValue: '',
+        textShapeActiveId: '',
+      },
     );
   }
 
@@ -83,25 +87,47 @@ export default class WhiteboardToolbar extends Component {
   }
 
   animateSvgIcons(prevState) {
-    // if Text tool is selected - we only need to update the Color icon with the new color
-    if(this.state.annotationSelected.sessionValue == "Text") {
-      if(this.state.colorSelected != prevState.colorSelected) {
+    /* Animation for the svg icons that we use for thickness (circle) and color (rectangle)
+     * has to be triggered manually
+     * we have 4 main cases:
+     * 1. Color change -
+         a) Text tool is selected, Font-Size icon substitutes the thickness icon,
+            thus we need to trigger just color change for the color icon
+         b) Any other tool than Text tool is selected - trigger color change for both icons
+     * 2. Thickness change - trigger radius for the thickness icon
+     * 3. Switch from the Text tool to any other - trigger color and radius for thickness
+     * 4. Trigger initial animation for the icons
+    */
+
+    // 1st case
+    if(this.state.colorSelected != prevState.colorSelected) {
+      // 1st case a)
+      if(this.state.annotationSelected.sessionValue == "Text") {
         const node = findDOMNode(this.colorListIconColor);
         node.beginElement();
-      }
-    // if any other tool except Text is selected - we might potentially update:
-    // 1) Color icon with the new color; 2) Thickness icon with the new radius and color
-    } else {
-      if(this.state.colorSelected != prevState.colorSelected) {
+      // 1st case b)
+      } else {
         const node = findDOMNode(this.colorListIconColor);
         const node2 = findDOMNode(this.thicknessListIconColor);
         node.beginElement();
         node2.beginElement();
-      } else if(this.state.thicknessSelected.iconRadius != prevState.thicknessSelected.iconRadius) {
-        const node = findDOMNode(this.thicknessListIconRadius);
-        node.beginElement();
       }
+    // 2nd case
+    } else if(this.state.thicknessSelected.iconRadius != prevState.thicknessSelected.iconRadius) {
+      const node = findDOMNode(this.thicknessListIconRadius);
+      node.beginElement();
     }
+
+    // 3rd case
+    else if(this.state.annotationSelected.sessionValue != "Text" &&
+          prevState.annotationSelected.sessionValue == "Text") {
+      const node = findDOMNode(this.thicknessListIconRadius);
+      const node2 = findDOMNode(this.thicknessListIconColor);
+      node.beginElement();
+      node2.beginElement();
+    }
+
+    // 4th case, initial animation (just thickness) is triggered in componentDidMount
   }
 
   //open a submenu
@@ -113,6 +139,12 @@ export default class WhiteboardToolbar extends Component {
 
   //close a current submenu (fires onBlur only, when you click anywhere on the screen)
   closeSubMenu() {
+
+    // a separate case for the active text shape
+    if(this.state.annotationSelected.sessionValue == "Text" && this.props.textShapeActiveId != '') {
+      return;
+    }
+
     if(this.state.onBlurEnabled) {
       this.setState({
         currentSubmenuOpen: undefined,
@@ -122,42 +154,37 @@ export default class WhiteboardToolbar extends Component {
 
   //undo annotation
   handleUndo() {
-    this.props.undoAnnotation(this.props.whiteboardId);
+    this.props.actions.undoAnnotation(this.props.whiteboardId);
   }
 
   //clear all annotations
   handleClearAll() {
-    this.props.clearWhiteboard(this.props.whiteboardId);
+    this.props.actions.clearWhiteboard(this.props.whiteboardId);
   }
 
   //changes a current selected annotation both in the state and in the session
   //and closes the annotation list
   handleAnnotationChange(annotation) {
-    const { thicknessSelected, colorSelected, fontSizeSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(
-      annotation.sessionValue,
-      thicknessSelected.sessionRadius,
-      this.HEXToINTColor(colorSelected),
-      fontSizeSelected,
-    );
 
-    this.setState({
+    const obj = {
       annotationSelected: annotation,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
-    });
+    };
+
+    // to animate thickness icon properly when you switch the tool back from Text
+    if(annotation.sessionValue == "Text") {
+      obj.prevIconRadius = 0;
+    }
+
+    this.props.actions.setTool(annotation.sessionValue);
+    this.setState(obj);
   }
 
   //changes a current selected thickness both in the state and in the session
   //and closes the thickness list
   handleThicknessChange(thicknessObj) {
-    const { annotationSelected, colorSelected, fontSizeSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(
-      annotationSelected.sessionValue,
-      thicknessObj.sessionRadius,
-      this.HEXToINTColor(colorSelected),
-      fontSizeSelected,
-    );
+    this.props.actions.setThickness(thicknessObj.sessionRadius);
 
     this.setState({
       prevIconRadius: this.state.thicknessSelected.iconRadius,
@@ -168,14 +195,7 @@ export default class WhiteboardToolbar extends Component {
   }
 
   handleFontSizeChange(fontSizeObj) {
-    const { annotationSelected, colorSelected, thicknessSelected } = this.state;
-
-    this.props.setWhiteboardToolbarValues(
-      annotationSelected.sessionValue,
-      thicknessSelected.sessionRadius,
-      this.HEXToINTColor(colorSelected),
-      fontSizeObj.fontSize,
-    );
+    this.props.actions.setFontSize(fontSizeObj.fontSize);
 
     this.setState({
       fontSizeSelected: fontSizeObj.fontSize,
@@ -187,13 +207,8 @@ export default class WhiteboardToolbar extends Component {
   //changes a current selected color both in the state and in the session
   //and closes the color list
   handleColorChange(color) {
-    const { annotationSelected, thicknessSelected, fontSizeSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(
-      annotationSelected.sessionValue,
-      thicknessSelected.sessionRadius,
-      this.HEXToINTColor(color),
-      fontSizeSelected
-    );
+    this.props.actions.setColor(this.HEXToINTColor(color));
+
     this.setState({
       prevColorSelected: this.state.colorSelected,
       colorSelected: color,
@@ -507,12 +522,12 @@ const defaultProps = {
     {icon: 'hand', sessionValue: "Hand"}
   ],
   fontSizes: [
-    {fontSize: 30},
+    {fontSize: 36},
+    {fontSize: 32},
+    {fontSize: 28},
     {fontSize: 24},
     {fontSize: 20},
-    {fontSize: 18},
     {fontSize: 16},
-    {fontSize: 14},
     {fontSize: 12},
   ],
 };
