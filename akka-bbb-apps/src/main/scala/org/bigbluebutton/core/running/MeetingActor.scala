@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
-
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
@@ -16,8 +15,8 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.handlers.{ UserBroadcastCamStartMsgHdlr, UserBroadcastCamStopMsgHdlr, UserJoinMeetingReqMsgHdlr, UserJoinedVoiceConfEvtMsgHdlr }
 
+import org.bigbluebutton.core2.message.handlers.{ UserBroadcastCamStartMsgHdlr, UserBroadcastCamStopMsgHdlr, UserJoinMeetingReqMsgHdlr, UserJoinedVoiceConfEvtMsgHdlr }
 import scala.concurrent.duration._
 
 object MeetingActor {
@@ -121,13 +120,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: SharePresentation => handleSharePresentation(msg)
     case msg: GetSlideInfo => handleGetSlideInfo(msg)
     case msg: PreuploadedPresentations => handlePreuploadedPresentations(msg)
-    case msg: SendWhiteboardAnnotationRequest => handleSendWhiteboardAnnotationRequest(msg)
-    case msg: SendCursorPositionRequest => handleSendCursorPositionRequest(msg)
-    case msg: GetWhiteboardShapesRequest => handleGetWhiteboardShapesRequest(msg)
-    case msg: ClearWhiteboardRequest => handleClearWhiteboardRequest(msg)
-    case msg: UndoWhiteboardRequest => handleUndoWhiteboardRequest(msg)
-    case msg: ModifyWhiteboardAccessRequest => handleModifyWhiteboardAccessRequest(msg)
-    case msg: GetWhiteboardAccessRequest => handleGetWhiteboardAccessRequest(msg)
     case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
     case msg: StartCustomPollRequest => handleStartCustomPollRequest(msg)
@@ -190,8 +182,14 @@ class MeetingActor(val props: DefaultProps,
       case m: UserJoinMeetingReqMsg => handle(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
-
       case m: UserJoinedVoiceConfEvtMsg => handle(m)
+      case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)
+      case m: ClearWhiteboardPubMsg => handleClearWhiteboardPubMsg(m)
+      case m: UndoWhiteboardPubMsg => handleUndoWhiteboardPubMsg(m)
+      case m: ModifyWhiteboardAccessPubMsg => handleModifyWhiteboardAccessPubMsg(m)
+      case m: GetWhiteboardAccessReqMsg => handleGetWhiteboardAccessReqMsg(m)
+      case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
+      case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }

@@ -258,42 +258,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson());
 	}
 
-	public void sendWhiteboardAnnotation(String meetingID, String requesterID, Map<String, Object> annotation) {
-		SendWhiteboardAnnotationRequestMessage msg = new SendWhiteboardAnnotationRequestMessage(meetingID, requesterID, annotation);
-		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-	}
-
-	public void sendCursorPosition(String meetingID, String requesterID, double xPercent, double yPercent) {
-		SendCursorPositionMessage msg = new SendCursorPositionMessage(meetingID, requesterID, xPercent, yPercent);
-		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-	}
-
-	public void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo) {
-		RequestWhiteboardAnnotationHistoryRequestMessage msg = new RequestWhiteboardAnnotationHistoryRequestMessage(meetingID, requesterID, whiteboardId, replyTo);
-		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-
-	}
-
-	public void clearWhiteboard(String meetingID, String requesterID, String whiteboardId) {
-		ClearWhiteboardRequestMessage msg = new ClearWhiteboardRequestMessage(meetingID, requesterID, whiteboardId);
-		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-	}
-
-	public void undoWhiteboard(String meetingID, String requesterID, String whiteboardId) {
-		org.bigbluebutton.common.messages.UndoWhiteboardRequest msg = new org.bigbluebutton.common.messages.UndoWhiteboardRequest(meetingID, requesterID, whiteboardId);
-		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-	}
-
-	public void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser) {
-		ModifyWhiteboardAccessRequestMessage msg = new ModifyWhiteboardAccessRequestMessage(meetingID, requesterID, multiUser);
-		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-	}
-
-	public void getWhiteboardAccess(String meetingID, String requesterID) {
-		GetWhiteboardAccessRequestMessage msg = new GetWhiteboardAccessRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-	}
-
 	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		

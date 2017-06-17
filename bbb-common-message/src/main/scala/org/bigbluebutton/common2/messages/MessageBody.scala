@@ -1,6 +1,7 @@
 package org.bigbluebutton.common2.messages
 
 import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.domain.AnnotationProps
 
 object MessageBody {
   case class CreateMeetingReqMsgBody(props: DefaultProps)
@@ -24,9 +25,28 @@ object MessageBody {
   case class GetRecordingStatusReqMsgBody(requesterId: String)
   case class AllowUserToShareDesktopReqMsgBody(userId: String)
 
+  // Whiteboard Message Bodies
+  case class SendCursorPositionPubMsgBody(xPercent: Double, yPercent: Double)
+  case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationProps)
+  case class GetWhiteboardAnnotationsReqMsgBody(whiteboardId: String)
+  case class ClearWhiteboardPubMsgBody(whiteboardId: String)
+  case class UndoWhiteboardPubMsgBody(whiteboardId: String)
+  case class ModifyWhiteboardAccessPubMsgBody(multiUser: Boolean)
+  case class GetWhiteboardAccessReqMsgBody(requesterId: String)
 
-
+  ///////////////////////////////////////////
+  // Out Message Bodies
+  ///////////////////////////////////////////
+  
   case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
   case class UserBroadcastCamStoppedEvtMsgBody(userId: String, stream: String)
-
+  
+  // Whiteboard Message Bodies
+  case class SendCursorPositionEvtMsgBody(xPercent: Double, yPercent: Double)
+  case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationProps)
+  case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations: Array[AnnotationProps])
+  case class ClearWhiteboardEvtMsgBody(whiteboardId: String, userId: String, fullClear: Boolean)
+  case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, annotationId: String)
+  case class ModifyWhiteboardAccessEvtMsgBody(multiUser: Boolean)
+  case class GetWhiteboardAccessRespMsgBody(multiUser: Boolean)
 }

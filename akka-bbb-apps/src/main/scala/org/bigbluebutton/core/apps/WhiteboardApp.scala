@@ -1,85 +1,74 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.{ MeetingActor }
+import org.bigbluebutton.core2.message.handlers.whiteboard.SendCursorPositionPubMsgHdlr
+import org.bigbluebutton.core2.message.handlers.whiteboard.ClearWhiteboardPubMsgHdlr
+import org.bigbluebutton.core2.message.handlers.whiteboard.UndoWhiteboardPubMsgHdlr
+import org.bigbluebutton.core2.message.handlers.whiteboard.ModifyWhiteboardAccessPubMsgHdlr
+import org.bigbluebutton.core2.message.handlers.whiteboard.GetWhiteboardAccessReqMsgHdlr
+import org.bigbluebutton.core2.message.handlers.whiteboard.SendWhiteboardAnnotationPubMsgHdlr
+import org.bigbluebutton.common2.domain.AnnotationProps
+import org.bigbluebutton.core2.message.handlers.whiteboard.GetWhiteboardAnnotationsReqMsgHdlr
 
-case class Whiteboard(id: String, shapeCount: Int, shapesMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
+case class Whiteboard(id: String, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationProps]])
 
-trait WhiteboardApp {
+trait WhiteboardApp
+    extends SendCursorPositionPubMsgHdlr
+    with ClearWhiteboardPubMsgHdlr
+    with UndoWhiteboardPubMsgHdlr
+    with ModifyWhiteboardAccessPubMsgHdlr
+    with GetWhiteboardAccessReqMsgHdlr
+    with SendWhiteboardAnnotationPubMsgHdlr
+    with GetWhiteboardAnnotationsReqMsgHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
-  def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
-    var shape = msg.annotation
-    val status = shape.status
-    val shapeType = shape.shapeType
-    val wbId = shape.wbId
-    val userId = msg.requesterID
+  def sendWhiteboardAnnotation(annotation: AnnotationProps): AnnotationProps = {
+    //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
+    var rtnAnnotation: AnnotationProps = annotation
 
-    //initWhiteboard(wbId)
-
-    //    println("Received whiteboard shape. status=[" + status + "], shapeType=[" + shapeType + "]")
-
-    if (WhiteboardKeyUtil.DRAW_START_STATUS == status) {
-      liveMeeting.wbModel.addAnnotation(wbId, userId, shape)
-    } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == status) {
-      if (WhiteboardKeyUtil.PENCIL_TYPE == shapeType) {
-        liveMeeting.wbModel.updateAnnotationPencil(wbId, userId, shape)
+    if (WhiteboardKeyUtil.DRAW_START_STATUS == annotation.status) {
+      rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
+    } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
+        rtnAnnotation = liveMeeting.wbModel.updateAnnotationPencil(annotation.wbId, annotation.userId, annotation)
       } else {
-        liveMeeting.wbModel.updateAnnotation(wbId, userId, shape)
+        rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
       }
-    } else if (WhiteboardKeyUtil.DRAW_END_STATUS == status) {
-      if (WhiteboardKeyUtil.PENCIL_TYPE == shapeType) {
-        shape = liveMeeting.wbModel.endAnnotationPencil(wbId, userId, shape)
+    } else if (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
+        rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation.userId, annotation)
       } else {
-        liveMeeting.wbModel.updateAnnotation(wbId, userId, shape)
+        rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
       }
     } else {
-      //	    println("Received UNKNOWN whiteboard shape!!!!. status=[" + status + "], shapeType=[" + shapeType + "]")
-    }
-    if (liveMeeting.wbModel.hasWhiteboard(wbId)) {
-      //        println("WhiteboardApp::handleSendWhiteboardAnnotationRequest - num shapes [" + wb.shapes.length + "]")
-      outGW.send(new SendWhiteboardAnnotationEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, wbId, shape))
+      //	    println("Received UNKNOWN whiteboard annotation!!!!. status=[" + status + "], annotationType=[" + annotationType + "]")
     }
 
+    rtnAnnotation
   }
 
-  def handleSendCursorPositionRequest(msg: SendCursorPositionRequest) {
-    outGW.send(new CursorPositionUpdatedEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.xPercent, msg.yPercent))
-  }
-
-  def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
+  def getWhiteboardAnnotations(whiteboardId: String): Array[AnnotationProps] = {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
-    val history = liveMeeting.wbModel.getHistory(msg.whiteboardId);
-    if (history.length > 0) {
-      outGW.send(new GetWhiteboardShapesReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.whiteboardId, history, msg.replyTo))
-    }
+    liveMeeting.wbModel.getHistory(whiteboardId)
   }
 
-  def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
-    //println("WB: Received clear whiteboard")
-    liveMeeting.wbModel.clearWhiteboard(msg.whiteboardId, msg.requesterID) foreach { fullClear =>
-      outGW.send(new ClearWhiteboardEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.whiteboardId, fullClear))
-    }
+  def clearWhiteboard(whiteboardId: String, requesterId: String): Option[Boolean] = {
+    liveMeeting.wbModel.clearWhiteboard(whiteboardId, requesterId)
   }
 
-  def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {
-    //    println("WB: Received undo whiteboard")
-    liveMeeting.wbModel.undoWhiteboard(msg.whiteboardId, msg.requesterID) foreach { last =>
-      outGW.send(new UndoWhiteboardEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.whiteboardId, last.id))
-    }
+  def undoWhiteboard(whiteboardId: String, requesterId: String): Option[AnnotationProps] = {
+    liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
-  def handleModifyWhiteboardAccessRequest(msg: ModifyWhiteboardAccessRequest) {
-    liveMeeting.wbModel.modifyWhiteboardAccess(msg.multiUser)
-    outGW.send(new ModifiedWhiteboardAccessEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.multiUser))
+  def modifyWhiteboardAccess(multiUser: Boolean) {
+    liveMeeting.wbModel.modifyWhiteboardAccess(multiUser)
   }
 
-  def handleGetWhiteboardAccessRequest(msg: GetWhiteboardAccessRequest) {
-    val multiUser = liveMeeting.wbModel.getWhiteboardAccess()
-    outGW.send(new GetWhiteboardAccessReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, multiUser))
+  def getWhiteboardAccess(): Boolean = {
+    liveMeeting.wbModel.getWhiteboardAccess()
   }
 }
