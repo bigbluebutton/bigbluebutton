@@ -14,7 +14,8 @@ class LiveMeeting(val props: DefaultProps,
   val layoutModel: LayoutModel,
   val users: Users,
   val registeredUsers: RegisteredUsers,
-  val pollModel: PollModel,
+  val polls: Polls, // 2x
+  val pollModel: PollModel, // 1.1x
   val wbModel: WhiteboardModel,
   val presModel: PresentationModel,
   val breakoutModel: BreakoutRoomModel,

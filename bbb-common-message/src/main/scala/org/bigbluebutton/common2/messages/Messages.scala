@@ -82,7 +82,31 @@ case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: Modify
 object GetWhiteboardAccessReqMsg { val NAME = "GetWhiteboardAccessReqMsg"}
 case class GetWhiteboardAccessReqMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessReqMsgBody) extends StandardMsg
 
+object StartPollReqMsg { val NAME = "StartPollReqMsg"}
+case class StartPollReqMsg(header: BbbClientMsgHeader, body: StartPollReqMsgBody) extends BbbCoreMsg
+
+object StartCustomPollReqMsg { val NAME = "StartCustomPollReqMsg"}
+case class StartCustomPollReqMsg(header: BbbClientMsgHeader, body: StartCustomPollReqMsgBody) extends BbbCoreMsg
+
+object StopPollReqMsg { val NAME = "StopPollReqMsg"}
+case class StopPollReqMsg(header: BbbClientMsgHeader, body: StopPollReqMsgBody) extends BbbCoreMsg
+
+object ShowPollResultReqMsg { val NAME = "ShowPollResultReqMsg"}
+case class ShowPollResultReqMsg(header: BbbClientMsgHeader, body: ShowPollResultReqMsgBody) extends BbbCoreMsg
+
+object HidePollResultReqMsg { val NAME = "HidePollResultReqMsg"}
+case class HidePollResultReqMsg(header: BbbClientMsgHeader, body: HidePollResultReqMsgBody) extends BbbCoreMsg
+
+object GetCurrentPollReqMsg { val NAME = "GetCurrentPollReqMsg"}
+case class GetCurrentPollReqMsg(header: BbbClientMsgHeader, body: GetCurrentPollReqMsgBody) extends BbbCoreMsg
+
+object RespondToPollReqMsg { val NAME = "RespondToPollReqMsg"}
+case class RespondToPollReqMsg(header: BbbClientMsgHeader, body: RespondToPollReqMsgBody) extends BbbCoreMsg
+
+//
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
+//
+
 object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
 case class MeetingCreatedEvtMsg(header: BbbCoreBaseHeader,
                                 body: MeetingCreatedEvtBody) extends BbbCoreMsg
@@ -103,6 +127,7 @@ case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader, body: UserB
 
 object UserBroadcastCamStoppedEvtMsg { val NAME = "UserBroadcastCamStoppedEvtMsg" }
 case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
+
 
 /** Whiteboard Messages */
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
@@ -125,6 +150,24 @@ case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: Modify
 
 object GetWhiteboardAccessRespMsg { val NAME = "GetWhiteboardAccessRespMsg" }
 case class GetWhiteboardAccessRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessRespMsgBody) extends BbbCoreMsg
+
+object PollStartedEvtMsg { val NAME = "PollStartedEvtMsg" }
+case class PollStartedEvtMsg(header: BbbClientMsgHeader, body: PollStartedEvtMsgBody) extends BbbCoreMsg
+
+object PollStoppedEvtMsg { val NAME = "PollStoppedEvtMsg" }
+case class PollStoppedEvtMsg(header: BbbClientMsgHeader, body: PollStoppedEvtMsgBody) extends BbbCoreMsg
+
+object PollShowResultEvtMsg { val NAME = "PollShowResultEvtMsg" }
+case class PollShowResultEvtMsg(header: BbbClientMsgHeader, body: PollShowResultEvtMsgBody) extends BbbCoreMsg
+
+object PollHideResultEvtMsg { val NAME = "PollHideResultEvtMsg" }
+case class PollHideResultEvtMsg(header: BbbClientMsgHeader, body: PollHideResultEvtMsgBody) extends BbbCoreMsg
+
+object GetCurrentPollRespMsg { val NAME = "GetCurrentPollRespMsg"}
+case class GetCurrentPollRespMsg(header: BbbClientMsgHeader, body: GetCurrentPollRespMsgBody) extends BbbCoreMsg
+
+object UserRespondedToPollEvtMsg { val NAME = "UserRespondedToPollEvtMsg"}
+case class UserRespondedToPollEvtMsg(header: BbbClientMsgHeader, body: UserRespondedToPollEvtMsgBody) extends BbbCoreMsg
 
 /** System Messages **/
 case class AkkaAppsCheckAliveReqBody(timestamp: Long)

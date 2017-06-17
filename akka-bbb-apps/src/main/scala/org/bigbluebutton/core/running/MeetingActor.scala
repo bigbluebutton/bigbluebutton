@@ -13,10 +13,9 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users, Polls }
 import org.bigbluebutton.core2.MeetingStatus2x
-
-import org.bigbluebutton.core2.message.handlers.{ UserBroadcastCamStartMsgHdlr, UserBroadcastCamStopMsgHdlr, UserJoinMeetingReqMsgHdlr, UserJoinedVoiceConfEvtMsgHdlr }
+import org.bigbluebutton.core2.message.handlers._
 import scala.concurrent.duration._
 
 object MeetingActor {
@@ -35,9 +34,16 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomApp with CaptionApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
-    with UserBroadcastCamStopMsgHdlr
+    with StartCustomPollReqMsgHdlr
+    with StopPollReqMsgHdlr
+    with ShowPollResultReqMsgHdlr
+    with HidePollResultReqMsgHdlr
+    with GetCurrentPollReqMsgHdlr
+    with RespondToPollReqMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
-    with UserJoinMeetingReqMsgHdlr {
+    with UserJoinMeetingReqMsgHdlr
+    with StartPollReqMsgHdlr
+    with UserBroadcastCamStopMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -190,6 +196,13 @@ class MeetingActor(val props: DefaultProps,
       case m: GetWhiteboardAccessReqMsg => handleGetWhiteboardAccessReqMsg(m)
       case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
       case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
+      case m: StartPollReqMsg => handleStartPollReqMsg(m)
+      case m: StartCustomPollReqMsg => handleStartCustomPollReqMsg(m)
+      case m: StopPollReqMsg => handleStopPollReqMsg(m)
+      case m: ShowPollResultReqMsg => handleShowPollResultReqMsg(m)
+      case m: HidePollResultReqMsg => handleHidePollResultReqMsg(m)
+      case m: GetCurrentPollReqMsg => handleGetCurrentPollReqMsg(m)
+      case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }
