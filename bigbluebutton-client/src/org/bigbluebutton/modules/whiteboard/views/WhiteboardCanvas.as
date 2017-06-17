@@ -310,6 +310,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 		public function displayWhiteboardById(wbId:String):void {
 			currentWhiteboardId = wbId;
 			canvasDisplayModel.changeWhiteboard(wbId);
+			whiteboardToolbar.whiteboardIdSet();
 		}
 		
 		private function onNewAnnotationEvent(e:WhiteboardUpdateReceived):void {

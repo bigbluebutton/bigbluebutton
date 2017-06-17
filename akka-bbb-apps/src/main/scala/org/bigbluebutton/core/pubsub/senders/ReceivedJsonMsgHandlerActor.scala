@@ -34,11 +34,6 @@ class ReceivedJsonMsgHandlerActor(
     } yield handle(envJsonNode.envelope, envJsonNode.core)
   }
 
-  def send(channel: String, envelope: BbbCoreEnvelope, msg: BbbCoreMsg): Unit = {
-    val event = BbbMsgEvent(channel, BbbCommonEnvCoreMsg(envelope, msg))
-    publish(event)
-  }
-
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
     log.debug("Route envelope name " + envelope.name)
     envelope.name match {
@@ -111,6 +106,20 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.voiceConf, envelope, m)
         }
+      case SendCursorPositionPubMsg.NAME =>
+        routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
+      case ModifyWhiteboardAccessPubMsg.NAME =>
+        routeGenericMsg[ModifyWhiteboardAccessPubMsg](envelope, jsonNode)
+      case GetWhiteboardAccessReqMsg.NAME =>
+        routeGenericMsg[GetWhiteboardAccessReqMsg](envelope, jsonNode)
+      case ClearWhiteboardPubMsg.NAME =>
+        routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
+      case UndoWhiteboardPubMsg.NAME =>
+        routeGenericMsg[UndoWhiteboardPubMsg](envelope, jsonNode)
+      case SendWhiteboardAnnotationPubMsg.NAME =>
+        routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
+      case GetWhiteboardAnnotationsReqMsg.NAME =>
+        routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

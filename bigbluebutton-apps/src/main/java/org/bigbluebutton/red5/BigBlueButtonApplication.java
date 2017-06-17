@@ -360,12 +360,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	}
 		
 	
-	public void setApplicationListeners(Set<IApplication> listeners) {
-		Iterator<IApplication> iter = listeners.iterator();
-		while (iter.hasNext()) {
-			super.addListener((IApplication) iter.next());
-		}
-	}
 		
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);

@@ -49,9 +49,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="web.handler" class="org.bigbluebutton.red5.BigBlueButtonApplication">
-        <property name="applicationListeners">
-                <set> <ref bean="whiteboardApplication" /> </set>
-        </property>
         <property name="connInvokerService"><ref bean="connInvokerService"/></property>
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
         <property name="clientInGW" ref="clientInGW" />
@@ -117,17 +114,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="sharednotes.service" class="org.bigbluebutton.red5.service.SharedNotesService">
         <property name="sharedNotesApplication"> <ref local="sharedNotesApplication"/></property>
     </bean>
-    
-    <bean id="whiteboardApplication" class="org.bigbluebutton.red5.service.WhiteboardApplication">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-    </bean>
 
     <bean id="poll.service" class="org.bigbluebutton.red5.service.PollingService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-    </bean>
-    
-    <bean id="whiteboard.service" class="org.bigbluebutton.red5.service.WhiteboardService">
-        <property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
     </bean>
     
     <bean id="caption.service" class="org.bigbluebutton.red5.service.CaptionService">

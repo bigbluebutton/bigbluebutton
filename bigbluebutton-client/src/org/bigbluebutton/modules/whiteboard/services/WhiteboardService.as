@@ -47,10 +47,6 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.getWhiteboardAccess();
     }
 
-    public function toggleGrid():void {
-      sender.toggleGrid();
-    }
-
     public function undoGraphic(e:WhiteboardDrawEvent):void {
       if (e.wbId != null) {
         sender.undoGraphic(e.wbId)
