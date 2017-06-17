@@ -3,10 +3,11 @@ package org.bigbluebutton.core.pubsub.senders
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.{ BbbCoreMsg, _ }
 import org.bigbluebutton.common2.messages.voiceconf._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
+import scala.reflect.runtime.universe._
 
 object ReceivedJsonMsgHandlerActor {
   def props(eventBus: BbbMsgRouterEventBus, incomingJsonMessageBus: IncomingJsonMessageBus): Props =
@@ -34,15 +35,23 @@ class ReceivedJsonMsgHandlerActor(
     } yield handle(envJsonNode.envelope, envJsonNode.core)
   }
 
+  def route[T <: BbbCoreMsg](channel: String, envelope: BbbCoreEnvelope, jsonNode: JsonNode)(implicit tag: TypeTag[T]): Unit = {
+    for {
+      m <- deserialize[T](jsonNode)
+    } yield {
+      send(channel, envelope, m)
+    }
+  }
+
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
     log.debug("Route envelope name " + envelope.name)
     envelope.name match {
       case CreateMeetingReqMsg.NAME =>
-        for {
-          m <- deserialize[CreateMeetingReqMsg](jsonNode)
-        } yield {
-          send(meetingManagerChannel, envelope, m)
-        }
+        // for {
+        //   m <- deserialize[CreateMeetingReqMsg](jsonNode)
+        // } yield {
+        route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
+      // }
       case ValidateAuthTokenReqMsg.NAME =>
         for {
           m <- deserialize[ValidateAuthTokenReqMsg](jsonNode)
@@ -50,13 +59,14 @@ class ReceivedJsonMsgHandlerActor(
           send(m.header.meetingId, envelope, m)
         }
       case RegisterUserReqMsg.NAME =>
-        for {
-          m <- deserialize[RegisterUserReqMsg](jsonNode)
-        } yield {
-          // Route via meeting manager as there is a race condition if we send directly to meeting
-          // because the meeting actor might not have been created yet.
-          send(meetingManagerChannel, envelope, m)
-        }
+        //for {
+        //  m <- deserialize[RegisterUserReqMsg](jsonNode)
+        //} yield {
+        // Route via meeting manager as there is a race condition if we send directly to meeting
+        // because the meeting actor might not have been created yet.
+        //  send(meetingManagerChannel, envelope, m)
+        //}
+        route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         for {
           m <- deserialize[UserJoinMeetingReqMsg](jsonNode)

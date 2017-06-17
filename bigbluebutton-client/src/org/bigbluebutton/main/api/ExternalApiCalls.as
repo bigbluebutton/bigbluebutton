@@ -161,7 +161,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
-      var camSettingsArray:ArrayCollection = UsersUtil.amIPublishing();
+      var camSettingsArray:ArrayCollection = UsersUtil.myCamSettings();
       var payload:Object = new Object();
       var camArray: ArrayCollection = new ArrayCollection();
       for (var i:int = 0; i < camSettingsArray.length; i++) {
@@ -220,7 +220,7 @@ package org.bigbluebutton.main.api
     public function handleGetMyRoleResponse(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_ROLE_RESP;
-      payload.myRole = UserManager.getInstance().getConference().whatsMyRole();
+      payload.myRole = UsersUtil.getMyRole();
       broadcastEvent(payload);        
     }
 

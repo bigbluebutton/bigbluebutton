@@ -28,12 +28,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			import flexlib.mdi.containers.MDICanvas;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
-			import org.bigbluebutton.modules.layout.model.WindowLayout;
+      import com.asfusion.mate.events.Dispatcher;
+      import flexlib.mdi.containers.MDICanvas;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.main.views.MainToolbar;
+      import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
+      import org.bigbluebutton.modules.layout.model.WindowLayout;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			[Bindable] private var _enableEdit:Boolean = false;
@@ -46,7 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function set enableEdit(arg:Boolean):void {
-				_enableEdit = arg && UserManager.getInstance().getConference().amIModerator();
+				_enableEdit = arg && UsersUtil.amIModerator();
 			}
 
 			public function refreshRole(amIModerator:Boolean):void {

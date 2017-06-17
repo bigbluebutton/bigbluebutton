@@ -81,7 +81,7 @@ $Id: $
 			
 			private function handleUserTalking(e:CoreEvent):void {
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
-				if (UserManager.getInstance().getConference().amIThisUser(e.message.userID)) {
+				if (UsersUtil.isMe(e.message.userID)) {
 					if (e.message.talking){
 						muteMeBtnImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 					} else {
@@ -209,8 +209,8 @@ $Id: $
 					if (!allowMuteUnmute()) return;
 					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-					e.userid = UserManager.getInstance().getConference().getMyUserId();
-					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
+					e.userid = UsersUtil.getMyUserID();
+					e.mute = ! UsersUtil.isMyVoiceMuted();
 					dispatchEvent(e);
 				}
 			}

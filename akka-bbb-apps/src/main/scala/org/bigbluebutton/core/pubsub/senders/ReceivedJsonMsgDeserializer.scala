@@ -4,25 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.bus.BbbMsgEvent
+import scala.reflect.runtime.universe._
 
 trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
   this: ReceivedJsonMsgHandlerActor =>
 
   object JsonDeserializer extends Deserializer
 
-  def deserializeFoo[T](jsonNode: JsonNode)(implicit m: Manifest[T]): Option[T] = {
-    val (result, error) = JsonDeserializer.toBbbCommonMsg[T](jsonNode)
-
-    result match {
-      case Some(msg) =>
-        Some(msg.asInstanceOf[T])
-      case None =>
-        log.error("Failed to deserialize message. error: {} \n msg: ", error, jsonNode)
-        None
-    }
-  }
-
-  def deserialize[B <: BbbCoreMsg](jsonNode: JsonNode)(implicit tag: Manifest[B]): Option[B] = {
+  def deserialize[B <: BbbCoreMsg](jsonNode: JsonNode)(implicit tag: TypeTag[B]): Option[B] = {
     val (result, error) = JsonDeserializer.toBbbCommonMsg[B](jsonNode)
 
     result match {
@@ -39,7 +28,7 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
     publish(event)
   }
 
-  def routeGenericMsg[B <: StandardMsg](envelope: BbbCoreEnvelope, jsonNode: JsonNode)(implicit tag: Manifest[B]): Unit = {
+  def routeGenericMsg[B <: StandardMsg](envelope: BbbCoreEnvelope, jsonNode: JsonNode)(implicit tag: TypeTag[B]): Unit = {
     for {
       m <- deserialize[B](jsonNode)
     } yield {

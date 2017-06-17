@@ -1,4 +1,4 @@
-package org.bigbluebutton.core2.message.handlers
+package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages.MessageBody.UserBroadcastCamStartedEvtMsgBody
 import org.bigbluebutton.common2.messages._

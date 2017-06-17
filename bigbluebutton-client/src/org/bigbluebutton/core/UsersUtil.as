@@ -22,9 +22,14 @@ package org.bigbluebutton.core
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
+  import org.bigbluebutton.core.vo.LockSettingsVO;
+  import org.bigbluebutton.main.model.options.LockOptions;
   import org.bigbluebutton.main.model.users.BBBUser;
+  import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.util.SessionTokenUtil;
   
   public class UsersUtil
@@ -60,27 +65,27 @@ package org.bigbluebutton.core
     }
     
 	public static function setUserEjected():void {
-		UserManager.getInstance().getConference().setUserEjectedFromMeeting();	
+    LiveMeeting.inst().myStatus.userEjectedFromMeeting = true;
 	}
 	
 	public static function isUserEjected():Boolean {
-		return UserManager.getInstance().getConference().getUserEjectedFromMeeting();
+    return LiveMeeting.inst().myStatus.userEjectedFromMeeting;
 	}
 	
   public static function isRecorded():Boolean {
-    return UserManager.getInstance().getConference().record;
+    return LiveMeeting.inst().meeting.recorded;
   }
   
-    public static function amIPublishing():ArrayCollection {
-     return UserManager.getInstance().getConference().amIPublishing() as ArrayCollection;
+    public static function myCamSettings():ArrayCollection {
+     return LiveMeeting.inst().myStatus.myCamSettings() as ArrayCollection;
     }
 
     public static function addCameraSettings(camSettings:CameraSettingsVO):void {
-      UserManager.getInstance().getConference().addCameraSettings(camSettings);
+      LiveMeeting.inst().myStatus.addCameraSettings(camSettings);
     }
 
     public static function removeCameraSettings(camIndex:int):void {
-      UserManager.getInstance().getConference().removeCameraSettings(camIndex);
+      LiveMeeting.inst().myStatus.removeCameraSettings(camIndex);
     }
 
     public static function hasWebcamStream(userID:String):Boolean {
@@ -101,16 +106,24 @@ package org.bigbluebutton.core
       return null;
     }
     
+    public static function setDefaultLayout(defaultLayout:String):void {
+      LiveMeeting.inst().meeting.defaultLayout = defaultLayout;
+    }
+    
+    public static function getDefaultLayout():String {
+      return LiveMeeting.inst().meeting.defaultLayout;
+    }
+    
     public static function getUserIDs():ArrayCollection {
       return UserManager.getInstance().getConference().getUserIDs();
     }
     
     public static function getInternalMeetingID():String {
-      return UserManager.getInstance().getConference().internalMeetingID;
+      return LiveMeeting.inst().meeting.internalId;
     }
     
     public static function getAvatarURL():String {
-      return UserManager.getInstance().getConference().avatarURL;
+      return LiveMeeting.inst().me.avatarURL; 
     }
 
     public static function getUserAvatarURL(userID:String):String {
@@ -118,31 +131,57 @@ package org.bigbluebutton.core
     }	
 	
 	public static function getVoiceBridge():String {
-		return UserManager.getInstance().getConference().voiceBridge;
+		return LiveMeeting.inst().meeting.voiceConf;
 	}
 	
 	public static function getDialNumber():String {
-		return UserManager.getInstance().getConference().dialNumber;
+		return LiveMeeting.inst().meeting.dialNumber;
 	}
 	
 	public static function getCustomData():Object {
-		return UserManager.getInstance().getConference().getMyCustomData();
+		return LiveMeeting.inst().me.customData;
 	}
-    
+  
+  public static function getMeetingName():String {
+    return LiveMeeting.inst().meeting.name;
+  }  
+  
     public static function getExternalMeetingID():String {
-      return UserManager.getInstance().getConference().externalMeetingID;
+      return LiveMeeting.inst().meeting.externalId;
     }
     
     public static function amIModerator():Boolean {
-      return UserManager.getInstance().getConference().amIModerator();
+      return LiveMeeting.inst().me.role == Role.MODERATOR;
     }
     
     public static function amIPresenter():Boolean {
-      return UserManager.getInstance().getConference().amIPresenter;
+      return LiveMeeting.inst().myStatus.isPresenter;
+    }
+    
+    public static function isBreakout():Boolean {
+      return LiveMeeting.inst().meeting.isBreakout;
+    }
+    
+    public static function isMyVoiceMuted():Boolean {
+      return LiveMeeting.inst().myStatus.voiceMuted;
+    }
+    
+    public static function iAskedToLogout():Boolean {
+      return LiveMeeting.inst().myStatus.iAskedToLogout;
+    }
+    
+    public static function setIAskedToLogout(value:Boolean): void {
+      LiveMeeting.inst().myStatus.iAskedToLogout = value;
+    }
+    
+    
+    public static function setMeAsPresenter(value: Boolean): void {
+      LiveMeeting.inst().myStatus.isPresenter = value;
+      applyLockSettings();
     }
 
     public static function amIWaitingForAcceptance():Boolean {
-      return UserManager.getInstance().getConference().amIWaitingForAcceptance();
+      return LiveMeeting.inst().myStatus.waitingForAcceptance;
     }
         
     public static function hasUser(userID:String):Boolean {
@@ -154,27 +193,35 @@ package org.bigbluebutton.core
     }
 
     public static function getMyself():BBBUser {
-      return UserManager.getInstance().getConference().getMyself();
+      return UserManager.getInstance().getConference().getMyUser();
     }
     
     public static function isMe(userID:String):Boolean {
-      return UserManager.getInstance().getConference().amIThisUser(userID);
+      return LiveMeeting.inst().me.id == userID;
     }
     
     public static function getMyExternalUserID():String {
-      return UserManager.getInstance().getConference().getMyExternalUserID();
+      return LiveMeeting.inst().me.externalId;
     }
     
     public static function getMyUserID():String {
-      return UserManager.getInstance().getConference().getMyUserId();
+      return LiveMeeting.inst().me.id;
     }
     
     public static function getMyRole():String {
-      return UserManager.getInstance().getConference().getMyRole();
+      return LiveMeeting.inst().me.role;
     }
     
     public static function getMyUsername():String {
-      return UserManager.getInstance().getConference().getMyName();
+      return LiveMeeting.inst().me.name;
+    }
+    
+    public static function myEmoji():String {
+      return LiveMeeting.inst().myStatus.myEmojiStatus;
+    }
+    
+    public static function setMyEmoji(value: String):void {
+      LiveMeeting.inst().myStatus.myEmojiStatus = value;
     }
     
     public static function internalUserIDToExternalUserID(userID:String):String {
@@ -213,7 +260,7 @@ package org.bigbluebutton.core
       var userData:Object = new Object();
       userData.meetingId = getInternalMeetingID();
       userData.externalMeetingId = getExternalMeetingID();
-      userData.meetingName = UserManager.getInstance().getConference().meetingName;
+      userData.meetingName = LiveMeeting.inst().meeting.name;
       userData.userId = getMyUserID();
       userData.username = getMyUsername();
       
@@ -245,5 +292,37 @@ package org.bigbluebutton.core
         return sessionUtil.getSessionToken();
     }
     
+    public static function applyLockSettings():void {
+      var myUser:BBBUser = getMyself();
+      if (myUser != null)
+        myUser.applyLockSettings();
+    }
+    
+    /**
+     * Read default lock settings from config.xml
+     * */
+    public static function configLockSettings():void {
+      var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
+      var lockSettings:LockSettingsVO = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, 
+        lockOptions.disablePrivateChat, lockOptions.disablePublicChat, 
+        lockOptions.lockedLayout, lockOptions.lockOnJoin, 
+        lockOptions.lockOnJoinConfigurable);
+      
+      setLockSettings(lockSettings);
+    }
+    
+    public static function getLockSettings():LockSettingsVO {
+      return LiveMeeting.inst().meetingStatus.lockSettings;
+    }
+    
+    public static function setLockSettings(lockSettings:LockSettingsVO):void {
+      LiveMeeting.inst().meetingStatus.lockSettings = lockSettings;
+      UsersUtil.applyLockSettings();
+      UserManager.getInstance().getConference().refreshUsers(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
+    }
+    
+    public static function getBreakoutRoom(id: String): BreakoutRoom {
+      return LiveMeeting.inst().breakoutRooms.getBreakoutRoom(id);
+    }
   }
 }

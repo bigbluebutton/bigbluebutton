@@ -120,7 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						break;
 				}
-				if (message && UserManager.getInstance().getConference().isBreakout) {
+				if (message && UsersUtil.isBreakout()) {
 					message += "\n" + ResourceUtil.getInstance().getString('bbb.logour.breakoutRoomClose');
 				}
 			}

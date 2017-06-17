@@ -20,10 +20,6 @@ package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
 
-	import org.bigbluebutton.main.model.ConferenceParameters;
-	import org.bigbluebutton.main.model.users.BBBUser;
-	import org.bigbluebutton.main.model.ConferenceParameters;
-
 	public class ResponseModeratorEvent extends Event
 	{
 		public static const RESPONSE:String = "Response";

@@ -13,7 +13,7 @@ package org.bigbluebutton.core.model
     internal var dialNumber:String;
     internal var role:String;
     internal var guest:Boolean;
-	internal var authed:Boolean;
+    internal var authed:Boolean;
     internal var customData:Object;
     
     public function MeBuilder(id: String, name: String) {
