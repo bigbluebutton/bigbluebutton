@@ -1,13 +1,13 @@
 package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ GetUsers, GetUsersReply }
-import org.bigbluebutton.core.models.{ Users, Users2x }
+import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
+import org.bigbluebutton.core.api.GetUsers
+import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.message.senders.MessageSenders
+import org.bigbluebutton.core2.message.senders.{ GetUsersMeetingRespMsgBuilder, Sender }
 
-trait GetUsersHdlr extends MessageSenders {
+trait GetUsersHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
@@ -20,7 +20,9 @@ trait GetUsersHdlr extends MessageSenders {
         locked = u.locked, presenter = u.presenter, avatar = u.avatar)
     }
 
-    sendGetUsersMeetingRespMsg(msg.meetingID, msg.requesterID, webUsers, liveMeeting.props.recordProp.record)
+    val event = GetUsersMeetingRespMsgBuilder.build(msg.meetingID, msg.requesterID, webUsers)
+    Sender.send(outGW, event)
+    MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
   }
 
 }
