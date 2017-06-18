@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.users.views {
 
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import mx.collections.ArrayCollection;
 	import mx.containers.VBox;
 	import mx.controls.Button;
@@ -27,7 +28,9 @@ package org.bigbluebutton.modules.users.views {
 	import mx.events.FlexMouseEvent;
 	import mx.events.MenuEvent;
 	import mx.managers.PopUpManager;
+	
 	import org.bigbluebutton.common.Images;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.views.WellPositionedMenu;
@@ -78,7 +81,7 @@ package org.bigbluebutton.modules.users.views {
 		private function drawMoodMenu():void {
 			var moods:ArrayCollection = new ArrayCollection();
 			for each (var mood:String in MOODS) {
-				if (mood == "clear" && UserManager.getInstance().getConference().myEmojiStatus == "none") {
+				if (mood == "clear" && UsersUtil.myEmoji() == "none") {
 					continue;
 				}
 

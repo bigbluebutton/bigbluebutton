@@ -123,8 +123,8 @@ package org.bigbluebutton.modules.screenshare.managers
 				};
 				ExternalInterface.addCallback("onFail", onFail);
 
-				var voiceBridge:String = UserManager.getInstance().getConference().voiceBridge;
-				var myName:String = UserManager.getInstance().getConference().getMyName();
+				var voiceBridge:String = UsersUtil.getVoiceBridge();
+				var myName:String = UsersUtil.getMyUsername();
 
 				ExternalInterface.call(
 					'vertoShareScreen',
@@ -239,7 +239,7 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		public function handleStreamStartEvent(e:WebRTCViewStreamEvent):void{
 			if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
-			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
+			var isPresenter:Boolean = UsersUtil.amIPresenter();
 			LOGGER.debug("Received start viewing command when isPresenter==[{0}]",[isPresenter]);
 
 			if(isPresenter && usingWebRTC) {

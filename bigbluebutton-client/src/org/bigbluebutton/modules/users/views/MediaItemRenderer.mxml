@@ -79,7 +79,7 @@
 			private var myMenu:Menu = null;
 			
 			private function onCreationComplete():void{
-				refreshRole(UserManager.getInstance().getConference().amIModerator());
+				refreshRole(UsersUtil.amIModerator());
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 				
@@ -179,10 +179,10 @@
 				// reset the mute image filter so the talking indicator doesn't stick
 				muteImg.filters = null;
 				
-				var ls:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				var ls:LockSettingsVO = UsersUtil.getLockSettings();
 				
 				if (data != null) {
-					settingsBtn.visible = rolledOver && !data.me && !UserManager.getInstance().getConference().isBreakout;
+					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
 					
 					if (!data.voiceJoined) {
 						if (data.listenOnly) {

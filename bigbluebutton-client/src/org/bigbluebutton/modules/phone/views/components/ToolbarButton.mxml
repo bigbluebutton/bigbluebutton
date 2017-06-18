@@ -40,27 +40,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>  
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-			import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
-			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
-			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
-			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-			import org.bigbluebutton.modules.phone.models.PhoneOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainToolbar;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+      import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+      import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+      import org.bigbluebutton.modules.phone.models.PhoneOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(ToolbarButton);      
       
@@ -184,7 +185,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         _currentState = DEFAULT_STATE;
         this.styleName = "voiceConfDefaultButtonStyle";
         this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
-		UserManager.getInstance().getConference().resetBreakoutRooms();
+        LiveMeeting.inst().breakoutRooms.resetBreakoutRooms();
       }
       
       private function joinDefaultListenOnlyMode(micLeft:Boolean = true):void {

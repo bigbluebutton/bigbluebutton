@@ -82,9 +82,9 @@ package org.bigbluebutton.modules.layout.model {
 			var hasModeratorLayout:Boolean = _layoutsPerRole.hasOwnProperty(Role.MODERATOR);
 			var hasPresenterLayout:Boolean = _layoutsPerRole.hasOwnProperty(Role.PRESENTER);
 			
-			if (UserManager.getInstance().getConference().amIPresenter && hasPresenterLayout) {
+			if (UsersUtil.amIPresenter() && hasPresenterLayout) {
 				return _layoutsPerRole[Role.PRESENTER];
-			} else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout) {
+			} else if (UsersUtil.amIModerator() && hasModeratorLayout) {
 				return _layoutsPerRole[Role.MODERATOR];
 			} else if (hasViewerLayout)   {
 				return _layoutsPerRole[Role.VIEWER];

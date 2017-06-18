@@ -50,13 +50,5 @@ package org.bigbluebutton.common
 			}
 		}
 		
-		/**
-		 * Return the role of the user, with the role being one of the constants defined in this class. 
-		 * @return The role of the user
-		 * 
-		 */		
-		public static function getRole():String{
-			return Role.userrole;
-		}
 	}
 }

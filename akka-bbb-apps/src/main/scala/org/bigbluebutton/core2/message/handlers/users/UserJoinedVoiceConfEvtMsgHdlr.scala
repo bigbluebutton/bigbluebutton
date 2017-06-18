@@ -1,9 +1,9 @@
-package org.bigbluebutton.core2.message.handlers
+package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfEvtMsg, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{ VoiceUser2x, VoiceUserState, VoiceUsers, VoiceUsersState }
+import org.bigbluebutton.core.models.{ VoiceUser2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UserJoinedVoiceConfEvtMsgHdlr {
@@ -35,8 +35,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
       callingWith = msg.body.callingWith, callerName = msg.body.callerIdName, callerNum = msg.body.callerIdNum,
       muted = msg.body.muted, talking = msg.body.talking, listenOnly = false)
 
-    VoiceUsers.add(liveMeeting.voiceUsers, voiceUser)
-    VoiceUsersState.add(liveMeeting.voiceUsersState, voiceUserState)
+    VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 
     broadcastEvent(voiceUserState)
   }

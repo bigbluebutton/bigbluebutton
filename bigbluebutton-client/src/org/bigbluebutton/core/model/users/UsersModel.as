@@ -5,11 +5,10 @@ package org.bigbluebutton.core.model.users
   import org.bigbluebutton.core.model.Me;
   import org.bigbluebutton.core.vo.UserVO;
   import org.bigbluebutton.core.vo.VoiceUserVO;
-
+  
   public class UsersModel
   {
     private static var instance:UsersModel = null;
-    private var _me:Me;
     
     private var _users:ArrayCollection = new ArrayCollection();
     
@@ -24,14 +23,6 @@ package org.bigbluebutton.core.model.users
         instance = new UsersModel(new UsersModelSingletonEnforcer());
       }
       return instance;
-    }
-    
-    public function set me(value: Me):void {
-      _me = value;
-    }
-    
-    public function get me():Me {
-      return _me;
     }
     
     private function add(user: UserVO):void {
@@ -111,7 +102,7 @@ package org.bigbluebutton.core.model.users
       add(vu);
       return vu.copy();      
     }
-
+    
     public function userLeft(vu: UserVO):UserVO {
       var user: UserVO = remove(vu.id);
       if (user != null) {
@@ -142,12 +133,12 @@ package org.bigbluebutton.core.model.users
     }
     
     
-//    private function get users():ArrayCollection {
-//      var us:ArrayCollection = new ArrayCollection();
-//      for (var i:int = 0; i < _users.length; i++) {
-//        
-//      }
-//   }
+    //    private function get users():ArrayCollection {
+    //      var us:ArrayCollection = new ArrayCollection();
+    //      for (var i:int = 0; i < _users.length; i++) {
+    //        
+    //      }
+    //   }
   }
 }
 

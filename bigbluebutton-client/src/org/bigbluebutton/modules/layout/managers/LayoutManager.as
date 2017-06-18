@@ -45,6 +45,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
@@ -268,7 +269,7 @@ package org.bigbluebutton.modules.layout.managers
       var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
       var defaultLayout:LayoutDefinition = _layoutModel.getLayout(layoutOptions.defaultLayout);
            
-      var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
+      var sessionDefaulLayout:String = UsersUtil.getDefaultLayout();
             
       if (sessionDefaulLayout != "NOLAYOUT") {
         var sesLayout:LayoutDefinition = _layoutModel.getLayout(sessionDefaulLayout);
@@ -332,7 +333,7 @@ package org.bigbluebutton.modules.layout.managers
 					detectContainerChange = true;
 				});
 				dispatchSwitchedLayoutEvent(layout.name);
-				UserManager.getInstance().getConference().numAdditionalSharedNotes = layout.numAdditionalSharedNotes;
+				LiveMeeting.inst().sharedNotes.numAdditionalSharedNotes = layout.numAdditionalSharedNotes;
 			} else {
 				detectContainerChange = true;
 			}

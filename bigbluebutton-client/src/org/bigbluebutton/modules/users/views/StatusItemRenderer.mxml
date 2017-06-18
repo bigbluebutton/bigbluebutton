@@ -38,26 +38,25 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import mx.binding.utils.BindingUtils;
-			import mx.binding.utils.ChangeWatcher;
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.modules.users.events.UsersRollEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import mx.binding.utils.BindingUtils;
+      import mx.binding.utils.ChangeWatcher;
+      import mx.events.FlexEvent;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+      import org.bigbluebutton.modules.users.events.UsersRollEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
   			private var rolledOver:Boolean = false;
   			private var moderator:Boolean = false;
   			
   			private function onCreationComplete():void {
-  				refreshRole(UserManager.getInstance().getConference().amIModerator());
+  				refreshRole(UsersUtil.amIModerator());
   				
   				/* I was trying to the binds through actionscript, but every time the itemrenderer was recycled 
   				 * the binds would stop functioning. I think it might have been because I was using strong 

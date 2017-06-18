@@ -201,7 +201,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				slideModel.parentChange(parentWidth, parentHeight);
 				
-				if (UserManager.getInstance().getConference().amIPresenter) {
+				if (UsersUtil.amIPresenter()) {
 					slideModel.adjustSlideAfterParentResized();
 					slideModel.onMove(0, 0); // fake a move to reset some values
 					slideModel.displayPresenterView();

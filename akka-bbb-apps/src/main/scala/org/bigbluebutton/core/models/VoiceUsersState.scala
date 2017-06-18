@@ -66,5 +66,12 @@ class VoiceUsersState {
   }
 }
 
+object VoiceUserState {
+
+  def setTalking(user: VoiceUserState, talking: Boolean): VoiceUserState = {
+    user.modify(_.talking).setTo(talking)
+  }
+}
+
 case class VoiceUserState(intId: String, voiceUserId: String, callingWith: String, callerName: String,
   callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)

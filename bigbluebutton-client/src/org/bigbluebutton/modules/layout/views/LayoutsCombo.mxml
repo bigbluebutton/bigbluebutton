@@ -39,9 +39,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import mx.collections.ArrayCollection;
-
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -130,7 +130,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function refreshRole(amIModerator:Boolean):void {
-				var layoutLocked:Boolean = UserManager.getInstance().getConference().getLockSettings().getLockedLayout();
+				var layoutLocked:Boolean = UsersUtil.getLockSettings().getLockedLayout();
 				this.enabled = amIModerator || !layoutLocked;
 			}
 		]]>

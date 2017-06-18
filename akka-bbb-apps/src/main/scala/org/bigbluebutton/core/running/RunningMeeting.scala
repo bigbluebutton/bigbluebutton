@@ -30,7 +30,6 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val meetingStatux2x = new MeetingStatus2x
   val webcams = new Webcams
   val voiceUsers = new VoiceUsers
-  val voiceUsersState = new VoiceUsersState
   val users2x = new Users2x
   val usersState = new UsersState
   val polls2x = new Polls
@@ -41,7 +40,7 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   // easy to test.
   val liveMeeting = new LiveMeeting(props, meetingStatux2x, chatModel, layoutModel,
     users, registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutModel, captionModel,
-    notesModel, webcams, voiceUsers, voiceUsersState, users2x, usersState)
+    notesModel, webcams, voiceUsers, users2x)
 
   val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outGW, liveMeeting), props.meetingProp.intId)
 
