@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.messages.breakoutrooms.{ BreakoutRoomVO, Breako
 object BreakoutRooms {
 
   def newBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, voiceConfId: String,
-                      assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
+    assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
     val brvo = new BreakoutRoomVO(id, externalMeetingId, name, parentRoomId, sequence, voiceConfId, assignedUsers, Vector())
     breakoutRooms.add(brvo)
     Some(brvo)

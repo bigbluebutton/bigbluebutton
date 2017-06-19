@@ -118,7 +118,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, externalMeetingId: String,
-                              breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
+    breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
     log.info("Sending breakout room started {} for parent meeting {} ", breakoutMeetingId, meetingId);
     outGW.send(new BreakoutRoomStartedOutMessage(meetingId, props.recordProp.record, new BreakoutRoomInfo(breakoutName,
       externalMeetingId, breakoutMeetingId, sequence)))
@@ -207,7 +207,7 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutMeetingId: String,
-                 password: String): (mutable.Map[String, String], mutable.Map[String, String]) = {
+    password: String): (mutable.Map[String, String], mutable.Map[String, String]) = {
     val params = collection.mutable.HashMap(
       "fullName" -> urlEncode(username),
       "userID" -> urlEncode(userId),

@@ -68,7 +68,8 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleClearWhiteboardEvtMsg(message:Object):void {
-      if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("fullClear") && message.body.hasOwnProperty("userId")) {
+      if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("fullClear") 
+        && message.body.hasOwnProperty("userId")) {
         whiteboardModel.clear(message.body.whiteboardId, message.body.fullClear, message.body.userId);
       }
     }
