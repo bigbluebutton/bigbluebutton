@@ -59,7 +59,7 @@ package org.bigbluebutton.main.model.users
         private var logoutOnUserCommand:Boolean = false;
         private var dispatcher:Dispatcher;    
         private var _messageListeners:Array = new Array();
-        private var authenticated: Boolean = false;
+
         private var reconnecting:Boolean = false;
         private var guestKickedOutCommand:Boolean = false;
         
@@ -129,8 +129,8 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
             
             if (tokenValid) {
-                authenticated = true;
-				dispatcher.dispatchEvent(new TokenValidEvent());
+                LiveMeeting.inst().myStatus.authTokenValid = true;
+                dispatcher.dispatchEvent(new TokenValidEvent());
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
             }
@@ -148,11 +148,11 @@ package org.bigbluebutton.main.model.users
             var body: Object = map.body as Object;
             
             var msgName: String = header.name
-          if (!authenticated && (messageName == "ValidateAuthTokenRespMsg")) {
+          if (!LiveMeeting.inst().myStatus.authTokenValid && (messageName == "ValidateAuthTokenRespMsg")) {
             handleValidateAuthTokenReply2x(body)
           } else if (messageName == "validateAuthTokenTimedOut") {
             handleValidateAuthTokenTimedOut(msg)
-          } else if (authenticated) {
+          } else if (LiveMeeting.inst().myStatus.authTokenValid) {
             notifyListeners(messageName, msg);
           } else {
             LOGGER.debug("Ignoring message=[{0}] as our token hasn't been validated yet.", [messageName]);
@@ -164,11 +164,11 @@ package org.bigbluebutton.main.model.users
         }
 
         public function onMessageFromServer(messageName:String, msg:Object):void {
-          if (!authenticated && (messageName == "validateAuthTokenReply")) {
+          if (!LiveMeeting.inst().myStatus.authTokenValid && (messageName == "validateAuthTokenReply")) {
             handleValidateAuthTokenReply(msg)
           } else if (messageName == "validateAuthTokenTimedOut") {
             handleValidateAuthTokenTimedOut(msg)
-          } else if (authenticated) {
+          } else if (LiveMeeting.inst().myStatus.authTokenValid) {
             notifyListeners(messageName, msg);
           } else {
             LOGGER.debug("Ignoring message=[{0}] as our token hasn't been validated yet.", [messageName]);
@@ -295,7 +295,7 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
       
             if (tokenValid) {
-                authenticated = true;
+              LiveMeeting.inst().myStatus.authTokenValid = true;
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
             }
@@ -321,7 +321,7 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
             
             if (tokenValid) {
-                authenticated = true;
+              LiveMeeting.inst().myStatus.authTokenValid = true;
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
             }
@@ -333,7 +333,7 @@ package org.bigbluebutton.main.model.users
         }
 
         private function onReconnect():void {
-            if (authenticated) {
+            if (LiveMeeting.inst().myStatus.authTokenValid) {
                 onReconnectSuccess();
             } else {
                 onReconnectFailed();
@@ -592,7 +592,7 @@ package org.bigbluebutton.main.model.users
                     dispatcher.dispatchEvent(attemptFailedEvent);
                 } else {
                     reconnecting = true;
-                    authenticated = false;
+                    LiveMeeting.inst().myStatus.authTokenValid = false;
 
                     var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
                     disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;

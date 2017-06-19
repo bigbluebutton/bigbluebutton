@@ -18,25 +18,21 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.external.ExternalInterface;
-	import flash.net.NetConnection;
-	
-	import mx.collections.ArrayCollection;
-	
+	import flash.net.NetConnection;	
+	import mx.collections.ArrayCollection;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
+	import org.bigbluebutton.core.events.TokenValidEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
-	import org.bigbluebutton.core.model.MeBuilder;
-	import org.bigbluebutton.core.model.MeetingBuilder;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
@@ -151,6 +147,10 @@ package org.bigbluebutton.main.model.users
       _connectionManager.connect();
     }
 	
+    public function tokenValidEventHandler(event: TokenValidEvent): void {
+      sender.joinMeeting();
+    }
+    
 	public function logoutEndMeeting():void{
 		if (this.isModerator()) {
 			var myUserId: String = UsersUtil.getMyUserID();

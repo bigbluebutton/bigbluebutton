@@ -23,13 +23,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="http://mate.asfusion.com/" >
 	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.BreakoutRoomEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
+      import mx.events.FlexEvent;
+      
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.TokenValidEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
 			<!--TODO: Move guest events to user events? -->
 			import org.bigbluebutton.main.events.ResponseModeratorEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
@@ -116,7 +117,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
 	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
 	  </EventHandlers>
-	  
+    
+    <EventHandlers type="{TokenValidEvent.TOKEN_VALID_EVENT}" >
+      <MethodInvoker generator="{UserService}" method="tokenValidEventHandler" arguments="{event}" />
+    </EventHandlers>
+        
 	  <EventHandlers type="{ChangeRoleEvent.CHANGE_ROLE_EVENT}" >
 	    <MethodInvoker generator="{UserService}" method="changeRole" arguments="{event}" />
 	  </EventHandlers>
