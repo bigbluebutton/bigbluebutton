@@ -2,13 +2,13 @@ package org.bigbluebutton
 
 import akka.actor.{ ActorSystem }
 
-import org.freeswitch.esl.client.manager.DefaultManagerConnection
 import org.bigbluebutton.endpoint.redis.{ AppsRedisSubscriberActor, RedisPublisher }
 import org.bigbluebutton.freeswitch.{ RxJsonMsgHdlrActor, VoiceConferenceService }
 import org.bigbluebutton.freeswitch.bus.InsonMsgBus
 import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
 import org.bigbluebutton.freeswitch.voice.freeswitch.{ ConnectionManager, ESLEventListener, FreeswitchApplication }
 import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
+import org.freeswitch.esl.client.manager.DefaultManagerConnection
 
 object Boot extends App with SystemConfiguration {
 

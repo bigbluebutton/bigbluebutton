@@ -61,7 +61,7 @@ public class Meeting {
 	private final ConcurrentMap<String, Long> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
-	private final List<String> breakoutRooms = new ArrayList();
+	private final List<String> breakoutRooms = new ArrayList<String>();
 	
     public Meeting(Meeting.Builder builder) {
         name = builder.name;

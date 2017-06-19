@@ -3,7 +3,7 @@ package org.bigbluebutton.core.pubsub.senders
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.apps.Page
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters
 
 object PesentationMessageToJsonConverter {
   private def pageToMap(page: Page): java.util.Map[String, Any] = {
@@ -20,7 +20,7 @@ object PesentationMessageToJsonConverter {
     res += "width_ratio" -> page.widthRatio
     res += "height_ratio" -> page.heightRatio
 
-    mapAsJavaMap(res)
+    JavaConverters.mapAsJavaMap(res)
   }
 
   def clearPresentationOutMsgToJson(msg: ClearPresentationOutMsg): String = {

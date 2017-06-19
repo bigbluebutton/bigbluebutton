@@ -3,6 +3,8 @@ package org.bigbluebutton.core2.message.handlers.users
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ RegisteredUsers, VoiceUsers, Webcams }
+import org.bigbluebutton.core.api.ValidateAuthToken
+import org.bigbluebutton.core.models.RegisteredUsers
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.message.senders.{ GetVoiceUsersMeetingRespMsgBuilder, GetWebcamStreamsMeetingRespMsgBuilder, Sender, ValidateAuthTokenRespMsgSender }
 
@@ -18,6 +20,8 @@ trait ValidateAuthTokenReqMsgHdlr {
       case Some(u) => true
       case None => false
     }
+
+    sendOldValidateToken(props.meetingProp.intId, msg.body.userId, msg.body.authToken)
 
     ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
       userId = msg.body.userId, authToken = msg.body.authToken, valid = valid)
@@ -53,5 +57,10 @@ trait ValidateAuthTokenReqMsgHdlr {
 
     val event = GetWebcamStreamsMeetingRespMsgBuilder.build(liveMeeting.props.meetingProp.intId, requesterId, webcamStreams)
     Sender.send(outGW, event)
+  }
+
+  def sendOldValidateToken(meetingId: String, userId: String, authToken: String): Unit = {
+    handleValidateAuthToken(ValidateAuthToken(meetingID = meetingId, userId = userId, token = authToken,
+      correlationId = authToken, sessionId = authToken))
   }
 }

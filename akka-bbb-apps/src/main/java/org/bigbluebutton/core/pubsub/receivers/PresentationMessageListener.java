@@ -78,6 +78,7 @@ public class PresentationMessageListener implements MessageHandler {
         @Override
     	public void handleMessage(String pattern, String channel, String message) {
     		if (channel.equalsIgnoreCase(MessagingConstants.TO_PRESENTATION_CHANNEL)) {
+				System.out.println("Presentation message: " + channel + " " + message);
     			JsonParser parser = new JsonParser();
     			JsonObject obj = (JsonObject) parser.parse(message);
 

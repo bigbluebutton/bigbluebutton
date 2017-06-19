@@ -188,14 +188,12 @@ package org.bigbluebutton.main.model.users
           var intUserId: String = LiveMeeting.inst().me.id;
           var authToken: String = LiveMeeting.inst().me.authToken;
                               
-            var header: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg",
-                                                intMeetingId, 
-                                                intUserId);
+            var header: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg");
 
             var body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(intUserId,
               authToken);
 
-            var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body);
+            var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(body);
 
             LOGGER.debug("******* msg \n" + JSON.stringify(message));
 

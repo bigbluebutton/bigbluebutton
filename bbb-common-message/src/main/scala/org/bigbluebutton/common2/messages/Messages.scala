@@ -57,7 +57,7 @@ case class GetUsersReqMsg(header: BbbClientMsgHeader, body: GetUsersReqMsgBody) 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
 case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartMsgBody) extends BbbCoreMsg
 
-object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg"}
+object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg" }
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends BbbCoreMsg
 
 /** Whiteboard Messages */
@@ -170,5 +170,3 @@ case class UserRespondedToPollEvtMsg(header: BbbClientMsgHeader, body: UserRespo
 case class AkkaAppsCheckAliveReqBody(timestamp: Long)
 case class AkkaAppsCheckAliveReqMsg(header: BbbCoreHeader, body: AkkaAppsCheckAliveReqBody)
 case class AkkaAppsCheckAliveReq(envelope: BbbCoreEnvelope, msg: AkkaAppsCheckAliveReqMsg) extends BbbCoreMsg
-
-
