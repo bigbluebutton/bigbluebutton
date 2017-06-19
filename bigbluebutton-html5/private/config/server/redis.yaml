@@ -6,6 +6,8 @@ redis:
   channels:
     fromBBBApps: 'bigbluebutton:from-bbb-apps:*'
     fromBBBUsers: 'bigbluebutton:from-bbb-apps:users'
+    fromAkkaApps: 'from-akka-apps-redis-channel'
+    toAkkaApps: 'to-akka-apps-redis-channel'
     toBBBApps:
       pattern: 'bigbluebutton:to-bbb-apps:*'
       html5: 'bigbluebutton:to-bbb-html5'
