@@ -2,7 +2,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
-import Chats from '/imports/api/chat';
+import Chats from '/imports/api/1.1/chat';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;

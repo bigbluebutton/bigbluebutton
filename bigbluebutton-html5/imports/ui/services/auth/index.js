@@ -3,7 +3,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import Users from '/imports/api/users';
+import Users from '/imports/api/1.1/users';
 import { makeCall, logClient } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;

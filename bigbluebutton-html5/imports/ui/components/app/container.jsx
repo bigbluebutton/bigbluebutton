@@ -12,8 +12,8 @@ import {
 import { withModalMounter } from '../modal/service';
 
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
-import Breakouts from '/imports/api/breakouts';
+import Users from '/imports/api/1.1/users';
+import Breakouts from '/imports/api/1.1/breakouts';
 
 import App from './component';
 import NavBarContainer from '../nav-bar/container';

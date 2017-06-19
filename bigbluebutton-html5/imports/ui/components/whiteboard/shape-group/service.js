@@ -1,4 +1,4 @@
-import Shapes from '/imports/api/shapes';
+import Shapes from '/imports/api/1.1/shapes';
 
 const getCurrentShapes = (whiteboardId) => {
   if (!whiteboardId) {

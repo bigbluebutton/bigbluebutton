@@ -1,6 +1,6 @@
-import Chats from '/imports/api/chat';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Chats from '/imports/api/1.1/chat';
+import Users from '/imports/api/1.1/users';
+import Meetings from '/imports/api/1.1/meetings';
 
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
