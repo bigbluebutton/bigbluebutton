@@ -153,7 +153,7 @@ package org.bigbluebutton.main.model.users
           } else if (messageName == "validateAuthTokenTimedOut") {
             handleValidateAuthTokenTimedOut(msg)
           } else if (authenticated) {
-            notifyListeners(messageName, msg);
+            notifyListeners(messageName, map);
           } else {
             LOGGER.debug("Ignoring message=[{0}] as our token hasn't been validated yet.", [messageName]);
           } 
@@ -283,9 +283,8 @@ package org.bigbluebutton.main.model.users
         private function handleValidateAuthTokenTimedOut(msg: Object):void {  
             stopValidateTokenTimer();
       
-            var map:Object = JSON.parse(msg.msg);  
-            var tokenValid: Boolean = map.valid as Boolean;
-            var userId: String = map.userId as String;
+            var tokenValid: Boolean = msg.body.valid as Boolean;
+            var userId: String = msg.body.userId as String;
 
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["apps", "connected"];
