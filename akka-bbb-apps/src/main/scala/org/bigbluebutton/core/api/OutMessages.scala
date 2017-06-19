@@ -1,13 +1,8 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.core.apps.CurrentPresentationInfo
-import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.apps.Page
-import org.bigbluebutton.core.apps.PollVO
-import org.bigbluebutton.core.apps.SimplePollOutVO
-import org.bigbluebutton.core.apps.SimplePollResultOutVO
-import org.bigbluebutton.core.apps.BreakoutUser
-import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
+import org.bigbluebutton.common2.messages.breakoutrooms._
+import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.models._
 
 case class VoiceRecordingStarted(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
@@ -30,16 +25,15 @@ case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
 
 // Breakout Rooms
-case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody], roomsReady: Boolean) extends IOutMessage
+case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean) extends IOutMessage
 case class CreateBreakoutRoom(meetingId: String, room: BreakoutRoomOutPayload) extends IOutMessage
 case class EndBreakoutRoom(breakoutMeetingId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutMeetingId: String, name: String, parentId: String, sequence: Integer,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
   sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
 case class BreakoutRoomJoinURLOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, userId: String, redirectJoinURL: String, noRedirectJoinURL: String) extends IOutMessage
-case class BreakoutRoomStartedOutMessage(parentMeetingId: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
-case class BreakoutRoomBody(name: String, externalMeetingId: String, meetingId: String, sequence: Int)
-case class UpdateBreakoutUsersOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, users: Vector[BreakoutUser]) extends IOutMessage
+case class BreakoutRoomStartedOutMessage(parentMeetingId: String, recorded: Boolean, breakout: BreakoutRoomInfo) extends IOutMessage
+case class UpdateBreakoutUsersOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, users: Vector[BreakoutUserVO]) extends IOutMessage
 case class MeetingTimeRemainingUpdate(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
 case class BreakoutRoomsTimeRemainingUpdateOutMessage(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
 case class BreakoutRoomEndedOutMessage(parentMeetingId: String, meetingId: String) extends IOutMessage

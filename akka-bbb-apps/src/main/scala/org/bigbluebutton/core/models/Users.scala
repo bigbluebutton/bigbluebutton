@@ -1,9 +1,11 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.core.util.RandomStringGenerator
-import com.softwaremill.quicklens._
-
 import scala.collection.immutable.ListSet
+
+import org.bigbluebutton.core.util.RandomStringGenerator
+
+import com.softwaremill.quicklens.ModifyPimp
+import com.softwaremill.quicklens.modify
 
 object Roles {
   val MODERATOR_ROLE = "MODERATOR"

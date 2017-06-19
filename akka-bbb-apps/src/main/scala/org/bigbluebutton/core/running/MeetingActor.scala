@@ -4,10 +4,10 @@ import java.io.{ PrintWriter, StringWriter }
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
-import akka.util.Timeout
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
@@ -22,6 +22,8 @@ import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
 import scala.concurrent.duration._
+import org.bigbluebutton.core.models.BreakoutRooms
+import org.bigbluebutton.core2.message.handlers.breakoutrooms._
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -71,7 +73,16 @@ class MeetingActor(val props: DefaultProps,
     with UserLeavingHdlr
     with ChangeUserRoleHdlr
     with UserJoinedVoiceConfMessageHdlr
-    with ValidateAuthTokenReqMsgHdlr {
+    with ValidateAuthTokenReqMsgHdlr
+    with BreakoutRoomsListMsgHdlr
+    with CreateBreakoutRoomsMsgHdlr
+    with EndAllBreakoutRoomsMsgHdlr
+    with RequestBreakoutJoinURLMsgHdlr
+    with BreakoutRoomCreatedMsgHdlr
+    with BreakoutRoomEndedMsgHdlr
+    with BreakoutRoomUsersUpdateMsgHdlr
+    with SendBreakoutUsersUpdateMsgHdlr
+    with TransferUserToMeetingRequestHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -105,6 +116,7 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+
     //======================================
 
     //=======================================
@@ -218,10 +230,10 @@ class MeetingActor(val props: DefaultProps,
     msg.core match {
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case m: UserJoinMeetingReqMsg => handle(m)
+      case m: UserJoinMeetingReqMsg => handleUserJoinMeetingReqMsg(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
-      case m: UserJoinedVoiceConfEvtMsg => handle(m)
+      case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)
       case m: ClearWhiteboardPubMsg => handleClearWhiteboardPubMsg(m)
       case m: UndoWhiteboardPubMsg => handleUndoWhiteboardPubMsg(m)
@@ -236,6 +248,15 @@ class MeetingActor(val props: DefaultProps,
       case m: HidePollResultReqMsg => handleHidePollResultReqMsg(m)
       case m: GetCurrentPollReqMsg => handleGetCurrentPollReqMsg(m)
       case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
+      case m: BreakoutRoomsListMsg => handleBreakoutRoomsListMsg(m)
+      case m: CreateBreakoutRoomsMsg => handleCreateBreakoutRoomsMsg(m)
+      case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
+      case m: RequestBreakoutJoinURLMsg => handleRequestBreakoutJoinURLMsg(m);
+      case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m);
+      case m: BreakoutRoomEndedMsg => handleBreakoutRoomEndedMsg(m)
+      case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
+      case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
+      case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -435,8 +456,7 @@ class MeetingActor(val props: DefaultProps,
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
       outGW.send(new MeetingTimeRemainingUpdate(props.meetingProp.intId, props.recordProp.record, timeRemaining.toInt))
     }
-    if (!props.meetingProp.isBreakout && liveMeeting.breakoutModel.getRooms().length > 0) {
-      val room = liveMeeting.breakoutModel.getRooms()(0);
+    if (!props.meetingProp.isBreakout && !BreakoutRooms.getRooms(liveMeeting.breakoutRooms).isEmpty) {
       val endMeetingTime = MeetingStatus2x.breakoutRoomsStartedOn(liveMeeting.status) +
         (MeetingStatus2x.breakoutRoomsdurationInMinutes(liveMeeting.status) * 60)
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds

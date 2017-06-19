@@ -1,8 +1,5 @@
 package org.bigbluebutton.api2
 
-import java.util
-import java.util.Map
-
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging

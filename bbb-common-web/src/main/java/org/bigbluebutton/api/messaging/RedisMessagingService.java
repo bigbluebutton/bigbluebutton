@@ -26,18 +26,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.messages.RegisterUserMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishRecordingMessage;
-import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
 import org.bigbluebutton.common.converters.ToJsonEncoder;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.bigbluebutton.messages.CreateMeetingRequestPayload;
+import org.bigbluebutton.messages.RegisterUserMessage;
 import org.bigbluebutton.messages.RegisterUserMessagePayload;
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.TurnEntry;
@@ -175,7 +175,7 @@ public class RedisMessagingService implements MessagingService {
 
 	public void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns) {
 		ArrayList<String> stunsArrayList = new ArrayList<String>();
-		Iterator stunsIter = stuns.iterator();
+		Iterator<StunServer> stunsIter = stuns.iterator();
 
 		while (stunsIter.hasNext()) {
 			StunServer aStun = (StunServer) stunsIter.next();
@@ -185,7 +185,7 @@ public class RedisMessagingService implements MessagingService {
 		}
 
 		ArrayList<Map<String, Object>> turnsArrayList = new ArrayList<Map<String, Object>>();
-		Iterator turnsIter = turns.iterator();
+		Iterator<TurnEntry> turnsIter = turns.iterator();
 		while (turnsIter.hasNext()) {
 			TurnEntry te = (TurnEntry) turnsIter.next();
 			if (null != te) {

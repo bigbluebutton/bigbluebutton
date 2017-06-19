@@ -1,11 +1,15 @@
 package org.bigbluebutton.api2.bus
 
-import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.api2.SystemConfiguration
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.BbbCoreEnvelope
+import org.bigbluebutton.common2.messages.Deserializer
+import org.bigbluebutton.common2.messages.MeetingCreatedEvtMsg
+
 import com.fasterxml.jackson.databind.JsonNode
 
-import scala.util.{Failure, Success}
+import akka.actor.Actor
+import akka.actor.ActorLogging
+import akka.actor.Props
 
 object ReceivedJsonMsgHdlrActor {
   def props(msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus): Props =

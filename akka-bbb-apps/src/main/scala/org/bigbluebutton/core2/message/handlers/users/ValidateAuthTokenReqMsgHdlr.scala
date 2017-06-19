@@ -3,6 +3,7 @@ package org.bigbluebutton.core2.message.handlers.users
 import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.api.ValidateAuthToken
 import org.bigbluebutton.core.models.RegisteredUsers
 import org.bigbluebutton.core.running.MeetingActor
 
@@ -26,6 +27,8 @@ trait ValidateAuthTokenReqMsgHdlr {
         val event = ValidateAuthTokenRespMsg(header, body)
         val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
         outGW.send(msgEvent)
+
+        sendOldValidateToken(props.meetingProp.intId, msg.body.userId, msg.body.authToken)
       case None =>
         log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
         val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, false)
@@ -35,4 +38,8 @@ trait ValidateAuthTokenReqMsgHdlr {
     }
   }
 
+  def sendOldValidateToken(meetingId: String, userId: String, authToken: String): Unit = {
+    handleValidateAuthToken(ValidateAuthToken(meetingID = meetingId, userId = userId, token = authToken,
+      correlationId = authToken, sessionId = authToken))
+  }
 }
