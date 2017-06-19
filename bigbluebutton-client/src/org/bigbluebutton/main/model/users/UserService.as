@@ -214,15 +214,15 @@ package org.bigbluebutton.main.model.users
 		public function get participants():ArrayCollection {
 			return UserManager.getInstance().getConference().users;
 		}
-				
+
 		public function addStream(e:BroadcastStartedEvent):void {
-      sender.addStream(e.userid, e.stream);
+			sender.addStream(e.userid, e.stream);
 		}
-		
-		public function removeStream(e:BroadcastStoppedEvent):void {			
-      sender.removeStream(e.userid, e.stream);
+
+		public function removeStream(e:BroadcastStoppedEvent):void {
+			sender.removeStream(e.userid, e.stream);
 		}
-		
+
 		public function emojiStatus(e:EmojiStatusEvent):void {
 			// If the userId is not set in the event then the event has been dispatched for the current user
 			sender.emojiStatus(e.userId != "" ? e.userId : UsersUtil.getMyUserID(), e.status);

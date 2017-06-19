@@ -14,6 +14,7 @@ import org.bigbluebutton.messages._
 import akka.event.Logging
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.models.Roles
+import scala.collection.JavaConverters
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
@@ -426,11 +427,11 @@ class BigBlueButtonInGW(
 
   def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
     // Convert java Map to Scala Map, then convert Mutable map to immutable map
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendPublicMessageRequest(meetingID, requesterID, mapAsScalaMap(message).toMap)))
+    eventBus.publish(BigBlueButtonEvent(meetingID, new SendPublicMessageRequest(meetingID, requesterID, JavaConverters.mapAsScalaMap(message).toMap)))
   }
 
   def sendPrivateMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendPrivateMessageRequest(meetingID, requesterID, mapAsScalaMap(message).toMap)))
+    eventBus.publish(BigBlueButtonEvent(meetingID, new SendPrivateMessageRequest(meetingID, requesterID, JavaConverters.mapAsScalaMap(message).toMap)))
   }
 
   def clearPublicChatHistory(meetingID: String, requesterID: String) {

@@ -1,8 +1,10 @@
 package org.bigbluebutton.freeswitch
 
-import com.fasterxml.jackson.databind.JsonNode
+import org.bigbluebutton.common2.messages.BbbCoreEnvelope
+import org.bigbluebutton.common2.messages.Deserializer
 import org.bigbluebutton.common2.messages.voiceconf._
-import org.bigbluebutton.common2.messages.{ BbbCoreEnvelope, Deserializer }
+
+import com.fasterxml.jackson.databind.JsonNode
 
 trait RxJsonMsgDeserializer {
   this: RxJsonMsgHdlrActor =>

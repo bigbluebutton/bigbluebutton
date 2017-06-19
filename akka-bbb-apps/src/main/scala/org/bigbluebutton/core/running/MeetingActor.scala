@@ -4,10 +4,10 @@ import java.io.{ PrintWriter, StringWriter }
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
-import akka.util.Timeout
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
@@ -22,17 +22,19 @@ import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
 import scala.concurrent.duration._
+import org.bigbluebutton.core.models.BreakoutRooms
+import org.bigbluebutton.core2.message.handlers.breakoutrooms._
 
 object MeetingActor {
   def props(props: DefaultProps,
-    eventBus: IncomingEventBus,
-    outGW: OutMessageGateway, liveMeeting: LiveMeeting): Props =
+            eventBus: IncomingEventBus,
+            outGW: OutMessageGateway, liveMeeting: LiveMeeting): Props =
     Props(classOf[MeetingActor], props, eventBus, outGW, liveMeeting)
 }
 
 class MeetingActor(val props: DefaultProps,
-  val eventBus: IncomingEventBus,
-  val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
+                   val eventBus: IncomingEventBus,
+                   val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
     extends Actor with ActorLogging
     with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
@@ -71,7 +73,16 @@ class MeetingActor(val props: DefaultProps,
     with UserLeavingHdlr
     with ChangeUserRoleHdlr
     with UserJoinedVoiceConfMessageHdlr
-    with ValidateAuthTokenReqMsgHdlr {
+    with ValidateAuthTokenReqMsgHdlr
+    with BreakoutRoomsListMsgHdlr
+    with CreateBreakoutRoomsMsgHdlr
+    with EndAllBreakoutRoomsMsgHdlr
+    with RequestBreakoutJoinURLMsgHdlr
+    with BreakoutRoomCreatedMsgHdlr
+    with BreakoutRoomEndedMsgHdlr
+    with BreakoutRoomUsersUpdateMsgHdlr
+    with SendBreakoutUsersUpdateMsgHdlr
+    with TransferUserToMeetingRequestHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -103,140 +114,150 @@ class MeetingActor(val props: DefaultProps,
   def receive = {
     //=============================
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-    case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+    case msg: BbbCommonEnvCoreMsg                  => handleBbbCommonEnvCoreMsg(msg)
+    case msg: RegisterUserReqMsg                   => handleRegisterUserReqMsg(msg)
+
     //======================================
 
     //=======================================
     // old messages
-    case msg: ActivityResponse => handleActivityResponse(msg)
-    case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
-    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
+    case msg: ActivityResponse                     => handleActivityResponse(msg)
+    case msg: MonitorNumberOfUsers                 => handleMonitorNumberOfUsers(msg)
+    case msg: ValidateAuthToken                    => handleValidateAuthToken(msg)
     //case msg: RegisterUser => handleRegisterUser(msg)
-    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
-    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case msg: UserJoining => handleUserJoin(msg)
-    case msg: UserLeaving => handleUserLeft(msg)
-    case msg: AssignPresenter => handleAssignPresenter(msg)
-    case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
-    case msg: GetUsers => handleGetUsers(msg)
-    case msg: ChangeUserStatus => handleChangeUserStatus(msg)
-    case msg: EjectUserFromMeeting => handle(msg)
-    case msg: UserEmojiStatus => handleUserEmojiStatus(msg)
-    case msg: UserShareWebcam => handleUserShareWebcam(msg)
-    case msg: UserUnshareWebcam => handleUserunshareWebcam(msg)
-    case msg: MuteMeetingRequest => handleMuteMeetingRequest(msg)
-    case msg: MuteAllExceptPresenterRequest => handleMuteAllExceptPresenterRequest(msg)
-    case msg: IsMeetingMutedRequest => handleIsMeetingMutedRequest(msg)
-    case msg: MuteUserRequest => handleMuteUserRequest(msg)
-    case msg: EjectUserFromVoiceRequest => handleEjectUserRequest(msg)
-    case msg: TransferUserToMeetingRequest => handleTransferUserToMeeting(msg)
-    case msg: SetLockSettings => handleSetLockSettings(msg)
-    case msg: GetLockSettings => handleGetLockSettings(msg)
-    case msg: LockUserRequest => handleLockUserRequest(msg)
-    case msg: InitLockSettings => handleInitLockSettings(msg)
-    case msg: InitAudioSettings => handleInitAudioSettings(msg)
-    case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
-    case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
-    case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
-    case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
-    case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
-    case msg: GetCurrentLayoutRequest => handleGetCurrentLayoutRequest(msg)
-    case msg: BroadcastLayoutRequest => handleBroadcastLayoutRequest(msg)
-    case msg: InitializeMeeting => handleInitializeMeeting(msg)
-    case msg: ClearPresentation => handleClearPresentation(msg)
-    case msg: PresentationConversionUpdate => handlePresentationConversionUpdate(msg)
-    case msg: PresentationPageCountError => handlePresentationPageCountError(msg)
-    case msg: PresentationSlideGenerated => handlePresentationSlideGenerated(msg)
-    case msg: PresentationConversionCompleted => handlePresentationConversionCompleted(msg)
-    case msg: RemovePresentation => handleRemovePresentation(msg)
-    case msg: GetPresentationInfo => handleGetPresentationInfo(msg)
-    case msg: ResizeAndMoveSlide => handleResizeAndMoveSlide(msg)
-    case msg: GotoSlide => handleGotoSlide(msg)
-    case msg: SharePresentation => handleSharePresentation(msg)
-    case msg: GetSlideInfo => handleGetSlideInfo(msg)
-    case msg: PreuploadedPresentations => handlePreuploadedPresentations(msg)
-    case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
-    case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
-    case msg: StartCustomPollRequest => handleStartCustomPollRequest(msg)
-    case msg: StartPollRequest => handleStartPollRequest(msg)
-    case msg: StopPollRequest => handleStopPollRequest(msg)
-    case msg: ShowPollResultRequest => handleShowPollResultRequest(msg)
-    case msg: HidePollResultRequest => handleHidePollResultRequest(msg)
-    case msg: RespondToPollRequest => handleRespondToPollRequest(msg)
-    case msg: GetPollRequest => handleGetPollRequest(msg)
-    case msg: GetCurrentPollRequest => handleGetCurrentPollRequest(msg)
-    case msg: ChangeUserRole => handle(msg)
-    case msg: LogoutEndMeeting => handleLogoutEndMeeting(msg)
-    case msg: ClearPublicChatHistoryRequest => handleClearPublicChatHistoryRequest(msg)
+    case msg: UserJoinedVoiceConfMessage           => handleUserJoinedVoiceConfMessage(msg)
+    case msg: UserLeftVoiceConfMessage             => handleUserLeftVoiceConfMessage(msg)
+    case msg: UserMutedInVoiceConfMessage          => handleUserMutedInVoiceConfMessage(msg)
+    case msg: UserTalkingInVoiceConfMessage        => handleUserTalkingInVoiceConfMessage(msg)
+    case msg: VoiceConfRecordingStartedMessage     => handleVoiceConfRecordingStartedMessage(msg)
+    case msg: UserJoining                          => handleUserJoin(msg)
+    case msg: UserLeaving                          => handleUserLeft(msg)
+    case msg: AssignPresenter                      => handleAssignPresenter(msg)
+    case msg: AllowUserToShareDesktop              => handleAllowUserToShareDesktop(msg)
+    case msg: GetUsers                             => handleGetUsers(msg)
+    case msg: ChangeUserStatus                     => handleChangeUserStatus(msg)
+    case msg: EjectUserFromMeeting                 => handle(msg)
+    case msg: UserEmojiStatus                      => handleUserEmojiStatus(msg)
+    case msg: UserShareWebcam                      => handleUserShareWebcam(msg)
+    case msg: UserUnshareWebcam                    => handleUserunshareWebcam(msg)
+    case msg: MuteMeetingRequest                   => handleMuteMeetingRequest(msg)
+    case msg: MuteAllExceptPresenterRequest        => handleMuteAllExceptPresenterRequest(msg)
+    case msg: IsMeetingMutedRequest                => handleIsMeetingMutedRequest(msg)
+    case msg: MuteUserRequest                      => handleMuteUserRequest(msg)
+    case msg: EjectUserFromVoiceRequest            => handleEjectUserRequest(msg)
+    case msg: TransferUserToMeetingRequest         => handleTransferUserToMeeting(msg)
+    case msg: SetLockSettings                      => handleSetLockSettings(msg)
+    case msg: GetLockSettings                      => handleGetLockSettings(msg)
+    case msg: LockUserRequest                      => handleLockUserRequest(msg)
+    case msg: InitLockSettings                     => handleInitLockSettings(msg)
+    case msg: InitAudioSettings                    => handleInitAudioSettings(msg)
+    case msg: GetChatHistoryRequest                => handleGetChatHistoryRequest(msg)
+    case msg: SendPublicMessageRequest             => handleSendPublicMessageRequest(msg)
+    case msg: SendPrivateMessageRequest            => handleSendPrivateMessageRequest(msg)
+    case msg: UserConnectedToGlobalAudio           => handleUserConnectedToGlobalAudio(msg)
+    case msg: UserDisconnectedFromGlobalAudio      => handleUserDisconnectedFromGlobalAudio(msg)
+    case msg: GetCurrentLayoutRequest              => handleGetCurrentLayoutRequest(msg)
+    case msg: BroadcastLayoutRequest               => handleBroadcastLayoutRequest(msg)
+    case msg: InitializeMeeting                    => handleInitializeMeeting(msg)
+    case msg: ClearPresentation                    => handleClearPresentation(msg)
+    case msg: PresentationConversionUpdate         => handlePresentationConversionUpdate(msg)
+    case msg: PresentationPageCountError           => handlePresentationPageCountError(msg)
+    case msg: PresentationSlideGenerated           => handlePresentationSlideGenerated(msg)
+    case msg: PresentationConversionCompleted      => handlePresentationConversionCompleted(msg)
+    case msg: RemovePresentation                   => handleRemovePresentation(msg)
+    case msg: GetPresentationInfo                  => handleGetPresentationInfo(msg)
+    case msg: ResizeAndMoveSlide                   => handleResizeAndMoveSlide(msg)
+    case msg: GotoSlide                            => handleGotoSlide(msg)
+    case msg: SharePresentation                    => handleSharePresentation(msg)
+    case msg: GetSlideInfo                         => handleGetSlideInfo(msg)
+    case msg: PreuploadedPresentations             => handlePreuploadedPresentations(msg)
+    case msg: SetRecordingStatus                   => handleSetRecordingStatus(msg)
+    case msg: GetRecordingStatus                   => handleGetRecordingStatus(msg)
+    case msg: StartCustomPollRequest               => handleStartCustomPollRequest(msg)
+    case msg: StartPollRequest                     => handleStartPollRequest(msg)
+    case msg: StopPollRequest                      => handleStopPollRequest(msg)
+    case msg: ShowPollResultRequest                => handleShowPollResultRequest(msg)
+    case msg: HidePollResultRequest                => handleHidePollResultRequest(msg)
+    case msg: RespondToPollRequest                 => handleRespondToPollRequest(msg)
+    case msg: GetPollRequest                       => handleGetPollRequest(msg)
+    case msg: GetCurrentPollRequest                => handleGetCurrentPollRequest(msg)
+    case msg: ChangeUserRole                       => handle(msg)
+    case msg: LogoutEndMeeting                     => handleLogoutEndMeeting(msg)
+    case msg: ClearPublicChatHistoryRequest        => handleClearPublicChatHistoryRequest(msg)
 
     // Breakout rooms
-    case msg: BreakoutRoomsListMessage => handleBreakoutRoomsList(msg)
-    case msg: CreateBreakoutRooms => handleCreateBreakoutRooms(msg)
-    case msg: BreakoutRoomCreated => handleBreakoutRoomCreated(msg)
-    case msg: BreakoutRoomEnded => handleBreakoutRoomEnded(msg)
-    case msg: RequestBreakoutJoinURLInMessage => handleRequestBreakoutJoinURL(msg)
-    case msg: BreakoutRoomUsersUpdate => handleBreakoutRoomUsersUpdate(msg)
-    case msg: SendBreakoutUsersUpdate => handleSendBreakoutUsersUpdate(msg)
-    case msg: EndAllBreakoutRooms => handleEndAllBreakoutRooms(msg)
+    case msg: BreakoutRoomsListMessage             => handleBreakoutRoomsList(msg)
+    case msg: CreateBreakoutRooms                  => handleCreateBreakoutRooms(msg)
+    case msg: BreakoutRoomCreated                  => handleBreakoutRoomCreated(msg)
+    case msg: BreakoutRoomEnded                    => handleBreakoutRoomEnded(msg)
+    case msg: RequestBreakoutJoinURLInMessage      => handleRequestBreakoutJoinURL(msg)
+    case msg: BreakoutRoomUsersUpdate              => handleBreakoutRoomUsersUpdate(msg)
+    case msg: SendBreakoutUsersUpdate              => handleSendBreakoutUsersUpdate(msg)
+    case msg: EndAllBreakoutRooms                  => handleEndAllBreakoutRooms(msg)
 
-    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
-    case msg: EndMeeting => handleEndMeeting(msg)
+    case msg: ExtendMeetingDuration                => handleExtendMeetingDuration(msg)
+    case msg: SendTimeRemainingUpdate              => handleSendTimeRemainingUpdate(msg)
+    case msg: EndMeeting                           => handleEndMeeting(msg)
 
     // Closed Caption
-    case msg: SendCaptionHistoryRequest => handleSendCaptionHistoryRequest(msg)
-    case msg: UpdateCaptionOwnerRequest => handleUpdateCaptionOwnerRequest(msg)
-    case msg: EditCaptionHistoryRequest => handleEditCaptionHistoryRequest(msg)
+    case msg: SendCaptionHistoryRequest            => handleSendCaptionHistoryRequest(msg)
+    case msg: UpdateCaptionOwnerRequest            => handleUpdateCaptionOwnerRequest(msg)
+    case msg: EditCaptionHistoryRequest            => handleEditCaptionHistoryRequest(msg)
 
-    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
-    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
+    case msg: DeskShareStartedRequest              => handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest              => handleDeskShareStoppedRequest(msg)
     case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
     case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
-    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest     => handleDeskShareGetDeskShareInfoRequest(msg)
 
     // Guest
-    case msg: GetGuestPolicy => handleGetGuestPolicy(msg)
-    case msg: SetGuestPolicy => handleSetGuestPolicy(msg)
-    case msg: RespondToGuest => handleRespondToGuest(msg)
+    case msg: GetGuestPolicy                       => handleGetGuestPolicy(msg)
+    case msg: SetGuestPolicy                       => handleSetGuestPolicy(msg)
+    case msg: RespondToGuest                       => handleRespondToGuest(msg)
 
     // Shared Notes
-    case msg: PatchDocumentRequest => handlePatchDocumentRequest(msg)
-    case msg: GetCurrentDocumentRequest => handleGetCurrentDocumentRequest(msg)
-    case msg: CreateAdditionalNotesRequest => handleCreateAdditionalNotesRequest(msg)
-    case msg: DestroyAdditionalNotesRequest => handleDestroyAdditionalNotesRequest(msg)
-    case msg: RequestAdditionalNotesSetRequest => handleRequestAdditionalNotesSetRequest(msg)
-    case msg: SharedNotesSyncNoteRequest => handleSharedNotesSyncNoteRequest(msg)
+    case msg: PatchDocumentRequest                 => handlePatchDocumentRequest(msg)
+    case msg: GetCurrentDocumentRequest            => handleGetCurrentDocumentRequest(msg)
+    case msg: CreateAdditionalNotesRequest         => handleCreateAdditionalNotesRequest(msg)
+    case msg: DestroyAdditionalNotesRequest        => handleDestroyAdditionalNotesRequest(msg)
+    case msg: RequestAdditionalNotesSetRequest     => handleRequestAdditionalNotesSetRequest(msg)
+    case msg: SharedNotesSyncNoteRequest           => handleSharedNotesSyncNoteRequest(msg)
 
-    case _ => // do nothing
+    case _                                         => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
-      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case m: UserJoinMeetingReqMsg => handle(m)
-      case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
-      case m: UserJoinedVoiceConfEvtMsg => handle(m)
-      case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)
-      case m: ClearWhiteboardPubMsg => handleClearWhiteboardPubMsg(m)
-      case m: UndoWhiteboardPubMsg => handleUndoWhiteboardPubMsg(m)
-      case m: ModifyWhiteboardAccessPubMsg => handleModifyWhiteboardAccessPubMsg(m)
-      case m: GetWhiteboardAccessReqMsg => handleGetWhiteboardAccessReqMsg(m)
-      case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
-      case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
-      case m: StartPollReqMsg => handleStartPollReqMsg(m)
-      case m: StartCustomPollReqMsg => handleStartCustomPollReqMsg(m)
-      case m: StopPollReqMsg => handleStopPollReqMsg(m)
-      case m: ShowPollResultReqMsg => handleShowPollResultReqMsg(m)
-      case m: HidePollResultReqMsg => handleHidePollResultReqMsg(m)
-      case m: GetCurrentPollReqMsg => handleGetCurrentPollReqMsg(m)
-      case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
-      case _ => println("***** Cannot handle " + msg.envelope.name)
+      case m: ValidateAuthTokenReqMsg         => handleValidateAuthTokenReqMsg(m)
+      case m: RegisterUserReqMsg              => handleRegisterUserReqMsg(m)
+      case m: UserJoinMeetingReqMsg           => handleUserJoinMeetingReqMsg(m)
+      case m: UserBroadcastCamStartMsg        => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg         => handleUserBroadcastCamStopMsg(m)
+      case m: UserJoinedVoiceConfEvtMsg       => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: SendCursorPositionPubMsg        => handleSendCursorPositionPubMsg(m)
+      case m: ClearWhiteboardPubMsg           => handleClearWhiteboardPubMsg(m)
+      case m: UndoWhiteboardPubMsg            => handleUndoWhiteboardPubMsg(m)
+      case m: ModifyWhiteboardAccessPubMsg    => handleModifyWhiteboardAccessPubMsg(m)
+      case m: GetWhiteboardAccessReqMsg       => handleGetWhiteboardAccessReqMsg(m)
+      case m: SendWhiteboardAnnotationPubMsg  => handleSendWhiteboardAnnotationPubMsg(m)
+      case m: GetWhiteboardAnnotationsReqMsg  => handleGetWhiteboardAnnotationsReqMsg(m)
+      case m: StartPollReqMsg                 => handleStartPollReqMsg(m)
+      case m: StartCustomPollReqMsg           => handleStartCustomPollReqMsg(m)
+      case m: StopPollReqMsg                  => handleStopPollReqMsg(m)
+      case m: ShowPollResultReqMsg            => handleShowPollResultReqMsg(m)
+      case m: HidePollResultReqMsg            => handleHidePollResultReqMsg(m)
+      case m: GetCurrentPollReqMsg            => handleGetCurrentPollReqMsg(m)
+      case m: RespondToPollReqMsg             => handleRespondToPollReqMsg(m)
+      case m: BreakoutRoomsListMsg            => handleBreakoutRoomsListMsg(m)
+      case m: CreateBreakoutRoomsMsg          => handleCreateBreakoutRoomsMsg(m)
+      case m: EndAllBreakoutRoomsMsg          => handleEndAllBreakoutRoomsMsg(m)
+      case m: RequestBreakoutJoinURLMsg       => handleRequestBreakoutJoinURLMsg(m);
+      case m: BreakoutRoomCreatedMsg          => handleBreakoutRoomCreatedMsg(m);
+      case m: BreakoutRoomEndedMsg            => handleBreakoutRoomEndedMsg(m)
+      case m: BreakoutRoomUsersUpdateMsg      => handleBreakoutRoomUsersUpdateMsg(m)
+      case m: SendBreakoutUsersUpdateMsg      => handleSendBreakoutUsersUpdateMsg(m)
+      case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+      case _                                  => println("***** Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -435,8 +456,7 @@ class MeetingActor(val props: DefaultProps,
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
       outGW.send(new MeetingTimeRemainingUpdate(props.meetingProp.intId, props.recordProp.record, timeRemaining.toInt))
     }
-    if (!props.meetingProp.isBreakout && liveMeeting.breakoutModel.getRooms().length > 0) {
-      val room = liveMeeting.breakoutModel.getRooms()(0);
+    if (!props.meetingProp.isBreakout && !BreakoutRooms.getRooms(liveMeeting.breakoutRooms).isEmpty) {
       val endMeetingTime = MeetingStatus2x.breakoutRoomsStartedOn(liveMeeting.status) +
         (MeetingStatus2x.breakoutRoomsdurationInMinutes(liveMeeting.status) * 60)
       val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds

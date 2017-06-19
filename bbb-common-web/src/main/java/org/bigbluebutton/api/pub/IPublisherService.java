@@ -1,12 +1,10 @@
 package org.bigbluebutton.api.pub;
 
+import java.util.Map;
+import java.util.Set;
 
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.TurnEntry;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public interface IPublisherService {
     void destroyMeeting(String meetingID);
