@@ -5,7 +5,6 @@ import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.messages.BbbCommonEnvCoreMsg
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.MessageSender
-import org.bigbluebutton.core.bus.BbbOutMessage
 
 object FromAkkaAppsMsgSenderActor {
   def props(msgSender: MessageSender): Props = Props(classOf[FromAkkaAppsMsgSenderActor], msgSender)

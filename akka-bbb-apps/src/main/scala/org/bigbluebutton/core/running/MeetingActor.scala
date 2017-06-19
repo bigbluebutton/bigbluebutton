@@ -8,6 +8,7 @@ import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
@@ -43,7 +44,12 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomsListMsgHdlr
     with CreateBreakoutRoomsMsgHdlr
     with EndAllBreakoutRoomsMsgHdlr
-    with RequestBreakoutJoinURLMsgHdlr  {
+    with RequestBreakoutJoinURLMsgHdlr
+    with BreakoutRoomCreatedMsgHdlr
+    with BreakoutRoomEndedMsgHdlr
+    with BreakoutRoomUsersUpdateMsgHdlr
+    with SendBreakoutUsersUpdateMsgHdlr
+    with TransferUserToMeetingRequestHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -72,10 +78,7 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg                  => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg                   => handleRegisterUserReqMsg(msg)
-    case msg: BreakoutRoomsListMsg                 => handleBreakoutRoomsListMsg(msg)
-    case msg: CreateBreakoutRoomsMsg               => handleCreateBreakoutRoomsMsg(msg)
-    case msg: EndAllBreakoutRoomsMsg               => handleEndAllBreakoutRoomsMsg(msg)
-    case msg: RequestBreakoutJoinURLMsg            => handleRequestBreakoutJoinURLMsg(msg);
+
     //======================================
 
     //=======================================
@@ -194,17 +197,24 @@ class MeetingActor(val props: DefaultProps,
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
-      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case m: UserJoinMeetingReqMsg => handle(m)
-      case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
+      case m: ValidateAuthTokenReqMsg           => handleValidateAuthTokenReqMsg(m)
+      case m: RegisterUserReqMsg                => handleRegisterUserReqMsg(m)
+      case m: UserJoinMeetingReqMsg             => handleUserJoinMeetingReqMsg(m)
+      case m: UserBroadcastCamStartMsg          => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg           => handleUserBroadcastCamStopMsg(m)
 
-      case m: BreakoutRoomsListMsg     => handleBreakoutRoomsListMsg(m)
-      case m: CreateBreakoutRoomsMsg   => handleCreateBreakoutRoomsMsg(m)
-      
-      case m: UserJoinedVoiceConfEvtMsg => handle(m)
-      case _ => println("***** Cannot handle " + msg.envelope.name)
+      case msg: BreakoutRoomsListMsg            => handleBreakoutRoomsListMsg(msg)
+      case msg: CreateBreakoutRoomsMsg          => handleCreateBreakoutRoomsMsg(msg)
+      case msg: EndAllBreakoutRoomsMsg          => handleEndAllBreakoutRoomsMsg(msg)
+      case msg: RequestBreakoutJoinURLMsg       => handleRequestBreakoutJoinURLMsg(msg);
+      case msg: BreakoutRoomCreatedMsg          => handleBreakoutRoomCreatedMsg(msg);
+      case msg: BreakoutRoomEndedMsg            => handleBreakoutRoomEndedMsg(msg)
+      case msg: BreakoutRoomUsersUpdateMsg      => handleBreakoutRoomUsersUpdateMsg(msg)
+      case msg: SendBreakoutUsersUpdateMsg      => handleSendBreakoutUsersUpdateMsg(msg)
+      case msg: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(msg)
+
+      case m: UserJoinedVoiceConfEvtMsg         => handleUserJoinedVoiceConfEvtMsg(m)
+      case _                                    => println("***** Cannot handle " + msg.envelope.name)
     }
   }
 

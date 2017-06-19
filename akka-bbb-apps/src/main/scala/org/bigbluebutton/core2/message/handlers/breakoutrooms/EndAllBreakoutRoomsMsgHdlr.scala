@@ -1,12 +1,12 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.MessageBody._
 import org.bigbluebutton.common2.messages.MessageTypes
 import org.bigbluebutton.common2.messages.Routing
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.common2.messages.breakoutrooms._
 
 trait EndAllBreakoutRoomsMsgHdlr {
   this: MeetingActor =>

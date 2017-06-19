@@ -4,6 +4,7 @@ import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.common2.messages.voiceconf._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
@@ -110,6 +111,60 @@ class ReceivedJsonMsgHandlerActor(
           m <- deserialize[UserTalkingInVoiceConfEvtMsg](jsonNode)
         } yield {
           send(m.header.voiceConf, envelope, m)
+        }
+      case BreakoutRoomsListMsg.NAME =>
+        for {
+          m <- deserialize[BreakoutRoomsListMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case CreateBreakoutRoomsMsg.NAME =>
+        for {
+          m <- deserialize[CreateBreakoutRoomsMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case RequestBreakoutJoinURLMsg.NAME =>
+        for {
+          m <- deserialize[RequestBreakoutJoinURLMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case BreakoutRoomCreatedMsg.NAME =>
+        for {
+          m <- deserialize[BreakoutRoomCreatedMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case BreakoutRoomUsersUpdateMsg.NAME =>
+        for {
+          m <- deserialize[BreakoutRoomUsersUpdateMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case SendBreakoutUsersUpdateMsg.NAME =>
+        for {
+          m <- deserialize[SendBreakoutUsersUpdateMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case EndAllBreakoutRoomsMsg.NAME =>
+        for {
+          m <- deserialize[EndAllBreakoutRoomsMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case BreakoutRoomEndedMsg.NAME =>
+        for {
+          m <- deserialize[BreakoutRoomEndedMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case TransferUserToMeetingRequestMsg.NAME =>
+        for {
+          m <- deserialize[TransferUserToMeetingRequestMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
         }
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

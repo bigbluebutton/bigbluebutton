@@ -18,10 +18,8 @@ import com.google.gson.JsonParser;
 public class RedisMessageReceiver {
 
 	public static final String TO_VOICE_CONF_CHANNEL = "bigbluebutton:to-voice-conf";
-	public static final String TO_VOICE_CONF_PATTERN = TO_VOICE_CONF_CHANNEL
-			+ ":*";
-	public static final String TO_VOICE_CONF_SYSTEM_CHAN = TO_VOICE_CONF_CHANNEL
-			+ ":system";
+	public static final String TO_VOICE_CONF_PATTERN = TO_VOICE_CONF_CHANNEL + ":*";
+	public static final String TO_VOICE_CONF_SYSTEM_CHAN = TO_VOICE_CONF_CHANNEL + ":system";
 
 	private final FreeswitchApplication fsApp;
 
@@ -61,18 +59,18 @@ public class RedisMessageReceiver {
 					case StopRecordingVoiceConfRequestMessage.STOP_RECORD_VOICE_CONF_REQUEST:
 						processStopRecordingVoiceConfRequestMessage(message);
 						break;
-					  case DeskShareStartRTMPBroadcastEventMessage.DESKSHARE_START_RTMP_BROADCAST_MESSAGE:
-						  System.out.println("RedisMessageReceiver got DESKSHARE_START_RTMP_BROADCAST_MESSAGE");
-						  processDeskShareStartRTMPBroadcastEventMessage(message);
-					  break;
-					  case DeskShareStopRTMPBroadcastEventMessage.DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE:
-						  System.out.println("RedisMessageReceiver got DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE");
-						  processDeskShareStopRTMPBroadcastEventMessage(message);
-					  break;
-					  case DeskShareHangUpEventMessage.DESKSHARE_HANG_UP_MESSAGE:
-						  System.out.println("RedisMessageReceiver got DESKSHARE_HANG_UP_MESSAGE");
-						  processDeskShareHangUpEventMessage(message);
-					  break;
+					case DeskShareStartRTMPBroadcastEventMessage.DESKSHARE_START_RTMP_BROADCAST_MESSAGE:
+						System.out.println("RedisMessageReceiver got DESKSHARE_START_RTMP_BROADCAST_MESSAGE");
+						processDeskShareStartRTMPBroadcastEventMessage(message);
+						break;
+					case DeskShareStopRTMPBroadcastEventMessage.DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE:
+						System.out.println("RedisMessageReceiver got DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE");
+						processDeskShareStopRTMPBroadcastEventMessage(message);
+						break;
+					case DeskShareHangUpEventMessage.DESKSHARE_HANG_UP_MESSAGE:
+						System.out.println("RedisMessageReceiver got DESKSHARE_HANG_UP_MESSAGE");
+						processDeskShareHangUpEventMessage(message);
+						break;
 					}
 				}
 			}
@@ -95,45 +93,37 @@ public class RedisMessageReceiver {
 	}
 
 	private void processEjectAllVoiceUsersRequestMessage(String json) {
-		EjectAllUsersFromVoiceConfRequestMessage msg = EjectAllUsersFromVoiceConfRequestMessage
-				.fromJson(json);
+		EjectAllUsersFromVoiceConfRequestMessage msg = EjectAllUsersFromVoiceConfRequestMessage.fromJson(json);
 		fsApp.ejectAll(msg.voiceConfId);
 	}
 
 	private void processEjectVoiceUserRequestMessage(String json) {
-		EjectUserFromVoiceConfRequestMessage msg = EjectUserFromVoiceConfRequestMessage
-				.fromJson(json);
+		EjectUserFromVoiceConfRequestMessage msg = EjectUserFromVoiceConfRequestMessage.fromJson(json);
 		fsApp.eject(msg.voiceConfId, msg.voiceUserId);
 	}
 
 	private void processGetVoiceUsersRequestMessage(String json) {
-		GetUsersFromVoiceConfRequestMessage msg = GetUsersFromVoiceConfRequestMessage
-				.fromJson(json);
+		GetUsersFromVoiceConfRequestMessage msg = GetUsersFromVoiceConfRequestMessage.fromJson(json);
 		fsApp.getAllUsers(msg.voiceConfId);
 	}
 
 	private void processMuteVoiceUserRequestMessage(String json) {
-		MuteUserInVoiceConfRequestMessage msg = MuteUserInVoiceConfRequestMessage
-				.fromJson(json);
+		MuteUserInVoiceConfRequestMessage msg = MuteUserInVoiceConfRequestMessage.fromJson(json);
 		fsApp.muteUser(msg.voiceConfId, msg.voiceUserId, msg.mute);
 	}
 
 	private void processTransferUserToVoiceConfRequestMessage(String json) {
-		TransferUserToVoiceConfRequestMessage msg = TransferUserToVoiceConfRequestMessage
-				.fromJson(json);
-		fsApp.transferUserToMeeting(msg.voiceConfId, msg.targetVoiceConfId,
-				msg.voiceUserId);
+		TransferUserToVoiceConfRequestMessage msg = TransferUserToVoiceConfRequestMessage.fromJson(json);
+		fsApp.transferUserToMeeting(msg.voiceConfId, msg.targetVoiceConfId, msg.voiceUserId);
 	}
 
 	private void processStartRecordingVoiceConfRequestMessage(String json) {
-		StartRecordingVoiceConfRequestMessage msg = StartRecordingVoiceConfRequestMessage
-				.fromJson(json);
+		StartRecordingVoiceConfRequestMessage msg = StartRecordingVoiceConfRequestMessage.fromJson(json);
 		fsApp.startRecording(msg.voiceConfId, msg.meetingId);
 	}
 
 	private void processStopRecordingVoiceConfRequestMessage(String json) {
-		StopRecordingVoiceConfRequestMessage msg = StopRecordingVoiceConfRequestMessage
-				.fromJson(json);
+		StopRecordingVoiceConfRequestMessage msg = StopRecordingVoiceConfRequestMessage.fromJson(json);
 		fsApp.stopRecording(msg.voiceConfId, msg.meetingId, msg.recordStream);
 	}
 }

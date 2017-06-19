@@ -6,7 +6,7 @@ import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.apps.BreakoutRoomsUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.common2.messages.MessageBody.BreakoutRoomJoinURLEvtMsgBody
+import org.bigbluebutton.common2.messages.breakoutrooms._
 
 trait RequestBreakoutJoinURLMsgHdlr {
   this: MeetingActor =>

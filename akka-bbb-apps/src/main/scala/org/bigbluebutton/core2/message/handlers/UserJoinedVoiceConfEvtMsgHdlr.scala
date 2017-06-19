@@ -11,7 +11,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handle(msg: UserJoinedVoiceConfEvtMsg): Unit = {
+  def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg): Unit = {
     log.warning("Received user joined voice conference " + msg)
 
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {

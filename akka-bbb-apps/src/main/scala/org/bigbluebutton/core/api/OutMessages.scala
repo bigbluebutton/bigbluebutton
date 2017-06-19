@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.common2.messages.MessageBody.{ BreakoutUserVO, BreakoutRoomInfo }
+import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models._
 

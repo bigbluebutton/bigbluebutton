@@ -1,12 +1,12 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.common2.messages.CreateBreakoutRoomsMsg
+import org.bigbluebutton.common2.messages.breakoutrooms.CreateBreakoutRoomsMsg
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core.api.BreakoutRoomOutPayload
-import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.apps.BreakoutRoomsUtil
 import org.bigbluebutton.core.api.CreateBreakoutRoom
+import org.bigbluebutton.core.apps.BreakoutRoomsUtil
+import org.bigbluebutton.core.models.BreakoutRooms
+import org.bigbluebutton.core.running.MeetingActor
 
 trait CreateBreakoutRoomsMsgHdlr {
   this: MeetingActor =>

@@ -7,7 +7,6 @@ import scala.collection.mutable
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.MessageBody.{ BreakoutUserVO, BreakoutRoomInfo }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
@@ -16,6 +15,7 @@ import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core.models.Users
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.common2.messages.breakoutrooms._
 
 trait BreakoutRoomApp extends SystemConfiguration {
   this: MeetingActor =>

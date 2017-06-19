@@ -10,7 +10,7 @@ trait UserJoinMeetingReqMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handle(msg: UserJoinMeetingReqMsg): Unit = {
+  def handleUserJoinMeetingReqMsg(msg: UserJoinMeetingReqMsg): Unit = {
     log.warning("Received user joined voice conference " + msg)
 
     def broadcastEvent(userState: UserState): Unit = {
