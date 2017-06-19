@@ -26,7 +26,7 @@ trait UserBroadcastCamStartMsgHdlr {
       record(event)
     }
 
-    val stream = new MediaStream(msg.body.stream, msg.body.stream, msg.header.userId, Set.empty, Set.empty)
+    val stream = new MediaStream(msg.body.stream, msg.body.stream, msg.header.userId, Map.empty, Set.empty)
     val webcamStream = new WebcamStream(msg.body.stream, stream)
 
     for {

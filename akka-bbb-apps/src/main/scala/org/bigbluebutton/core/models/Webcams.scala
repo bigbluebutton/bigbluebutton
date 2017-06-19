@@ -9,6 +9,8 @@ object Webcams {
     webcams.toVector.filter(w => w.stream.userId == userId)
   }
 
+  def findAll(webcams: Webcams): Vector[WebcamStream] = webcams.toVector
+
   def addWebcamBroadcastStream(webcams: Webcams, webcamStream: WebcamStream): Option[WebcamStream] = {
     webcams.save(webcamStream)
     Some(webcamStream)

@@ -230,7 +230,7 @@ class MeetingActor(val props: DefaultProps,
     msg.core match {
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case m: UserJoinMeetingReqMsg => handleUserJoinMeetingReqMsg(m)
+      case m: UserJoinMeetingReqMsg => handle(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)

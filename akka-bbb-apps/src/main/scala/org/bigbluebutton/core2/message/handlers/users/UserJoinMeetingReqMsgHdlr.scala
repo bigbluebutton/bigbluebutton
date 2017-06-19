@@ -1,21 +1,23 @@
 package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
 import org.bigbluebutton.core.models.{ RegisteredUsers, UserState, Users2x }
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.message.senders.MessageSenders
+import org.bigbluebutton.core2.message.senders.{ Sender, UserJoinedMeetingEvtMsgBuilder }
 
-trait UserJoinMeetingReqMsgHdlr extends MessageSenders {
+trait UserJoinMeetingReqMsgHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
-  def handleUserJoinMeetingReqMsg(msg: UserJoinMeetingReqMsg): Unit = {
-    log.warning("Received user joined voice conference " + msg)
+  def handle(msg: UserJoinMeetingReqMsg): Unit = {
+    userJoinMeeting(msg.body.authToken)
+  }
 
+  def userJoinMeeting(authToken: String): Unit = {
     for {
-      regUser <- RegisteredUsers.findWithToken(msg.body.authToken, liveMeeting.registeredUsers)
+      regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
       val userState = UserState(intId = regUser.id,
         extId = regUser.externId,
@@ -31,8 +33,11 @@ trait UserJoinMeetingReqMsgHdlr extends MessageSenders {
 
       Users2x.add(liveMeeting.users2x, userState)
 
-      sendUserJoinedMeetingEvtMsg(liveMeeting.props.meetingProp.intId, userState, liveMeeting.props.recordProp.record)
-    }
+      val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, userState)
+      Sender.send(outGW, event)
 
+      MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
+    }
   }
 }
+

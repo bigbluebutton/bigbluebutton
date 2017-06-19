@@ -1,11 +1,12 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.core.MessageRecorder
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.util.Model1x2xConverter
-import org.bigbluebutton.core2.message.senders.{ MessageSenders, MsgSenders1x }
+import org.bigbluebutton.core2.message.senders.{ MsgSenders1x, Sender, UserLeftMeetingEvtMsgSender }
 
-trait EjectUserFromMeetingHdlr extends MessageSenders with MsgSenders1x {
+trait EjectUserFromMeetingHdlr extends MsgSenders1x {
   this: UsersApp2x =>
 
   def handle(msg: EjectUserFromMeeting) {
@@ -26,7 +27,10 @@ trait EjectUserFromMeetingHdlr extends MessageSenders with MsgSenders1x {
       val userVO = Model1x2xConverter.toUserVO(user, voiceUser, Vector.empty)
       sendUserLeft(userVO)
 
-      sendUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, user, liveMeeting.props.recordProp.record)
+      val event = UserLeftMeetingEvtMsgSender.build(liveMeeting.props.meetingProp.intId, user)
+      Sender.send(outGW, event)
+
+      MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
     }
   }
 }

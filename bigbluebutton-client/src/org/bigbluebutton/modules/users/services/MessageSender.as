@@ -75,6 +75,10 @@ package org.bigbluebutton.modules.users.services
       );
     }
     
+    public function joinMeeting(): void {
+      // TODO: Send joine meeting message to server.
+    }
+    
     public function assignPresenter(userid:String, name:String, assignedBy:Number):void {
       var message:Object = new Object();
       message["newPresenterID"] = userid;

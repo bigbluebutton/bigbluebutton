@@ -44,6 +44,8 @@ package org.bigbluebutton.core.model
     public var isPresenter: Boolean = false;
     public var myEmojiStatus: String = "none";
     
+    public var authTokenValid: Boolean = false;
+    
     private var _myCamSettings:ArrayCollection = new ArrayCollection();
 
     public function addCameraSettings(camSettings: CameraSettingsVO): void {

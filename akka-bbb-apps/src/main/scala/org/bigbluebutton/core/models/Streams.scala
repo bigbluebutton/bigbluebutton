@@ -16,8 +16,7 @@ trait Streams {
 }
 
 /**
- * Borrow some ideas from SDP.
+ * Borrow some ideas from SDP for attributes.
  * https://en.wikipedia.org/wiki/Session_Description_Protocol
  */
-case class MediaAttribute(key: String, value: String)
-case class MediaStream(id: String, sessionId: String, userId: String, attributes: Set[MediaAttribute], viewers: Set[String])
+case class MediaStream(id: String, url: String, userId: String, attributes: collection.immutable.Map[String, String], viewers: Set[String])
