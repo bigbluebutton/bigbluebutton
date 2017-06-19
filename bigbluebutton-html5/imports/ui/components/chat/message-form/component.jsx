@@ -153,7 +153,7 @@ class MessageForm extends Component {
             label={intl.formatMessage(messages.submitLabel)}
             hideLabel
             icon="send"
-            onClick={() => this.hangleMessageKeyDown}
+            onClick={() => null}
           />
         </div>
         <div className={styles.info}>
