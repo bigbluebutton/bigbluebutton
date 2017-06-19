@@ -1,4 +1,3 @@
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import RedisPubSub from '/imports/startup/server/redis';
 import { check } from 'meteor/check';
 import Polls from '/imports/api/1.1/polls';
@@ -9,11 +8,7 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.polling;
   const EVENT_NAME = 'vote_poll_user_request_message';
 
-  if (!isAllowedTo('subscribePoll', credentials)) {
-    throw new Meteor.Error('not-allowed', 'You are not allowed to publishVote');
-  }
-
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  const { meetingId, requesterUserId } = credentials;
 
   const currentPoll = Polls.findOne({
     users: requesterUserId,
@@ -47,12 +42,12 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
     },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Updating Polls collection: ${err}`);
     }
 
-    Logger.info(`Updating Polls collection (meetingId: ${meetingId},
+    return Logger.info(`Updating Polls collection (meetingId: ${meetingId},
                                             pollId: ${currentPoll.poll.id}!)`);
   };
 

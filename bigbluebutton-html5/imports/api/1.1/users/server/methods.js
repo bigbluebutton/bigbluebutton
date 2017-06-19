@@ -6,14 +6,18 @@ import assignPresenter from './methods/assignPresenter';
 import muteToggle from './methods/muteToggle';
 import setEmojiStatus from './methods/setEmojiStatus';
 import validateAuthToken from './methods/validateAuthToken';
+import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.methods({
-  kickUser,
-  listenOnlyToggle,
-  userLogout,
-  assignPresenter,
-  setEmojiStatus,
-  validateAuthToken,
-  muteUser: (...args) => muteToggle(...args, true),
-  unmuteUser: (...args) => muteToggle(...args, false),
-});
+Meteor.methods(mapToAcl(['methods.kickUser', 'methods.listenOnlyToggle', 'methods.userLogout',
+  'methods.assignPresenter', 'methods.setEmojiStatus', 'methods.muteUser', 'methods.unmuteUser',
+  ], {
+    kickUser,
+    listenOnlyToggle,
+    userLogout,
+    assignPresenter,
+    setEmojiStatus,
+    muteUser: (...args) => muteToggle(...args, true),
+    unmuteUser: (...args) => muteToggle(...args, false),
+  }));
+
+Meteor.methods({ validateAuthToken });

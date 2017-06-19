@@ -3,7 +3,6 @@ import Slides from './../../';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 export default function switchSlide(credentials, slideNumber) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -18,10 +17,6 @@ export default function switchSlide(credentials, slideNumber) {
   check(requesterToken, String);
   check(slideNumber, Number);
 
-  if (!isAllowedTo('switchSlide', credentials)) {
-    throw new Meteor.Error('not-allowed', 'You are not allowed to switchSlide');
-  }
-
   const Presentation = Presentations.findOne({
     meetingId,
     'presentation.current': true,
@@ -35,7 +30,7 @@ export default function switchSlide(credentials, slideNumber) {
   const Slide = Slides.findOne({
     meetingId,
     presentationId: Presentation.presentation.id,
-    'slide.num': parseInt(slideNumber),
+    'slide.num': parseInt(slideNumber, 2),
   });
 
   if (!Slide) {

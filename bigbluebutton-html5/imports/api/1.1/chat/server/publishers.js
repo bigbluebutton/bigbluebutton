@@ -2,13 +2,10 @@ import Chat from '/imports/api/1.1/chat';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
-Meteor.publish('chat', function (credentials) {
-  if (!isAllowedTo('subscribeChat', credentials)) {
-    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'chats'"));
-  }
+import mapToAcl from '/imports/startup/mapToAcl';
 
+function chat(credentials) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
@@ -34,4 +31,11 @@ Meteor.publish('chat', function (credentials) {
       },
     ],
   });
-});
+}
+
+function publish(...args) {
+  const boundChat = chat.bind(this);
+  return mapToAcl('subscriptions.chat', boundChat)(args);
+}
+
+Meteor.publish('chat', publish);

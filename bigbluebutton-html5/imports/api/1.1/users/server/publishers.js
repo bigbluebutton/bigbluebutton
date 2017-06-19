@@ -2,7 +2,7 @@ import Users from './../';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import mapToAcl from '/imports/startup/mapToAcl';
 
 import userLeaving from './methods/userLeaving';
 
@@ -28,16 +28,16 @@ Meteor.publish('current-user', (credentials) => {
   return Users.find(selector, options);
 });
 
-Meteor.publish('users', function (credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function users(credentials) {
+  const {
+    meetingId,
+    requesterUserId,
+    requesterToken,
+  } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
-
-  if (!isAllowedTo('subscribeUsers', credentials)) {
-    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
-  }
 
   this.onStop(() => {
     try {
@@ -60,4 +60,11 @@ Meteor.publish('users', function (credentials) {
   Logger.info(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Users.find(selector, options);
-});
+}
+
+function publish(...args) {
+  const boundUsers = users.bind(this);
+  return mapToAcl('subscriptions.users', boundUsers)(args);
+}
+
+Meteor.publish('users', publish);

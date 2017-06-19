@@ -2,14 +2,9 @@ import Captions from '/imports/api/1.1/captions';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('captions', (credentials) => {
-  // TODO: Some publishers have ACL and others dont
-  // if (isAllowedTo('subscribeCaptions', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'captions'"));
-  // }
-
+function captions(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -19,4 +14,11 @@ Meteor.publish('captions', (credentials) => {
   Logger.verbose(`Publishing Captions for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Captions.find({ meetingId });
-});
+}
+
+function publish(...args) {
+  const boundCaptions = captions.bind(this);
+  return mapToAcl('subscriptions.captions', boundCaptions)(args);
+}
+
+Meteor.publish('captions', publish);

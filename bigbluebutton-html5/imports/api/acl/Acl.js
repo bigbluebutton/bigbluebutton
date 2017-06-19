@@ -52,17 +52,24 @@ export class Acl {
       userId,
     });
 
-    if (!user) {
-      return false;
+    const containRole = Acl.containsRole(user);
+
+    if (containRole) {
+      const roles = user.user.roles;
+      let permissions = {};
+
+      roles.forEach((role) => {
+        permissions = deepMerge(permissions, this.config[role]);
+      });
+
+      return permissions;
     }
+    return false;
+  }
 
-    const roles = user.user.roles;
-    let permissions = {};
-
-    roles.forEach((role) => {
-      permissions = deepMerge(permissions, this.config[role]);
-    });
-
-    return permissions;
+  static containsRole(user) {
+    return Match.test(user, Object) &&
+        Match.test(user.user, Object) &&
+        Match.test(user.user.roles, Array);
   }
 }
