@@ -80,7 +80,7 @@ class PresentationService {
         // Run conversion on another thread.
         Timer t = new Timer(uploadedPres.getName(), false)
 
-        t.runAfter(1000) {
+        t.runAfter(5000) {
             try {
                 documentConversionService.processDocument(uploadedPres)
             } finally {
