@@ -42,9 +42,6 @@ public class RedisMessageReceiver {
 		
 		UsersMessageReceiver usersRx = new UsersMessageReceiver(bbbGW);
 		receivers.add(usersRx);
-				
-		WhiteboardMessageReceiver whiteboardRx = new WhiteboardMessageReceiver(bbbGW);
-		receivers.add(whiteboardRx);
 
 		DeskShareMessageReceiver deskShareRx = new DeskShareMessageReceiver(bbbGW);
 		receivers.add(deskShareRx);

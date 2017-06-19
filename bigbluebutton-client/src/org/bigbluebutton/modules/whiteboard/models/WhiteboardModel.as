@@ -88,17 +88,20 @@ package org.bigbluebutton.modules.whiteboard.models
     }
     
     
-    public function addAnnotationFromHistory(whiteboardId:String, annotation:Array):void {                
+    public function addAnnotationFromHistory(whiteboardId:String, annotations:Array):void {
       //LOGGER.debug("addAnnotationFromHistory: wb id=[{0}]", [whiteboardId]);
       var wb:Whiteboard = getWhiteboard(whiteboardId, false);
       if (wb != null && !wb.historyLoaded) {
         // LOGGER.debug("Whiteboard is already present. Adding shapes.");
-        addShapes(wb, annotation);
-        wb.historyLoaded = true;
+        if (annotations.length > 0) {
+          addShapes(wb, annotations);
+          
+          var e:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.RECEIVED_ANNOTATION_HISTORY);
+          e.wbId = wb.id;
+          dispatchEvent(e);
+        }
         
-        var e:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.RECEIVED_ANNOTATION_HISTORY);
-        e.wbId = wb.id;
-        dispatchEvent(e);
+        wb.historyLoaded = true;
       }
     }
         

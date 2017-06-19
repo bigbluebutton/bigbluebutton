@@ -51,7 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 	
 	  <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
-	    <MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
+	    <MethodInvoker generator="{ModulesProxy}" method="loadAllModules" />
 	  </EventHandlers>
 	  
 		<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >

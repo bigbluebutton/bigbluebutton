@@ -26,15 +26,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.saveButton.toolTip')}"
 		   styleName="saveLayoutButtonStyle"
 		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   enabled="{UsersUtil.amIModerator()}">
 	
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.core.UsersUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			

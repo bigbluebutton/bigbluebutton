@@ -30,20 +30,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.PopUpUtil;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.api.JSAPI;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.phone.models.PhoneOptions;
-			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
-			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.PopUpUtil;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.api.JSAPI;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+      import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+      import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
+      import org.bigbluebutton.modules.phone.models.PhoneOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
@@ -55,12 +53,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				browserInfo = JSAPI.getInstance().getBrowserInfo();
 
-				var conference:Conference = UserManager.getInstance().getConference();
+
 				if (!phoneOptions.listenOnlyMode)
 					btnListenOnly.enabled = false;
 
 				if (phoneOptions.showPhoneOption) {
-					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [conference.dialNumber, conference.voiceBridge]);
+          var dialNumber: String = LiveMeeting.inst().meeting.dialNumber;
+          var voiceConf: String = LiveMeeting.inst().meeting.voiceConf;
+          
+					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [dialNumber, voiceConf]);
 				} else {
 					vrulePhone.visible = vrulePhone.includeInLayout = false;
 					vboxPhone.visible = vboxPhone.includeInLayout = false;

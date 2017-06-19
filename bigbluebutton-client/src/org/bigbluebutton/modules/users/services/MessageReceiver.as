@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.core.model.MeetingModel;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -238,11 +238,11 @@ package org.bigbluebutton.modules.users.services
 	  														map.lockedLayout,
 	  														map.lockOnJoin,
 	  														map.lockOnJoinConfigurable);
-      UserManager.getInstance().getConference().setLockSettings(lockSettings);
+      UsersUtil.setLockSettings(lockSettings);
     }
     
     private function sendRecordingStatusUpdate(recording:Boolean):void {
-      MeetingModel.getInstance().recording = recording;
+      LiveMeeting.inst().meetingStatus.isRecording = recording;
       
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
@@ -261,14 +261,14 @@ package org.bigbluebutton.modules.users.services
       dispatcher.dispatchEvent(e);      
 
       // If the user was the presenter he's reconnecting and must become viewer
-      if (UserManager.getInstance().getConference().amIPresenter) {
+      if (UsersUtil.amIPresenter()) {
         sendSwitchedPresenterEvent(false, UsersUtil.getPresenterUserID());
-        UserManager.getInstance().getConference().amIPresenter = false;
+        UsersUtil.setMeAsPresenter(false);
         var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
         dispatcher.dispatchEvent(viewerEvent);
       }
 
-      var myRole:String = UserManager.getInstance().getConference().whatsMyRole();
+      var myRole:String = UsersUtil.getMyRole();
       var role:String = map.user.role;
       // If a (pro/de)moted user refresh his browser he must reassing his role for permissions
       if (role != myRole) {
@@ -282,7 +282,7 @@ package org.bigbluebutton.modules.users.services
     private function handleMeetingMuted(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("meetingMuted")) {
-        MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+        LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
         dispatcher.dispatchEvent(new MeetingMutedEvent());
       }
     }
@@ -293,10 +293,10 @@ package org.bigbluebutton.modules.users.services
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
                                                  perm.disablePrivateChat, perm.disablePublicChat, perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
-      UserManager.getInstance().getConference().setLockSettings(lockSettings);
-      MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+      UsersUtil.setLockSettings(lockSettings);
+	  LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
       
-      UserManager.getInstance().getConference().applyLockSettings();
+      UsersUtil.applyLockSettings();
     }
     
     private function handleInactivityWarning(msg:Object):void {
@@ -398,7 +398,7 @@ package org.bigbluebutton.modules.users.services
        * Let's store the voice userid so we can do push to talk.
        */
       if (l != null) {
-        if (_conference.getMyUserId() == l.userID) {
+        if (UsersUtil.getMyUserID() == l.userID) {
           _conference.muteMyVoice(false);
           _conference.setMyVoiceJoined(false);
         }
@@ -452,7 +452,7 @@ package org.bigbluebutton.modules.users.services
         bbbEvent.payload.userID = bu.userID;            
         globalDispatcher.dispatchEvent(bbbEvent);
         
-        if (_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
+        if (UsersUtil.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
           var ev:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
           ev.userid = voiceUser.userId;
           ev.mute = true;
@@ -531,7 +531,7 @@ package org.bigbluebutton.modules.users.services
           processUserVoice(user);
         }
         
-        UserManager.getInstance().getConference().applyLockSettings();
+        UsersUtil.applyLockSettings();
       }	 
     }
     
@@ -566,10 +566,11 @@ package org.bigbluebutton.modules.users.services
       
       var meeting:Conference = UserManager.getInstance().getConference();
       
-      if (meeting.amIThisUser(newPresenterID)) {
+      if (UsersUtil.isMe(newPresenterID)) {
         sendSwitchedPresenterEvent(true, newPresenterID);
         
-        meeting.amIPresenter = true;				
+        UsersUtil.setMeAsPresenter(true);
+        
         var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
         e.userID = newPresenterID;
         e.presenterName = newPresenterName;
@@ -580,7 +581,7 @@ package org.bigbluebutton.modules.users.services
       } else {	
         sendSwitchedPresenterEvent(false, newPresenterID);
         
-        meeting.amIPresenter = false;
+        UsersUtil.setMeAsPresenter(false);
         var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
         viewerEvent.userID = newPresenterID;
         viewerEvent.presenterName = newPresenterName;
@@ -657,7 +658,7 @@ package org.bigbluebutton.modules.users.services
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
       user.avatarURL = joinedUser.avatarURL;
-      user.me = (user.userID == UserManager.getInstance().getConference().getMyUserId());
+      user.me = (user.userID == UsersUtil.getMyUserID());
 
       UserManager.getInstance().getConference().addUser(user);
       
@@ -708,54 +709,52 @@ package org.bigbluebutton.modules.users.services
           onAllowedToJoin = null;
         }
       }
+    }
+    
+    /**
+     * Callback from the server from many of the bellow nc.call methods
+     */
+    public function handleParticipantStatusChange(msg:Object):void {
+      var map:Object = JSON.parse(msg.msg);	
+      UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
+      
+      if (msg.status == "presenter"){
+        var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
+        e.userID = map.userID;
+        
+        dispatcher.dispatchEvent(e);
+      }		
+    }
+	
+	private function handleBreakoutRoomsList(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);
+		for each(var room : Object in map.rooms)
+		{
+			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+			breakoutRoom.meetingId = room.meetingId;
+			breakoutRoom.externalMeetingId = room.externalMeetingId;
+			breakoutRoom.name = room.name;
+			breakoutRoom.sequence = room.sequence;
+      LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
 		}
-
-		/**
-		 * Callback from the server from many of the bellow nc.call methods
-		 */
-		public function handleParticipantStatusChange(msg:Object):void {
-			var map:Object = JSON.parse(msg.msg);
-			UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
-
-			if (msg.status == "presenter") {
-				var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
-				e.userID = map.userID;
-
-				dispatcher.dispatchEvent(e);
-			}
-		}
-
-		private function handleBreakoutRoomsList(msg:Object):void {
-			var rooms:Array = msg.body.rooms as Array;
-			var roomsReady:Boolean = msg.body.roomsReady as Boolean;
-			for each (var room:Object in rooms) {
-				var breakoutRoom:BreakoutRoom = new BreakoutRoom();
-				breakoutRoom.meetingId = room.meetingId;
-				breakoutRoom.externalMeetingId = room.externalMeetingId;
-				breakoutRoom.name = room.name;
-				breakoutRoom.sequence = room.sequence;
-				UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
-			}
-			UserManager.getInstance().getConference().breakoutRoomsReady = roomsReady;
-		}
-
-		private function handleBreakoutRoomJoinURL(msg:Object):void {
-			var map:Object = JSON.parse(msg.body);
-			var externalMeetingId:String = StringUtils.substringBetween(map.redirectJoinURL, "meetingID=", "&");
-			var breakoutRoom:BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId);
-			var sequence:int = breakoutRoom.sequence;
-
-			var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
-			event.joinURL = map.redirectJoinURL;
-			event.breakoutMeetingSequence = sequence;
-			dispatcher.dispatchEvent(event);
-
-			// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
-			setTimeout(function():void {
-				UserManager.getInstance().getConference().setLastBreakoutRoomInvitation(sequence)
-			}, 1000);
-		}
-
+    LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = map.roomsReady;
+	}
+	
+	private function handleBreakoutRoomJoinURL(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);
+		var externalMeetingId : String = StringUtils.substringBetween(map.redirectJoinURL, "meetingID=", "&");
+		var breakoutRoom : BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoomByExternalId(externalMeetingId);
+		var sequence : int = breakoutRoom.sequence;
+		
+		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
+		event.joinURL = map.redirectJoinURL;
+		event.breakoutMeetingSequence = sequence;
+		dispatcher.dispatchEvent(event);
+		
+		// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
+		setTimeout(function() : void {LiveMeeting.inst().breakoutRooms.setLastBreakoutRoomInvitation(sequence)}, 1000);
+	}
+	
 	private function handleUpdateBreakoutUsers(msg:Object):void{
 		var map:Object = JSON.parse(msg.body);
 		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutMeetingId, map.users);
@@ -782,19 +781,33 @@ package org.bigbluebutton.modules.users.services
 		breakoutRoom.externalMeetingId = map.externalMeetingId;
 		breakoutRoom.name = map.name;
 		breakoutRoom.sequence = map.sequence;
-		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+    LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
 	}
 	
 	private function handleBreakoutRoomClosed(msg:Object):void{
-		var map:Object = JSON.parse(msg.body);	
-		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutMeetingId);
+		var map:Object = JSON.parse(msg.msg);	
+    switchUserFromBreakoutToMainVoiceConf(map.breakoutMeetingId);
+    var breakoutRoom: BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoom(map.breakoutMeetingId);
+    LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(map.breakoutMeetingId);    
+		UserManager.getInstance().getConference().removeBreakoutRoomFromUser(breakoutRoom);
 	}
+  
+  private function switchUserFromBreakoutToMainVoiceConf(breakoutId: String): void {
+    // We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+    if (LiveMeeting.inst().breakoutRooms.isListeningToBreakoutRoom(breakoutId)) {
+      var dispatcher:Dispatcher = new Dispatcher();
+      var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+      e.breakoutMeetingId = breakoutId;
+      e.listen = false;
+      dispatcher.dispatchEvent(e);
+    }
+  }
 
     public function handleParticipantRoleChange(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);
       LOGGER.debug("*** received participant role change [" + map.userID + "," + map.role + "]");
       UserManager.getInstance().getConference().newUserRole(map.userID, map.role);
-      if(UserManager.getInstance().getConference().amIThisUser(map.userID)) {
+      if(UsersUtil.isMe(map.userID)) {
         UserManager.getInstance().getConference().setMyRole(map.role);
         var e:ChangeMyRole = new ChangeMyRole(map.role);
         dispatcher.dispatchEvent(e);

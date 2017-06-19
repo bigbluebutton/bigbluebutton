@@ -21,7 +21,6 @@ package org.bigbluebutton.main.model.modules
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.PortTestProxy;
 	
 	public class ModulesProxy {
@@ -91,8 +90,8 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 
-		public function loadAllModules(params:ConferenceParameters):void{
-			modulesManager.loadAllModules(params);
+		public function loadAllModules():void{
+			modulesManager.loadAllModules();
 		}
 		
 		public function handleLogout():void {

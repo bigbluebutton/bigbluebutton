@@ -2,7 +2,6 @@ package org.bigbluebutton.endpoint.redis
 
 import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.recorders.events._
 import redis.RedisClient
@@ -61,10 +60,10 @@ class RedisRecorderActor(val system: ActorSystem)
     case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
     case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
     case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
-    case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
-    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
-    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
-    case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
+    //    case msg: SendWhiteboardAnnotationEvtMsg => handleSendWhiteboardAnnotationEvent(msg)
+    //    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
+    //    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
+    //    case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
@@ -376,6 +375,7 @@ class RedisRecorderActor(val system: ActorSystem)
     pageNum
   }
 
+  /*
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
     if (msg.recorded) {
       if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.DRAW_START_STATUS)) {
@@ -386,7 +386,7 @@ class RedisRecorderActor(val system: ActorSystem)
         event.setPresentation(getPresentationId(msg.whiteboardId))
         event.setPageNumber(getPageNum(msg.whiteboardId))
         event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.shape))
+        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.annotationInfo))
         record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
       } else if ((msg.shape.shapeType == WhiteboardKeyUtil.POLL_RESULT_TYPE)) {
         val event = new AddShapeWhiteboardRecordEvent()
@@ -395,7 +395,7 @@ class RedisRecorderActor(val system: ActorSystem)
         event.setPresentation(getPresentationId(msg.whiteboardId))
         event.setPageNumber(getPageNum(msg.whiteboardId))
         event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.shape))
+        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.annotationInfo))
         record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
       } else {
         val event = new AddShapeWhiteboardRecordEvent()
@@ -404,7 +404,7 @@ class RedisRecorderActor(val system: ActorSystem)
         event.setPresentation(getPresentationId(msg.whiteboardId))
         event.setPageNumber(getPageNum(msg.whiteboardId))
         event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.shape))
+        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.annotationInfo))
         record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
       }
     }
@@ -450,6 +450,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
 
   }
+  */
 
   private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
     if (msg.recorded) {

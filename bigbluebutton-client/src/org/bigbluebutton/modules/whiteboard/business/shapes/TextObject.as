@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 	import flash.text.TextFormat;
 	
 	import org.bigbluebutton.common.IMETextField;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
@@ -57,7 +58,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			maxChars = 1024;
 			
 			//determine editability
-			makeEditable(userId == UserManager.getInstance().getConference().getMyUserId() && status != AnnotationStatus.DRAW_END);
+			makeEditable(userId == UsersUtil.getMyUserID() && status != AnnotationStatus.DRAW_END);
 		}
 		
 		public function get id():String {

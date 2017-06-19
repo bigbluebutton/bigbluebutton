@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
-
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
@@ -13,11 +12,15 @@ import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
+import org.bigbluebutton.core.apps.presentation.PresentationApp2x
+import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
+import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users, Polls }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
-
+import org.bigbluebutton.core2.message.handlers.users._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
@@ -38,9 +41,39 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomApp with CaptionApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
-    with UserBroadcastCamStopMsgHdlr
+    with StartCustomPollReqMsgHdlr
+    with StopPollReqMsgHdlr
+    with ShowPollResultReqMsgHdlr
+    with HidePollResultReqMsgHdlr
+    with GetCurrentPollReqMsgHdlr
+    with RespondToPollReqMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
     with UserJoinMeetingReqMsgHdlr
+    with StartPollReqMsgHdlr
+    with UserBroadcastCamStopMsgHdlr
+    with UserConnectedToGlobalAudioHdlr
+    with UserDisconnectedFromGlobalAudioHdlr
+    with MuteAllExceptPresenterRequestHdlr
+    with MuteMeetingRequestHdlr
+    with IsMeetingMutedRequestHdlr
+    with MuteUserRequestHdlr
+    with EjectUserFromVoiceRequestHdlr
+    with GetLockSettingsHdlr
+    with SetLockSettingsHdlr
+    with LockUserRequestHdlr
+    with InitLockSettingsHdlr
+    with InitAudioSettingsHdlr
+    with UserEmojiStatusHdlr
+    with EjectUserFromMeetingHdlr
+    with UserShareWebcamHdlr
+    with UserUnshareWebcamHdlr
+    with ChangeUserStatusHdlr
+    with GetUsersHdlr
+    with UserJoiningHdlr
+    with UserLeavingHdlr
+    with ChangeUserRoleHdlr
+    with UserJoinedVoiceConfMessageHdlr
+    with ValidateAuthTokenReqMsgHdlr
     with BreakoutRoomsListMsgHdlr
     with CreateBreakoutRoomsMsgHdlr
     with EndAllBreakoutRoomsMsgHdlr
@@ -73,6 +106,11 @@ class MeetingActor(val props: DefaultProps,
   eventBus.subscribe(actorMonitor, props.voiceProp.voiceConf)
   eventBus.subscribe(actorMonitor, props.screenshareProps.screenshareConf)
 
+  val usersApp2x = new UsersApp2x(liveMeeting, outGW = outGW)
+  val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
+  val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
+  val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
+
   def receive = {
     //=============================
     // 2x messages
@@ -98,7 +136,7 @@ class MeetingActor(val props: DefaultProps,
     case msg: AllowUserToShareDesktop              => handleAllowUserToShareDesktop(msg)
     case msg: GetUsers                             => handleGetUsers(msg)
     case msg: ChangeUserStatus                     => handleChangeUserStatus(msg)
-    case msg: EjectUserFromMeeting                 => handleEjectUserFromMeeting(msg)
+    case msg: EjectUserFromMeeting                 => handle(msg)
     case msg: UserEmojiStatus                      => handleUserEmojiStatus(msg)
     case msg: UserShareWebcam                      => handleUserShareWebcam(msg)
     case msg: UserUnshareWebcam                    => handleUserunshareWebcam(msg)
@@ -133,13 +171,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: SharePresentation                    => handleSharePresentation(msg)
     case msg: GetSlideInfo                         => handleGetSlideInfo(msg)
     case msg: PreuploadedPresentations             => handlePreuploadedPresentations(msg)
-    case msg: SendWhiteboardAnnotationRequest      => handleSendWhiteboardAnnotationRequest(msg)
-    case msg: SendCursorPositionRequest            => handleSendCursorPositionRequest(msg)
-    case msg: GetWhiteboardShapesRequest           => handleGetWhiteboardShapesRequest(msg)
-    case msg: ClearWhiteboardRequest               => handleClearWhiteboardRequest(msg)
-    case msg: UndoWhiteboardRequest                => handleUndoWhiteboardRequest(msg)
-    case msg: ModifyWhiteboardAccessRequest        => handleModifyWhiteboardAccessRequest(msg)
-    case msg: GetWhiteboardAccessRequest           => handleGetWhiteboardAccessRequest(msg)
     case msg: SetRecordingStatus                   => handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus                   => handleGetRecordingStatus(msg)
     case msg: StartCustomPollRequest               => handleStartCustomPollRequest(msg)
@@ -150,7 +181,7 @@ class MeetingActor(val props: DefaultProps,
     case msg: RespondToPollRequest                 => handleRespondToPollRequest(msg)
     case msg: GetPollRequest                       => handleGetPollRequest(msg)
     case msg: GetCurrentPollRequest                => handleGetCurrentPollRequest(msg)
-    case msg: ChangeUserRole                       => handleChangeUserRole(msg)
+    case msg: ChangeUserRole                       => handle(msg)
     case msg: LogoutEndMeeting                     => handleLogoutEndMeeting(msg)
     case msg: ClearPublicChatHistoryRequest        => handleClearPublicChatHistoryRequest(msg)
 
@@ -197,24 +228,36 @@ class MeetingActor(val props: DefaultProps,
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: ValidateAuthTokenReqMsg           => handleValidateAuthTokenReqMsg(m)
-      case m: RegisterUserReqMsg                => handleRegisterUserReqMsg(m)
-      case m: UserJoinMeetingReqMsg             => handleUserJoinMeetingReqMsg(m)
-      case m: UserBroadcastCamStartMsg          => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg           => handleUserBroadcastCamStopMsg(m)
-
-      case msg: BreakoutRoomsListMsg            => handleBreakoutRoomsListMsg(msg)
-      case msg: CreateBreakoutRoomsMsg          => handleCreateBreakoutRoomsMsg(msg)
-      case msg: EndAllBreakoutRoomsMsg          => handleEndAllBreakoutRoomsMsg(msg)
-      case msg: RequestBreakoutJoinURLMsg       => handleRequestBreakoutJoinURLMsg(msg);
-      case msg: BreakoutRoomCreatedMsg          => handleBreakoutRoomCreatedMsg(msg);
-      case msg: BreakoutRoomEndedMsg            => handleBreakoutRoomEndedMsg(msg)
-      case msg: BreakoutRoomUsersUpdateMsg      => handleBreakoutRoomUsersUpdateMsg(msg)
-      case msg: SendBreakoutUsersUpdateMsg      => handleSendBreakoutUsersUpdateMsg(msg)
-      case msg: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(msg)
-
-      case m: UserJoinedVoiceConfEvtMsg         => handleUserJoinedVoiceConfEvtMsg(m)
-      case _                                    => println("***** Cannot handle " + msg.envelope.name)
+      case m: ValidateAuthTokenReqMsg         => handleValidateAuthTokenReqMsg(m)
+      case m: RegisterUserReqMsg              => handleRegisterUserReqMsg(m)
+      case m: UserJoinMeetingReqMsg           => handleUserJoinMeetingReqMsg(m)
+      case m: UserBroadcastCamStartMsg        => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg         => handleUserBroadcastCamStopMsg(m)
+      case m: UserJoinedVoiceConfEvtMsg       => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: SendCursorPositionPubMsg        => handleSendCursorPositionPubMsg(m)
+      case m: ClearWhiteboardPubMsg           => handleClearWhiteboardPubMsg(m)
+      case m: UndoWhiteboardPubMsg            => handleUndoWhiteboardPubMsg(m)
+      case m: ModifyWhiteboardAccessPubMsg    => handleModifyWhiteboardAccessPubMsg(m)
+      case m: GetWhiteboardAccessReqMsg       => handleGetWhiteboardAccessReqMsg(m)
+      case m: SendWhiteboardAnnotationPubMsg  => handleSendWhiteboardAnnotationPubMsg(m)
+      case m: GetWhiteboardAnnotationsReqMsg  => handleGetWhiteboardAnnotationsReqMsg(m)
+      case m: StartPollReqMsg                 => handleStartPollReqMsg(m)
+      case m: StartCustomPollReqMsg           => handleStartCustomPollReqMsg(m)
+      case m: StopPollReqMsg                  => handleStopPollReqMsg(m)
+      case m: ShowPollResultReqMsg            => handleShowPollResultReqMsg(m)
+      case m: HidePollResultReqMsg            => handleHidePollResultReqMsg(m)
+      case m: GetCurrentPollReqMsg            => handleGetCurrentPollReqMsg(m)
+      case m: RespondToPollReqMsg             => handleRespondToPollReqMsg(m)
+      case m: BreakoutRoomsListMsg            => handleBreakoutRoomsListMsg(m)
+      case m: CreateBreakoutRoomsMsg          => handleCreateBreakoutRoomsMsg(m)
+      case m: EndAllBreakoutRoomsMsg          => handleEndAllBreakoutRoomsMsg(m)
+      case m: RequestBreakoutJoinURLMsg       => handleRequestBreakoutJoinURLMsg(m);
+      case m: BreakoutRoomCreatedMsg          => handleBreakoutRoomCreatedMsg(m);
+      case m: BreakoutRoomEndedMsg            => handleBreakoutRoomEndedMsg(m)
+      case m: BreakoutRoomUsersUpdateMsg      => handleBreakoutRoomUsersUpdateMsg(m)
+      case m: SendBreakoutUsersUpdateMsg      => handleSendBreakoutUsersUpdateMsg(m)
+      case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+      case _                                  => println("***** Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -231,30 +274,6 @@ class MeetingActor(val props: DefaultProps,
 
       log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.extUserId + " user=" + regUser)
       outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
-    }
-  }
-
-  def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg): Unit = {
-    log.debug("****** RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
-
-    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, props.meetingProp.intId, msg.body.userId)
-    val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
-    val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, props.meetingProp.intId, msg.body.userId)
-
-    RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
-      case Some(u) =>
-        log.info("ValidateToken success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
-
-        val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, true)
-        val event = ValidateAuthTokenRespMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        outGW.send(msgEvent)
-      case None =>
-        log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
-        val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, false)
-        val event = ValidateAuthTokenRespMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        outGW.send(msgEvent)
     }
   }
 

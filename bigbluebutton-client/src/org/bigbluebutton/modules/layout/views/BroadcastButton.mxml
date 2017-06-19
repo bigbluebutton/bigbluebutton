@@ -29,16 +29,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.modules.layout.events.LayoutEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			
 			private function init():void {
-				refreshRole(UserManager.getInstance().getConference().amIModerator());
+				refreshRole(UsersUtil.amIModerator());
 			}
 			
 			private function onClick(e:Event):void {

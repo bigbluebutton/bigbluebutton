@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.models.Users
 import org.bigbluebutton.core.running.{ MeetingActor }
 import com.google.gson.Gson
@@ -89,11 +88,13 @@ trait PollApp {
 
   def handleShowPollResultRequest(msg: ShowPollResultRequest) {
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Unit = {
+      /*
       for {
         page <- liveMeeting.presModel.getCurrentPage()
         pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
-        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id, msg.requesterId, -1)
+        annotation = new AnnotationProps(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id, msg.requesterId, -1)
       } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(props.meetingProp.intId, msg.requesterId, annotation))
+      */
     }
 
     for {

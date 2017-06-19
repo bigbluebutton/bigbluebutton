@@ -109,15 +109,6 @@ public interface IBigBlueButtonInGW {
 	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
 	void clearPublicChatHistory(String meetingID, String requesterID);
 
-	// Whiteboard
-	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);
-	void sendCursorPosition(String meetingID, String requesterID, double xPercent, double yPercent);
-	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo);
-	void clearWhiteboard(String meetingID, String requesterID, String whiteboardId);
-	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
-	void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser);
-	void getWhiteboardAccess(String meetingID, String requesterID);
-	
 	// Caption
 	void sendCaptionHistory(String meetingID, String requesterID);
 	void updateCaptionOwner(String meetingID, String locale, String localeCode, String ownerID);

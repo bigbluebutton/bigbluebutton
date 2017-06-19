@@ -36,3 +36,12 @@ case class MeetingStatus(startEndTimeStatus: StartEndTimeStatus, recordingStatus
                          guestPolicyStatus: GuestPolicyStatus, userHasJoined: Boolean)
 
 case class Meeting2x(defaultProps: DefaultProps, meetingStatus: MeetingStatus)
+
+case class SimpleAnswerOutVO(id: Int, key: String)
+case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
+case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
+case class SimplePollResultOutVO(id: String, answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
+case class Responder(userId: String, name: String)
+case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
+case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
+case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean)

@@ -32,7 +32,6 @@ import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage
 import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage
 import org.bigbluebutton.common.messages.LockLayoutMessage
-import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
 import scala.collection.JavaConverters
@@ -131,13 +130,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: GetCurrentLayoutReply => handleGetCurrentLayoutReply(msg)
     case msg: BroadcastLayoutEvent => handleBroadcastLayoutEvent(msg)
     case msg: LockLayoutEvent => handleLockLayoutEvent(msg)
-    case msg: GetWhiteboardShapesReply => handleGetWhiteboardShapesReply(msg)
-    case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
-    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
-    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
-    case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
-    case msg: ModifiedWhiteboardAccessEvent => handleModifiedWhiteboardAccessEvent(msg)
-    case msg: GetWhiteboardAccessReply => handleGetWhiteboardAccessReply(msg)
     // breakout room cases
     case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
@@ -729,41 +721,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleUserListeningOnly(msg: UserListeningOnly) {
     val json = UsersMessageToJsonConverter.userListeningOnlyToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleGetWhiteboardShapesReply(msg: GetWhiteboardShapesReply) {
-    val json = WhiteboardMessageToJsonConverter.getWhiteboardShapesReplyToJson(msg)
-    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
-  }
-
-  private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
-    val json = WhiteboardMessageToJsonConverter.sendWhiteboardAnnotationEventToJson(msg)
-    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
-  }
-
-  private def handleCursorPositionUpdatedEvent(msg: CursorPositionUpdatedEvent) {
-    val json = WhiteboardMessageToJsonConverter.cursorPositionUpdatedEventToJson(msg)
-    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
-  }
-
-  private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
-    val json = WhiteboardMessageToJsonConverter.clearWhiteboardEventToJson(msg)
-    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
-  }
-
-  private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
-    val json = WhiteboardMessageToJsonConverter.undoWhiteboardEventToJson(msg)
-    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
-  }
-
-  private def handleModifiedWhiteboardAccessEvent(msg: ModifiedWhiteboardAccessEvent) {
-    val json = WhiteboardMessageToJsonConverter.modifiedWhiteboardAccessEventToJson(msg)
-    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
-  }
-
-  private def handleGetWhiteboardAccessReply(msg: GetWhiteboardAccessReply) {
-    val json = WhiteboardMessageToJsonConverter.getWhiteboardAccessReplyToJson(msg)
-    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
   private def handleBreakoutRoomsListOutMessage(msg: BreakoutRoomsListOutMessage) {

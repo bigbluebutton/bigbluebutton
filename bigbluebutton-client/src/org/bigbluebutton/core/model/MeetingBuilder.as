@@ -16,6 +16,7 @@ package org.bigbluebutton.core.model
     internal var allowStartStopRecording: Boolean;
 	internal var webcamsOnlyForModerator: Boolean;
     internal var metadata: Object;
+	internal var muteOnStart:Boolean;
     
     public function MeetingBuilder(id: String, name: String) {
       this.id = id;
@@ -81,6 +82,11 @@ package org.bigbluebutton.core.model
       metadata = value;
       return this;
     }
+	
+	public function withMuteOnStart(value: Boolean):MeetingBuilder {
+		muteOnStart = value;
+		return this;
+	}
 
     public function build():Meeting {
       return new Meeting(this);

@@ -7,7 +7,6 @@ import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
 import akka.actor.ActorSystem
-import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
@@ -437,62 +436,6 @@ class BigBlueButtonInGW(
 
   def clearPublicChatHistory(meetingID: String, requesterID: String) {
     eventBus.publish(BigBlueButtonEvent(meetingID, new ClearPublicChatHistoryRequest(meetingID, requesterID)))
-  }
-
-  /**
-   * *******************************************************************
-   * Message Interface for Whiteboard
-   * *****************************************************************
-   */
-  private def buildAnnotation(annotation: scala.collection.mutable.Map[String, Object], userId: String): Option[AnnotationVO] = {
-    var shape: Option[AnnotationVO] = None
-
-    val id = annotation.getOrElse("id", null).asInstanceOf[String]
-    val shapeType = annotation.getOrElse("type", null).asInstanceOf[String]
-    val status = annotation.getOrElse("status", null).asInstanceOf[String]
-    val wbId = annotation.getOrElse("whiteboardId", null).asInstanceOf[String]
-    //    println("** GOT ANNOTATION status[" + status + "] shape=[" + shapeType + "]");
-
-    if (id != null && shapeType != null && status != null && wbId != null) {
-      shape = Some(new AnnotationVO(id, status, shapeType, annotation.toMap, wbId, userId, -1))
-    }
-
-    shape
-  }
-
-  def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
-    val ann: scala.collection.mutable.Map[String, Object] = JavaConverters.mapAsScalaMap(annotation)
-
-    buildAnnotation(ann, requesterID) match {
-      case Some(shape) => {
-        eventBus.publish(BigBlueButtonEvent(meetingID, new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape)))
-      }
-      case None => // do nothing
-    }
-  }
-
-  def sendCursorPosition(meetingID: String, requesterID: String, xPercent: Double, yPercent: Double) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendCursorPositionRequest(meetingID, requesterID, xPercent, yPercent)))
-  }
-
-  def requestWhiteboardAnnotationHistory(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetWhiteboardShapesRequest(meetingID, requesterID, whiteboardId, replyTo)))
-  }
-
-  def clearWhiteboard(meetingID: String, requesterID: String, whiteboardId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new ClearWhiteboardRequest(meetingID, requesterID, whiteboardId)))
-  }
-
-  def undoWhiteboard(meetingID: String, requesterID: String, whiteboardId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new UndoWhiteboardRequest(meetingID, requesterID, whiteboardId)))
-  }
-
-  def modifyWhiteboardAccess(meetingID: String, requesterID: String, multiUser: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new ModifyWhiteboardAccessRequest(meetingID, requesterID, multiUser)))
-  }
-
-  def getWhiteboardAccess(meetingID: String, requesterID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetWhiteboardAccessRequest(meetingID, requesterID)))
   }
 
   /**

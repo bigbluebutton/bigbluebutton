@@ -36,25 +36,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.binding.utils.ChangeWatcher;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Button;
-			
-			import flexlib.controls.tabBarClasses.SuperTab;
-			
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
-			import org.bigbluebutton.modules.caption.model.CaptionOptions;
-			import org.bigbluebutton.modules.caption.model.Transcript;
-			import org.bigbluebutton.modules.caption.model.Transcripts;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.binding.utils.BindingUtils;
+      import mx.binding.utils.ChangeWatcher;
+      import mx.collections.ArrayCollection;
+      import mx.controls.Button;
+      
+      import flexlib.controls.tabBarClasses.SuperTab;
+      
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
+      import org.bigbluebutton.modules.caption.model.CaptionOptions;
+      import org.bigbluebutton.modules.caption.model.Transcript;
+      import org.bigbluebutton.modules.caption.model.Transcripts;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable]
 			private var transcriptsCollection:ArrayCollection;
@@ -107,7 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setTranscripts(t:Transcripts):void {
 				transcriptsObject = t;
 				
-				if (UserManager.getInstance().getConference().amIModerator()) {
+				if (UsersUtil.amIModerator()) {
 					transcriptsCollection = new ArrayCollection();
 					
 					var locales:Array = ResourceUtil.getInstance().locales;
@@ -188,7 +189,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//unclaimed text
 					//ownerNameOutputLabel.text = "Owner - " + "None";
 					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.noowner');
-				} else if (ownerId == UserManager.getInstance().getConference().getMyUserId()) {
+				} else if (ownerId == UsersUtil.getMyUserID()) {
 					//release text
 					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.youowner');
 				} else {
