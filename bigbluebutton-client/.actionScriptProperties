@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties analytics="false" mainApplicationPath="Main.mxml" projectUUID="55ddf1c6-532f-4977-9cb3-2a7ab95ad328" version="11">
+<actionScriptProperties analytics="false" mainApplicationPath="BigBlueButton.mxml" projectUUID="e523e78c-d93e-4765-a6e3-8e9bfcd14e2f" version="11">
   <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="false" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">
         <excludedEntries>
-          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/core.swc" useDefaultLinkType="false"/>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/flex.swc" useDefaultLinkType="false"/>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/core.swc" useDefaultLinkType="false"/>
         </excludedEntries>
       </libraryPathEntry>
       <libraryPathEntry kind="1" linkType="1" path="libs"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
-  <applications/>
+  <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/frameworks/themes/Halo"/>
+  <applications>
+    <application path="BigBlueButtonTest.mxml"/>
+    <application path="CameraCheck.mxml"/>
+    <application path="BigBlueButton.mxml"/>
+    <application path="BigBlueButtonUnitTests.mxml"/>
+    <application path="MicrophoneCheck.mxml"/>
+    <application path="WebcamPreviewStandalone.mxml"/>
+    <application path="org/red5/flash/bwcheck/app/BandwidthDetectionApp.as"/>
+    <application path="WebcamViewStandalone.mxml"/>
+    <application path="RTMPConnCheck.mxml"/>
+    <application path="ScreenshareStandalone.mxml"/>
+  </applications>
   <modules/>
   <workers/>
   <buildCSSFiles/>
