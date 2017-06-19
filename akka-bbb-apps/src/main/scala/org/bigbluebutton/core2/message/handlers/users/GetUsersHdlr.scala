@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
+import org.bigbluebutton.core.{ OutMessageGateway }
 import org.bigbluebutton.core.api.GetUsers
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor
@@ -13,6 +13,10 @@ trait GetUsersHdlr {
   val outGW: OutMessageGateway
 
   def handleGetUsers(msg: GetUsers): Unit = {
+    sendAllUsersInMeeting(msg.requesterID)
+  }
+
+  def sendAllUsersInMeeting(requesterId: String): Unit = {
     val users = Users2x.findAll(liveMeeting.users2x)
     val webUsers = users.map { u =>
       WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
@@ -20,9 +24,8 @@ trait GetUsersHdlr {
         locked = u.locked, presenter = u.presenter, avatar = u.avatar)
     }
 
-    val event = GetUsersMeetingRespMsgBuilder.build(msg.meetingID, msg.requesterID, webUsers)
+    val event = GetUsersMeetingRespMsgBuilder.build(liveMeeting.props.meetingProp.intId, requesterId, webUsers)
     Sender.send(outGW, event)
-    MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
   }
 
 }

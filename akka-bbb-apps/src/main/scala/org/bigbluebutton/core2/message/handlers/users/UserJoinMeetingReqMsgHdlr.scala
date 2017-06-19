@@ -12,8 +12,12 @@ trait UserJoinMeetingReqMsgHdlr {
   val outGW: OutMessageGateway
 
   def handle(msg: UserJoinMeetingReqMsg): Unit = {
+    userJoinMeeting(msg.body.authToken)
+  }
+
+  def userJoinMeeting(authToken: String): Unit = {
     for {
-      regUser <- RegisteredUsers.findWithToken(msg.body.authToken, liveMeeting.registeredUsers)
+      regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
       val userState = UserState(intId = regUser.id,
         extId = regUser.externId,
@@ -34,6 +38,6 @@ trait UserJoinMeetingReqMsgHdlr {
 
       MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
     }
-
   }
 }
+
