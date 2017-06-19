@@ -35,18 +35,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
-
-      import mx.controls.Alert;
-      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.bigbluebutton.modules.layout.events.LayoutEvent;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
+      private static const LOGGER:ILogger = getClassLogger(LogoutWindow);
+      
       private var globalDispatcher:Dispatcher = new Dispatcher();;
 
       private function onCreationComplete():void {

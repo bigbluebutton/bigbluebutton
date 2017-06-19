@@ -25,7 +25,7 @@ package org.bigbluebutton.core.model
     }
     
     public function set role(value: String):void {
-      _role = role;
+      _role = value;
     }
   }
 }
