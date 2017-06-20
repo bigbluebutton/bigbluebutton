@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
@@ -17,13 +18,15 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users, Polls }
+import org.bigbluebutton.core.models.{ Polls, RegisteredUsers, Users }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
+import org.bigbluebutton.core2.testdata.FakeTestData
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -110,6 +113,11 @@ class MeetingActor(val props: DefaultProps,
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
   val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
+
+  /*******************************************************************/
+  object FakeTestData extends FakeTestData
+  FakeTestData.createFakeUsers(liveMeeting)
+  /*******************************************************************/
 
   def receive = {
     //=============================

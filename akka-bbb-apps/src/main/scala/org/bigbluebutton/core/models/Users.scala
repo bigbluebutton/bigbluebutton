@@ -7,6 +7,12 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 import com.softwaremill.quicklens.ModifyPimp
 import com.softwaremill.quicklens.modify
 
+object CallingWith {
+  val WEBRTC = "webrtc"
+  val FLASH = "flash"
+  val PHONE = "phone"
+}
+
 object Roles {
   val MODERATOR_ROLE = "MODERATOR"
   val PRESENTER_ROLE = "PRESENTER"

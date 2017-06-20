@@ -32,6 +32,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.core.model.users.User2x;
+  import org.bigbluebutton.core.model.users.VoiceUser2x;
   import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -51,6 +53,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+  import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
   public class MessageReceiver implements IMessageListener
   {
@@ -71,6 +74,12 @@ package org.bigbluebutton.modules.users.services
       LOGGER.debug(" received message " + messageName);
 
       switch (messageName) {
+        case "GetUsersMeetingRespMsg":
+          handleGetUsersMeetingRespMsg(message);
+          break;
+        case "GetVoiceUsersMeetingRespMsg":
+          handleGetVoiceUsersMeetingRespMsg(message);
+          break;
         case "UserBroadcastCamStartedEvtMsg": 
           handleUserBroadcastCamStartedEvtMsg(message);
           break;
@@ -189,6 +198,77 @@ package org.bigbluebutton.modules.users.services
       }
     }
 
+    private function handleGetUsersMeetingRespMsg(msg: Object):void {
+      var body: Object = msg.body as Object
+      var users: Array = body.users as Array;
+      LOGGER.debug("Num USERs = " + users.length);
+
+      for (var i:int = 0; i < users.length; i++) {
+        var user:Object = users[i] as Object;
+        var intId: String = user.intId as String;
+        var extId: String = user.extId as String;
+        var name: String = user.name as String;
+        var role: String = user.role as String;
+        var guest: Boolean = user.role as Boolean;
+        var authed: Boolean = user.authed as Boolean;
+        var waitingForAcceptance: Boolean = user.waitingForAcceptance as Boolean;
+        var emoji: String = user.emoji as String;
+        var locked: Boolean = user.locked as Boolean;
+        var presenter: Boolean = user.presenter as Boolean;
+        var avatar: String = user.avatar as String;
+        
+        var user2x: User2x = new User2x();
+        user2x.intId = intId;
+        user2x.extId = extId;
+        user2x.name = name;
+        user2x.role = role;
+        user2x.guest = guest;
+        user2x.authed = authed;
+        user2x.waitingForAcceptance = waitingForAcceptance;
+        user2x.emoji = emoji;
+        user2x.locked = locked;
+        user2x.presenter = presenter;
+        user2x.avatar = avatar;
+        
+        LOGGER.debug("USER = " + JSON.stringify(user2x));
+
+        LiveMeeting.inst().users.add(user2x);
+      } 
+    }
+    
+    private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var users: Array = body.users as Array;
+      LOGGER.debug("Num USERs = " + users.length);
+      
+      var tempUsers:Array = new Array();
+      
+      for (var i:int = 0; i < users.length; i++) {
+        var user:Object = users[i] as Object;
+        var intId: String = user.intId as String;
+        var voiceUserId: String = user.voiceUserId as String;
+        var callingWith: String = user.callingWith as String;
+        var callerName: String = user.callerName as String;
+        var callerNum: String = user.callerNum as String;
+        var muted: Boolean = user.muted as Boolean;
+        var talking: Boolean = user.talking as Boolean;
+        var listenOnly: Boolean = user.listenOnly as Boolean;
+        
+        var vu: VoiceUser2x = new VoiceUser2x();
+        vu.intId = intId;
+        vu.voiceUserId = voiceUserId;
+        vu.callingWith = callingWith;
+        vu.callerName = callerName;
+        vu.callerNum = callerNum;
+        vu.muted = muted;
+        vu.talking = talking;
+        vu.listenOnly = listenOnly;
+        
+        LOGGER.debug("USER = " + JSON.stringify(vu));
+        LiveMeeting.inst().voiceUsers.add(vu);
+      }
+    }
+    
     private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
       var event:WebRTCViewStreamEvent;
       if (msg.broadcasting) {
