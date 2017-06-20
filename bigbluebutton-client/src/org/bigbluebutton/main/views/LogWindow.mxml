@@ -21,11 +21,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-	       xmlns:mx="http://www.adobe.com/2006/mxml" 
+	       xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 	       title="Log Window" creationComplete="displayLogMessages();"
 	       showCloseButton="true" xmlns:text="flash.text.*">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.controls.TextArea;
 			
@@ -75,7 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<mx:TextArea id="txtOutput" text="" updateComplete="txtOutput.verticalScrollPosition = txtOutput.maxVerticalScrollPosition + 1;"
 		width="100%" height="100%"/>
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		

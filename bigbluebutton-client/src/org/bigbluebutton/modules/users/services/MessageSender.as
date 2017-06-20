@@ -22,6 +22,20 @@ package org.bigbluebutton.modules.users.services
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.connection.messages.UserBroadcastCamStartMsg;
+  import org.bigbluebutton.core.connection.messages.UserBroadcastCamStartMsgBody;
+  import org.bigbluebutton.core.connection.messages.UserBroadcastCamStopMsg;
+  import org.bigbluebutton.core.connection.messages.UserBroadcastCamStopMsgBody;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.BreakoutRoomsListMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.BreakoutRoomsListMsgBody;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsgBody;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsgBody;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.ListenInOnBreakoutMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.ListenInOnBreakoutMsgBody;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsgBody;
   import org.bigbluebutton.core.managers.ConnectionManager;
 
   public class MessageSender {
@@ -59,6 +73,10 @@ package org.bigbluebutton.modules.users.services
             LOGGER.info(JSON.stringify(logData));
         }
       );
+    }
+    
+    public function joinMeeting(): void {
+      // TODO: Send joine meeting message to server.
     }
     
     public function assignPresenter(userid:String, name:String, assignedBy:Number):void {
@@ -99,120 +117,119 @@ package org.bigbluebutton.modules.users.services
             },
             message
         );
-    }
-		
-		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["rooms"] = rooms;
-			message["durationInMinutes"] = durationInMinutes;
-			message["record"] = record;
-			var jsonMsg:String = JSON.stringify(message);
-			
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("breakoutroom.createBreakoutRooms", function(result:String):void
-			{
-				// On successful result
-			}, function(status:String):void
-			{ // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured creating breakout rooms.";
-                LOGGER.info(JSON.stringify(logData));
-			},
-			jsonMsg
-			);
 		}
-		
-		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
-			var message:Object = new Object();
-			message["meetingId"] = parentMeetingId;
-			message["breakoutMeetingId"] = breakoutMeetingId;
-			message["userId"] = userId;
-			
-			var jsonMsg:String = JSON.stringify(message);
-			
+
+		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
+			var body:CreateBreakoutRoomsMsgBody = new CreateBreakoutRoomsMsgBody(meetingId, durationInMinutes, record, rooms);
+			var message:CreateBreakoutRoomsMsg = new CreateBreakoutRoomsMsg(body);
+
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("breakoutroom.requestBreakoutJoinUrl", function(result:String):void {
-				// On successful result
+			_nc.sendMessage2x(function(result:String):void { // On successful result
 			}, function(status:String):void { // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured requesting breakout room join url.";
-                LOGGER.info(JSON.stringify(logData));
-			}, jsonMsg);
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured creating breakout rooms.";
+				LOGGER.info(JSON.stringify(logData));
+			}, JSON.stringify(message));
+		}
+
+		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
+			var body:RequestBreakoutJoinURLMsgBody = new RequestBreakoutJoinURLMsgBody(parentMeetingId, breakoutMeetingId, userId);
+			var message:RequestBreakoutJoinURLMsg = new RequestBreakoutJoinURLMsg(body);
+
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage2x(function(result:String):void { // On successful result
+			}, function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured requesting breakout room join url.";
+				LOGGER.info(JSON.stringify(logData));
+			}, JSON.stringify(message));
 		}
 		
 		public function listenInOnBreakout(meetingId:String, targetMeetingId:String, userId:String):void {
+			var body:ListenInOnBreakoutMsgBody = new ListenInOnBreakoutMsgBody(meetingId, targetMeetingId, userId);
+			var message:ListenInOnBreakoutMsg = new ListenInOnBreakoutMsg(body);
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("breakoutroom.listenInOnBreakout", function(result:String):void
-			{
-				// On successful result
-			}, function(status:String):void
-			{ // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured listen on breakout room.";
-                LOGGER.info(JSON.stringify(logData));
-			},
-			JSON.stringify({meetingId: meetingId, targetMeetingId: targetMeetingId, userId: userId})
-			);
+			_nc.sendMessage2x(function(result:String):void { // On successful result
+			}, function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured listen on breakout room.";
+				LOGGER.info(JSON.stringify(logData));
+			}, JSON.stringify(message));
 		}
-		
-		public function endAllBreakoutRooms(meetingId:String):void {
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("breakoutroom.endAllBreakoutRooms", function(result:String):void
-			{
-				// On successful result
-			}, function(status:String):void
-			{ // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured ending breakout rooms.";
-                LOGGER.info(JSON.stringify(logData));
-			},
-			JSON.stringify({meetingId: meetingId})
-			);
-		}
-    
-    public function addStream(userID:String, streamName:String):void {
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.shareWebcam", 
-        function(result:String):void { // On successful result
-        },	                   
-        function(status:String):void { // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured sharing webcam.";
-                LOGGER.info(JSON.stringify(logData));
-        },
-        streamName
-      );
-    }
-    
-    public function removeStream(userID:String, streamName:String):void {
-  
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["webcam"];
-        logData.streamId = streamName;
-        logData.message = "User stopped sharing webcam";
-        LOGGER.info(JSON.stringify(logData));
 
-  
+		public function endAllBreakoutRooms(meetingId:String):void {
+			var body:EndAllBreakoutRoomsMsgBody = new EndAllBreakoutRoomsMsgBody(meetingId);
+			var message:EndAllBreakoutRoomsMsg = new EndAllBreakoutRoomsMsg(body);
+
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage2x(function(result:String):void { // On successful result
+			}, function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured requesting breakout room join url.";
+				LOGGER.info(JSON.stringify(logData));
+			}, JSON.stringify(message));
+		}
+
+		public function addStream(userID:String, streamName:String):void {
+			var body:UserBroadcastCamStartMsgBody = new UserBroadcastCamStartMsgBody(streamName);
+			var message:UserBroadcastCamStartMsg = new UserBroadcastCamStartMsg(body);
+
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage2x(function(result:String):void { // On successful result
+			}, function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured sharing webcam.";
+				LOGGER.info(JSON.stringify(logData));
+			}, JSON.stringify(message));
+		}
+
+		public function removeStream(userID:String, streamName:String):void {
+
+			var body:UserBroadcastCamStopMsgBody = new UserBroadcastCamStopMsgBody(streamName);
+			var message:UserBroadcastCamStopMsg = new UserBroadcastCamStopMsg(body);
+
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["webcam"];
+			logData.streamId = streamName;
+			logData.message = "User stopped sharing webcam";
+			LOGGER.info(JSON.stringify(logData));
+
+
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage2x(function(result:String):void { // On successful result
+			}, function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured unsharing webcam.";
+				LOGGER.info(JSON.stringify(logData));
+			}, JSON.stringify(message));
+		}
+    
+    public function logoutEndMeeting(userID:String):void {
+      var message:Object = new Object();
+      message["userId"] = userID;
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.unshareWebcam", 
+      _nc.sendMessage(
+        "participants.logoutEndMeeting",
         function(result:String):void { // On successful result
-        },	                   
+        },
         function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
-                logData.message = "Error occured unsharing webcam.";
+                logData.message = "Error occured logout and end meeting.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        streamName
+        message
       );
     }
-    
+
     public function queryForRecordingStatus():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
@@ -226,28 +243,37 @@ package org.bigbluebutton.modules.users.services
                 LOGGER.info(JSON.stringify(logData));
         }
       ); //_netConnection.call
-    }
-	
-	public function queryForBreakoutRooms(meetingId:String):void {
-		var message:Object = new Object();
-		message["meetingId"] = meetingId;
-		var jsonMsg:String = JSON.stringify(message);
-		
-		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage("breakoutroom.getBreakoutRoomsList", function(result:String):void
-		{
-			// On successful result
-		}, function(status:String):void
-		{ // status - On error occurred
+	}
+
+		public function queryForBreakoutRooms(meetingId:String):void {
+			var body:BreakoutRoomsListMsgBody = new BreakoutRoomsListMsgBody(meetingId);
+			var message:BreakoutRoomsListMsg = new BreakoutRoomsListMsg(body);
+
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage2x(function(result:String):void { // On successful result
+			}, function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured querying breakout rooms.";
+				LOGGER.info(JSON.stringify(logData));
+			}, JSON.stringify(message));
+		}
+
+    public function activityResponse():void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.activityResponse", // Remote function name
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
-                logData.message = "Error occured querying breakout rooms.";
+                logData.message = "Error occured activity response.";
                 LOGGER.info(JSON.stringify(logData));
-		},
-			jsonMsg
-		);
-	}
-    
+        }
+      ); //_netConnection.call
+    }
+
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
       var message:Object = new Object();
       message["userId"] = userID;
@@ -486,6 +512,89 @@ package org.bigbluebutton.modules.users.services
         },
         newLockSettings
       );      
+    }
+
+    public function changeRole(userID:String, role:String):void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      var message:Object = new Object();
+      message["userId"] = userID;
+      message["role"] = role;
+
+      _nc.sendMessage(
+        "participants.setParticipantRole",// Remote function name
+        function(result:String):void { // On successful result
+          LOGGER.debug(result);
+        },
+        function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured change role.";
+                LOGGER.info(JSON.stringify(logData));
+        },
+        message
+      );
+    }
+
+    public function queryForGuestPolicy():void {
+      LOGGER.debug("queryForGuestPolicy");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.getGuestPolicy",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured query guest policy.";
+                LOGGER.info(JSON.stringify(logData));
+         }
+       );
+    }
+
+    public function setGuestPolicy(policy:String):void {
+      LOGGER.debug("setGuestPolicy - new policy:[" + policy + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.setGuestPolicy",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured set guest policy.";
+                LOGGER.info(JSON.stringify(logData));
+         },
+         policy
+       );
+    }
+
+    public function responseToGuest(userId:String, response:Boolean):void {
+      LOGGER.debug("responseToGuest - userId:[" + userId + "] response:[" + response + "]");
+
+      var message:Object = new Object();
+      message["userId"] = userId;
+      message["response"] = response;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.responseToGuest",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured response guest.";
+                LOGGER.info(JSON.stringify(logData));
+         },
+         message
+       );
+    }
+
+    public function responseToAllGuests(response:Boolean):void {
+      responseToGuest(null, response);
     }
   }
 }

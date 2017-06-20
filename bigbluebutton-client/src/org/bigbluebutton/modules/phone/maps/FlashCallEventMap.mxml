@@ -22,8 +22,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 <EventMap xmlns="http://mate.asfusion.com/"
-	xmlns:mx="http://www.adobe.com/2006/mxml">
-	<mx:Script>
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009">
+	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
@@ -44,11 +45,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
 			import org.bigbluebutton.modules.phone.managers.FlashCallManager;
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 	<!--
 	This is the main event map for the chat module, think of it as the application controller.
 	-->
+	<fx:Declarations>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
@@ -56,67 +58,69 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<ObjectBuilder generator="{FlashCallManager}" />
 	</EventHandlers>
 	
-  <EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
-    <MethodInvoker generator="{FlashCallManager}" method="initialize"/>
-  </EventHandlers>
-
-  <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
-    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{ConnectionFailedEvent.USER_LOGGED_OUT}">       
-    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
-    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{FlashStartEchoTestCommand.START_FLASH_ECHO_TEST}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashStartEchoTestCommand" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{FlashStopEchoTestCommand.FLASH_STOP_ECHO_TEST}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashStopEchoTestCommand" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{FlashEchoTestHasAudioEvent.FLASH_ECHO_TEST_HAS_AUDIO}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashEchoTestHasAudioEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{FlashEchoTestNoAudioEvent.FLASH_ECHO_TEST_NO_AUDIO}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashEchoTestNoAudioEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashCallConnectedEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashCallDisconnectedEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{FlashVoiceConnectionStatusEvent.CONN_STATUS}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashVoiceConnectionStatusEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
-  </EventHandlers> 
-  
-  <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleLeaveVoiceConferenceCommand" arguments="{event}"/>
-  </EventHandlers>   
-
-  <EventHandlers type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}">
-    <MethodInvoker generator="{FlashCallManager}" method="handleFlashLeftVoiceConference"/>
-  </EventHandlers>
-
-  <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleUseFlashModeCommand"/>
-  </EventHandlers>   
-  
-  <EventHandlers type="{BBBEvent.RECONNECT_SIP_SUCCEEDED_EVENT}">
-    <MethodInvoker generator="{FlashCallManager}" method="handleReconnectSIPSucceededEvent"/>
-  </EventHandlers>
+	  <EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="initialize"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
+	    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{ConnectionFailedEvent.USER_LOGGED_OUT}">       
+	    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
+	    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{FlashStartEchoTestCommand.START_FLASH_ECHO_TEST}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashStartEchoTestCommand" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{FlashStopEchoTestCommand.FLASH_STOP_ECHO_TEST}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashStopEchoTestCommand" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{FlashEchoTestHasAudioEvent.FLASH_ECHO_TEST_HAS_AUDIO}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashEchoTestHasAudioEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{FlashEchoTestNoAudioEvent.FLASH_ECHO_TEST_NO_AUDIO}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashEchoTestNoAudioEvent" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashCallConnectedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashCallDisconnectedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{FlashVoiceConnectionStatusEvent.CONN_STATUS}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashVoiceConnectionStatusEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="initialize"/>
+	    <MethodInvoker generator="{FlashCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
+	  </EventHandlers> 
+	  
+	  <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleLeaveVoiceConferenceCommand" arguments="{event}"/>
+	  </EventHandlers>   
+	
+	  <EventHandlers type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}">
+	    <MethodInvoker generator="{FlashCallManager}" method="handleFlashLeftVoiceConference"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">        
+	    <MethodInvoker generator="{FlashCallManager}" method="handleUseFlashModeCommand"/>
+	  </EventHandlers>   
+	  
+	  <EventHandlers type="{BBBEvent.RECONNECT_SIP_SUCCEEDED_EVENT}">
+	    <MethodInvoker generator="{FlashCallManager}" method="handleReconnectSIPSucceededEvent"/>
+	  </EventHandlers>
+	</fx:Declarations>
 </EventMap>

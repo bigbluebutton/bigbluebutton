@@ -6,29 +6,29 @@ import org.bigbluebutton.red5.client.PollingClientMessageSender;
 import org.bigbluebutton.red5.client.PresentationClientMessageSender;
 import org.bigbluebutton.red5.client.UserClientMessageSender;
 import org.bigbluebutton.red5.client.ChatClientMessageSender;
+import org.bigbluebutton.red5.client.SharedNotesClientMessageSender;
 import org.bigbluebutton.red5.client.WhiteboardClientMessageSender;
 import org.bigbluebutton.red5.client.CaptionClientMessageSender;
 import org.bigbluebutton.red5.client.DeskShareMessageSender;
-import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
+import org.bigbluebutton.red5.client.messaging.IConnectionInvokerService;
 import org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 public class RedisPubSubMessageHandler implements MessageHandler {
-  private static Logger log = Red5LoggerFactory.getLogger(RedisPubSubMessageHandler.class, "bigbluebutton");
 
-	private ConnectionInvokerService service;
+	private IConnectionInvokerService service;
 	private UserClientMessageSender userMessageSender;
 	private MeetingClientMessageSender meetingMessageSender;
 	private ChatClientMessageSender chatMessageSender;
 	private PresentationClientMessageSender presentationMessageSender;
 	private WhiteboardClientMessageSender whiteboardMessageSender;
 	private DeskShareMessageSender deskShareMessageSender;
-	private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
+	//private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
 	private PollingClientMessageSender pollingMessageSender;
 	private CaptionClientMessageSender captionMessageSender;
+	private SharedNotesClientMessageSender sharedNotesMessageSender;
 	
-	public void setConnectionInvokerService(ConnectionInvokerService s) {
+	public void setConnectionInvokerService(IConnectionInvokerService s) {
 		this.service = s;
 		userMessageSender = new UserClientMessageSender(service);
 		meetingMessageSender = new MeetingClientMessageSender(service);
@@ -38,10 +38,11 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		deskShareMessageSender = new DeskShareMessageSender(service);
 		pollingMessageSender = new PollingClientMessageSender(service);
 		captionMessageSender = new CaptionClientMessageSender(service);
+		sharedNotesMessageSender = new SharedNotesClientMessageSender(service);
 	}
 	
 	public void setBbbAppsIsKeepAliveHandler(BbbAppsIsKeepAliveHandler handler) {
-		bbbAppsIsKeepAliveHandler = handler;
+		//bbbAppsIsKeepAliveHandler = handler;
 	}
 	
 	@Override
@@ -58,13 +59,15 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_WHITEBOARD_CHANNEL)) {
 			whiteboardMessageSender.handleWhiteboardMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {
-			bbbAppsIsKeepAliveHandler.handleKeepAliveMessage(message);
+			//bbbAppsIsKeepAliveHandler.handleKeepAliveMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_DESK_SHARE_CHANNEL)) {
 			deskShareMessageSender.handleDeskShareMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_POLLING_CHANNEL)) {
 			pollingMessageSender.handlePollMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_CAPTION_CHANNEL)) {
 			captionMessageSender.handleCaptionMessage(message);
+		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SHAREDNOTES_CHANNEL)) {
+			sharedNotesMessageSender.handleSharedNotesMessage(message);
 		}
 	}
 

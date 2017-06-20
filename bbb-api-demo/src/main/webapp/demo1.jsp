@@ -1,6 +1,6 @@
 <!--
 
-BigBlueButton - http://www.bigbluebutton.org
+BigBlueButton - http://www.bigbluebutton.org  
 
 Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
 

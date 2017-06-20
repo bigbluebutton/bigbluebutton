@@ -21,7 +21,8 @@ $Id: $
 --> 
 
 <flc:CanvasButton
-	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:flc="flexlib.controls.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	visible="false" 
@@ -34,17 +35,22 @@ $Id: $
 	paddingTop="0"
 	paddingBottom="0">
 	
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
-	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleJoinedVoiceConferenceEvent" />
-  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleLeftVoiceConferenceEvent" />
-  <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleVoiceMutedEvent" />
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
+		<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+		<mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleJoinedVoiceConferenceEvent" />
+		<mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleLeftVoiceConferenceEvent" />
+		<mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleVoiceMutedEvent" />
+	</fx:Declarations>
   
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
+			
+			import spark.filters.GlowFilter;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -60,6 +66,7 @@ $Id: $
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
       
 			private static const LOGGER:ILogger = getClassLogger(MuteMeButton);      
@@ -74,7 +81,7 @@ $Id: $
 			
 			private function handleUserTalking(e:CoreEvent):void {
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
-				if (UserManager.getInstance().getConference().amIThisUser(e.message.userID)) {
+				if (UsersUtil.isMe(e.message.userID)) {
 					if (e.message.talking){
 						muteMeBtnImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 					} else {
@@ -84,6 +91,10 @@ $Id: $
 			}
 			
 			private function localeChanged(e:Event):void {
+				updateMuteMeBtn();
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
 				updateMuteMeBtn();
 			}
 			
@@ -198,8 +209,8 @@ $Id: $
 					if (!allowMuteUnmute()) return;
 					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-					e.userid = UserManager.getInstance().getConference().getMyUserId();
-					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
+					e.userid = UsersUtil.getMyUserID();
+					e.mute = ! UsersUtil.isMyVoiceMuted();
 					dispatchEvent(e);
 				}
 			}
@@ -214,7 +225,7 @@ $Id: $
 				updateMuteMeBtn();
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 	<mx:HBox id="hboxMuteMe" verticalAlign="middle" horizontalAlign="center" horizontalGap="0" 
            paddingLeft="5" paddingTop="0" paddingRight="5" paddingBottom="0" width="100%">

@@ -20,38 +20,43 @@
   $Id: $
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	verticalAlign="middle"
+	horizontalGap="8"
 	horizontalAlign="center">
 	
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<fx:Declarations>
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import mx.binding.utils.BindingUtils;
-			import mx.binding.utils.ChangeWatcher;
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.modules.users.events.UsersRollEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import mx.binding.utils.BindingUtils;
+      import mx.binding.utils.ChangeWatcher;
+      import mx.events.FlexEvent;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+      import org.bigbluebutton.modules.users.events.UsersRollEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
   			private var rolledOver:Boolean = false;
   			private var moderator:Boolean = false;
   			
   			private function onCreationComplete():void {
-  				moderator = UserManager.getInstance().getConference().amIModerator();
+  				refreshRole(UsersUtil.amIModerator());
   				
   				/* I was trying to the binds through actionscript, but every time the itemrenderer was recycled 
   				 * the binds would stop functioning. I think it might have been because I was using strong 
@@ -125,14 +130,14 @@
 			
 			private function updateEmojiComponents() : void {
 				if (rolledOver && data.hasEmojiStatus) {
-					emojiBtn.setStyle("icon", images["emoji_" + data.emojiStatus]);
+					emojiBtn.setStyle("icon", images["mood_" + data.emojiStatus]);
 					emojiBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = false;
 					emojiBtn.visible = true;
 					emojiBtn.enabled = true;
 				} else if (data.hasEmojiStatus) {
-					emojiImg.source = images["emoji_" + data.emojiStatus];
-					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
+					emojiImg.source = images["mood_" + data.emojiStatus];
+					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = true;
 					emojiBtn.visible = false;
 					emojiBtn.enabled = false;
@@ -160,6 +165,17 @@
 				}
 			}
   			
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				rolledOver = false;
+				updateButtons();
+
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
+			private function refreshRole(amIModerator:Boolean):void {
+				moderator = amIModerator;
+			}
+
   			private function roleBtnClicked():void {
                 if (!data.presenter) {
     				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
@@ -180,11 +196,11 @@
 				updateButtons();
 			}
 		]]>
-	</mx:Script>
-	<mx:Image id="emojiImg" visible="true" width="16" height="16" includeInLayout="{emojiImg.visible}" />
+	</fx:Script>
+	<mx:Image id="emojiImg" visible="true" width="20" height="20" includeInLayout="{emojiImg.visible}" />
 	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
 	
-	<mx:Image id="roleImg" visible="true" width="16" height="16" includeInLayout="{roleImg.visible}" />
+	<mx:Image id="roleImg" visible="true" width="20" height="20" includeInLayout="{roleImg.visible}" />
 	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
 	
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->

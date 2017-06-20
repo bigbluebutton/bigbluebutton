@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-                xmlns:mate="http://mate.asfusion.com/"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
                 layout="absolute"
                 width="580"
                 height="410"
@@ -30,23 +31,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 styleName="presentationFileUploadWindowStyle"
                 initialize="initData();">
 
-    <mate:Dispatcher id="globalDispatch" />
-    <mate:Listener type="{UploadProgressEvent.UPLOAD_PROGRESS_UPDATE}" method="handleUploadProgressUpdate" />
-    <mate:Listener type="{UploadCompletedEvent.UPLOAD_COMPLETED}" method="handleUploadCompletedEvent" />
-    <mate:Listener type="{UploadIoErrorEvent.UPLOAD_IO_ERROR}" method="handleUploadIoError" />
-    <mate:Listener type="{UploadSecurityErrorEvent.UPLOAD_SECURITY_ERROR}" method="handleUploadSecurityError" />
-    <mate:Listener type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" method="handleConversionCompleted" />
-    <mate:Listener type="{ConversionUpdateEvent.CONVERSION_UPDATE}" method="handleConvertUpdate" />
-    <mate:Listener type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" method="handleThumbnailsProgressEvent" />
-	<mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
-	<mate:Listener type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" method="handleOfficeDocumentConversionInvalid"/>
-	<mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
-    <mate:Listener type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" method="handleSupportedDocument"/>	
-    <mate:Listener type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" method="handleUnsupportedDocument"/>
-    <mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
-    <mate:Listener type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" method="handlePageCountExceeded"/>
-	<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />
-  <mx:Script>
+	<fx:Declarations>
+		<mate:Dispatcher id="globalDispatch" />
+		<mate:Listener type="{UploadProgressEvent.UPLOAD_PROGRESS_UPDATE}" method="handleUploadProgressUpdate" />
+		<mate:Listener type="{UploadCompletedEvent.UPLOAD_COMPLETED}" method="handleUploadCompletedEvent" />
+		<mate:Listener type="{UploadIoErrorEvent.UPLOAD_IO_ERROR}" method="handleUploadIoError" />
+		<mate:Listener type="{UploadSecurityErrorEvent.UPLOAD_SECURITY_ERROR}" method="handleUploadSecurityError" />
+		<mate:Listener type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" method="handleConversionCompleted" />
+		<mate:Listener type="{ConversionUpdateEvent.CONVERSION_UPDATE}" method="handleConvertUpdate" />
+		<mate:Listener type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" method="handleThumbnailsProgressEvent" />
+		<mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
+		<mate:Listener type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" method="handleOfficeDocumentConversionInvalid"/>
+		<mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
+		<mate:Listener type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" method="handleSupportedDocument"/>	
+		<mate:Listener type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" method="handleUnsupportedDocument"/>
+		<mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
+		<mate:Listener type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" method="handlePageCountExceeded"/>
+		<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />	
+	</fx:Declarations>
+  <fx:Script>
     <![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.utils.StringUtil;
@@ -55,6 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
@@ -73,8 +77,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
 		import org.bigbluebutton.modules.present.events.UploadProgressEvent;
 		import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
+		import org.bigbluebutton.modules.present.model.PresentOptions;
 		import org.bigbluebutton.modules.present.model.PresentationModel;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
+		
       
 		private static const LOGGER:ILogger = getClassLogger(FileUploadWindow);      
         
@@ -91,12 +97,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var genThumbDots:String = ".";
 
       private var fileToUpload:FileReference = new FileReference();
+      [Bindable] private var presentOptions:PresentOptions;
 		
       override public function move(x:Number, y:Number):void{
         return;
       }
       
       private function initData():void {
+		  presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
         presentationNamesAC = PresentationModel.getInstance().getPresentations();
         if (presentationNamesAC.length <= 0) {
           selectFile();
@@ -181,12 +189,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
           progBarLbl.visible = true;          
           lblFileName.enabled = false;
+
+          var isDownloadable:Boolean = new Boolean(letUserDownload.selected);
           
           var uploadCmd:UploadFileCommand = new UploadFileCommand();
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
+          uploadCmd.isDownloadable = isDownloadable;
           globalDispatch.dispatchEvent(uploadCmd);
-
+          letUserDownload.visible = false;
         }       		
       }
 
@@ -275,6 +286,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         selectBtn.enabled = true;
         uploadBtn.enabled = true;
         lblFileName.enabled = true;			
+        letUserDownload.visible = true;
       }
 
       private function handleConvertUpdate(e:ConversionUpdateEvent):void{
@@ -307,7 +319,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
   ]]>
 
-  </mx:Script>
+  </fx:Script>
 
   <mx:VBox width="100%" height="100%" verticalAlign="top">
     <mx:TextArea borderSkin="{null}"
@@ -323,6 +335,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
+    <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
+      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="{presentOptions.enableDownload}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
+    </mx:Box>
     <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle" visible="false"/>

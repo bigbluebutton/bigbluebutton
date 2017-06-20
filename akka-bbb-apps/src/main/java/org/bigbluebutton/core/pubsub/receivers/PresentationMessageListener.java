@@ -10,7 +10,6 @@ import org.bigbluebutton.common.messages.RemovePresentationMessage;
 import org.bigbluebutton.common.messages.ResizeAndMoveSlideMessage;
 import org.bigbluebutton.common.messages.SendConversionCompletedMessage;
 import org.bigbluebutton.common.messages.SendConversionUpdateMessage;
-import org.bigbluebutton.common.messages.SendCursorUpdateMessage;
 import org.bigbluebutton.common.messages.SendPageCountErrorMessage;
 import org.bigbluebutton.common.messages.SendSlideGeneratedMessage;
 import org.bigbluebutton.common.messages.SharePresentationMessage;
@@ -70,15 +69,16 @@ public class PresentationMessageListener implements MessageHandler {
         
         private void sendConversionCompleted(String messageKey, String conference,
                 String code, String presId, Integer numberOfPages,
-                String filename, String presBaseUrl) {
+                String filename, String presBaseUrl, Boolean downloadable) {
                 
                 conversionUpdatesProcessor.sendConversionCompleted(messageKey, conference,
-                        code, presId, numberOfPages, filename, presBaseUrl);
+                        code, presId, numberOfPages, filename, presBaseUrl, downloadable);
         }
 
         @Override
     	public void handleMessage(String pattern, String channel, String message) {
     		if (channel.equalsIgnoreCase(MessagingConstants.TO_PRESENTATION_CHANNEL)) {
+				System.out.println("Presentation message: " + channel + " " + message);
     			JsonParser parser = new JsonParser();
     			JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -105,7 +105,7 @@ public class PresentationMessageListener implements MessageHandler {
 //    						sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
 //    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
     						bbbInGW.sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
-    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
+    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl, msg.downloadable);
     					} else if (SendPageCountErrorMessage.SEND_PAGE_COUNT_ERROR.equals(messageName)) {
     						SendPageCountErrorMessage msg = SendPageCountErrorMessage.fromJson(message);
 //    						sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
@@ -118,9 +118,6 @@ public class PresentationMessageListener implements MessageHandler {
     					} else if (RemovePresentationMessage.REMOVE_PRESENTATION.equals(messageName)) {
     						RemovePresentationMessage msg = RemovePresentationMessage.fromJson(message);
     						bbbInGW.removePresentation(msg.meetingId, msg.presentationId);
-    					} else if (SendCursorUpdateMessage.SEND_CURSOR_UPDATE.equals(messageName)) {
-    						SendCursorUpdateMessage msg = SendCursorUpdateMessage.fromJson(message);
-    						bbbInGW.sendCursorUpdate(msg.meetingId, msg.xPercent, msg.yPercent);
     					} else if (SharePresentationMessage.SHARE_PRESENTATION.equals(messageName)) {
     						SharePresentationMessage msg = SharePresentationMessage.fromJson(message);
     						bbbInGW.sharePresentation(msg.meetingId, msg.presentationId, msg.share);
@@ -170,9 +167,10 @@ public class PresentationMessageListener implements MessageHandler {
     				} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
     					Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
     					String presBaseUrl = (String) map.get("presentationBaseUrl");
+    					Boolean downloadable = new Boolean((String) map.get("downloadable"));
 
     					sendConversionCompleted(messageKey, conference, code,
-    							presId, numberOfPages, filename, presBaseUrl);
+    							presId, numberOfPages, filename, presBaseUrl, downloadable);
     				}
     			}
     		}

@@ -19,20 +19,21 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
     import org.bigbluebutton.modules.whiteboard.models.Annotation;
+    import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
     import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
     public class PencilDrawAnnotation extends DrawAnnotation
     {
-        private var _type:String = DrawObject.PENCIL;
+        private var _type:String = AnnotationType.PENCIL;
         private var _shape:Array;
         private var _color:uint;
         private var _fillColor:uint;
-        private var _thickness:uint;
+        private var _thickness:Number;
         private var _fill:Boolean;
         private var _transparent:Boolean;
 
         
-        public function PencilDrawAnnotation(segment:Array, color:uint, thickness:uint, trans:Boolean)
+        public function PencilDrawAnnotation(segment:Array, color:uint, thickness:Number, trans:Boolean)
         {
             _shape = segment;
             _color = color;
@@ -40,7 +41,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _transparent = trans;
         }
                
-        override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
+        override public function createAnnotation(wbId:String):Annotation {
             var ao:Object = new Object();
             ao["type"] = _type;
             ao["points"] = _shape;
@@ -50,7 +51,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             ao["status"] = _status;
             ao["transparency"] = _transparent;
 
-            var wbId:String = wbModel.getCurrentWhiteboardId();
             if (wbId != null) {
               ao["whiteboardId"] = wbId;
             }

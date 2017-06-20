@@ -24,13 +24,8 @@ import org.bigbluebutton.messages.GetBreakoutRoomsList;
 import org.bigbluebutton.messages.ListenInOnBreakout;
 import org.bigbluebutton.messages.RequestBreakoutJoinURL;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
 
 public class BreakoutRoomService extends AbstractService {
-
-	private static Logger log = Red5LoggerFactory.getLogger(
-			BreakoutRoomService.class, "bigbluebutton");
 
 	private MessagePublisher red5GW;
 

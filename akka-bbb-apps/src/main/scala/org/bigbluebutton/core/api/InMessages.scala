@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.core.api.Role._
-import org.bigbluebutton.core.apps.AnnotationVO
+import org.bigbluebutton.common2.messages.breakoutrooms.BreakoutUserVO
+import org.bigbluebutton.core.api.GuestPolicy.GuestPolicy
+import org.bigbluebutton.core.api.SharedNotesOperation.SharedNotesOperation
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.MeetingProperties
-import org.bigbluebutton.core.apps.BreakoutUser
+
 import spray.json.JsObject
 
 case class InMessageHeader(name: String)
@@ -12,6 +12,11 @@ case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)
 
 trait InMessage
+
+//////////////////////////////////////////////
+//
+//////////////////////////////////////////////
+case class SendDirectChatMsgCmd() extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////
 // System
@@ -28,12 +33,12 @@ case class KeepAliveMessage(aliveID: String) extends InMessage
 case class MonitorNumberOfUsers(meetingID: String) extends InMessage
 case class SendTimeRemainingUpdate(meetingId: String) extends InMessage
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
-case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends InMessage
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingId: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
+case class UpdateMeetingExpireMonitor(meetingID: String, hasUser: Boolean) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////// 
 // Breakout room
@@ -49,7 +54,7 @@ case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutMeetingId:
 // Sent by breakout actor to tell meeting actor that breakout room has been created.
 case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor the list of users in the breakout room.    
-case class BreakoutRoomUsersUpdate(meetingId: String, breakoutMeetingId: String, users: Vector[BreakoutUser]) extends InMessage
+case class BreakoutRoomUsersUpdate(meetingId: String, breakoutMeetingId: String, users: Vector[BreakoutUserVO]) extends InMessage
 // Send by internal actor to tell the breakout actor to send it's list of users to the main meeting actor.    
 case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
 // Sent by user to request ending all the breakout rooms
@@ -74,8 +79,8 @@ case class GetLockSettings(meetingID: String, userId: String) extends InMessage
 
 case class ValidateAuthToken(meetingID: String, userId: String, token: String,
   correlationId: String, sessionId: String) extends InMessage
-case class RegisterUser(meetingID: String, userID: String, name: String, role: Role,
-  extUserID: String, authToken: String, avatarURL: String) extends InMessage
+case class RegisterUser(meetingID: String, userID: String, name: String, role: String,
+  extUserID: String, authToken: String, avatarURL: String, guest: Boolean, authed: Boolean) extends InMessage
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
@@ -84,22 +89,35 @@ case class EjectUserFromMeeting(meetingID: String, userId: String, ejectedBy: St
 case class UserShareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class UserUnshareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class ChangeUserStatus(meetingID: String, userID: String, status: String, value: Object) extends InMessage
+case class ChangeUserRole(meetingID: String, userID: String, role: String) extends InMessage
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
 case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
 case class AllowUserToShareDesktop(meetingID: String, userID: String) extends InMessage
+case class ActivityResponse(meetingID: String) extends InMessage
+case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////////
 // Chat
 /////////////////////////////////////////////////////////////////////////////////
 
-case class GetChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
+case class GetAllChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
+case class GetChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String, chatId: String) extends InMessage
 case class SendPublicMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
 case class SendPrivateMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
+case class ClearPublicChatHistoryRequest(meetingID: String, requesterID: String) extends InMessage
 case class UserConnectedToGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
   userid: String, name: String) extends InMessage
 case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
   userid: String, name: String) extends InMessage
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Guest support
+///////////////////////////////////////////////////////////////////////////////////////
+
+case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMessage
+case class SetGuestPolicy(meetingID: String, policy: GuestPolicy, setBy: String) extends InMessage
+case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // Layout
@@ -118,7 +136,6 @@ case class BroadcastLayoutRequest(meetingID: String, requesterID: String, layout
 case class ClearPresentation(meetingID: String) extends InMessage
 case class RemovePresentation(meetingID: String, presentationID: String) extends InMessage
 case class GetPresentationInfo(meetingID: String, requesterID: String, replyTo: String) extends InMessage
-case class SendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) extends InMessage
 case class ResizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double,
   widthRatio: Double, heightRatio: Double) extends InMessage
 case class GotoSlide(meetingID: String, page: String) extends InMessage
@@ -139,8 +156,8 @@ case class PresentationConversionCompleted(meetingID: String, messageKey: String
 ////////////////////////////////////////////////////////////////////////////////////
 
 //case class CreatePollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StartCustomPollRequest(meetingID: String, requesterId: String, pollType: String, answers: Seq[String]) extends InMessage
-case class StartPollRequest(meetingID: String, requesterId: String, pollType: String) extends InMessage
+case class StartCustomPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String, answers: Seq[String]) extends InMessage
+case class StartPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
 case class StopPollRequest(meetingID: String, requesterId: String) extends InMessage
 case class ShowPollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
 case class HidePollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
@@ -170,16 +187,7 @@ case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String,
 case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean) extends InMessage
 case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String) extends InMessage
 
-/////////////////////////////////////////////////////////////////////////////////////
-// Whiteboard
-/////////////////////////////////////////////////////////////////////////////////////
-
-case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage
-case class GetWhiteboardShapesRequest(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) extends InMessage
-case class ClearWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage
-case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage
-case class EnableWhiteboardRequest(meetingID: String, requesterID: String, enable: Boolean) extends InMessage
-case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
+// No idea what part this is for
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
 
 // Caption
@@ -193,3 +201,13 @@ case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamna
 case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
 case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
 
+/////////////////////////////////////////////////////////////////////////////////////
+// Shared notes
+/////////////////////////////////////////////////////////////////////////////////////
+
+case class PatchDocumentRequest(meetingID: String, requesterID: String, noteID: String, patch: String, operation: SharedNotesOperation) extends InMessage
+case class GetCurrentDocumentRequest(meetingID: String, requesterID: String) extends InMessage
+case class CreateAdditionalNotesRequest(meetingID: String, requesterID: String, noteName: String) extends InMessage
+case class DestroyAdditionalNotesRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage
+case class RequestAdditionalNotesSetRequest(meetingID: String, requesterID: String, additionalNotesSetSize: Int) extends InMessage
+case class SharedNotesSyncNoteRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage

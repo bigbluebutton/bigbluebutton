@@ -16,9 +16,10 @@ public class SendConversionCompletedMessage implements IBigBlueButtonMessage {
 	public final int numPages;
 	public final String presName;
 	public final String presBaseUrl;
+	public final Boolean downloadable;
 
 	public SendConversionCompletedMessage(String messageKey, String meetingId,	String code,
-			String presId, int numPages, String presName,	String presBaseUrl) {
+			String presId, int numPages, String presName,	String presBaseUrl, Boolean downloadable) {
 		this.meetingId = meetingId;
 		this.messageKey = messageKey;
 		this.code = code;
@@ -26,6 +27,7 @@ public class SendConversionCompletedMessage implements IBigBlueButtonMessage {
 		this.numPages = numPages;
 		this.presName = presName;
 		this.presBaseUrl = presBaseUrl;
+		this.downloadable = downloadable;
 	}
 
 	public String toJson() {
@@ -37,6 +39,7 @@ public class SendConversionCompletedMessage implements IBigBlueButtonMessage {
 		payload.put(Constants.NUM_PAGES, numPages);
 		payload.put(Constants.PRESENTATION_NAME, presName);
 		payload.put(Constants.PRESENTATION_BASE_URL, presBaseUrl);
+		payload.put(Constants.DOWNLOADABLE, downloadable);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_CONVERSION_COMPLETED, VERSION, null);
 
@@ -60,7 +63,8 @@ public class SendConversionCompletedMessage implements IBigBlueButtonMessage {
 							&& payload.has(Constants.PRESENTATION_ID)
 							&& payload.has(Constants.NUM_PAGES)
 							&& payload.has(Constants.PRESENTATION_NAME)
-							&& payload.has(Constants.PRESENTATION_BASE_URL)) {
+							&& payload.has(Constants.PRESENTATION_BASE_URL)
+							&& payload.has(Constants.DOWNLOADABLE)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String messageKey = payload.get(Constants.MESSAGE_KEY).getAsString();
 						String code = payload.get(Constants.CODE).getAsString();
@@ -68,8 +72,9 @@ public class SendConversionCompletedMessage implements IBigBlueButtonMessage {
 						int numPages = payload.get(Constants.NUM_PAGES).getAsInt();
 						String presName = payload.get(Constants.PRESENTATION_NAME).getAsString();
 						String presBaseUrl = payload.get(Constants.PRESENTATION_BASE_URL).getAsString();
+						Boolean downloadable = payload.get(Constants.DOWNLOADABLE).getAsBoolean();
 
-						return new SendConversionCompletedMessage(messageKey, meetingId, code, presId, numPages, presName, presBaseUrl);
+						return new SendConversionCompletedMessage(messageKey, meetingId, code, presId, numPages, presName, presBaseUrl, downloadable);
 					}
 				} 
 			}

@@ -18,8 +18,8 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" >
-	<mx:Script>
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009">
+	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
@@ -32,49 +32,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.classyaudio.events.StopClassAudioEvent;
 			import org.bigbluebutton.modules.classyaudio.managers.ClassyAudioManager;
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		<ObjectBuilder generator="{ClassyAudioManager}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{StartClassAudioEvent.START_CLASS_AUDIO}">
-		<MethodInvoker generator="{ClassyAudioManager}" method="setAttributes" arguments="{event.attributes}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{StopClassAudioEvent.STOP_CLASS_AUDIO}">
-		<MethodInvoker generator="{ClassyAudioManager}" method="stopModule" />
-	</EventHandlers>
-	
-	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
-		<MethodInvoker generator="{ClassyAudioManager}" method="callConnected" arguments="{event}"/>
-	</EventHandlers>
-	
-	<EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
-		<MethodInvoker generator="{ClassyAudioManager}" method="hangup" /> 
-	</EventHandlers>
-	
-	<EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
-		<MethodInvoker generator="{ClassyAudioManager}" method="dialConference"/>
-	</EventHandlers>
-	
-	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
-		<MethodInvoker generator="{ClassyAudioManager}" method="switchToPresenter" arguments="{event}" />	
-	</EventHandlers>
-	
-	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-		<MethodInvoker generator="{ClassyAudioManager}" method="switchToViewer" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PushToTalkEvent.BUTTON_PUSHED}" >
-		<MethodInvoker generator="{ClassyAudioManager}" method="buttonPushed" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PushToTalkEvent.BUTTON_RELEASED}" >
-		<MethodInvoker generator="{ClassyAudioManager}" method="buttonReleased" arguments="{event}" />
-	</EventHandlers>
-	
-	
+	<fx:Declarations>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<ObjectBuilder generator="{ClassyAudioManager}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{StartClassAudioEvent.START_CLASS_AUDIO}">
+			<MethodInvoker generator="{ClassyAudioManager}" method="setAttributes" arguments="{event.attributes}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{StopClassAudioEvent.STOP_CLASS_AUDIO}">
+			<MethodInvoker generator="{ClassyAudioManager}" method="stopModule" />
+		</EventHandlers>
+		
+		<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
+			<MethodInvoker generator="{ClassyAudioManager}" method="callConnected" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
+			<MethodInvoker generator="{ClassyAudioManager}" method="hangup" /> 
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
+			<MethodInvoker generator="{ClassyAudioManager}" method="dialConference"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
+			<MethodInvoker generator="{ClassyAudioManager}" method="switchToPresenter" arguments="{event}" />	
+		</EventHandlers>
+		
+		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+			<MethodInvoker generator="{ClassyAudioManager}" method="switchToViewer" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{PushToTalkEvent.BUTTON_PUSHED}" >
+			<MethodInvoker generator="{ClassyAudioManager}" method="buttonPushed" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{PushToTalkEvent.BUTTON_RELEASED}" >
+			<MethodInvoker generator="{ClassyAudioManager}" method="buttonReleased" arguments="{event}" />
+		</EventHandlers>
+	</fx:Declarations>
 	
 </EventMap>

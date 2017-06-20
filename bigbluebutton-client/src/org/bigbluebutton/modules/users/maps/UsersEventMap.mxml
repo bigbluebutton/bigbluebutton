@@ -20,27 +20,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" >
-	<mx:Script>
+<EventMap xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="http://mate.asfusion.com/" >
+	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
 			import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
 			import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
 			import org.bigbluebutton.modules.users.managers.UsersManager;
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}" >
-		<ObjectBuilder cache="global" generator="{UsersManager}" /> 
-	</EventHandlers>
-	
-	<EventHandlers type="{StartUsersModuleEvent.START_USERS_MODULE}" >
-		<MethodInvoker generator="{UsersManager}" method="moduleStarted" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{StopUsersModuleEvent.STOP_USERS_MODULE}" >
-		<MethodInvoker generator="{UsersManager}" method="moduleEnded" />
-	</EventHandlers>
+	<fx:Declarations>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}" >
+			<ObjectBuilder cache="global" generator="{UsersManager}" /> 
+		</EventHandlers>
+		
+		<EventHandlers type="{StartUsersModuleEvent.START_USERS_MODULE}" >
+			<MethodInvoker generator="{UsersManager}" method="moduleStarted" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{StopUsersModuleEvent.STOP_USERS_MODULE}" >
+			<MethodInvoker generator="{UsersManager}" method="moduleEnded" />
+		</EventHandlers>
+	</fx:Declarations>
 
 </EventMap>

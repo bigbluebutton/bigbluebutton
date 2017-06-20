@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps
 
-import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 
 object PollType {
@@ -42,7 +41,7 @@ object PollFactory {
 
     if (numQs > 0 && numQs <= 6) {
       val answers = new Array[Answer](numQs)
-      var i = 0
+
       for (i <- 0 until numQs) {
         answers(i) = new Answer(i, LetterArray(i), Some(LetterArray(i)))
         val question = new Question(0, PollType.LetterPollType, multiResponse, None, answers)

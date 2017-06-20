@@ -3,8 +3,7 @@ package org.bigbluebutton.core.pubsub.senders
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.apps.Page
-import collection.JavaConverters._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters
 
 object PesentationMessageToJsonConverter {
   private def pageToMap(page: Page): java.util.Map[String, Any] = {
@@ -21,7 +20,7 @@ object PesentationMessageToJsonConverter {
     res += "width_ratio" -> page.widthRatio
     res += "height_ratio" -> page.heightRatio
 
-    mapAsJavaMap(res)
+    JavaConverters.mapAsJavaMap(res)
   }
 
   def clearPresentationOutMsgToJson(msg: ClearPresentationOutMsg): String = {
@@ -64,6 +63,7 @@ object PesentationMessageToJsonConverter {
       presentation.put(Constants.ID, pres.id)
       presentation.put(Constants.NAME, pres.name)
       presentation.put(Constants.CURRENT, pres.current: java.lang.Boolean)
+      presentation.put(Constants.DOWNLOADABLE, pres.downloadable: java.lang.Boolean)
 
       // Get the pages for a presentation
       val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
@@ -81,16 +81,6 @@ object PesentationMessageToJsonConverter {
     payload.put(Constants.PRESENTATIONS, presentations)
 
     val header = Util.buildHeader(MessageNames.GET_PRESENTATION_INFO_REPLY, Some(msg.replyTo))
-    Util.buildJson(header, payload)
-  }
-
-  def sendCursorUpdateOutMsgToJson(msg: SendCursorUpdateOutMsg): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.X_PERCENT, msg.xPercent)
-    payload.put(Constants.Y_PERCENT, msg.yPercent)
-
-    val header = Util.buildHeader(MessageNames.PRESENTATION_CURSOR_UPDATED, None)
     Util.buildJson(header, payload)
   }
 
@@ -120,6 +110,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     // Get the pages for a presentation
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
@@ -204,6 +195,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
     msg.presentation.pages.values foreach { p =>
@@ -225,6 +217,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
     msg.presentation.pages.values foreach { p =>
@@ -246,6 +239,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.current.id)
     presentation.put(Constants.NAME, msg.current.name)
     presentation.put(Constants.CURRENT, msg.current.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.current.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
 

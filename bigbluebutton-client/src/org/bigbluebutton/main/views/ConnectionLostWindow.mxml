@@ -20,9 +20,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="100" title="Attempting to Reconnect" 
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
+				layout="absolute" width="400" height="100" title="Attempting to Reconnect" 
 				xmlns:mate="http://mate.asfusion.com/" verticalAlign="middle">
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import flash.net.navigateToURL;
 			
@@ -36,9 +37,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<mate:Listener type="{UsersConnectionEvent.CONNECTION_SUCCESS}" method="connectionReestablished" />
+	<fx:Declarations>
+		<mate:Listener type="{UsersConnectionEvent.CONNECTION_SUCCESS}" method="connectionReestablished" />
+	</fx:Declarations>
 	
 	<mx:VBox width="100%" height="100%" horizontalAlign="center">
 		<mx:ProgressBar indeterminate="true" width="100%" label="" />

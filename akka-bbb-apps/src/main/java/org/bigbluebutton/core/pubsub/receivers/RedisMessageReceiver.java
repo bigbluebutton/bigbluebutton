@@ -42,9 +42,6 @@ public class RedisMessageReceiver {
 		
 		UsersMessageReceiver usersRx = new UsersMessageReceiver(bbbGW);
 		receivers.add(usersRx);
-				
-		WhiteboardMessageReceiver whiteboardRx = new WhiteboardMessageReceiver(bbbGW);
-		receivers.add(whiteboardRx);
 
 		DeskShareMessageReceiver deskShareRx = new DeskShareMessageReceiver(bbbGW);
 		receivers.add(deskShareRx);
@@ -57,6 +54,9 @@ public class RedisMessageReceiver {
 		
 		CaptionMessageReceiver captionRx = new CaptionMessageReceiver(bbbGW);
 		receivers.add(captionRx);
+
+		SharedNotesMessageReceiver notesRx = new SharedNotesMessageReceiver(bbbGW);
+		receivers.add(notesRx);
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {

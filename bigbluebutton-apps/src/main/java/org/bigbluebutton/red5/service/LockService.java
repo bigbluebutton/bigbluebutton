@@ -24,12 +24,9 @@ import java.util.Map;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
-import org.slf4j.Logger;
 
 public class LockService {
-	private static Logger log = Red5LoggerFactory.getLogger( LockService.class, "bigbluebutton" );
 
 	private MessagePublisher red5BBBInGW;
 
@@ -73,7 +70,6 @@ public class LockService {
 	 * all users but the users listed in array dontLockTheseUsers
 	 * */
 	public void setAllUsersLock(Boolean lock, ArrayList<String> dontLockTheseUsers){
-		log.debug("setAllUsersLock ({}, {})", new Object[] { lock, dontLockTheseUsers });
 	
 	}
 
@@ -86,8 +82,7 @@ public class LockService {
 		
 		Boolean lock = (Boolean) msg.get("lock");
 		String userId = (String) msg.get("userId");
-		
-		log.info("setUserLock ({}, {})", new Object[] { lock, userId });
+
 		red5BBBInGW.lockUser(meetingID, requesterID, lock, userId);
 	}
 

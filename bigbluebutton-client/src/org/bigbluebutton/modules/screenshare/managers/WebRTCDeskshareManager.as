@@ -20,24 +20,24 @@
 package org.bigbluebutton.modules.screenshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import flash.external.ExternalInterface;
-
+	
+	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
-	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
-	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-	import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
-	import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
-	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopPublishWindow;
-	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
-	import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 	import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
+	import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
+	import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
+	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
+	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
+	import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
 
 	public class WebRTCDeskshareManager {
 		private static const LOGGER:ILogger = getClassLogger(WebRTCDeskshareManager);
@@ -51,6 +51,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
+		private var options:ScreenshareOptions;
 
 		public function WebRTCDeskshareManager() {
 			LOGGER.debug("WebRTCDeskshareManager::WebRTCDeskshareManager");
@@ -58,6 +59,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			globalDispatcher = new Dispatcher();
 			publishWindowManager = new WebRTCPublishWindowManager(service);
 			viewWindowManager = new WebRTCViewerWindowManager(service);
+			options = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 		}
 
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
@@ -121,8 +123,8 @@ package org.bigbluebutton.modules.screenshare.managers
 				};
 				ExternalInterface.addCallback("onFail", onFail);
 
-				var voiceBridge:String = UserManager.getInstance().getConference().voiceBridge;
-				var myName:String = UserManager.getInstance().getConference().getMyName();
+				var voiceBridge:String = UsersUtil.getVoiceBridge();
+				var myName:String = UsersUtil.getMyUsername();
 
 				ExternalInterface.call(
 					'vertoShareScreen',
@@ -139,9 +141,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		private function initDeskshare():void {
 			LOGGER.debug("WebRTCDeskshareManager::initDeskshare");
 			sharing = false;
-			var options:ScreenshareOptions = new ScreenshareOptions();
-			options.parseOptions();
-			if (options.chromeExtensionKey) {
+			if (!StringUtils.isEmpty(options.chromeExtensionKey)) {
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
 			usingWebRTC = options.tryWebRTCFirst;
@@ -163,8 +163,6 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		private function canIUseVertoOnThisBrowser(newOnWebRTCBrokeFailure:Function = null, newOnNoWebRTCFailure:Function = null, newOnSuccess:Function = null):void {
 			LOGGER.debug("DeskshareManager::canIUseVertoOnThisBrowser");
-			var options:ScreenshareOptions = new ScreenshareOptions();
-			options.parseOptions();
 			var onNoWebRTCFailure:Function, onWebRTCBrokeFailure:Function, onSuccess:Function;
 
 			onNoWebRTCFailure = (newOnNoWebRTCFailure != null) ? newOnNoWebRTCFailure : function(message:String):void {
@@ -191,7 +189,7 @@ package org.bigbluebutton.modules.screenshare.managers
 				if (BrowserCheck.isFirefox()) {
 					onSuccess("Firefox, lets try");
 				} else {
-					if (chromeExtensionKey != null) {
+					if (!StringUtils.isEmpty(chromeExtensionKey)) {
 
 						LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent chrome extension link exists - ");
 						if (ExternalInterface.available) {
@@ -241,15 +239,12 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		public function handleStreamStartEvent(e:WebRTCViewStreamEvent):void{
 			if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
-			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
+			var isPresenter:Boolean = UsersUtil.amIPresenter();
 			LOGGER.debug("Received start viewing command when isPresenter==[{0}]",[isPresenter]);
 
 			if(isPresenter && usingWebRTC) {
 				publishWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 			} else {
-				var options:ScreenshareOptions = new ScreenshareOptions();
-				options.parseOptions();
-
 				if (!options.tryWebRTCFirst || e == null || e.rtmp == null) {
 					return;
 				}

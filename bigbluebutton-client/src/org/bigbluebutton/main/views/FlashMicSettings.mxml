@@ -18,7 +18,8 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/" 
 				xmlns:common="org.bigbluebutton.common.*"
 				width="600" height="390" 
@@ -28,13 +29,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
 
-  <mate:Listener type="{FlashEchoTestStartedEvent.ECHO_TEST_STARTED}" method="handleFlashEchoTestStartedEvent" />	
-  <mate:Listener type="{FlashEchoTestStoppedEvent.ECHO_TEST_STOPPED}" method="handleFlashEchoTestStoppedEvent" />
-  <mate:Listener type="{FlashEchoTestFailedEvent.ECHO_TEST_FAILED}" method="handleFlashEchoTestFailedEvent" />
-  <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
+	<fx:Declarations>
+	  <mate:Listener type="{FlashEchoTestStartedEvent.ECHO_TEST_STARTED}" method="handleFlashEchoTestStartedEvent" />	
+	  <mate:Listener type="{FlashEchoTestStoppedEvent.ECHO_TEST_STOPPED}" method="handleFlashEchoTestStoppedEvent" />
+	  <mate:Listener type="{FlashEchoTestFailedEvent.ECHO_TEST_FAILED}" method="handleFlashEchoTestFailedEvent" />
+	  <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
+	</fx:Declarations>
   
   
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -48,9 +51,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Media;
-			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.model.options.HelpOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
@@ -294,7 +298,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";			
       
 			private function onHelpButtonClicked():void {
-				DEFAULT_HELP_URL =  BBB.getConfigManager().config.help.url;
+				var helpOptions : HelpOptions = Options.getOptions(HelpOptions) as HelpOptions;
+				DEFAULT_HELP_URL =  helpOptions.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
 			}
      
@@ -335,88 +340,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-  <common:TabIndexer startIndex="1"
-					 tabIndices="{[audioSettingText, helpButton, comboMicList, micRecordVolume, micLevel, echoTestText, yesButton, noButton, echoTestButton, playButton, cancelBtn]}"/>
+	<fx:Declarations>
+	  <common:TabIndexer startIndex="1"
+						 tabIndices="{[audioSettingText, helpButton, comboMicList, micRecordVolume, micLevel, echoTestText, yesButton, noButton, echoTestButton, playButton, cancelBtn]}"/>
+	</fx:Declarations>
 	
   <mx:states>
-    <mx:State name="{FLASH_ECHO_TEST_STATE}">
-      <mx:AddChild relativeTo="displayMicNextToThis" position="after">
-        <mx:VBox id="flashEchoTest" width="100%" height="100%">          
-          <mx:HBox width="100%">      
-            <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
-                   styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
-          </mx:HBox>
-          <mx:HRule width="100%"/>
-          <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
-            <mx:TextArea editable="false" textAlign="left" borderSkin="{null}"
-                         width="100%" height="60" id="echoTestText"
-                         text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
-                         styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-            <mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}" 
-                     click="yesButtonClicked()" styleName="micSettingsWindowPlaySoundButtonStyle"
-                     toolTip=""/>
-            <mx:Button id="noButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioNo')}" 
-                     styleName="micSettingsWindowPlaySoundButtonStyle"
-                     click="noButtonClicked()" 
-                     toolTip=""/>
-          </mx:HBox>
-        </mx:VBox> 
-      </mx:AddChild>
-    </mx:State>
-        
-    <mx:State name="{FLASH_MIC_SETTING_STATE}">
-      <mx:AddChild relativeTo="displayMicNextToThis" position="after" >
-        <!-- Flash Microphone -->
-        <mx:VBox id="flashMicSettings" width="100%" height="100%" creationComplete="flashMicSettingsCreated()">
-          <mx:Text id="statusText" width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMicTestLevel')}"
-                   styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>
-            <mx:HBox>
-              <mx:ComboBox id="comboMicList" 
-                           dataProvider="{microphoneList}" change="selectMicrophone(event)"
-                           height="30" dropdownWidth="390" width="390"
-                           toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.comboMicList.toolTip')}" />
-              <mx:HSlider id="micRecordVolume" 
-                          maximum="100" snapInterval="1"                       
-                          labels="[0%,{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label')},100%]"
-                          tickInterval="10" liveDragging="true" change="changeRecordVolume(event);"
-                          showTrackHighlight="true" trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
-                          value="60"
-                          toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.toolTip')}" />                           
-            </mx:HBox>
-            <mx:ProgressBar id="micLevel" minimum="0" maximum="100" direction="right" label=""
-                            mode="manual" visible="true" width="100%" height="27" trackHeight="25" verticalGap="-20"/>
-        </mx:VBox>
-       
-      </mx:AddChild>     
-    </mx:State>
-	  
-	<mx:State name="{FLASH_MIC_TEST_FAILED_STATE}">
-		<mx:AddChild relativeTo="displayMicNextToThis" position="after" >
-			<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<mx:TextArea editable="false" textAlign="center" borderSkin="{null}"
-							 width="100%" height="{txtErrorMessageMock.height}"
-							 text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}" 
-							 styleName="micSettingsWindowHearFromHeadsetLabelStyle" />
-				<mx:Text id="txtErrorMessageMock" width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}" 
-						  textAlign="center" styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
-						  visible="false" includeInLayout="false" /> 		  
-			</mx:HBox>
-		</mx:AddChild>
-	</mx:State>
-	  
-	  <mx:State name="{FLASH_MIC_TEST_CONNECTING}">
-		  <mx:AddChild relativeTo="displayMicNextToThis" position="after">
-			  <mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				  <mx:Label id="lblConnectMessage" textAlign="right" styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-				  <mx:Label id="lblConnectDots" width="20" textAlign="left" styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-			  </mx:HBox>
-		  </mx:AddChild>
-	  </mx:State>
-	  
+    <mx:State name="flashEchoTestState" />
+    <mx:State name="flashMicSettingsState" />
+	<mx:State name="flashMicTestFailedState" />
+	<mx:State name="connecting" />
   </mx:states>
-  
+
 	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">          
         <!-- Audio Settings Title and help button -->
 		    <mx:Canvas width="100%" id="flashMicSettingsTitle">
@@ -435,7 +372,63 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           <mx:Image source="@Embed('assets/headset-earbuds.png')"/>          
         </mx:HBox>
     
-    
+		<mx:VBox includeIn="flashEchoTestState" id="flashEchoTest" width="100%" height="100%">          
+			<mx:HBox width="100%">      
+				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
+						 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
+			</mx:HBox>
+			<mx:HRule width="100%"/>
+			<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
+				<mx:TextArea editable="false" textAlign="left" borderSkin="{null}"
+							 width="100%" height="60" id="echoTestText"
+							 text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
+							 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
+				<mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}" 
+						   click="yesButtonClicked()" styleName="micSettingsWindowPlaySoundButtonStyle"
+						   toolTip=""/>
+				<mx:Button id="noButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioNo')}" 
+						   styleName="micSettingsWindowPlaySoundButtonStyle"
+						   click="noButtonClicked()" 
+						   toolTip=""/>
+			</mx:HBox>
+		</mx:VBox> 
+		
+		<!-- Flash Microphone --> 
+		<mx:VBox id="flashMicSettings" includeIn="flashMicSettingsState" width="100%" height="100%" creationComplete="flashMicSettingsCreated()">
+			<mx:Text id="statusText" width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMicTestLevel')}"
+					 styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>
+			<mx:HBox>
+				<mx:ComboBox id="comboMicList" 
+							 dataProvider="{microphoneList}" change="selectMicrophone(event)"
+							 height="30" dropdownWidth="390" width="390"
+							 toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.comboMicList.toolTip')}" />
+				<mx:HSlider id="micRecordVolume" 
+							maximum="100" snapInterval="1"                       
+							labels="[0%,{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label')},100%]"
+							tickInterval="10" liveDragging="true" change="changeRecordVolume(event);"
+							showTrackHighlight="true" trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
+							value="60"
+							toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.toolTip')}" />                           
+			</mx:HBox>
+			<mx:ProgressBar id="micLevel" minimum="0" maximum="100" direction="right" label=""
+							mode="manual" visible="true" width="100%" height="27" trackHeight="25" verticalGap="-20"/>
+		</mx:VBox>
+		
+		<mx:HBox includeIn="flashMicTestFailedState" width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+			<mx:TextArea editable="false" textAlign="center" borderSkin="{null}"
+						 width="100%" height="{txtErrorMessageMock.height}"
+						 text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}" 
+						 styleName="micSettingsWindowHearFromHeadsetLabelStyle" />
+			<mx:Text id="txtErrorMessageMock" width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}" 
+					 textAlign="center" styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
+					 visible="false" includeInLayout="false" /> 		  
+		</mx:HBox>
+		
+		<mx:HBox includeIn="connecting" width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+			<mx:Label id="lblConnectMessage" textAlign="right" styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
+			<mx:Label id="lblConnectDots" width="20" textAlign="left" styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
+		</mx:HBox>
+		
         <!-- Play Sound, Join and Cancel buttons -->
         <mx:HRule width="100%"/>
         <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">

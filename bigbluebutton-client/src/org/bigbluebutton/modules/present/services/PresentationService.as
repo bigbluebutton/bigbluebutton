@@ -5,7 +5,6 @@ package org.bigbluebutton.modules.present.services
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.modules.present.commands.ChangePageCommand;
-  import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
   import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -33,13 +32,6 @@ package org.bigbluebutton.modules.present.services
       model = PresentationModel.getInstance();
       receiver = new MessageReceiver(this);
       dispatcher = new Dispatcher();
-    }
-    
-    public function cursorMoved(x: Number, y: Number):void {
-      var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
-      e.xPercent = x;
-      e.yPercent = y;
-      dispatcher.dispatchEvent(e);
     }
     
     public function pageChanged(page: PageVO):void {
@@ -119,7 +111,7 @@ package org.bigbluebutton.modules.present.services
         presoPages.addItem(pg);
       }          
       
-      var presentation: Presentation = new Presentation(presVO.id, presVO.name, presVO.isCurrent(), presoPages);
+      var presentation: Presentation = new Presentation(presVO.id, presVO.name, presVO.isCurrent(), presoPages, presVO.downloadable);
       return presentation;
     }
     
@@ -168,6 +160,8 @@ package org.bigbluebutton.modules.present.services
 		}
 		
 		model.removePresentation(presentationID);
+		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT);
+		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
 	}
   }
 }
