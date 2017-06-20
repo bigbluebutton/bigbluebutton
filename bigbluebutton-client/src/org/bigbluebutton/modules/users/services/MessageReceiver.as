@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.core.model.MediaStream;
   import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.model.users.VoiceUser2x;
   import org.bigbluebutton.core.services.UsersService;
@@ -53,7 +54,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
   public class MessageReceiver implements IMessageListener
   {
@@ -79,6 +79,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "GetVoiceUsersMeetingRespMsg":
           handleGetVoiceUsersMeetingRespMsg(message);
+          break;
+        case "GetWebcamStreamsMeetingRespMsg":
+          handleGetWebcamStreamsMeetingRespMsg(message);
           break;
         case "UserBroadcastCamStartedEvtMsg": 
           handleUserBroadcastCamStartedEvtMsg(message);
@@ -241,8 +244,6 @@ package org.bigbluebutton.modules.users.services
       var users: Array = body.users as Array;
       LOGGER.debug("Num USERs = " + users.length);
       
-      var tempUsers:Array = new Array();
-      
       for (var i:int = 0; i < users.length; i++) {
         var user:Object = users[i] as Object;
         var intId: String = user.intId as String;
@@ -266,6 +267,31 @@ package org.bigbluebutton.modules.users.services
         
         LOGGER.debug("USER = " + JSON.stringify(vu));
         LiveMeeting.inst().voiceUsers.add(vu);
+      }
+    }
+    
+    private function handleGetWebcamStreamsMeetingRespMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var streams: Array = body.streams as Array;
+      LOGGER.debug("Num streams = " + streams.length);
+      
+      for (var i:int = 0; i < streams.length; i++) {
+        var stream:Object = streams[i] as Object;
+        var streamId: String = stream.streamId as String;
+        var media: Object = stream.stream as Object;
+        var url: String = media.url as String;
+        var userId: String = media.userId as String;
+        var attributes: Object = media.attributes as Object;
+        var viewers: Array = media.viewers as Array;
+        
+        var webcamStream: MediaStream = new MediaStream();
+        webcamStream.streamId = streamId;
+        webcamStream.userId = userId;
+        webcamStream.attributes = attributes;
+        webcamStream.viewers = viewers;
+        
+        LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
+        LiveMeeting.inst().webcams.add(webcamStream);
       }
     }
     
