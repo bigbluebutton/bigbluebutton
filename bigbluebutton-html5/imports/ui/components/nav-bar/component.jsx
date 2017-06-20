@@ -55,14 +55,67 @@ class NavBar extends Component {
     };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
+    this.leftSwipeHandler = this.leftSwipeHandler.bind(this);
+    this.rightSwipeHandler = this.rightSwipeHandler.bind(this);
   }
 
-  componendDidMount() {
+  componentDidMount() {
     document.title = this.props.presentationTitle;
+    console.log('123321');
+
+    let xDown = null;
+    let yDown = null;
+
+    const handleTouchStart = (evt) => {
+      console.log('handleTouchStart');
+      xDown = evt.touches[0].clientX;
+      yDown = evt.touches[0].clientY;
+    };
+
+    const handleTouchMove = (evt) => {
+      if (!xDown || !yDown) {
+        return;
+      }
+
+      let xUp = evt.touches[0].clientX;
+      let yUp = evt.touches[0].clientY
+
+      let xDiff = xDown - xUp;
+      let yDiff = yDown - yUp;
+
+      if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+        if ( xDiff > 0 ) {
+          console.log('Krappa');
+          this.leftSwipeHandler();
+        } else {
+          console.log('Kreppo');
+          this.rightSwipeHandler();
+        }
+      }
+      xDown = null;
+      yDown = null;
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, false);
+    document.addEventListener('touchmove', handleTouchMove, false);
+  }
+
+  componentWillUnmount(){
+    console.log('component will unmount');
+    document.removeEventListener('touchstart', handleTouchStart, false);
+    document.removeEventListener('touchmove', handleTouchMove, false);
   }
 
   handleToggleUserList() {
     this.props.toggleUserList();
+  }
+
+  leftSwipeHandler() {
+    this.props.leftSwipeHandler();
+  }
+
+  rightSwipeHandler() {
+    this.props.rightSwipeHandler();
   }
 
   inviteUserToBreakout(breakout, breakoutURL) {
