@@ -72,8 +72,11 @@ class RedisPubSub2x {
     this.didSendRequestEvent = true;
   }
 
-  handleMessage(pattern, channel, parsedMessage) {
-    const eventName = parsedMessage.core.header.name;
+  handleMessage(pattern, channel, message) {
+    console.error(`handleMessage: ${message}`);
+    const parsedMessage = JSON.parse(message);
+    const { header } = parsedMessage.core;
+    const eventName = header.name;
 
     Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName}`);
 
@@ -87,7 +90,7 @@ class RedisPubSub2x {
 
   handleTask(data, next, failures) {
     console.error(`handleTask: ${JSON.stringify(data.parsedMessage)}`);
-    const { header } = data.parsedMessage;
+    const { header } = data.parsedMessage.core;
     const body = data.parsedMessage.body ? data.parsedMessage.body : data.parsedMessage.payload;
     const eventName = header.name;
 

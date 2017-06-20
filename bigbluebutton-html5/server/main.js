@@ -14,6 +14,7 @@ import '/imports/api/1.1/users/server';
 // 2x
 import '/imports/api/2.0/meetings/server';
 import '/imports/api/2.0/users/server';
+import '/imports/api/2.0/shapes/server';
 
 //Commons
 import '/imports/api/log-client/server';

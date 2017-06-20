@@ -29,6 +29,7 @@ Meteor.publish('current-user2x', (credentials) => {
 });
 
 function users(credentials) {
+  console.error('users2x publish');
   const {
     meetingId,
     requesterUserId,
