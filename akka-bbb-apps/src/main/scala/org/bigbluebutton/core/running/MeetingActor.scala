@@ -5,9 +5,9 @@ import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.breakoutrooms._
+import org.bigbluebutton.common2.messages.layout._
 import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
@@ -24,6 +24,7 @@ import org.bigbluebutton.core2.message.handlers.users._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
+import org.bigbluebutton.core2.message.handlers.layout._
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -82,7 +83,10 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomEndedMsgHdlr
     with BreakoutRoomUsersUpdateMsgHdlr
     with SendBreakoutUsersUpdateMsgHdlr
-    with TransferUserToMeetingRequestHdlr {
+    with TransferUserToMeetingRequestHdlr
+    with GetCurrentLayoutMsgHdlr
+    with LockLayoutMsgHdlr
+    with BroadcastLayoutMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -251,12 +255,15 @@ class MeetingActor(val props: DefaultProps,
       case m: BreakoutRoomsListMsg => handleBreakoutRoomsListMsg(m)
       case m: CreateBreakoutRoomsMsg => handleCreateBreakoutRoomsMsg(m)
       case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
-      case m: RequestBreakoutJoinURLMsg => handleRequestBreakoutJoinURLMsg(m);
-      case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m);
+      case m: RequestBreakoutJoinURLMsg => handleRequestBreakoutJoinURLMsg(m)
+      case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m)
       case m: BreakoutRoomEndedMsg => handleBreakoutRoomEndedMsg(m)
       case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
       case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+      case m: GetCurrentLayoutMsg => handleGetCurrentLayoutMsg(m)
+      case m: LockLayoutMsg => handleLockLayoutMsg(m)
+      case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }

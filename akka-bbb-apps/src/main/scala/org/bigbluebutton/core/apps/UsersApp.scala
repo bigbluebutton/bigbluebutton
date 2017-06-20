@@ -2,10 +2,10 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.common2.domain.UserVO
 
 trait UsersApp {
   this: MeetingActor =>

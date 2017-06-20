@@ -124,7 +124,6 @@ case class RespondToGuest(meetingID: String, userId: String, response: Boolean, 
 //////////////////////////////////////////////////////////////////////////////////////
 
 case class GetCurrentLayoutRequest(meetingID: String, requesterID: String) extends InMessage
-case class SetLayoutRequest(meetingID: String, requesterID: String, layoutID: String) extends InMessage
 case class LockLayoutRequest(meetingID: String, setById: String, lock: Boolean, viewersOnly: Boolean,
   layout: Option[String]) extends InMessage
 case class BroadcastLayoutRequest(meetingID: String, requesterID: String, layout: String) extends InMessage

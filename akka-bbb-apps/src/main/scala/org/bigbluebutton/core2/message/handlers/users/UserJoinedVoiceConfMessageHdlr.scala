@@ -2,9 +2,10 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.models.{ Roles, Users, VoiceUser }
+import org.bigbluebutton.core.models.{ Roles, Users }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.common2.domain.VoiceUserVO
 
 trait UserJoinedVoiceConfMessageHdlr {
   this: MeetingActor =>
@@ -33,7 +34,7 @@ trait UserJoinedVoiceConfMessageHdlr {
         /**
          * If user is not joined listenOnly then user is joined calling through phone or webrtc.
          */
-        val vu = new VoiceUser(msg.voiceUserId, webUserId, msg.callerIdName, msg.callerIdNum,
+        val vu = new VoiceUserVO(msg.voiceUserId, webUserId, msg.callerIdName, msg.callerIdNum,
           joined = !msg.listenOnly, locked = false, muted = msg.muted, talking = msg.talking, msg.avatarURL, listenOnly = msg.listenOnly)
 
         /**

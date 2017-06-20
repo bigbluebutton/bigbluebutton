@@ -2,8 +2,8 @@ package org.bigbluebutton.core2.message.senders
 
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ DisconnectUser, EjectVoiceUser, UserEjectedFromMeeting, UserLeft }
-import org.bigbluebutton.core.models.UserVO
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.common2.domain.UserVO
 
 trait MsgSenders1x {
   val outGW: OutMessageGateway
