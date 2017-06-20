@@ -1,11 +1,11 @@
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/1.1/users';
+import Meetings from '/imports/api/1.1/meetings';
 import { logger } from '/imports/startup/server/logger';
 
 const presenter = {
   switchSlide: true,
 
-  //poll
+  // poll
   subscribePoll: true,
   subscribeAnswers: true,
 
@@ -33,27 +33,27 @@ const moderator = {
 
   logoutSelf: true,
 
-  //subscribing
+  // subscribing
   subscribeUsers: true,
   subscribeChat: true,
 
-  //chat
+  // chat
   chatPublic: true,
   chatPrivate: true,
 
-  //poll
+  // poll
   subscribePoll: true,
   subscribeAnswers: false,
 
-  //emojis
+  // emojis
   setEmojiStatus: true,
   clearEmojiStatus: true,
 
-  //user control
+  // user control
   kickUser: true,
   setPresenter: true,
 
-  //captions
+  // captions
   subscribeCaptions: true,
 };
 
@@ -86,11 +86,11 @@ const viewer = function (meetingId, userId) {
 
     logoutSelf: true,
 
-    //subscribing
+    // subscribing
     subscribeUsers: true,
     subscribeChat: true,
 
-    //chat
+    // chat
     chatPublic: !((meeting = Meetings.findOne({ meetingId })) != null &&
       meeting.roomLockSettings.disablePublicChat) ||
       !((user = Users.findOne({ meetingId, userId })) != null &&
@@ -103,15 +103,15 @@ const viewer = function (meetingId, userId) {
       user.user.locked) ||
       (user != null && user.user.presenter),
 
-    //poll
+    // poll
     subscribePoll: true,
     subscribeAnswers: false,
 
-    //emojis
+    // emojis
     setEmojiStatus: true,
     clearEmojiStatus: true,
 
-    //captions
+    // captions
     subscribeCaptions: true,
   };
 };
@@ -128,17 +128,14 @@ export function isAllowedTo(action, credentials) {
     userId,
   });
 
-  const allowedToInitiateRequest =
-    user &&
+  const allowedToInitiateRequest = user &&
     user.authToken === authToken &&
     user.validated &&
     user.clientType === 'HTML5' &&
     user.user &&
     user.user.connection_status === 'online';
 
-  const listOfSafeActions = [
-    'logoutSelf',
-  ];
+  const listOfSafeActions = ['logoutSelf'];
 
   const requestIsSafe = listOfSafeActions.includes(action);
 
@@ -151,10 +148,10 @@ export function isAllowedTo(action, credentials) {
     let result = false;
 
     // check role specific actions
-    if ('MODERATOR' === user.user.role) {
+    if (user.user.role === 'MODERATOR') {
       logger.debug('user permissions moderator case');
       result = result || moderator[action];
-    } else if ('VIEWER' === user.user.role) {
+    } else if (user.user.role === 'VIEWER') {
       logger.debug('user permissions viewer case');
       result = result || viewer(meetingId, userId)[action];
     }
@@ -168,9 +165,7 @@ export function isAllowedTo(action, credentials) {
     logger.debug(`attempt from userId=${userId} to perform:${action}, allowed=${result}`);
 
     return result;
-  } else {
-    logger.error(`FAILED due to permissions:${action} ${JSON.stringify(credentials)}`);
-    return false;
   }
-
-};
+  logger.error(`FAILED due to permissions:${action} ${JSON.stringify(credentials)}`);
+  return false;
+}

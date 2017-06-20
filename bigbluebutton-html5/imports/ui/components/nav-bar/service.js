@@ -1,5 +1,5 @@
 import Auth from '/imports/ui/services/auth';
-import Breakouts from '/imports/api/breakouts';
+import Breakouts from '/imports/api/1.1/breakouts';
 
 const getBreakouts = () => Breakouts.find().fetch();
 

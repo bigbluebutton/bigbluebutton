@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
@@ -18,7 +19,6 @@ const propTypes = {
 class EmojiMenu extends Component {
   constructor(props) {
     super(props);
-
   }
 
   render() {
@@ -29,8 +29,8 @@ class EmojiMenu extends Component {
    } = this.props;
 
     return (
-      <Dropdown autoFocus={true}>
-        <DropdownTrigger placeInTabOrder={true}>
+      <Dropdown autoFocus>
+        <DropdownTrigger placeInTabOrder>
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
@@ -38,16 +38,19 @@ class EmojiMenu extends Component {
             aria-describedby="currentStatus"
             icon="hand"
             ghost={false}
-            circle={true}
+            circle
             hideLabel={false}
             color="primary"
             size="lg"
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
-            onClick={() => null}>
+            onClick={() => null}
+          >
             <div id="currentStatus" hidden>
-              {intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus}) }
+              {
+                intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus })
+              }
             </div>
           </Button>
         </DropdownTrigger>
@@ -223,7 +226,7 @@ const intlMessages = defineMessages({
   currentStatusDesc: {
     id: 'app.actionsBar.currentStatusDesc',
     description: 'Aria description for status button',
-  }
+  },
 });
 
 EmojiMenu.propTypes = propTypes;

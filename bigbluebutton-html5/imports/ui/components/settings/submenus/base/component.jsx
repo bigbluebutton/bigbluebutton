@@ -12,11 +12,11 @@ export default class BaseMenu extends React.Component {
   }
 
   handleToggle(key) {
-    let obj = this.state;
+    const obj = this.state;
     obj.settings[key] = !this.state.settings[key];
 
     this.setState(obj, () => {
       this.handleUpdateSettings(this.state.settingsName, this.state.settings);
     });
   }
-};
+}
