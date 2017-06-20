@@ -1,4 +1,4 @@
-import Captions from '/imports/api/captions';
+import Captions from '/imports/api/1.1/captions';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 

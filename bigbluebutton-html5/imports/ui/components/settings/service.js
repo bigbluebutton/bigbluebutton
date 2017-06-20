@@ -1,5 +1,5 @@
-import Users from '/imports/api/users';
-import Captions from '/imports/api/captions';
+import Users from '/imports/api/1.1/users';
+import Captions from '/imports/api/1.1/captions';
 import Auth from '/imports/ui/services/auth';
 import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
