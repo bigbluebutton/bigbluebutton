@@ -83,6 +83,9 @@ package org.bigbluebutton.modules.users.services
         case "GetWebcamStreamsMeetingRespMsg":
           handleGetWebcamStreamsMeetingRespMsg(message);
           break;
+        case "UserJoinedMeetingEvtMsg":
+          handleUserJoinedMeetingEvtMsg(message);
+          break;
         case "UserBroadcastCamStartedEvtMsg": 
           handleUserBroadcastCamStartedEvtMsg(message);
           break;
@@ -208,35 +211,48 @@ package org.bigbluebutton.modules.users.services
 
       for (var i:int = 0; i < users.length; i++) {
         var user:Object = users[i] as Object;
-        var intId: String = user.intId as String;
-        var extId: String = user.extId as String;
-        var name: String = user.name as String;
-        var role: String = user.role as String;
-        var guest: Boolean = user.role as Boolean;
-        var authed: Boolean = user.authed as Boolean;
-        var waitingForAcceptance: Boolean = user.waitingForAcceptance as Boolean;
-        var emoji: String = user.emoji as String;
-        var locked: Boolean = user.locked as Boolean;
-        var presenter: Boolean = user.presenter as Boolean;
-        var avatar: String = user.avatar as String;
-        
-        var user2x: User2x = new User2x();
-        user2x.intId = intId;
-        user2x.extId = extId;
-        user2x.name = name;
-        user2x.role = role;
-        user2x.guest = guest;
-        user2x.authed = authed;
-        user2x.waitingForAcceptance = waitingForAcceptance;
-        user2x.emoji = emoji;
-        user2x.locked = locked;
-        user2x.presenter = presenter;
-        user2x.avatar = avatar;
-        
-        LOGGER.debug("USER = " + JSON.stringify(user2x));
-
-        LiveMeeting.inst().users.add(user2x);
+        processUserJoinedMeetingMsg(user);
       } 
+    }
+    
+    private function handleUserJoinedMeetingEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object;
+      processUserJoinedMeetingMsg(body);
+    }
+    
+    private function processUserJoinedMeetingMsg(user:Object):void {
+      var intId: String = user.intId as String;
+      var extId: String = user.extId as String;
+      var name: String = user.name as String;
+      var role: String = user.role as String;
+      var guest: Boolean = user.role as Boolean;
+      var authed: Boolean = user.authed as Boolean;
+      var waitingForAcceptance: Boolean = user.waitingForAcceptance as Boolean;
+      var emoji: String = user.emoji as String;
+      var locked: Boolean = user.locked as Boolean;
+      var presenter: Boolean = user.presenter as Boolean;
+      var avatar: String = user.avatar as String;
+      
+      var user2x: User2x = new User2x();
+      user2x.intId = intId;
+      user2x.extId = extId;
+      user2x.name = name;
+      user2x.role = role;
+      user2x.guest = guest;
+      user2x.authed = authed;
+      user2x.waitingForAcceptance = waitingForAcceptance;
+      user2x.emoji = emoji;
+      user2x.locked = locked;
+      user2x.presenter = presenter;
+      user2x.avatar = avatar;
+      
+      LOGGER.debug("USER = " + JSON.stringify(user2x));
+      
+      LiveMeeting.inst().users.add(user2x);
+      
+      var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
+      joinEvent.userID = user2x.intId;
+      dispatcher.dispatchEvent(joinEvent);
     }
     
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {

@@ -13,5 +13,8 @@ package org.bigbluebutton.core.model.users
     public var locked: Boolean;
     public var presenter: Boolean;
     public var avatar: String;
+    
+    // Flag to tell that user is in the process of leaving the meeting.
+    public var isLeavingFlag:Boolean = false;
   }
 }

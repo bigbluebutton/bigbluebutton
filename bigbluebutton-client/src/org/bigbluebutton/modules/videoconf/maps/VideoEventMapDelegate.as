@@ -214,7 +214,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private function openWebcamWindows():void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindows. ready = [{1}]", [me, _ready]);
 
-      var uids:ArrayCollection = UsersUtil.getUserIDs();
+      var uids:Array = UsersUtil.getUserIDs();
 
       for (var i:int = 0; i < uids.length; i++) {
         var u:String = uids.getItemAt(i) as String;

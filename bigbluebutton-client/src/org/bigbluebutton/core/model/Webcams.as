@@ -58,5 +58,18 @@ package org.bigbluebutton.core.model
       
       return -1;
     }
+    
+    public function getStreamsForUser(userId: String): Array {
+      var tempArray: Array = new Array();
+     
+      for (var i:int = 0; i < _webcams.length; i++) {
+        var stream:MediaStream = _webcams.getItemAt(i) as MediaStream;
+        
+        if (stream.userId == userId) {
+          tempArray.push(stream);
+        }
+      }
+      return tempArray;
+    }
   }
 }

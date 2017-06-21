@@ -25,6 +25,8 @@ package org.bigbluebutton.core
   import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.core.model.users.User2x;
+  import org.bigbluebutton.core.model.users.VoiceUser2x;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.model.options.LockOptions;
@@ -38,7 +40,7 @@ package org.bigbluebutton.core
 	private static const LOGGER:ILogger = getClassLogger(UsersUtil);
 
     public static function isUserLeaving(userID:String):Boolean {
-      var user:BBBUser = getUser(userID);
+      var user:User2x = getUser2x(userID);
       if (user != null) {
         return user.isLeavingFlag;
       }
@@ -47,18 +49,18 @@ package org.bigbluebutton.core
     }
     
     public static function getPresenterUserID():String {
-      var presenter:BBBUser = UserManager.getInstance().getConference().getPresenter();
+      var presenter:User2x = LiveMeeting.inst().users.getPresenter();
       if (presenter != null) {
-        return presenter.userID;
+        return presenter.intId;
       }
       
       return "";
     }
     
-    public static function isUserJoinedToVoice(userID:String):Boolean {
-      var u:BBBUser = getUser(userID);
+    public static function isUserJoinedToVoice(userId:String):Boolean {
+      var u:VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
       if (u != null) {
-        return u.voiceJoined;
+        return true;
       }
       
       return false;
@@ -88,22 +90,17 @@ package org.bigbluebutton.core
       LiveMeeting.inst().myStatus.removeCameraSettings(camIndex);
     }
 
-    public static function hasWebcamStream(userID:String):Boolean {
-      var u:BBBUser = getUser(userID);
-      if (u != null) {
-        return u.hasStream;
+    public static function hasWebcamStream(userId:String):Boolean {
+      var streams:Array = LiveMeeting.inst().webcams.getStreamsForUser(userId);
+      if (streams.length > 0) {
+        return true;
       }
       
       return false;
     }
     
-    public static function getWebcamStream(userID:String):Array {
-      var u:BBBUser = getUser(userID);
-      if (u != null && u.hasStream) {
-        return u.streamNames;
-      }
-      
-      return null;
+    public static function getWebcamStreamsFor(userId:String):Array {
+      return LiveMeeting.inst().webcams.getStreamsForUser(userId);
     }
     
     public static function setDefaultLayout(defaultLayout:String):void {
@@ -114,8 +111,8 @@ package org.bigbluebutton.core
       return LiveMeeting.inst().meeting.defaultLayout;
     }
     
-    public static function getUserIDs():ArrayCollection {
-      return UserManager.getInstance().getConference().getUserIDs();
+    public static function getUserIDs():Array {
+      return LiveMeeting.inst().users.getUserIds();
     }
     
     public static function getInternalMeetingID():String {
@@ -126,8 +123,8 @@ package org.bigbluebutton.core
       return LiveMeeting.inst().me.avatarURL; 
     }
 
-    public static function getUserAvatarURL(userID:String):String {
-       return UserManager.getInstance().getConference().getUserAvatarURL(userID);
+    public static function getUserAvatarURL(userId:String):String {
+       return LiveMeeting.inst().users.getAvatar(userId);
     }	
 	
 	public static function getVoiceBridge():String {
@@ -184,16 +181,20 @@ package org.bigbluebutton.core
       return LiveMeeting.inst().myStatus.waitingForAcceptance;
     }
         
-    public static function hasUser(userID:String):Boolean {
-      return UserManager.getInstance().getConference().hasUser(userID);
+    public static function hasUser(userId:String):Boolean {
+      return getUser(userId) != null;
     }
     
     public static function getUser(userID:String):BBBUser {
       return UserManager.getInstance().getConference().getUser(userID);
     }
+    
+    public static function getUser2x(userId:String):User2x {
+      return LiveMeeting.inst().users.getUser(userId);
+    }
 
-    public static function getMyself():BBBUser {
-      return UserManager.getInstance().getConference().getMyUser();
+    public static function getMyself():User2x {
+      return getUser2x(LiveMeeting.inst().me.id);
     }
     
     public static function isMe(userID:String):Boolean {
@@ -293,9 +294,7 @@ package org.bigbluebutton.core
     }
     
     public static function applyLockSettings():void {
-      var myUser:BBBUser = getMyself();
-      if (myUser != null)
-        myUser.applyLockSettings();
+        LiveMeeting.inst().myStatus.applyLockSettings();
     }
     
     /**

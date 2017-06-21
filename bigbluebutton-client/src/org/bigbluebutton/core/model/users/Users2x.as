@@ -42,7 +42,7 @@ package org.bigbluebutton.core.model.users
         if (user.intId == userId) {
           return user;
         }
-      }				
+      }
       
       return null;
     }
@@ -58,7 +58,42 @@ package org.bigbluebutton.core.model.users
       }
       
       return -1;
-    }    
+    }
+    
+    public function getPresenter():User2x {
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:User2x = _users.getItemAt(i) as User2x;
+        
+        if (user.presenter) {
+          return user;
+        }
+      }
+      
+      return null;
+    }
+    
+    public function getUserIds():Array {
+      var temp:Array = new Array();
+      
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:User2x = _users.getItemAt(i) as User2x;
+        temp.push(user.intId);
+      }
+      
+      return temp;
+    }
+    
+    public function getAvatar(userId:String):String {
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:User2x = _users.getItemAt(i) as User2x;
+        
+        if (user.intId == userId) {
+          return user.avatar;
+        }
+      }
+      
+      return null;
+    }
   }
 }
 
