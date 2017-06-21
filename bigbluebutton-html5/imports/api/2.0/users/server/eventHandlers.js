@@ -12,10 +12,10 @@ import handleVoiceUpdate from './handlers/voiceUpdate';
 
 // RedisPubSub.on('validate_auth_token_reply', handleValidateAuthToken);
 // RedisPubSub.on('get_users_reply', handleGetUsers);
-RedisPubSub.on('UserJoinRespMsg', handleUserJoined);
+RedisPubSub.on('UserJoinedMeetingEvtMsg', handleUserJoined);
 // RedisPubSub.on('user_eject_from_meeting', handleKickUser);
 // RedisPubSub.on('disconnect_user_message', handleRemoveUser);
-RedisPubSub.on('UserLeaveRespMsg', handleRemoveUser);
+RedisPubSub.on('UserLeftMeetingEvtMsg', handleRemoveUser);
 // RedisPubSub.on('presenter_assigned_message', handlePresenterAssigned);
 // RedisPubSub.on('user_emoji_status_message', handleEmojiStatus);
 // RedisPubSub.on('user_locked_message', handleLockedStatusChange);
