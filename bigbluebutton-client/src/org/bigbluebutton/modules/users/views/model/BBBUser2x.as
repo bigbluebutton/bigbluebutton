@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.main.model.users
+package org.bigbluebutton.modules.users.views.model
 {
   import com.asfusion.mate.events.Dispatcher;
   import flash.events.Event;
@@ -26,6 +26,8 @@ package org.bigbluebutton.main.model.users
   import org.bigbluebutton.common.Role;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
+  import org.bigbluebutton.main.model.users.Status;
+  import org.bigbluebutton.main.model.users.StatusCollection;
   
   public class BBBUser2x {
     private static const LOGGER:ILogger = getClassLogger(BBBUser2x);

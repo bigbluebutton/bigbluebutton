@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.users.views
   import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.model.users.VoiceUser2x;
   import org.bigbluebutton.main.events.UserJoinedEvent;
-  import org.bigbluebutton.main.model.users.BBBUser2x;
+  import org.bigbluebutton.modules.users.views.model.BBBUser2x;
   
   public class UsersWindowEventHandler
   {

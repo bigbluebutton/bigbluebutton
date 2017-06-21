@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+--> 
+
+<mx:Box xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+		]]>
+	</fx:Script>
+	<mx:Label id="nameLabel" textAlign="left" text="{data.displayName} {data.me ? '(' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : ''}" 
+		fontWeight="{data.me ? 'bold' : 'normal'}"
+		color="{data.me ? 0x003399 : 0x000000}"
+		toolTip="{data.name}"/>
+</mx:Box>
