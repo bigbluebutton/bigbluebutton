@@ -71,5 +71,37 @@ package org.bigbluebutton.core.model
       }
       return tempArray;
     }
+    
+    public function getStreamIdsForUser(userId: String): Array {
+      var tempArray: Array = new Array();
+      
+      for (var i:int = 0; i < _webcams.length; i++) {
+        var stream:MediaStream = _webcams.getItemAt(i) as MediaStream;
+        
+        if (stream.userId == userId) {
+          tempArray.push(stream.streamId);
+        }
+      }
+      return tempArray;
+    }
+    
+    public function getStreamIdsViewingForUser(userId: String): Array {
+      var tempArray: Array = new Array();
+      
+      for (var i:int = 0; i < _webcams.length; i++) {
+        var stream:MediaStream = _webcams.getItemAt(i) as MediaStream;
+        
+        if (stream.userId == userId) {
+          var viewers: Array = stream.viewers;
+          for (var v:int = 0; v < viewers.length; v++) {
+            var viewer: String = viewers[v] as String;
+            if (viewer == LiveMeeting.inst().me.id) {
+              tempArray.push(stream.streamId);
+            }            
+          }
+        }
+      }
+      return tempArray;
+    }
   }
 }

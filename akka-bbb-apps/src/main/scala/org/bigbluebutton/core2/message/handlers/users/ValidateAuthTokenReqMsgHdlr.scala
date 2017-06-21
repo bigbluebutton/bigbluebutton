@@ -27,15 +27,20 @@ trait ValidateAuthTokenReqMsgHdlr {
           val guest = GuestWaiting(u.id, u.name, u.role)
           addGuestToWaitingForApproval(guest)
           notifyModeratorsOfGuestWaiting(Vector(guest))
+        } else {
+
+          sendOldValidateToken(props.meetingProp.intId, msg.body.userId, msg.body.authToken)
+
+          ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
+            userId = msg.body.userId, authToken = msg.body.authToken, valid = true, waitForApproval = false)
+
+          // Temp only so we can implement user handling in client. (ralam june 21, 2017)
+          userJoinMeeting(msg.body.authToken)
+          sendAllUsersInMeeting(msg.body.userId)
+          sendAllVoiceUsersInMeeting(msg.body.userId)
+          sendAllWebcamStreams(msg.body.userId)
         }
 
-        userJoinMeeting(msg.body.authToken)
-
-        sendAllUsersInMeeting(msg.body.userId)
-
-        sendAllVoiceUsersInMeeting(msg.body.userId)
-
-        sendAllWebcamStreams(msg.body.userId)
       case None =>
         ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
           userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false)

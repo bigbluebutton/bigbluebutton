@@ -498,7 +498,6 @@ package org.bigbluebutton.main.model.users
                     connectAttemptCount = 0;
                     logData.message = "Successfully connected to bbb-apps.";
                     LOGGER.info(JSON.stringify(logData));
-                    //validateToken();
                     validateToken2x();
                     break;
 
