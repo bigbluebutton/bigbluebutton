@@ -115,22 +115,29 @@ package org.bigbluebutton.main.model.users
           }
         }   
             
-        private function handleValidateAuthTokenReply2x(body: Object):void {  
+        private function handleValidateAuthTokenReply2x(body: Object):void { 
+          LOGGER.debug("handleValidateAuthTokenReply2x");
             stopValidateTokenTimer();
  
             var tokenValid: Boolean = body.valid as Boolean;
             var userId: String = body.userId as String;
+            var waitForApproval: Boolean = body.waitForApproval as Boolean;
+            
  
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["apps", "connected"];
             logData.tokenValid = tokenValid;
+            logData.waitForApproval = waitForApproval;
             logData.status = "validate_token_response_received";
             logData.message = "Received validate token response from server. 2x";
             LOGGER.info(JSON.stringify(logData));
             
             if (tokenValid) {
                 LiveMeeting.inst().myStatus.authTokenValid = true;
-                dispatcher.dispatchEvent(new TokenValidEvent());
+                if (waitForApproval) {
+                  var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
+                  dispatcher.dispatchEvent(waitCommand);
+                }
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
             }
@@ -148,6 +155,7 @@ package org.bigbluebutton.main.model.users
             var body: Object = map.body as Object;
             
             var msgName: String = header.name
+              
           if (!LiveMeeting.inst().myStatus.authTokenValid && (messageName == "ValidateAuthTokenRespMsg")) {
             handleValidateAuthTokenReply2x(body)
           } else if (messageName == "validateAuthTokenTimedOut") {
@@ -490,7 +498,7 @@ package org.bigbluebutton.main.model.users
                     connectAttemptCount = 0;
                     logData.message = "Successfully connected to bbb-apps.";
                     LOGGER.info(JSON.stringify(logData));
-                    validateToken();
+                    //validateToken();
                     validateToken2x();
                     break;
 

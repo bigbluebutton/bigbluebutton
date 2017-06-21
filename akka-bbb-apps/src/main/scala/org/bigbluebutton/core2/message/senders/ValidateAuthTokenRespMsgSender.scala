@@ -6,11 +6,12 @@ import org.bigbluebutton.core.OutMessageGateway
 
 object ValidateAuthTokenRespMsgSender {
 
-  def send(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String, valid: Boolean): Unit = {
+  def send(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
+    valid: Boolean, waitForApproval: Boolean): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, meetingId, userId)
-    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid)
+    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid, waitForApproval)
     val event = ValidateAuthTokenRespMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
     outGW.send(msgEvent)

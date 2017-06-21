@@ -3,10 +3,10 @@ package org.bigbluebutton.core2.message.handlers.users
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.users.ValidateAuthTokenReqMsg
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{ VoiceUsers, Webcams }
-import org.bigbluebutton.core.api.ValidateAuthToken
-import org.bigbluebutton.core.models.RegisteredUsers
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.api.{ GuestPolicy, ValidateAuthToken }
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ GetVoiceUsersMeetingRespMsgBuilder, GetWebcamStreamsMeetingRespMsgBuilder, Sender, ValidateAuthTokenRespMsgSender }
 
 trait ValidateAuthTokenReqMsgHdlr {
@@ -17,23 +17,54 @@ trait ValidateAuthTokenReqMsgHdlr {
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg): Unit = {
     log.debug("****** RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
 
-    val valid = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
-      case Some(u) => true
-      case None => false
+    RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
+      case Some(u) =>
+
+        if (u.guest && u.waitingForAcceptance && MeetingStatus2x.getGuestPolicy(liveMeeting.status) == GuestPolicy.ASK_MODERATOR) {
+          ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
+            userId = msg.body.userId, authToken = msg.body.authToken, valid = true, waitForApproval = true)
+
+          val guest = GuestWaiting(u.id, u.name, u.role)
+          addGuestToWaitingForApproval(guest)
+          notifyModeratorsOfGuestWaiting(Vector(guest))
+        }
+
+        userJoinMeeting(msg.body.authToken)
+
+        sendAllUsersInMeeting(msg.body.userId)
+
+        sendAllVoiceUsersInMeeting(msg.body.userId)
+
+        sendAllWebcamStreams(msg.body.userId)
+      case None =>
+        ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
+          userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false)
+    }
+  }
+
+  def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting]): Unit = {
+    def build(meetingId: String, userId: String, guests: Vector[GuestWaiting]): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+      val envelope = BbbCoreEnvelope(GuestsWaitingApprovalEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(GuestsWaitingApprovalEvtMsg.NAME, meetingId, userId)
+
+      val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role))
+      val body = GuestsWaitingApprovalEvtMsgBody(guestsWaiting)
+      val event = GuestsWaitingApprovalEvtMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    sendOldValidateToken(props.meetingProp.intId, msg.body.userId, msg.body.authToken)
+    val mods = Users2x.findAll(liveMeeting.users2x).filter(p => p.role == Roles.MODERATOR_ROLE)
+    mods foreach { m =>
+      val event = build(liveMeeting.props.meetingProp.intId, m.intId, guests)
+      Sender.send(outGW, event)
+    }
 
-    ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
-      userId = msg.body.userId, authToken = msg.body.authToken, valid = valid)
+  }
 
-    userJoinMeeting(msg.body.authToken)
-
-    sendAllUsersInMeeting(msg.body.userId)
-
-    sendAllVoiceUsersInMeeting(msg.body.userId)
-
-    sendAllWebcamStreams(msg.body.userId)
+  def addGuestToWaitingForApproval(guest: GuestWaiting): Unit = {
+    GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
   }
 
   def sendAllVoiceUsersInMeeting(requesterId: String): Unit = {
