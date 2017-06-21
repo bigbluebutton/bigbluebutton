@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import AudioTest from './component';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 class AudioTestContainer extends Component {
   constructor(props) {
@@ -20,5 +21,7 @@ export default createContainer(() => ({
   handlePlayAudioSample: () => {
     const snd = new Audio('resources/sounds/audioSample.mp3');
     snd.play();
+    IosHandler.requestMicrophoneLevelStop();
+    IosHandler.requestMicrophoneLevelStart();
   },
 }), AudioTestContainer);
