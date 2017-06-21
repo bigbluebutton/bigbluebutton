@@ -2,6 +2,8 @@ package org.bigbluebutton.core.model.users
 {
   import mx.collections.ArrayCollection;
   
+  import org.bigbluebutton.core.model.LiveMeeting;
+  
   public class VoiceUsers2x
   {
     
@@ -60,6 +62,22 @@ package org.bigbluebutton.core.model.users
       return -1;
     }
     
+    private function startsWith(userId:String, voiceUserPrefix:String):Boolean {
+      return userId.indexOf(voiceUserPrefix) == 0;
+    }
+    
+    public function getVoiceOnlyUsers():Array {
+      var temp: Array = new Array();
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        // By convention, voice users starts with "v_"
+        if (startsWith(user.intId, "v_")) {
+          temp.push(user);
+        }
+      }
+      return temp;
+    }   
   }
 }
 

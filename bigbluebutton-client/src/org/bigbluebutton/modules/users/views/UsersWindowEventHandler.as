@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.users.views
   import org.bigbluebutton.core.model.users.VoiceUser2x;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.modules.users.views.model.BBBUser2x;
+  import org.bigbluebutton.modules.users.views.model.BBBVoiceUser2x;
   
   public class UsersWindowEventHandler
   {
@@ -66,6 +67,39 @@ package org.bigbluebutton.modules.users.views
     public function handleUserJoinedEvent(event: UserJoinedEvent, users: ArrayCollection):void {
       addUser(users, event.userID);
       users.refresh();
+    }
+    
+    
+    private function removeVoiceUser(userId:String, voiceUsers: ArrayCollection):void {
+      for (var i:int = 0; i < voiceUsers.length; i++) {
+        var user:BBBVoiceUser2x = voiceUsers.getItemAt(i) as BBBVoiceUser2x;
+        if (user.userId == userId) {
+          voiceUsers.removeItemAt(i);
+          voiceUsers.refresh();
+          return;
+        }
+      }
+    }
+    
+    public function getAllVoiceUsers(voiceUsers: ArrayCollection):void {
+      var voiceOnlyUsers: Array = LiveMeeting.inst().voiceUsers.getVoiceOnlyUsers();
+      
+      for (var i:int = 0; i < voiceOnlyUsers.length; i++) {
+        var user:VoiceUser2x = voiceOnlyUsers[i] as VoiceUser2x;
+        var vUser: BBBVoiceUser2x = new BBBVoiceUser2x();
+        vUser.userId = user.intId;
+        vUser.callingWith = user.callingWith;
+        vUser.name = user.callerName;
+        vUser.muted = user.muted;
+        vUser.talking = user.talking;
+        vUser.listenOnly = user.listenOnly;
+        
+        removeVoiceUser(user.intId, voiceUsers);
+        voiceUsers.addItem(vUser);
+      }
+      
+      voiceUsers.refresh();
+
     }
   }
 }

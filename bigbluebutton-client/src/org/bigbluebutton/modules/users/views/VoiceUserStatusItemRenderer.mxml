@@ -1,44 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License as published by the Free Software 
+Foundation; either version 2.1 of the License, or (at your option) any later 
+version. 
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
 -->
 
 <mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
-	xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mate="http://mate.asfusion.com/"
-	creationComplete="onCreationComplete()"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	verticalAlign="middle"
-	horizontalGap="8"
-	horizontalAlign="center">
-	
-	<fx:Declarations>
-		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
-		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
-		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
-	</fx:Declarations>
-	
-	<fx:Script>
-		<![CDATA[
-      import mx.binding.utils.BindingUtils;
+         xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mate="http://mate.asfusion.com/"
+         creationComplete="onCreationComplete()"
+         verticalScrollPolicy="off" horizontalScrollPolicy="off"
+         verticalAlign="middle"
+         horizontalGap="8"
+         horizontalAlign="center">
+  
+  <fx:Declarations>
+    <mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+    <mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+    <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+    <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+  </fx:Declarations>
+  
+  <fx:Script>
+    <![CDATA[
       import mx.binding.utils.ChangeWatcher;
       import mx.events.FlexEvent;
       import org.bigbluebutton.common.Images;
@@ -49,162 +48,79 @@
       import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
       import org.bigbluebutton.modules.users.events.UsersRollEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			private var images:Images = new Images();
-  			private var rolledOver:Boolean = false;
-  			private var moderator:Boolean = false;
-  			
-  			private function onCreationComplete():void {
-  				refreshRole(UsersUtil.amIModerator());
-  				
-  				/* I was trying to the binds through actionscript, but every time the itemrenderer was recycled 
-  				 * the binds would stop functioning. I think it might have been because I was using strong 
-  				 * binding and the bind was automatically garbage collected when data was set to null. You could 
-  				 * use weak binding and then the binds shouldn't get garbage collected, but then you have to 
-  				 * make sure to delete the bindings yourself or you'll have memory leaks.
-  				 * 		Chad
-  				 */
-  				//BindingUtils.bindSetter(updateButtons, data, "presenter");
-  				//BindingUtils.bindSetter(updateButtons, data, "raiseHand");
-				
-				/* I had to bind to an Image property which is in turn bound through MXML to the data properties. 
-				 * This really needs to be changed, but it's the only way I could get it work.
-				 * 		Chad
-				 */
-  				BindingUtils.bindSetter(updateButtons, presenterInd, "includeInLayout");
-  				BindingUtils.bindSetter(updateButtons, moderatorInd, "includeInLayout");
-  				BindingUtils.bindSetter(updateButtons, emojiStatusHandInd, "includeInLayout");
-  				
-  				// The next two lines should be listening for the same data to change and be updating at the same 
-  				// time, but the FlexEvent.DATA_CHANGE wasn't working consistently.
-  				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
-  				ChangeWatcher.watch(this, "data", dataChangeHandler);
-  				
-  				if (data != null) // if data has already been set
-  					updateButtons(); //initialize state
-  					
-  				validateNow();
-  			}
-  			
-  			private function dataChangeHandler(e:Event):void {
-  				if (data != null) {
-  					updateButtons(); //reassess data state on change
-				}
-  			}
-  			
-  			private function updateButtons(unneeded:Object = null):void {
-	  			if (data != null) {
-	  				updateRoleComponents();
-					updateEmojiComponents();
-	  			}
-  			}
-			
-			private function updateRoleComponents() : void {
-				if (rolledOver && !data.presenter) {
-					roleBtn.setStyle("icon", images.presenter_new);
-					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
-					roleImg.visible = false;
-					roleBtn.visible = true;
-					roleBtn.enabled = true;
-				} else if (data.presenter) {
-					roleImg.source = images.presenter_new;
-					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
-					roleImg.visible = true;
-					roleBtn.visible = false;
-					roleBtn.enabled = false;
-				} else if (data.role == Role.MODERATOR) {
-					roleImg.source = images.moderator;
-					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-					roleImg.visible = true;
-					roleBtn.visible = false;
-					roleBtn.enabled = false;
-				} else {
-					roleImg.source = null;
-					roleImg.toolTip = "";
-					roleImg.visible = true;
-					roleBtn.visible = false;
-					roleBtn.enabled = false;
-				}
-			}
-			
-			private function updateEmojiComponents() : void {
-				if (rolledOver && data.hasEmojiStatus) {
-					emojiBtn.setStyle("icon", images["mood_" + data.emojiStatus]);
-					emojiBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
-					emojiImg.visible = false;
-					emojiBtn.visible = true;
-					emojiBtn.enabled = true;
-				} else if (data.hasEmojiStatus) {
-					emojiImg.source = images["mood_" + data.emojiStatus];
-					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
-					emojiImg.visible = true;
-					emojiBtn.visible = false;
-					emojiBtn.enabled = false;
-				}
-				else {
-					emojiImg.source = null;
-					emojiImg.toolTip = "";
-					emojiImg.visible = true;
-					emojiBtn.visible = false;
-					emojiBtn.enabled = false;
-				}
-			}
-  			
-  			private function onRollOver(e:UsersRollEvent):void{
-				if (moderator && (e.userID == data.userId)) {
-					rolledOver = true;
-					updateButtons();
-				}
-			}
-			
-			private function onRollOut(e:UsersRollEvent):void{
-				if (moderator && rolledOver) {
-					rolledOver = false;
-					updateButtons();
-				}
-			}
-  			
-			private function onChangeMyRole(e:ChangeMyRole):void {
-				rolledOver = false;
-				updateButtons();
-
-				refreshRole(e.role == Role.MODERATOR);
-			}
-
-			private function refreshRole(amIModerator:Boolean):void {
-				moderator = amIModerator;
-			}
-
-  			private function roleBtnClicked():void {
-                if (!data.presenter) {
-    				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-    				e.userid = data.userId;
-    				e.username = data.name;
-    				dispatchEvent(e);
-                }
-        	}
-			
-			private function emojiBtnClicked() : void {
-				if (data.hasEmojiStatus) {
-					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", data.userId));
+      private var images:Images = new Images();
+      private var rolledOver:Boolean = false;
+      private var moderator:Boolean = false;
+      
+      private function onCreationComplete():void {
+        refreshRole(UsersUtil.amIModerator());
+        
+        // The next two lines should be listening for the same data to change and be updating at the same 
+        // time, but the FlexEvent.DATA_CHANGE wasn't working consistently.
+        this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+        ChangeWatcher.watch(this, "data", dataChangeHandler);
+        
+        if (data != null) // if data has already been set
+          updateButtons(); //initialize state
+        
+        validateNow();
+      }
+      
+      private function dataChangeHandler(e:Event):void {
+        if (data != null) {
+          updateButtons(); //reassess data state on change
         }
-			}
-			
-			// Need to refresh the roleBtn toolTip text on locale change
-			private function localeChanged(e:Event):void {
-				updateButtons();
-			}
-		]]>
-	</fx:Script>
-	<mx:Image id="emojiImg" visible="true" width="20" height="20" includeInLayout="{emojiImg.visible}" />
-	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
-	
-	<mx:Image id="roleImg" visible="true" width="20" height="20" includeInLayout="{roleImg.visible}" />
-	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
-	
-	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
-	<mx:Image id="presenterInd" includeInLayout="false" visible="{data.presenter}" />
-	<mx:Image id="moderatorInd" includeInLayout="false" visible="{data.role == Role.MODERATOR}" />
-	<mx:Image id="emojiStatusHandInd" includeInLayout="false" visible="{data.hasEmojiStatus}" />
+      }
+      
+      private function updateButtons(unneeded:Object = null):void {
+        if (data != null) {
+
+        }
+      }
+      
+     
+      private function onRollOver(e:UsersRollEvent):void{
+        if (moderator && (e.userID == data.userId)) {
+          rolledOver = true;
+          updateButtons();
+        }
+      }
+      
+      private function onRollOut(e:UsersRollEvent):void{
+        if (moderator && rolledOver) {
+          rolledOver = false;
+          updateButtons();
+        }
+      }
+      
+      private function onChangeMyRole(e:ChangeMyRole):void {
+        rolledOver = false;
+        updateButtons();
+        
+        refreshRole(e.role == Role.MODERATOR);
+      }
+      
+      private function refreshRole(amIModerator:Boolean):void {
+        moderator = amIModerator;
+      }
+      
+      private function roleBtnClicked():void {
+        if (!data.presenter) {
+          var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+          e.userid = data.userId;
+          e.username = data.name;
+          dispatchEvent(e);
+        }
+      }
+      
+
+      
+      // Need to refresh the roleBtn toolTip text on locale change
+      private function localeChanged(e:Event):void {
+        updateButtons();
+      }
+    ]]>
+  </fx:Script>
+
+  <mx:Button id="callingWith" visible="false" enabled="false" width="20" height="20" />
 </mx:HBox>

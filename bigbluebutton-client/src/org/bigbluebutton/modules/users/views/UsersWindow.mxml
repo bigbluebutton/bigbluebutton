@@ -167,6 +167,7 @@
 				dispatcher = new Dispatcher();
         
         handler.getAllUser(users);
+        handler.getAllVoiceUsers(voiceUsers);
         
         
 				breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
