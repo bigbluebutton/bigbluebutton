@@ -1,8 +1,9 @@
 package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.ValidateAuthTokenReqMsg
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{ RegisteredUsers, VoiceUsers, Webcams }
+import org.bigbluebutton.core.models.{ VoiceUsers, Webcams }
 import org.bigbluebutton.core.api.ValidateAuthToken
 import org.bigbluebutton.core.models.RegisteredUsers
 import org.bigbluebutton.core.running.MeetingActor

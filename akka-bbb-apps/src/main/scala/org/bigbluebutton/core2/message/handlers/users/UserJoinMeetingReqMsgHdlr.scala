@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.users
 
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
 import org.bigbluebutton.core.models.{ RegisteredUsers, UserState, Users2x }
 import org.bigbluebutton.core.running.MeetingActor

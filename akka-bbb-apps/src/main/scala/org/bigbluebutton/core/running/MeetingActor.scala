@@ -6,10 +6,12 @@ import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.breakoutrooms._
+import org.bigbluebutton.common2.messages.polls._
+import org.bigbluebutton.common2.messages.users._
 import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
+import org.bigbluebutton.common2.messages.whiteboard._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._

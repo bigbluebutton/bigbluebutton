@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers
 
-import org.bigbluebutton.common2.messages.MessageBody.{ PollHideResultEvtMsgBody }
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.polls.{ HidePollResultReqMsg, PollHideResultEvtMsg, PollHideResultEvtMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.MeetingActor

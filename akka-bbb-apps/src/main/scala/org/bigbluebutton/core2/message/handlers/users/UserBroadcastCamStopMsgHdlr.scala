@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers.users
 
-import org.bigbluebutton.common2.messages.MessageBody.UserBroadcastCamStoppedEvtMsgBody
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.{ UserBroadcastCamStopMsg, UserBroadcastCamStoppedEvtMsg, UserBroadcastCamStoppedEvtMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Webcams
 import org.bigbluebutton.core.running.MeetingActor

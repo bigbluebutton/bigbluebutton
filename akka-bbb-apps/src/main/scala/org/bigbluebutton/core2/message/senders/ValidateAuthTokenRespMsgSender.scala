@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.senders
 
-import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.{ ValidateAuthTokenRespMsg, ValidateAuthTokenRespMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
 
 object ValidateAuthTokenRespMsgSender {
