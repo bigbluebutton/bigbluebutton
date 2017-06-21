@@ -4,7 +4,7 @@
   "scripts": {
     "start": "cd app;./start.sh",
     "preinstall": "npm install grunt-cli",
-    "test": "cd app;JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 meteor run --test",
+    "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js"
   },
   "dependencies": {
@@ -35,6 +35,7 @@
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "autoprefixer": "^7.1.1",
     "eslint": "~3.19.0",
     "eslint-config-airbnb": "^15.0.1",
@@ -49,6 +50,10 @@
     "grunt-jscs": "~2.8.0",
     "grunt-newer": "~1.2.0",
     "grunt-shell": "~1.2.1",
+    "wdio-jasmine-framework": "^0.3.1",
+    "wdio-junit-reporter": "^0.3.0",
+    "wdio-spec-reporter": "^0.1.0",
+    "webdriverio": "^4.8.0",
     "load-grunt-tasks": "~3.4.1",
     "postcss-modules-extract-imports": "1.1.0",
     "postcss-modules-local-by-default": "1.2.0",

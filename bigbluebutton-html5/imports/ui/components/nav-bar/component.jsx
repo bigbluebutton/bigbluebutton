@@ -187,10 +187,7 @@ class NavBar extends Component {
     }
 
     return (
-      <Dropdown
-        isOpen={this.state.isActionsOpen}
-        ref="dropdown"
-      >
+      <Dropdown isOpen={this.state.isActionsOpen}>
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
             {presentationTitle} <Icon iconName="up_arrow upside-down" />

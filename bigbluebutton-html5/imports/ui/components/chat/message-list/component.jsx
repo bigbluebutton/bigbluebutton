@@ -35,7 +35,7 @@ class MessageList extends Component {
   }
 
   scrollTo(position = null) {
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     if (position === null) {
       position = scrollArea.scrollHeight - scrollArea.clientHeight;
@@ -68,7 +68,7 @@ class MessageList extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-      const { scrollArea } = this.refs;
+      const { scrollArea } = this;
       this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     }
   }
@@ -79,7 +79,7 @@ class MessageList extends Component {
       return;
     }
 
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     const position = scrollArea.scrollTop + scrollArea.offsetHeight;
 
@@ -101,14 +101,14 @@ class MessageList extends Component {
   }
 
   componentDidMount() {
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     this.scrollTo(this.props.scrollPosition);
     scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
   componentWillUnmount() {
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
@@ -144,7 +144,7 @@ class MessageList extends Component {
         <div
           role="log"
           tabIndex="0"
-          ref="scrollArea"
+          ref={(ref) => { this.scrollArea = ref; }}
           id={this.props.id}
           className={styles.messageList}
           aria-live="polite"

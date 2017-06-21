@@ -98,7 +98,7 @@ class Dropdown extends Component {
     this.setState({ isOpen: false }, this.handleStateCallback);
 
     if (autoFocus) {
-      const triggerElement = findDOMNode(this.refs.trigger);
+      const triggerElement = findDOMNode(this.trigger);
       triggerElement.focus();
     }
   }
@@ -134,14 +134,14 @@ class Dropdown extends Component {
     let content = children.find(x => x.type === DropdownContent);
 
     trigger = React.cloneElement(trigger, {
-      ref: 'trigger',
+      ref: (ref) => { this.trigger = ref; },
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
     });
 
     content = React.cloneElement(content, {
-      ref: 'content',
+      ref: (ref) => { this.content = ref; },
       'aria-expanded': this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
