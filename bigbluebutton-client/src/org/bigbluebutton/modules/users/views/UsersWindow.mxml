@@ -129,10 +129,7 @@
 			
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
-			
-      [Bindable]
-      private var voiceUsers:ArrayCollection = new ArrayCollection();
-      
+			      
 			[Bindable]
 			private var breakoutRoomsList:ArrayCollection = new ArrayCollection();
 			
@@ -167,9 +164,8 @@
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
         
-        handler.getAllUser(users);
-        handler.getAllVoiceUsers(voiceUsers);
-        
+        handler.populateAllUsers()
+        users = handler.users;
         
 				breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
 				breakoutRoomsList.addEventListener(CollectionEvent.COLLECTION_CHANGE, breakoutRoomsListChangeListener);
@@ -300,21 +296,7 @@
 				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userId);
 				dispatcher.dispatchEvent(rollEvent);
 			}
-
-      private function onVoiceItemRollOver(event:ListEvent):void {
-        var item:IListItemRenderer = event.itemRenderer;
-        var user:BBBVoiceUser2x = item.data as BBBVoiceUser2x;
-        var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OVER, user.userId);
-        dispatcher.dispatchEvent(rollEvent);
-      }
-      
-      private function onVoiceItemRollOut(event:ListEvent):void {
-        var item:IListItemRenderer = event.itemRenderer;
-        var user:BBBVoiceUser2x = item.data as BBBVoiceUser2x;
-        var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userId);
-        dispatcher.dispatchEvent(rollEvent);
-      }
-      
+     
 			private function openEmojiStatusMenu():void {
 				var moodMenu:MoodMenu = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
 				moodMenu.btn = emojiStatusBtn;
@@ -670,36 +652,7 @@
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
     	</views:columns>
     </views:BBBDataGrid>
-	
-  <mx:VBox id="voiceUsersBox" styleName="breakoutRoomsBox"
-           visible="{voiceUsers.length > 0}"
-           includeInLayout="{voiceUsers.length > 0}"
-           horizontalScrollPolicy="off"
-           width="100%" height="180">
-    <mx:HBox width="100%">
-      <mx:Label styleName="breakoutRoomUserWindowHeadingStyle" 
-                text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
-      <mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" 
-                id="voiceUsersTimeLabel"
-                text="..." toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
-    </mx:HBox>
-    
-    <views:BBBDataGrid id="voiceUsersGrid" dataProvider="{voiceUsers}" editable="false" sortableColumns="true"
-                       dragEnabled="false" width="100%" height="100%" draggableColumns="false"
-                       itemRollOver="onVoiceItemRollOver(event)"
-                       itemRollOut="onVoiceItemRollOut(event)" 
-                       accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
-      <views:columns>
-        <mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="56" resizable="false"
-                           itemRenderer="org.bigbluebutton.modules.users.views.VoiceUserStatusItemRenderer" sortable="false" />
-        <mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false"
-                           itemRenderer="org.bigbluebutton.modules.users.views.VoiceUserNameItemRenderer"/>
-        <mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="112" resizable="false"
-                           itemRenderer="org.bigbluebutton.modules.users.views.VoiceUserMediaItemRenderer"/>
-      </views:columns>
-    </views:BBBDataGrid>
-  </mx:VBox>
-  
+	 
 	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox"
 			 visible="{breakoutRoomsList.length > 0}"
 			 includeInLayout="{breakoutRoomsList.length > 0}"

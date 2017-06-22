@@ -101,7 +101,7 @@
   			}
 			
 			private function updateRoleComponents() : void {
-				if (rolledOver && !data.presenter) {
+				if (rolledOver && !data.presenter && !data.voiceOnlyUser) {
 					roleBtn.setStyle("icon", images.presenter_new);
 					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
 					roleImg.visible = false;
@@ -119,6 +119,12 @@
 					roleImg.visible = true;
 					roleBtn.visible = false;
 					roleBtn.enabled = false;
+        } else if (data.role == Role.VOICE_ONLY) {
+          roleImg.source = images.sound;
+          roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.voiceOnlyUser');
+          roleImg.visible = true;
+          roleBtn.visible = false;
+          roleBtn.enabled = false;
 				} else {
 					roleImg.source = null;
 					roleImg.toolTip = "";
@@ -152,7 +158,7 @@
 			}
   			
   			private function onRollOver(e:UsersRollEvent):void{
-				if (moderator && (e.userID == data.userId)) {
+				if (moderator && (e.userID == data.userId) && !data.voiceOnlyUser) {
 					rolledOver = true;
 					updateButtons();
 				}

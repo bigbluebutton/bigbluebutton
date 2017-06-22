@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.users.views.model
     [Bindable] public var callingWith: String = "";
     [Bindable] public var talking: Boolean = false;
     [Bindable] public var listenOnly: Boolean = false;
-    
+    [Bindable] public var voiceOnlyUser: Boolean = false;
     
     [Bindable]
     public function get hasStream():Boolean {

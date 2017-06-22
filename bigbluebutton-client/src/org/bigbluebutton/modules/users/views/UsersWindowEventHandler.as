@@ -1,7 +1,9 @@
 package org.bigbluebutton.modules.users.views
 {
   import mx.collections.ArrayCollection;
+  import mx.collections.Sort;
   
+  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.users.User2x;
@@ -13,6 +15,19 @@ package org.bigbluebutton.modules.users.views
   public class UsersWindowEventHandler
   {
 
+    [Bindable] public var users:ArrayCollection = new ArrayCollection();
+    [Bindable] public var voiceUsers:ArrayCollection = new ArrayCollection();
+    [Bindable] public var breakoutRoomsList:ArrayCollection = new ArrayCollection();
+    
+    private var sort:Sort;
+    
+    public function UsersWindowEventHandler():void {
+      sort = new Sort();
+      sort.compareFunction = sortFunction;
+      users.sort = sort;
+      users.refresh();
+    }
+    
     private function removeUser(userId:String, users: ArrayCollection):void {
       for (var i:int = 0; i < users.length; i++) {
         var user:BBBUser2x = users.getItemAt(i) as BBBUser2x;
@@ -23,8 +38,13 @@ package org.bigbluebutton.modules.users.views
         }
       }
     }
-        
-    public function getAllUser(users: ArrayCollection):void {
+    
+    public function populateAllUsers():void {
+      getAllWebUsers();
+      getAllVoiceUsers();
+    }
+    
+    private function getAllWebUsers():void {
       var userIds: Array = LiveMeeting.inst().users.getUserIds();
       
       for (var i:int = 0; i < userIds.length; i++) {
@@ -56,6 +76,7 @@ package org.bigbluebutton.modules.users.views
         buser.callingWith = voiceUser.callingWith;
         buser.talking = voiceUser.talking;
         buser.listenOnly = voiceUser.listenOnly;
+        buser.voiceOnlyUser = false;
       }
       
       // We want to remove the user if it's already in the collection and re-add it.
@@ -81,25 +102,83 @@ package org.bigbluebutton.modules.users.views
       }
     }
     
-    public function getAllVoiceUsers(voiceUsers: ArrayCollection):void {
+    private function getAllVoiceUsers():void {
       var voiceOnlyUsers: Array = LiveMeeting.inst().voiceUsers.getVoiceOnlyUsers();
       
       for (var i:int = 0; i < voiceOnlyUsers.length; i++) {
         var user:VoiceUser2x = voiceOnlyUsers[i] as VoiceUser2x;
-        var vUser: BBBVoiceUser2x = new BBBVoiceUser2x();
-        vUser.userId = user.intId;
-        vUser.callingWith = user.callingWith;
-        vUser.name = user.callerName;
-        vUser.muted = user.muted;
-        vUser.talking = user.talking;
-        vUser.listenOnly = user.listenOnly;
         
-        removeVoiceUser(user.intId, voiceUsers);
-        voiceUsers.addItem(vUser);
+        var buser: BBBUser2x = new BBBUser2x();
+        buser.me = (LiveMeeting.inst().me.id == user.intId);
+        buser.userId = user.intId;
+        buser.name = user.callerName;
+        buser.role = Role.VOICE_ONLY;
+        buser.guest = false;
+        buser.locked = false;
+        buser.emojiStatus = "none";
+        buser.presenter = false;
+        
+        buser.inVoiceConf = true;
+        buser.voiceOnlyUser = true;
+        
+        // We want to remove the user if it's already in the collection and re-add it.
+        removeUser(buser.userId, users);
+        
+        users.addItem(buser);
       }
       
-      voiceUsers.refresh();
+      users.refresh();
 
+    }
+    
+    // Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
+    private function sortFunction(a:Object, b:Object, array:Array = null):int {
+      /*if (a.presenter)
+      return -1;
+      else if (b.presenter)
+      return 1;*/
+      if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
+        if (a.hasEmojiStatus && b.hasEmojiStatus) {
+          if (a.emojiStatusTime < b.emojiStatusTime)
+            return -1;
+          else
+            return 1;
+        } else if (a.hasEmojiStatus)
+          return -1;
+        else if (b.hasEmojiStatus)
+          return 1;
+      } else if (a.role == Role.MODERATOR)
+        return -1;
+      else if (b.role == Role.MODERATOR)
+        return 1;
+      else if (a.hasEmojiStatus && b.hasEmojiStatus) {
+        if (a.emojiStatusTime < b.emojiStatusTime)
+          return -1;
+        else
+          return 1;
+      } else if (a.hasEmojiStatus)
+        return -1;
+      else if (b.hasEmojiStatus)
+        return 1;
+      else if (!a.voiceOnlyUser && !b.voiceOnlyUser) {
+      } else if (!a.voiceOnlyUser)
+        return -1;
+      else if (!b.voiceOnlyUser)
+        return 1;
+      /*
+      * Check name (case-insensitive) in the event of a tie up above. If the name
+      * is the same then use userID which should be unique making the order the same
+      * across all clients.
+      */
+      if (a.name.toLowerCase() < b.name.toLowerCase())
+        return -1;
+      else if (a.name.toLowerCase() > b.name.toLowerCase())
+        return 1;
+      else if (a.userId.toLowerCase() > b.userId.toLowerCase())
+        return -1;
+      else if (a.userId.toLowerCase() < b.userId.toLowerCase())
+        return 1;
+      return 0;
     }
   }
 }
