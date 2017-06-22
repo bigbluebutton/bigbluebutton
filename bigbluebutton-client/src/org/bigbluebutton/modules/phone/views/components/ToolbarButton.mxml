@@ -40,17 +40,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>  
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;      
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.users.BBBUser;
-      import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
       import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
@@ -88,10 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function get disableMyMic():Boolean {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var thisUser:BBBUser = conference.getMyUser();
-
-				return thisUser.disableMyMic;
+				return LiveMeeting.inst().me.disableMyMic;
 			}
 
 			private function get defaultListenOnlyMode():Boolean {
@@ -118,8 +111,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function joinAudio():void {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var thisUser:BBBUser = conference.getMyUser();
 
 				if (phoneOptions.skipCheck || disableMyMic || defaultListenOnlyMode) {
 					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
@@ -137,15 +128,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onCreationComplete():void {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var thisUser:BBBUser = conference.getMyUser();
+
 				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
 
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-					if (phoneOptions.skipCheck || thisUser.disableMyMic) {
+					if (phoneOptions.skipCheck || LiveMeeting.inst().me.disableMyMic) {
 						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-						if (thisUser.disableMyMic) {
+						if (LiveMeeting.inst().me.disableMyMic) {
 							command.mic = false;
 						} else {
 							command.mic = true;

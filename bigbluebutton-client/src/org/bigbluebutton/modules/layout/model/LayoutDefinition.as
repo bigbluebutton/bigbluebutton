@@ -25,7 +25,6 @@ package org.bigbluebutton.modules.layout.model {
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 	public class LayoutDefinition {

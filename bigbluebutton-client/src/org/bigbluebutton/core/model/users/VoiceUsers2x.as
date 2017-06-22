@@ -2,8 +2,6 @@ package org.bigbluebutton.core.model.users
 {
   import mx.collections.ArrayCollection;
   
-  import org.bigbluebutton.core.model.LiveMeeting;
-  
   public class VoiceUsers2x
   {
     
@@ -78,6 +76,37 @@ package org.bigbluebutton.core.model.users
       }
       return temp;
     }   
+    
+    public function setListenOnlyForUser(userId: String, listenOnly: Boolean): void {
+      
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        if (user.intId == userId) {
+          user.listenOnly = listenOnly;
+        }
+      }
+    }
+    
+    public function setMutedForUser(userId: String, muted: Boolean): void {      
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        if (user.intId == userId) {
+          user.muted = muted;
+        }
+      }
+    }
+    
+    public function setTalkingForUser(userId: String, talking: Boolean): void {      
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        if (user.intId == userId) {
+          user.talking = talking;
+        }
+      }
+    }
   }
 }
 

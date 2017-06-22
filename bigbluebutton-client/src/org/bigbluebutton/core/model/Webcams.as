@@ -103,5 +103,17 @@ package org.bigbluebutton.core.model
       }
       return tempArray;
     }
+    
+    public function isViewingStream(userId: String, streamId: String): Boolean {
+      var stream: MediaStream = getStream(streamId);
+      if (stream != null) {
+        for (var i: int = 0; i < stream.viewers.length; i++) {
+          var viewer: String = stream.viewers[i] as String;
+          if (viewer == userId) return true;
+        }
+      }
+      
+      return false;
+    }
   }
 }

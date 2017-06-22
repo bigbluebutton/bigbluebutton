@@ -22,13 +22,11 @@ package org.bigbluebutton.modules.sharednotes.maps
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import mx.binding.utils.BindingUtils;
-	import mx.utils.ObjectUtil;
-	
+	import mx.utils.ObjectUtil;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;

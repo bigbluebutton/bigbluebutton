@@ -19,16 +19,13 @@
 
 package org.bigbluebutton.modules.screenshare.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.external.ExternalInterface;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import flash.external.ExternalInterface;	
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 	import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;

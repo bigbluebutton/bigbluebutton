@@ -29,13 +29,11 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
-  import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.events.UserLockStatusChangedEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.MediaStream;
   import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.model.users.VoiceUser2x;
-  import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.BreakoutRoomEvent;
@@ -44,10 +42,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.events.PresenterStatusEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
-  import org.bigbluebutton.main.events.UserLeftEvent;
-  import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
-  import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
@@ -60,12 +55,11 @@ package org.bigbluebutton.modules.users.services
 	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
 
     private var dispatcher:Dispatcher;
-    private var _conference:Conference;
+
     public var onAllowedToJoin:Function = null;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
 
     public function MessageReceiver() {
-      _conference = UserManager.getInstance().getConference();
       BBB.initConnectionManager().addMessageListener(this);
       this.dispatcher = new Dispatcher();
     }
@@ -339,10 +333,16 @@ package org.bigbluebutton.modules.users.services
 
 	private function handleUserLocked(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
-		var user:BBBUser = UsersUtil.getUser(map.user);
+		var user:User2x = UsersUtil.getUser(map.user);
 
-		if(user.userLocked != map.lock)
-			user.lockStatusChanged(map.lock);
+		if(user.locked != map.lock) {
+      if (UsersUtil.isMe(user.intId)) {
+        LiveMeeting.inst().me.locked = map.locked;
+      }
+      
+      dispatcher.dispatchEvent(new UserLockStatusChangedEvent(user.intId, map.locked));
+    }
+			
 		return;
 	}
 	
@@ -394,8 +394,9 @@ package org.bigbluebutton.modules.users.services
       var role:String = map.user.role;
       // If a (pro/de)moted user refresh his browser he must reassing his role for permissions
       if (role != myRole) {
-        UserManager.getInstance().getConference().newUserRole(userid, role);
-        UserManager.getInstance().getConference().setMyRole(role);
+        UsersUtil.newUserRoleForUser(userid, role);
+        UsersUtil.setMyRole(role);
+        
         var changeMyRole:ChangeMyRole = new ChangeMyRole(role);
         dispatcher.dispatchEvent(changeMyRole);
       }
@@ -414,9 +415,10 @@ package org.bigbluebutton.modules.users.services
       var perm:Object = map.permissions;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
-                                                 perm.disablePrivateChat, perm.disablePublicChat, perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
+                                                 perm.disablePrivateChat, perm.disablePublicChat, 
+                                                 perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
       UsersUtil.setLockSettings(lockSettings);
-	  LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
+      LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
       
       UsersUtil.applyLockSettings();
     }
@@ -448,10 +450,8 @@ package org.bigbluebutton.modules.users.services
       var map:Object = JSON.parse(msg.msg);  
       var userId:String = map.userId;
       var listenOnly:Boolean = map.listenOnly;
-      var l:BBBUser = _conference.getUser(userId);			
-      if (l != null) {
-        l.listenOnly = listenOnly;
-      }	
+      
+      LiveMeeting.inst().voiceUsers.setListenOnlyForUser(userId, listenOnly);
     }
     
     private function handleVoiceUserMuted(msg:Object):void {    
@@ -459,51 +459,32 @@ package org.bigbluebutton.modules.users.services
       var userId:String = map.userId;
       var muted:Boolean = map.muted;
 
-      UsersService.getInstance().userMuted(map);
+      LiveMeeting.inst().voiceUsers.setMutedForUser(userId, muted);
       
-      var l:BBBUser = _conference.getUser(userId);
-      if (l != null) {
-        l.voiceMuted = muted;
-        
-        if (l.voiceMuted) {
-          // When the user is muted, set the talking flag to false so that the UI will not display the
-          // user as talking even if muted.
-          userTalk(userId, false);
-        }
-        
-        /**
-         * Let's store the voice userid so we can do push to talk.
-         */
-        if (l.me) {
-          _conference.muteMyVoice(l.voiceMuted);
-        }				
-        
-        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
-        bbbEvent.payload.muted = muted;
-        bbbEvent.payload.userID = l.userID;
-        globalDispatcher.dispatchEvent(bbbEvent);    
+      if (UsersUtil.isMe(userId)) {
+        UsersUtil.setMeMuted(muted);
       }
+      
+      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
+      bbbEvent.payload.muted = muted;
+      bbbEvent.payload.userID = userId;
+      globalDispatcher.dispatchEvent(bbbEvent);    
     }
 
-    private function userTalk(userId:String, talking:Boolean):void {      
-      var l:BBBUser = _conference.getUser(userId);			
-      if (l != null) {
-        l.talking = talking;
-        
-        var event:CoreEvent = new CoreEvent(EventConstants.USER_TALKING);
-        event.message.userID = l.userID;
-        event.message.talking = l.talking;
-        globalDispatcher.dispatchEvent(event);  
-      }	
+    private function userTalk(userId:String, talking:Boolean):void { 
+      LiveMeeting.inst().voiceUsers.setMutedForUser(userId, talking);
+      
+      var event:CoreEvent = new CoreEvent(EventConstants.USER_TALKING);
+      event.message.userID = userId;
+      event.message.talking = talking;
+      globalDispatcher.dispatchEvent(event);  
+      
     }
     
     private function handleVoiceUserTalking(msg:Object):void {   
       var map:Object = JSON.parse(msg.msg); 
       var userId:String = map.userId;
-      var talking:Boolean = map.talking;  
-      
-      UsersService.getInstance().userTalking(map);
-      
+      var talking:Boolean = map.talking;
       userTalk(userId, talking);
     }
     
@@ -513,33 +494,18 @@ package org.bigbluebutton.modules.users.services
       
       var webUser:Object = map.user as Object;
       var voiceUser:Object = webUser.voiceUser as Object;
-      UsersService.getInstance().userLeftVoice(voiceUser);
       
-      var l:BBBUser = _conference.getUser(webUser.userId);
-      /**
-       * Let's store the voice userid so we can do push to talk.
-       */
-      if (l != null) {
-        if (UsersUtil.getMyUserID() == l.userID) {
-          _conference.muteMyVoice(false);
-          _conference.setMyVoiceJoined(false);
-        }
-        
-        l.voiceMuted = false;
-        l.voiceJoined = false;
-        l.talking = false;
-        //l.userLocked = false;
-
-        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
-        bbbEvent.payload.userID = l.userID;
-        globalDispatcher.dispatchEvent(bbbEvent);
-        
-        if (l.phoneUser) {
-          _conference.removeUser(l.userID);
-        }
-      } else {
-        LOGGER.debug("Could not find voice user id[{0}]", [voiceUser.uerId]);
+      LiveMeeting.inst().voiceUsers.remove(webUser.userId);
+      
+      if (UsersUtil.isMe(webUser.userId)) {
+        LiveMeeting.inst().me.muted = false;
+        LiveMeeting.inst().me.inVoiceConf = false;
       }
+      
+      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
+      bbbEvent.payload.userID = webUser.userId;
+      globalDispatcher.dispatchEvent(bbbEvent);
+      
     }
     
     private function handleUserJoinedVoice(msg:Object):void {
@@ -554,18 +520,16 @@ package org.bigbluebutton.modules.users.services
     private function userJoinedVoice(webUser: Object):void {      
       var voiceUser:Object = webUser.voiceUser as Object;
       
-      UsersService.getInstance().userJoinedVoice(voiceUser);
-      
       var externUserID:String = webUser.externUserID;
       var internUserID:String = webUser.userId;
       
-      if (UsersUtil.getMyUserID() == internUserID) {
-        _conference.muteMyVoice(voiceUser.muted);
-        _conference.setMyVoiceJoined(true);
+      if (UsersUtil.isMe(internUserID)) {
+        LiveMeeting.inst().me.muted = voiceUser.muted;
+        LiveMeeting.inst().me.inVoiceConf = true;
       }
-      
+/*      
       if (UsersUtil.hasUser(internUserID)) {
-        var bu:BBBUser = UsersUtil.getUser(internUserID);
+        var bu:User2x = UsersUtil.getUser(internUserID);
         bu.talking = voiceUser.talking;
         bu.voiceMuted = voiceUser.muted;
         bu.voiceJoined = true;
@@ -580,7 +544,8 @@ package org.bigbluebutton.modules.users.services
           ev.mute = true;
           dispatcher.dispatchEvent(ev);
         }
-      }       
+      }    
+      */
     }
     
     public function handleParticipantLeft(msg:Object):void {     
@@ -589,14 +554,13 @@ package org.bigbluebutton.modules.users.services
       
       var webUserId:String = webUser.userId;
       
-      UsersService.getInstance().userLeft(webUser);
-      
+
       if(webUser.waitingForAcceptance) {
         var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
         removeGuest.payload.userId = webUser.userId;
         dispatcher.dispatchEvent(removeGuest);
       }
-
+/*
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       
 	  if (user != null) {
@@ -611,6 +575,7 @@ package org.bigbluebutton.modules.users.services
 		  
 		  UserManager.getInstance().getConference().removeUser(webUserId);	    
 	  }
+      */
     }
     
     public function handleParticipantJoined(msg:Object):void {
@@ -618,7 +583,6 @@ package org.bigbluebutton.modules.users.services
       
       var user:Object = map.user as Object;
       
-      UsersService.getInstance().userJoined(user);
       participantJoined(user);
     }
     
@@ -643,8 +607,6 @@ package org.bigbluebutton.modules.users.services
       var map:Object = JSON.parse(msg.msg);
       var users:Object = map.users as Array;
 
-      // since might be a reconnection, clean up users list
-      UserManager.getInstance().getConference().removeAllParticipants();
       
       if (map.count > 0) {
         for(var i:int = 0; i < users.length; i++) {
@@ -659,9 +621,7 @@ package org.bigbluebutton.modules.users.services
     
     private function processUserVoice(webUser: Object):void {      
       var voiceUser:Object = webUser.voiceUser as Object;
-
-      UsersService.getInstance().userJoinedVoice(voiceUser);
-      
+/*
       var externUserID:String = webUser.externUserID;
       var internUserID:String = webUser.userId;
       
@@ -671,12 +631,14 @@ package org.bigbluebutton.modules.users.services
       }
       
       if (UsersUtil.hasUser(internUserID)) {
-        var bu:BBBUser = UsersUtil.getUser(internUserID);
-        bu.voiceMuted = voiceUser.muted;
-        bu.voiceJoined = voiceUser.joined;
-        bu.talking = voiceUser.talking;
-        //bu.userLocked = voiceUser.locked;
-      }       
+        var bu:VoiceUser2x = LiveMeeting.inst().voiceUsers(internUserID);
+        if (bu != null) {
+          bu.muted = voiceUser.muted;
+          bu.talking = voiceUser.talking;
+        }
+
+      }   
+      */
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     
@@ -685,8 +647,6 @@ package org.bigbluebutton.modules.users.services
       var newPresenterID:String = map.newPresenterID;
       var newPresenterName:String = map.newPresenterName;
       var assignedBy:String = map.assignedBy;
-      
-      var meeting:Conference = UserManager.getInstance().getConference();
       
       if (UsersUtil.isMe(newPresenterID)) {
         sendSwitchedPresenterEvent(true, newPresenterID);
@@ -722,7 +682,7 @@ package org.bigbluebutton.modules.users.services
 
     private function handleEmojiStatusHand(msg: Object): void {   
       var map:Object = JSON.parse(msg.msg);      
-      UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
+
     }
 
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
@@ -735,7 +695,7 @@ package org.bigbluebutton.modules.users.services
         logData.user.webcamStream = stream;
         LOGGER.info(JSON.stringify(logData));
 
-        UserManager.getInstance().getConference().sharedWebcam(userId, stream);
+
     }
 
     private function handleUserBroadcastCamStoppedEvtMsg(msg: Object):void {  
@@ -748,7 +708,7 @@ package org.bigbluebutton.modules.users.services
         logData.user.webcamStream = stream;
         LOGGER.info(JSON.stringify(logData));
 	  
-        UserManager.getInstance().getConference().unsharedWebcam(userId, stream);
+//        UserManager.getInstance().getConference().unsharedWebcam(userId, stream);
         sendStreamStoppedEvent(userId, stream);
     }
 	
@@ -758,7 +718,7 @@ package org.bigbluebutton.modules.users.services
 	}
     
     public function participantStatusChange(userID:String, status:String, value:Object):void {		
-      UserManager.getInstance().getConference().newUserStatus(userID, status, value);
+//      UserManager.getInstance().getConference().newUserStatus(userID, status, value);
       
       if (status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
@@ -769,6 +729,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function participantJoined(joinedUser:Object):void {    
+/**      
       var user:BBBUser = new BBBUser();
       user.userID = joinedUser.userId;
       user.name = joinedUser.name;
@@ -831,6 +792,7 @@ package org.bigbluebutton.modules.users.services
           onAllowedToJoin = null;
         }
       }
+**/      
     }
     
     /**
@@ -838,7 +800,7 @@ package org.bigbluebutton.modules.users.services
      */
     public function handleParticipantStatusChange(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);	
-      UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
+//      UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
       
       if (msg.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
@@ -876,7 +838,7 @@ package org.bigbluebutton.modules.users.services
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{
-		UserManager.getInstance().getConference().updateBreakoutRoomUsers(msg.body.breakoutMeetingId, msg.body.users);
+//		UserManager.getInstance().getConference().updateBreakoutRoomUsers(msg.body.breakoutMeetingId, msg.body.users);
 	}
 
 	private function handleTimeRemainingUpdate(msg:Object):void {
@@ -905,7 +867,7 @@ package org.bigbluebutton.modules.users.services
     switchUserFromBreakoutToMainVoiceConf(msg.body.breakoutMeetingId);
     var breakoutRoom: BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoom(msg.body.breakoutMeetingId);
     LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(msg.body.breakoutMeetingId);    
-		UserManager.getInstance().getConference().removeBreakoutRoomFromUser(breakoutRoom);
+//		UserManager.getInstance().getConference().removeBreakoutRoomFromUser(breakoutRoom);
 	}
   
   private function switchUserFromBreakoutToMainVoiceConf(breakoutId: String): void {
@@ -922,12 +884,14 @@ package org.bigbluebutton.modules.users.services
     public function handleParticipantRoleChange(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);
       LOGGER.debug("*** received participant role change [" + map.userID + "," + map.role + "]");
+/*
       UserManager.getInstance().getConference().newUserRole(map.userID, map.role);
       if(UsersUtil.isMe(map.userID)) {
         UserManager.getInstance().getConference().setMyRole(map.role);
         var e:ChangeMyRole = new ChangeMyRole(map.role);
         dispatcher.dispatchEvent(e);
       }
+      */
     }
 
     public function handleGuestPolicyChanged(msg:Object):void {

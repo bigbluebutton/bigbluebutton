@@ -39,10 +39,12 @@
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
 			import flash.filters.GlowFilter;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Menu;
 			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.Options;
@@ -50,7 +52,6 @@
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
-			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -215,7 +216,7 @@
 						}
 					}
 					
-					if (data.role == BBBUser.MODERATOR){
+					if (data.role == Role.MODERATOR){
 						lockImg.visible = false;
 						lockImg.includeInLayout = true;
 						lockBtn.visible = false;

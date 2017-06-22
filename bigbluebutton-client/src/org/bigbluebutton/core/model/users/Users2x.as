@@ -7,6 +7,10 @@ package org.bigbluebutton.core.model.users
     
     private var _users:ArrayCollection = new ArrayCollection();
     
+    public function getUsers(): ArrayCollection {
+      return new ArrayCollection(_users.toArray());
+    }
+    
     public function add(user: User2x):void {
       _users.addItem(user);
     }
@@ -46,6 +50,22 @@ package org.bigbluebutton.core.model.users
       
       return null;
     }
+    
+    public function getUserWithExtId(extId:String):User2x {
+      var user:User2x;
+      
+      for (var i:int = 0; i < _users.length; i++) {
+        user = _users.getItemAt(i) as User2x;
+        
+        if (user.extId == extId) {
+          return user;
+        }
+      }
+      
+      return null;
+    }
+    
+    
     
     public function getIndex(userId: String):int {
       var user:User2x;
@@ -93,6 +113,38 @@ package org.bigbluebutton.core.model.users
       }
       
       return null;
+    }
+    
+    public function getPresenters(): Array {
+      var temp: Array = new Array();
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:User2x = _users.getItemAt(i) as User2x;
+        if (user.presenter) {
+          temp.push(user.intId);
+        }
+      }
+      
+      return temp;
+    }
+    
+    public function isAnyUserLocked(): Boolean {
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:User2x = _users.getItemAt(i) as User2x;
+        if (user.locked) {
+          return true;
+        }
+      } 
+      
+      return false;
+    }
+    
+    public function setRoleForUser(userId: String, role: String): void {
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:User2x = _users.getItemAt(i) as User2x;
+        if (user.intId == userId) {
+          user.role = role;
+        }
+      } 
     }
   }
 }

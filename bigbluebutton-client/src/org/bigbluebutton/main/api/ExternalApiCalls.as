@@ -34,14 +34,14 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-  import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
-  import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
@@ -294,7 +294,7 @@ package org.bigbluebutton.main.api
         
     public function handleUserJoinedEvent(event:UserJoinedEvent):void {
       var payload:Object = new Object();
-      var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
+      var user:User2x = LiveMeeting.inst().users.getUser(event.userID);
       
       if (user == null) {
         LOGGER.warn("[ExternalApiCall:handleParticipantJoinEvent] Cannot find user with ID [{0}]", [event.userID]);
@@ -302,7 +302,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_JOINED;
-      payload.userID = user.userID;
+      payload.userID = user.intId;
       payload.userName = user.name;        
       
       broadcastEvent(payload);        
@@ -310,7 +310,7 @@ package org.bigbluebutton.main.api
 
     public function handleUserLeftEvent(event:UserLeftEvent):void {
       var payload:Object = new Object();
-      var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
+      var user:User2x = LiveMeeting.inst().users.getUser(event.userID);
       
       if (user == null) {
         LOGGER.warn("[ExternalApiCall:handleParticipantJoinEvent] Cannot find user with ID [{0}]", [event.userID]);
@@ -318,7 +318,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_LEFT;
-      payload.userID = user.userID;
+      payload.userID = user.intId;
       
       broadcastEvent(payload);        
     }
