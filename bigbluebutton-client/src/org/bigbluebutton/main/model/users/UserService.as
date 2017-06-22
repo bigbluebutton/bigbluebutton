@@ -180,11 +180,14 @@ package org.bigbluebutton.main.model.users
 		}
 
 		public function userLoggedIn(e:UsersConnectionEvent):void {
+      LOGGER.debug("In userLoggedIn - reconnecting and allowed to join");
 			if (reconnecting && ! LiveMeeting.inst().me.waitingForApproval) {
 				LOGGER.debug("userLoggedIn - reconnecting and allowed to join");
 				onAllowedToJoin();
 				reconnecting = false;
-			}
+			} else {
+        onAllowedToJoin();
+      }
 		}
 
 		public function denyGuest():void {

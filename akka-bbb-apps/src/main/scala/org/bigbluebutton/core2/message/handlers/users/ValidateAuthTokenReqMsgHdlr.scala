@@ -29,8 +29,6 @@ trait ValidateAuthTokenReqMsgHdlr {
           notifyModeratorsOfGuestWaiting(Vector(guest))
         } else {
 
-          sendOldValidateToken(props.meetingProp.intId, msg.body.userId, msg.body.authToken)
-
           ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
             userId = msg.body.userId, authToken = msg.body.authToken, valid = true, waitForApproval = false)
 

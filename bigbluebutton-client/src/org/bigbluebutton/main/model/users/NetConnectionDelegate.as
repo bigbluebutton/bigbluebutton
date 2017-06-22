@@ -137,6 +137,8 @@ package org.bigbluebutton.main.model.users
                 if (waitForApproval) {
                   var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
                   dispatcher.dispatchEvent(waitCommand);
+                } else {
+                  sendConnectionSuccessEvent(userId);
                 }
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
@@ -155,7 +157,9 @@ package org.bigbluebutton.main.model.users
             var body: Object = map.body as Object;
             
             var msgName: String = header.name
-              
+             
+            LOGGER.debug("authTokenValid=" + LiveMeeting.inst().me.authTokenValid + " messageName=" + messageName);
+            
           if (!LiveMeeting.inst().me.authTokenValid && (messageName == "ValidateAuthTokenRespMsg")) {
             handleValidateAuthTokenReply2x(body)
           } else if (messageName == "validateAuthTokenTimedOut") {
@@ -326,7 +330,7 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
             
             if (tokenValid) {
-              LiveMeeting.inst().me.authTokenValid = true;
+//              LiveMeeting.inst().me.authTokenValid = true;
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
             }
@@ -355,7 +359,8 @@ package org.bigbluebutton.main.model.users
             sendUserLoggedOutEvent();
         }
         
-        private function sendConnectionSuccessEvent(userid:String):void{      
+        private function sendConnectionSuccessEvent(userid:String):void{
+          LOGGER.debug("Sending UsersConnectionEvent.CONNECTION_SUCCESS event");
             var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
             e.userid = userid;
             dispatcher.dispatchEvent(e);

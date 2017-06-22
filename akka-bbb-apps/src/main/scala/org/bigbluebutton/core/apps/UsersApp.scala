@@ -13,21 +13,23 @@ trait UsersApp {
   val outGW: OutMessageGateway
 
   def handleValidateAuthToken(msg: ValidateAuthToken) {
-    log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-    RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers) match {
-      case Some(u) =>
-
-        //send the reply
-        outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, true, msg.correlationId))
-
-        log.info("ValidateToken success. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
-
-        //join the user
-        handleUserJoin(new UserJoining(props.meetingProp.intId, msg.userId, msg.token))
-      case None =>
-        log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
-        outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, false, msg.correlationId))
-    }
+    /**
+     * log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
+     * RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers) match {
+     * case Some(u) =>
+     *
+     * //send the reply
+     * outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, true, msg.correlationId))
+     *
+     * log.info("ValidateToken success. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
+     *
+     * //join the user
+     * handleUserJoin(new UserJoining(props.meetingProp.intId, msg.userId, msg.token))
+     * case None =>
+     * log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
+     * outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, false, msg.correlationId))
+     * }
+     */
   }
 
   def handleRegisterUser(msg: RegisterUser) {
