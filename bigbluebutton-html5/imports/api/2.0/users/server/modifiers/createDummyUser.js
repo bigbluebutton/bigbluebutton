@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Users2x from '/imports/api/2.0/users';
+import Users from './../../';
 
 export default function createDummyUser2x(meetingId, userId, authToken) {
   console.error(`create dummy user2x ${meetingId} ${userId} ${authToken}`);
