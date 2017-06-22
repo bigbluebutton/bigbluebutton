@@ -3,7 +3,7 @@
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
     "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:prod; else npm run start:dev; fi",
-    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor",
+    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js"
