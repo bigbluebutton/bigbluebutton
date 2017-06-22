@@ -45,7 +45,6 @@ $Id: $
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
       import org.bigbluebutton.modules.users.events.UsersRollEvent;
       private var images:Images = new Images();

@@ -51,7 +51,6 @@ $Id: $
       import org.bigbluebutton.core.vo.LockSettingsVO;
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.modules.users.events.UsersRollEvent;
       import org.bigbluebutton.modules.users.model.UsersOptions;
@@ -79,11 +78,7 @@ $Id: $
         this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
         
         BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
-        BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
         BindingUtils.bindSetter(updateButtons, muteInd, "visible");
-        BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
-        BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
-        BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
         
         options = Options.getOptions(UsersOptions) as UsersOptions;
       }
@@ -159,115 +154,12 @@ $Id: $
         
         var ls:LockSettingsVO = UsersUtil.getLockSettings();
         
-        if (data != null) {
-          settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
-          
-          if (!data.inVoiceConf) {
-            if (data.listenOnly) {
-              muteImg.source = images.sound;
-              muteImg.visible = true;
-              muteImg.includeInLayout = true;
-              muteBtn.visible = false;
-              muteBtn.includeInLayout = false;             
-            } else {
-              muteImg.visible = false;
-              muteImg.includeInLayout = false;
-              muteBtn.visible = false;
-              muteBtn.includeInLayout = true;
-            }
-          } else {
-            if (data.locked && ls.getDisableMic()) {
-              muteImg.visible = true;
-              muteImg.includeInLayout = true;
-              muteBtn.visible = false;
-              muteBtn.includeInLayout = false;
-            } else {
-              muteImg.visible = !rolledOver;
-              muteImg.includeInLayout = !rolledOver;
-              muteBtn.visible = rolledOver;
-              muteBtn.includeInLayout = rolledOver;
-              muteBtn.enabled = true;
-              
-              if(data.talking && !rolledOver){
-                muteImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
-              }else{
-                muteImg.filters = [];
-              }
-            }
-          }
-          
-          if (data.role == BBBUser.MODERATOR){
-            lockImg.visible = false;
-            lockImg.includeInLayout = true;
-          } else if(moderator && ls.isAnythingLocked()) {
-            lockImg.visible = !rolledOver;
-            lockImg.includeInLayout = !rolledOver;
-          } else {
-            //If it can't be clicked, only show image
-            lockImg.visible = true;
-            lockImg.includeInLayout = true;
-          }
-          
-          
-          
-          if (!rolledOver) {
-            if (!data.inVoiceConf && data.listenOnly) {
-              muteImg.source = images.sound;
-            } else {
-              if (data.muted)
-                muteImg.source = images.audio_muted_20;
-              else
-                muteImg.source = images.audio_20;              
-            }
-            
-            
-            if ( data.locked && !data.presenter && ls.isAnythingLocked() ) {
-              lockImg.source = images.locked_20;
-            }
-            else {
-              lockImg.source = null;
-            }
-          } else {
-            if (data.muted == rolledOverMute)
-              muteBtn.setStyle("icon", images.audio);
-            else
-              muteBtn.setStyle("icon", images.audio_muted);
-            
-          }
-        }
-      }
-      
-      private function promoteUser():void {
-        changeUserRole(Role.MODERATOR);
-      }
-      
-      private function demoteUser():void {
-        changeUserRole(Role.VIEWER);
-      }
-      
-      private function changeUserRole(role:String):void {
-        var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(data.userId, role);
-        dispatchEvent(changeRoleEvent);
       }
       
       private function openSettings():void {
         if (data != null) {
           var myMenuData:Array = [];
-          
-          if (data.role == Role.MODERATOR) {
-            myMenuData.push({
-              label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
-              icon: images.user_delete,
-              callback: demoteUser
-            });
-          } else {
-            myMenuData.push({
-              label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
-              icon: images.user_add,
-              callback: promoteUser
-            });
-          }
-          
+                    
           if (options.allowKickUser) {
             myMenuData.push({
               label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
