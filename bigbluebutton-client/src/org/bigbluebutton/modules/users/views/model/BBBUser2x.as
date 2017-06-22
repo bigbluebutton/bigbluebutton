@@ -172,7 +172,6 @@ package org.bigbluebutton.modules.users.views.model
     }
     
     [Bindable] public var status:String = "";
-    [Bindable] public var customdata:Object = {};
     
     /*
     * This variable is for accessibility for the Users Window. It can't be manually set

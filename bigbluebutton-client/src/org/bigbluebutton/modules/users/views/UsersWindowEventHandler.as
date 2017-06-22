@@ -55,6 +55,17 @@ package org.bigbluebutton.modules.users.views
       users.refresh();
     }
     
+    private function getWebcamStreamsForUser(userId: String): String {
+      var streamIds: Array = LiveMeeting.inst().webcams.getStreamIdsForUser(userId);
+      var streams:String = "";
+      for each(var stream:String in streamIds) {
+        streams = streams + stream + "|";
+      }
+      //Remove last |
+      streams = streams.slice(0, streams.length-1);
+      return streams;
+    }
+    
     private function addUser(users: ArrayCollection, userId: String):void {
       var user: User2x = UsersUtil.getUser2x(userId);
       var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
@@ -68,6 +79,7 @@ package org.bigbluebutton.modules.users.views
       buser.locked = user.locked;
       buser.emojiStatus = user.emoji;
       buser.presenter = user.presenter;
+      buser.streamName = getWebcamStreamsForUser(buser.userId);
       
       buser.inVoiceConf = false;
       if (voiceUser != null) {
