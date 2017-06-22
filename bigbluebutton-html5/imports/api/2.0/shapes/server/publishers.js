@@ -23,4 +23,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.shapes', boundShapes)(args);
 }
 
-Meteor.publish('shapes', publish);
+Meteor.publish('shapes2x', publish);
