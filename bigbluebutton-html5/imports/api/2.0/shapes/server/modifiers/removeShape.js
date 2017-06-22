@@ -15,11 +15,11 @@ export default function removeShape(meetingId, whiteboardId, shapeId) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Removing shape from collection: ${err}`);
+      return Logger.error(`Removing shape2x from collection: ${err}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Removed shape id=${shapeId} whiteboard=${whiteboardId}`);
+      return Logger.info(`Removed shape2x id=${shapeId} whiteboard=${whiteboardId}`);
     }
   };
 

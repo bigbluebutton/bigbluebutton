@@ -13,10 +13,10 @@ export default function clearShapesWhiteboard(meetingId, whiteboardId) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Removing Shapes from collection: ${err}`);
+      return Logger.error(`Removing Shapes2x from collection: ${err}`);
     }
 
-    return Logger.info(`Removed Shapes where whiteboard=${whiteboardId}`);
+    return Logger.info(`Removed Shapes2x where whiteboard=${whiteboardId}`);
   };
 
   return Shapes.remove(selector, cb);

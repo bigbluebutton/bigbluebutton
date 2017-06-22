@@ -5,21 +5,22 @@ import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 function shapes(credentials) {
-  console.error('shapes2x publish');
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Shapes for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Shapes2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Shapes.find({ meetingId });
 }
 
 function publish(...args) {
+  console.error('shapes2x publish');
+
   const boundShapes = shapes.bind(this);
   return mapToAcl('subscriptions.shapes', boundShapes)(args);
 }
 
-Meteor.publish('shapes2x', publish);
+Meteor.publish('shapes', publish);
