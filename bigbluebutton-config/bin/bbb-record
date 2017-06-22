@@ -716,10 +716,11 @@ if [ $CHECK ]; then
 	#set -x
         for type in $TYPES; do
 		for recording in $(find $BASE/publish/$type -name metadata.xml); do
-			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			if [ "$BBB_WEB" != "$url_playback" ]; then
+			url_playback_http=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			url_playback_https=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>https:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback_http" ] && [ "$BBB_WEB" != "$url_playback_https" ]; then
                                 echo
-                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "# The hostname in <link> .. </link> ($url_playback_http)"
                                 echo "#     $recording"
                                 echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
                                 echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
@@ -727,10 +728,11 @@ if [ $CHECK ]; then
 			fi
 		done
 		for recording in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
-			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			if [ "$BBB_WEB" != "$url_playback" ]; then
+			url_playback_http=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			url_playback_https=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>https:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback_http" ] && [ "$BBB_WEB" != "$url_playback_https" ]; then
                                 echo
-                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "# The hostname in <link> .. </link> ($url_playback_http)"
                                 echo "#     $recording"
                                 echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
                                 echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
