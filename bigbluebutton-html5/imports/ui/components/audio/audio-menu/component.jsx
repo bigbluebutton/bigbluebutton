@@ -3,7 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Button from '/imports/ui/components/button/component';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
-import AudioManager from '/imports/api/audio/client/manager';
+import  AudioManager from '/imports/api/audio/client/manager';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -27,18 +27,21 @@ class JoinAudioOptions extends React.Component {
     } = this.props;
 
     if (isInAudio || isInListenOnly) {
-    // if (AudioManager.currentState == AudioManager.callStates.inConference ||
-    // AudioManager.currentState == AudioManager.callStates.inListenOnly) {
-      return (
-        <Button
-          onClick={handleCloseAudio}
-          label={intl.formatMessage(intlMessages.leaveAudio)}
-          color={'danger'}
-          icon={'audio_off'}
-          size={'lg'}
-          circle
-        />
-      );
+      console.log(AudioManager);
+      console.log("CURRENT STATE: " + AudioManager.currentState);
+      // if (AudioManager.currentState == AudioManager.callStates.inConference ||
+      // AudioManager.currentState == AudioManager.callStates.inListenOnly) {
+        return (
+          <Button
+            onClick={handleCloseAudio}
+            label={intl.formatMessage(intlMessages.leaveAudio)}
+            color={'danger'}
+            icon={'audio_off'}
+            size={'lg'}
+            circle
+          />
+        );
+      // }
     }
 
     return (

@@ -75,26 +75,6 @@ export default class SIPBridge extends BaseAudioBridge {
       console.log('Beginning WebRTC Conference Call');
     };
 
-    // const {
-    //   userId,
-    //   username,
-    // } = this.userData;
-    //
-    // window.BBB = {};
-    // window.BBB.getMyUserInfo = function (callback) {
-    //   const result = {
-    //     myUserID: userId,
-    //     myUsername: username,
-    //     myInternalUserID: userId,
-    //     myAvatarURL: null,
-    //     myRole: 'getMyRole',
-    //     amIPresenter: 'false',
-    //     voiceBridge: extension,
-    //     dialNumber: null,
-    //   };
-    //   return callback(result);
-    // };
-
     const stunsAndTurns = {
       stun: this.userData.stuns,
       turn: this.userData.turns,

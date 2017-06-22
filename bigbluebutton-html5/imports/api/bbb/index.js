@@ -37,7 +37,10 @@ class htmlBBB {
     AudioManager.webRTCCallFailed(inEchoTest, errorcode, cause);
   }
 
-
+  webRTCCallStarted(inEchoTest) {
+    console.log("FUNCTION WAS CALLED");
+    AudioManager.webRTCCallStarted(inEchoTest);
+  }
 
 
 }

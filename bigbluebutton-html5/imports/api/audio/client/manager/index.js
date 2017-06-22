@@ -2,7 +2,7 @@ import BaseAudioBridge from '../bridge/base';
 import VertoBridge from '../bridge/verto';
 import SIPBridge from '../bridge/sip';
 
-CallStates = class {
+class CallStates {
   static get init() {
     return "initialized state";
   }
@@ -45,8 +45,10 @@ CallStates = class {
 };
 
 // manages audio calls and audio bridges
-export default class AudioManager {
-  constructor(userData) {
+class AudioManager {
+  constructor() {
+  }
+  init(userData){
     const MEDIA_CONFIG = Meteor.settings.public.media;
     const audioBridge = MEDIA_CONFIG.useSIPAudio
       ? new SIPBridge(userData)
@@ -59,8 +61,7 @@ export default class AudioManager {
     this.bridge = audioBridge;
     this.isListenOnly = false;
     this.microphoneLockEnforced = userData.microphoneLockEnforced;
-    this.callStates = new CallStates();
-    console.log(this.callStates);
+    this.callStates = CallStates;
     this.currentState = this.callStates.init;
 
     callbackToAudioBridge = function (audio) {
@@ -85,21 +86,28 @@ export default class AudioManager {
     };
   }
 
+  getCurrentState() {
+    return this.currentState;
+  }
+
   exitAudio() {
     this.bridge.exitAudio(this.isListenOnly);
     this.currentState = this.callStates.init;
+    console.log("EXITED AUDIO: " + this.currentState);
   }
 
   joinAudio(listenOnly) {
     if (listenOnly || this.microphoneLockEnforced) {
       this.isListenOnly = true;
       this.bridge.joinListenOnly(callbackToAudioBridge);
+      // TODO: remove line below after echo test implemented
       this.currentState = this.callStates.inListenOnly;
     } else {
+      this.isListenOnly = false;
       this.bridge.joinMicrophone(callbackToAudioBridge);
+      // TODO: remove line below after echo test implemented
       this.currentState = this.callStates.inConference;
     }
-    console.log("CURRENT STATE: " + this.currentState);
   }
 
   transferToConference() {
@@ -108,10 +116,19 @@ export default class AudioManager {
     // this.bridge.transferToConference();
   }
 
+  webRTCCallStarted(inEchoTest) {
+    if (this.isListenOnly) {
+      this.currentState = this.callStates.inListenOnly;
+    }
+    this.currentState = this.callStates.inConference;
+    console.log("CONNECTED STATE: " + this.currentState);
+  }
+
   webRTCCallFailed(inEchoTest, errorcode, cause) {
     if (this.currentState !== this.CallStates.reconecting) {
       this.currentState = this.CallStates.reconecting;
     }
+    console.log("FAILED STATE: " + this.currentState);
   }
 
   getMicId() {
@@ -140,3 +157,6 @@ export default class AudioManager {
   }
 
 }
+
+const AudioManagerSingleton = new AudioManager();
+export default AudioManagerSingleton;

@@ -6,7 +6,6 @@ import Auth from '/imports/ui/services/auth';
 
 import AudioManager from '/imports/api/audio/client/manager';
 
-let audioManager;
 const init = () => {
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
@@ -27,12 +26,12 @@ const init = () => {
     microphoneLockEnforced,
   };
 
-  audioManager = new AudioManager(userData);
+  AudioManager.init(userData);
 };
 
-const exitAudio = () => audioManager.exitAudio();
-const joinListenOnly = () => audioManager.joinAudio(true);
-const joinMicrophone = () => audioManager.joinAudio(false);
+const exitAudio = () => AudioManager.exitAudio();
+const joinListenOnly = () => AudioManager.joinAudio(true);
+const joinMicrophone = () => AudioManager.joinAudio(false);
 
 export default {
   init,
