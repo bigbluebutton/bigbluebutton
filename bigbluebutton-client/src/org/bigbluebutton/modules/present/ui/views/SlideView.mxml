@@ -145,14 +145,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
             
 			private function changeSlide():void {
-        var data:Page = thumbnailView.selectedItem as Page;
-        LOGGER.debug("Change page from thumbnail. Selected page [{0}]", [data.id]);
-        var selPage:Page = PresentationModel.getInstance().getPage(data.id);
-        if (selPage != null && !selPage.current) {
-          LOGGER.debug("Dispatching change page from thumbnail. Selected page [{0}]", [data.id]);
-          dispatchEvent(new GoToPageCommand(selPage.id));
-          thumbnailView.visible = false;            
-        }
+				var data:Page = thumbnailView.selectedItem as Page;
+				LOGGER.debug("Change page from thumbnail. Selected page [{0}]", [data.id]);
+				dispatchEvent(new GoToPageCommand(data.id));
+				thumbnailView.visible = false;
 			}
 			
 			private var prevMouseX:Number;

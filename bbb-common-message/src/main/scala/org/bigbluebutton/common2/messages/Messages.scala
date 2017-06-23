@@ -82,6 +82,7 @@ case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: Modify
 object GetWhiteboardAccessReqMsg { val NAME = "GetWhiteboardAccessReqMsg"}
 case class GetWhiteboardAccessReqMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessReqMsgBody) extends StandardMsg
 
+/** Poll Messages */
 object StartPollReqMsg { val NAME = "StartPollReqMsg"}
 case class StartPollReqMsg(header: BbbClientMsgHeader, body: StartPollReqMsgBody) extends BbbCoreMsg
 
@@ -102,6 +103,38 @@ case class GetCurrentPollReqMsg(header: BbbClientMsgHeader, body: GetCurrentPoll
 
 object RespondToPollReqMsg { val NAME = "RespondToPollReqMsg"}
 case class RespondToPollReqMsg(header: BbbClientMsgHeader, body: RespondToPollReqMsgBody) extends BbbCoreMsg
+
+/** Presentation Messages */
+object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg"}
+case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
+
+object GetPresentationInfoReqMsg { val NAME = "GetPresentationInfoReqMsg"}
+case class GetPresentationInfoReqMsg(header: BbbClientMsgHeader) extends StandardMsg
+
+object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg"}
+case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
+
+object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg"}
+case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
+
+object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg"}
+case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
+
+object PreuploadedPresentationsPubMsg { val NAME = "PreuploadedPresentationsPubMsg"}
+case class PreuploadedPresentationsPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsPubMsgBody) extends StandardMsg
+
+object PresentationConversionUpdatePubMsg { val NAME = "PresentationConversionUpdatePubMsg"}
+case class PresentationConversionUpdatePubMsg(header: BbbClientMsgHeader, body: PresentationConversionUpdatePubMsgBody) extends StandardMsg
+
+object PresentationPageCountErrorPubMsg { val NAME = "PresentationPageCountErrorPubMsg"}
+case class PresentationPageCountErrorPubMsg(header: BbbClientMsgHeader, body: PresentationPageCountErrorPubMsgBody) extends StandardMsg
+
+object PresentationPageGeneratedPubMsg { val NAME = "PresentationPageGeneratedPubMsg"}
+case class PresentationPageGeneratedPubMsg(header: BbbClientMsgHeader, body: PresentationPageGeneratedPubMsgBody) extends StandardMsg
+
+object PresentationConversionCompletedPubMsg { val NAME = "PresentationConversionCompletedPubMsg"}
+case class PresentationConversionCompletedPubMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedPubMsgBody) extends StandardMsg
+
 
 //
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
@@ -148,6 +181,7 @@ case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: Modify
 object GetWhiteboardAccessRespMsg { val NAME = "GetWhiteboardAccessRespMsg" }
 case class GetWhiteboardAccessRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessRespMsgBody) extends BbbCoreMsg
 
+/** Poll Messages */
 object PollStartedEvtMsg { val NAME = "PollStartedEvtMsg" }
 case class PollStartedEvtMsg(header: BbbClientMsgHeader, body: PollStartedEvtMsgBody) extends BbbCoreMsg
 
@@ -165,6 +199,38 @@ case class GetCurrentPollRespMsg(header: BbbClientMsgHeader, body: GetCurrentPol
 
 object UserRespondedToPollEvtMsg { val NAME = "UserRespondedToPollEvtMsg"}
 case class UserRespondedToPollEvtMsg(header: BbbClientMsgHeader, body: UserRespondedToPollEvtMsgBody) extends BbbCoreMsg
+
+/** Presentation Messages */
+object NewPresentationEvtMsg { val NAME = "NewPresentationEvtMsg"}
+case class NewPresentationEvtMsg(header: BbbClientMsgHeader, body: NewPresentationEvtMsgBody) extends BbbCoreMsg
+
+object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg"}
+case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
+
+object GetPresentationInfoRespMsg { val NAME = "GetPresentationInfoRespMsg"}
+case class GetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: GetPresentationInfoRespMsgBody) extends BbbCoreMsg
+
+object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg"}
+case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
+
+object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg"}
+case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg
+
+object RemovePresentationEvtMsg { val NAME = "RemovePresentationEvtMsg"}
+case class RemovePresentationEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationEvtMsgBody) extends BbbCoreMsg
+
+object PresentationConversionUpdateEvtMsg { val NAME = "PresentationConversionUpdateEvtMsg"}
+case class PresentationConversionUpdateEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionUpdateEvtMsgBody) extends BbbCoreMsg
+
+object PresentationPageCountErrorEvtMsg { val NAME = "PresentationPageCountErrorEvtMsg"}
+case class PresentationPageCountErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationPageCountErrorEvtMsgBody) extends BbbCoreMsg
+
+object PresentationPageGeneratedEvtMsg { val NAME = "PresentationPageGeneratedEvtMsg"}
+case class PresentationPageGeneratedEvtMsg(header: BbbClientMsgHeader, body: PresentationPageGeneratedEvtMsgBody) extends BbbCoreMsg
+
+object PresentationConversionCompletedEvtMsg { val NAME = "PresentationConversionCompletedEvtMsg"}
+case class PresentationConversionCompletedEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedEvtMsgBody) extends BbbCoreMsg
+
 
 /** System Messages **/
 case class AkkaAppsCheckAliveReqBody(timestamp: Long)

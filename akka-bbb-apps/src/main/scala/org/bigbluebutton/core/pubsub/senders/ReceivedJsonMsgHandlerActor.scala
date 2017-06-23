@@ -172,6 +172,27 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+      case SetCurrentPresentationPubMsg.NAME =>
+        routeGenericMsg[SetCurrentPresentationPubMsg](envelope, jsonNode)
+      case GetPresentationInfoReqMsg.NAME =>
+        routeGenericMsg[GetPresentationInfoReqMsg](envelope, jsonNode)
+      case SetCurrentPagePubMsg.NAME =>
+        routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
+      case ResizeAndMovePagePubMsg.NAME =>
+        routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
+      case RemovePresentationPubMsg.NAME =>
+        routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
+      case PreuploadedPresentationsPubMsg.NAME =>
+        routeGenericMsg[PreuploadedPresentationsPubMsg](envelope, jsonNode)
+      case PresentationConversionUpdatePubMsg.NAME =>
+        routeGenericMsg[PresentationConversionUpdatePubMsg](envelope, jsonNode)
+      case PresentationPageCountErrorPubMsg.NAME =>
+        routeGenericMsg[PresentationPageCountErrorPubMsg](envelope, jsonNode)
+      case PresentationPageGeneratedPubMsg.NAME =>
+        routeGenericMsg[PresentationPageGeneratedPubMsg](envelope, jsonNode)
+      case PresentationConversionCompletedPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionCompletedPubMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

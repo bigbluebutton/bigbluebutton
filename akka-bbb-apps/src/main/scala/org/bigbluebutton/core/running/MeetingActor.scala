@@ -236,6 +236,16 @@ class MeetingActor(val props: DefaultProps,
       case m: HidePollResultReqMsg => handleHidePollResultReqMsg(m)
       case m: GetCurrentPollReqMsg => handleGetCurrentPollReqMsg(m)
       case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
+      case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
+      case m: GetPresentationInfoReqMsg => presentationApp2x.handleGetPresentationInfoReqMsg(m)
+      case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
+      case m: ResizeAndMovePagePubMsg => presentationApp2x.handleResizeAndMovePagePubMsg(m)
+      case m: RemovePresentationPubMsg => presentationApp2x.handleRemovePresentationPubMsg(m)
+      case m: PreuploadedPresentationsPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
+      case m: PresentationConversionUpdatePubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
+      case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
+      case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
+      case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }
