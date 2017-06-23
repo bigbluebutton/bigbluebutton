@@ -183,20 +183,18 @@
 					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
 					
 					if (!data.inVoiceConf) {
-						if (data.listenOnly) {
-							muteImg.source = images.sound;
-							muteImg.visible = true;
-							muteImg.includeInLayout = true;
-							muteBtn.visible = false;
-							muteBtn.includeInLayout = false;             
-						} else {
 							muteImg.visible = false;
 							muteImg.includeInLayout = false;
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = true;
-						}
 					} else {
-						if (data.locked && ls.getDisableMic()) {
+            if (data.listenOnly) {
+              muteImg.source = images.sound;
+              muteImg.visible = true;
+              muteImg.includeInLayout = true;
+              muteBtn.visible = false;
+              muteBtn.includeInLayout = false;             
+            } else if (data.locked && ls.getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -255,13 +253,14 @@
 					}
 
 					if (!rolledOver) {
-						if (!data.inVoiceConf && data.listenOnly) {
-							muteImg.source = images.sound;
-						} else {
-							if (data.muted)
-								muteImg.source = images.audio_muted_20;
-							else
-								muteImg.source = images.audio_20;              
+						if (data.inVoiceConf) {
+              if (data.listenOnly) {
+                muteImg.source = images.sound;
+              } else if (data.muted) {
+                muteImg.source = images.audio_muted_20;
+              } else {
+                muteImg.source = images.audio_20;
+              }
 						}
 						
 						

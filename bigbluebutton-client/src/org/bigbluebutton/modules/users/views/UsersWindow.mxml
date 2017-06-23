@@ -46,6 +46,8 @@
     <mate:Listener type="{BreakoutRoomsListUpdatedEvent.BREAKOUT_ROOMS_LIST_UPDATED_EVENT}" method="handleBreakoutRoomsListUpdatedEvent" />
     <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="handleUserStatusChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleUserJoinedVoiceConfEvent" />
+    <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserLeftVoiceConfEvent" />
+    
     
 	</fx:Declarations>
 	<fx:Script>
@@ -158,6 +160,10 @@
       
       private function handleUserJoinedVoiceConfEvent(event: BBBEvent): void {
         handler.handleUserJoinedVoiceConfEvent(event.payload.userID);  
+      }
+      
+      private function handleUserLeftVoiceConfEvent(event: BBBEvent): void {
+        handler.handleUserLeftVoiceConfEvent(event.payload.userID);  
       }
       
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {

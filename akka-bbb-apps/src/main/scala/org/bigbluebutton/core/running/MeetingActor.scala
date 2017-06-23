@@ -10,7 +10,7 @@ import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.common2.messages.polls._
 import org.bigbluebutton.common2.messages.users._
-import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
+import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfEvtMsg, UserLeftVoiceConfEvtMsg }
 import org.bigbluebutton.common2.messages.whiteboard._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
@@ -53,6 +53,7 @@ class MeetingActor(val props: DefaultProps,
     with GetCurrentPollReqMsgHdlr
     with RespondToPollReqMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
+    with UserLeftVoiceConfEvtMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with StartPollReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
@@ -267,6 +268,7 @@ class MeetingActor(val props: DefaultProps,
       case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
       case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+      case m: UserLeftVoiceConfEvtMsg => handle(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }

@@ -126,6 +126,43 @@ package org.bigbluebutton.modules.users.views
       users.refresh();
     }
     
+    public function handleUserLeftVoiceConfEvent(userId: String):void {
+      var webUser: User2x = UsersUtil.getUser(userId);
+      if (webUser != null) {
+        removeVoiceFromWebUser(users, webUser);
+      } else {
+          //removeVoiceOnlyUser(users, vu);
+          removeUser(userId, users);
+      }
+      users.refresh();
+    }
+    
+    private function removeVoiceFromWebUser(users: ArrayCollection, user: User2x):void {
+      var buser: BBBUser2x = new BBBUser2x();
+      buser.me = (LiveMeeting.inst().me.id == user.intId);
+      buser.userId = user.intId;
+      buser.name = user.name;
+      buser.role = user.role;
+      buser.guest = user.guest;
+      buser.locked = user.locked;
+      buser.emojiStatus = user.emoji;
+      buser.presenter = user.presenter;
+      buser.streamName = getWebcamStreamsForUser(buser.userId);
+      
+      buser.inVoiceConf = false;
+      buser.muted = false;
+      buser.callingWith = "";
+      buser.talking = false;
+      buser.listenOnly = false;
+      buser.voiceOnlyUser = false;
+      
+      
+      // We want to remove the user if it's already in the collection and re-add it.
+      removeUser(user.intId, users);
+      
+      users.addItem(buser);
+    }
+    
     private function addVoiceOnlyUser(users: ArrayCollection, vu: VoiceUser2x): void {
       var buser: BBBUser2x = new BBBUser2x();
       buser.me = (LiveMeeting.inst().me.id == vu.intId);

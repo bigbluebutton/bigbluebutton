@@ -152,7 +152,10 @@ package org.bigbluebutton.main.model.users
         }
 
         public function onMessageFromServer2x(messageName:String, msg:String):void {
+          if (messageName != "SendCursorPositionEvtMsg") {
             LOGGER.debug("onMessageFromServer2x - " + msg);
+          }
+            
             var map:Object = JSON.parse(msg);  
             var header: Object = map.header as Object;
             var body: Object = map.body as Object;

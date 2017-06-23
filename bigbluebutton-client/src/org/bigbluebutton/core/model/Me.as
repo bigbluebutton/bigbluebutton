@@ -51,7 +51,6 @@ package org.bigbluebutton.core.model
     public var authTokenValid: Boolean = false;
     public var waitingForApproval: Boolean;
     
-
     
     private var _role:String =  "viewer";   
     public function get role():String {

@@ -25,7 +25,6 @@ package org.bigbluebutton.modules.users.services
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.as3commons.logging.util.objectify;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
@@ -92,6 +91,9 @@ package org.bigbluebutton.modules.users.services
           break;  
         case "UserJoinedVoiceConfToClientEvtMsg":
           handleUserJoinedVoiceConfToClientEvtMsg(message);
+          break;
+        case "UserLeftVoiceConfToClientEvtMsg":
+          handleUserLeftVoiceConfToClientEvtMsg(message);
           break;
         case "getUsersReply":
           handleGetUsersReply(message);
@@ -206,9 +208,7 @@ package org.bigbluebutton.modules.users.services
     private function handleUserJoinedVoiceConfToClientEvtMsg(msg: Object): void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
-      var intId: String = body.intId;
-      
-        
+ 
       var vu: VoiceUser2x = new VoiceUser2x();
       vu.intId = body.intId as String;
       vu.voiceUserId = body.voiceUserId as String;
@@ -221,10 +221,33 @@ package org.bigbluebutton.modules.users.services
       
       LiveMeeting.inst().voiceUsers.add(vu);
       
+      if (UsersUtil.isMe(vu.intId)) {
+        LiveMeeting.inst().me.muted = vu.muted;
+        LiveMeeting.inst().me.inVoiceConf = true;
+      }
+      
+      
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
       bbbEvent.payload.userID = vu.intId;            
       globalDispatcher.dispatchEvent(bbbEvent);
         
+    }
+    
+    private function handleUserLeftVoiceConfToClientEvtMsg(msg: Object):void {
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var intId: String = body.intId as String;
+      
+      LiveMeeting.inst().voiceUsers.remove(intId);
+      
+      if (UsersUtil.isMe(intId)) {
+        LiveMeeting.inst().me.muted = false;
+        LiveMeeting.inst().me.inVoiceConf = false;
+      }
+      
+      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
+      bbbEvent.payload.userID = intId;
+      globalDispatcher.dispatchEvent(bbbEvent);
     }
     
     private function handleGetUsersMeetingRespMsg(msg: Object):void {
