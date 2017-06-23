@@ -29,7 +29,11 @@ package org.bigbluebutton.modules.users.views
     }
     
     public function userStatusChanged(userId: String): void {
-      addUser(users, userId);
+      var user: User2x = UsersUtil.getUser2x(userId);
+      if (user != null) {
+        addUser(users, user);
+      }
+
     }
     
     private function removeUser(userId:String, users: ArrayCollection):void {
@@ -53,7 +57,8 @@ package org.bigbluebutton.modules.users.views
       
       for (var i:int = 0; i < userIds.length; i++) {
         var userId: String = userIds[i] as String;
-        addUser(users, userId);
+        var user: User2x = UsersUtil.getUser2x(userId);
+        addUser(users, user);
       }
       
       users.refresh();
@@ -70,10 +75,7 @@ package org.bigbluebutton.modules.users.views
       return streams;
     }
     
-    private function addUser(users: ArrayCollection, userId: String):void {
-      var user: User2x = UsersUtil.getUser2x(userId);
-      var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
-      
+    private function addUser(users: ArrayCollection, user: User2x):void {
       var buser: BBBUser2x = new BBBUser2x();
       buser.me = (LiveMeeting.inst().me.id == user.intId);
       buser.userId = user.intId;
@@ -86,26 +88,67 @@ package org.bigbluebutton.modules.users.views
       buser.streamName = getWebcamStreamsForUser(buser.userId);
       
       buser.inVoiceConf = false;
+      
+      var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(user.intId);
       if (voiceUser != null) {
         buser.inVoiceConf = true;
         buser.muted = voiceUser.muted;
         buser.callingWith = voiceUser.callingWith;
         buser.talking = voiceUser.talking;
         buser.listenOnly = voiceUser.listenOnly;
-        buser.voiceOnlyUser = false;
+        buser.voiceOnlyUser = voiceUser.voiceOnlyUser;
       }
       
       // We want to remove the user if it's already in the collection and re-add it.
-      removeUser(userId, users);
+      removeUser(user.intId, users);
       
       users.addItem(buser);
     }
     
-    public function handleUserJoinedEvent(event: UserJoinedEvent, users: ArrayCollection):void {
-      addUser(users, event.userID);
+    public function handleUserJoinedEvent(event: UserJoinedEvent):void {
+      var user: User2x = UsersUtil.getUser2x(event.userID);
+      if (user != null) {
+        addUser(users, user);
+        users.refresh();
+      }
+    }
+    
+    public function handleUserJoinedVoiceConfEvent(userId: String):void {
+      var webUser: User2x = UsersUtil.getUser(userId);
+      if (webUser != null) {
+        addUser(users, webUser);
+      } else {
+        var vu: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
+        if (vu != null) {
+          addVoiceOnlyUser(users, vu);
+        }
+      }
       users.refresh();
     }
     
+    private function addVoiceOnlyUser(users: ArrayCollection, vu: VoiceUser2x): void {
+      var buser: BBBUser2x = new BBBUser2x();
+      buser.me = (LiveMeeting.inst().me.id == vu.intId);
+      buser.userId = vu.intId;
+      buser.name = vu.callerName;
+      buser.role = Role.VOICE_ONLY;
+      buser.guest = false;
+      buser.locked = false;
+      buser.emojiStatus = "none";
+      buser.presenter = false;
+      
+      buser.inVoiceConf = true;
+      buser.muted = vu.muted;
+      buser.callingWith = vu.callingWith;
+      buser.talking = vu.talking;
+      buser.listenOnly = vu.listenOnly;
+      buser.voiceOnlyUser = vu.voiceOnlyUser;
+      
+      // We want to remove the user if it's already in the collection and re-add it.
+      removeUser(buser.userId, users);
+      
+      users.addItem(buser);
+    }
     
     private function removeVoiceUser(userId:String, voiceUsers: ArrayCollection):void {
       for (var i:int = 0; i < voiceUsers.length; i++) {
@@ -123,24 +166,7 @@ package org.bigbluebutton.modules.users.views
       
       for (var i:int = 0; i < voiceOnlyUsers.length; i++) {
         var user:VoiceUser2x = voiceOnlyUsers[i] as VoiceUser2x;
-        
-        var buser: BBBUser2x = new BBBUser2x();
-        buser.me = (LiveMeeting.inst().me.id == user.intId);
-        buser.userId = user.intId;
-        buser.name = user.callerName;
-        buser.role = Role.VOICE_ONLY;
-        buser.guest = false;
-        buser.locked = false;
-        buser.emojiStatus = "none";
-        buser.presenter = false;
-        
-        buser.inVoiceConf = true;
-        buser.voiceOnlyUser = true;
-        
-        // We want to remove the user if it's already in the collection and re-add it.
-        removeUser(buser.userId, users);
-        
-        users.addItem(buser);
+        addVoiceOnlyUser(users, user);
       }
       
       users.refresh();

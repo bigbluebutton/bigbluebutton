@@ -45,7 +45,8 @@
     <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />    
     <mate:Listener type="{BreakoutRoomsListUpdatedEvent.BREAKOUT_ROOMS_LIST_UPDATED_EVENT}" method="handleBreakoutRoomsListUpdatedEvent" />
     <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="handleUserStatusChangedEvent" />
-
+    <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleUserJoinedVoiceConfEvent" />
+    
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
@@ -84,6 +85,7 @@
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.core.model.users.User2x;
       import org.bigbluebutton.core.vo.LockSettingsVO;
+      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
@@ -154,8 +156,12 @@
 			
       private var handler: UsersWindowEventHandler = new UsersWindowEventHandler();
       
+      private function handleUserJoinedVoiceConfEvent(event: BBBEvent): void {
+        handler.handleUserJoinedVoiceConfEvent(event.payload.userID);  
+      }
+      
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {
-        handler.handleUserJoinedEvent(event, users);
+        handler.handleUserJoinedEvent(event);
       }
       
       private function handleUserStatusChangedEvent(event: UserStatusChangedEvent): void {

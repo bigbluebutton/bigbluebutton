@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.users.services
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.objectify;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
@@ -89,6 +90,9 @@ package org.bigbluebutton.modules.users.services
         case "UserBroadcastCamStoppedEvtMsg": 
           handleUserBroadcastCamStoppedEvtMsg(message);
           break;  
+        case "UserJoinedVoiceConfToClientEvtMsg":
+          handleUserJoinedVoiceConfToClientEvtMsg(message);
+          break;
         case "getUsersReply":
           handleGetUsersReply(message);
           break;
@@ -199,6 +203,30 @@ package org.bigbluebutton.modules.users.services
       }
     }
 
+    private function handleUserJoinedVoiceConfToClientEvtMsg(msg: Object): void {
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var intId: String = body.intId;
+      
+        
+      var vu: VoiceUser2x = new VoiceUser2x();
+      vu.intId = body.intId as String;
+      vu.voiceUserId = body.voiceUserId as String;
+      vu.callerName = body.callerName as String;
+      vu.callerNum = body.callerNum as String;
+      vu.muted = body.muted as Boolean;
+      vu.talking = body.talking as Boolean;
+      vu.callingWith = body.callingWith as String;
+      vu.listenOnly = body.listenOnly as Boolean;
+      
+      LiveMeeting.inst().voiceUsers.add(vu);
+      
+      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
+      bbbEvent.payload.userID = vu.intId;            
+      globalDispatcher.dispatchEvent(bbbEvent);
+        
+    }
+    
     private function handleGetUsersMeetingRespMsg(msg: Object):void {
       var body: Object = msg.body as Object
       var users: Array = body.users as Array;
@@ -645,10 +673,12 @@ package org.bigbluebutton.modules.users.services
     public function handleAssignPresenterCallback(msg:Object):void {     
       var header:Object = msg.header as Object;
       var body: Object = msg.body as Object;
-        
-      var newPresenterID:String = body.presenterId;
-      var newPresenterName:String = body.presenterName;
-      var assignedBy:String = body.assignedBy;
+      
+      
+      
+      var newPresenterID:String = body.presenterId as String;
+      var newPresenterName:String = body.presenterName as String;
+      var assignedBy:String = body.assignedBy as String;
       
       if (UsersUtil.isMe(newPresenterID)) {
         sendSwitchedPresenterEvent(true, newPresenterID);
