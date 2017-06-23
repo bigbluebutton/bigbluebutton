@@ -44,6 +44,8 @@
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
     <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />    
     <mate:Listener type="{BreakoutRoomsListUpdatedEvent.BREAKOUT_ROOMS_LIST_UPDATED_EVENT}" method="handleBreakoutRoomsListUpdatedEvent" />
+    <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="handleUserStatusChangedEvent" />
+
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
@@ -77,6 +79,7 @@
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
       import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.UserStatusChangedEvent;
       import org.bigbluebutton.core.events.VoiceConfEvent;
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.core.model.users.User2x;
@@ -153,6 +156,10 @@
       
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {
         handler.handleUserJoinedEvent(event, users);
+      }
+      
+      private function handleUserStatusChangedEvent(event: UserStatusChangedEvent): void {
+        handler.userStatusChanged(event.userId);
       }
       
 			private function onChangeMyRole(e:ChangeMyRole):void {

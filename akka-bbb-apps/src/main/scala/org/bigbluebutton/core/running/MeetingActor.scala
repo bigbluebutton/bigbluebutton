@@ -117,8 +117,8 @@ class MeetingActor(val props: DefaultProps,
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
-  object FakeTestData extends FakeTestData
-  FakeTestData.createFakeUsers(liveMeeting)
+  //object FakeTestData extends FakeTestData
+  //FakeTestData.createFakeUsers(liveMeeting)
   /*******************************************************************/
 
   def receive = {

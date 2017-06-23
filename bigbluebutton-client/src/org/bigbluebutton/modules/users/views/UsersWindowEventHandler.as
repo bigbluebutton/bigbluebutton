@@ -28,6 +28,10 @@ package org.bigbluebutton.modules.users.views
       users.refresh();
     }
     
+    public function userStatusChanged(userId: String): void {
+      addUser(users, userId);
+    }
+    
     private function removeUser(userId:String, users: ArrayCollection):void {
       for (var i:int = 0; i < users.length; i++) {
         var user:BBBUser2x = users.getItemAt(i) as BBBUser2x;

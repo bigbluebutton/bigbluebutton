@@ -15,7 +15,7 @@ trait ValidateAuthTokenReqMsgHdlr {
   val outGW: OutMessageGateway
 
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg): Unit = {
-    log.debug("****** RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
+    log.debug("RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
 
     RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
       case Some(u) =>
@@ -31,7 +31,7 @@ trait ValidateAuthTokenReqMsgHdlr {
 
           ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
             userId = msg.body.userId, authToken = msg.body.authToken, valid = true, waitForApproval = false)
-
+          log.debug("validate token token={}, valid=true, waitForApproval=false", msg.body.authToken)
           // Temp only so we can implement user handling in client. (ralam june 21, 2017)
           userJoinMeeting(msg.body.authToken)
           sendAllUsersInMeeting(msg.body.userId)

@@ -16,6 +16,8 @@ trait UserJoinMeetingReqMsgHdlr {
   }
 
   def userJoinMeeting(authToken: String): Unit = {
+    log.debug("User joining with token {}", authToken)
+
     for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
@@ -37,6 +39,13 @@ trait UserJoinMeetingReqMsgHdlr {
       Sender.send(outGW, event)
 
       MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
+
+      if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+        automaticallyAssignPresenter()
+      } else {
+        log.debug("Not sending presenter.")
+      }
+
     }
   }
 }

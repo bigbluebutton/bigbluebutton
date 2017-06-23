@@ -184,6 +184,8 @@ package org.bigbluebutton.core
     
     public static function setMeAsPresenter(value: Boolean): void {
       LiveMeeting.inst().me.isPresenter = value;
+      var user: User2x = LiveMeeting.inst().users.getUser(LiveMeeting.inst().me.id)
+      user.presenter = value;
       applyLockSettings();
     }
 

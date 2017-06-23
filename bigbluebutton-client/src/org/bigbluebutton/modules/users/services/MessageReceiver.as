@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
-  import org.bigbluebutton.core.events.UserLockStatusChangedEvent;
+  import org.bigbluebutton.core.events.UserStatusChangedEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.MediaStream;
   import org.bigbluebutton.core.model.users.User2x;
@@ -80,6 +80,9 @@ package org.bigbluebutton.modules.users.services
         case "UserJoinedMeetingEvtMsg":
           handleUserJoinedMeetingEvtMsg(message);
           break;
+        case "PresenterAssignedEvtMsg":
+          handleAssignPresenterCallback(message);
+          break;
         case "UserBroadcastCamStartedEvtMsg": 
           handleUserBroadcastCamStartedEvtMsg(message);
           break;
@@ -89,9 +92,7 @@ package org.bigbluebutton.modules.users.services
         case "getUsersReply":
           handleGetUsersReply(message);
           break;
-        case "assignPresenterCallback":
-          handleAssignPresenterCallback(message);
-          break;
+
         case "meetingEnded":
           handleLogout(message);
           break;
@@ -340,7 +341,7 @@ package org.bigbluebutton.modules.users.services
         LiveMeeting.inst().me.locked = map.locked;
       }
       
-      dispatcher.dispatchEvent(new UserLockStatusChangedEvent(user.intId, map.locked));
+      dispatcher.dispatchEvent(new UserStatusChangedEvent(user.intId));
     }
 			
 		return;
@@ -642,11 +643,12 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     
-      var map:Object = JSON.parse(msg.msg);
-      
-      var newPresenterID:String = map.newPresenterID;
-      var newPresenterName:String = map.newPresenterName;
-      var assignedBy:String = map.assignedBy;
+      var header:Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+        
+      var newPresenterID:String = body.presenterId;
+      var newPresenterName:String = body.presenterName;
+      var assignedBy:String = body.assignedBy;
       
       if (UsersUtil.isMe(newPresenterID)) {
         sendSwitchedPresenterEvent(true, newPresenterID);
@@ -671,6 +673,9 @@ package org.bigbluebutton.modules.users.services
         
         dispatcher.dispatchEvent(viewerEvent);
       }
+      
+      dispatcher.dispatchEvent(new UserStatusChangedEvent(newPresenterID));
+      
     }
     
     private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {

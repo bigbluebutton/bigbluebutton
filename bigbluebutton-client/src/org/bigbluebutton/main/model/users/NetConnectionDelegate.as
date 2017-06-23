@@ -138,6 +138,7 @@ package org.bigbluebutton.main.model.users
                   var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
                   dispatcher.dispatchEvent(waitCommand);
                 } else {
+                  LiveMeeting.inst().me.waitingForApproval = false;
                   sendConnectionSuccessEvent(userId);
                 }
             } else {
