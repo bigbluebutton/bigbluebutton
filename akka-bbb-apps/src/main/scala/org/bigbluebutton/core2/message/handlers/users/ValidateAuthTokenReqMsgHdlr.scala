@@ -94,8 +94,4 @@ trait ValidateAuthTokenReqMsgHdlr {
     Sender.send(outGW, event)
   }
 
-  def sendOldValidateToken(meetingId: String, userId: String, authToken: String): Unit = {
-    handleValidateAuthToken(ValidateAuthToken(meetingID = meetingId, userId = userId, token = authToken,
-      correlationId = authToken, sessionId = authToken))
-  }
 }

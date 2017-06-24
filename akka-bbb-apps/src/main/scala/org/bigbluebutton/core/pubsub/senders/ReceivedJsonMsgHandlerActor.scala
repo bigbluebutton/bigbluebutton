@@ -49,7 +49,9 @@ class ReceivedJsonMsgHandlerActor(
   }
 
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    log.debug("Route envelope name " + envelope.name)
+    if (SendCursorPositionPubMsg.NAME != envelope.name)
+      log.debug("Route envelope name " + envelope.name)
+
     envelope.name match {
       case CreateMeetingReqMsg.NAME =>
         // for {

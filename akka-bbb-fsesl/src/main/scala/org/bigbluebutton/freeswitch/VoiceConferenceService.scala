@@ -31,8 +31,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
 
-    val oldmsg = new VoiceConfRecordingStartedMessage(voiceConfId, recordStream, recording, timestamp)
-    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userJoinedVoiceConf(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
@@ -51,8 +49,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
 
-    val oldmsg = new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum, muted, talking, avatarURL)
-    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userLeftVoiceConf(voiceConfId: String, voiceUserId: String) {
@@ -68,8 +64,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
 
-    val oldmsg = new UserLeftVoiceConfMessage(voiceConfId, voiceUserId)
-    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userLockedInVoiceConf(voiceConfId: String, voiceUserId: String, locked: java.lang.Boolean) {
@@ -89,8 +83,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
 
-    val oldmsg = new UserMutedInVoiceConfMessage(voiceConfId, voiceUserId, muted)
-    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def userTalkingInVoiceConf(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
@@ -106,8 +98,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     val json = JsonUtil.toJson(msgEvent)
     sender.publish(fromVoiceConfRedisChannel, json)
 
-    val oldmsg = new UserTalkingInVoiceConfMessage(voiceConfId, voiceUserId, talking)
-    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, oldmsg.toJson())
   }
 
   def deskShareStarted(voiceConfId: String, callerIdNum: String, callerIdName: String) {

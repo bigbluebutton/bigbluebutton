@@ -53,41 +53,6 @@ trait UsersApp {
     outGW.send(event)
   }
 
-  def handleValidateAuthToken(msg: ValidateAuthToken) {
-    /**
-     * log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-     * RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers) match {
-     * case Some(u) =>
-     *
-     * //send the reply
-     * outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, true, msg.correlationId))
-     *
-     * log.info("ValidateToken success. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
-     *
-     * //join the user
-     * handleUserJoin(new UserJoining(props.meetingProp.intId, msg.userId, msg.token))
-     * case None =>
-     * log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
-     * outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, false, msg.correlationId))
-     * }
-     */
-  }
-
-  def handleRegisterUser(msg: RegisterUser) {
-    if (MeetingStatus2x.hasMeetingEnded(liveMeeting.status)) {
-      // Check first if the meeting has ended and the user refreshed the client to re-connect.
-      log.info("Register user failed. Mmeeting has ended. meetingId=" + props.meetingProp.intId + " userId=" + msg.userID)
-      sendMeetingHasEnded(msg.userID)
-    } else {
-      val regUser = RegisteredUsers.create(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken,
-        msg.avatarURL, msg.guest, msg.authed, msg.guest, liveMeeting.registeredUsers)
-
-      log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.userID + " user=" + regUser)
-      outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
-    }
-
-  }
-
   def usersWhoAreNotPresenter(): Array[UserVO] = {
     Users.usersWhoAreNotPresenter(liveMeeting.users).toArray
   }
@@ -158,26 +123,6 @@ trait UsersApp {
 
     stopRecordingVoiceConference()
 
-  }
-
-  def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    for {
-      user <- Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users)
-      nu = Users.setUserMuted(user, liveMeeting.users, msg.muted)
-    } yield {
-      log.info("User muted in voice conf. meetingId=" + props.meetingProp.intId + " userId=" + nu.id + " user=" + nu)
-
-      outGW.send(new UserVoiceMuted(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, nu))
-    }
-  }
-
-  def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
-    for {
-      user <- Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users)
-      nv = Users.setUserTalking(user, liveMeeting.users, msg.talking)
-    } yield {
-      outGW.send(new UserVoiceTalking(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, nv))
-    }
   }
 
   def handleAssignPresenter(msg: AssignPresenter): Unit = {

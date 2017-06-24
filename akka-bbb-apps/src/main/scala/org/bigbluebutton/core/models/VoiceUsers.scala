@@ -4,7 +4,7 @@ import com.softwaremill.quicklens._
 
 object VoiceUsers {
   def findWithVoiceUserId(users: VoiceUsers, voiceUserId: String): Option[VoiceUserState] = {
-    users.toVector find (u => u.intId == voiceUserId)
+    users.toVector find (u => u.voiceUserId == voiceUserId)
   }
 
   def findWIthIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {

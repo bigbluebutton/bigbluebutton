@@ -105,10 +105,28 @@ package org.bigbluebutton.modules.users.views
       users.addItem(buser);
     }
     
+    private function addVoiceUserToWebUser(user: BBBUser2x): void {
+      var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(user.userId);
+      if (voiceUser != null) {
+        user.inVoiceConf = true;
+        user.muted = voiceUser.muted;
+        user.callingWith = voiceUser.callingWith;
+        user.talking = voiceUser.talking;
+        user.listenOnly = voiceUser.listenOnly;
+        user.voiceOnlyUser = voiceUser.voiceOnlyUser;
+        
+        // We want to remove the user if it's already in the collection and re-add it.
+        removeUser(user.userId, users);
+        
+        users.addItem(user);
+      }
+    }
+    
     public function handleUserJoinedEvent(event: UserJoinedEvent):void {
-      var user: User2x = UsersUtil.getUser2x(event.userID);
+      var user: BBBUser2x = findUser(event.userID);
       if (user != null) {
-        addUser(users, user);
+        addVoiceUserToWebUser(user);
+        trace("!!!!!!!!!!!!!!!********* " + user.name + " " + user.presenter + " ********!!!!!!!!");
         users.refresh();
       }
     }
@@ -127,9 +145,9 @@ package org.bigbluebutton.modules.users.views
     }
     
     public function handleUserLeftVoiceConfEvent(userId: String):void {
-      var webUser: User2x = UsersUtil.getUser(userId);
-      if (webUser != null) {
-        removeVoiceFromWebUser(users, webUser);
+      var user: BBBUser2x = findUser(userId);
+      if (user != null) {
+        removeVoiceFromWebUser(users, user);
       } else {
           //removeVoiceOnlyUser(users, vu);
           removeUser(userId, users);
@@ -137,30 +155,19 @@ package org.bigbluebutton.modules.users.views
       users.refresh();
     }
     
-    private function removeVoiceFromWebUser(users: ArrayCollection, user: User2x):void {
-      var buser: BBBUser2x = new BBBUser2x();
-      buser.me = (LiveMeeting.inst().me.id == user.intId);
-      buser.userId = user.intId;
-      buser.name = user.name;
-      buser.role = user.role;
-      buser.guest = user.guest;
-      buser.locked = user.locked;
-      buser.emojiStatus = user.emoji;
-      buser.presenter = user.presenter;
-      buser.streamName = getWebcamStreamsForUser(buser.userId);
-      
-      buser.inVoiceConf = false;
-      buser.muted = false;
-      buser.callingWith = "";
-      buser.talking = false;
-      buser.listenOnly = false;
-      buser.voiceOnlyUser = false;
+    private function removeVoiceFromWebUser(users: ArrayCollection, user: BBBUser2x):void {      
+      user.inVoiceConf = false;
+      user.muted = false;
+      user.callingWith = "";
+      user.talking = false;
+      user.listenOnly = false;
+      user.voiceOnlyUser = false;
       
       
       // We want to remove the user if it's already in the collection and re-add it.
-      removeUser(user.intId, users);
+      removeUser(user.userId, users);
       
-      users.addItem(buser);
+      users.addItem(user);
     }
     
     private function addVoiceOnlyUser(users: ArrayCollection, vu: VoiceUser2x): void {

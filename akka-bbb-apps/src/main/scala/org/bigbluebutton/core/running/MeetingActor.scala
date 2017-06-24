@@ -136,12 +136,7 @@ class MeetingActor(val props: DefaultProps,
     // old messages
     case msg: ActivityResponse => handleActivityResponse(msg)
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
-    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     //case msg: RegisterUser => handleRegisterUser(msg)
-    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
     case msg: UserJoining => handleUserJoin(msg)
     case msg: UserLeaving => handleUserLeft(msg)

@@ -101,10 +101,6 @@ package org.bigbluebutton.modules.users.services
         case "UserMutedEvtMsg":
           handleUserMutedEvtMsg(message);
           break;
-        case "getUsersReply":
-          handleGetUsersReply(message);
-          break;
-
         case "meetingEnded":
           handleLogout(message);
           break;
@@ -126,30 +122,6 @@ package org.bigbluebutton.modules.users.services
         case "meetingIsActive":
           handleMeetingIsActive(message);
           break;
-        case "participantJoined":
-          handleParticipantJoined(message);
-          break;
-        case "participantLeft":
-          handleParticipantLeft(message);
-          break;
-        case "participantStatusChange":
-          handleParticipantStatusChange(message);
-          break;
-        case "participantRoleChange":
-          handleParticipantRoleChange(message);
-          break;
-        case "userJoinedVoice":
-          handleUserJoinedVoice(message);
-          break;
-        case "userLeftVoice":
-          handleUserLeftVoice(message);
-          break;
-        case "voiceUserMuted":
-          handleVoiceUserMuted(message);
-          break;
-        case "voiceUserTalking":
-          handleVoiceUserTalking(message);
-          break;
         case "userEmojiStatus":
           handleEmojiStatusHand(message);
           break;
@@ -158,9 +130,6 @@ package org.bigbluebutton.modules.users.services
           break;
         case "recordingStatusChanged":
           handleRecordingStatusChanged(message);
-          break;
-        case "joinMeetingReply":
-          handleJoinedMeeting(message);
           break;
         case "user_listening_only":
           handleUserListeningOnly(message);
@@ -231,7 +200,6 @@ package org.bigbluebutton.modules.users.services
         LiveMeeting.inst().me.muted = vu.muted;
         LiveMeeting.inst().me.inVoiceConf = true;
       }
-      
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
       bbbEvent.payload.userID = vu.intId;            
@@ -463,34 +431,6 @@ package org.bigbluebutton.modules.users.services
       dispatcher.dispatchEvent(e);
     }
     
-    private function handleJoinedMeeting(msg:Object):void {
-		LOGGER.debug("*** handleJoinedMeeting {0} **** \n", [msg.msg]); 
-      var map:Object = JSON.parse(msg.msg);
-      var userid: String = map.user.userId;
-      
-      var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
-      e.userid = userid;
-      dispatcher.dispatchEvent(e);      
-
-      // If the user was the presenter he's reconnecting and must become viewer
-      if (UsersUtil.amIPresenter()) {
-        sendSwitchedPresenterEvent(false, UsersUtil.getPresenterUserID());
-        UsersUtil.setMeAsPresenter(false);
-        var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-        dispatcher.dispatchEvent(viewerEvent);
-      }
-
-      var myRole:String = UsersUtil.getMyRole();
-      var role:String = map.user.role;
-      // If a (pro/de)moted user refresh his browser he must reassing his role for permissions
-      if (role != myRole) {
-        UsersUtil.newUserRoleForUser(userid, role);
-        UsersUtil.setMyRole(role);
-        
-        var changeMyRole:ChangeMyRole = new ChangeMyRole(role);
-        dispatcher.dispatchEvent(changeMyRole);
-      }
-    }
     
     private function handleMeetingMuted(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);
@@ -544,22 +484,6 @@ package org.bigbluebutton.modules.users.services
       LiveMeeting.inst().voiceUsers.setListenOnlyForUser(userId, listenOnly);
     }
     
-    private function handleVoiceUserMuted(msg:Object):void {    
-      var map:Object = JSON.parse(msg.msg);
-      var userId:String = map.userId;
-      var muted:Boolean = map.muted;
-
-      LiveMeeting.inst().voiceUsers.setMutedForUser(userId, muted);
-      
-      if (UsersUtil.isMe(userId)) {
-        UsersUtil.setMeMuted(muted);
-      }
-      
-      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
-      bbbEvent.payload.muted = muted;
-      bbbEvent.payload.userID = userId;
-      globalDispatcher.dispatchEvent(bbbEvent);    
-    }
 
     private function userTalk(userId:String, talking:Boolean):void { 
       LiveMeeting.inst().voiceUsers.setMutedForUser(userId, talking);
@@ -571,110 +495,7 @@ package org.bigbluebutton.modules.users.services
       
     }
     
-    private function handleVoiceUserTalking(msg:Object):void {   
-      var map:Object = JSON.parse(msg.msg); 
-      var userId:String = map.userId;
-      var talking:Boolean = map.talking;
-      userTalk(userId, talking);
-    }
-    
-    private function handleUserLeftVoice(msg:Object):void {  
-      LOGGER.debug("*** handleUserLeftVoice " + msg.msg + " **** \n"); 
-      var map:Object = JSON.parse(msg.msg);
-      
-      var webUser:Object = map.user as Object;
-      var voiceUser:Object = webUser.voiceUser as Object;
-      
-      LiveMeeting.inst().voiceUsers.remove(webUser.userId);
-      
-      if (UsersUtil.isMe(webUser.userId)) {
-        LiveMeeting.inst().me.muted = false;
-        LiveMeeting.inst().me.inVoiceConf = false;
-      }
-      
-      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
-      bbbEvent.payload.userID = webUser.userId;
-      globalDispatcher.dispatchEvent(bbbEvent);
-      
-    }
-    
-    private function handleUserJoinedVoice(msg:Object):void {
-		LOGGER.debug("*** handleUserJoinedVoice " + msg.msg + " **** \n"); 
-      var map:Object = JSON.parse(msg.msg);
-      var webUser:Object = map.user as Object;
-      userJoinedVoice(webUser);
 
-      return;
-    }
-    
-    private function userJoinedVoice(webUser: Object):void {      
-      var voiceUser:Object = webUser.voiceUser as Object;
-      
-      var externUserID:String = webUser.externUserID;
-      var internUserID:String = webUser.userId;
-      
-      if (UsersUtil.isMe(internUserID)) {
-        LiveMeeting.inst().me.muted = voiceUser.muted;
-        LiveMeeting.inst().me.inVoiceConf = true;
-      }
-/*      
-      if (UsersUtil.hasUser(internUserID)) {
-        var bu:User2x = UsersUtil.getUser(internUserID);
-        bu.talking = voiceUser.talking;
-        bu.voiceMuted = voiceUser.muted;
-        bu.voiceJoined = true;
-        
-        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
-        bbbEvent.payload.userID = bu.userID;            
-        globalDispatcher.dispatchEvent(bbbEvent);
-        
-        if (UsersUtil.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
-          var ev:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-          ev.userid = voiceUser.userId;
-          ev.mute = true;
-          dispatcher.dispatchEvent(ev);
-        }
-      }    
-      */
-    }
-    
-    public function handleParticipantLeft(msg:Object):void {     
-      var map:Object = JSON.parse(msg.msg);
-      var webUser:Object = map.user as Object;
-      
-      var webUserId:String = webUser.userId;
-      
-
-      if(webUser.waitingForAcceptance) {
-        var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
-        removeGuest.payload.userId = webUser.userId;
-        dispatcher.dispatchEvent(removeGuest);
-      }
-/*
-      var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
-      
-	  if (user != null) {
-		  
-		  // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
-		  // around when the user already left.
-		  user.isLeavingFlag = true;
-		  
-		  var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
-		  joinEvent.userID = user.userID;
-		  dispatcher.dispatchEvent(joinEvent);	
-		  
-		  UserManager.getInstance().getConference().removeUser(webUserId);	    
-	  }
-      */
-    }
-    
-    public function handleParticipantJoined(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
-      
-      var user:Object = map.user as Object;
-      
-      participantJoined(user);
-    }
     
     /**
      * Called by the server to tell the client that the meeting has ended.
@@ -691,44 +512,6 @@ package org.bigbluebutton.modules.users.services
       // Avoid trying to reconnect
       var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
       dispatcher.dispatchEvent(endMeetingEvent);
-    }
-
-    private function handleGetUsersReply(msg:Object):void {    
-      var map:Object = JSON.parse(msg.msg);
-      var users:Object = map.users as Array;
-
-      
-      if (map.count > 0) {
-        for(var i:int = 0; i < users.length; i++) {
-          var user:Object = users[i] as Object;
-          participantJoined(user);
-          processUserVoice(user);
-        }
-        
-        UsersUtil.applyLockSettings();
-      }	 
-    }
-    
-    private function processUserVoice(webUser: Object):void {      
-      var voiceUser:Object = webUser.voiceUser as Object;
-/*
-      var externUserID:String = webUser.externUserID;
-      var internUserID:String = webUser.userId;
-      
-      if (UsersUtil.getMyUserID() == internUserID) {
-        _conference.muteMyVoice(voiceUser.muted);
-        _conference.setMyVoiceJoined(voiceUser.joined);
-      }
-      
-      if (UsersUtil.hasUser(internUserID)) {
-        var bu:VoiceUser2x = LiveMeeting.inst().voiceUsers(internUserID);
-        if (bu != null) {
-          bu.muted = voiceUser.muted;
-          bu.talking = voiceUser.talking;
-        }
-
-      }   
-      */
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     
@@ -813,98 +596,9 @@ package org.bigbluebutton.modules.users.services
 		dispatcher.dispatchEvent(new StreamStoppedEvent(userId, streamId));
 	}
     
-    public function participantStatusChange(userID:String, status:String, value:Object):void {		
-//      UserManager.getInstance().getConference().newUserStatus(userID, status, value);
-      
-      if (status == "presenter"){
-        var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
-        e.userID = userID;
-        
-        dispatcher.dispatchEvent(e);
-      }		
-    }
+
     
-    public function participantJoined(joinedUser:Object):void {    
-/**      
-      var user:BBBUser = new BBBUser();
-      user.userID = joinedUser.userId;
-      user.name = joinedUser.name;
-      user.role = joinedUser.role;
-      user.guest = joinedUser.guest;
-      user.waitingForAcceptance = joinedUser.waitingForAcceptance;
-      user.externUserID = joinedUser.externUserID;
-      user.isLeavingFlag = false;
-      user.listenOnly = joinedUser.listenOnly;
-      user.userLocked = joinedUser.locked;
-      user.avatarURL = joinedUser.avatarURL;
-      user.me = (user.userID == UsersUtil.getMyUserID());
 
-      UserManager.getInstance().getConference().addUser(user);
-      
-      if (joinedUser.hasStream) {
-        var streams:Array = joinedUser.webcamStream;
-        for each(var stream:String in streams) {
-          UserManager.getInstance().getConference().sharedWebcam(user.userID, stream);
-        }
-      }
-
-      if (joinedUser.voiceUser.joined) {
-        userJoinedVoice(joinedUser);
-      }
-
-      UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);
-      UserManager.getInstance().getConference().emojiStatus(user.userID, joinedUser.emojiStatus);
-           
-      var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
-      joinEvent.userID = user.userID;
-      dispatcher.dispatchEvent(joinEvent);	
-
-      if (user.guest) {
-        if (user.waitingForAcceptance) {
-          if (user.me) {
-            var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
-            dispatcher.dispatchEvent(waitCommand);
-          } else {
-            var e:BBBEvent = new BBBEvent(BBBEvent.ADD_GUEST_TO_LIST);
-            e.payload.userId = user.userID;
-            e.payload.name = user.name;
-            dispatcher.dispatchEvent(e);
-          }
-        } else {
-          if (user.me) {
-            var allowedCommand:BBBEvent = new BBBEvent(BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN);
-            dispatcher.dispatchEvent(allowedCommand);
-          } else {
-            var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
-            removeGuest.payload.userId = user.userID;
-            dispatcher.dispatchEvent(removeGuest);
-          }
-        }
-      }
-
-      if (user.me && (!user.guest || !user.waitingForAcceptance)) {
-        if (onAllowedToJoin != null) {
-          onAllowedToJoin();
-          onAllowedToJoin = null;
-        }
-      }
-**/      
-    }
-    
-    /**
-     * Callback from the server from many of the bellow nc.call methods
-     */
-    public function handleParticipantStatusChange(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);	
-//      UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
-      
-      if (msg.status == "presenter"){
-        var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
-        e.userID = map.userID;
-        
-        dispatcher.dispatchEvent(e);
-      }		
-    }
 	
 	private function handleBreakoutRoomsList(msg:Object):void{
 		for each(var room : Object in msg.body.rooms)
@@ -977,18 +671,7 @@ package org.bigbluebutton.modules.users.services
     }
   }
 
-    public function handleParticipantRoleChange(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
-      LOGGER.debug("*** received participant role change [" + map.userID + "," + map.role + "]");
-/*
-      UserManager.getInstance().getConference().newUserRole(map.userID, map.role);
-      if(UsersUtil.isMe(map.userID)) {
-        UserManager.getInstance().getConference().setMyRole(map.role);
-        var e:ChangeMyRole = new ChangeMyRole(map.role);
-        dispatcher.dispatchEvent(e);
-      }
-      */
-    }
+
 
     public function handleGuestPolicyChanged(msg:Object):void {
       LOGGER.debug("*** handleGuestPolicyChanged " + msg.msg + " **** \n");

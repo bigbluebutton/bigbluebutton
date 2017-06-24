@@ -12,6 +12,8 @@ trait UserLeftVoiceConfEvtMsgHdlr {
   val outGW: OutMessageGateway
 
   def handle(msg: UserLeftVoiceConfEvtMsg): Unit = {
+    log.debug("Received UserLeftVoiceConfEvtMsg from FS {} ", msg.body.voiceUserId)
+
     def broadcastEvent(vu: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,
         vu.intId)
