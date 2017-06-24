@@ -95,6 +95,12 @@ package org.bigbluebutton.modules.users.services
         case "UserLeftVoiceConfToClientEvtMsg":
           handleUserLeftVoiceConfToClientEvtMsg(message);
           break;
+        case "UserTalkingEvtMsg":
+          handleUserTalkingEvtMsg(message);
+          break;
+        case "UserMutedEvtMsg":
+          handleUserMutedEvtMsg(message);
+          break;
         case "getUsersReply":
           handleGetUsersReply(message);
           break;
@@ -248,6 +254,38 @@ package org.bigbluebutton.modules.users.services
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
       bbbEvent.payload.userID = intId;
       globalDispatcher.dispatchEvent(bbbEvent);
+    }
+    
+    private function handleUserMutedEvtMsg(msg: Object): void {
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var intId: String = body.intId as String;
+      var muted: Boolean = body.muted as Boolean;
+      
+      LiveMeeting.inst().voiceUsers.setMutedForUser(intId, muted);
+      
+      if (UsersUtil.isMe(intId)) {
+        LiveMeeting.inst().me.muted = false;
+      }
+      
+      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
+      bbbEvent.payload.muted = muted;
+      bbbEvent.payload.userID = intId;
+      globalDispatcher.dispatchEvent(bbbEvent);   
+    }
+    
+    private function handleUserTalkingEvtMsg(msg: Object): void {
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var intId: String = body.intId as String;
+      var talking: Boolean = body.talking as Boolean;
+      
+      LiveMeeting.inst().voiceUsers.setTalkingForUser(intId, talking);
+      
+      var event:CoreEvent = new CoreEvent(EventConstants.USER_TALKING);
+      event.message.userID = intId;
+      event.message.talking = talking;
+      globalDispatcher.dispatchEvent(event); 
     }
     
     private function handleGetUsersMeetingRespMsg(msg: Object):void {

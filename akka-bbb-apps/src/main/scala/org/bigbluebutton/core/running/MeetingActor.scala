@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.running
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 
 import akka.actor._
 import akka.actor.ActorLogging
@@ -10,7 +10,7 @@ import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.common2.messages.polls._
 import org.bigbluebutton.common2.messages.users._
-import org.bigbluebutton.common2.messages.voiceconf.{UserJoinedVoiceConfEvtMsg, UserLeftVoiceConfEvtMsg, UserMutedInVoiceConfEvtMsg}
+import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfEvtMsg, UserLeftVoiceConfEvtMsg, UserMutedInVoiceConfEvtMsg, UserTalkingInVoiceConfEvtMsg }
 import org.bigbluebutton.common2.messages.whiteboard._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
@@ -20,7 +20,7 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{Polls, RegisteredUsers, Users}
+import org.bigbluebutton.core.models.{ Polls, RegisteredUsers, Users }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
@@ -89,7 +89,8 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomUsersUpdateMsgHdlr
     with SendBreakoutUsersUpdateMsgHdlr
     with TransferUserToMeetingRequestHdlr
-    with UserMutedInVoiceConfEvtMsgHdlr {
+    with UserMutedInVoiceConfEvtMsgHdlr
+    with UserTalkingInVoiceConfEvtMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -271,6 +272,7 @@ class MeetingActor(val props: DefaultProps,
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
       case m: UserLeftVoiceConfEvtMsg => handle(m)
       case m: UserMutedInVoiceConfEvtMsg => handle(m)
+      case m: UserTalkingInVoiceConfEvtMsg => handle(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }

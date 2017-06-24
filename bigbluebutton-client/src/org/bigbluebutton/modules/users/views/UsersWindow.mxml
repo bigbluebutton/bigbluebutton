@@ -47,7 +47,8 @@
     <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="handleUserStatusChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleUserJoinedVoiceConfEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserLeftVoiceConfEvent" />
-    
+    <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserMutedEvent" />
+    <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
     
 	</fx:Declarations>
 	<fx:Script>
@@ -76,11 +77,13 @@
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.KeyboardUtil;
       import org.bigbluebutton.core.PopUpUtil;
       import org.bigbluebutton.core.TimerUtil;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
+      import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.events.LockControlEvent;
       import org.bigbluebutton.core.events.UserStatusChangedEvent;
       import org.bigbluebutton.core.events.VoiceConfEvent;
@@ -164,6 +167,14 @@
       
       private function handleUserLeftVoiceConfEvent(event: BBBEvent): void {
         handler.handleUserLeftVoiceConfEvent(event.payload.userID);  
+      }
+      
+      private function handleUserMutedEvent(event: BBBEvent): void {
+        handler.handleUserMutedEvent(event.payload.userID, event.payload.muted);  
+      }
+      
+      private function handleUserTalkingEvent(event: CoreEvent): void {
+        handler.handleUserTalkingEvent(event.message.userID, event.message.talking);  
       }
       
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {

@@ -210,6 +210,33 @@ package org.bigbluebutton.modules.users.views
 
     }
     
+    public function handleUserTalkingEvent(userId: String, talking: Boolean): void {
+      var user: BBBUser2x = findUser(userId);
+      if (user != null) {
+        user.talking = talking;
+      }
+      users.refresh();
+    }
+    
+    public function handleUserMutedEvent(userId: String, muted: Boolean): void {
+      var user: BBBUser2x = findUser(userId);
+      if (user != null) {
+        user.muted = muted;
+      }
+      users.refresh();
+    }
+    
+    private function findUser(userId: String): BBBUser2x {
+      for (var i: int = 0; i < users.length; i++) {
+        var user: BBBUser2x = users[i] as BBBUser2x;
+        if (user != null) {
+          return user;
+        }
+      }
+      
+      return null;
+    }
+    
     // Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
     private function sortFunction(a:Object, b:Object, array:Array = null):int {
       /*if (a.presenter)

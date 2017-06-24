@@ -1,29 +1,37 @@
 package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.voiceconf.{UserMutedEvtMsg, UserMutedEvtMsgBody}
-import org.bigbluebutton.core.models.{VoiceUserState, VoiceUsers}
-
+import org.bigbluebutton.common2.messages.voiceconf._
+import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.running.MeetingActor
 
 trait UserTalkingInVoiceConfEvtMsgHdlr {
-  def broadcastEvent(vu: VoiceUserState): Unit = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,
-      vu.intId)
-    val envelope = BbbCoreEnvelope(UserMutedEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(UserMutedEvtMsg.NAME, props.meetingProp.intId, vu.intId)
+  this: MeetingActor =>
 
-    val body = UserMutedEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId, vu.muted)
+  val outGW: OutMessageGateway
 
-    val event = UserMutedEvtMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-    outGW.send(msgEvent)
+  def handle(msg: UserTalkingInVoiceConfEvtMsg): Unit = {
 
-    record(event)
-  }
+    def broadcastEvent(vu: VoiceUserState): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,
+        vu.intId)
+      val envelope = BbbCoreEnvelope(UserTalkingEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(UserTalkingEvtMsg.NAME, props.meetingProp.intId, vu.intId)
 
-  for {
-    mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, msg.body.voiceUserId, msg.body.muted)
-  } yield {
-    broadcastEvent(mutedUser)
+      val body = UserTalkingEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId, vu.talking)
+
+      val event = UserTalkingEvtMsg(header, body)
+      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+      outGW.send(msgEvent)
+
+      record(event)
+    }
+
+    for {
+      mutedUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, msg.body.voiceUserId, msg.body.talking)
+    } yield {
+      broadcastEvent(mutedUser)
+    }
   }
 }
