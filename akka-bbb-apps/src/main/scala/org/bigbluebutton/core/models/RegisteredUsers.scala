@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.models
 
+import org.bigbluebutton.common2.domain.UserVO
+
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
     token: String, avatar: String, guest: Boolean, authenticated: Boolean,

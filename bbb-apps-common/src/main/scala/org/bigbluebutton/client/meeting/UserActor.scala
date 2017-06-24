@@ -141,5 +141,3 @@ class UserActor(val userId: String,
     }
   }
 }
-
-

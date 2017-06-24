@@ -5,6 +5,7 @@ import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.breakoutrooms._
+import org.bigbluebutton.common2.messages.layout._
 import org.bigbluebutton.common2.messages.voiceconf._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
@@ -210,6 +211,24 @@ class ReceivedJsonMsgHandlerActor(
       case TransferUserToMeetingRequestMsg.NAME =>
         for {
           m <- deserialize[TransferUserToMeetingRequestMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case GetCurrentLayoutMsg.NAME =>
+        for {
+          m <- deserialize[GetCurrentLayoutMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case LockLayoutMsg.NAME =>
+        for {
+          m <- deserialize[LockLayoutMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case BroadcastLayoutMsg.NAME =>
+        for {
+          m <- deserialize[BroadcastLayoutMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
