@@ -19,6 +19,7 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
+  val layouts = new Layouts()
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
@@ -38,7 +39,7 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  val liveMeeting = new LiveMeeting(props, meetingStatux2x, chatModel, layoutModel,
+  val liveMeeting = new LiveMeeting(props, meetingStatux2x, chatModel, layoutModel, layouts,
     users, registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
     notesModel, webcams, voiceUsers, users2x)
 

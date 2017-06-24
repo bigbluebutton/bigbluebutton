@@ -1,5 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.users
 
+import org.bigbluebutton.common2.domain.VoiceUserVO
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.models._
@@ -13,7 +14,7 @@ trait UserJoiningHdlr {
   def handleUserJoin(msg: UserJoining): Unit = {
     log.debug("Received user joined meeting. metingId=" + props.meetingProp.intId + " userId=" + msg.userID)
 
-    def initVoiceUser(userId: String, ru: RegisteredUser): VoiceUser = {
+    def initVoiceUser(userId: String, ru: RegisteredUser): VoiceUserVO = {
       val wUser = Users.findWithId(userId, liveMeeting.users)
 
       wUser match {
@@ -30,7 +31,7 @@ trait UserJoiningHdlr {
              * User is not joined in voice conference. Initialize user and copy status
              * as user maybe joined listenOnly.
              */
-            new VoiceUser(u.voiceUser.userId, msg.userID, ru.name, ru.name,
+            new VoiceUserVO(u.voiceUser.userId, msg.userID, ru.name, ru.name,
               joined = false, locked = false, muted = false,
               talking = false, u.avatarURL, listenOnly = u.listenOnly)
           }
@@ -40,7 +41,7 @@ trait UserJoiningHdlr {
           /**
            * New user. Initialize voice status.
            */
-          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,
+          new VoiceUserVO(msg.userID, msg.userID, ru.name, ru.name,
             joined = false, locked = false,
             muted = false, talking = false, ru.avatarURL, listenOnly = false)
         }

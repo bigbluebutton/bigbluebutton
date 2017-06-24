@@ -327,4 +327,3 @@ class BigBlueButtonActor(val system: ActorSystem,
   }
 
 }
-

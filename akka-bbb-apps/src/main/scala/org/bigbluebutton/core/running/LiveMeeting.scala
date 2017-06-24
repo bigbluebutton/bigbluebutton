@@ -12,6 +12,7 @@ class LiveMeeting(val props: DefaultProps,
   val status: MeetingStatus2x,
   val chatModel: ChatModel,
   val layoutModel: LayoutModel,
+  val layouts: Layouts,
   val users: Users,
   val registeredUsers: RegisteredUsers,
   val polls: Polls, // 2x
