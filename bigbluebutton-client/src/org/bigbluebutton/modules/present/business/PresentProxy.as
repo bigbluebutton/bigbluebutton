@@ -205,6 +205,8 @@ package org.bigbluebutton.modules.present.business
 		 */		
 		public function zoomSlide(e:PresenterCommands):void{
 			var currentPresentation:Presentation = PresentationModel.getInstance().getCurrentPresentation();
+      if (currentPresentation == null) return;
+      
 			var currentPage:Page = PresentationModel.getInstance().getCurrentPage();
 			
 			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);

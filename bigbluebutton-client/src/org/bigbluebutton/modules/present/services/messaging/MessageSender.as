@@ -76,7 +76,8 @@ package org.bigbluebutton.modules.present.services.messaging
     
     public function getPresentationInfo():void {
       var message:Object = {
-        header: {name: "GetPresentationInfoReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()}
+        header: {name: "GetPresentationInfoReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: UsersUtil.getMyUserID()}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

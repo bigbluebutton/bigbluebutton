@@ -38,7 +38,8 @@ object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg"}
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
 
 object GetPresentationInfoReqMsg { val NAME = "GetPresentationInfoReqMsg"}
-case class GetPresentationInfoReqMsg(header: BbbClientMsgHeader) extends StandardMsg
+case class GetPresentationInfoReqMsg(header: BbbClientMsgHeader, body: GetPresentationInfoReqMsgBody) extends StandardMsg
+case class GetPresentationInfoReqMsgBody(userId: String)
 
 object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg"}
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg

@@ -11,6 +11,7 @@ trait GetPresentationInfoReqMsgHdlr {
   val outGW: OutMessageGateway
 
   def handleGetPresentationInfoReqMsg(msg: GetPresentationInfoReqMsg): Unit = {
+    log.debug("Received GetPresentationInfoReqMsg")
 
     def broadcastEvent(msg: GetPresentationInfoReqMsg, presentations: Seq[PresentationVO]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, msg.header.userId)
