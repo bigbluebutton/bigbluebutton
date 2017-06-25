@@ -50,7 +50,7 @@ trait PresentationApp {
 
   def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) {
 
-    //    liveMeeting.presModel.addPresentation(msg.presentation)
+    liveMeeting.presModel.addPresentation(msg.presentation)
     //
     //    outGW.send(new PresentationConversionDone(props.meetingProp.intId, props.recordProp.record, msg.messageKey,
     //      msg.code, msg.presentation))

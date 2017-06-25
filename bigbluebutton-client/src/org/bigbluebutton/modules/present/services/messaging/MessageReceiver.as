@@ -156,6 +156,8 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
       var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
       
+      LOGGER.debug("Adding presentation name=" + presVO.name);
+      
       service.addPresentation(presVO);
       
       var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);

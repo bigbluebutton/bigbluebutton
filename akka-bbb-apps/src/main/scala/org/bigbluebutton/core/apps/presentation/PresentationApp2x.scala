@@ -6,6 +6,7 @@ import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.domain.PageVO
+import org.bigbluebutton.core.apps.Presentation
 
 class PresentationApp2x(val liveMeeting: LiveMeeting,
   val outGW: OutMessageGateway)(implicit val context: ActorContext)
@@ -24,21 +25,21 @@ class PresentationApp2x(val liveMeeting: LiveMeeting,
 
   val log = Logging(context.system, getClass)
 
-  def processPreuploadedPresentations(presentations: Seq[PresentationVO]) {
+  def processPreuploadedPresentations(presentations: Vector[Presentation]) {
     presentations.foreach(presentation => {
       liveMeeting.presModel.addPresentation(presentation)
     })
   }
 
-  def presentationConversionCompleted(presentation: PresentationVO) {
+  def presentationConversionCompleted(presentation: Presentation) {
     liveMeeting.presModel.addPresentation(presentation)
   }
 
-  def setCurrentPresentation(presentationId: String): Option[PresentationVO] = {
+  def setCurrentPresentation(presentationId: String): Option[Presentation] = {
     liveMeeting.presModel.setCurrentPresentation(presentationId)
   }
 
-  def getPresentationInfo(): Seq[PresentationVO] = {
+  def getPresentationInfo(): Vector[Presentation] = {
     liveMeeting.presModel.getPresentations
   }
 
@@ -66,7 +67,7 @@ class PresentationApp2x(val liveMeeting: LiveMeeting,
     liveMeeting.presModel.resizePage(presentationId, pageId, checkedXOffset, checkedYOffset, checkedWidth, checkedHeight);
   }
 
-  def removePresentation(presentationId: String): Option[PresentationVO] = {
+  def removePresentation(presentationId: String): Option[Presentation] = {
     liveMeeting.presModel.removePresentation(presentationId)
   }
 }

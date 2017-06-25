@@ -21,7 +21,7 @@ object MessageBody {
   case class SetCurrentPagePubMsgBody(presentationId: String, pageId: String)
   case class ResizeAndMovePagePubMsgBody(presentationId: String, pageId: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
   case class RemovePresentationPubMsgBody(presentationId: String)
-  case class PreuploadedPresentationsPubMsgBody(presentations: Seq[PresentationVO])
+  case class PreuploadedPresentationsPubMsgBody(presentations: Vector[PresentationVO])
   case class PresentationConversionUpdatePubMsgBody(messageKey: String, code: String, presentationId: String, presName: String)
   case class PresentationPageCountErrorPubMsgBody(messageKey: String, code: String, presentationId: String, numberOfPages: Int, maxNumberPages: Int, presName: String)
   case class PresentationPageGeneratedPubMsgBody(messageKey: String, code: String, presentationId: String, numberOfPages: Int, pagesCompleted: Int, presName: String)
@@ -38,7 +38,7 @@ object MessageBody {
   // Presentation Message Bodies
   case class NewPresentationEvtMsgBody(presentation: PresentationVO)
   case class SetCurrentPresentationEvtMsgBody(presentationId: String)
-  case class GetPresentationInfoRespMsgBody(presentations: Seq[PresentationVO])
+  case class GetPresentationInfoRespMsgBody(presentations: Vector[PresentationVO])
   case class SetCurrentPageEvtMsgBody(presentationId: String, pageId: String)
   case class ResizeAndMovePageEvtMsgBody(presentationId: String, pageId: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
   case class RemovePresentationEvtMsgBody(presentationId: String)

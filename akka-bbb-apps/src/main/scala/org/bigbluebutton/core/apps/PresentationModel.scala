@@ -6,28 +6,28 @@ import org.bigbluebutton.common2.domain.PageVO
 case class CurrentPresenter(userId: String, name: String, assignedBy: String)
 case class CurrentPresentationInfo(presenter: CurrentPresenter, presentations: Seq[Presentation])
 case class Presentation(id: String, name: String, current: Boolean = false,
-  pages: scala.collection.immutable.HashMap[String, Page], downloadable: Boolean)
+  pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean)
 
 case class Page(id: String, num: Int, thumbUri: String = "", swfUri: String,
   txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0, yOffset: Double = 0,
   widthRatio: Double = 100D, heightRatio: Double = 100D)
 
 class PresentationModel {
-  private var presentations = new scala.collection.immutable.HashMap[String, PresentationVO]
+  private var presentations = new scala.collection.immutable.HashMap[String, Presentation]
 
-  def addPresentation(pres: PresentationVO) {
+  def addPresentation(pres: Presentation) {
     savePresentation(pres)
   }
 
-  def getPresentations(): Seq[PresentationVO] = {
-    presentations.values.toSeq
+  def getPresentations(): Vector[Presentation] = {
+    presentations.values.toVector
   }
 
-  def getCurrentPresentation(): Option[PresentationVO] = {
+  def getCurrentPresentation(): Option[Presentation] = {
     presentations.values find (p => p.current)
   }
 
-  def getCurrentPage(pres: PresentationVO): Option[PageVO] = {
+  def getCurrentPage(pres: Presentation): Option[PageVO] = {
     pres.pages.values find (p => p.current)
   }
 
@@ -38,7 +38,7 @@ class PresentationModel {
     } yield curPage
   }
 
-  def removePresentation(presId: String): Option[PresentationVO] = {
+  def removePresentation(presId: String): Option[Presentation] = {
     for {
       pres <- presentations.get(presId)
     } yield {
@@ -47,7 +47,7 @@ class PresentationModel {
     }
   }
 
-  def setCurrentPresentation(presId: String): Option[PresentationVO] = {
+  def setCurrentPresentation(presId: String): Option[Presentation] = {
     getCurrentPresentation foreach (curPres => {
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
@@ -65,7 +65,7 @@ class PresentationModel {
     }
   }
 
-  private def savePresentation(pres: PresentationVO) {
+  private def savePresentation(pres: Presentation) {
     presentations += pres.id -> pres
   }
 
@@ -85,7 +85,7 @@ class PresentationModel {
     }
   }
 
-  private def deactivateCurrentPage(pres: PresentationVO, pageIdToIgnore: String): PresentationVO = {
+  private def deactivateCurrentPage(pres: Presentation, pageIdToIgnore: String): Presentation = {
     var updatedPres = pres
     pres.pages.values.find(p => p.current && p.id != pageIdToIgnore).foreach { cp =>
       val page = cp.copy(current = false)
@@ -96,7 +96,7 @@ class PresentationModel {
     updatedPres
   }
 
-  private def makePageCurrent(pres: PresentationVO, pageId: String): Option[PresentationVO] = {
+  private def makePageCurrent(pres: Presentation, pageId: String): Option[Presentation] = {
     pres.pages.get(pageId) match {
       case Some(newCurPage) => {
         val page = newCurPage.copy(current = true)

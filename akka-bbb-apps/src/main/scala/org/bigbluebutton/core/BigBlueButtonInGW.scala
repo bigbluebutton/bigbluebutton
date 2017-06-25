@@ -13,7 +13,9 @@ import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import akka.event.Logging
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.models.Roles
+
 import scala.collection.JavaConverters
 
 class BigBlueButtonInGW(
@@ -334,8 +336,8 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationSlideGenerated(meetingId, messageKey, code, presentationId, numberOfPages, pagesCompleted, presName)))
   }
 
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.HashMap[String, Page] = {
-    var pages = new scala.collection.immutable.HashMap[String, Page]
+  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.Map[String, PageVO] = {
+    var pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
       val num = i;
@@ -346,13 +348,13 @@ class BigBlueButtonInGW(
       val txtUri = presBaseUrl + "/textfiles/" + i
       val svgUri = presBaseUrl + "/svg/" + i
 
-      val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
+      val p = new PageVO(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
         txtUri = txtUri, svgUri = svgUri,
         current = current)
-      pages += (p.id -> p)
+      pages += p.id -> p
     }
 
-    pages
+    pages.toMap
   }
 
   def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String, downloadable: Boolean) {
