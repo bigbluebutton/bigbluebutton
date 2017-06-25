@@ -1,6 +1,6 @@
 import React from 'react';
-import {isVideoBroadcasting, presenterDeskshareHasEnded,
-  presenterDeskshareHasStarted} from './service';
+import { isVideoBroadcasting, presenterDeskshareHasEnded,
+  presenterDeskshareHasStarted } from './service';
 import { createContainer } from 'meteor/react-meteor-data';
 import DeskshareComponent from './component';
 

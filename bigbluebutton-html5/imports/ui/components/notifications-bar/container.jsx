@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import NavBarService from '../nav-bar/service';
@@ -73,8 +74,8 @@ class NotificationsBarContainer extends Component {
 
 let retrySeconds = 0;
 let timeRemaining = 0;
-const retrySecondsDep = new Tracker.Dependency;
-const timeRemainingDep = new Tracker.Dependency;
+const retrySecondsDep = new Tracker.Dependency();
+const timeRemainingDep = new Tracker.Dependency();
 let retryInterval = null;
 let timeRemainingInterval = null;
 
@@ -122,7 +123,7 @@ const changeDocumentTitle = (sec) => {
 
 export default injectIntl(createContainer(({ intl }) => {
   const { status, connected, retryCount, retryTime } = Meteor.status();
-  let data = {};
+  const data = {};
 
   if (!connected) {
     data.color = 'primary';
@@ -140,7 +141,7 @@ export default injectIntl(createContainer(({ intl }) => {
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = intl.formatMessage(
           intlMessages.waitingMessage,
-          { 0: getRetrySeconds() }
+          { 0: getRetrySeconds() },
         );
         break;
     }
@@ -170,7 +171,7 @@ export default injectIntl(createContainer(({ intl }) => {
       if (timeRemaining > 0) {
         data.message = intl.formatMessage(
           intlMessages.breakoutTimeRemaining,
-          { time: humanizeSeconds(timeRemaining) }
+          { time: humanizeSeconds(timeRemaining) },
         );
       } else {
         clearInterval(timeRemainingInterval);

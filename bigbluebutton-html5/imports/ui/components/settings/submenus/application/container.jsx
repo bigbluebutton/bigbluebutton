@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import Application from './component';
 
@@ -13,14 +14,12 @@ class ApplicationContainer extends Component {
     );
   }
 }
-export default createContainer(() => {
-  return {
-    fontSizes: [
-      '12px',
-      '14px',
-      '16px',
-      '18px',
-      '20px',
-    ],
-  };
-}, ApplicationContainer);
+export default createContainer(() => ({
+  fontSizes: [
+    '12px',
+    '14px',
+    '16px',
+    '18px',
+    '20px',
+  ],
+}), ApplicationContainer);

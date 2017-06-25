@@ -53,7 +53,7 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
-    return (<AppContainer {...this.props} baseControls={stateControls}/>);
+    return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
@@ -67,11 +67,11 @@ class Base extends Component {
       </IntlStartup>
     );
   }
-};
+}
 
 const SUBSCRIPTIONS_NAME = [
-  'users', 'chat', 'cursor', 'deskshare', 'meetings',
-  'polls', 'presentations', 'shapes', 'slides', 'captions', 'breakouts',
+  'users2x', 'users', 'chat', 'cursor', 'deskshare', 'meetings', 'meetings2x',
+  'polls', 'presentations', 'shapes', 'shapes2x', 'slides', 'captions', 'breakouts',
 ];
 
 export default BaseContainer = createContainer(({ params }) => {

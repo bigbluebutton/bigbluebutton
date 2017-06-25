@@ -1,5 +1,5 @@
-import Deskshare from '/imports/api/deskshare';
-import VertoBridge from '/imports/api/deskshare/client/bridge/verto';
+import Deskshare from '/imports/api/1.1/deskshare';
+import VertoBridge from '/imports/api/1.1/deskshare/client/bridge/verto';
 import Auth from '/imports/ui/services/auth';
 
 const vertoBridge = new VertoBridge();
@@ -21,14 +21,14 @@ function presenterDeskshareHasEnded() {
   // references a functiion in the global namespace inside verto_extension.js
   // that we load dynamically
   vertoBridge.vertoExitVideo();
-};
+}
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
   // references a functiion in the global namespace inside verto_extension.js
   // that we load dynamically
   vertoBridge.vertoWatchVideo();
-};
+}
 
 export {
   isVideoBroadcasting, presenterDeskshareHasEnded, presenterDeskshareHasStarted,

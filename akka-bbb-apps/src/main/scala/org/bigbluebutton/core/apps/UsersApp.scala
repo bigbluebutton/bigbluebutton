@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps
 
+import org.bigbluebutton.common2.domain.UserVO
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.users.{ PresenterAssignedEvtMsg, PresenterAssignedEvtMsgBody }
 import org.bigbluebutton.core.api._

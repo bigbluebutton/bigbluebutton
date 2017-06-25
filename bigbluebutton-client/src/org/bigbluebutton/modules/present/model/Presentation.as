@@ -64,6 +64,17 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
+    public function getPageByNum(pageNum:int):Page {
+      for (var i: int = 0; i < _pages.length; i++) {
+        var p: Page = _pages.getItemAt(i) as Page;
+        if (p.num == pageNum) {
+          return p;
+        }
+      }
+      
+      return null;
+    }
+    
     public function getPages():ArrayCollection {
       var pages:ArrayCollection = new ArrayCollection();
       

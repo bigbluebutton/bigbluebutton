@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class Slide extends React.Component {
   constructor(props) {
@@ -16,15 +17,14 @@ export default class Slide extends React.Component {
               width={this.props.currentSlide.slide.width}
               height={this.props.currentSlide.slide.height}
               fill="white"
-            >
-            </rect>
-            <image x="0" y="0"
+            />
+            <image
+              x="0" y="0"
               width={this.props.currentSlide.slide.width}
               height={this.props.currentSlide.slide.height}
               xlinkHref={this.props.currentSlide.slide.img_uri}
               strokeWidth="0.8"
-            >
-            </image>
+            />
           </g>
         : null }
       </g>

@@ -15,21 +15,6 @@ trait UserLeavingHdlr {
       u <- Users.userLeft(msg.userID, liveMeeting.users)
     } yield {
       log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.id + " user=" + u)
-      outGW.send(new UserLeft(msg.meetingID, props.recordProp.record, u))
-
-      makeSurePresenterIsAssigned(u)
-
-      val vu = u.voiceUser
-      if (vu.joined || u.listenOnly) {
-        /**
-         * The user that left is still in the voice conference. Maybe this user just got disconnected
-         * and is reconnecting. Make the user as joined only in the voice conference. If we get a
-         * user left voice conference message, then we will remove the user from the users list.
-         */
-        switchUserToPhoneUser(new UserJoinedVoiceConfMessage(props.voiceProp.voiceConf,
-          vu.userId, u.id, u.externalId, vu.callerName,
-          vu.callerNum, vu.muted, vu.talking, vu.avatarURL, u.listenOnly));
-      }
 
       checkCaptionOwnerLogOut(u.id)
       liveMeeting.startCheckingIfWeNeedToEndVoiceConf()

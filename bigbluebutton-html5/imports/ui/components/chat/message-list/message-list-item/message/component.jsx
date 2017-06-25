@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 
 const propTypes = {
@@ -39,13 +40,13 @@ export default class MessageListItem extends Component {
   handleMessageInViewport(e) {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
-        const node = this.refs.text;
+        const node = this.text;
         const scrollArea = document.getElementById(this.props.chatAreaId);
 
         if (isElementInViewport(node)) {
           this.props.handleReadMessage(this.props.time);
           eventsToBeBound.forEach(
-            e => scrollArea.removeEventListener(e, this.handleMessageInViewport)
+            e => scrollArea.removeEventListener(e, this.handleMessageInViewport),
           );
         }
 
@@ -61,14 +62,14 @@ export default class MessageListItem extends Component {
       return;
     }
 
-    const node = this.refs.text;
+    const node = this.text;
 
     if (isElementInViewport(node)) {
       this.props.handleReadMessage(this.props.time);
     } else {
       const scrollArea = document.getElementById(this.props.chatAreaId);
       eventsToBeBound.forEach(
-        e => scrollArea.addEventListener(e, this.handleMessageInViewport, false)
+        e => scrollArea.addEventListener(e, this.handleMessageInViewport, false),
       );
     }
   }
@@ -80,7 +81,7 @@ export default class MessageListItem extends Component {
 
     const scrollArea = document.getElementById(this.props.chatAreaId);
     eventsToBeBound.forEach(
-      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false)
+      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false),
     );
   }
 
@@ -92,7 +93,7 @@ export default class MessageListItem extends Component {
 
     return (
       <p
-        ref="text"
+        ref={(ref) => { this.text = ref; }}
         dangerouslySetInnerHTML={{ __html: text }}
         className={this.props.className}
       />

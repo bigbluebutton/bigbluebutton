@@ -7,7 +7,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.api.{ GuestPolicy, ValidateAuthToken }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ GetVoiceUsersMeetingRespMsgBuilder, GetWebcamStreamsMeetingRespMsgBuilder, Sender, ValidateAuthTokenRespMsgSender }
+import org.bigbluebutton.core2.message.senders._
 
 trait ValidateAuthTokenReqMsgHdlr {
   this: MeetingActor =>
@@ -94,4 +94,15 @@ trait ValidateAuthTokenReqMsgHdlr {
     Sender.send(outGW, event)
   }
 
+  def sendAllUsersInMeeting(requesterId: String): Unit = {
+    val users = Users2x.findAll(liveMeeting.users2x)
+    val webUsers = users.map { u =>
+      WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
+        guest = u.guest, authed = u.authed, waitingForAcceptance = u.waitingForAcceptance, emoji = u.emoji,
+        locked = u.locked, presenter = u.presenter, avatar = u.avatar)
+    }
+
+    val event = GetUsersMeetingRespMsgBuilder.build(liveMeeting.props.meetingProp.intId, requesterId, webUsers)
+    Sender.send(outGW, event)
+  }
 }

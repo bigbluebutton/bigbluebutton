@@ -1,17 +1,15 @@
-import Users from '/imports/api/users';
-import Captions from '/imports/api/captions';
+import Users from '/imports/api/1.1/users';
+import Captions from '/imports/api/1.1/captions';
 import Auth from '/imports/ui/services/auth';
 import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
 
 const getClosedCaptionLocales = () => {
-  //list of unique locales in the Captions Collection
+  // list of unique locales in the Captions Collection
   const locales = _.uniq(Captions.find({}, {
     sort: { locale: 1 },
     fields: { locale: true },
-  }).fetch().map(function (obj) {
-    return obj.locale;
-  }), true);
+  }).fetch().map(obj => obj.locale), true);
 
   return locales;
 };
@@ -29,7 +27,7 @@ const updateSettings = (obj) => {
   Settings.save();
 };
 
-const getAvailableLocales = () => {
+const getAvailableLocales = function () {
   return fetch('/html5client/locales').then(locales => locales.json());
 };
 
