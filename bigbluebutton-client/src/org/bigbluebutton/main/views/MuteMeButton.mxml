@@ -124,7 +124,7 @@ $Id: $
 			private function allowMuteUnmute():Boolean {
         var me: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(LiveMeeting.inst().me.id);
         // I am in voice conference.
-				return (me != null && !LiveMeeting.inst().me.disableMyMic);
+				return (me != null && !LiveMeeting.inst().me.disableMyMic && !me.listenOnly);
 			}
 			
 			private function updateMuteMeBtn(placeholder:Boolean = false):void {
