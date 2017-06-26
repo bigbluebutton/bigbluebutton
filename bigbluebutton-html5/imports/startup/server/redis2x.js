@@ -59,6 +59,7 @@ class RedisPubSub2x {
     };
 
     Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
+    
     return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);
@@ -88,20 +89,15 @@ class RedisPubSub2x {
     });
   }
 
-  handleTask(data, next, failures) {
-    console.error(`handleTask: ${JSON.stringify(data.parsedMessage)}`);
+  handleTask(data, next) {
     const { header } = data.parsedMessage.core;
-    const body = data.parsedMessage.body ? data.parsedMessage.body : data.parsedMessage.payload;
+    const { body } = data.parsedMessage.core;
     const eventName = header.name;
 
-    const payload = body; // 1.0
-
     try {
-      body.callback = () => { }; // legacy noop function // TODO?!
-
       this._debug(`${eventName} emitted`);
       return this.emitter
-        .emitAsync(eventName, { header, body, payload })
+        .emitAsync(eventName, { header, body })
         .then((_) => {
           this._debug(`${eventName} completed`);
           return next();
