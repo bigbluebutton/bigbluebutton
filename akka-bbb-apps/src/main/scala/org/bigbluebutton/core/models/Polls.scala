@@ -104,11 +104,11 @@ object Polls {
     lm: LiveMeeting): Option[(String, String, SimplePollResultOutVO)] = {
 
     for {
-      curPres <- Users.getCurrentPresenter(lm.users)
+      curPres <- Users2x.findPresenter(lm.users2x)
       poll <- getSimplePollResult(pollId, lm.polls)
       pvo <- handleRespondToPoll(poll, requesterId, pollId, questionId, answerId, lm)
     } yield {
-      (curPres.id, pollId, pvo)
+      (curPres.intId, pollId, pvo)
     }
 
   }
@@ -160,8 +160,8 @@ object Polls {
     }
 
     for {
-      user <- Users.findWithId(requesterId, lm.users)
-      responder = new Responder(user.id, user.name)
+      user <- Users2x.findWithIntId(lm.users2x, requesterId)
+      responder = new Responder(user.intId, user.name)
       updatedPoll <- storePollResult(responder)
     } yield {
       updatedPoll

@@ -13,6 +13,7 @@ trait RespondToPollReqMsgHdlr {
   val outGW: OutMessageGateway
 
   def handleRespondToPollReqMsg(msg: RespondToPollReqMsg): Unit = {
+    log.debug("Received RespondToPollReqMsg {}", RespondToPollReqMsg)
 
     def broadcastEvent(msg: RespondToPollReqMsg, stoppedPollId: String, presenterId: String, poll: SimplePollResultOutVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
