@@ -1,48 +1,58 @@
 package org.bigbluebutton.core.apps
 
+import org.bigbluebutton.common2.domain.UserVO
+import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.{ PresenterAssignedEvtMsg, PresenterAssignedEvtMsgBody }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.handlers.users.{ UserEmojiStatusHdlr, UserLeavingHdlr }
 
-trait UsersApp {
+trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
-  def handleValidateAuthToken(msg: ValidateAuthToken) {
-    log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-    RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers) match {
-      case Some(u) =>
+  def automaticallyAssignPresenter(): Unit = {
+    log.debug("auto assigning presenter")
 
-        //send the reply
-        outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, true, msg.correlationId))
+    Users2x.findModerator(liveMeeting.users2x) match {
+      case Some(moderator) =>
+        for {
+          newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
+        } yield {
+          log.debug("sending assigned presenter for intId={} name={}", newPresenter.intId, newPresenter.name)
+          sendPresenterAssigned(newPresenter.intId, newPresenter.name, newPresenter.name)
+        }
+      case None => log.debug("No moderator found.")
+    }
 
-        log.info("ValidateToken success. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
-
-        //join the user
-        handleUserJoin(new UserJoining(props.meetingProp.intId, msg.userId, msg.token))
-      case None =>
-        log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.userId)
-        outGW.send(new ValidateAuthTokenReply(props.meetingProp.intId, msg.userId, msg.token, false, msg.correlationId))
+    for {
+      moderator <- Users2x.findModerator(liveMeeting.users2x)
+      newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
+    } yield {
+      log.debug("sending assigned presenter for intId={} name={}", newPresenter.intId, newPresenter.name)
+      sendPresenterAssigned(newPresenter.intId, newPresenter.name, newPresenter.name)
     }
   }
 
-  def handleRegisterUser(msg: RegisterUser) {
-    if (MeetingStatus2x.hasMeetingEnded(liveMeeting.status)) {
-      // Check first if the meeting has ended and the user refreshed the client to re-connect.
-      log.info("Register user failed. Mmeeting has ended. meetingId=" + props.meetingProp.intId + " userId=" + msg.userID)
-      sendMeetingHasEnded(msg.userID)
-    } else {
-      val regUser = RegisteredUsers.create(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken,
-        msg.avatarURL, msg.guest, msg.authed, msg.guest, liveMeeting.registeredUsers)
+  def sendPresenterAssigned(intId: String, name: String, assignedBy: String): Unit = {
+    def build(meetingId: String, intId: String, name: String, assignedBy: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, intId)
+      val envelope = BbbCoreEnvelope(PresenterAssignedEvtMsg.NAME, routing)
 
-      log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.userID + " user=" + regUser)
-      outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
+      val body = PresenterAssignedEvtMsgBody(intId, name, assignedBy)
+      val header = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, meetingId, intId)
+      val event = PresenterAssignedEvtMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
     }
 
+    def event = build(props.meetingProp.intId, intId, name, assignedBy)
+    outGW.send(event)
   }
 
   def usersWhoAreNotPresenter(): Array[UserVO] = {
@@ -115,26 +125,6 @@ trait UsersApp {
 
     stopRecordingVoiceConference()
 
-  }
-
-  def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    for {
-      user <- Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users)
-      nu = Users.setUserMuted(user, liveMeeting.users, msg.muted)
-    } yield {
-      log.info("User muted in voice conf. meetingId=" + props.meetingProp.intId + " userId=" + nu.id + " user=" + nu)
-
-      outGW.send(new UserVoiceMuted(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, nu))
-    }
-  }
-
-  def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
-    for {
-      user <- Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users)
-      nv = Users.setUserTalking(user, liveMeeting.users, msg.talking)
-    } yield {
-      outGW.send(new UserVoiceTalking(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, nv))
-    }
   }
 
   def handleAssignPresenter(msg: AssignPresenter): Unit = {

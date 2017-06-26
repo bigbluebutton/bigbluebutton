@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.common2.domain.TranscriptVO
+import org.bigbluebutton.common2.messages.caption.TranscriptVO
 import scala.collection.immutable.HashMap
 
 class CaptionModel {

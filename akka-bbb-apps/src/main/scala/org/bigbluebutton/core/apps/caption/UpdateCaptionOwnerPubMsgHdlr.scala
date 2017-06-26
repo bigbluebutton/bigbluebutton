@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.caption
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.{ UpdateCaptionOwnerEvtMsgBody }
+import org.bigbluebutton.common2.messages.caption.{ UpdateCaptionOwnerPubMsg, UpdateCaptionOwnerEvtMsg, UpdateCaptionOwnerEvtMsgBody }
 import org.bigbluebutton.common2.messages._
 
 trait UpdateCaptionOwnerPubMsgHdlr {

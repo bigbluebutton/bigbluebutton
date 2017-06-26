@@ -45,14 +45,35 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUser = u.modify(_.presenter).setTo(true).modify(_.role).setTo(Roles.PRESENTER_ROLE)
+      val newUser = u.modify(_.presenter).setTo(true)
+      users.save(newUser)
       newUser
     }
   }
 
+  def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.emoji).setTo(emoji)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def hasPresenter(users: Users2x): Boolean = {
+    findPresenter(users) match {
+      case Some(p) => true
+      case None => false
+    }
+  }
+
+  def findPresenter(users: Users2x): Option[UserState] = {
+    users.toVector.find(u => u.presenter)
+  }
+
   def findModerator(users: Users2x): Option[UserState] = {
-    val mods = users.toVector.filter(u => u.role == Roles.MODERATOR_ROLE)
-    if (mods.length > 1) Some(mods.head) else None
+    users.toVector.find(u => u.role == Roles.MODERATOR_ROLE)
   }
 }
 

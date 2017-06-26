@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.users
 
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
 import org.bigbluebutton.core.models.{ RegisteredUsers, UserState, Users2x }
 import org.bigbluebutton.core.running.MeetingActor
@@ -13,9 +13,13 @@ trait UserJoinMeetingReqMsgHdlr {
 
   def handle(msg: UserJoinMeetingReqMsg): Unit = {
     userJoinMeeting(msg.body.authToken)
+
+    startRecordingIfAutoStart()
   }
 
   def userJoinMeeting(authToken: String): Unit = {
+    log.debug("User joining with token {}", authToken)
+
     for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
@@ -37,6 +41,7 @@ trait UserJoinMeetingReqMsgHdlr {
       Sender.send(outGW, event)
 
       MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
+
     }
   }
 }

@@ -18,9 +18,15 @@
  */
 package org.bigbluebutton.core.model
 {
-  import mx.collections.ArrayCollection;
-  
+  import com.asfusion.mate.events.Dispatcher; 
+  import mx.collections.ArrayCollection; 
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.LockControlEvent;
+  import org.bigbluebutton.core.events.VoiceConfEvent;
+  import org.bigbluebutton.core.model.users.VoiceUser2x;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
+  import org.bigbluebutton.core.vo.LockSettingsVO;
+  import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
  
   public class MyStatus {   
     
@@ -35,7 +41,6 @@ package org.bigbluebutton.core.model
     
     public var iAskedToLogout:Boolean;
     public var userEjectedFromMeeting:Boolean = false;
-    public var waitingForAcceptance: Boolean;
     
     public var userLocked: Boolean = false;
     public var voiceJoined: Boolean = false;
@@ -45,6 +50,7 @@ package org.bigbluebutton.core.model
     public var myEmojiStatus: String = "none";
     
     public var authTokenValid: Boolean = false;
+    public var waitingForApproval: Boolean;
     
     private var _myCamSettings:ArrayCollection = new ArrayCollection();
 
@@ -69,6 +75,37 @@ package org.bigbluebutton.core.model
       return _myCamSettings;
     }
     
+    public function applyLockSettings():void {
+      var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
+      var amNotModerator:Boolean = !UsersUtil.amIModerator();
+      var amNotPresenter:Boolean = !UsersUtil.amIPresenter();
+      var lockAppliesToMe:Boolean = amNotModerator && amNotPresenter && userLocked;
+      
+      disableMyCam = lockAppliesToMe && lockSettings.getDisableCam();
+      disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
+      disableMyPrivateChat = lockAppliesToMe && lockSettings.getDisablePrivateChat();
+      disableMyPublicChat = lockAppliesToMe && lockSettings.getDisablePublicChat();
+      lockedLayout = lockAppliesToMe && lockSettings.getLockedLayout();
+      
+      var dispatcher:Dispatcher = new Dispatcher();
+      dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
+      
+      if (lockAppliesToMe) {
+        //If it's sharing webcam, stop it
+        if (disableMyCam && LiveMeeting.inst().webcams.getStreamsForUser(LiveMeeting.inst().me.id)) {
+          dispatcher.dispatchEvent(new ClosePublishWindowEvent());
+        }
+        //If it's sharing microphone, mute it
+        var myVoiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(LiveMeeting.inst().me.id);
+        
+        if (disableMyMic && (myVoiceUser != null) && ! myVoiceUser.muted) {
+          var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+          e.userid = UsersUtil.getMyUserID();
+          e.mute = true;
+          dispatcher.dispatchEvent(e);
+        }
+      }
+    }
   }
 }
 

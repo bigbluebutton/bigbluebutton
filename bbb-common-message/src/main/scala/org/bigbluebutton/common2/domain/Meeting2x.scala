@@ -27,7 +27,6 @@ case class DefaultProps(meetingProp: MeetingProp, breakoutProps: BreakoutProps,
                         recordProp: RecordProp, welcomeProp: WelcomeProp, voiceProp: VoiceProp,
                         usersProp: UsersProp, metadataProp: MetadataProp, screenshareProps: ScreenshareProps)
 
-
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
 case class RecordingStatus(isRecording: Boolean)
 case class GuestPolicyStatus(currentGuestPolicy: String)
@@ -45,3 +44,13 @@ case class Responder(userId: String, name: String)
 case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean)
+
+case class UserVO(id: String, externalId: String, name: String, role: String,
+                  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emojiStatus: String,
+                  presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
+                  phoneUser: Boolean, voiceUser: VoiceUserVO, listenOnly: Boolean, avatarURL: String,
+                  joinedWeb: Boolean)
+
+case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
+                       callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
+                       talking: Boolean, avatarURL: String, listenOnly: Boolean)

@@ -9,7 +9,6 @@ package org.bigbluebutton.core.model
     private static var instance: LiveMeeting = null;
     
     public var me: Me = new Me();
-    public var myStatus: MyStatus = new MyStatus();
     public var webcams: Webcams = new Webcams();
     public var voiceUsers: VoiceUsers2x = new VoiceUsers2x();
     public var users: Users2x = new Users2x();

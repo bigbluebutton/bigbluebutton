@@ -51,9 +51,7 @@
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
-			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -101,7 +99,7 @@
 			}
 			
 			private function onRollOver(e:UsersRollEvent):void{
-				if ((moderator || UsersUtil.isMe(e.userID)) && (e.userID == data.userID)) {
+				if ((moderator || UsersUtil.isMe(e.userID)) && (e.userID == data.userId)) {
 					rolledOver = true;
 					updateButtons();
 				}
@@ -148,30 +146,30 @@
 			}
 			
 			private function viewCamera():void {
-				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
+				dispatchEvent(new ViewCameraEvent(data.userId, data.streamName, data.name));
    			}	
 			
 			private function kickUser():void{
-				dispatchEvent(new KickUserEvent(data.userID));
+				dispatchEvent(new KickUserEvent(data.userId));
 			}
 			
 			private function toggleMuteState():void {
 				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-				e.userid = data.userID;
-				e.mute = !data.voiceMuted;
+				e.userid = data.userId;
+				e.mute = !data.muted;
 				dispatchEvent(e);
 			}
 			
 			public function toggleLockState():void {
 				var e:LockControlEvent;
 				
-				if(data.userLocked) {
+				if(data.locked) {
 					e = new LockControlEvent(LockControlEvent.UNLOCK_USER);
 				} else {
 					e = new LockControlEvent(LockControlEvent.LOCK_USER);
 				}
 				
-				e.internalUserID = data.userID;
+				e.internalUserID = data.userId;
 				dispatchEvent(e);
 			}
 			
@@ -184,21 +182,19 @@
 				if (data != null) {
 					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
 					
-					if (!data.voiceJoined) {
-						if (data.listenOnly) {
-							muteImg.source = images.sound;
-							muteImg.visible = true;
-							muteImg.includeInLayout = true;
-							muteBtn.visible = false;
-							muteBtn.includeInLayout = false;             
-						} else {
+					if (!data.inVoiceConf) {
 							muteImg.visible = false;
 							muteImg.includeInLayout = false;
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = true;
-						}
 					} else {
-						if (data.userLocked && ls.getDisableMic()) {
+            if (data.listenOnly) {
+              muteImg.source = images.sound;
+              muteImg.visible = true;
+              muteImg.includeInLayout = true;
+              muteBtn.visible = false;
+              muteBtn.includeInLayout = false;             
+            } else if (data.locked && ls.getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -218,7 +214,7 @@
 						}
 					}
 					
-					if (data.role == BBBUser.MODERATOR){
+					if (data.role == Role.MODERATOR){
 						lockImg.visible = false;
 						lockImg.includeInLayout = true;
 						lockBtn.visible = false;
@@ -257,29 +253,30 @@
 					}
 
 					if (!rolledOver) {
-						if (!data.voiceJoined && data.listenOnly) {
-							muteImg.source = images.sound;
-						} else {
-							if (data.voiceMuted)
-								muteImg.source = images.audio_muted_20;
-							else
-								muteImg.source = images.audio_20;              
+						if (data.inVoiceConf) {
+              if (data.listenOnly) {
+                muteImg.source = images.sound;
+              } else if (data.muted) {
+                muteImg.source = images.audio_muted_20;
+              } else {
+                muteImg.source = images.audio_20;
+              }
 						}
 						
 						
-						if ( data.userLocked && !data.presenter && ls.isAnythingLocked() ) {
+						if ( data.locked && !data.presenter && ls.isAnythingLocked() ) {
 							lockImg.source = images.locked_20;
 						}
 						else {
 							lockImg.source = null;
 						}
 					} else {
-						if (data.voiceMuted == rolledOverMute)
+						if (data.muted == rolledOverMute)
 							muteBtn.setStyle("icon", images.audio);
 						else
 							muteBtn.setStyle("icon", images.audio_muted);
 						
-						if (data.userLocked == rolledOverLock)
+						if (data.locked == rolledOverLock)
 							lockBtn.setStyle("icon", images.unlocked_20);
 						else
 							lockBtn.setStyle("icon", images.locked_20);
@@ -296,7 +293,7 @@
 			}
 
 			private function changeUserRole(role:String):void {
-				var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(data.userID, role);
+				var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(data.userId, role);
 				dispatchEvent(changeRoleEvent);
 			}
 
@@ -365,13 +362,13 @@
 				width="20" height="20" click="toggleMuteState()"
 				mouseOver="muteMouseOverHandler()"
 				mouseOut="muteMouseOutHandler()"
-				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
+				toolTip="{data.muted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
 	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="20" height="20" />
 	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
 				width="20" height="20" click="toggleLockState()"
 				mouseOver="lockMouseOverHandler()"
 				mouseOut="lockMouseOutHandler()"
-				toolTip="{data.userLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+				toolTip="{data.locked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
 	<mx:Button id="settingsBtn"
 			visible="false"
 			width="20"
@@ -380,9 +377,9 @@
 			icon="{images.users_settings}"
 			toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}"/>
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
-	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
-	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
-	<mx:Image id="userLockedInd" includeInLayout="false" visible="{data.userLocked}" />
+	<mx:Image id="muteInd" includeInLayout="false" visible="{data.muted}" />
+	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.inVoiceConf}" />
+	<mx:Image id="userLockedInd" includeInLayout="false" visible="{data.locked}" />
   <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
   <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
   <mx:Image id="listenOnlyInd" includeInLayout="false" visible="{data.listenOnly}" />

@@ -1,11 +1,16 @@
 package org.bigbluebutton.core.models
 
 import scala.collection.immutable.ListSet
-
 import org.bigbluebutton.core.util.RandomStringGenerator
-
 import com.softwaremill.quicklens.ModifyPimp
 import com.softwaremill.quicklens.modify
+import org.bigbluebutton.common2.domain.{ UserVO, VoiceUserVO }
+
+object CallingWith {
+  val WEBRTC = "webrtc"
+  val FLASH = "flash"
+  val PHONE = "phone"
+}
 
 object Roles {
   val MODERATOR_ROLE = "MODERATOR"
@@ -17,7 +22,7 @@ object Roles {
 object Users {
 
   def newUser(userId: String, lockStatus: Boolean, ru: RegisteredUser, waitingForAcceptance: Boolean,
-    vu: VoiceUser, users: Users): Option[UserVO] = {
+    vu: VoiceUserVO, users: Users): Option[UserVO] = {
     val uvo = new UserVO(userId, ru.externId, ru.name,
       ru.role, ru.guest, ru.authed, waitingForAcceptance = waitingForAcceptance, emojiStatus = "none", presenter = false,
       hasStream = false, locked = lockStatus,
@@ -189,7 +194,7 @@ object Users {
   }
 
   def resetVoiceUser(user: UserVO, users: Users): UserVO = {
-    val vu = new VoiceUser(user.id, user.id, user.name, user.name,
+    val vu = new VoiceUserVO(user.id, user.id, user.name, user.name,
       joined = false, locked = false, muted = false, talking = false, user.avatarURL, listenOnly = false)
 
     val nu = user.modify(_.voiceUser).setTo(vu)
@@ -202,7 +207,7 @@ object Users {
   def switchUserToPhoneUser(user: UserVO, users: Users, voiceUserId: String, userId: String,
     callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean,
     avatarURL: String, listenOnly: Boolean): UserVO = {
-    val vu = new VoiceUser(voiceUserId, userId, callerIdName,
+    val vu = new VoiceUserVO(voiceUserId, userId, callerIdName,
       callerIdNum, joined = true, locked = false,
       muted, talking, avatarURL, listenOnly)
     val nu = user.modify(_.voiceUser).setTo(vu)
@@ -214,7 +219,7 @@ object Users {
   def restoreMuteState(user: UserVO, users: Users, voiceUserId: String, userId: String,
     callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean,
     avatarURL: String, listenOnly: Boolean): UserVO = {
-    val vu = new VoiceUser(voiceUserId, userId, callerIdName,
+    val vu = new VoiceUserVO(voiceUserId, userId, callerIdName,
       callerIdNum, joined = true, locked = false,
       muted, talking, avatarURL, listenOnly)
     val nu = user.modify(_.voiceUser).setTo(vu)
@@ -223,7 +228,7 @@ object Users {
     nu
   }
 
-  def makeUserPhoneUser(vu: VoiceUser, users: Users, webUserId: String, externUserId: String,
+  def makeUserPhoneUser(vu: VoiceUserVO, users: Users, webUserId: String, externUserId: String,
     callerIdName: String, lockStatus: Boolean, listenOnly: Boolean, avatarURL: String): UserVO = {
     val uvo = new UserVO(webUserId, externUserId, callerIdName,
       Roles.VIEWER_ROLE, guest = false, authed = false, waitingForAcceptance = false, emojiStatus = "none", presenter = false,
@@ -256,6 +261,7 @@ class Users {
 
 case class UserIdAndName(id: String, name: String)
 
+/*
 case class UserVO(id: String, externalId: String, name: String, role: String,
   guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emojiStatus: String,
   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
@@ -265,3 +271,4 @@ case class UserVO(id: String, externalId: String, name: String, role: String,
 case class VoiceUser(userId: String, webUserId: String, callerName: String,
   callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
   talking: Boolean, avatarURL: String, listenOnly: Boolean)
+*/

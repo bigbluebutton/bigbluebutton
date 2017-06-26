@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.apps.caption
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.domain.TranscriptVO
-import org.bigbluebutton.common2.messages.MessageBody.{ SendCaptionHistoryRespMsgBody }
+import org.bigbluebutton.common2.messages.caption.TranscriptVO
+import org.bigbluebutton.common2.messages.caption.{ SendCaptionHistoryReqMsg, SendCaptionHistoryRespMsg, SendCaptionHistoryRespMsgBody }
 import org.bigbluebutton.common2.messages._
 
 trait SendCaptionHistoryReqMsgHdlr {

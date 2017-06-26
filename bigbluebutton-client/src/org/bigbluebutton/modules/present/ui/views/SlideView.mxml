@@ -47,12 +47,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.SortField;
-			import mx.containers.Canvas;
-			
+			import mx.containers.Canvas;			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
@@ -145,14 +143,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
             
 			private function changeSlide():void {
-        var data:Page = thumbnailView.selectedItem as Page;
-        LOGGER.debug("Change page from thumbnail. Selected page [{0}]", [data.id]);
-        var selPage:Page = PresentationModel.getInstance().getPage(data.id);
-        if (selPage != null && !selPage.current) {
-          LOGGER.debug("Dispatching change page from thumbnail. Selected page [{0}]", [data.id]);
-          dispatchEvent(new GoToPageCommand(selPage.id));
-          thumbnailView.visible = false;            
-        }
+				var data:Page = thumbnailView.selectedItem as Page;
+				LOGGER.debug("Change page from thumbnail. Selected page [{0}]", [data.id]);
+				dispatchEvent(new GoToPageCommand(data.id));
+				thumbnailView.visible = false;
 			}
 			
 			private var prevMouseX:Number;

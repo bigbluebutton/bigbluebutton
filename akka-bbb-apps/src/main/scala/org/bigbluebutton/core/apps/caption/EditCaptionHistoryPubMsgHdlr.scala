@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.caption
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.{ EditCaptionHistoryEvtMsgBody }
+import org.bigbluebutton.common2.messages.caption.{ EditCaptionHistoryPubMsg, EditCaptionHistoryEvtMsg, EditCaptionHistoryEvtMsgBody }
 import org.bigbluebutton.common2.messages._
 
 trait EditCaptionHistoryPubMsgHdlr {

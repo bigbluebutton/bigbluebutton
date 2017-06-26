@@ -5,9 +5,15 @@ import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.breakoutrooms._
+import org.bigbluebutton.common2.messages.caption._
+import org.bigbluebutton.common2.messages.polls._
+import org.bigbluebutton.common2.messages.users._
+import org.bigbluebutton.common2.messages.layout._
 import org.bigbluebutton.common2.messages.voiceconf._
+import org.bigbluebutton.common2.messages.whiteboard._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
+
 import scala.reflect.runtime.universe._
 
 object ReceivedJsonMsgHandlerActor {
@@ -45,7 +51,9 @@ class ReceivedJsonMsgHandlerActor(
   }
 
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    log.debug("Route envelope name " + envelope.name)
+    if (SendCursorPositionPubMsg.NAME != envelope.name)
+      log.debug("Route envelope name " + envelope.name)
+
     envelope.name match {
       case CreateMeetingReqMsg.NAME =>
         // for {
@@ -213,6 +221,30 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
+      case GetCurrentLayoutMsg.NAME =>
+        for {
+          m <- deserialize[GetCurrentLayoutMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case LockLayoutMsg.NAME =>
+        for {
+          m <- deserialize[LockLayoutMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case BroadcastLayoutMsg.NAME =>
+        for {
+          m <- deserialize[BroadcastLayoutMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
+      case UserLeaveReqMsg.NAME =>
+        for {
+          m <- deserialize[UserLeaveReqMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
       case SendCursorPositionPubMsg.NAME =>
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
       case ModifyWhiteboardAccessPubMsg.NAME =>
@@ -227,6 +259,26 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+      case SetCurrentPresentationPubMsg.NAME =>
+        routeGenericMsg[SetCurrentPresentationPubMsg](envelope, jsonNode)
+      case GetPresentationInfoReqMsg.NAME =>
+        routeGenericMsg[GetPresentationInfoReqMsg](envelope, jsonNode)
+      case SetCurrentPagePubMsg.NAME =>
+        routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
+      case ResizeAndMovePagePubMsg.NAME =>
+        routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
+      case RemovePresentationPubMsg.NAME =>
+        routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
+      case PreuploadedPresentationsPubMsg.NAME =>
+        routeGenericMsg[PreuploadedPresentationsPubMsg](envelope, jsonNode)
+      case PresentationConversionUpdatePubMsg.NAME =>
+        routeGenericMsg[PresentationConversionUpdatePubMsg](envelope, jsonNode)
+      case PresentationPageCountErrorPubMsg.NAME =>
+        routeGenericMsg[PresentationPageCountErrorPubMsg](envelope, jsonNode)
+      case PresentationPageGeneratedPubMsg.NAME =>
+        routeGenericMsg[PresentationPageGeneratedPubMsg](envelope, jsonNode)
+      case PresentationConversionCompletedPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionCompletedPubMsg](envelope, jsonNode)
       case EditCaptionHistoryPubMsg.NAME =>
         routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
       case UpdateCaptionOwnerPubMsg.NAME =>

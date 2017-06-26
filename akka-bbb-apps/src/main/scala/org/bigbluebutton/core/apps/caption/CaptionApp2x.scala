@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.caption
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.common2.domain.TranscriptVO
+import org.bigbluebutton.common2.messages.caption.TranscriptVO
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.LiveMeeting
 

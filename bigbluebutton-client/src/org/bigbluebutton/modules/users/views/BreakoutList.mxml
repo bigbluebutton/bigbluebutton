@@ -27,10 +27,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		 height="140">
 	<fx:Script>
 		<![CDATA[
-			import mx.collections.ArrayCollection;
-			import mx.events.DragEvent;
-
-			import org.bigbluebutton.main.model.users.BBBUser;
+      import mx.collections.ArrayCollection;
+      import mx.events.DragEvent;
+      
+      import org.bigbluebutton.core.model.users.User2x;
 
 			[Bindable]
 			public var roomName:String
@@ -45,7 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var mode:String;
 
 			protected function startDragHandler(event:DragEvent):void {
-				var selectedNode:BBBUser = usersList.selectedItem as BBBUser;
+				var selectedNode:User2x = usersList.selectedItem as User2x;
 				if (mode == "invite" && selectedNode.breakoutRooms.length > 0) {
 					event.stopImmediatePropagation();
 				}

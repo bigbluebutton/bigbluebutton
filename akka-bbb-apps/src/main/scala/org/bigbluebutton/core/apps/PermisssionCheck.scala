@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.models.UserVO
+import org.bigbluebutton.common2.domain.UserVO
 
 trait PermisssionCheck {
 
