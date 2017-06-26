@@ -226,5 +226,10 @@ package org.bigbluebutton.modules.screenshare.managers {
         public function handleDeskshareToolbarStopEvent():void {
           toolbarButtonManager.stoppedSharing();
         }
+
+        public function handleDeskshareToolbarStartEvent():void {
+          toolbarButtonManager.startedSharing();
+        }
+
     }
 }

@@ -222,6 +222,7 @@ package org.bigbluebutton.modules.screenshare.managers
 
 			if(isPresenter && usingWebRTC) {
 				publishWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
+				globalDispatcher.dispatchEvent(new DeskshareToolbarEvent(DeskshareToolbarEvent.START));
 			} else {
 				var options:ScreenshareOptions = new ScreenshareOptions();
 				options.parseOptions();

@@ -141,4 +141,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ScreenshareManager}" method="handleDeskshareToolbarStopEvent"/>
 	</EventHandlers>
 
+	<EventHandlers type="{DeskshareToolbarEvent.START}">
+                <MethodInvoker generator="{ScreenshareManager}" method="handleDeskshareToolbarStartEvent"/>
+        </EventHandlers>
+
 </EventMap>
