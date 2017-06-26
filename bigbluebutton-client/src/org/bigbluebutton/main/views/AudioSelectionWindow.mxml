@@ -19,7 +19,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
 				width="700" height="350" 
@@ -27,36 +28,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.PopUpUtil;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.api.JSAPI;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
-			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
-			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.PopUpUtil;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.api.JSAPI;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+      import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+      import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
+      import org.bigbluebutton.modules.phone.models.PhoneOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
-			private var phoneOptions:PhoneOptions = new PhoneOptions;
+			private var phoneOptions:PhoneOptions;
 			private var browserInfo:Array;
 			
 			private function init():void {
+				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
+
 				browserInfo = JSAPI.getInstance().getBrowserInfo();
 
-				var conference:Conference = UserManager.getInstance().getConference();
+
 				if (!phoneOptions.listenOnlyMode)
 					btnListenOnly.enabled = false;
 
 				if (phoneOptions.showPhoneOption) {
-					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [conference.dialNumber, conference.voiceBridge]);
+          var dialNumber: String = LiveMeeting.inst().meeting.dialNumber;
+          var voiceConf: String = LiveMeeting.inst().meeting.voiceConf;
+          
+					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [dialNumber, voiceConf]);
 				} else {
 					vrulePhone.visible = vrulePhone.includeInLayout = false;
 					vboxPhone.visible = vboxPhone.includeInLayout = false;
@@ -114,9 +119,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				PopUpUtil.removePopUp(this);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer startIndex="1" tabIndices="{[textArea, btnMicrophone, btnListenOnly, cancelBtn]}"/>
+	<fx:Declarations>
+		<common:TabIndexer startIndex="1" tabIndices="{[textArea, btnMicrophone, btnListenOnly, cancelBtn]}"/>
+	</fx:Declarations>
 	
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="right">
 		<mx:HBox width="100%" height="60">

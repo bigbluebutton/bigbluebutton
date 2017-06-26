@@ -20,16 +20,14 @@ package org.bigbluebutton.red5.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
 
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
-import org.slf4j.Logger;
 
-public class ChatService {	
-	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
+public class ChatService {
 	
 	private MessagePublisher red5BBBInGw;
 	private int maxMessageLength;
@@ -43,6 +41,13 @@ public class ChatService {
 		red5BBBInGw.getChatHistory(meetingID, requesterID, replyTo);
 	}
 	
+	public void clearPublicChatMessages() {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();
+
+		red5BBBInGw.clearPublicChatMessages(meetingID, requesterID);
+	}
+
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
@@ -53,7 +58,7 @@ public class ChatService {
 		String fromUserID = msg.get(ChatKeyUtil.FROM_USERID).toString();
 		String fromUsername = msg.get(ChatKeyUtil.FROM_USERNAME ).toString();
 		String fromColor = msg.get(ChatKeyUtil.FROM_COLOR).toString();
-		String fromTime = msg.get(ChatKeyUtil.FROM_TIME).toString();   
+		String fromTime = Long.toString(new Date().getTime());
 		String fromTimezoneOffset = msg.get(ChatKeyUtil.FROM_TZ_OFFSET).toString();
 		String toUserID = msg.get(ChatKeyUtil.TO_USERID).toString();
 		String toUsername = msg.get(ChatKeyUtil.TO_USERNAME).toString();
@@ -78,7 +83,7 @@ public class ChatService {
 			red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
 		}
 		else {
-			log.warn("sendPublicMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
+		//	log.warn("sendPublicMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
 		}
 	}
 	
@@ -96,7 +101,7 @@ public class ChatService {
 		String fromUserID = msg.get(ChatKeyUtil.FROM_USERID).toString();
 		String fromUsername = msg.get(ChatKeyUtil.FROM_USERNAME ).toString();
 		String fromColor = msg.get(ChatKeyUtil.FROM_COLOR).toString();
-		String fromTime = msg.get(ChatKeyUtil.FROM_TIME).toString();   
+		String fromTime = Long.toString(new Date().getTime());
 		String fromTimezoneOffset = msg.get(ChatKeyUtil.FROM_TZ_OFFSET).toString();
 		String toUserID = msg.get(ChatKeyUtil.TO_USERID).toString();
 		String toUsername = msg.get(ChatKeyUtil.TO_USERNAME).toString();
@@ -121,7 +126,7 @@ public class ChatService {
 			red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
 		}
 		else {
-			log.warn("sendPrivateMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
+		//	log.warn("sendPrivateMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
 		}
 	}
 }

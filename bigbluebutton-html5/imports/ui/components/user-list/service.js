@@ -1,5 +1,5 @@
-import Users from '/imports/api/users';
-import Chat from '/imports/api/chat';
+import Users from '/imports/api/1.1/users';
+import Chat from '/imports/api/1.1/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';

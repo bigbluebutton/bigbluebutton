@@ -18,7 +18,7 @@
  */
 package org.bigbluebutton.modules.whiteboard.views
 {
-    import org.bigbluebutton.core.managers.UserManager;
+    import org.bigbluebutton.core.UsersUtil;
 
     public class AnnotationIDGenerator
     {
@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function AnnotationIDGenerator()
         {
-            _userid = UserManager.getInstance().getConference().getMyUserId();
+            _userid = UsersUtil.getMyUserID();
         }
         
         public function generateID():String {

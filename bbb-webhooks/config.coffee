@@ -23,6 +23,11 @@ config.hooks.events or= [
   { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" },
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_listening_only" },
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_voice_message" },
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_voice_message" },
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_shared_webcam_message" },
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_unshared_webcam_message" },
   { channel: "bigbluebutton:from-rap", name: "sanity_started" },
   { channel: "bigbluebutton:from-rap", name: "sanity_ended" },
   { channel: "bigbluebutton:from-rap", name: "archive_started" },
@@ -36,7 +41,10 @@ config.hooks.events or= [
   { channel: "bigbluebutton:from-rap", name: "publish_started" },
   { channel: "bigbluebutton:from-rap", name: "publish_ended" },
   { channel: "bigbluebutton:from-rap", name: "post_publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" }
+  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" },
+  { channel: "bigbluebutton:from-rap", name: "unpublished" },
+  { channel: "bigbluebutton:from-rap", name: "published" },
+  { channel: "bigbluebutton:from-rap", name: "deleted" }
 ]
 
 # Retry intervals for failed attempts for perform callback calls.

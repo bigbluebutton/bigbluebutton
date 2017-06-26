@@ -1,4 +1,4 @@
-import Breakouts from '/imports/api/breakouts';
+import Breakouts from '/imports/api/1.1/breakouts';
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth/index.js';
 

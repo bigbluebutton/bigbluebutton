@@ -1,5 +1,5 @@
-import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
+import Presentations from '/imports/api/1.1/presentations';
+import Slides from '/imports/api/1.1/slides';
 import { isVideoBroadcasting } from '../deskshare/service';
 
 const getPresentationInfo = () => {

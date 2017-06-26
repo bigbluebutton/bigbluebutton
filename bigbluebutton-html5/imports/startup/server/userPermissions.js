@@ -1,5 +1,5 @@
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/1.1/users';
+import Meetings from '/imports/api/1.1/meetings';
 import { logger } from '/imports/startup/server/logger';
 
 const presenter = {

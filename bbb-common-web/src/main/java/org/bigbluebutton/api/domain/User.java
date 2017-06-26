@@ -32,16 +32,21 @@ public class User {
 	private String role;
 	private String avatarURL;
 	private Map<String,String> status;
+	private Boolean guest;
+	private Boolean waitingForAcceptance;
 	private Boolean listeningOnly = false;
 	private Boolean voiceJoined = false;
 	private List<String> streams;
 	
-	public User(String internalUserId, String externalUserId, String fullname, String role, String avatarURL) {
+	public User(String internalUserId, String externalUserId, String fullname, String role, String avatarURL,
+				Boolean guest, Boolean waitingForAcceptance) {
 		this.internalUserId = internalUserId;
 		this.externalUserId = externalUserId;
 		this.fullname = fullname;
 		this.role = role;
 		this.avatarURL = avatarURL;
+		this.guest = guest;
+		this.waitingForAcceptance = waitingForAcceptance;
 		this.status = new ConcurrentHashMap<String, String>();
 		this.streams = Collections.synchronizedList(new ArrayList<String>());
 	}
@@ -59,6 +64,22 @@ public class User {
 	
 	public void setExternalUserId(String externalUserId){
 		this.externalUserId = externalUserId;
+	}
+
+	public void setGuest(Boolean guest) {
+		this.guest = guest;
+	}
+
+	public Boolean isGuest() {
+		return this.guest;
+	}
+
+	public void setWaitingForAcceptance(Boolean waitingForAcceptance) {
+		this.waitingForAcceptance = waitingForAcceptance;
+	}
+
+	public Boolean isWaitingForAcceptance() {
+		return this.waitingForAcceptance;
 	}
 	
 	public String getFullname() {

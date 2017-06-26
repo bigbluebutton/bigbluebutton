@@ -4,6 +4,7 @@ import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendPrivateChatMessage;
 import org.bigbluebutton.common.messages.SendPublicChatMessage;
+import org.bigbluebutton.common.messages.ClearPublicChatHistoryRequestMessage;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
@@ -29,13 +30,17 @@ public class ChatMessageReceiver implements MessageHandler{
 					String messageName = header.get("name").getAsString();
 					if (GetChatHistoryRequestMessage.GET_CHAT_HISTORY_REQUEST.equals(messageName)) {
 						GetChatHistoryRequestMessage msg = GetChatHistoryRequestMessage.fromJson(message);
-						bbbGW.getChatHistory(msg.meetingId, msg.requesterId, msg.replyTo);
+						// TODO: Add chatId to getChatHistory message
+						bbbGW.getChatHistory(msg.meetingId, msg.requesterId, msg.replyTo, "FIXME!");
 					} else if (SendPublicChatMessage.SEND_PUBLIC_CHAT_MESSAGE.equals(messageName)){
 						SendPublicChatMessage msg = SendPublicChatMessage.fromJson(message);
 						bbbGW.sendPublicMessage(msg.meetingId, msg.requesterId, msg.messageInfo);
 					} else if (SendPrivateChatMessage.SEND_PRIVATE_CHAT_MESSAGE.equals(messageName)){
 						SendPrivateChatMessage msg = SendPrivateChatMessage.fromJson(message);
 						bbbGW.sendPrivateMessage(msg.meetingId, msg.requesterId, msg.messageInfo);
+					} else if (ClearPublicChatHistoryRequestMessage.CLEAR_PUBLIC_CHAT_HISTORY_REQUEST.equals(messageName)){
+						ClearPublicChatHistoryRequestMessage msg = ClearPublicChatHistoryRequestMessage.fromJson(message);
+						bbbGW.clearPublicChatHistory(msg.meetingId, msg.requesterId);
 					}
 				}
 			}

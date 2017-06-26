@@ -18,39 +18,36 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<views:LayoutButton xmlns:mx="http://www.adobe.com/2006/mxml" 
+<views:LayoutButton xmlns:mx="library://ns.adobe.com/flex/mx" 
+					xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   creationComplete="init()" 
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.broadcastButton.toolTip')}"
-		   icon="{_icon}"
-		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   styleName="broadcastLayoutButtonStyle"
+		   click="onClick(event)">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.modules.layout.events.LayoutEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _images:Images = new Images();
-			[Bindable] private var _icon:Class = _images.page_link;
 			
 			private function init():void {
-				if (!UserManager.getInstance().getConference().amIModerator()) {
-					this.visible = false;
-				}
+				refreshRole(UsersUtil.amIModerator());
 			}
 			
 			private function onClick(e:Event):void {
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.BROADCAST_LAYOUT_EVENT));
 			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				this.visible = this.includeInLayout = this.enabled = amIModerator;
+			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </views:LayoutButton>

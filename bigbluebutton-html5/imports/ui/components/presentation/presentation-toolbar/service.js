@@ -1,6 +1,6 @@
 import AuthSingleton from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/users';
-import Slides from '/imports/api/slides';
+import Users from '/imports/api/1.1/users';
+import Slides from '/imports/api/1.1/slides';
 import { makeCall } from '/imports/ui/services/api/index.js';
 
 const getSlideData = (params) => {

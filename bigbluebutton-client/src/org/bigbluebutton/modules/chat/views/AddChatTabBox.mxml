@@ -20,15 +20,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-         xmlns:mate="http://mate.asfusion.com/"
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mate="http://mate.asfusion.com/"
 		 xmlns:common="org.bigbluebutton.common.*"
          implements="org.bigbluebutton.modules.chat.views.IChatTab"
          creationComplete="onCreationComplete()">
   
-  <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<fx:Declarations>
+  		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
   
-    <mx:Script>
+    <fx:Script>
         <![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -37,12 +41,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.CoreEvent;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -52,13 +58,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
             [Bindable] public var users:ArrayCollection;
             [Bindable] public var chatView:ChatView;
-            [Bindable] private var fontSizes:Array = ['10', '12', '14', '16', '20', '24'];
+            [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
             
-            [Bindable] public var chatOptions:ChatOptions = new ChatOptions();		
+            [Bindable] public var chatOptions:ChatOptions;		
             
             private function onCreationComplete():void{
                 users = UserManager.getInstance().getConference().users;
-                
+                chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
+
                 if (!chatOptions.privateEnabled) {
                     usersList.includeInLayout = usersList.visible = false;
                 }
@@ -126,6 +133,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
           
           private function lockSettingsChanged(e:Event = null):void {
+              refreshListStatus();
+          }
+
+          private function refreshRole(e:ChangeMyRole):void {
+              refreshListStatus();
+          }
+
+          private function refreshListStatus():void {
             
             if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
             
@@ -137,9 +152,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
             
         ]]>
-    </mx:Script>
+    </fx:Script>
     
-	<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox]}"/>
+	</fx:Declarations>
     
     <mx:Label id="lblSelect" styleName="chatOptionsLabel"
 			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 

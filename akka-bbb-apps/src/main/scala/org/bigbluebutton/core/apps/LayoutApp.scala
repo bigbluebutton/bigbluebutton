@@ -1,61 +1,69 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
+
+import org.bigbluebutton.common2.domain.UserVO
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.LiveMeeting
+import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.models.{ Roles, Users }
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.models.Layouts
 
 trait LayoutApp {
-  this: LiveMeeting =>
+  this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
-    outGW.send(new GetCurrentLayoutReply(msg.meetingID, mProps.recorded, msg.requesterID,
-      layoutModel.getCurrentLayout(), meetingModel.getPermissions().lockedLayout, layoutModel.getLayoutSetter()))
+    outGW.send(new GetCurrentLayoutReply(msg.meetingID, props.recordProp.record, msg.requesterID,
+      Layouts.getCurrentLayout(),
+      MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
+      Layouts.getLayoutSetter()))
   }
 
   def handleLockLayoutRequest(msg: LockLayoutRequest) {
-    layoutModel.applyToViewersOnly(msg.viewersOnly)
-    lockLayout(msg.lock)
+    Layouts.applyToViewersOnly(msg.viewersOnly)
+    liveMeeting.lockLayout(msg.lock)
 
-    outGW.send(new LockLayoutEvent(msg.meetingID, mProps.recorded, msg.setById, msg.lock, affectedUsers))
+    outGW.send(new LockLayoutEvent(msg.meetingID, props.recordProp.record, msg.setById, msg.lock, affectedUsers))
 
     msg.layout foreach { l =>
-      layoutModel.setCurrentLayout(l)
+      Layouts.setCurrentLayout(l)
       broadcastSyncLayout(msg.meetingID, msg.setById)
     }
   }
 
   private def broadcastSyncLayout(meetingId: String, setById: String) {
-    outGW.send(new BroadcastLayoutEvent(meetingId, mProps.recorded, setById,
-      layoutModel.getCurrentLayout(), meetingModel.getPermissions().lockedLayout, layoutModel.getLayoutSetter(), affectedUsers))
+    outGW.send(new BroadcastLayoutEvent(meetingId, props.recordProp.record, setById,
+      Layouts.getCurrentLayout(),
+      MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
+      Layouts.getLayoutSetter(), affectedUsers))
   }
 
   def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
-    layoutModel.setCurrentLayout(msg.layout)
+    Layouts.setCurrentLayout(msg.layout)
     broadcastSyncLayout(msg.meetingID, msg.requesterID)
   }
 
   def handleLockLayout(lock: Boolean, setById: String) {
-    outGW.send(new LockLayoutEvent(mProps.meetingID, mProps.recorded, setById, lock, affectedUsers))
+    outGW.send(new LockLayoutEvent(props.meetingProp.intId, props.recordProp.record, setById, lock, affectedUsers))
 
-    broadcastSyncLayout(mProps.meetingID, setById)
+    broadcastSyncLayout(props.meetingProp.intId, setById)
   }
 
   def affectedUsers(): Array[UserVO] = {
-    if (layoutModel.doesLayoutApplyToViewersOnly()) {
+    if (Layouts.doesLayoutApplyToViewersOnly()) {
       val au = ArrayBuffer[UserVO]()
-      usersModel.getUsers foreach { u =>
-        if (!u.presenter && u.role != Role.MODERATOR) {
+      Users.getUsers(liveMeeting.users) foreach { u =>
+        if (!u.presenter && u.role != Roles.MODERATOR_ROLE) {
           au += u
         }
       }
       au.toArray
     } else {
-      usersModel.getUsers
+      Users.getUsers(liveMeeting.users).toArray
     }
-
   }
 
 }

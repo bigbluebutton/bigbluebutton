@@ -56,9 +56,45 @@ def publish_processed_meetings(recording_dir)
 
       step_succeeded = (ret == 0 and File.exists?(published_done))
 
+      props = YAML::load(File.open('bigbluebutton.yml'))
+      published_dir = props['published_dir']
+
+      playback = {}
+      metadata = {}
+      download = {}
+      raw_size = {}
+      start_time = {}
+      end_time = {}
+      metadata_xml_path = "#{published_dir}/#{publish_type}/#{meeting_id}/metadata.xml"
+      if File.exists? metadata_xml_path
+        begin
+          doc = Hash.from_xml(File.open(metadata_xml_path))
+          playback = doc[:recording][:playback] if !doc[:recording][:playback].nil?
+          metadata = doc[:recording][:meta] if !doc[:recording][:meta].nil?
+          download = doc[:recording][:download] if !doc[:recording][:download].nil?
+          raw_size = doc[:recording][:raw_size] if !doc[:recording][:raw_size].nil?
+          start_time = doc[:recording][:start_time] if !doc[:recording][:start_time].nil?
+          end_time = doc[:recording][:end_time] if !doc[:recording][:end_time].nil?
+        rescue Exception => e
+          BigBlueButton.logger.warn "An exception occurred while loading the extra information for the publish event"
+          BigBlueButton.logger.warn e.message
+          e.backtrace.each do |traceline|
+            BigBlueButton.logger.warn traceline
+          end
+        end
+      else
+        BigBlueButton.logger.warn "Couldn't find the metadata file at #{metadata_xml_path}"
+      end
+
       BigBlueButton.redis_publisher.put_publish_ended(publish_type, meeting_id, {
         "success" => step_succeeded,
-        "step_time" => step_time
+        "step_time" => step_time,
+        "playback" => playback,
+        "metadata" => metadata,
+        "download" => download,
+        "raw_size" => raw_size,
+        "start_time" => start_time,
+        "end_time" => end_time
       })
     else
       BigBlueButton.logger.warn("Processed recording found for type #{publish_type}, but no publish script exists")

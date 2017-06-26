@@ -4,10 +4,6 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.messages._
 
-import spray.json.JsArray
-import spray.json.JsObject
-import spray.json.JsString
-
 object MeetingMessageToJsonConverter {
   def meetingDestroyedToJson(msg: MeetingDestroyed): String = {
     val payload = new java.util.HashMap[String, Any]()
@@ -214,6 +210,23 @@ object MeetingMessageToJsonConverter {
     payload.put("timeRemaining", msg.timeRemaining)
 
     val header = Util.buildHeader(BreakoutRoomsTimeRemainingUpdate.NAME, None)
+    Util.buildJson(header, payload)
+  }
+
+  def inactivityWarningToJson(msg: InactivityWarning): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.DURATION, msg.duration)
+
+    val header = Util.buildHeader(MessageNames.INACTIVITY_WARNING, None)
+    Util.buildJson(header, payload)
+  }
+
+  def meetingIsActiveToJson(msg: MeetingIsActive): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+
+    val header = Util.buildHeader(MessageNames.MEETING_IS_ACTIVE, None)
     Util.buildJson(header, payload)
   }
 }

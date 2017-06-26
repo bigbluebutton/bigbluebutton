@@ -150,7 +150,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				_calcPageW = (viewportW/_viewedRegionW) * HUNDRED_PERCENT;
 				_calcPageH = (_pageOrigH/_pageOrigW) * _calcPageW;
 				calcViewedRegion();
-				onResizeMove();				
+				doBoundsValidation();
 			}
 		}
 		
@@ -186,17 +186,27 @@ package org.bigbluebutton.modules.present.ui.views.models
 			}			
 		}
 		
-		private function onResizeMove():void {		
+		private function doBoundsValidation():void {
 			doWidthBoundsDetection();
 			doHeightBoundsDetection();
 		}
 		
-		public function onMove(deltaX:Number, deltaY:Number):void {
+		/** Returns whether or not the page actually moved */
+		public function onMove(deltaX:Number, deltaY:Number):Boolean {
+			var oldX:Number = _calcPageX;
+			var oldY:Number = _calcPageY;
+			
 			_calcPageX += deltaX / MYSTERY_NUM;
 			_calcPageY += deltaY / MYSTERY_NUM;
 			
-			onResizeMove();	
-			calcViewedRegion();
+			doBoundsValidation();
+			
+			if (oldX != _calcPageX || oldY != _calcPageY) {
+				calcViewedRegion();
+				return true;
+			} else {
+				return false;
+			}
 		}
 		
 		public function calculateViewportSize():void {

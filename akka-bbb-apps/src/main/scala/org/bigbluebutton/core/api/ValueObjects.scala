@@ -2,10 +2,27 @@ package org.bigbluebutton.core.api
 
 import java.lang.Boolean
 
-object Role extends Enumeration {
-  type Role = Value
-  val MODERATOR = Value("MODERATOR")
-  val VIEWER = Value("VIEWER")
+import scala.collection.mutable.Stack
+
+object Metadata extends Enumeration {
+  type Metadata = String
+  val INACTIVITY_DEADLINE = "inactivity-deadline"
+  val INACTIVITY_TIMELEFT = "inactivity-timeleft"
+}
+
+object GuestPolicy extends Enumeration {
+  type GuestPolicy = Value
+  val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")
+  val ALWAYS_DENY = Value("ALWAYS_DENY")
+  val ASK_MODERATOR = Value("ASK_MODERATOR")
+}
+
+object SharedNotesOperation extends Enumeration {
+  type SharedNotesOperation = Value
+  val PATCH = Value("PATCH")
+  val UNDO = Value("UNDO")
+  val REDO = Value("REDO")
+  val UNDEFINED = Value("UNDEFINED")
 }
 
 case class StatusCode(val code: Int, val text: String)
@@ -64,14 +81,6 @@ case class Permissions(
   lockOnJoin: Boolean = false,
   lockOnJoinConfigurable: Boolean = false)
 
-case class RegisteredUser(
-  id: String,
-  externId: String,
-  name: String,
-  role: Role.Role,
-  authToken: String,
-  avatarURL: String)
-
 case class Voice(
   id: String,
   webId: String,
@@ -82,34 +91,6 @@ case class Voice(
   muted: Boolean,
   talking: Boolean)
 
-case class UserVO(
-  userID: String,
-  externUserID: String,
-  name: String,
-  role: Role.Role,
-  emojiStatus: String,
-  presenter: Boolean,
-  hasStream: Boolean,
-  locked: Boolean,
-  webcamStreams: Set[String],
-  phoneUser: Boolean,
-  voiceUser: VoiceUser,
-  listenOnly: Boolean,
-  avatarURL: String,
-  joinedWeb: Boolean)
-
-case class VoiceUser(
-  userId: String,
-  webUserId: String,
-  callerName: String,
-  callerNum: String,
-  joined: Boolean,
-  locked: Boolean,
-  muted: Boolean,
-  talking: Boolean,
-  avatarURL: String,
-  listenOnly: Boolean)
-
 case class MeetingConfig(name: String,
   id: MeetingID,
   passwords: MeetingPasswords,
@@ -119,7 +100,8 @@ case class MeetingConfig(name: String,
   record: Boolean = false,
   duration: MeetingDuration,
   defaultAvatarURL: String,
-  defaultConfigToken: String)
+  defaultConfigToken: String,
+  guestPolicy: GuestPolicy.GuestPolicy = GuestPolicy.ASK_MODERATOR)
 
 case class MeetingName(name: String)
 
@@ -138,3 +120,23 @@ case class MeetingInfo(
   recorded: Boolean,
   voiceBridge: String,
   duration: Long)
+
+trait BaseNote {
+  def name: String
+  def document: String
+  def patchCounter: Int
+}
+
+case class Note(
+  name: String,
+  document: String,
+  patchCounter: Int,
+  undoPatches: Stack[(String, String)],
+  redoPatches: Stack[(String, String)]) extends BaseNote
+
+case class NoteReport(
+  name: String,
+  document: String,
+  patchCounter: Int,
+  undo: Boolean,
+  redo: Boolean) extends BaseNote

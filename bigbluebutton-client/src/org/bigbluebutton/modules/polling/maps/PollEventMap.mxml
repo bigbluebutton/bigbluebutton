@@ -18,47 +18,48 @@
   $Id: $
 -->
 
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+<EventMap xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="http://mate.asfusion.com/">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
       import org.bigbluebutton.modules.polling.events.*;
       import org.bigbluebutton.modules.polling.service.PollingService;
 			
 				]]>
 				
-	</mx:Script>
+	</fx:Script>
 
-	<EventHandlers type="{ModuleEvent.START}">
-		<ObjectBuilder generator="{PollingService}" cache="global"/>
-	</EventHandlers>	
-	
-	<EventHandlers type="{ModuleEvent.STOP}">
-	</EventHandlers>	
+	<fx:Declarations>
+		<EventHandlers type="{ModuleEvent.START}">
+			<ObjectBuilder generator="{PollingService}" cache="global"/>
+		</EventHandlers>	
+		
+		<EventHandlers type="{ModuleEvent.STOP}">
+		</EventHandlers>	
+		
+		<EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}"/>
+		
+		<EventHandlers type="{StartCustomPollEvent.START}">
+			<MethodInvoker generator="{PollingService}" method="handleStartCustomPollEvent" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{StartPollEvent.START}">
+			<MethodInvoker generator="{PollingService}" method="handleStartPollEvent" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{StopPollEvent.STOP_POLL}">
+			<MethodInvoker generator="{PollingService}" method="handleStopPollEvent" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{VotePollEvent.VOTE_POLL}">
+			<MethodInvoker generator="{PollingService}" method="handleVotePollEvent" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ShowPollResultEvent.SHOW_POLL_RESULT}">
+			<MethodInvoker generator="{PollingService}" method="handleShowPollResultEvent" arguments="{event}"/>
+		</EventHandlers>
+		
+		<Debugger level="{Debugger.ALL}" />
+	</fx:Declarations>
 
-  <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}"/>
-
-    <EventHandlers type="{StartCustomPollEvent.START}">
-      <MethodInvoker generator="{PollingService}" method="handleStartCustomPollEvent" arguments="{event}"/>
-    </EventHandlers>
-	
-  <EventHandlers type="{StartPollEvent.START}">
-    <MethodInvoker generator="{PollingService}" method="handleStartPollEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{StopPollEvent.STOP_POLL}">
-    <MethodInvoker generator="{PollingService}" method="handleStopPollEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{VotePollEvent.VOTE_POLL}">
-    <MethodInvoker generator="{PollingService}" method="handleVotePollEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{ShowPollResultEvent.SHOW_POLL_RESULT}">
-    <MethodInvoker generator="{PollingService}" method="handleShowPollResultEvent" arguments="{event}"/>
-  </EventHandlers>
-
- 
-  
-  <Debugger level="{Debugger.ALL}" />
 </EventMap>

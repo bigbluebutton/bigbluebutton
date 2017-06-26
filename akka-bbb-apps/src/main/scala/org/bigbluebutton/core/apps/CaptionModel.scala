@@ -1,8 +1,5 @@
 package org.bigbluebutton.core.apps
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.immutable.HashMap
-
 class CaptionModel {
   var transcripts = Map[String, Array[String]]()
 
@@ -46,12 +43,12 @@ class CaptionModel {
     //println("editHistory entered")
     if (transcripts contains locale) {
       //println("editHistory found locale:" + locale)
-      var oText: String = transcripts(locale)(1)
+      val oText: String = transcripts(locale)(1)
 
       if (startIndex >= 0 && endIndex <= oText.length && startIndex <= endIndex) {
         //println("editHistory passed index test")
-        var sText: String = oText.substring(0, startIndex)
-        var eText: String = oText.substring(endIndex)
+        val sText: String = oText.substring(0, startIndex)
+        val eText: String = oText.substring(endIndex)
 
         transcripts(locale)(1) = (sText + text + eText)
         //println("editHistory new history is: " + transcripts(locale)(1))

@@ -21,28 +21,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:VBox xmlns="flexlib.containers.*" 
-    initialize="init()" 
-    xmlns:mx="http://www.adobe.com/2006/mxml" 
+    xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
     xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
     xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
 	xmlns:common="org.bigbluebutton.common.*"
     xmlns:mate="http://mate.asfusion.com/" 
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
-    styleName="whiteboardToolbarStyle">
+    includeInLayout="{showWhiteboardToolbar}"
+    styleName="whiteboardToolbarStyle"
+    hideEffect="{fadeOut}" showEffect="{fadeIn}" xmlns:s="library://ns.adobe.com/flex/spark">
 
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
-  <mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
-  <mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
-  <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
-  <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
-  <mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
-  <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
-  <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
-  <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
+	<fx:Declarations>
+	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
+	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
+	  <mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
+	  <mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
+	  <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
     
-  <mx:Style>
+  <fx:Style>
     .colorPickerStyle {
       backgroundColor:#E5E6E7;
       columnCount:13;
@@ -59,53 +58,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       verticalGap:0;
     }
 
-  </mx:Style>
+  </fx:Style>
 
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Listener;
+		import com.asfusion.mate.core.GlobalDispatcher;
 		
 		import mx.events.MoveEvent;
 		import mx.events.ResizeEvent;
 		
+		import flexlib.mdi.containers.MDIWindow;
+		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-		import org.bigbluebutton.modules.present.events.NavigationEvent;
-		import org.bigbluebutton.modules.present.events.UploadEvent;
-		import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-		import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-		import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+		import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-		import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 		import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
-			[Bindable] private var hand_icon:Class = images.hand_icon;
-			[Bindable] private var pencil_icon:Class = images.pencil_icon;
-			[Bindable] private var undo_icon:Class = images.undo_icon;
-			[Bindable] private var delete_icon:Class = images.delete_icon;
-			[Bindable] private var rectangle_icon:Class = images.square_icon;
-			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
-			[Bindable] private var scribble_icon:Class = images.scribble_icon;
-			[Bindable] private var text_icon:Class = images.text_icon;            
-			[Bindable] private var triangle_icon:Class = images.triangle_icon;
-			[Bindable] private var line_icon:Class = images.line_icon;
-			[Bindable] private var fill_icon:Class = images.fill_icon;
-			[Bindable] private var transparency_icon:Class = images.transparency_icon;
-			[Bindable] private var eraser_icon:Class = images.eraser_icon;
-			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
-			[Bindable] private var select_icon:Class = images.select_icon;
-			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
 			[Bindable] public var wbOptions:WhiteboardOptions;
 			
@@ -114,20 +96,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(WhiteboardToolbar);      
       
 			private var mousedOver:Boolean = false;
-			private var slideLoaded:Boolean = false;
+			private var whiteboardIdExists:Boolean = false;
 			
 			public var canvas:WhiteboardCanvas;
-			private var presentationWindow:PresentationWindow;
+			private var containerToOverlay:MDIWindow;
 			
+			[Bindable]
+			private var multiUser:Boolean = false;
+		
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
-			
-			private function init():void{
-				wbOptions = new WhiteboardOptions();
-			}
-			
+
+			private var _hideToolbarTimer:Timer = new Timer(500, 1);
+
       private function onCreationComplete():void {
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+        _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
+        addEventListener(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED, handleWhiteboardButtonPressed);
       }
 
       private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
@@ -136,7 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function setToolType(graphicType:String, toolType:String):void {                
         if (graphicType == WhiteboardConstants.TYPE_CLEAR) {
-           dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+           canvas.sendClearToServer();
         } else if (graphicType == WhiteboardConstants.TYPE_UNDO) {
            sendUndoCommand();
         } else {
@@ -177,37 +162,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 canvas.changeColor(e);
 			}
 			
-			protected function changeFillColor(e:Event):void {
-				canvas.changeFillColor(e);
-			}
-			
 			protected function changeThickness(e:Event):void {
 				canvas.changeThickness(e);
 			}
-			
-			protected function toggleFill():void {
-				canvas.toggleFill();
-			}
-			
-			protected function toggleTransparency():void {
-				canvas.toggleTransparency();
+		
+			protected function changeMultiUser():void {
+				if (!isPresenter) return;
+				
+				var dispatcher:GlobalDispatcher = new GlobalDispatcher();
+				
+				var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS);
+				event.multiUser = !multiUser;
+				dispatcher.dispatchEvent(event);
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
-        if (canvas == null) return;
-        
-				canvas.makeTextObjectsEditable(e);
-        setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+				checkVisibility();
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
-				canvas.makeTextObjectsUneditable(e);
-				if (!toolbarAllowed()) {
-                    checkVisibility();
-                    if (panzoomBtn) {
-                        panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                    }
-                }
+				checkToolReset();
+				checkVisibility();
+			}
+		
+			public function whiteboardAccessModified(mu:Boolean):void {
+				multiUser = mu;
+				checkToolReset();
+				checkVisibility();
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
@@ -216,52 +197,73 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function sendUndoCommand():void {
-//				if (!canvas.isPageEmpty()) {          
-					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
-//        }
+				canvas.sendUndoToServer();
 			}
 			
-			public function positionToolbar(window:PresentationWindow):void {
+			public function positionToolbar(container:MDIWindow):void {
+				wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
         		LOGGER.debug("Positioning whiteboard toolbar");
-				presentationWindow = window;
-				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
-				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
+				containerToOverlay = container;
+				containerToOverlay.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				containerToOverlay.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				containerToOverlay.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				
-                if (!wbOptions.keepToolbarVisible) {
-    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, handleMouseOut);
-    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, handleMouseIn);
-    				
-    				window.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
-    				window.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
-    				
-    				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
-    				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
-                } else {
-                    var listener1:Listener = new Listener();
-                    listener1.method = checkVisibility;
-                    listener1.type = MadePresenterEvent.SWITCH_TO_PRESENTER_MODE;
-                    var listener2:Listener = new Listener();
-                    listener2.method = checkVisibility;
-                    listener2.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
-                    //Do an initial check to see if the toolbar should be visible
-                    checkVisibility();
-                }
+				if (!wbOptions.keepToolbarVisible) {
+					//containerToOverlay.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, handleMouseOut);
+					//containerToOverlay.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, handleMouseIn);
+					
+					containerToOverlay.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+					containerToOverlay.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+					
+					this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+					this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+				}
 			}
 			
+			private function refreshRole(e:ChangeMyRole):void {
+				checkVisibility();
+			}
+
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
+                if (containerToOverlay && toolbarAllowed() && whiteboardIdExists && (wbOptions.keepToolbarVisible || mousedOver) && !containerToOverlay.minimized) {
                     setPositionAndDepth();
-                    showWhiteboardToolbar = true;
+                    showToolbar();
                 } else {
-                    showWhiteboardToolbar = false;
+                    hideToolbar();
                 }
             }
             
+			private function showToolbar():void {
+				_hideToolbarTimer.reset();
+				if (fadeOut.isPlaying) {
+					fadeOut.end();
+				}
+				showWhiteboardToolbar = true;
+			}
+
+			private function hideToolbar():void {
+				_hideToolbarTimer.reset();
+				_hideToolbarTimer.start();
+			}
+
+			private function onHideToolbarTimerComplete(event:TimerEvent):void {
+				if (fadeIn.isPlaying) {
+					fadeIn.end();
+				}
+				showWhiteboardToolbar = false;
+			}
+
 			private function setPositionAndDepth(e:Event = null):void {
-				this.x = presentationWindow.x + presentationWindow.width - 43;
-				this.y = presentationWindow.y + 30;
+				if (parent == null) return;
+				this.x = containerToOverlay.x + containerToOverlay.width - 43;
+				this.y = containerToOverlay.y + 30;
 				parent.setChildIndex(this, parent.numChildren - 1);
+			}
+		
+			private function checkToolReset():void {
+				if (!multiUser && !isPresenter) {
+					setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+				}
 			}
 			
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void {
@@ -277,46 +279,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mousedOver = false;
 				checkVisibility();
 			}
-           
-           private function handleSlideLoaded(e:DisplaySlideEvent):void {
-               slideLoaded = true;
-               checkVisibility();
-           }
-           
-           private function handleSlideChange(e:NavigationEvent):void {
-               slideLoaded = false;
-               // don't switch the toolbar button on slide change
-               checkVisibility();
-           }
-           
-           private function handlePresentationSwitch(e:UploadEvent):void {
-               slideLoaded = false;
-               if (panzoomBtn) {
-                   panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-               }
-               checkVisibility();
-           }
-           
-      private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
-        var gobj:GraphicObject = event.data;
-      }
-            
-      private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
-		var gobj:GraphicObject = event.data;
-      }
+			
+			public function whiteboardIdSet():void {
+				whiteboardIdExists = true;
+				checkVisibility();
+			}
       
       private function toolbarAllowed():Boolean {
-      	if (wbOptions) {
-      	  if (wbOptions.whiteboardAccess == "presenter")
-            return isPresenter;
-          else if (wbOptions.whiteboardAccess == "moderator")
-            return isModerator || isPresenter;
-          else if (wbOptions.whiteboardAccess == "all")
-            return true;
-          else
-            return false;
-        } else
-          return false;
+        return (multiUser? true : isPresenter);
       }
       
       /** Helper method to test whether this user is the presenter */
@@ -327,40 +297,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function get isModerator():Boolean {
         return UsersUtil.amIModerator();
       }
-		           
+
 		]]>
-	</mx:Script>
-	
-	<common:TabIndexer startIndex="{wbOptions.baseTabIndex}"
-					   tabIndices="{[panzoomBtn, scribbleBtn, rectangleBtn, circleBtn, triangleBtn, lineBtn, textBtn, clearBtn, undoBtn, cpik, sld]}"/>
+	</fx:Script>
+	<fx:Declarations>
+		<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0" />
+		<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
+		<common:TabIndexer startIndex="{wbOptions.baseTabIndex}"
+						   tabIndices="{[panzoomBtn, scribbleBtn, rectangleBtn, circleBtn, triangleBtn, lineBtn, textBtn, clearBtn, undoBtn, cpik, sld]}"/>
+	</fx:Declarations>
 	
 	<!-- Now, every 'tool' has two types of identifiers, one is found in WhiteboardConstants
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
-    <wbBtns:PanZoomButton id="panzoomBtn" 
-    					  visible="{showWhiteboardToolbar}"/>
-    <mx:Spacer height="10" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:ScribbleButton id="scribbleBtn" 
-						   visible="{showWhiteboardToolbar}"/>
-	<wbBtns:RectangleButton id="rectangleBtn" 
-							visible="{showWhiteboardToolbar}"/>
-	<wbBtns:CircleButton id="circleBtn" 
-						 visible="{showWhiteboardToolbar}"/>
-	<wbBtns:TriangleButton id="triangleBtn" 
-						   visible="{showWhiteboardToolbar}"/>
-	<wbBtns:LineButton id="lineBtn" 
-					   visible="{showWhiteboardToolbar}"/>
-	<wbBtns:TextButton id="textBtn" 
-					   visible="{showWhiteboardToolbar}"/>
+    <wbBtns:PanZoomButton id="panzoomBtn"/>
+    <mx:Spacer height="10"/>
+	<wbBtns:ScribbleButton id="scribbleBtn"/>
+	<wbBtns:RectangleButton id="rectangleBtn"/>
+	<wbBtns:CircleButton id="circleBtn"/>
+	<wbBtns:TriangleButton id="triangleBtn"/>
+	<wbBtns:LineButton id="lineBtn"/>
+	<wbBtns:TextButton id="textBtn"/>
 		
-	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:ClearButton id="clearBtn" 
-						visible="{showWhiteboardToolbar}"/>
-	<wbBtns:UndoButton id="undoBtn" 
-					   visible="{showWhiteboardToolbar}"/>
+	<mx:Spacer height="5"/>
+	<wbBtns:ClearButton id="clearBtn"/>
+	<wbBtns:UndoButton id="undoBtn"/>
 	
-	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
+	<mx:Spacer height="5"/>
 	
 	<!--
 	Properties that were removed from original color picker:
@@ -373,18 +337,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
-	<mx:ColorPicker change="changeColor(event)" id="cpik"  visible="{showWhiteboardToolbar}"
+	<mx:ColorPicker change="changeColor(event)" id="cpik"
                   selectedColor="0x000000" width="30" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"
 				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
-	<mx:Spacer height="3" visible="{showWhiteboardToolbar}"/>
-	<mx:Image source="{thick_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" visible="{showWhiteboardToolbar}"
+	<mx:Spacer height="3"/>
+	<mx:Image source="{thick_icon}" horizontalAlign="center" width="30"/>
+	<mx:VSlider height="50" id="sld" change="changeThickness(event)"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" 
 				minimum="1" maximum="30" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
-	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
-	
+	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30"/>
+	<mx:Button id="multiUserBtn" click="changeMultiUser()" width="30" height="30" styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"/> 
 </mx:VBox>

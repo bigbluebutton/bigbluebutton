@@ -38,13 +38,12 @@ package org.bigbluebutton.modules.caption.views {
 	import mx.events.FlexEvent;
 	
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
-	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 	import org.bigbluebutton.modules.caption.model.CaptionOptions;
 	import org.bigbluebutton.modules.caption.model.Transcript;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
-	import org.osmf.events.TimeEvent;
 
 	public class TextTab extends VBox {
 		
@@ -179,7 +178,7 @@ package org.bigbluebutton.modules.caption.views {
 			//check focus targets before switching visibility
 			var focusedTextArea:TextArea2 = null;
 			
-			if (ownerID == UserManager.getInstance().getConference().getMyUserId()) {
+			if (ownerID == UsersUtil.getMyUserID()) {
 				claimButton.visible = claimButton.includeInLayout = false;
 				
 				if (focusManager && focusManager.getFocus() == outputArea) {
@@ -192,7 +191,7 @@ package org.bigbluebutton.modules.caption.views {
 				inputArea.getInternalTextField().type = TextFieldType.INPUT;
 				inputArea.text = currentTranscript.transcript;
 			} else {
-				claimButton.visible = claimButton.includeInLayout = UserManager.getInstance().getConference().amIModerator();
+				claimButton.visible = claimButton.includeInLayout = UsersUtil.amIModerator();
 				
 				if (focusManager && focusManager.getFocus() == outputArea) {
 					delayedFocusTextArea();

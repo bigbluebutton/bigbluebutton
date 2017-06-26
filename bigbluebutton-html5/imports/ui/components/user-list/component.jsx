@@ -109,8 +109,8 @@ class UserList extends Component {
     }
 
     if (Args[0].keyCode === KEY_CODES.ENTER
-        || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
-        || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
+      || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
+      || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
       active.firstChild.click();
     }
 
@@ -151,7 +151,6 @@ class UserList extends Component {
 
   componentWillUnmount() {
     this._msgsList.removeEventListener('keypress', (event) => {}, false);
-
     this._usersList.removeEventListener('keypress', (event) => {}, false);
   }
 

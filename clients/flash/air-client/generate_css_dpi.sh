@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Install bc binayr to use this command line tool `sudo apt-get install bc`
+# Install bc binary to use this command line tool `sudo apt-get install bc`
 # Then install cssbeautify-cli node.js library `sudo npm install -g cssbeautify-cli`
 # Resolution arrays declaration
 declare -a files=("ldpi" "mdpi" "hdpi" "xxhdpi" "xxxhdpi")
 declare -a resolutions=("120" "160" "240" "480" "640")
 declare -a ratios=("0.375" "0.5" "0.75" "1.5" "2")
 
-# Loop over reoslution array
+# Loop over resolution array
 for i in "${!files[@]}"
 do
 	echo "Generating file ${files[$i]}.css with ${resolutions[$i]} dpi resolution"
@@ -26,7 +26,7 @@ do
 			# Or write the line as it is
             echo $line >> src/css/tmp.css
         fi
-	# Always use xhdpi.css as base to geenrate css files
+	# Always use xhdpi.css as base to generate css files
     done < src/css/xhdpi.css
 	
 	# Write the new resolution to the generated file

@@ -20,13 +20,16 @@
   $Id: $
 --> 
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.users.maps.*" >
 	
-	<maps:UsersEventMap id="UsersEventMap" />
+	<fx:Declarations>
+		<maps:UsersEventMap id="UsersEventMap" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -75,6 +78,6 @@
 				
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 </mx:Module>

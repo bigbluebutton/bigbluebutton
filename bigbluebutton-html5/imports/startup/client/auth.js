@@ -6,16 +6,30 @@ import IosHandler from '/imports/ui/services/ios-handler';
 const STATUS_CONNECTING = 'connecting';
 
 export function joinRouteHandler(nextState, replace, callback) {
-  if (!nextState || !nextState.params.authToken) {
+  const { sessionToken } = nextState.location.query;
+  console.log(`sessionToken=${sessionToken}`);
+
+  if (!nextState || !sessionToken) {
     replace({ pathname: '/error/404' });
     callback();
   }
 
-  const { meetingID, userID, authToken } = nextState.params;
+  // use enter api to get params for the client
+  const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
 
-  Auth.set(meetingID, userID, authToken);
-  replace({ pathname: '/' });
-  callback();
+  let BBBParameters;
+  fetch(url)
+    .then(response => response.json())
+    .then((data) => {
+      BBBParameters = data.response;
+      console.log(BBBParameters);
+
+      const { meetingID, internalUserID, authToken } = BBBParameters;
+
+      Auth.set(meetingID, internalUserID, authToken);
+      replace({ pathname: '/' });
+      callback();
+    });
 }
 
 export function logoutRouteHandler(nextState, replace, callback) {

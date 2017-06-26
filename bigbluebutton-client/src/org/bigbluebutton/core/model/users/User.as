@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.model.users
 {
-
+  
   public class User
   {
     private var _id: String;
@@ -31,8 +31,8 @@ package org.bigbluebutton.core.model.users
     
     public function copy():User {
       return new UserBuilder(_id, _name)
-                 .withAvatar(_avatarUrl)
-                 .withExternalId(_externId).build();
+      .withAvatar(_avatarUrl)
+        .withExternalId(_externId).build();
     }
   }
 }
