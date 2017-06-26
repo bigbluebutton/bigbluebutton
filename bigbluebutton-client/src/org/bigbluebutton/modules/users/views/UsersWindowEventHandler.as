@@ -46,7 +46,6 @@ package org.bigbluebutton.modules.users.views
     }
     
     public function handleUserLeftEvent(userId: String):void {
-      trace("Removing user " + userId + " from users list.");
       removeUser(userId, users);
     }
     
@@ -55,7 +54,6 @@ package org.bigbluebutton.modules.users.views
         var user:BBBUser2x = users.getItemAt(i) as BBBUser2x;
         if (user.userId == userId) {
           users.removeItemAt(i);
-          trace("Removed user " + userId + " from users list.");
           users.refresh();
           return;
         }
@@ -141,7 +139,7 @@ package org.bigbluebutton.modules.users.views
         
         // We want to remove the user if it's already in the collection and re-add it.
         removeUser(user.userId, users);
-        
+        trace("Adding User joined to voice conference " + user.name + " id=" + user.userId);
         users.addItem(user);
       }
     }
@@ -151,6 +149,7 @@ package org.bigbluebutton.modules.users.views
     public function handleUserJoinedVoiceConfEvent(userId: String):void {
       var webUser: BBBUser2x = findUser(userId);
       if (webUser != null) {
+        trace("User joined to voice conference " + webUser.name + " id=" + webUser.userId);
         addVoiceUserToWebUser(webUser);
       } else {
         var vu: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
@@ -253,7 +252,7 @@ package org.bigbluebutton.modules.users.views
     private function findUser(userId: String): BBBUser2x {
       for (var i: int = 0; i < users.length; i++) {
         var user: BBBUser2x = users[i] as BBBUser2x;
-        if (user != null) {
+        if (user != null && user.userId == userId) {
           return user;
         }
       }

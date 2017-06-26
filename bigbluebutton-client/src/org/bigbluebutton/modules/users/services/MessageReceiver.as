@@ -236,7 +236,7 @@ package org.bigbluebutton.modules.users.services
       LiveMeeting.inst().voiceUsers.setMutedForUser(intId, muted);
       
       if (UsersUtil.isMe(intId)) {
-        LiveMeeting.inst().me.muted = false;
+        LiveMeeting.inst().me.muted = muted;
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
@@ -541,8 +541,6 @@ package org.bigbluebutton.modules.users.services
       var header:Object = msg.header as Object;
       var body: Object = msg.body as Object;
       
-      
-      
       var newPresenterID:String = body.presenterId as String;
       var newPresenterName:String = body.presenterName as String;
       var assignedBy:String = body.assignedBy as String;
@@ -640,7 +638,6 @@ package org.bigbluebutton.modules.users.services
         logData.user.webcamStream = stream;
         LOGGER.info(JSON.stringify(logData));
 	  
-//        UserManager.getInstance().getConference().unsharedWebcam(userId, stream);
         sendStreamStoppedEvent(userId, stream);
     }
 	
