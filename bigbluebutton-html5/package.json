@@ -6,7 +6,15 @@
     "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
-    "lint": "eslint . --ext .jsx,.js"
+    "lint": "eslint . --ext .jsx,.js",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "gitDir": "../",
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "dependencies": {
     "babel-runtime": "^6.23.0",
@@ -42,6 +50,8 @@
     "eslint-plugin-import": "~2.3.0",
     "eslint-plugin-jsx-a11y": "^5.0.3",
     "eslint-plugin-react": "^7.0.1",
+    "husky": "^0.13.4",
+    "lint-staged": "^3.6.0",
     "postcss-modules-extract-imports": "1.1.0",
     "postcss-modules-local-by-default": "1.2.0",
     "postcss-modules-scope": "1.1.0",
