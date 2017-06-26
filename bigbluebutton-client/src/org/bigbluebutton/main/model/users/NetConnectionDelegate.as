@@ -107,9 +107,13 @@ package org.bigbluebutton.main.model.users
             
         private function notifyListeners(messageName:String, message:Object):void {
           if (messageName != null && messageName != "") {
-            for (var notify:String in _messageListeners) {
-              _messageListeners[notify].onMessage(messageName, message);
-            }                
+            try {
+              for (var notify:String in _messageListeners) {
+                _messageListeners[notify].onMessage(messageName, message);
+              }
+            } catch(error:Error) {
+              LOGGER.error("Exception dispatched by a MessageListener, error: " + error.message);
+            }
           } else {
             LOGGER.debug("Message name is undefined");
           }
