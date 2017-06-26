@@ -8,7 +8,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 
 class CaptionApp2x(val liveMeeting: LiveMeeting,
   val outGW: OutMessageGateway)(implicit val context: ActorContext)
-    extends EjectUserFromMeetingHdlr
+    extends UserLeavingHdlr
     with EditCaptionHistoryPubMsgHdlr
     with UpdateCaptionOwnerPubMsgHdlr
     with SendCaptionHistoryReqMsgHdlr {

@@ -31,7 +31,7 @@ trait UserLeavingHdlr {
           vu.callerNum, vu.muted, vu.talking, vu.avatarURL, u.listenOnly));
       }
 
-      checkCaptionOwnerLogOut(u.id)
+      captionApp2x.handleUserLeavingMsg(u.id)
       liveMeeting.startCheckingIfWeNeedToEndVoiceConf()
       stopAutoStartedRecording()
     }

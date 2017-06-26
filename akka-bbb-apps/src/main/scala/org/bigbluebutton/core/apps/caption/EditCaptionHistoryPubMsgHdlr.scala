@@ -25,7 +25,6 @@ trait EditCaptionHistoryPubMsgHdlr {
     }
 
     val successfulEdit = editCaptionHistory(msg.header.userId, msg.body.startIndex, msg.body.endIndex, msg.body.locale, msg.body.text)
-    println("the edit return was: " + successfulEdit)
     if (successfulEdit) {
       broadcastEvent(msg)
     }
