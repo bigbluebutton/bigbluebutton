@@ -28,6 +28,10 @@ object Connections {
   def remove(conns: Connections, connId: String): Option[Connection] = {
     conns.remove(connId)
   }
+
+  def noMoreConnections(conns: Connections): Boolean = {
+    conns.toVector.length == 0
+  }
 }
 
 class Connections {

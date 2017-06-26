@@ -49,6 +49,8 @@
     <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserLeftVoiceConfEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserMutedEvent" />
     <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+    <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
+    
     
 	</fx:Declarations>
 	<fx:Script>
@@ -94,6 +96,7 @@
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.BreakoutRoom;
       import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -176,6 +179,11 @@
       private function handleUserTalkingEvent(event: CoreEvent): void {
         handler.handleUserTalkingEvent(event.message.userID, event.message.talking);  
       }
+      
+      private function handleUserLeftEvent(event: UserLeftEvent): void {
+        handler.handleUserLeftEvent(event.userID);  
+      }
+      
       
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {
         handler.handleUserJoinedEvent(event);

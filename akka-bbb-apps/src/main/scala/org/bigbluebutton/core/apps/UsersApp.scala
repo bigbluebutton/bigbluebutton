@@ -9,8 +9,9 @@ import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.handlers.users.UserLeavingHdlr
 
-trait UsersApp {
+trait UsersApp extends UserLeavingHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway

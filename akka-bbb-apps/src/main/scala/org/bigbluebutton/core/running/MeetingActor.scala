@@ -211,6 +211,7 @@ class MeetingActor(val props: DefaultProps,
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
       case m: UserJoinMeetingReqMsg => handle(m)
+      case m: UserLeaveReqMsg => handle(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
@@ -253,7 +254,7 @@ class MeetingActor(val props: DefaultProps,
       case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
       case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
       case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
-      case _ => println("***** Cannot handle " + msg.envelope.name)
+      case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
 

@@ -39,14 +39,12 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.events.BreakoutRoomEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
-  import org.bigbluebutton.main.events.PresenterStatusEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
+  import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
-  import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 
@@ -79,6 +77,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "UserJoinedMeetingEvtMsg":
           handleUserJoinedMeetingEvtMsg(message);
+          break;
+        case "UserLeftMeetingEvtMsg":
+          handleUserLeftMeetingEvtMsg(message);
           break;
         case "PresenterAssignedEvtMsg":
           handleAssignPresenterCallback(message);
@@ -267,6 +268,26 @@ package org.bigbluebutton.modules.users.services
       } 
     }
     
+    public function handleUserLeftMeetingEvtMsg(msg:Object):void {     
+      var body: Object = msg.body as Object
+      var userId: String = body.intId as String;
+      
+      var webUser:User2x = UsersUtil.getUser(userId);
+      
+      if (webUser != null) {
+        LiveMeeting.inst().users.remove(userId);
+        if(webUser.waitingForAcceptance) {
+          var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
+          removeGuest.payload.userId = userId;
+          dispatcher.dispatchEvent(removeGuest);
+        }
+        
+        var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
+        joinEvent.userID = userId;
+        dispatcher.dispatchEvent(joinEvent);	
+      }
+    }
+    
     private function handleUserJoinedMeetingEvtMsg(msg:Object):void {
       var body: Object = msg.body as Object;
       processUserJoinedMeetingMsg(body);
@@ -298,7 +319,7 @@ package org.bigbluebutton.modules.users.services
       user2x.presenter = presenter;
       user2x.avatar = avatar;
       
-      LOGGER.debug("USER = " + JSON.stringify(user2x));
+      LOGGER.debug("USER JOINED = " + JSON.stringify(user2x));
       
       LiveMeeting.inst().users.add(user2x);
       

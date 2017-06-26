@@ -36,11 +36,17 @@ package org.bigbluebutton.modules.users.views
 
     }
     
+    public function handleUserLeftEvent(userId: String):void {
+      trace("Removing user " + userId + " from users list.");
+      removeUser(userId, users);
+    }
+    
     private function removeUser(userId:String, users: ArrayCollection):void {
       for (var i:int = 0; i < users.length; i++) {
         var user:BBBUser2x = users.getItemAt(i) as BBBUser2x;
         if (user.userId == userId) {
           users.removeItemAt(i);
+          trace("Removed user " + userId + " from users list.");
           users.refresh();
           return;
         }
@@ -105,6 +111,15 @@ package org.bigbluebutton.modules.users.views
       users.addItem(buser);
     }
     
+    public function handleUserJoinedEvent(event: UserJoinedEvent):void {
+      var user: User2x = UsersUtil.getUser(event.userID);
+      if (user != null) {
+        addUser(users, user);
+        trace("!!!!!!!!!!!!!!!********* " + user.name + " " + user.presenter + " ********!!!!!!!!");
+        users.refresh();
+      }
+    }
+    
     private function addVoiceUserToWebUser(user: BBBUser2x): void {
       var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(user.userId);
       if (voiceUser != null) {
@@ -122,19 +137,12 @@ package org.bigbluebutton.modules.users.views
       }
     }
     
-    public function handleUserJoinedEvent(event: UserJoinedEvent):void {
-      var user: BBBUser2x = findUser(event.userID);
-      if (user != null) {
-        addVoiceUserToWebUser(user);
-        trace("!!!!!!!!!!!!!!!********* " + user.name + " " + user.presenter + " ********!!!!!!!!");
-        users.refresh();
-      }
-    }
+
     
     public function handleUserJoinedVoiceConfEvent(userId: String):void {
-      var webUser: User2x = UsersUtil.getUser(userId);
+      var webUser: BBBUser2x = findUser(userId);
       if (webUser != null) {
-        addUser(users, webUser);
+        addVoiceUserToWebUser(webUser);
       } else {
         var vu: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
         if (vu != null) {

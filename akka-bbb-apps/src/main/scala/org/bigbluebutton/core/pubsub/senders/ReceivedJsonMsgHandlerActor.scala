@@ -238,6 +238,12 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
+      case UserLeaveReqMsg.NAME =>
+        for {
+          m <- deserialize[UserLeaveReqMsg](jsonNode)
+        } yield {
+          send(m.header.meetingId, envelope, m)
+        }
       case SendCursorPositionPubMsg.NAME =>
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
       case ModifyWhiteboardAccessPubMsg.NAME =>
