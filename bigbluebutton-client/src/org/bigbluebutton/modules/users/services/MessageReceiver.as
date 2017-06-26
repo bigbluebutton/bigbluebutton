@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.UserEmojiChangedEvent;
   import org.bigbluebutton.core.events.UserStatusChangedEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.MediaStream;
@@ -44,6 +45,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -123,7 +125,7 @@ package org.bigbluebutton.modules.users.services
         case "meetingIsActive":
           handleMeetingIsActive(message);
           break;
-        case "userEmojiStatus":
+        case "UserEmojiChangedEvtMsg":
           handleEmojiStatusHand(message);
           break;
         case "getRecordingStatusReply":
@@ -373,7 +375,7 @@ package org.bigbluebutton.modules.users.services
         var attributes: Object = media.attributes as Object;
         var viewers: Array = media.viewers as Array;
         
-        var webcamStream: MediaStream = new MediaStream();
+        var webcamStream: MediaStream = new MediaStream(streamId, userId);
         webcamStream.streamId = streamId;
         webcamStream.userId = userId;
         webcamStream.attributes = attributes;
@@ -581,23 +583,53 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleEmojiStatusHand(msg: Object): void {   
-      var map:Object = JSON.parse(msg.msg);      
-
+      var body:Object = msg.body as Object;      
+      var userId: String = body.userId as String;
+      var emoji: String = body.emoji as String;
+      var webUser: User2x = UsersUtil.getUser(userId);
+      if (webUser != null) {
+        webUser.emoji = emoji;
+        if (UsersUtil.isMe(userId)) {
+          UsersUtil.setMyEmoji(emoji);
+        }
+        
+        sendUserEmojiChangedEvent(userId, emoji);
+      }
+      
     }
 
+    private function sendUserEmojiChangedEvent(userId: String, emoji: String):void{
+      var dispatcher:Dispatcher = new Dispatcher();
+      dispatcher.dispatchEvent(new UserEmojiChangedEvent(userId, emoji));
+    }
+    
+    
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
         var userId: String = msg.body.userId as String; 
-        var stream: String = msg.body.stream as String;
+        var streamId: String = msg.body.stream as String;
         
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["webcam"];
         logData.message = "UserBroadcastCamStartedEvtMsg server message";
-        logData.user.webcamStream = stream;
+        logData.user.webcamStream = streamId;
         LOGGER.info(JSON.stringify(logData));
 
-
+        var mediaStream: MediaStream = new MediaStream(streamId, userId)
+        LiveMeeting.inst().webcams.add(mediaStream);
+        
+        var webUser: User2x = UsersUtil.getUser(userId);
+        if (webUser != null) {
+          webUser.streamNames.push(streamId);
+          sendStreamStartedEvent(userId, webUser.name, streamId);
+        }
+        
     }
 
+    private function sendStreamStartedEvent(userId: String, name: String, stream: String):void{
+      var dispatcher:Dispatcher = new Dispatcher();
+      dispatcher.dispatchEvent(new StreamStartedEvent(userId, name, stream));
+    }
+    
     private function handleUserBroadcastCamStoppedEvtMsg(msg: Object):void {  
         var userId: String = msg.body.userId as String; 
         var stream: String = msg.body.stream as String;

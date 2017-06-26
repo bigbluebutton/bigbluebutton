@@ -9,9 +9,9 @@ import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.handlers.users.UserLeavingHdlr
+import org.bigbluebutton.core2.message.handlers.users.{ UserEmojiStatusHdlr, UserLeavingHdlr }
 
-trait UsersApp extends UserLeavingHdlr {
+trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway

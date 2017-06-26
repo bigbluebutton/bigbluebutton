@@ -50,6 +50,7 @@
     <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserMutedEvent" />
     <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
+    <mate:Listener type="{UserEmojiChangedEvent.USER_EMOJI_CHANGED}" method="handleUserEmojiChangedEvent" />
     
     
 	</fx:Declarations>
@@ -87,6 +88,7 @@
       import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.UserEmojiChangedEvent;
       import org.bigbluebutton.core.events.UserStatusChangedEvent;
       import org.bigbluebutton.core.events.VoiceConfEvent;
       import org.bigbluebutton.core.model.LiveMeeting;
@@ -163,6 +165,10 @@
 			private var muteMeRolled:Boolean = false;
 			
       private var handler: UsersWindowEventHandler = new UsersWindowEventHandler();
+      
+      private function handleUserEmojiChangedEvent(event: UserEmojiChangedEvent):void {
+        handler.handleUserEmojiChangedEvent(event.userId, event.emoji);
+      }
       
       private function handleUserJoinedVoiceConfEvent(event: BBBEvent): void {
         handler.handleUserJoinedVoiceConfEvent(event.payload.userID);  

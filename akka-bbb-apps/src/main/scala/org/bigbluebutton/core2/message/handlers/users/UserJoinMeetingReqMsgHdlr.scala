@@ -13,6 +13,8 @@ trait UserJoinMeetingReqMsgHdlr {
 
   def handle(msg: UserJoinMeetingReqMsg): Unit = {
     userJoinMeeting(msg.body.authToken)
+
+    startRecordingIfAutoStart()
   }
 
   def userJoinMeeting(authToken: String): Unit = {
@@ -39,12 +41,6 @@ trait UserJoinMeetingReqMsgHdlr {
       Sender.send(outGW, event)
 
       MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
-
-      if (!Users2x.hasPresenter(liveMeeting.users2x)) {
-        automaticallyAssignPresenter()
-      } else {
-        log.debug("Not sending presenter.")
-      }
 
     }
   }

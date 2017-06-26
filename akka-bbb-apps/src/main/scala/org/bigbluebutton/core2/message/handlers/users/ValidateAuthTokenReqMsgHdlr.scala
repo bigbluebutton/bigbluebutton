@@ -32,11 +32,18 @@ trait ValidateAuthTokenReqMsgHdlr {
           ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
             userId = msg.body.userId, authToken = msg.body.authToken, valid = true, waitForApproval = false)
           log.debug("validate token token={}, valid=true, waitForApproval=false", msg.body.authToken)
+
           // Temp only so we can implement user handling in client. (ralam june 21, 2017)
           userJoinMeeting(msg.body.authToken)
           sendAllUsersInMeeting(msg.body.userId)
           sendAllVoiceUsersInMeeting(msg.body.userId)
           sendAllWebcamStreams(msg.body.userId)
+
+          if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+            automaticallyAssignPresenter()
+          } else {
+            log.debug("Not sending presenter.")
+          }
         }
 
       case None =>

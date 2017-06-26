@@ -51,6 +51,16 @@ object Users2x {
     }
   }
 
+  def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.emoji).setTo(emoji)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def hasPresenter(users: Users2x): Boolean = {
     findPresenter(users) match {
       case Some(p) => true

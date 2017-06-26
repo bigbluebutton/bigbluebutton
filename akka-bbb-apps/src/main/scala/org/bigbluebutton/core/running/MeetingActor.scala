@@ -133,6 +133,8 @@ class MeetingActor(val props: DefaultProps,
     case msg: AssignPresenter => handleAssignPresenter(msg)
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
 
+    case msg: UserEmojiStatus => handleUserEmojiStatus(msg)
+
     case msg: MuteMeetingRequest => handleMuteMeetingRequest(msg)
     case msg: MuteAllExceptPresenterRequest => handleMuteAllExceptPresenterRequest(msg)
     case msg: IsMeetingMutedRequest => handleIsMeetingMutedRequest(msg)

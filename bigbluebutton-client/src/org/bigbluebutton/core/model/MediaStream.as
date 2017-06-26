@@ -8,8 +8,10 @@ package org.bigbluebutton.core.model
     public var attributes: Object = new Object();
     public var viewers:Array = new Array();
     
-    public function MediaStream()
+    public function MediaStream(streamId: String, userId: String)
     {
+      this.streamId = streamId;
+      this.userId = userId;
     }
   }
 }

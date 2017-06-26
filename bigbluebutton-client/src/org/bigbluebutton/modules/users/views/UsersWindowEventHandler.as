@@ -28,6 +28,15 @@ package org.bigbluebutton.modules.users.views
       users.refresh();
     }
     
+    public function handleUserEmojiChangedEvent(userId: String, emoji: String): void {
+      var webUser: BBBUser2x = findUser(userId);
+      if (webUser != null) {
+        webUser.emojiStatus = emoji;
+        webUser.emojiStatusTime = new Date();
+        users.refresh();
+      }
+    }
+    
     public function userStatusChanged(userId: String): void {
       var user: User2x = UsersUtil.getUser2x(userId);
       if (user != null) {
