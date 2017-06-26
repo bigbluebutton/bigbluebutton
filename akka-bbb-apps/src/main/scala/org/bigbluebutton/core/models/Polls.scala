@@ -1,9 +1,5 @@
 package org.bigbluebutton.core.models
 
-import java.util
-import java.util.ArrayList
-
-import com.google.gson.Gson
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
@@ -181,22 +177,17 @@ object Polls {
     shape += "id" -> result.id
     shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
-    val answers = new ArrayBuffer[java.util.HashMap[String, Object]]
+    var answers = new ArrayBuffer[SimpleVoteOutVO]
     result.answers.foreach(ans => {
-      val amap = new java.util.HashMap[String, Object]()
-      amap.put("id", ans.id: java.lang.Integer)
-      amap.put("key", ans.key)
-      amap.put("numVotes", ans.numVotes: java.lang.Integer)
-      answers += amap
+      answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
     })
 
-    val gson = new Gson()
-    shape += "result" -> gson.toJson(answers.toArray)
+    shape += "result" -> answers
 
     // Hardcode poll result display location for now to display result
     // in bottom-right corner.
     val shapeHeight = 6.66 * answers.size
-    var mapA = List(66.0, 100 - shapeHeight, 34.0, shapeHeight)
+    val mapA = List(66.toFloat, 100 - shapeHeight, 34.toFloat, shapeHeight)
 
     shape += "points" -> mapA
     shape.toMap
