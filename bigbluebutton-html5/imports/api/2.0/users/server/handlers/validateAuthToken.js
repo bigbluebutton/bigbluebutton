@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/2.0/meetings';
-import Users from '/imports/api/2.0/users';
+import Users from './../../';
 
 import addChat from '/imports/api/1.1/chat/server/modifiers/addChat';
 import clearUserSystemMessages from '/imports/api/1.1/chat/server/modifiers/clearUserSystemMessages';

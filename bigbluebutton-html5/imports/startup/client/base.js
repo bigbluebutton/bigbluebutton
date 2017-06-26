@@ -70,7 +70,7 @@ class Base extends Component {
 }
 
 const SUBSCRIPTIONS_NAME = [
-  'users2x', 'users', 'chat', 'cursor', 'deskshare', 'meetings', 'meetings2x',
+  'users2x', 'users', 'chat', 'cursor', 'cursor2x', 'deskshare', 'meetings', 'meetings2x',
   'polls', 'presentations', 'shapes', 'shapes2x', 'slides', 'captions', 'breakouts',
 ];
 

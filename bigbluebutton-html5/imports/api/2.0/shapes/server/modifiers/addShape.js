@@ -20,48 +20,48 @@ export default function addShape(meetingId, whiteboardId, shape) {
       meetingId,
       whiteboardId,
       'shape.id': shape.id,
-      'shape.wb_id': shape.wb_id,
-      'shape.shape_type': shape.shape_type,
+      'shape.wb_id': shape.wbId,
+      'shape.shape_type': shape.annotationType,
       'shape.status': shape.status,
-      'shape.shape.type': shape.shape.type,
-      'shape.shape.status': shape.shape.status,
+      'shape.shape.type': shape.annotationInfo.type,
+      'shape.shape.status': shape.annotationInfo.status,
     },
   };
 
-  const shapeType = shape.shape_type;
+  const shapeType = shape.annotationType;
 
   switch (shapeType) {
     case SHAPE_TYPE_TEXT:
       modifier.$set = Object.assign(modifier.$set, {
-        'shape.shape.textBoxHeight': shape.shape.textBoxHeight,
-        'shape.shape.fontColor': shape.shape.fontColor,
-        'shape.shape.dataPoints': shape.shape.dataPoints,
-        'shape.shape.x': shape.shape.x,
-        'shape.shape.textBoxWidth': shape.shape.textBoxWidth,
-        'shape.shape.whiteboardId': shape.shape.whiteboardId,
-        'shape.shape.fontSize': shape.shape.fontSize,
-        'shape.shape.id': shape.shape.id,
-        'shape.shape.y': shape.shape.y,
-        'shape.shape.calcedFontSize': shape.shape.calcedFontSize,
-        'shape.shape.text': shape.shape.text.replace(/[\r]/g, '\n'),
+        'shape.shape.textBoxHeight': shape.annotationInfo.textBoxHeight,
+        'shape.shape.fontColor': shape.annotationInfo.fontColor,
+        'shape.shape.dataPoints': shape.annotationInfo.dataPoints,
+        'shape.shape.x': shape.annotationInfo.x,
+        'shape.shape.textBoxWidth': shape.annotationInfo.textBoxWidth,
+        'shape.shape.whiteboardId': shape.annotationInfo.whiteboardId,
+        'shape.shape.fontSize': shape.annotationInfo.fontSize,
+        'shape.shape.id': shape.annotationInfo.id,
+        'shape.shape.y': shape.annotationInfo.y,
+        'shape.shape.calcedFontSize': shape.annotationInfo.calcedFontSize,
+        'shape.shape.text': shape.annotationInfo.text.replace(/[\r]/g, '\n'),
       });
       break;
 
     case SHAPE_TYPE_POLL_RESULT:
-      shape.shape.result = JSON.parse(shape.shape.result);
+      shape.annotationInfo.result = JSON.parse(shape.annotationInfo.result);
 
     default:
       modifier.$set = Object.assign(modifier.$set, {
-        'shape.shape.points': shape.shape.points,
-        'shape.shape.whiteboardId': shape.shape.whiteboardId,
-        'shape.shape.id': shape.shape.id,
-        'shape.shape.square': shape.shape.square,
-        'shape.shape.transparency': shape.shape.transparency,
-        'shape.shape.thickness': shape.shape.thickness,
-        'shape.shape.color': shape.shape.color,
-        'shape.shape.result': shape.shape.result,
-        'shape.shape.num_respondents': shape.shape.num_respondents,
-        'shape.shape.num_responders': shape.shape.num_responders,
+        'shape.shape.points': shape.annotationInfo.points,
+        'shape.shape.whiteboardId': shape.annotationInfo.whiteboardId,
+        'shape.shape.id': shape.annotationInfo.id,
+        'shape.shape.square': shape.annotationInfo.square,
+        'shape.shape.transparency': shape.annotationInfo.transparency,
+        'shape.shape.thickness': shape.annotationInfo.thickness,
+        'shape.shape.color': shape.annotationInfo.color,
+        'shape.shape.result': shape.annotationInfo.result,
+        'shape.shape.num_respondents': shape.annotationInfo.numRespondents,
+        'shape.shape.num_responders': shape.annotationInfo.numResponders,
       });
       break;
   }
