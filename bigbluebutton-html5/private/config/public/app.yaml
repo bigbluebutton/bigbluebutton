@@ -31,7 +31,6 @@ app:
       chatAudioNotifications: false
       chatPushNotifications: false
       fontSize: "16px"
-      locale: 'en'
     audio:
       inputDeviceId: undefined
       outputDeviceId: undefined

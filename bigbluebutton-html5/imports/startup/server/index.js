@@ -43,8 +43,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   });
 
   res.setHeader('Content-Type', 'application/json');
-  res.writeHead(statusCode);
-  res.end(JSON.stringify(messages));
+  res.end(JSON.stringify({ statusCode, messages }));
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
