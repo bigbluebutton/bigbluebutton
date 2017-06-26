@@ -1,7 +1,5 @@
 import RedisPubSub from '/imports/startup/server/redis2x';
-
 import handleCreateBreakout from './handlers/createBreakout';
-//import handleBreakoutStarted from './handlers/breakoutStarted';
 import handleBreakoutJoinURL from './handlers/breakoutJoinURL';
 import handleUpdateTimeRemaining from './handlers/updateTimeRemaining';
 import handleBreakoutClosed from './handlers/breakoutClosed';
