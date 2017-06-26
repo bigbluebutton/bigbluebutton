@@ -195,7 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ownerText = ResourceUtil.getInstance().getString('bbb.caption.transcript.youowner');
 				} else {
 					//claimed by other
-					var user:User2x = UsersUtil.getUser(ownerId)
+					var user:User2x = UsersUtil.getUser(ownerId);
 					if (user != null) {
 						ownerText = user.name;
 					}
