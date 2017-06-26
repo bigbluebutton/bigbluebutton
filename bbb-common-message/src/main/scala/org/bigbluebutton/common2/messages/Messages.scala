@@ -103,6 +103,17 @@ case class GetCurrentPollReqMsg(header: BbbClientMsgHeader, body: GetCurrentPoll
 object RespondToPollReqMsg { val NAME = "RespondToPollReqMsg"}
 case class RespondToPollReqMsg(header: BbbClientMsgHeader, body: RespondToPollReqMsgBody) extends BbbCoreMsg
 
+/** Caption Messages */
+object EditCaptionHistoryPubMsg { val NAME = "EditCaptionHistoryPubMsg"}
+case class EditCaptionHistoryPubMsg(header: BbbClientMsgHeader, body: EditCaptionHistoryPubMsgBody) extends StandardMsg
+
+object UpdateCaptionOwnerPubMsg { val NAME = "UpdateCaptionOwnerPubMsg"}
+case class UpdateCaptionOwnerPubMsg(header: BbbClientMsgHeader, body: UpdateCaptionOwnerPubMsgBody) extends StandardMsg
+
+object SendCaptionHistoryReqMsg { val NAME = "SendCaptionHistoryReqMsg"}
+case class SendCaptionHistoryReqMsg(header: BbbClientMsgHeader, body: SendCaptionHistoryReqMsgBody) extends StandardMsg
+
+
 //
 /** Event messages sent by Akka apps as result of receiving incoming messages ***/
 //
@@ -165,6 +176,17 @@ case class GetCurrentPollRespMsg(header: BbbClientMsgHeader, body: GetCurrentPol
 
 object UserRespondedToPollEvtMsg { val NAME = "UserRespondedToPollEvtMsg"}
 case class UserRespondedToPollEvtMsg(header: BbbClientMsgHeader, body: UserRespondedToPollEvtMsgBody) extends BbbCoreMsg
+
+/** Caption Messages */
+object EditCaptionHistoryEvtMsg { val NAME = "EditCaptionHistoryEvtMsg"}
+case class EditCaptionHistoryEvtMsg(header: BbbClientMsgHeader, body: EditCaptionHistoryEvtMsgBody) extends StandardMsg
+
+object UpdateCaptionOwnerEvtMsg { val NAME = "UpdateCaptionOwnerEvtMsg"}
+case class UpdateCaptionOwnerEvtMsg(header: BbbClientMsgHeader, body: UpdateCaptionOwnerEvtMsgBody) extends StandardMsg
+
+object SendCaptionHistoryRespMsg { val NAME = "SendCaptionHistoryRespMsg"}
+case class SendCaptionHistoryRespMsg(header: BbbClientMsgHeader, body: SendCaptionHistoryRespMsgBody) extends StandardMsg
+
 
 /** System Messages **/
 case class AkkaAppsCheckAliveReqBody(timestamp: Long)

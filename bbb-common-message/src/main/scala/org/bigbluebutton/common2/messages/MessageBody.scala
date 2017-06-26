@@ -43,6 +43,10 @@ object MessageBody {
   case class ModifyWhiteboardAccessPubMsgBody(multiUser: Boolean)
   case class GetWhiteboardAccessReqMsgBody(requesterId: String)
 
+  // Caption Message Bodies
+  case class EditCaptionHistoryPubMsgBody(startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String)
+  case class UpdateCaptionOwnerPubMsgBody(locale: String, localeCode: String, ownerId: String)
+  case class SendCaptionHistoryReqMsgBody()
   //
   /** Event messages sent by Akka apps as result of receiving incoming messages ***/
   //
@@ -71,4 +75,8 @@ object MessageBody {
   case class GetCurrentPollRespMsgBody(userId: String, hasPoll: Boolean, poll: Option[PollVO])
   case class UserRespondedToPollEvtMsgBody(presenterId: String, pollId: String, poll: SimplePollResultOutVO)
 
+  // Caption Message Bodies
+  case class SendCaptionHistoryRespMsgBody(history: Map[String, TranscriptVO])
+  case class EditCaptionHistoryEvtMsgBody(startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String)
+  case class UpdateCaptionOwnerEvtMsgBody(locale: String, localeCode: String, ownerId: String)
 }

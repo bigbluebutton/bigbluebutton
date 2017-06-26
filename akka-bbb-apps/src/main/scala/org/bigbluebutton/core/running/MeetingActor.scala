@@ -24,6 +24,7 @@ import org.bigbluebutton.core2.message.handlers.users._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
+import org.bigbluebutton.core.apps.caption.CaptionApp2x
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -110,6 +111,7 @@ class MeetingActor(val props: DefaultProps,
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
   val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
+  val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
 
   def receive = {
     //=============================
@@ -257,6 +259,9 @@ class MeetingActor(val props: DefaultProps,
       case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
       case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+      case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
+      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
+      case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
       case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }

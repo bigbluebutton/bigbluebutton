@@ -20,6 +20,7 @@ trait EjectUserFromMeetingHdlr {
       presentationApp2x.handle(msg, user)
       pollApp2x.handle(msg, user)
       deskshareApp2x.handle(msg, user)
+      captionApp2x.handle(msg, user)
     }
   }
 
