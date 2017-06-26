@@ -103,13 +103,11 @@ class SettingsDropdown extends Component {
     }
 
     return (
-      <Dropdown
-        isOpen={this.state.isSettingOpen}
-        onShow={this.onActionsShow}
-        onHide={this.onActionsHide}
-        autoFocus
-      >
-        <DropdownTrigger placeInTabOrder>
+      <Dropdown autoFocus={true}
+                isOpen={this.state.isSettingOpen}
+                onShow={this.onActionsShow}
+                onHide={this.onActionsHide}>
+        <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
