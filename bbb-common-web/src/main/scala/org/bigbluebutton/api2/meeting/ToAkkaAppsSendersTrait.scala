@@ -1,10 +1,10 @@
 package org.bigbluebutton.api2.meeting
 
 import org.bigbluebutton.api2.SystemConfiguration
-import org.bigbluebutton.api2.bus.{ MsgToAkkaApps, MsgToAkkaAppsEventBus }
+import org.bigbluebutton.api2.bus.{MsgToAkkaApps, MsgToAkkaAppsEventBus}
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.messages.MessageBody.{ CreateMeetingReqMsgBody, RegisterUserReqMsgBody }
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.{RegisterUserReqMsg, RegisterUserReqMsgBody}
 
 trait ToAkkaAppsSendersTrait extends SystemConfiguration {
   val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus

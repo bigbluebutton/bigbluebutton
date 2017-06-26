@@ -19,19 +19,16 @@
 package org.bigbluebutton.modules.users.views {
 
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.MouseEvent;
-	
 	import mx.containers.HBox;
 	import mx.containers.VBox;
 	import mx.controls.Button;
 	import mx.controls.Label;
 	import mx.core.ScrollPolicy;
 	import mx.events.FlexMouseEvent;
-	
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.PopUpUtil;
-	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -65,7 +62,7 @@ package org.bigbluebutton.modules.users.views {
 				button.height = 24;
 				button.toggle = true;
 				button.setStyle("icon", images["emoji_" + emoji]);
-				button.selected = (UserManager.getInstance().getConference().myEmojiStatus == emoji);
+				button.selected = (LiveMeeting.inst().me.emoji == emoji);
 				button.toggle = button.selected;
 				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + emoji);
 				button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
@@ -87,7 +84,7 @@ package org.bigbluebutton.modules.users.views {
 			var button:Button = new Button();
 			button.id = "btnnone";
 			button.height = 24;
-			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
+			if (LiveMeeting.inst().me.emoji != "none") {
 				button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
 				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');
 				button.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');

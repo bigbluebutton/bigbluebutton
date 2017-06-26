@@ -98,9 +98,9 @@ package org.bigbluebutton.modules.layout.services {
 		}
 
 		private function onReceivedFirstLayout(message:Object):void {
-			LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]);
-			trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "], moderator = [" + UsersUtil.amIModerator() + "]");
-			if (message.layout == "")
+			LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layoutId]);
+			trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layoutId + "], moderator = [" + UsersUtil.amIModerator() + "]");
+			if (message.layoutId == "")
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 			else {
 				handleSyncLayout(message);
@@ -111,12 +111,12 @@ package org.bigbluebutton.modules.layout.services {
 		}
 
 		private function handleSyncLayout(message:Object):void {
-			_dispatcher.dispatchEvent(new RemoteSyncLayoutEvent(message.layout));
-			if (message.layout == "")
+			_dispatcher.dispatchEvent(new RemoteSyncLayoutEvent(message.layoutId));
+			if (message.layoutId == "")
 				return;
 
 			var layoutDefinition:LayoutDefinition = new LayoutDefinition();
-			layoutDefinition.load(new XML(message.layout));
+			layoutDefinition.load(new XML(message.layoutId));
 			var translatedName:String = ResourceUtil.getInstance().getString(layoutDefinition.name)
 			if (translatedName == "undefined")
 				translatedName = layoutDefinition.name;

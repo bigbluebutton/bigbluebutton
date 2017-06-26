@@ -101,7 +101,7 @@
   			}
 			
 			private function updateRoleComponents() : void {
-				if (rolledOver && !data.presenter && !data.phoneUser) {
+				if (rolledOver && !data.presenter && !data.voiceOnlyUser) {
 					roleBtn.setStyle("icon", images.presenter_new);
 					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
 					roleImg.visible = false;
@@ -119,6 +119,12 @@
 					roleImg.visible = true;
 					roleBtn.visible = false;
 					roleBtn.enabled = false;
+        } else if (data.role == Role.VOICE_ONLY) {
+          roleImg.source = images.sound;
+          roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.voiceOnlyUser');
+          roleImg.visible = true;
+          roleBtn.visible = false;
+          roleBtn.enabled = false;
 				} else {
 					roleImg.source = null;
 					roleImg.toolTip = "";
@@ -152,7 +158,7 @@
 			}
   			
   			private function onRollOver(e:UsersRollEvent):void{
-				if (moderator && (e.userID == data.userID) && !data.phoneUser) {
+				if (moderator && (e.userID == data.userId) && !data.voiceOnlyUser) {
 					rolledOver = true;
 					updateButtons();
 				}
@@ -179,7 +185,7 @@
   			private function roleBtnClicked():void {
                 if (!data.presenter) {
     				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-    				e.userid = data.userID;
+    				e.userid = data.userId;
     				e.username = data.name;
     				dispatchEvent(e);
                 }
@@ -187,8 +193,8 @@
 			
 			private function emojiBtnClicked() : void {
 				if (data.hasEmojiStatus) {
-					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", data.userID));
-				}
+					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", data.userId));
+        }
 			}
 			
 			// Need to refresh the roleBtn toolTip text on locale change

@@ -1,13 +1,16 @@
 package org.bigbluebutton.core.models
 
 import scala.collection.immutable.ListSet
-
 import org.bigbluebutton.core.util.RandomStringGenerator
-
 import com.softwaremill.quicklens.ModifyPimp
 import com.softwaremill.quicklens.modify
-
 import org.bigbluebutton.common2.domain.{ UserVO, VoiceUserVO }
+
+object CallingWith {
+  val WEBRTC = "webrtc"
+  val FLASH = "flash"
+  val PHONE = "phone"
+}
 
 object Roles {
   val MODERATOR_ROLE = "MODERATOR"
@@ -257,3 +260,15 @@ class Users {
 }
 
 case class UserIdAndName(id: String, name: String)
+
+/*
+case class UserVO(id: String, externalId: String, name: String, role: String,
+  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emojiStatus: String,
+  presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
+  phoneUser: Boolean, voiceUser: VoiceUser, listenOnly: Boolean, avatarURL: String,
+  joinedWeb: Boolean)
+
+case class VoiceUser(userId: String, webUserId: String, callerName: String,
+  callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
+  talking: Boolean, avatarURL: String, listenOnly: Boolean)
+*/

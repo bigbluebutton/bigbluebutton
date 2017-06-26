@@ -13,8 +13,8 @@ trait GetLockSettingsHdlr {
 
   def handleGetLockSettings(msg: GetLockSettings) {
 
-    outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.userId,
-      MeetingStatus2x.getPermissions(liveMeeting.status),
-      Users.getUsers(liveMeeting.users).toArray))
+    //    outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.userId,
+    //      MeetingStatus2x.getPermissions(liveMeeting.status),
+    //      Users.getUsers(liveMeeting.users).toArray))
   }
 }

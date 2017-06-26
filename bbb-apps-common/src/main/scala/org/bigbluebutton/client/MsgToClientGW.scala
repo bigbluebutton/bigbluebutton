@@ -9,12 +9,12 @@ case class DisconnectAllConnections(scope: String) extends SystemMessage
 class MsgToClientGW(val connInvokerService: IConnectionInvokerService) {
 
   def broadcastToMeeting(msg: BroadcastToMeetingMsg): Unit = {
-    println("**** MsgToClientGW broadcastToMeeting " + msg.json)
+    //println("**** MsgToClientGW broadcastToMeeting " + msg.json)
     connInvokerService.sendMessage(msg)
   }
 
   def directToClient(msg: DirectToClientMsg): Unit = {
-    println("**** MsgToClientGW directToClient " + msg.json)
+    //println("**** MsgToClientGW directToClient " + msg.json)
     connInvokerService.sendMessage(msg)
   }
 

@@ -1,6 +1,5 @@
 package org.bigbluebutton.core2.message.handlers
 
-import org.bigbluebutton.common2.messages.MessageBody.UserBroadcastCamStartedEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.voiceconf.{ MuteUserInVoiceConfMsg, MuteUserInVoiceConfMsgBody }
 import org.bigbluebutton.core.OutMessageGateway

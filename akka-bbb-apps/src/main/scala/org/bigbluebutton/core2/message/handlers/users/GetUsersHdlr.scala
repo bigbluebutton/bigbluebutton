@@ -16,16 +16,4 @@ trait GetUsersHdlr {
     sendAllUsersInMeeting(msg.requesterID)
   }
 
-  def sendAllUsersInMeeting(requesterId: String): Unit = {
-    val users = Users2x.findAll(liveMeeting.users2x)
-    val webUsers = users.map { u =>
-      WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
-        guest = u.guest, authed = u.authed, waitingForAcceptance = u.waitingForAcceptance, emoji = u.emoji,
-        locked = u.locked, presenter = u.presenter, avatar = u.avatar)
-    }
-
-    val event = GetUsersMeetingRespMsgBuilder.build(liveMeeting.props.meetingProp.intId, requesterId, webUsers)
-    Sender.send(outGW, event)
-  }
-
 }

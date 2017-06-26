@@ -36,18 +36,15 @@ package org.bigbluebutton.modules.layout.managers
   
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;
-  
+  import flexlib.mdi.events.MDIManagerEvent;  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-  import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.options.LayoutOptions;
-  import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
@@ -365,8 +362,7 @@ package org.bigbluebutton.modules.layout.managers
     }
 
     public function lockSettingsChanged():void {
-      var myUser:BBBUser = UserManager.getInstance().getConference().getMyUser();
-      _locked = myUser.lockedLayout;
+      _locked = LiveMeeting.inst().me.lockedLayout;
       checkPermissionsOverAllWindows();
     }
     

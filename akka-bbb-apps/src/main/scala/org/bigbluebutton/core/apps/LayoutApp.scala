@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps
 
-import scala.collection.mutable.ArrayBuffer
-
 import org.bigbluebutton.common2.domain.UserVO
+
+import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.models.{ Roles, Users }
+import org.bigbluebutton.core.models.{ Layouts, Roles, Users }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core.models.Layouts
 
 trait LayoutApp {
   this: MeetingActor =>

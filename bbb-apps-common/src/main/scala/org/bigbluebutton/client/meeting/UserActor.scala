@@ -1,11 +1,12 @@
 package org.bigbluebutton.client.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
-import org.bigbluebutton.client.SystemConfiguration
+import org.bigbluebutton.client.{ConnInfo, SystemConfiguration}
 import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.util.JsonUtil
 import com.fasterxml.jackson.databind.JsonNode
+import org.bigbluebutton.common2.messages.users.{UserLeaveReqMsg, UserLeaveReqMsgBody}
 
 import scala.util.{Failure, Success}
 
@@ -62,7 +63,21 @@ class UserActor(val userId: String,
       log.debug("**** UserActor remove connection " + m.connId)
       Connections.remove(conns, m.connId)
     }
+
+    if (Connections.noMoreConnections(conns)) {
+      val json = buildUserLeavingMessage(msg.connInfo)
+      val msgFromClient = MsgFromClientMsg(msg.connInfo, json)
+      handleMsgFromClientMsg(msgFromClient)
+    }
   }
+
+  private def buildUserLeavingMessage(connInfo: ConnInfo): String = {
+    val header = BbbClientMsgHeader(UserLeaveReqMsg.NAME, meetingId, userId)
+    val body = UserLeaveReqMsgBody(userId, connInfo.sessionId)
+    val event = UserLeaveReqMsg(header, body)
+    JsonUtil.toJson(event)
+  }
+
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
     log.debug("Received MsgFromClientMsg " + msg)

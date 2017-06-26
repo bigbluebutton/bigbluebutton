@@ -16,18 +16,6 @@ trait UserConnectedToGlobalAudioHdlr {
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
     log.info("Handling UserConnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.userid)
 
-    val user = Users.findWithId(msg.userid, liveMeeting.users)
-    user foreach { u =>
-      if (MeetingStatus2x.addGlobalAudioConnection(liveMeeting.status, msg.userid)) {
-        for {
-          uvo <- Users.joinedVoiceListenOnly(msg.userid, liveMeeting.users)
-        } yield {
-          log.info("UserConnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " user=" + uvo)
-          outGW.send(new UserListeningOnly(props.meetingProp.intId, props.recordProp.record, uvo.id, uvo.listenOnly))
-        }
-      }
-    }
-
     def broadcastEvent(vu: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,
         vu.intId)

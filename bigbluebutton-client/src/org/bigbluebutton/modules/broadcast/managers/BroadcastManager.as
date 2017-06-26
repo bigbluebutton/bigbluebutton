@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.broadcast.managers
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 	import org.bigbluebutton.modules.broadcast.models.Stream;
