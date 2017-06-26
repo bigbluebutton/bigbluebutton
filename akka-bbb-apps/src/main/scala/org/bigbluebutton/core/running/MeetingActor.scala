@@ -39,7 +39,7 @@ class MeetingActor(val props: DefaultProps,
     extends Actor with ActorLogging
     with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with BreakoutRoomApp with CaptionApp
+    with BreakoutRoomApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with StartCustomPollReqMsgHdlr
@@ -200,11 +200,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
     case msg: EndMeeting => handleEndMeeting(msg)
-
-    // Closed Caption
-    case msg: SendCaptionHistoryRequest => handleSendCaptionHistoryRequest(msg)
-    case msg: UpdateCaptionOwnerRequest => handleUpdateCaptionOwnerRequest(msg)
-    case msg: EditCaptionHistoryRequest => handleEditCaptionHistoryRequest(msg)
 
     case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
     case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)

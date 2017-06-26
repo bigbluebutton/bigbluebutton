@@ -13,7 +13,6 @@ import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
-import org.bigbluebutton.core.pubsub.senders.CaptionMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.DeskShareMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
@@ -139,9 +138,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
     case msg: BreakoutRoomsTimeRemainingUpdateOutMessage => handleBreakoutRoomsTimeRemainingUpdate(msg)
 
-    case msg: SendCaptionHistoryReply => handleSendCaptionHistoryReply(msg)
-    case msg: UpdateCaptionOwnerReply => handleUpdateCaptionOwnerReply(msg)
-    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
@@ -751,23 +747,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleMeetingTimeRemainingUpdate(msg: MeetingTimeRemainingUpdate) {
     val json = MeetingMessageToJsonConverter.meetingTimeRemainingUpdateToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleSendCaptionHistoryReply(msg: SendCaptionHistoryReply) {
-    val json = CaptionMessageToJsonConverter.sendCaptionHistoryReplyToJson(msg)
-    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
-  }
-
-  private def handleUpdateCaptionOwnerReply(msg: UpdateCaptionOwnerReply) {
-    val json = CaptionMessageToJsonConverter.updateCaptionOwnerReplyToJson(msg)
-    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
-  }
-
-  private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
-    println("handleEditCaptionHistoryReply")
-    val json = CaptionMessageToJsonConverter.editCaptionHistoryReplyToJson(msg)
-    println(json)
-    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
   }
 
   private def handleBreakoutRoomsTimeRemainingUpdate(msg: BreakoutRoomsTimeRemainingUpdateOutMessage) {

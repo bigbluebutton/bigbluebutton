@@ -283,21 +283,6 @@ public class MessagePublisher {
 	public void endAllBreakoutRooms(String jsonMessage) {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
-	
-	public void sendCaptionHistory(String meetingID, String requesterID) {
-		SendCaptionHistoryRequestMessage msg = new SendCaptionHistoryRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
-	}
-	
-	public void updateCaptionOwner(String meetingID, String locale, String localeCode, String ownerID) {
-		UpdateCaptionOwnerMessage msg = new UpdateCaptionOwnerMessage(meetingID, locale, localeCode, ownerID);
-		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
-	}
-	
-	public void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String localeCode, String text) {
-		EditCaptionHistoryMessage msg = new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, localeCode, text);
-		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
-	}
 
 	public void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation) {
 		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch, operation);
