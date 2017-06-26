@@ -360,7 +360,7 @@ class BigBlueButtonInGW(
   def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String, downloadable: Boolean) {
 
     val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
-    val presentation = new Presentation(id = presentationId, name = presName, pages = pages, downloadable = downloadable)
+    val presentation = new Presentation(id = presentationId, name = presName, current = true, pages = pages, downloadable = downloadable)
     eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationConversionCompleted(meetingId, messageKey, code, presentation)))
 
   }

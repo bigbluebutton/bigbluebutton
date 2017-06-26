@@ -36,7 +36,6 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-  import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
