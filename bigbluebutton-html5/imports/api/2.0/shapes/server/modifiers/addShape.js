@@ -1,9 +1,10 @@
 import { check } from 'meteor/check';
-import Shapes from './../../';
 import Logger from '/imports/startup/server/logger';
+import Shapes from './../../';
 
 const SHAPE_TYPE_TEXT = 'text';
 const SHAPE_TYPE_POLL_RESULT = 'poll_result';
+const SHAPE_TYPE_PENCIL = 'pencil';
 
 export default function addShape(meetingId, whiteboardId, userId, shape) {
   check(meetingId, String);
@@ -50,10 +51,13 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
       break;
 
     case SHAPE_TYPE_POLL_RESULT:
-    /**
-     * TODO
-     * shape.annotationInfo.result = JSON.parse(shape.annotationInfo.result);
-     */
+      /**
+       * TODO
+       * shape.annotationInfo.result = JSON.parse(shape.annotationInfo.result);
+       */
+      break;
+    case SHAPE_TYPE_PENCIL:
+      modifier.$push = { 'shape.shape.points': { $each: shape.annotationInfo.points } };
       break;
     default:
       modifier.$set = Object.assign(modifier.$set, {
