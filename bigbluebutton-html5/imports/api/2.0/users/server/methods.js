@@ -17,4 +17,4 @@ Meteor.methods(mapToAcl(['methods.kickUser', 'methods.listenOnlyToggle', 'method
     // unmuteUser: (...args) => muteToggle(...args, false),
   }));
 
-Meteor.methods({ validateAuthToken2x: validateAuthToken});
+Meteor.methods({ validateAuthToken2x: validateAuthToken });

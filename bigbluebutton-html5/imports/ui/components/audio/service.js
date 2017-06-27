@@ -1,7 +1,7 @@
 import React from 'react';
 import AudioModal from './audio-modal/component';
 import Meetings from '/imports/api/1.1/meetings';
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 
 import AudioManager from '/imports/api/1.1/audio/client/manager';

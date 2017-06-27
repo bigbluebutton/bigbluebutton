@@ -38,11 +38,12 @@ class RedisPubSub2x {
   }
 
   publish(channel, eventName, meetingId, payload = {}, header = {}) {
-
     const header2x = {
       name: eventName,
       meetingId,
     };
+
+    const msgHeader = header === {} ? header2x : header;
 
     const envelope = {
       envelope: {
@@ -53,13 +54,13 @@ class RedisPubSub2x {
         },
       },
       core: {
-        header: header2x,
+        header: msgHeader,
         body: payload,
       },
     };
 
     Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
-    
+
     return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);
@@ -74,7 +75,7 @@ class RedisPubSub2x {
   }
 
   handleMessage(pattern, channel, message) {
-    console.error(`handleMessage: ${message}`);
+    console.error(`2.0 handleMessage: ${message}`);
     const parsedMessage = JSON.parse(message);
     const { header } = parsedMessage.core;
     const eventName = header.name;
