@@ -1,9 +1,9 @@
-import Breakouts from './../../';
-import Logger from '/imports/startup/server/logger';
-import { check } from 'meteor/check';
-
 import xml2js from 'xml2js';
 import url from 'url';
+import { check } from 'meteor/check';
+import Logger from '/imports/startup/server/logger';
+import Breakouts from './../../';
+
 const xmlParser = new xml2js.Parser();
 
 const getUrlParams = (urlToParse) => {
@@ -11,15 +11,6 @@ const getUrlParams = (urlToParse) => {
   const parsedUrl = url.parse(urlToParse, options);
   return parsedUrl.query;
 };
-
-
-/*object BreakoutRoomJoinURLEvtMsg { val NAME = "BreakoutRoomJoinURLEvtMsg" }
-case class BreakoutRoomJoinURLEvtMsg(
-  header: BbbClientMsgHeader, 
-  body: BreakoutRoomJoinURLEvtMsgBody) extends BbbCoreMsg
-case class BreakoutRoomJoinURLEvtMsgBody(
-  parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, 
-  userId: String, redirectJoinURL: String, noRedirectJoinURL: String)*/
 
 export default function handleBreakoutJoinURL({ body }) {
   const {

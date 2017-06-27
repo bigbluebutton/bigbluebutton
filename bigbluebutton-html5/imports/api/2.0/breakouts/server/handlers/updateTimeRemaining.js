@@ -1,6 +1,6 @@
-import Breakouts from './../../';
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import Logger from '/imports/startup/server/logger';
+import Breakouts from './../../';
 
 export default function handleUpdateTimeRemaining({ body }) {
   const {

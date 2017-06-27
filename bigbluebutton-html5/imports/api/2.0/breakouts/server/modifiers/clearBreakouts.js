@@ -1,6 +1,6 @@
-import Breakouts from './../../';
 import Logger from '/imports/startup/server/logger';
 import removeMeeting from '/imports/api/1.1/meetings/server/modifiers/removeMeeting';
+import Breakouts from './../../';
 
 export default function clearBreakouts(breakoutMeetingId) {
   if (breakoutMeetingId) {

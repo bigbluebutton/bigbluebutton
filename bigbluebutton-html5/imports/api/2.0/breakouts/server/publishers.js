@@ -1,6 +1,6 @@
-import Breakouts from './../';
 import { Meteor } from 'meteor/meteor';
 import mapToAcl from '/imports/startup/mapToAcl';
+import Breakouts from './../';
 
 function breakouts(credentials) {
   const {
@@ -21,7 +21,7 @@ function breakouts(credentials) {
 }
 
 function publish(...args) {
-  console.err("breakout2x publish");
+  console.err('breakout2x publish');
   const boundBreakouts = breakouts.bind(this);
   return mapToAcl('subscriptions.breakouts', boundBreakouts)(args);
 }

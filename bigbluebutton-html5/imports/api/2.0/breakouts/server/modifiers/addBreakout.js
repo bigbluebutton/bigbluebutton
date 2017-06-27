@@ -1,13 +1,13 @@
-import Breakouts from './../../';
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import Logger from '/imports/startup/server/logger';
+import Breakouts from './../../';
 
-export default function addBreakout(payload) {
+export default function addBreakout(breakout) {
   const {
     breakoutMeetingId,
     parentId,
     name,
-  } = payload;
+  } = breakout;
 
   check(breakoutMeetingId, String);
   check(parentId, String);
