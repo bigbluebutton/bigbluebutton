@@ -54,13 +54,9 @@ const messages = defineMessages({
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
-  userItemStatusAriaLabel: {
-    id: 'app.userlist.useritem.status.arialabel',
-    description: 'adds aria label for user and status',
-  },
-  userItemAriaLabel: {
-    id: 'app.userlist.useritem.nostatus.arialabel',
-    description: 'aria label for user',
+  userAriaLabel: {
+    id: 'app.userlist.userAriaLabel',
+    description: 'aria label for each user in the userlist',
   },
 });
 
@@ -97,6 +93,7 @@ class UserListItem extends Component {
     this.handleScroll = this.handleScroll.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
   }
 
   handleScroll() {
@@ -186,6 +183,17 @@ class UserListItem extends Component {
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
+    const list = findDOMNode(this.list);
+
+    if (isActionsOpen, dropdownVisible) {
+      for (let i = 0; i < list.children.length; i++) {
+        if (list.children[i].getAttribute('role') === 'menuitem') {
+          list.children[i].focus();
+          break;
+        }
+      }
+    }
+
     return isActionsOpen && !dropdownVisible;
   }
 
@@ -215,6 +223,10 @@ class UserListItem extends Component {
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
 
+  getDropdownMenuParent() {
+    return findDOMNode(this.dropdown);
+  }
+
   onActionsHide() {
     this.setState({
       isActionsOpen: false,
@@ -238,20 +250,17 @@ class UserListItem extends Component {
       intl,
     } = this.props;
 
-    const you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
+    const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
     const presenter = (user.isPresenter)
       ? intl.formatMessage(messages.presenter)
-      : null;
+      : '';
 
-    const userAriaLabel = (user.emoji.status === 'none')
-      ? intl.formatMessage(messages.userItemAriaLabel,
-          { username: user.name, presenter, you })
-      : intl.formatMessage(messages.userItemStatusAriaLabel,
-        { username: user.name,
-          presenter,
-          you,
-          status: user.emoji.status });
+    const userAriaLabel = intl.formatMessage(messages.userAriaLabel,
+      { 0: user.name,
+        1: presenter,
+        2: you,
+        3: user.emoji.status });
 
     const actions = this.getAvailableActions();
     const contents = (
@@ -281,9 +290,9 @@ class UserListItem extends Component {
         onHide={this.onActionsHide}
         className={styles.dropdown}
         autoFocus={false}
-        hasPopup="true"
-        ariaLive="assertive"
-        ariaRelevant="additions"
+        aria-haspopup="true"
+        aria-live="assertive"
+        aria-relevant="additions"
       >
         <DropdownTrigger>
           {contents}
@@ -297,7 +306,11 @@ class UserListItem extends Component {
           placement={`right ${dropdownDirection}`}
         >
 
-          <DropdownList>
+          <DropdownList
+            ref={(ref) => { this.list = ref; }}
+            getDropdownMenuParent={this.getDropdownMenuParent}
+            onActionsHide={this.onActionsHide}
+          >
             {
               [
                 (<DropdownListTitle

@@ -30,7 +30,7 @@ class EmojiMenu extends Component {
 
     return (
       <Dropdown autoFocus>
-        <DropdownTrigger placeInTabOrder>
+        <DropdownTrigger tabIndex={0}>
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
