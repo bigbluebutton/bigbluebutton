@@ -48,6 +48,7 @@ class CallStates {
 class AudioManager {
   constructor() {
   }
+  
   init(userData){
     const MEDIA_CONFIG = Meteor.settings.public.media;
     const audioBridge = MEDIA_CONFIG.useSIPAudio
