@@ -48,8 +48,12 @@ class CallStates {
 class AudioManager {
   constructor() {
   }
-  
-  init(userData){
+
+  init(userData) {
+    // this check ensures changing locales will not rerun init
+    if (this.currentState != undefined) {
+      return;
+    }
     const MEDIA_CONFIG = Meteor.settings.public.media;
     const audioBridge = MEDIA_CONFIG.useSIPAudio
       ? new SIPBridge(userData)
@@ -94,7 +98,6 @@ class AudioManager {
   exitAudio() {
     this.bridge.exitAudio(this.isListenOnly);
     this.currentState = this.callStates.init;
-    console.log("EXITED AUDIO: " + this.currentState);
   }
 
   joinAudio(listenOnly) {
@@ -122,14 +125,12 @@ class AudioManager {
       this.currentState = this.callStates.inListenOnly;
     }
     this.currentState = this.callStates.inConference;
-    console.log("CONNECTED STATE: " + this.currentState);
   }
 
   webRTCCallFailed(inEchoTest, errorcode, cause) {
     if (this.currentState !== this.CallStates.reconecting) {
       this.currentState = this.CallStates.reconecting;
     }
-    console.log("FAILED STATE: " + this.currentState);
   }
 
   getMicId() {

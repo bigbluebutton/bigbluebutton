@@ -27,10 +27,8 @@ class JoinAudioOptions extends React.Component {
     } = this.props;
 
     if (isInAudio || isInListenOnly) {
-      console.log(AudioManager);
-      console.log("CURRENT STATE: " + AudioManager.currentState);
-      // if (AudioManager.currentState == AudioManager.callStates.inConference ||
-      // AudioManager.currentState == AudioManager.callStates.inListenOnly) {
+      if (AudioManager.currentState == AudioManager.callStates.inConference ||
+      AudioManager.currentState == AudioManager.callStates.inListenOnly) {
         return (
           <Button
             onClick={handleCloseAudio}
@@ -41,7 +39,7 @@ class JoinAudioOptions extends React.Component {
             circle
           />
         );
-      // }
+      }
     }
 
     return (
