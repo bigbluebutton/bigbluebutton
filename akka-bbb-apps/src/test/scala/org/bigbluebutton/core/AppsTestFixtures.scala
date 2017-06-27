@@ -3,7 +3,7 @@ package org.bigbluebutton.core
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.api.GuestPolicyType
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users1x }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait AppsTestFixtures {
@@ -48,7 +48,7 @@ trait AppsTestFixtures {
   val breakoutModel = new BreakoutRoomModel()
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
-  val users = new Users
+  val users = new Users1x
   val registeredUsers = new RegisteredUsers
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,

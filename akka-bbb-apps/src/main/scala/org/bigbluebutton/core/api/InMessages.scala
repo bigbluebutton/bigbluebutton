@@ -1,9 +1,8 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.common2.messages.breakoutrooms.BreakoutUserVO
+import org.bigbluebutton.common2.messages.BreakoutRooms.BreakoutUserVO
 import org.bigbluebutton.core.api.SharedNotesOperation.SharedNotesOperation
 import org.bigbluebutton.core.apps.Presentation
-
 import spray.json.JsObject
 
 case class InMessageHeader(name: String)

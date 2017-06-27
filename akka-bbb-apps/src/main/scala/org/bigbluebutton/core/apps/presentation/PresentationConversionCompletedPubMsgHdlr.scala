@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.domain.PageVO
+import org.bigbluebutton.common2.messages.Presentation.{ PresentationConversionCompletedEvtMsg, PresentationConversionCompletedEvtMsgBody, PresentationConversionCompletedPubMsg }
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.PresentationConversionCompletedEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.apps.Presentation
 

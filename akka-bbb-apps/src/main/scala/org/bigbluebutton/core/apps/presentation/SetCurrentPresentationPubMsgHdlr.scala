@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.SetCurrentPresentationEvtMsgBody
+import org.bigbluebutton.common2.messages.Presentation.{ SetCurrentPresentationEvtMsg, SetCurrentPresentationEvtMsgBody, SetCurrentPresentationPubMsg }
 import org.bigbluebutton.common2.messages._
 
 trait SetCurrentPresentationPubMsgHdlr {

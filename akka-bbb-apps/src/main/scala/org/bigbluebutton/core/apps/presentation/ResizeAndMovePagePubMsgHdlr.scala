@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.ResizeAndMovePageEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.domain.PageVO
+import org.bigbluebutton.common2.messages.Presentation.{ ResizeAndMovePageEvtMsg, ResizeAndMovePageEvtMsgBody, ResizeAndMovePagePubMsg }
 
 trait ResizeAndMovePagePubMsgHdlr {
   this: PresentationApp2x =>

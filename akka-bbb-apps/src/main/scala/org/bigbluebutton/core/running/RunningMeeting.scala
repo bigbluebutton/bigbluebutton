@@ -26,7 +26,7 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val breakoutRooms = new BreakoutRooms()
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
-  val users = new Users
+  val users = new Users1x
   val registeredUsers = new RegisteredUsers
   val meetingStatux2x = new MeetingStatus2x
   val webcams = new Webcams

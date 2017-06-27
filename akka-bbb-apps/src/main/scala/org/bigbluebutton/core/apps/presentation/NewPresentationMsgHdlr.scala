@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.NewPresentationEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.domain.PresentationVO
+import org.bigbluebutton.common2.messages.Presentation.{ NewPresentationEvtMsg, NewPresentationEvtMsgBody }
 
 trait NewPresentationMsgHdlr {
   this: PresentationApp2x =>

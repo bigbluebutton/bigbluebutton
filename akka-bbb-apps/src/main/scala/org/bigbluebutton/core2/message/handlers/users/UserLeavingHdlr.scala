@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers.users
 
+import org.bigbluebutton.common2.messages.Users.{ UserLeaveReqMsg, UserLeftMeetingEvtMsg, UserLeftMeetingEvtMsgBody }
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.users.UserLeaveReqMsg
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor

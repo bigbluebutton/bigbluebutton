@@ -5,8 +5,8 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.common2.domain.{ AnnotationVO, SimplePollResultOutVO }
-import org.bigbluebutton.common2.messages.polls.{ PollShowResultEvtMsg, PollShowResultEvtMsgBody, ShowPollResultReqMsg }
-import org.bigbluebutton.common2.messages.whiteboard.{ SendWhiteboardAnnotationEvtMsg, SendWhiteboardAnnotationEvtMsgBody }
+import org.bigbluebutton.common2.messages.Polls.{ PollShowResultEvtMsg, PollShowResultEvtMsgBody, ShowPollResultReqMsg }
+import org.bigbluebutton.common2.messages.Whiteboard.{ SendWhiteboardAnnotationEvtMsg, SendWhiteboardAnnotationEvtMsgBody }
 
 trait ShowPollResultReqMsgHdlr {
   this: MeetingActor =>

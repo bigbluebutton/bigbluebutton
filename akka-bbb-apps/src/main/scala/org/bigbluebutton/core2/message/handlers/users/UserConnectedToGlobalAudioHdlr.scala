@@ -1,12 +1,11 @@
 package org.bigbluebutton.core2.message.handlers.users
 
+import org.bigbluebutton.common2.messages.VoiceConf.{ UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody }
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ UserConnectedToGlobalAudio, UserListeningOnly }
-import org.bigbluebutton.core.models.{ Users, Users2x, VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.api.UserConnectedToGlobalAudio
+import org.bigbluebutton.core.models.{ Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UserConnectedToGlobalAudioHdlr {
   this: MeetingActor =>

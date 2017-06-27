@@ -13,8 +13,8 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 
+import org.bigbluebutton.common2.messages.Users.RegisterUserReqMsg
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.users.RegisterUserReqMsg
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core2.RunningMeetings
 

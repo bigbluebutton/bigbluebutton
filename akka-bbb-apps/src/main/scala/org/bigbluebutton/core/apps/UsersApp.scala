@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.common2.domain.UserVO
+import org.bigbluebutton.common2.messages.Presentation.{ PresenterAssignedEvtMsg, PresenterAssignedEvtMsgBody }
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.users.{ PresenterAssignedEvtMsg, PresenterAssignedEvtMsgBody }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models._
@@ -55,7 +55,7 @@ trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
   }
 
   def usersWhoAreNotPresenter(): Array[UserVO] = {
-    Users.usersWhoAreNotPresenter(liveMeeting.users).toArray
+    Users1x.usersWhoAreNotPresenter(liveMeeting.users).toArray
   }
 
   def makeSurePresenterIsAssigned(user: UserVO): Unit = {
@@ -64,7 +64,7 @@ trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
        * him presenter. This way, if there is a moderator in the meeting, there
        * will always be a presenter.
        */
-      val moderator = Users.findAModerator(liveMeeting.users)
+      val moderator = Users1x.findAModerator(liveMeeting.users)
       moderator.foreach { mod =>
         log.info("Presenter left meeting.  meetingId=" + props.meetingProp.intId + " userId=" + user.id
           + ". Making user=[" + mod.id + "] presenter.")
@@ -92,7 +92,7 @@ trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
   }
 
   def stopRecordingVoiceConference() {
-    if (Users.numUsersInVoiceConference(liveMeeting.users) == 0 &&
+    if (Users1x.numUsersInVoiceConference(liveMeeting.users) == 0 &&
       props.recordProp.record &&
       MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
       MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
@@ -107,15 +107,15 @@ trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
       + " userId=" + msg.voiceUserId)
 
     for {
-      user <- Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users)
-      nu = Users.resetVoiceUser(user, liveMeeting.users)
+      user <- Users1x.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users)
+      nu = Users1x.resetVoiceUser(user, liveMeeting.users)
     } yield {
       log.info("User left voice conf. meetingId=" + props.meetingProp.intId + " userId=" + nu.id + " user=" + nu)
       outGW.send(new UserLeftVoice(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf, nu))
 
       if (user.phoneUser) {
         for {
-          userLeaving <- Users.userLeft(user.id, liveMeeting.users)
+          userLeaving <- Users1x.userLeft(user.id, liveMeeting.users)
         } yield {
           outGW.send(new UserLeft(props.meetingProp.intId, props.recordProp.record, userLeaving))
         }
@@ -136,18 +136,18 @@ trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
 
     def removePresenterRightsToCurrentPresenter(): Unit = {
       for {
-        curPres <- Users.getCurrentPresenter(liveMeeting.users)
+        curPres <- Users1x.getCurrentPresenter(liveMeeting.users)
       } yield {
-        Users.unbecomePresenter(curPres.id, liveMeeting.users)
+        Users1x.unbecomePresenter(curPres.id, liveMeeting.users)
         outGW.send(new UserStatusChange(props.meetingProp.intId, props.recordProp.record, curPres.id, "presenter", false: java.lang.Boolean))
       }
     }
 
     for {
-      newPres <- Users.findWithId(newPresenterID, liveMeeting.users)
+      newPres <- Users1x.findWithId(newPresenterID, liveMeeting.users)
     } yield {
       removePresenterRightsToCurrentPresenter()
-      Users.becomePresenter(newPres.id, liveMeeting.users)
+      Users1x.becomePresenter(newPres.id, liveMeeting.users)
       MeetingStatus2x.setCurrentPresenterInfo(liveMeeting.status, new Presenter(newPresenterID, newPresenterName, assignedBy))
       outGW.send(new PresenterAssigned(props.meetingProp.intId, props.recordProp.record, new Presenter(newPresenterID, newPresenterName, assignedBy)))
       outGW.send(new UserStatusChange(props.meetingProp.intId, props.recordProp.record, newPresenterID, "presenter", true: java.lang.Boolean))
@@ -155,17 +155,17 @@ trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
   }
 
   def handleRespondToGuest(msg: RespondToGuest) {
-    if (Users.isModerator(msg.requesterID, liveMeeting.users)) {
+    if (Users1x.isModerator(msg.requesterID, liveMeeting.users)) {
       var usersToAnswer: Array[UserVO] = null;
       if (msg.userId == null) {
-        usersToAnswer = Users.getUsers(liveMeeting.users).filter(u => u.waitingForAcceptance == true).toArray
+        usersToAnswer = Users1x.getUsers(liveMeeting.users).filter(u => u.waitingForAcceptance == true).toArray
       } else {
-        usersToAnswer = Users.getUsers(liveMeeting.users).filter(u => u.waitingForAcceptance == true && u.id == msg.userId).toArray
+        usersToAnswer = Users1x.getUsers(liveMeeting.users).filter(u => u.waitingForAcceptance == true && u.id == msg.userId).toArray
       }
       usersToAnswer foreach { user =>
         println("UsersApp - handleGuestAccessDenied for user [" + user.id + "]");
         if (msg.response == true) {
-          val nu = Users.setWaitingForAcceptance(user, liveMeeting.users, false)
+          val nu = Users1x.setWaitingForAcceptance(user, liveMeeting.users, false)
           RegisteredUsers.updateRegUser(nu, liveMeeting.registeredUsers)
           outGW.send(new UserJoined(props.meetingProp.intId, props.recordProp.record, nu))
         } else {

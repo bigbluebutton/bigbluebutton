@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
+import org.bigbluebutton.common2.messages.Presentation.{ PresentationPageCountErrorEvtMsg, PresentationPageCountErrorEvtMsgBody, PresentationPageCountErrorPubMsg }
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.PresentationPageCountErrorEvtMsgBody
 import org.bigbluebutton.common2.messages._
 
 trait PresentationPageCountErrorPubMsgHdlr {

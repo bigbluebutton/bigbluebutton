@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers.users
 
+import org.bigbluebutton.common2.messages.VoiceConf.{ UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody }
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.voiceconf.{ UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ UserDisconnectedFromGlobalAudio, UserLeft, UserListeningOnly }
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }

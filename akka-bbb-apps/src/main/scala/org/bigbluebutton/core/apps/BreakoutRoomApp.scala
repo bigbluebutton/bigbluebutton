@@ -4,18 +4,17 @@ import java.net.URLEncoder
 
 import scala.collection.SortedSet
 import scala.collection.mutable
-
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutRoomInfo, BreakoutUserVO }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.Users1x
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.common2.messages.breakoutrooms._
 
 trait BreakoutRoomApp extends SystemConfiguration {
   this: MeetingActor =>
@@ -73,7 +72,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
     log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
     for {
-      user <- Users.findWithId(userId, liveMeeting.users)
+      user <- Users1x.findWithId(userId, liveMeeting.users)
       apiCall = "join"
       params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
         externalMeetingId, props.password.moderatorPass)
@@ -136,7 +135,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
-    val users = Users.getUsers(liveMeeting.users)
+    val users = Users1x.getUsers(liveMeeting.users)
     val breakoutUsers = users map { u => new BreakoutUserVO(u.externalId, u.name) }
     eventBus.publish(BigBlueButtonEvent(props.breakoutProps.parentId,
       new BreakoutRoomUsersUpdate(props.breakoutProps.parentId, props.meetingProp.intId, breakoutUsers)))
@@ -157,7 +156,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
       targetVoiceBridge = props.voiceProp.voiceConf.dropRight(1)
     }
     // We check the user from the mode
-    Users.findWithId(msg.userId, liveMeeting.users) match {
+    Users1x.findWithId(msg.userId, liveMeeting.users) match {
       case Some(u) => {
         if (u.voiceUser.joined) {
           log.info("Transferring user userId=" + u.id + " from voiceBridge=" + props.voiceProp.voiceConf + " to targetVoiceConf=" + targetVoiceBridge)

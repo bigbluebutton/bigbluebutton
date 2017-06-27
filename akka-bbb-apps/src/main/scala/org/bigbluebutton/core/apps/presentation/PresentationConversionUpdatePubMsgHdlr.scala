@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
+import org.bigbluebutton.common2.messages.Presentation.{ PresentationConversionUpdateEvtMsg, PresentationConversionUpdateEvtMsgBody, PresentationConversionUpdatePubMsg }
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.PresentationConversionUpdateEvtMsgBody
 import org.bigbluebutton.common2.messages._
 
 trait PresentationConversionUpdatePubMsgHdlr {

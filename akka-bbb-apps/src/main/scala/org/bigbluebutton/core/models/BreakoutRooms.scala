@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.messages.breakoutrooms.{ BreakoutRoomVO, BreakoutUserVO }
+import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutRoomVO, BreakoutUserVO }
 
 object BreakoutRooms {
 

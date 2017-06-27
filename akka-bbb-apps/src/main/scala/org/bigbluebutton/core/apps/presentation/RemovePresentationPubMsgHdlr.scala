@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
+import org.bigbluebutton.common2.messages.Presentation.{ RemovePresentationEvtMsg, RemovePresentationEvtMsgBody, RemovePresentationPubMsg }
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.RemovePresentationEvtMsgBody
 import org.bigbluebutton.common2.messages._
 
 trait RemovePresentationPubMsgHdlr {

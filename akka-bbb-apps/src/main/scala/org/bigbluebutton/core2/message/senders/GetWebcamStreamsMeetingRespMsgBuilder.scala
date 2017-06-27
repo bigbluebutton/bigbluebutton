@@ -1,6 +1,7 @@
 package org.bigbluebutton.core2.message.senders
 
-import org.bigbluebutton.common2.messages.{ GetWebcamStreamsMeetingRespMsg, _ }
+import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.Webcams.{ GetWebcamStreamsMeetingRespMsg, GetWebcamStreamsMeetingRespMsgBody, WebcamStreamVO }
 
 object GetWebcamStreamsMeetingRespMsgBuilder {
   def build(meetingId: String, userId: String, streams: Vector[WebcamStreamVO]): BbbCommonEnvCoreMsg = {

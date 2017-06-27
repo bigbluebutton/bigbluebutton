@@ -5,7 +5,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.common2.domain.PollVO
-import org.bigbluebutton.common2.messages.polls.{ GetCurrentPollReqMsg, GetCurrentPollRespMsg, GetCurrentPollRespMsgBody }
+import org.bigbluebutton.common2.messages.Polls.{ GetCurrentPollReqMsg, GetCurrentPollRespMsg, GetCurrentPollRespMsgBody }
 
 trait GetCurrentPollReqMsgHdlr {
   this: MeetingActor =>

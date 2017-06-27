@@ -1,10 +1,10 @@
 package org.bigbluebutton.core2.message.handlers
 
+import org.bigbluebutton.common2.messages.VoiceConf.{ MuteUserInVoiceConfMsg, MuteUserInVoiceConfMsgBody }
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.voiceconf.{ MuteUserInVoiceConfMsg, MuteUserInVoiceConfMsgBody }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ MeetingMuted, MuteMeetingRequest, MuteVoiceUser }
-import org.bigbluebutton.core.models.{ Users, VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.models.{ Users1x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -23,7 +23,7 @@ trait MuteMeetingRequestHdlr {
     outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record,
       MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
 
-    Users.getUsers(liveMeeting.users) foreach { u =>
+    Users1x.getUsers(liveMeeting.users) foreach { u =>
       outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
         u.id, props.voiceProp.voiceConf, u.voiceUser.userId, msg.mute))
     }

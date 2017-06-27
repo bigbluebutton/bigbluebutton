@@ -1,12 +1,12 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutRoomJoinURLEvtMsg, BreakoutRoomJoinURLEvtMsgBody, RequestBreakoutJoinURLMsg }
+import org.bigbluebutton.core.models.Users1x
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.apps.BreakoutRoomsUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.common2.messages.breakoutrooms._
 
 trait RequestBreakoutJoinURLMsgHdlr {
   this: MeetingActor =>
@@ -24,7 +24,7 @@ trait RequestBreakoutJoinURLMsgHdlr {
     def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
       log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
       for {
-        user <- Users.findWithId(userId, liveMeeting.users)
+        user <- Users1x.findWithId(userId, liveMeeting.users)
         apiCall = "join"
         params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
           externalMeetingId, props.password.moderatorPass)

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
+import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutRoomInfo, BreakoutRoomsListEvtMsg, BreakoutRoomsListEvtMsgBody, BreakoutRoomsListMsg }
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core.models.BreakoutRooms

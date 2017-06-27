@@ -1,7 +1,9 @@
 package org.bigbluebutton.core2.message.handlers.users
 
+import org.bigbluebutton.common2.messages.Guests.{ GuestWaitingVO, GuestsWaitingApprovalEvtMsg, GuestsWaitingApprovalEvtMsgBody }
+import org.bigbluebutton.common2.messages.Users.ValidateAuthTokenReqMsg
+import org.bigbluebutton.common2.messages.Webcams.{ MediaStreamVO, WebcamStreamVO }
 import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.users.ValidateAuthTokenReqMsg
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor
@@ -87,7 +89,7 @@ trait ValidateAuthTokenReqMsgHdlr {
   }
 
   def sendAllWebcamStreams(requesterId: String): Unit = {
-    val streams = Webcams.findAll(liveMeeting.webcams)
+    val streams = org.bigbluebutton.core.models.Webcams.findAll(liveMeeting.webcams)
     val webcamStreams = streams.map { u =>
       val msVO = MediaStreamVO(id = u.stream.id, url = u.stream.url, userId = u.stream.userId,
         attributes = u.stream.attributes, viewers = u.stream.viewers)
