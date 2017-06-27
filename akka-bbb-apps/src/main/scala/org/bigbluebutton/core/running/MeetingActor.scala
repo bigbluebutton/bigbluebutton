@@ -311,15 +311,15 @@ class MeetingActor(val props: DefaultProps,
   }
 
   def handleGetGuestPolicy(msg: GetGuestPolicy) {
-    outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
-      msg.requesterID, MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
+    //   outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
+    //     msg.requesterID, MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
   }
 
   def handleSetGuestPolicy(msg: SetGuestPolicy) {
-    MeetingStatus2x.setGuestPolicy(liveMeeting.status, msg.policy)
-    MeetingStatus2x.setGuestPolicySetBy(liveMeeting.status, msg.setBy)
-    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record,
-      MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
+    //    MeetingStatus2x.setGuestPolicy(liveMeeting.status, msg.policy)
+    //    MeetingStatus2x.setGuestPolicySetBy(liveMeeting.status, msg.setBy)
+    //    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record,
+    //      MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
   }
 
   def handleLogoutEndMeeting(msg: LogoutEndMeeting) {

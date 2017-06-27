@@ -32,7 +32,6 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val webcams = new Webcams
   val voiceUsers = new VoiceUsers
   val users2x = new Users2x
-  val usersState = new UsersState
   val polls2x = new Polls
   val guestsWaiting = new GuestsWaiting
 

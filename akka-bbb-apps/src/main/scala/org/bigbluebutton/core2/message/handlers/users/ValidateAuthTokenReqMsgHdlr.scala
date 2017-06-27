@@ -4,9 +4,7 @@ import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.users.ValidateAuthTokenReqMsg
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.api.{ GuestPolicy, ValidateAuthToken }
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders._
 
 trait ValidateAuthTokenReqMsgHdlr {
@@ -20,7 +18,7 @@ trait ValidateAuthTokenReqMsgHdlr {
     RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
       case Some(u) =>
 
-        if (u.guest && u.waitingForAcceptance && MeetingStatus2x.getGuestPolicy(liveMeeting.status) == GuestPolicy.ASK_MODERATOR) {
+        if (u.guest && u.waitingForAcceptance && GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting).policy == GuestPolicyType.ASK_MODERATOR) {
           ValidateAuthTokenRespMsgSender.send(outGW, meetingId = props.meetingProp.intId,
             userId = msg.body.userId, authToken = msg.body.authToken, valid = true, waitForApproval = true)
 

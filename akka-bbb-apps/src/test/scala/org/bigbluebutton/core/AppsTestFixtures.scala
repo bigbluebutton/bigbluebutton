@@ -1,7 +1,7 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.common2.domain._
-import org.bigbluebutton.core.api.GuestPolicy
+import org.bigbluebutton.core.api.GuestPolicyType
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core2.MeetingStatus2x

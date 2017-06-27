@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.api
 
 import org.bigbluebutton.common2.messages.breakoutrooms.BreakoutUserVO
-import org.bigbluebutton.core.api.GuestPolicy.GuestPolicy
 import org.bigbluebutton.core.api.SharedNotesOperation.SharedNotesOperation
 import org.bigbluebutton.core.apps.Presentation
 
@@ -116,7 +115,7 @@ case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just
 ///////////////////////////////////////////////////////////////////////////////////////
 
 case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMessage
-case class SetGuestPolicy(meetingID: String, policy: GuestPolicy, setBy: String) extends InMessage
+case class SetGuestPolicy(meetingID: String, policy: String, setBy: String) extends InMessage
 case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -14,7 +14,7 @@ import org.bigbluebutton.messages._
 import akka.event.Logging
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.domain.PageVO
-import org.bigbluebutton.core.models.Roles
+import org.bigbluebutton.core.models.{ GuestPolicyType, Roles }
 
 import scala.collection.JavaConverters
 
@@ -46,11 +46,11 @@ class BigBlueButtonInGW(
 
       case msg: CreateMeetingRequest => {
         val policy = msg.payload.guestPolicy.toUpperCase() match {
-          case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
-          case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
-          case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+          case "ALWAYS_ACCEPT" => GuestPolicyType.ALWAYS_ACCEPT
+          case "ALWAYS_DENY" => GuestPolicyType.ALWAYS_DENY
+          case "ASK_MODERATOR" => GuestPolicyType.ASK_MODERATOR
           //default
-          case undef => GuestPolicy.ASK_MODERATOR
+          case undef => GuestPolicyType.ASK_MODERATOR
         }
         /*
         val mProps = new MeetingProperties(
@@ -301,11 +301,11 @@ class BigBlueButtonInGW(
 
   def setGuestPolicy(meetingId: String, guestPolicy: String, requesterId: String) {
     val policy = guestPolicy.toUpperCase() match {
-      case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
-      case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
-      case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+      case "ALWAYS_ACCEPT" => GuestPolicyType.ALWAYS_ACCEPT
+      case "ALWAYS_DENY" => GuestPolicyType.ALWAYS_DENY
+      case "ASK_MODERATOR" => GuestPolicyType.ASK_MODERATOR
       //default
-      case undef => GuestPolicy.ASK_MODERATOR
+      case undef => GuestPolicyType.ASK_MODERATOR
     }
     eventBus.publish(BigBlueButtonEvent(meetingId, new SetGuestPolicy(meetingId, policy, requesterId)))
   }

@@ -5,7 +5,6 @@ import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.users.{ PresenterAssignedEvtMsg, PresenterAssignedEvtMsgBody }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
