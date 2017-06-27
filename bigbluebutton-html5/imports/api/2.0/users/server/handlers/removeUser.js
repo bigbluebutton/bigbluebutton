@@ -3,11 +3,11 @@ import { check } from 'meteor/check';
 import removeUser from '../modifiers/removeUser';
 
 export default function handleRemoveUser({ header, body }) {
-  const meetingId = header.meetingId;
-  const userId = body.intId;
+  const { meetingId } = header;
+  const { intId } = body;
 
   check(meetingId, String);
-  check(userId, String);
+  check(intId, String);
 
-  return removeUser(meetingId, userId);
+  return removeUser(meetingId, intId);
 }
