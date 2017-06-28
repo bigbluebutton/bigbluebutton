@@ -8,7 +8,6 @@ import org.bigbluebutton.red5.client.UserClientMessageSender;
 import org.bigbluebutton.red5.client.ChatClientMessageSender;
 import org.bigbluebutton.red5.client.SharedNotesClientMessageSender;
 import org.bigbluebutton.red5.client.WhiteboardClientMessageSender;
-import org.bigbluebutton.red5.client.CaptionClientMessageSender;
 import org.bigbluebutton.red5.client.DeskShareMessageSender;
 import org.bigbluebutton.red5.client.messaging.IConnectionInvokerService;
 import org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler;
@@ -25,7 +24,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	private DeskShareMessageSender deskShareMessageSender;
 	//private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
 	private PollingClientMessageSender pollingMessageSender;
-	private CaptionClientMessageSender captionMessageSender;
 	private SharedNotesClientMessageSender sharedNotesMessageSender;
 	
 	public void setConnectionInvokerService(IConnectionInvokerService s) {
@@ -37,7 +35,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		whiteboardMessageSender = new WhiteboardClientMessageSender(service);
 		deskShareMessageSender = new DeskShareMessageSender(service);
 		pollingMessageSender = new PollingClientMessageSender(service);
-		captionMessageSender = new CaptionClientMessageSender(service);
 		sharedNotesMessageSender = new SharedNotesClientMessageSender(service);
 	}
 	
@@ -64,8 +61,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 			deskShareMessageSender.handleDeskShareMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_POLLING_CHANNEL)) {
 			pollingMessageSender.handlePollMessage(message);
-		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_CAPTION_CHANNEL)) {
-			captionMessageSender.handleCaptionMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SHAREDNOTES_CHANNEL)) {
 			sharedNotesMessageSender.handleSharedNotesMessage(message);
 		}

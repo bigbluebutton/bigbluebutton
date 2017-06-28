@@ -272,7 +272,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageGeneratedPubMsg](envelope, jsonNode)
       case PresentationConversionCompletedPubMsg.NAME =>
         routeGenericMsg[PresentationConversionCompletedPubMsg](envelope, jsonNode)
-
+      case EditCaptionHistoryPubMsg.NAME =>
+        routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
+      case UpdateCaptionOwnerPubMsg.NAME =>
+        routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
+      case SendCaptionHistoryReqMsg.NAME =>
+        routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

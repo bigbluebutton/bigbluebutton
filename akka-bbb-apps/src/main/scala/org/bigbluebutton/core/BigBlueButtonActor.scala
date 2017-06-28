@@ -316,7 +316,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       eventBus.publish(BigBlueButtonEvent(id, new DeskShareGetDeskShareInfoRequest(id, html5clientRequesterID, html5clientRequesterID)))
 
       // send captions
-      eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
+      //eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
     })
 
     outGW.send(new GetAllMeetingsReply(resultArray))

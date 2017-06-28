@@ -545,24 +545,6 @@ class BigBlueButtonInGW(
 
   /**
    * *******************************************************************
-   * Message Interface for Caption
-   * *****************************************************************
-   */
-
-  def sendCaptionHistory(meetingID: String, requesterID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendCaptionHistoryRequest(meetingID, requesterID)))
-  }
-
-  def updateCaptionOwner(meetingID: String, locale: String, localeCode: String, ownerID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new UpdateCaptionOwnerRequest(meetingID, locale, localeCode, ownerID)))
-  }
-
-  def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, localeCode, text)))
-  }
-
-  /**
-   * *******************************************************************
    * Message Interface for Shared Notes
    * *****************************************************************
    */

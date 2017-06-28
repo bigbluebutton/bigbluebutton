@@ -138,10 +138,6 @@ case class GetCurrentPollReplyMessage(meetingID: String, recorded: Boolean, requ
 // No idea what part this is for
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
-// Caption
-case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, Array[String]]) extends IOutMessage
-case class UpdateCaptionOwnerReply(meetingID: String, recorded: Boolean, locale: String, localeCode: String, ownerID: String) extends IOutMessage
-case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) extends IOutMessage
 // DeskShare
 case class DeskShareStartRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage
 case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage
@@ -163,4 +159,3 @@ case class SharedNotesSyncNoteReply(meetingID: String, recorded: Boolean, reques
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)
-

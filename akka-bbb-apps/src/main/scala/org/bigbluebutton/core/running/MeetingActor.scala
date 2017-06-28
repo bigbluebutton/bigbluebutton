@@ -9,6 +9,7 @@ import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
@@ -38,7 +39,7 @@ class MeetingActor(val props: DefaultProps,
     extends Actor with ActorLogging
     with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with BreakoutRoomApp with CaptionApp
+    with BreakoutRoomApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
@@ -102,6 +103,7 @@ class MeetingActor(val props: DefaultProps,
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
   val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
+  val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -174,11 +176,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
     case msg: EndMeeting => handleEndMeeting(msg)
 
-    // Closed Caption
-    case msg: SendCaptionHistoryRequest => handleSendCaptionHistoryRequest(msg)
-    case msg: UpdateCaptionOwnerRequest => handleUpdateCaptionOwnerRequest(msg)
-    case msg: EditCaptionHistoryRequest => handleEditCaptionHistoryRequest(msg)
-
     case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
     case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
     case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
@@ -249,6 +246,9 @@ class MeetingActor(val props: DefaultProps,
       case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
       case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
       case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
+      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
+      case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }

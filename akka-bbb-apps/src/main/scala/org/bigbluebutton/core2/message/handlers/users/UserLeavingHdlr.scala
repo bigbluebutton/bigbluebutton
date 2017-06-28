@@ -16,7 +16,7 @@ trait UserLeavingHdlr {
     } yield {
       log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-      checkCaptionOwnerLogOut(u.intId)
+      captionApp2x.handleUserLeavingMsg(msg.body.userId)
       liveMeeting.startCheckingIfWeNeedToEndVoiceConf()
       stopAutoStartedRecording()
       sendUserLeftMeetingEvtMsg(outGW, props.meetingProp.intId, msg.body.userId)
