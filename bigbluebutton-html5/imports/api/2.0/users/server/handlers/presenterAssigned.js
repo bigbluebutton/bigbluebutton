@@ -4,14 +4,14 @@ import Users from './../../';
 
 export default function handlePresenterAssigned({ body, header }) {
   const { meetingId } = header;
-  const { intId } = body;
+  const { presenterId } = body;
 
   check(meetingId, String);
-  check(intId, String);
+  check(presenterId, String);
 
   const selector = {
     meetingId,
-    userId: intId,
+    userId: presenterId,
   };
 
   const modifier = {
@@ -26,18 +26,18 @@ export default function handlePresenterAssigned({ body, header }) {
     }
 
     if (numChanged) {
-      unassignCurrentPresenter(meetingId, intId);
-      return Logger.info(`Assigned user as presenter id=${intId} meeting=${meetingId}`);
+      unassignCurrentPresenter(meetingId, presenterId);
+      return Logger.info(`Assigned user as presenter id=${presenterId} meeting=${meetingId}`);
     }
   };
 
   return Users.update(selector, modifier, cb);
 }
 
-const unassignCurrentPresenter = (meetingId, intId) => {
+const unassignCurrentPresenter = (meetingId, presenterId) => {
   const selector = {
     meetingId,
-    userId: { $ne: intId },
+    userId: { $ne: presenterId },
     'user.presenter': true,
   };
 
