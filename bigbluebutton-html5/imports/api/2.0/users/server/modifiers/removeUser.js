@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Users from './../../';
+import Users from '/imports/api/2.0/users';
 import Logger from '/imports/startup/server/logger';
 
 const CLIENT_TYPE_HTML = 'HTML5';

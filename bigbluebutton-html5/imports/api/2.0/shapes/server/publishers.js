@@ -1,4 +1,4 @@
-import Shapes from './../';
+import Shapes from '/imports/api/2.0/shapes';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
@@ -17,8 +17,6 @@ function shapes(credentials) {
 }
 
 function publish(...args) {
-  console.error('shapes2x publish');
-
   const boundShapes = shapes.bind(this);
   return mapToAcl('subscriptions.shapes', boundShapes)(args);
 }

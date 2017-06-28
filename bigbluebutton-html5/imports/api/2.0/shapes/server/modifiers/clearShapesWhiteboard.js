@@ -1,4 +1,4 @@
-import Shapes from './../../';
+import Shapes from '/imports/api/2.0/shapes';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 

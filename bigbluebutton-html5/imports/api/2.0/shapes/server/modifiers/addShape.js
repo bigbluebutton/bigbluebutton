@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Shapes from './../../';
+import Shapes from '/imports/api/2.0/shapes';
 
 const SHAPE_TYPE_TEXT = 'text';
 const SHAPE_TYPE_POLL_RESULT = 'poll_result';

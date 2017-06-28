@@ -1,6 +1,6 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import Users from './../../';
+import Users from '/imports/api/2.0/users';
 
 export default function handlePresenterAssigned({ body, header }) {
   const { meetingId } = header;
