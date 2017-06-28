@@ -1,4 +1,4 @@
-import Users from '..';
+import Users from '/imports/api/2.0/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
@@ -29,7 +29,6 @@ Meteor.publish('current-user2x', (credentials) => {
 });
 
 function users(credentials) {
-  console.error('users2x publish');
   const {
     meetingId,
     requesterUserId,

@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Shapes from './../../';
+import Shapes from '/imports/api/2.0/shapes';
 import Logger from '/imports/startup/server/logger';
 
 export default function removeShape(meetingId, whiteboardId, shapeId) {

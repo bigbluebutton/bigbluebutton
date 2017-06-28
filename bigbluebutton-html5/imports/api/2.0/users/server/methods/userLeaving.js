@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
-import Users from './../../';
+import Users from '/imports/api/2.0/users';
 
 import listenOnlyToggle from './listenOnlyToggle';
 
