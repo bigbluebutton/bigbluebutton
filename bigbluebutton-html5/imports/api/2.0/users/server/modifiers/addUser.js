@@ -52,14 +52,14 @@ export default function addUser(meetingId, user) {
       'user.avatarURL': user.avatar,
       'user.set_emoji_time': user.set_emoji_time || (new Date()).getTime(),
       'user.joiningTime': (new Date()).getTime(),
-      'user.emoji_status': user.emoji_status,
+      'user.emoji_status': user.emoji,
       'user.presenter': user.presenter,
       'user.locked': user.locked,
       'user.listenOnly': user.listenOnly,
 
       // default values for voiceUser and webcam
+      'user.webcam_stream': [],
       'user.voiceUser.web_userid': false,
-      'user.voiceUser.webcam_stream': [],
       'user.voiceUser.callernum': false,
       'user.voiceUser.userid': false,
       'user.voiceUser.talking': false,

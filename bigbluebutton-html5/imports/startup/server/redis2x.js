@@ -132,3 +132,4 @@ Meteor.startup(() => {
 });
 
 export default RedisPubSubSingleton;
+
