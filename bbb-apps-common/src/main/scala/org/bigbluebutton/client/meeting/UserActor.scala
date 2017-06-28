@@ -3,10 +3,9 @@ package org.bigbluebutton.client.meeting
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.{ConnInfo, SystemConfiguration}
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.messages.users.{UserLeaveReqMsg, UserLeaveReqMsgBody}
 
 import scala.util.{Failure, Success}
 
