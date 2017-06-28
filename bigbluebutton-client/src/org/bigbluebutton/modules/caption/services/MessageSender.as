@@ -20,49 +20,60 @@ package org.bigbluebutton.modules.caption.services {
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	
 	public class MessageSender {
 		private static const LOGGER:ILogger = getClassLogger(MessageSender);
 		
 		public function getCaptionHistory():void {
-			LOGGER.debug("Sending [caption.getCaptionHistory] to server.");
+			var message:Object = {
+				header: {name: "SendCaptionHistoryReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {}
+			};
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.getCaptionHistory", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
-				},	                   
+				},
 				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				}
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
 			);
 		}
 		
-		public function sendUpdateCaptionOwner(message:Object):void {
-			LOGGER.debug("Sending [caption.sendUpdateCaptionOwner] to server.");
+		public function sendUpdateCaptionOwner(locale: String, localeCode: String):void {
+			var message:Object = {
+				header: {name: "UpdateCaptionOwnerPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {locale: locale, localeCode: localeCode, ownerId: UsersUtil.getMyUserID()}
+			};
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.sendUpdateCaptionOwner", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
 				},
-				message
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
 			);
 		}
 		
-		public function sendEditCaptionHistory(message:Object):void {  
-			LOGGER.debug("Sending [caption.editCaptionHistory] to server.");
+		public function sendEditCaptionHistory(startIndex: int, endIndex: int, locale: String, localeCode: String, text: String):void {
+			var message:Object = {
+				header: {name: "EditCaptionHistoryPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+				body: {startIndex: startIndex, endIndex: endIndex, locale: locale, localeCode: localeCode, text: text}
+			};
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.editCaptionHistory", 
+			_nc.sendMessage2x(
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
 				},
-				message
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+				},
+				JSON.stringify(message)
 			);
 		}
 	}

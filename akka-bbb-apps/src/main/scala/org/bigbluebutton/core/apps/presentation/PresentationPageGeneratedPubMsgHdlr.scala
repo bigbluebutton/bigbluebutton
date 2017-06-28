@@ -1,8 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.PresentationPageGeneratedEvtMsgBody
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 
 trait PresentationPageGeneratedPubMsgHdlr {
   this: PresentationApp2x =>

@@ -34,25 +34,11 @@ package org.bigbluebutton.modules.caption.services {
 		}
 		
 		public function sendUpdateCaptionOwner(e:SendUpdateCaptionOwnerEvent):void {
-			var msg:Object = new Object();
-			msg.locale = e.locale;
-			msg.localeCode = e.localeCode;
-			msg.claim = e.claim;
-			
-			sender.sendUpdateCaptionOwner(msg);
+			sender.sendUpdateCaptionOwner(e.locale, e.localeCode);
 		}
 		
 		public function sendEditCaptionHistory(e:SendEditCaptionHistoryEvent):void {
-			if (e.startIndex >= 0) {
-				var msg:Object = new Object();
-				msg.startIndex = e.startIndex;
-				msg.endIndex = e.endIndex;
-				msg.locale = e.locale;
-				msg.localeCode = e.localeCode;
-				msg.text = e.text;
-				
-				sender.sendEditCaptionHistory(msg);
-			}
+			sender.sendEditCaptionHistory(e.startIndex, e.endIndex, e.locale, e.localeCode, e.text);
 		}
 	}
 }

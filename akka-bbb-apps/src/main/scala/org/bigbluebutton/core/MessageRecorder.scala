@@ -1,6 +1,6 @@
 package org.bigbluebutton.core
 
-import org.bigbluebutton.common2.messages.BbbCoreMsg
+import org.bigbluebutton.common2.msgs.BbbCoreMsg
 
 object MessageRecorder {
   def record(outGW: OutMessageGateway, record: Boolean, msg: BbbCoreMsg): Unit = {

@@ -6,15 +6,12 @@ import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import akka.util.Timeout
-
 import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
-
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.users.RegisterUserReqMsg
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core2.RunningMeetings
 
@@ -319,7 +316,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       eventBus.publish(BigBlueButtonEvent(id, new DeskShareGetDeskShareInfoRequest(id, html5clientRequesterID, html5clientRequesterID)))
 
       // send captions
-      eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
+      //eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
     })
 
     outGW.send(new GetAllMeetingsReply(resultArray))

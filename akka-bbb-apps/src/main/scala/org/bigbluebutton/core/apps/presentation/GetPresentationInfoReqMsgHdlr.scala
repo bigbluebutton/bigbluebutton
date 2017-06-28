@@ -1,8 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.GetPresentationInfoRespMsgBody
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.core.apps.Presentation
 

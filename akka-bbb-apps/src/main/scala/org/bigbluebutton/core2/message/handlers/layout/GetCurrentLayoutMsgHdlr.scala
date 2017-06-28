@@ -1,16 +1,10 @@
 package org.bigbluebutton.core2.message.handlers.layout
 
-import org.bigbluebutton.common2.messages.Routing
-import org.bigbluebutton.common2.messages.MessageTypes
-import org.bigbluebutton.common2.messages.layout._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.common2.messages.BbbCommonEnvCoreMsg
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.common2.messages.layout.GetCurrentLayoutMsg
-import org.bigbluebutton.common2.messages.BbbClientMsgHeader
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Layouts
-import org.bigbluebutton.common2.messages.BbbCoreEnvelope
 
 trait GetCurrentLayoutMsgHdlr {
   this: MeetingActor =>

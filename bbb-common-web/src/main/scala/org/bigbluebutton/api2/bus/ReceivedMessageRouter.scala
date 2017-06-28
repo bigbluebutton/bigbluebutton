@@ -2,7 +2,7 @@ package org.bigbluebutton.api2.bus
 
 import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.api2.SystemConfiguration
-import org.bigbluebutton.common2.messages.{BbbCommonEnvCoreMsg, BbbCoreEnvelope, MeetingCreatedEvtMsg}
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, BbbCoreEnvelope, MeetingCreatedEvtMsg}
 
 
 trait ReceivedMessageRouter extends SystemConfiguration {

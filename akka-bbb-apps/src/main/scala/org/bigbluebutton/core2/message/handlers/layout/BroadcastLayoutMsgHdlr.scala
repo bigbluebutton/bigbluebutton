@@ -1,8 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.layout
 
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.Routing
-import org.bigbluebutton.common2.messages.layout._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.running.MeetingActor

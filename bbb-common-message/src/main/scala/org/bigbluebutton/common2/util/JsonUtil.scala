@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, ObjectM
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, BbbCoreMessageFromClient, BbbCoreMsg}
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg, BbbCoreMessageFromClient}
 
 import scala.reflect.runtime.universe._
 import scala.util.Try

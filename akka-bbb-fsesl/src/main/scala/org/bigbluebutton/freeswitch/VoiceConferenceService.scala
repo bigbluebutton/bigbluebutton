@@ -1,19 +1,10 @@
 package org.bigbluebutton.freeswitch
 
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common.messages.{ DeskShareRTMPBroadcastStartedEventMessage, DeskShareRTMPBroadcastStoppedEventMessage, DeskShareStartedEventMessage, DeskShareStoppedEventMessage }
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.endpoint.redis.RedisPublisher
-import org.bigbluebutton.common.messages.VoiceConfRecordingStartedMessage
-import org.bigbluebutton.common.messages.UserJoinedVoiceConfMessage
-import org.bigbluebutton.common.messages.UserLeftVoiceConfMessage
-import org.bigbluebutton.common.messages.UserMutedInVoiceConfMessage
-import org.bigbluebutton.common.messages.UserTalkingInVoiceConfMessage
-import org.bigbluebutton.common.messages.DeskShareStartedEventMessage
-import org.bigbluebutton.common.messages.DeskShareStoppedEventMessage
-import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStartedEventMessage
-import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStoppedEventMessage
-import org.bigbluebutton.common2.messages.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope }
-import org.bigbluebutton.common2.messages.voiceconf._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService with SystemConfiguration {

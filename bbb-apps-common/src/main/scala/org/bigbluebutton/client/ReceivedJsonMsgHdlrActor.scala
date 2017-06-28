@@ -2,7 +2,7 @@ package org.bigbluebutton.client
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.bus.{JsonMsgFromAkkaApps, MsgFromAkkaApps, MsgFromAkkaAppsEventBus}
-import org.bigbluebutton.common2.messages.BbbCommonEnvJsNodeMsg
+import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 
 import scala.util.{Failure, Success}
