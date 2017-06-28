@@ -2,7 +2,7 @@ package org.bigbluebutton.client
 
 import org.bigbluebutton.client.bus.JsonMsgFromAkkaApps
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.common2.messages.BbbCommonEnvJsNodeMsg
+import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 
 trait RxJsonMsgHdlrTrait {
 

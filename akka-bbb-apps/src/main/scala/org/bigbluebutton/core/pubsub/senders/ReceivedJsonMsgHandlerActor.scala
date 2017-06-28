@@ -3,13 +3,7 @@ package org.bigbluebutton.core.pubsub.senders
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.breakoutrooms._
-import org.bigbluebutton.common2.messages.polls._
-import org.bigbluebutton.common2.messages.users._
-import org.bigbluebutton.common2.messages.layout._
-import org.bigbluebutton.common2.messages.voiceconf._
-import org.bigbluebutton.common2.messages.whiteboard._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
 
@@ -278,7 +272,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageGeneratedPubMsg](envelope, jsonNode)
       case PresentationConversionCompletedPubMsg.NAME =>
         routeGenericMsg[PresentationConversionCompletedPubMsg](envelope, jsonNode)
-
+      case EditCaptionHistoryPubMsg.NAME =>
+        routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
+      case UpdateCaptionOwnerPubMsg.NAME =>
+        routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
+      case SendCaptionHistoryReqMsg.NAME =>
+        routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

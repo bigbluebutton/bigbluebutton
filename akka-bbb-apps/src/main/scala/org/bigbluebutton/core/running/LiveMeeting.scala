@@ -13,7 +13,7 @@ class LiveMeeting(val props: DefaultProps,
   val chatModel: ChatModel,
   val layoutModel: LayoutModel,
   val layouts: Layouts,
-  val users: Users,
+  val users: Users1x,
   val registeredUsers: RegisteredUsers,
   val polls: Polls, // 2x
   val pollModel: PollModel, // 1.1x
@@ -33,13 +33,13 @@ class LiveMeeting(val props: DefaultProps,
   }
 
   def webUserJoined() {
-    if (Users.numWebUsers(users) > 0) {
+    if (Users1x.numWebUsers(users) > 0) {
       MeetingStatus2x.resetLastWebUserLeftOn(status)
     }
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (Users.numWebUsers(users) == 0 && !props.meetingProp.isBreakout) {
+    if (Users1x.numWebUsers(users) == 0 && !props.meetingProp.isBreakout) {
       MeetingStatus2x.lastWebUserLeft(status)
     }
   }

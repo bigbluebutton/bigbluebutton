@@ -3,7 +3,7 @@ package org.bigbluebutton.core2
 import java.util.concurrent.TimeUnit
 
 import org.bigbluebutton.core.MeetingExtensionProp
-import org.bigbluebutton.core.api.{ GuestPolicy, Permissions, Presenter }
+import org.bigbluebutton.core.api.{ Permissions, Presenter }
 
 object MeetingStatus2x {
   def setCurrentPresenterInfo(status: MeetingStatus2x, pres: Presenter) {
@@ -146,10 +146,6 @@ object MeetingStatus2x {
   def hasMeetingEnded(status: MeetingStatus2x): Boolean = status.meetingEnded
   def timeNowInMinutes(status: MeetingStatus2x): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   def timeNowInSeconds(status: MeetingStatus2x): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
-  def getGuestPolicy(status: MeetingStatus2x): GuestPolicy.GuestPolicy = status.guestPolicy
-  def setGuestPolicy(status: MeetingStatus2x, policy: GuestPolicy.GuestPolicy) = status.guestPolicy = policy
-  def getGuestPolicySetBy(status: MeetingStatus2x): String = status.guestPolicySetBy
-  def setGuestPolicySetBy(status: MeetingStatus2x, user: String) = status.guestPolicySetBy = user
 
   def startedOn(status: MeetingStatus2x): Long = status.startedOn
 
@@ -177,8 +173,6 @@ class MeetingStatus2x {
   private var muted = false
   private var meetingEnded = false
   private var meetingMuted = false
-  private var guestPolicy = GuestPolicy.ASK_MODERATOR
-  private var guestPolicySetBy: String = null
 
   private var hasLastWebUserLeft = false
   private var lastWebUserLeftOnTimestamp: Long = 0
@@ -332,8 +326,4 @@ class MeetingStatus2x {
   private def meetingHasEnded() = meetingEnded = true
   private def hasMeetingEnded(): Boolean = meetingEnded
 
-  private def getGuestPolicy(): GuestPolicy.GuestPolicy = guestPolicy
-  private def setGuestPolicy(policy: GuestPolicy.GuestPolicy) = guestPolicy = policy
-  private def getGuestPolicySetBy(): String = guestPolicySetBy
-  private def setGuestPolicySetBy(user: String) = guestPolicySetBy = user
 }

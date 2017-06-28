@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.models.{ RegisteredUsers, UserState, Users2x, VoiceUsers }
+import org.bigbluebutton.core.models.{ UserState, Users2x }
 
 trait EjectUserFromMeetingHdlr {
   this: PresentationApp2x =>

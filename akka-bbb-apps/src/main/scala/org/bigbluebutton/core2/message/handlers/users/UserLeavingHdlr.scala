@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.users
 
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.users.UserLeaveReqMsg
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor
@@ -17,7 +16,7 @@ trait UserLeavingHdlr {
     } yield {
       log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-      checkCaptionOwnerLogOut(u.intId)
+      captionApp2x.handleUserLeavingMsg(msg.body.userId)
       liveMeeting.startCheckingIfWeNeedToEndVoiceConf()
       stopAutoStartedRecording()
       sendUserLeftMeetingEvtMsg(outGW, props.meetingProp.intId, msg.body.userId)

@@ -6,26 +6,20 @@ import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.breakoutrooms._
-import org.bigbluebutton.common2.messages.polls._
-import org.bigbluebutton.common2.messages.users._
-import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfEvtMsg, UserLeftVoiceConfEvtMsg, UserMutedInVoiceConfEvtMsg, UserTalkingInVoiceConfEvtMsg }
-import org.bigbluebutton.common2.messages.whiteboard._
-import org.bigbluebutton.common2.messages.layout._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users1x }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
-
+import org.bigbluebutton.common2.msgs._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
@@ -45,7 +39,7 @@ class MeetingActor(val props: DefaultProps,
     extends Actor with ActorLogging
     with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with BreakoutRoomApp with CaptionApp
+    with BreakoutRoomApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
@@ -109,6 +103,7 @@ class MeetingActor(val props: DefaultProps,
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
   val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
+  val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -181,11 +176,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
     case msg: EndMeeting => handleEndMeeting(msg)
 
-    // Closed Caption
-    case msg: SendCaptionHistoryRequest => handleSendCaptionHistoryRequest(msg)
-    case msg: UpdateCaptionOwnerRequest => handleUpdateCaptionOwnerRequest(msg)
-    case msg: EditCaptionHistoryRequest => handleEditCaptionHistoryRequest(msg)
-
     case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
     case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
     case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
@@ -256,6 +246,9 @@ class MeetingActor(val props: DefaultProps,
       case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
       case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
       case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
+      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
+      case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -311,19 +304,19 @@ class MeetingActor(val props: DefaultProps,
   }
 
   def handleGetGuestPolicy(msg: GetGuestPolicy) {
-    outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
-      msg.requesterID, MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
+    //   outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
+    //     msg.requesterID, MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
   }
 
   def handleSetGuestPolicy(msg: SetGuestPolicy) {
-    MeetingStatus2x.setGuestPolicy(liveMeeting.status, msg.policy)
-    MeetingStatus2x.setGuestPolicySetBy(liveMeeting.status, msg.setBy)
-    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record,
-      MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
+    //    MeetingStatus2x.setGuestPolicy(liveMeeting.status, msg.policy)
+    //    MeetingStatus2x.setGuestPolicySetBy(liveMeeting.status, msg.setBy)
+    //    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record,
+    //      MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
   }
 
   def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
-    if (Users.isModerator(msg.userID, liveMeeting.users)) {
+    if (Users1x.isModerator(msg.userID, liveMeeting.users)) {
       handleEndMeeting(EndMeeting(props.meetingProp.intId))
     }
   }
@@ -343,7 +336,7 @@ class MeetingActor(val props: DefaultProps,
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    Users.getCurrentPresenter(liveMeeting.users) match {
+    Users1x.getCurrentPresenter(liveMeeting.users) match {
       case Some(curPres) => {
         val allowed = msg.userID equals (curPres.id)
         outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
@@ -434,7 +427,7 @@ class MeetingActor(val props: DefaultProps,
   }
 
   def monitorNumberOfWebUsers() {
-    if (Users.numWebUsers(liveMeeting.users) == 0 &&
+    if (Users1x.numWebUsers(liveMeeting.users) == 0 &&
       MeetingStatus2x.lastWebUserLeftOn(liveMeeting.status) > 0) {
       if (liveMeeting.timeNowInMinutes - MeetingStatus2x.lastWebUserLeftOn(liveMeeting.status) > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", props.meetingProp.intId)
@@ -444,7 +437,7 @@ class MeetingActor(val props: DefaultProps,
   }
 
   def monitorNumberOfUsers() {
-    val hasUsers = Users.numUsers(liveMeeting.users) != 0
+    val hasUsers = Users1x.numUsers(liveMeeting.users) != 0
     // TODO: We could use a better control over this message to send it just when it really matters :)
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, UpdateMeetingExpireMonitor(props.meetingProp.intId, hasUsers)))
   }
@@ -477,7 +470,7 @@ class MeetingActor(val props: DefaultProps,
 
   def startRecordingIfAutoStart() {
     if (props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
-      props.recordProp.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 1) {
+      props.recordProp.autoStartRecording && Users1x.numWebUsers(liveMeeting.users) == 1) {
       log.info("Auto start recording. meetingId={}", props.meetingProp.intId)
       MeetingStatus2x.recordingStarted(liveMeeting.status)
       outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record,
@@ -487,7 +480,7 @@ class MeetingActor(val props: DefaultProps,
 
   def stopAutoStartedRecording() {
     if (props.recordProp.record && MeetingStatus2x.isRecording(liveMeeting.status) &&
-      props.recordProp.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 0) {
+      props.recordProp.autoStartRecording && Users1x.numWebUsers(liveMeeting.users) == 0) {
       log.info("Last web user left. Auto stopping recording. meetingId={}", props.meetingProp.intId)
       MeetingStatus2x.recordingStopped(liveMeeting.status)
       outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record,

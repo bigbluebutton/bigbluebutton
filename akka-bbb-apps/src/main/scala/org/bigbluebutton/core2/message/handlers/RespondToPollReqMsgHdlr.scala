@@ -1,8 +1,7 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.domain.SimplePollResultOutVO
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.polls.{ RespondToPollReqMsg, UserRespondedToPollEvtMsg, UserRespondedToPollEvtMsgBody }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.MeetingActor
@@ -13,6 +12,7 @@ trait RespondToPollReqMsgHdlr {
   val outGW: OutMessageGateway
 
   def handleRespondToPollReqMsg(msg: RespondToPollReqMsg): Unit = {
+    log.debug("Received RespondToPollReqMsg {}", RespondToPollReqMsg)
 
     def broadcastEvent(msg: RespondToPollReqMsg, stoppedPollId: String, presenterId: String, poll: SimplePollResultOutVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)

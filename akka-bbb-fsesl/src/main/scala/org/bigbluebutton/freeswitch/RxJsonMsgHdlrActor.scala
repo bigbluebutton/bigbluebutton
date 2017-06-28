@@ -3,8 +3,7 @@ package org.bigbluebutton.freeswitch
 import akka.actor.{ Actor, ActorLogging, Props }
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.BbbCoreEnvelope
-import org.bigbluebutton.common2.messages.voiceconf._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.freeswitch.bus.ReceivedJsonMsg
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication
 

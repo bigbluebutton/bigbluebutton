@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.Users1x
 import org.bigbluebutton.core.running.{ MeetingActor }
 import com.google.gson.Gson
 import java.util.ArrayList
@@ -133,7 +133,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users.numUsers(liveMeeting.users) - 1 // subtract the presenter
+      numRespondents = Users1x.numUsers(liveMeeting.users) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -157,7 +157,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users.numUsers(liveMeeting.users) - 1 // subtract the presenter
+      numRespondents = Users1x.numUsers(liveMeeting.users) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -185,10 +185,10 @@ trait PollApp {
     }
 
     for {
-      user <- Users.findWithId(msg.requesterId, liveMeeting.users)
+      user <- Users1x.findWithId(msg.requesterId, liveMeeting.users)
       responder = new Responder(user.id, user.name)
       updatedPoll <- storePollResult(responder)
-      curPres <- Users.getCurrentPresenter(liveMeeting.users)
+      curPres <- Users1x.getCurrentPresenter(liveMeeting.users)
     } yield outGW.send(new UserRespondedToPollMessage(props.meetingProp.intId, props.recordProp.record, curPres.id, msg.pollId, updatedPoll))
 
   }

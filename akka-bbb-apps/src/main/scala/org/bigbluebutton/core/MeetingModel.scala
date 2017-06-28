@@ -1,10 +1,6 @@
 package org.bigbluebutton.core
 
-import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.api.Permissions
-import java.util.concurrent.TimeUnit
-
-import org.bigbluebutton.core.api.GuestPolicy.GuestPolicy
 
 case object StopMeetingActor
 
@@ -21,7 +17,6 @@ class MeetingModel {
   private var muted = false
   private var meetingEnded = false
   private var meetingMuted = false
-  private var guestPolicy = GuestPolicy.ASK_MODERATOR
   private var guestPolicySetBy: String = null
 
   private var hasLastWebUserLeft = false

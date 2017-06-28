@@ -64,7 +64,7 @@ class RedisRecorderActor(val system: ActorSystem)
     //    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
     //    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     //    case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
-    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
+    //    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
@@ -452,6 +452,7 @@ class RedisRecorderActor(val system: ActorSystem)
   }
   */
 
+  /*
   private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
     if (msg.recorded) {
       val ev = new EditCaptionHistoryRecordEvent()
@@ -465,6 +466,7 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
+  */
 
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
     val event = new DeskShareStartRTMPRecordEvent()

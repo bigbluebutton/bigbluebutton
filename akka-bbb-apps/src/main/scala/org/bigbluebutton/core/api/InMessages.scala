@@ -1,12 +1,9 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.common2.messages.breakoutrooms.BreakoutUserVO
-import org.bigbluebutton.core.api.GuestPolicy.GuestPolicy
+import org.bigbluebutton.common2.msgs.BreakoutUserVO
 import org.bigbluebutton.core.api.SharedNotesOperation.SharedNotesOperation
 import org.bigbluebutton.core.apps.Presentation
-
 import spray.json.JsObject
-
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)
@@ -116,7 +113,7 @@ case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just
 ///////////////////////////////////////////////////////////////////////////////////////
 
 case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMessage
-case class SetGuestPolicy(meetingID: String, policy: GuestPolicy, setBy: String) extends InMessage
+case class SetGuestPolicy(meetingID: String, policy: String, setBy: String) extends InMessage
 case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -189,10 +186,6 @@ case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: S
 // No idea what part this is for
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
 
-// Caption
-case class SendCaptionHistoryRequest(meetingID: String, requesterID: String) extends InMessage
-case class UpdateCaptionOwnerRequest(meetingID: String, locale: String, localeCode: String, ownerID: String) extends InMessage
-case class EditCaptionHistoryRequest(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) extends InMessage
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
 case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

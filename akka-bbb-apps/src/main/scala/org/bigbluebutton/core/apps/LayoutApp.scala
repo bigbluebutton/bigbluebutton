@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.domain.UserVO
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.models.{ Layouts, Roles, Users }
+import org.bigbluebutton.core.models.{ Layouts, Roles, Users1x }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -54,14 +54,14 @@ trait LayoutApp {
   def affectedUsers(): Array[UserVO] = {
     if (Layouts.doesLayoutApplyToViewersOnly()) {
       val au = ArrayBuffer[UserVO]()
-      Users.getUsers(liveMeeting.users) foreach { u =>
+      Users1x.getUsers(liveMeeting.users) foreach { u =>
         if (!u.presenter && u.role != Roles.MODERATOR_ROLE) {
           au += u
         }
       }
       au.toArray
     } else {
-      Users.getUsers(liveMeeting.users).toArray
+      Users1x.getUsers(liveMeeting.users).toArray
     }
   }
 
