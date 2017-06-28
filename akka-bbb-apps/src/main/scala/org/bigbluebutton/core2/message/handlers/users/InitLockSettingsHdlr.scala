@@ -15,8 +15,6 @@ trait InitLockSettingsHdlr {
     if (!MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
       MeetingStatus2x.initializePermissions(liveMeeting.status)
       liveMeeting.newPermissions(msg.settings)
-      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings,
-        Users.getUsers(liveMeeting.users).toArray))
     }
   }
 }

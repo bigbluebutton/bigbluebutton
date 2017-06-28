@@ -18,14 +18,10 @@
  */
 package org.bigbluebutton.modules.whiteboard
 {
-  import flash.events.KeyboardEvent;
-  
-  import mx.containers.Canvas;
+
   
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
   import org.bigbluebutton.modules.whiteboard.views.CursorPositionListener;
   import org.bigbluebutton.modules.whiteboard.views.IDrawListener;

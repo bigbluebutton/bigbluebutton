@@ -12,7 +12,7 @@ import {
 import { withModalMounter } from '../modal/service';
 
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Breakouts from '/imports/api/1.1/breakouts';
 
 import App from './component';

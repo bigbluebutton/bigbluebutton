@@ -14,10 +14,12 @@ trait SetLockSettingsHdlr {
   def handleSetLockSettings(msg: SetLockSettings) {
     if (!liveMeeting.permissionsEqual(msg.settings)) {
       liveMeeting.newPermissions(msg.settings)
+
+      /*
       outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.setByUser,
         MeetingStatus2x.getPermissions(liveMeeting.status),
         Users.getUsers(liveMeeting.users).toArray))
-
+*/
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }
   }

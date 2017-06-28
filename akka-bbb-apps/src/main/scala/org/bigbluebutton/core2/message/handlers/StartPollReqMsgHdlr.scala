@@ -1,8 +1,8 @@
 package org.bigbluebutton.core2.message.handlers
 
-import org.bigbluebutton.common2.messages.MessageBody.PollStartedEvtMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.domain.SimplePollOutVO
+import org.bigbluebutton.common2.messages.polls.{ PollStartedEvtMsg, PollStartedEvtMsgBody, StartPollReqMsg }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.MeetingActor

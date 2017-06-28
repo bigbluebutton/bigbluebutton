@@ -78,7 +78,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
 
   private def forwardToMeeting(msg: BbbCommonEnvJsNodeMsg): Unit = {
     msg.envelope.routing.get("meetingId") match {
-      case Some(meetingId2) => println("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2)
+      case Some(meetingId2) => log.debug("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2)
         MeetingManager.findWithMeetingId(meetingMgr, meetingId2) match {
           case Some(meetingId2) => log.debug("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2.meetingId)
           case None => log.debug("**** MeetingManagerActor forwardToMeeting. Could not find meetingId")

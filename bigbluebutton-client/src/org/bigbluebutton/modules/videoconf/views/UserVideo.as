@@ -126,7 +126,7 @@ package org.bigbluebutton.modules.videoconf.views
 
     private function stopViewing():void {
       var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
-      stopEvent.webcamUserID = user.userID;
+      stopEvent.webcamUserID = user.intId;
       stopEvent.streamName = _streamName;
       _dispatcher.dispatchEvent(stopEvent); 
       user.removeViewingStream(_streamName);

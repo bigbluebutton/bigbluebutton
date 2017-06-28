@@ -13,11 +13,10 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 
-import org.bigbluebutton.common2.messages.MessageBody.MeetingCreatedEvtBody
 import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.messages.users.RegisterUserReqMsg
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core2.RunningMeetings
-import org.bigbluebutton.core2.message.handlers.CreateMeetingReqMsgHdlr
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
@@ -78,12 +77,12 @@ class BigBlueButtonActor(val system: ActorSystem,
     msg.core match {
       case m: CreateMeetingReqMsg => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case _ => println("***** Cannot handle " + msg.envelope.name)
+      case _ => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
   def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
-    log.debug("****** RECEIVED RegisterUserReqMsg msg {}", msg)
+    log.debug("RECEIVED RegisterUserReqMsg msg {}", msg)
     for {
       m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
     } yield {
@@ -327,4 +326,3 @@ class BigBlueButtonActor(val system: ActorSystem,
   }
 
 }
-

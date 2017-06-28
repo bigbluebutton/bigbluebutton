@@ -12,6 +12,7 @@ class LiveMeeting(val props: DefaultProps,
   val status: MeetingStatus2x,
   val chatModel: ChatModel,
   val layoutModel: LayoutModel,
+  val layouts: Layouts,
   val users: Users,
   val registeredUsers: RegisteredUsers,
   val polls: Polls, // 2x
@@ -23,7 +24,8 @@ class LiveMeeting(val props: DefaultProps,
   val notesModel: SharedNotesModel,
   val webcams: Webcams,
   val voiceUsers: VoiceUsers,
-  val users2x: Users2x)
+  val users2x: Users2x,
+  val guestsWaiting: GuestsWaiting)
     extends ChatModelTrait {
 
   def hasMeetingEnded(): Boolean = {

@@ -51,6 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 			<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
+      <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
 	    <MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
 		</EventHandlers>
 		
@@ -90,16 +91,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{PresentProxy}" method="gotoSlide" arguments="{event}" />
 		</EventHandlers>
 		
-		<EventHandlers type="{PresenterCommands.RESET_ZOOM}" >
-			<MethodInvoker generator="{PresentProxy}" method="resetZoom" arguments="{event}" />
-		</EventHandlers>
-		
 		<EventHandlers type="{PresenterCommands.SHARE_PRESENTATION_COMMAND}">
 			<MethodInvoker generator="{PresentProxy}" method="sharePresentation" arguments="{event}" />
-		</EventHandlers>
-		
-		<EventHandlers type="{PresenterCommands.MOVE}" >
-			<MethodInvoker generator="{PresentProxy}" method="moveSlide" arguments="{event}" />
 		</EventHandlers>
 		
 		<EventHandlers type="{PresenterCommands.ZOOM}" >

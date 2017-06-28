@@ -41,14 +41,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.binding.utils.BindingUtils;
       import mx.binding.utils.ChangeWatcher;
       import mx.collections.ArrayCollection;
-      import mx.controls.Button;
-      
-      import flexlib.controls.tabBarClasses.SuperTab;
-      
+      import mx.controls.Button;     
+      import flexlib.controls.tabBarClasses.SuperTab;      
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
@@ -194,7 +191,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.youowner');
 				} else {
 					//claimed by other
-					textTab.label += UserManager.getInstance().getConference().getUser(ownerId).name;
+					textTab.label += UsersUtil.getUser(ownerId).name;
 				}
 			}
 			

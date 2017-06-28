@@ -39,6 +39,7 @@ export default function validateAuthToken(credentials) {
   const header = {
     name: EVENT_NAME,
     meetingId,
+    userId: requesterUserId,
   };
 
   Logger.info(`User '${

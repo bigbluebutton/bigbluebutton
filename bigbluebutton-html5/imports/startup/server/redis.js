@@ -65,6 +65,7 @@ class RedisPubSub {
   }
 
   handleMessage(pattern, channel, message = '') {
+    console.log(` 1.1: ${message}`);
     try {
       message = JSON.parse(message);
     } catch (e) {}

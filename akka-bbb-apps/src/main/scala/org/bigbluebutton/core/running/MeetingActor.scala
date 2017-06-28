@@ -1,14 +1,18 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.common2.messages.breakoutrooms._
-import org.bigbluebutton.common2.messages.voiceconf.UserJoinedVoiceConfEvtMsg
+import org.bigbluebutton.common2.messages.polls._
+import org.bigbluebutton.common2.messages.users._
+import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfEvtMsg, UserLeftVoiceConfEvtMsg, UserMutedInVoiceConfEvtMsg, UserTalkingInVoiceConfEvtMsg }
+import org.bigbluebutton.common2.messages.whiteboard._
+import org.bigbluebutton.common2.messages.layout._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
@@ -17,13 +21,16 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users, Polls }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
+import org.bigbluebutton.core2.testdata.FakeTestData
+import org.bigbluebutton.core2.message.handlers.layout._
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -41,13 +48,8 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomApp with CaptionApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
-    with StartCustomPollReqMsgHdlr
-    with StopPollReqMsgHdlr
-    with ShowPollResultReqMsgHdlr
-    with HidePollResultReqMsgHdlr
-    with GetCurrentPollReqMsgHdlr
-    with RespondToPollReqMsgHdlr
     with UserJoinedVoiceConfEvtMsgHdlr
+    with UserLeftVoiceConfEvtMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with StartPollReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
@@ -58,20 +60,12 @@ class MeetingActor(val props: DefaultProps,
     with IsMeetingMutedRequestHdlr
     with MuteUserRequestHdlr
     with EjectUserFromVoiceRequestHdlr
-    with GetLockSettingsHdlr
-    with SetLockSettingsHdlr
-    with LockUserRequestHdlr
-    with InitLockSettingsHdlr
-    with InitAudioSettingsHdlr
-    with UserEmojiStatusHdlr
-    with EjectUserFromMeetingHdlr
-    with UserShareWebcamHdlr
-    with UserUnshareWebcamHdlr
-    with ChangeUserStatusHdlr
-    with GetUsersHdlr
-    with UserJoiningHdlr
-    with UserLeavingHdlr
-    with ChangeUserRoleHdlr
+    with StartCustomPollReqMsgHdlr
+    with StopPollReqMsgHdlr
+    with RespondToPollReqMsgHdlr
+    with GetCurrentPollReqMsgHdlr
+    with HidePollResultReqMsgHdlr
+    with ShowPollResultReqMsgHdlr
     with UserJoinedVoiceConfMessageHdlr
     with ValidateAuthTokenReqMsgHdlr
     with BreakoutRoomsListMsgHdlr
@@ -82,7 +76,12 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomEndedMsgHdlr
     with BreakoutRoomUsersUpdateMsgHdlr
     with SendBreakoutUsersUpdateMsgHdlr
-    with TransferUserToMeetingRequestHdlr {
+    with TransferUserToMeetingRequestHdlr
+    with UserMutedInVoiceConfEvtMsgHdlr
+    with UserTalkingInVoiceConfEvtMsgHdlr
+    with GetCurrentLayoutMsgHdlr
+    with LockLayoutMsgHdlr
+    with BroadcastLayoutMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -111,6 +110,11 @@ class MeetingActor(val props: DefaultProps,
   val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
 
+  /*******************************************************************/
+  //object FakeTestData extends FakeTestData
+  //FakeTestData.createFakeUsers(liveMeeting)
+  /*******************************************************************/
+
   def receive = {
     //=============================
     // 2x messages
@@ -123,34 +127,20 @@ class MeetingActor(val props: DefaultProps,
     // old messages
     case msg: ActivityResponse => handleActivityResponse(msg)
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
-    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     //case msg: RegisterUser => handleRegisterUser(msg)
-    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case msg: UserJoining => handleUserJoin(msg)
-    case msg: UserLeaving => handleUserLeft(msg)
+
     case msg: AssignPresenter => handleAssignPresenter(msg)
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
-    case msg: GetUsers => handleGetUsers(msg)
-    case msg: ChangeUserStatus => handleChangeUserStatus(msg)
-    case msg: EjectUserFromMeeting => handle(msg)
+
     case msg: UserEmojiStatus => handleUserEmojiStatus(msg)
-    case msg: UserShareWebcam => handleUserShareWebcam(msg)
-    case msg: UserUnshareWebcam => handleUserunshareWebcam(msg)
+
     case msg: MuteMeetingRequest => handleMuteMeetingRequest(msg)
     case msg: MuteAllExceptPresenterRequest => handleMuteAllExceptPresenterRequest(msg)
     case msg: IsMeetingMutedRequest => handleIsMeetingMutedRequest(msg)
     case msg: MuteUserRequest => handleMuteUserRequest(msg)
     case msg: EjectUserFromVoiceRequest => handleEjectUserRequest(msg)
     case msg: TransferUserToMeetingRequest => handleTransferUserToMeeting(msg)
-    case msg: SetLockSettings => handleSetLockSettings(msg)
-    case msg: GetLockSettings => handleGetLockSettings(msg)
-    case msg: LockUserRequest => handleLockUserRequest(msg)
-    case msg: InitLockSettings => handleInitLockSettings(msg)
-    case msg: InitAudioSettings => handleInitAudioSettings(msg)
     case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
     case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
     case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
@@ -173,15 +163,7 @@ class MeetingActor(val props: DefaultProps,
     case msg: PreuploadedPresentations => handlePreuploadedPresentations(msg)
     case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
-    case msg: StartCustomPollRequest => handleStartCustomPollRequest(msg)
-    case msg: StartPollRequest => handleStartPollRequest(msg)
-    case msg: StopPollRequest => handleStopPollRequest(msg)
-    case msg: ShowPollResultRequest => handleShowPollResultRequest(msg)
-    case msg: HidePollResultRequest => handleHidePollResultRequest(msg)
-    case msg: RespondToPollRequest => handleRespondToPollRequest(msg)
     case msg: GetPollRequest => handleGetPollRequest(msg)
-    case msg: GetCurrentPollRequest => handleGetCurrentPollRequest(msg)
-    case msg: ChangeUserRole => handle(msg)
     case msg: LogoutEndMeeting => handleLogoutEndMeeting(msg)
     case msg: ClearPublicChatHistoryRequest => handleClearPublicChatHistoryRequest(msg)
 
@@ -231,6 +213,7 @@ class MeetingActor(val props: DefaultProps,
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
       case m: UserJoinMeetingReqMsg => handle(m)
+      case m: UserLeaveReqMsg => handle(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
@@ -251,13 +234,29 @@ class MeetingActor(val props: DefaultProps,
       case m: BreakoutRoomsListMsg => handleBreakoutRoomsListMsg(m)
       case m: CreateBreakoutRoomsMsg => handleCreateBreakoutRoomsMsg(m)
       case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
-      case m: RequestBreakoutJoinURLMsg => handleRequestBreakoutJoinURLMsg(m);
-      case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m);
+      case m: RequestBreakoutJoinURLMsg => handleRequestBreakoutJoinURLMsg(m)
+      case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m)
       case m: BreakoutRoomEndedMsg => handleBreakoutRoomEndedMsg(m)
       case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
       case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
-      case _ => println("***** Cannot handle " + msg.envelope.name)
+      case m: UserLeftVoiceConfEvtMsg => handle(m)
+      case m: UserMutedInVoiceConfEvtMsg => handle(m)
+      case m: UserTalkingInVoiceConfEvtMsg => handle(m)
+      case m: GetCurrentLayoutMsg => handleGetCurrentLayoutMsg(m)
+      case m: LockLayoutMsg => handleLockLayoutMsg(m)
+      case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
+      case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
+      case m: GetPresentationInfoReqMsg => presentationApp2x.handleGetPresentationInfoReqMsg(m)
+      case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
+      case m: ResizeAndMovePagePubMsg => presentationApp2x.handleResizeAndMovePagePubMsg(m)
+      case m: RemovePresentationPubMsg => presentationApp2x.handleRemovePresentationPubMsg(m)
+      case m: PreuploadedPresentationsPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
+      case m: PresentationConversionUpdatePubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
+      case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
+      case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
+      case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
 

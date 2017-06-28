@@ -3,6 +3,7 @@ package org.bigbluebutton.core.api
 import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models._
+import org.bigbluebutton.common2.domain.UserVO
 
 case class VoiceRecordingStarted(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
