@@ -2,9 +2,7 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
-
 import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
 import akka.actor.ActorSystem
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage

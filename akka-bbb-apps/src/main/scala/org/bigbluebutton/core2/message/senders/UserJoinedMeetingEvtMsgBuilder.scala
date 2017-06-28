@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2.message.senders
 
-import org.bigbluebutton.common2.messages.Users.{ UserJoinedMeetingEvtMsg, UserJoinedMeetingEvtMsgBody }
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.UserState
 
 object UserJoinedMeetingEvtMsgBuilder {

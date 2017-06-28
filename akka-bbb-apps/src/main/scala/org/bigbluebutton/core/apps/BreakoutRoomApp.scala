@@ -6,7 +6,7 @@ import scala.collection.SortedSet
 import scala.collection.mutable
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutRoomInfo, BreakoutUserVO }
+import org.bigbluebutton.common2.msgs.{ BreakoutRoomInfo, BreakoutUserVO }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
@@ -23,7 +23,10 @@ trait BreakoutRoomApp extends SystemConfiguration {
   val eventBus: IncomingEventBus
 
   def handleBreakoutRoomsList(msg: BreakoutRoomsListMessage) {
-    val breakoutRooms = BreakoutRooms.getRooms(liveMeeting.breakoutRooms).toVector map { r => new BreakoutRoomInfo(r.name, r.externalMeetingId, r.id, r.sequence) }
+    val breakoutRooms = BreakoutRooms.getRooms(liveMeeting.breakoutRooms).toVector map { r =>
+      new BreakoutRoomInfo(r.name, r.externalMeetingId, r.id, r.sequence)
+    }
+
     val roomsReady = liveMeeting.breakoutRooms.pendingRoomsNumber == 0 && breakoutRooms.length > 0
     log.info("Sending breakout rooms list to {} with containing {} room(s)", props.meetingProp.intId, breakoutRooms.length)
     outGW.send(new BreakoutRoomsListOutMessage(props.meetingProp.intId, breakoutRooms, roomsReady))

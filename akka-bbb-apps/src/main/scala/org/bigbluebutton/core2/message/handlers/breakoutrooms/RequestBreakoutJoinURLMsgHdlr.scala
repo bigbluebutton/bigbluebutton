@@ -1,9 +1,8 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutRoomJoinURLEvtMsg, BreakoutRoomJoinURLEvtMsgBody, RequestBreakoutJoinURLMsg }
 import org.bigbluebutton.core.models.Users1x
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.BreakoutRoomsUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.MeetingActor

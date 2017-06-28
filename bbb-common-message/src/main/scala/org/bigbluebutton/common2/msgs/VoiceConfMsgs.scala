@@ -1,7 +1,6 @@
-package org.bigbluebutton.common2.messages
+package org.bigbluebutton.common2.msgs
 
 
-object VoiceConf {
   case class BbbCoreVoiceConfHeader(name: String, voiceConf: String) extends BbbCoreHeader
 
   object DeskshareHangUpVoiceConfMsg { val NAME = "DeskshareHangUpVoiceConfMsg" }
@@ -125,4 +124,4 @@ object VoiceConf {
   case class UserTalkingInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, talking: Boolean)
 
 
-}
+

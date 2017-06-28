@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2.message.handlers
 
-import org.bigbluebutton.common2.messages.VoiceConf.{ MuteUserInVoiceConfMsg, MuteUserInVoiceConfMsgBody }
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ MeetingMuted, MuteMeetingRequest, MuteVoiceUser }
 import org.bigbluebutton.core.models.{ Users1x, VoiceUserState, VoiceUsers }

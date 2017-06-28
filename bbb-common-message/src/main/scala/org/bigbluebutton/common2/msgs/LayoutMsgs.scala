@@ -1,9 +1,9 @@
-package org.bigbluebutton.common2.messages
+package org.bigbluebutton.common2.msgs
 
 import org.bigbluebutton.common2.domain.UserVO
 
 
-object Layout {
+
   // In messages
   object GetCurrentLayoutMsg { val NAME = "GetCurrentLayoutMsg" }
   case class GetCurrentLayoutMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutMsgBody) extends BbbCoreMsg
@@ -33,4 +33,4 @@ object Layout {
   case class LockLayoutEvtMsg(header: BbbClientMsgHeader, body: LockLayoutEvtMsgBody) extends BbbCoreMsg
   case class LockLayoutEvtMsgBody(meetingId: String, recorded: Boolean, setById: String, locked: Boolean,
                                   applyTo: Array[UserVO])
-}
+

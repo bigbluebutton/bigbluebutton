@@ -1,8 +1,7 @@
-package org.bigbluebutton.common2.messages
+package org.bigbluebutton.common2.msgs
 
 import org.bigbluebutton.common2.domain.AnnotationVO
 
-object Whiteboard {
 
   object ClearWhiteboardEvtMsg {
     val NAME = "ClearWhiteboardEvtMsg"
@@ -116,4 +115,4 @@ object Whiteboard {
 
   case class UndoWhiteboardPubMsgBody(whiteboardId: String)
 
-}
+

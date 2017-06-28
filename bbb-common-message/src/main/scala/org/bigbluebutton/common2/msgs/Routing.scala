@@ -1,4 +1,4 @@
-package org.bigbluebutton.common2.messages
+package org.bigbluebutton.common2.msgs
 
 object Routing {
   val MSG_TYPE = "msgType"

@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 
-public class CreateBreakoutRoomsRequestTest {
+public class CreateBreakoutRoomsMsgsRequestTest {
 	
   @Test
   public void testCreateBreakoutRoomsRequest() {

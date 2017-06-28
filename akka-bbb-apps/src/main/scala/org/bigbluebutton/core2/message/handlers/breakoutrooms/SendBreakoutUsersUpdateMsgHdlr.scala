@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutUserVO, SendBreakoutUsersUpdateMsg }
+import org.bigbluebutton.common2.msgs.{ BreakoutUserVO, SendBreakoutUsersUpdateMsg }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.BreakoutRoomUsersUpdate
 import org.bigbluebutton.core.bus.BigBlueButtonEvent

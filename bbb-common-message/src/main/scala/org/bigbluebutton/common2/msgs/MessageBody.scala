@@ -1,5 +1,4 @@
-package org.bigbluebutton.common2.messages
-
+package org.bigbluebutton.common2.msgs
 
 import org.bigbluebutton.common2.domain._
 

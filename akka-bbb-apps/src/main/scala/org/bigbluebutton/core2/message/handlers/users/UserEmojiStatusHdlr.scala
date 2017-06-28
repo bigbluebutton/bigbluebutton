@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.users
 
-import org.bigbluebutton.common2.messages.Users.{ UserEmojiChangedEvtMsg, UserEmojiChangedEvtMsgBody }
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ UserChangedEmojiStatus, UserEmojiStatus }
 import org.bigbluebutton.core.models.{ Users1x, Users2x }

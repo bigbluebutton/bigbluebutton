@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.common2.messages.BreakoutRooms.CreateBreakoutRoomsMsg
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.BreakoutRoomOutPayload
 import org.bigbluebutton.core.api.CreateBreakoutRoom

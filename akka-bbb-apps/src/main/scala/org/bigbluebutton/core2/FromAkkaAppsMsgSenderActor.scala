@@ -2,7 +2,7 @@ package org.bigbluebutton.core2
 
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.BbbCommonEnvCoreMsg
+import org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.MessageSender
 

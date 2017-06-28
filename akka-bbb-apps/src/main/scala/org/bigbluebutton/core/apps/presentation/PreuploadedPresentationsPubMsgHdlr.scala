@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.domain.PageVO
-import org.bigbluebutton.common2.messages.Presentation.PreuploadedPresentationsPubMsg
+import org.bigbluebutton.common2.msgs.PreuploadedPresentationsPubMsg
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.Presentation
 

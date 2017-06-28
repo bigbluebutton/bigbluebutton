@@ -3,15 +3,7 @@ package org.bigbluebutton.core.pubsub.senders
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.messages.BreakoutRooms._
-import org.bigbluebutton.common2.messages.Layout.{ BroadcastLayoutMsg, GetCurrentLayoutMsg, LockLayoutMsg }
-import org.bigbluebutton.common2.messages.Polls._
-import org.bigbluebutton.common2.messages.Presentation._
-import org.bigbluebutton.common2.messages.Users.{ RegisterUserReqMsg, UserJoinMeetingReqMsg, UserLeaveReqMsg, ValidateAuthTokenReqMsg }
-import org.bigbluebutton.common2.messages.VoiceConf._
-import org.bigbluebutton.common2.messages.Webcams.{ UserBroadcastCamStartMsg, UserBroadcastCamStopMsg }
-import org.bigbluebutton.common2.messages.Whiteboard._
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
 

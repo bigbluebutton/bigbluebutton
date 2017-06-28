@@ -1,10 +1,8 @@
-package org.bigbluebutton.common2.messages
+package org.bigbluebutton.common2.msgs
 
 import org.bigbluebutton.common2.domain.PresentationVO
-import org.bigbluebutton.common2.messages.MessageBody._
 
 
-object Presentation {
   object PresenterAssignedEvtMsg { val NAME = "PresenterAssignedEvtMsg" }
   case class PresenterAssignedEvtMsg(header: BbbClientMsgHeader, body: PresenterAssignedEvtMsgBody) extends BbbCoreMsg
   case class PresenterAssignedEvtMsgBody(presenterId: String, presenterName: String, assignedBy: String)
@@ -96,4 +94,4 @@ object Presentation {
   case class PresentationConversionCompletedEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedEvtMsgBody) extends BbbCoreMsg
   case class PresentationConversionCompletedEvtMsgBody(messageKey: String, code: String, presentation: PresentationVO)
 
-}
+

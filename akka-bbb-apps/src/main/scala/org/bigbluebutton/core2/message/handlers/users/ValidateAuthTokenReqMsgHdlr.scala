@@ -1,9 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.users
 
-import org.bigbluebutton.common2.messages.Guests.{ GuestWaitingVO, GuestsWaitingApprovalEvtMsg, GuestsWaitingApprovalEvtMsgBody }
-import org.bigbluebutton.common2.messages.Users.ValidateAuthTokenReqMsg
-import org.bigbluebutton.common2.messages.Webcams.{ MediaStreamVO, WebcamStreamVO }
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor

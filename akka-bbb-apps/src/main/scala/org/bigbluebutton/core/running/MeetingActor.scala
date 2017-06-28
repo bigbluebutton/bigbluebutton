@@ -6,15 +6,6 @@ import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.messages.BreakoutRooms._
-import org.bigbluebutton.common2.messages.Layout.{ BroadcastLayoutMsg, GetCurrentLayoutMsg, LockLayoutMsg }
-import org.bigbluebutton.common2.messages.Polls._
-import org.bigbluebutton.common2.messages.Presentation._
-import org.bigbluebutton.common2.messages.Users.{ RegisterUserReqMsg, UserJoinMeetingReqMsg, UserLeaveReqMsg, ValidateAuthTokenReqMsg }
-import org.bigbluebutton.common2.messages.VoiceConf.{ UserJoinedVoiceConfEvtMsg, UserLeftVoiceConfEvtMsg, UserMutedInVoiceConfEvtMsg, UserTalkingInVoiceConfEvtMsg }
-import org.bigbluebutton.common2.messages.Webcams.{ UserBroadcastCamStartMsg, UserBroadcastCamStopMsg }
-import org.bigbluebutton.common2.messages.Whiteboard._
-import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
@@ -27,7 +18,7 @@ import org.bigbluebutton.core.models.{ RegisteredUsers, Users1x }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
-
+import org.bigbluebutton.common2.msgs._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._

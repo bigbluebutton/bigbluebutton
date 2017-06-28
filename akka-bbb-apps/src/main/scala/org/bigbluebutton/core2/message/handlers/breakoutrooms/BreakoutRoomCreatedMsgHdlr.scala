@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.common2.messages.BbbClientMsgHeader
-import org.bigbluebutton.common2.messages.BreakoutRooms.{ BreakoutRoomCreatedMsg, BreakoutRoomsListMsg, BreakoutRoomsListMsgBody }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core.running.MeetingActor
