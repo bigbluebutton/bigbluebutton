@@ -36,7 +36,7 @@ object MeetingActor {
 class MeetingActor(val props: DefaultProps,
   val eventBus: IncomingEventBus,
   val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
-    extends Actor with ActorLogging
+    extends BaseMeetingActor
     with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp

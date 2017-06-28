@@ -18,6 +18,10 @@ object Users2x {
     users.remove(intId)
   }
 
+  def numUsers(users: Users2x): Int = {
+    users.toVector.length
+  }
+
   def findNotPresenters(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => !u.presenter)
   }
