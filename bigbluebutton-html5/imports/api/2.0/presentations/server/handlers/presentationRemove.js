@@ -1,4 +1,3 @@
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
 import removePresentation from '../modifiers/removePresentation';

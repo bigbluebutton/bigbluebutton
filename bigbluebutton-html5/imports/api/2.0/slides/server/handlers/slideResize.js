@@ -1,5 +1,3 @@
-import Logger from '/imports/startup/server/logger';
-import Slides from '/imports/api/2.0/slides';
 import { check } from 'meteor/check';
 import resizeSlide from '../modifiers/resizeSlide';
 

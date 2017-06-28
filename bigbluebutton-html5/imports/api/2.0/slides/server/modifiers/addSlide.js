@@ -23,6 +23,23 @@ const requestWhiteboardHistory = (meetingId, slideId) => {
 
 const SUPPORTED_TYPES = [SVG, PNG];
 
+const fetchImageSizes = imageUri =>
+  probe(imageUri)
+    .then((result) => {
+      if (!SUPPORTED_TYPES.includes(result.mime)) {
+        throw `Invalid image type, received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`;
+      }
+
+      return {
+        width: result.width,
+        height: result.height,
+      };
+    })
+    .catch((reason) => {
+      Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
+      return reason;
+    });
+
 export default function addSlide(meetingId, presentationId, slide) {
   check(meetingId, String);
   check(presentationId, String);
@@ -89,20 +106,3 @@ export default function addSlide(meetingId, presentationId, slide) {
     .catch(reason =>
       Logger.error(`Error parsing image size. ${reason}. slide=${slide.id} uri=${imageUri}`));
 }
-
-const fetchImageSizes = imageUri =>
-  probe(imageUri)
-  .then((result) => {
-    if (!SUPPORTED_TYPES.includes(result.mime)) {
-      throw `Invalid image type, received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`;
-    }
-
-    return {
-      width: result.width,
-      height: result.height,
-    };
-  })
-  .catch((reason) => {
-    Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
-    return reason;
-  });

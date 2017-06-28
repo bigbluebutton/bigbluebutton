@@ -1,4 +1,3 @@
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Presentations from '/imports/api/2.0/presentations';

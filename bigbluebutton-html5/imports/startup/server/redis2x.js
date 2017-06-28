@@ -1,7 +1,8 @@
 import Redis from 'redis';
-import Logger from './logger';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
+import Logger from './logger';
+
 
 class RedisPubSub2x {
   constructor(config = {}) {
