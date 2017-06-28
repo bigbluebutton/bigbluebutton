@@ -71,7 +71,7 @@ class Base extends Component {
 
 const SUBSCRIPTIONS_NAME = [
   'users2x', 'users', 'chat', 'cursor', 'deskshare', 'meetings', 'meetings2x',
-  'polls', 'presentations', 'shapes', 'shapes2x', 'slides', 'captions', 'breakouts',
+  'polls', 'polls2x', 'presentations', 'shapes', 'shapes2x', 'slides', 'captions', 'breakouts',
 ];
 
 export default BaseContainer = createContainer(({ params }) => {
