@@ -75,7 +75,7 @@ class RedisPubSub2x {
   }
 
   handleMessage(pattern, channel, message) {
-    console.error(`2.0 handleMessage: ${message}`);
+    Logger.error(`2.0 handleMessage: ${message}`);
     const parsedMessage = JSON.parse(message);
     const { header } = parsedMessage.core;
     const eventName = header.name;
