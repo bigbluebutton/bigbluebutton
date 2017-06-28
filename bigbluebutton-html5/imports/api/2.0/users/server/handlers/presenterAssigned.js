@@ -2,11 +2,35 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import Users from '/imports/api/2.0/users';
 
-export default function handlePresenterAssigned({ body, header }) {
-  const { meetingId } = header;
+const unassignCurrentPresenter = (meetingId, presenterId) => {
+  const selector = {
+    meetingId,
+    userId: { $ne: presenterId },
+    'user.presenter': true,
+  };
+
+  const modifier = {
+    $set: {
+      'user.presenter': false,
+    },
+  };
+
+  const cb = (err, numChanged) => {
+    if (err) {
+      return Logger.error(`Unassigning current presenter from collection: ${err}`);
+    }
+
+    if (numChanged) {
+      return Logger.info(`Unassign current presenter meeting=${meetingId}`);
+    }
+  };
+
+  return Users.update(selector, modifier, cb);
+};
+
+export default function handlePresenterAssigned(meetingId, { body }) {
   const { presenterId } = body;
 
-  check(meetingId, String);
   check(presenterId, String);
 
   const selector = {
@@ -33,29 +57,3 @@ export default function handlePresenterAssigned({ body, header }) {
 
   return Users.update(selector, modifier, cb);
 }
-
-const unassignCurrentPresenter = (meetingId, presenterId) => {
-  const selector = {
-    meetingId,
-    userId: { $ne: presenterId },
-    'user.presenter': true,
-  };
-
-  const modifier = {
-    $set: {
-      'user.presenter': false,
-    },
-  };
-
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Unassigning current presenter from collection: ${err}`);
-    }
-
-    if (numChanged) {
-      return Logger.info(`Unassign current presenter meeting=${meetingId}`);
-    }
-  };
-
-  return Users.update(selector, modifier, cb);
-};

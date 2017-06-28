@@ -2,6 +2,7 @@ import Redis from 'redis';
 import Logger from './logger';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
+import { check } from 'meteor/check';
 
 class RedisPubSub2x {
   constructor(config = {}) {
@@ -75,7 +76,7 @@ class RedisPubSub2x {
   }
 
   handleMessage(pattern, channel, message) {
-    console.error(`2.0 handleMessage: ${message}`);
+    Logger.error(`2.0 handleMessage: ${message}`);
     const parsedMessage = JSON.parse(message);
     const { header } = parsedMessage.core;
     const eventName = header.name;
@@ -94,11 +95,16 @@ class RedisPubSub2x {
     const { header } = data.parsedMessage.core;
     const { body } = data.parsedMessage.core;
     const eventName = header.name;
+    const meetingId = header.meetingId;
+
+    check(meetingId, String);
+    check(eventName, String);
+    check(body, Object);
 
     try {
       this._debug(`${eventName} emitted`);
       return this.emitter
-        .emitAsync(eventName, { header, body })
+        .emitAsync(eventName, meetingId, { header, body })
         .then((_) => {
           this._debug(`${eventName} completed`);
           return next();

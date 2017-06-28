@@ -4,7 +4,6 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
 
 export default function createDummyUser2x(meetingId, userId, authToken) {
-  console.error(`create dummy user2x ${meetingId} ${userId} ${authToken}`);
   check(meetingId, String);
   check(userId, String);
   check(authToken, String);
