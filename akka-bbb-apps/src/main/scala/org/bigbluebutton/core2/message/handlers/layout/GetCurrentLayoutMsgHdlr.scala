@@ -15,7 +15,7 @@ trait GetCurrentLayoutMsgHdlr {
 
     def broadcastEvent(msg: GetCurrentLayoutMsg): Unit = {
 
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(GetCurrentLayoutEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetCurrentLayoutEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 

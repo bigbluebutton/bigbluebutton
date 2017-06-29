@@ -1,15 +1,21 @@
 package org.bigbluebutton.common2.msgs
 
+/**
+  * Message sent by client to get list of guests waiting for approval.
+  */
+object GetGuestsWaitingApprovalReqMsg {
+  val NAME = "GetGuestsWaitingApprovalReqMsg"
+}
+case class GetGuestsWaitingApprovalReqMsg(header: BbbClientMsgHeader,
+                                          body: GetGuestsWaitingApprovalReqMsgBody) extends BbbCoreMsg
+case class GetGuestsWaitingApprovalReqMsgBody(requesterId: String)
 
+
+/**
+  * Message sent to client in response to request for list of guests waiting for approval.
+  */
 object GetGuestsWaitingApprovalRespMsg {
   val NAME = "GetGuestsWaitingApprovalRespMsg"
-
-  def apply(meetingId: String, userId: String, guests: Vector[GuestWaitingVO]): GetGuestsWaitingApprovalRespMsg = {
-    val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
-
-    val body = GetGuestsWaitingApprovalRespMsgBody(guests)
-    GetGuestsWaitingApprovalRespMsg(header, body)
-  }
 }
 
 case class GetGuestsWaitingApprovalRespMsg(header: BbbClientMsgHeader,
@@ -19,53 +25,75 @@ case class GetGuestsWaitingApprovalRespMsgBody(guests: Vector[GuestWaitingVO])
 
 case class GuestWaitingVO(intId: String, name: String, role: String)
 
-object GuestsWaitingApprovalEvtMsg {
-  val NAME = "GuestsWaitingApprovalEvtMsg"
+/**
+  * Message sent to client for list of guest waiting for approval. This is sent when
+  * a user joins the meeting and need to be approved before being put into the meeting.
+  */
 
-  def apply(meetingId: String, userId: String, guests: Vector[GuestWaitingVO]): GuestsWaitingApprovalEvtMsg = {
-    val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
-
-    val body = GuestsWaitingApprovalEvtMsgBody(guests)
-    GuestsWaitingApprovalEvtMsg(header, body)
-  }
+object GuestsWaitingForApprovalEvtMsg {
+  val NAME = "GuestsWaitingForApprovalEvtMsg"
 }
 
-case class GuestsWaitingApprovalEvtMsg(header: BbbClientMsgHeader,
-                                       body: GuestsWaitingApprovalEvtMsgBody) extends BbbCoreMsg
+case class GuestsWaitingForApprovalEvtMsg(header: BbbClientMsgHeader,
+                                       body: GuestsWaitingForApprovalEvtMsgBody) extends BbbCoreMsg
 
-case class GuestsWaitingApprovalEvtMsgBody(guests: Vector[GuestWaitingVO])
+case class GuestsWaitingForApprovalEvtMsgBody(guests: Vector[GuestWaitingVO])
 
-object GuestsWaitingApprovedEvtMsg {
-  val NAME = "GuestsWaitingApprovedEvtMsg"
-
-  def apply(meetingId: String, userId: String, guests: Vector[GuestWaitingVO]): GuestsWaitingApprovedEvtMsg = {
-    val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
-
-    val body = GuestsWaitingApprovedEvtMsgBody(guests)
-    GuestsWaitingApprovedEvtMsg(header, body)
-  }
-}
-
-case class GuestsWaitingApprovedEvtMsg(header: BbbClientMsgHeader,
-                                       body: GuestsWaitingApprovedEvtMsgBody) extends BbbCoreMsg
-
-case class GuestsWaitingApprovedEvtMsgBody(guests: Vector[GuestWaitingVO])
-
+/**
+  * Message from client when a guest had been approved to be accepted into the meeting.
+  */
 object GuestsWaitingApprovedMsg {
   val NAME = "GuestsWaitingApprovedMsg"
-
-  def apply(meetingId: String, userId: String, guests: Vector[String]): GuestsWaitingApprovedMsg = {
-    val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
-
-    val body = GuestsWaitingApprovedMsgBody(guests)
-    GuestsWaitingApprovedMsg(header, body)
-  }
 }
 
 case class GuestsWaitingApprovedMsg(header: BbbClientMsgHeader,
                                     body: GuestsWaitingApprovedMsgBody) extends BbbCoreMsg
 
-case class GuestsWaitingApprovedMsgBody(guests: Vector[String])
+case class GuestsWaitingApprovedMsgBody(guests: Vector[GuestApprovedVO], approvedBy: String)
+case class GuestApprovedVO(guest: String, approved: Boolean)
+
+/**
+  * Message sent to all clients that a guest has been approved to get into the meeting.
+  */
+object GuestsWaitingApprovedEvtMsg {
+  val NAME = "GuestsWaitingApprovedEvtMsg"
+}
+case class GuestsWaitingApprovedEvtMsg(header: BbbClientMsgHeader,
+                                       body: GuestsWaitingApprovedEvtMsgBody) extends BbbCoreMsg
+
+case class GuestsWaitingApprovedEvtMsgBody(guests: Vector[GuestApprovedVO], approvedBy: String)
+
+/**
+  * Message sent directly to a guest that he has been approved and can proceed to join the meeting.
+  */
+object GuestApprovedEvtMsg {
+  val NAME = "GuestApprovedEvtMsg"
+}
+case class GuestApprovedEvtMsg(header: BbbClientMsgHeader,
+                                       body: GuestApprovedEvtMsgBody) extends BbbCoreMsg
+case class GuestApprovedEvtMsgBody(approved: Boolean, approvedBy: String)
+
+/**
+  * Message from user to set the guest policy.
+  */
+object SetGuestPolicyMsg {
+  val NAME = "SetGuestPolicyMsg"
+}
+case class SetGuestPolicyMsg(header: BbbClientMsgHeader,
+                                    body: SetGuestPolicyMsgBody) extends BbbCoreMsg
+case class SetGuestPolicyMsgBody(policy: String, setBy: String)
+
+/**
+  * Message sent to all clients that guest policy has been changed.
+  */
+object GuestPolicyChangedEvtMsg {
+  val NAME = "GuestPolicyChangedEvtMsg"
+}
+case class GuestPolicyChangedEvtMsg(header: BbbClientMsgHeader,
+                             body: GuestPolicyChangedEvtMsgBody) extends BbbCoreMsg
+case class GuestPolicyChangedEvtMsgBody(policy: String, setBy: String)
+
+
 
 
 

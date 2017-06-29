@@ -27,10 +27,10 @@ import org.bigbluebutton.common2.domain.UserVO
   object BroadcastLayoutEvtMsg { val NAME = "BroadcastLayoutEvtMsg" }
   case class BroadcastLayoutEvtMsg(header: BbbClientMsgHeader, body: BroadcastLayoutEvtMsgBody) extends BbbCoreMsg
   case class BroadcastLayoutEvtMsgBody(meetingId: String, recorded: Boolean, requesterId: String,
-                                       layoutId: String, locked: Boolean, setByUserId: String, applyTo: Array[UserVO])
+                                       layoutId: String, locked: Boolean, setByUserId: String, applyTo: Vector[String])
 
   object LockLayoutEvtMsg { val NAME = "LockLayoutEvtMsg" }
   case class LockLayoutEvtMsg(header: BbbClientMsgHeader, body: LockLayoutEvtMsgBody) extends BbbCoreMsg
   case class LockLayoutEvtMsgBody(meetingId: String, recorded: Boolean, setById: String, locked: Boolean,
-                                  applyTo: Array[UserVO])
+                                  applyTo: Vector[String])
 
