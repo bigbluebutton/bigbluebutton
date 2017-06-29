@@ -36,8 +36,11 @@ package org.bigbluebutton.modules.layout.services {
 					break;
 				case "BroadcastLayoutEvtMsg":
 					handleBroadcastLayoutEvtMsg(message);
+					break;
 				case "LockLayoutEvtMsg":
 					handleLockLayoutEvtMsg(message);
+					break;
+					/*
 				case "getCurrentLayoutResponse":
 					handleGetCurrentLayoutResponse(message);
 					break;
@@ -47,6 +50,7 @@ package org.bigbluebutton.modules.layout.services {
 				case "syncLayout":
 					handleSyncLayout(message);
 					break;
+					*/
 			}
 		}
 
@@ -57,30 +61,13 @@ package org.bigbluebutton.modules.layout.services {
 			_applyFirstLayoutTimer.start();
 		}
 
-		private function handleBroadcastLayoutEvtMsg(message:Object):void {
+		private function handleLockLayoutEvtMsg(message:Object):void {
 			if (message.body.hasOwnProperty("locked") && message.body.hasOwnProperty("setById"))
 				lockLayout(message.body.locked, message.body.setById);
 		}
 
-		private function handleLockLayoutEvtMsg(message:Object):void {
-			_dispatcher.dispatchEvent(new RemoteSyncLayoutEvent(message.body.layout));
-			if (message.body.layout == "")
-				return;
-
-			var layoutDefinition:LayoutDefinition = new LayoutDefinition();
-			layoutDefinition.load(new XML(message.body.layout));
-			var translatedName:String = ResourceUtil.getInstance().getString(layoutDefinition.name)
-			if (translatedName == "undefined")
-				translatedName = layoutDefinition.name;
-			// remove previously added [Remote] mark
-			var pattern:RegExp = /^\[.*\] /g;
-			translatedName = translatedName.replace(pattern, "");
-			layoutDefinition.name = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] " + translatedName;
-			var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
-			redefineLayout.layout = layoutDefinition;
-			redefineLayout.remote = true;
-
-			_dispatcher.dispatchEvent(redefineLayout);
+		private function handleBroadcastLayoutEvtMsg(message:Object):void {
+			handleSyncLayout(message.body);
 		}
 
 		/*
@@ -98,9 +85,9 @@ package org.bigbluebutton.modules.layout.services {
 		}
 
 		private function onReceivedFirstLayout(message:Object):void {
-			LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layoutId]);
-			trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layoutId + "], moderator = [" + UsersUtil.amIModerator() + "]");
-			if (message.layoutId == "")
+			LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]);
+			trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "], moderator = [" + UsersUtil.amIModerator() + "]");
+			if (message.layout == "")
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 			else {
 				handleSyncLayout(message);
@@ -111,12 +98,14 @@ package org.bigbluebutton.modules.layout.services {
 		}
 
 		private function handleSyncLayout(message:Object):void {
-			_dispatcher.dispatchEvent(new RemoteSyncLayoutEvent(message.layoutId));
-			if (message.layoutId == "")
+			// is this event needed? Doesn't seem to do anything becasue it only applies to the original layout and then it's changed right afterwards once the new one is loaded
+			_dispatcher.dispatchEvent(new RemoteSyncLayoutEvent(message.layout));
+			
+			if (message.layout == "")
 				return;
 
 			var layoutDefinition:LayoutDefinition = new LayoutDefinition();
-			layoutDefinition.load(new XML(message.layoutId));
+			layoutDefinition.load(new XML(message.layout));
 			var translatedName:String = ResourceUtil.getInstance().getString(layoutDefinition.name)
 			if (translatedName == "undefined")
 				translatedName = layoutDefinition.name;

@@ -24,7 +24,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
 import org.bigbluebutton.core2.testdata.FakeTestData
-import org.bigbluebutton.core2.message.handlers.layout._
+import org.bigbluebutton.core.apps.layout.LayoutApp2x
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -72,10 +72,7 @@ class MeetingActor(val props: DefaultProps,
     with SendBreakoutUsersUpdateMsgHdlr
     with TransferUserToMeetingRequestHdlr
     with UserMutedInVoiceConfEvtMsgHdlr
-    with UserTalkingInVoiceConfEvtMsgHdlr
-    with GetCurrentLayoutReqMsgHdlr
-    with LockLayoutMsgHdlr
-    with BroadcastLayoutMsgHdlr {
+    with UserTalkingInVoiceConfEvtMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -104,6 +101,7 @@ class MeetingActor(val props: DefaultProps,
   val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
+  val layoutApp2x = new LayoutApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -233,9 +231,9 @@ class MeetingActor(val props: DefaultProps,
       case m: UserLeftVoiceConfEvtMsg => handle(m)
       case m: UserMutedInVoiceConfEvtMsg => handle(m)
       case m: UserTalkingInVoiceConfEvtMsg => handle(m)
-      case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
-      case m: LockLayoutMsg => handleLockLayoutMsg(m)
-      case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg => layoutApp2x.handleGetCurrentLayoutReqMsg(m)
+      case m: LockLayoutMsg => layoutApp2x.handleLockLayoutMsg(m)
+      case m: BroadcastLayoutMsg => layoutApp2x.handleBroadcastLayoutMsg(m)
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
       case m: GetPresentationInfoReqMsg => presentationApp2x.handleGetPresentationInfoReqMsg(m)
       case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
