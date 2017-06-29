@@ -1,9 +1,8 @@
-package org.bigbluebutton.core2.message.handlers.breakoutrooms
+package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.models.Users1x
+import org.bigbluebutton.core.models.{ BreakoutRooms, Users1x }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait TransferUserToMeetingRequestHdlr {

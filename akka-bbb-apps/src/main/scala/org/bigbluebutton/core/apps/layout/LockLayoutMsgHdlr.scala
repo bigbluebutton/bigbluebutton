@@ -1,4 +1,4 @@
-package org.bigbluebutton.core2.message.handlers.layout
+package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway

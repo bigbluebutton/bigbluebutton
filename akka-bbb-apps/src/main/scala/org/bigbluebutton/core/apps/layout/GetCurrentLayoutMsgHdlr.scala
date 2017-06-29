@@ -1,10 +1,10 @@
-package org.bigbluebutton.core2.message.handlers.layout
+package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait GetCurrentLayoutMsgHdlr {
   this: MeetingActor =>

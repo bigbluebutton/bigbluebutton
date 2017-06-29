@@ -1,4 +1,4 @@
-package org.bigbluebutton.core2.message.handlers
+package org.bigbluebutton.core.apps.polls
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway

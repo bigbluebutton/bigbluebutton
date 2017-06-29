@@ -1,11 +1,7 @@
-package org.bigbluebutton.core2.message.handlers.users
+package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.models.{ Roles, Users1x }
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.common2.domain.VoiceUserVO
 
 trait UserJoinedVoiceConfMessageHdlr {
   this: MeetingActor =>

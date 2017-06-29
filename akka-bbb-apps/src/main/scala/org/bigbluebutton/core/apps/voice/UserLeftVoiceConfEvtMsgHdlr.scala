@@ -1,4 +1,4 @@
-package org.bigbluebutton.core2.message.handlers.users
+package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
