@@ -1,8 +1,7 @@
 import { check } from 'meteor/check';
 import addPoll from '../modifiers/addPoll';
 
-export default function pollStarted({ body, header }) {
-  const { meetingId } = header;
+export default function pollStarted(meetingId, { body }) {
   const { userId } = body;
   const { poll } = body;
 
