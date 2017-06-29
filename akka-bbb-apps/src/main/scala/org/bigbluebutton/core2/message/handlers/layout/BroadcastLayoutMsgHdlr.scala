@@ -19,7 +19,7 @@ trait BroadcastLayoutMsgHdlr {
     val envelope = BbbCoreEnvelope(BroadcastLayoutEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(BroadcastLayoutEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-    val body = BroadcastLayoutEvtMsgBody(msg.body.meetingId, props.recordProp.record, msg.body.requesterId,
+    val body = BroadcastLayoutEvtMsgBody(
       Layouts.getCurrentLayout(),
       MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
       Layouts.getLayoutSetter(), affectedUsers)

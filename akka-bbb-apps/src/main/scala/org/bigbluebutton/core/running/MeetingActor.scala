@@ -73,7 +73,7 @@ class MeetingActor(val props: DefaultProps,
     with TransferUserToMeetingRequestHdlr
     with UserMutedInVoiceConfEvtMsgHdlr
     with UserTalkingInVoiceConfEvtMsgHdlr
-    with GetCurrentLayoutMsgHdlr
+    with GetCurrentLayoutReqMsgHdlr
     with LockLayoutMsgHdlr
     with BroadcastLayoutMsgHdlr {
 
@@ -233,7 +233,7 @@ class MeetingActor(val props: DefaultProps,
       case m: UserLeftVoiceConfEvtMsg => handle(m)
       case m: UserMutedInVoiceConfEvtMsg => handle(m)
       case m: UserTalkingInVoiceConfEvtMsg => handle(m)
-      case m: GetCurrentLayoutMsg => handleGetCurrentLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
       case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)

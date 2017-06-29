@@ -31,8 +31,8 @@ package org.bigbluebutton.modules.layout.services {
 			//      trace("LAYOUT: received message " + messageName);
 
 			switch (messageName) {
-				case "GetCurrentLayoutEvtMsg":
-					handleGetCurrentLayoutEvtMsg(message);
+				case "GetCurrentLayoutRespMsg":
+					handleGetCurrentLayoutRespMsg(message);
 					break;
 				case "BroadcastLayoutEvtMsg":
 					handleBroadcastLayoutEvtMsg(message);
@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.layout.services {
 			}
 		}
 
-		private function handleGetCurrentLayoutEvtMsg(message:Object):void {
+		private function handleGetCurrentLayoutRespMsg(message:Object):void {
 			_applyFirstLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
 				onReceivedFirstLayout(message.body);
 			});

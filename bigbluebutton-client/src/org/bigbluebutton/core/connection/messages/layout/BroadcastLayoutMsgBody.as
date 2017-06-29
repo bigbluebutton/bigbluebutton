@@ -20,15 +20,9 @@ package org.bigbluebutton.core.connection.messages.layout {
 
 	public class BroadcastLayoutMsgBody {
 
-		public var meetingId:String;
-
-		public var requesterId:String;
-
 		public var layout:String;
 
-		public function BroadcastLayoutMsgBody(meetingId:String, requesterId:String, layout:String) {
-			this.meetingId = meetingId;
-			this.requesterId = requesterId;
+		public function BroadcastLayoutMsgBody(layout:String) {
 			this.layout = layout;
 		}
 	}

@@ -22,7 +22,7 @@ trait LockLayoutMsgHdlr {
       val envelope = BbbCoreEnvelope(LockLayoutEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(LockLayoutEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-      val body = LockLayoutEvtMsgBody(msg.body.meetingId, props.recordProp.record, msg.body.setById, msg.body.lock, affectedUsers)
+      val body = LockLayoutEvtMsgBody(msg.header.userId, msg.body.lock, affectedUsers)
       val event = LockLayoutEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
@@ -30,19 +30,17 @@ trait LockLayoutMsgHdlr {
 
       msg.body.layout foreach { l =>
         Layouts.setCurrentLayout(l)
-        broadcastSyncLayout(msg.body.meetingId, msg.body.setById)
+        broadcastSyncLayout()
       }
-
-      outGW.send(msgEvent)
     }
 
-    def broadcastSyncLayout(meetingId: String, setById: String) {
+    def broadcastSyncLayout() {
 
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(BroadcastLayoutEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(BroadcastLayoutEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-      val body = BroadcastLayoutEvtMsgBody(meetingId, props.recordProp.record, setById,
+      val body = BroadcastLayoutEvtMsgBody(
         Layouts.getCurrentLayout(),
         MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
         Layouts.getLayoutSetter(), affectedUsers)
