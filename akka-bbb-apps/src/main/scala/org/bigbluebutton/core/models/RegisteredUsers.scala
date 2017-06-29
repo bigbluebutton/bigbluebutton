@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain.UserVO
+import com.softwaremill.quicklens._
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
@@ -44,6 +45,13 @@ object RegisteredUsers {
 
   def remove(id: String, users: RegisteredUsers): Option[RegisteredUser] = {
     users.delete(id)
+  }
+
+  def setWaitingForApproval(users: RegisteredUsers, user: RegisteredUser,
+    waitingForApproval: Boolean): RegisteredUser = {
+    val u = user.modify(_.waitingForAcceptance).setTo(waitingForApproval)
+    users.save(u)
+    u
   }
 
 }

@@ -20,9 +20,11 @@ import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
 import org.bigbluebutton.common2.msgs._
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.message.handlers.breakoutrooms._
+import org.bigbluebutton.core2.message.handlers.guests.SetGuestPolicyMsgHdlr
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 
@@ -36,7 +38,8 @@ object MeetingActor {
 class MeetingActor(val props: DefaultProps,
   val eventBus: IncomingEventBus,
   val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
-    extends Actor with ActorLogging
+    extends BaseMeetingActor
+    with GuestsApp
     with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp
@@ -244,9 +247,17 @@ class MeetingActor(val props: DefaultProps,
       case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
       case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
       case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+
+      // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
       case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
       case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
+
+      //Guests
+      case m: GetGuestsWaitingApprovalReqMsg => handle(m)
+      case m: SetGuestPolicyMsg => handle(m)
+      case m: GuestsWaitingApprovedMsg => handle(m)
+
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }

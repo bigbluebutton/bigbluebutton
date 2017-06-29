@@ -1,6 +1,5 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-
 import Users from '/imports/api/2.0/users';
 
 import requestStunTurn from '../methods/requestStunTurn';
@@ -9,7 +8,7 @@ export default function addUser(meetingId, user) {
   check(user, Object);
   check(meetingId, String);
 
-  const userId = user.userid;
+  const userId = user.intId;
   check(userId, String);
 
   const selector = {
@@ -25,6 +24,7 @@ export default function addUser(meetingId, user) {
 
   // override moderator status of html5 client users, depending on a system flag
   const dummyUser = Users.findOne(selector);
+
   if (dummyUser &&
     dummyUser.clientType === 'HTML5' &&
     user.role === ROLE_MODERATOR &&
@@ -43,29 +43,29 @@ export default function addUser(meetingId, user) {
       userId,
       'user.connection_status': 'online',
       'user.userid': userId,
-      'user.extern_userid': user.extern_userid,
+      'user.extId': user.extId,
       'user.role': user.role,
       'user.roles': userRoles,
       'user.name': user.name,
       'user._sort_name': user.name.trim().toLowerCase(),
-      'user.avatarURL': user.avatarURL,
+      'user.avatarURL': user.avatar,
       'user.set_emoji_time': user.set_emoji_time || (new Date()).getTime(),
-      'user.time_of_joining': (new Date()).getTime(),
-      'user.emoji_status': user.emoji_status,
-      'user.webcam_stream': user.webcam_stream,
+      'user.joiningTime': (new Date()).getTime(),
+      'user.emoji_status': user.emoji,
       'user.presenter': user.presenter,
       'user.locked': user.locked,
-      'user.phone_user': user.phone_user,
       'user.listenOnly': user.listenOnly,
-      'user.has_stream': user.has_stream,
-      'user.voiceUser.web_userid': user.voiceUser.web_userid,
-      'user.voiceUser.callernum': user.voiceUser.callernum,
-      'user.voiceUser.userid': user.voiceUser.userid,
-      'user.voiceUser.talking': user.voiceUser.talking,
-      'user.voiceUser.joined': user.voiceUser.joined,
-      'user.voiceUser.callername': user.voiceUser.callername,
-      'user.voiceUser.locked': user.voiceUser.locked,
-      'user.voiceUser.muted': user.voiceUser.muted,
+
+      // default values for voiceUser and webcam
+      'user.webcam_stream': [],
+      'user.voiceUser.web_userid': false,
+      'user.voiceUser.callernum': false,
+      'user.voiceUser.userid': false,
+      'user.voiceUser.talking': false,
+      'user.voiceUser.joined': false,
+      'user.voiceUser.callername': false,
+      'user.voiceUser.locked': false,
+      'user.voiceUser.muted': false,
     },
   };
 
@@ -75,7 +75,7 @@ export default function addUser(meetingId, user) {
     }
 
     // TODO: Do we really need to request the stun/turn everytime?
-    requestStunTurn(meetingId, userId);
+    // requestStunTurn(meetingId, userId);
 
     const { insertedId } = numChanged;
     if (insertedId) {

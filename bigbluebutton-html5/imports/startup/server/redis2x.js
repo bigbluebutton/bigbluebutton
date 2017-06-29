@@ -2,6 +2,7 @@ import Redis from 'redis';
 import Logger from './logger';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
+import { check } from 'meteor/check';
 
 class RedisPubSub2x {
   constructor(config = {}) {
@@ -38,11 +39,12 @@ class RedisPubSub2x {
   }
 
   publish(channel, eventName, meetingId, payload = {}, header = {}) {
-
     const header2x = {
       name: eventName,
       meetingId,
     };
+
+    const msgHeader = header === {} ? header2x : header;
 
     const envelope = {
       envelope: {
@@ -53,12 +55,13 @@ class RedisPubSub2x {
         },
       },
       core: {
-        header: header2x,
+        header: msgHeader,
         body: payload,
       },
     };
 
     Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
+
     return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);
@@ -73,7 +76,7 @@ class RedisPubSub2x {
   }
 
   handleMessage(pattern, channel, message) {
-    console.error(`handleMessage: ${message}`);
+    Logger.error(`2.0 handleMessage: ${message}`);
     const parsedMessage = JSON.parse(message);
     const { header } = parsedMessage.core;
     const eventName = header.name;
@@ -88,20 +91,19 @@ class RedisPubSub2x {
     });
   }
 
-  handleTask(data, next, failures) {
-    console.error(`handleTask: ${JSON.stringify(data.parsedMessage)}`);
+  handleTask(data, next) {
     const { header } = data.parsedMessage.core;
-    const body = data.parsedMessage.body ? data.parsedMessage.body : data.parsedMessage.payload;
+    const { body } = data.parsedMessage.core;
     const eventName = header.name;
+    const meetingId = header.meetingId;
 
-    const payload = body; // 1.0
+    check(eventName, String);
+    check(body, Object);
 
     try {
-      body.callback = () => { }; // legacy noop function // TODO?!
-
       this._debug(`${eventName} emitted`);
       return this.emitter
-        .emitAsync(eventName, { header, body, payload })
+        .emitAsync(eventName, { header, body }, meetingId)
         .then((_) => {
           this._debug(`${eventName} completed`);
           return next();
@@ -135,3 +137,4 @@ Meteor.startup(() => {
 });
 
 export default RedisPubSubSingleton;
+

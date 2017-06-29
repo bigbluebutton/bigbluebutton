@@ -1,11 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Meetings from '..';
+import Meetings from '/imports/api/2.0/meetings';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 function meetings(credentials) {
-  console.error('meetings2x publish');
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
