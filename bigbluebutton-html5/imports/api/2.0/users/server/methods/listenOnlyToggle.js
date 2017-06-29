@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/2.0/meetings';
-import Users from './../../';
+import Users from '/imports/api/2.0/users';
 
 export default function listenOnlyToggle(credentials, isJoining = true) {
   const REDIS_CONFIG = Meteor.settings.redis;
