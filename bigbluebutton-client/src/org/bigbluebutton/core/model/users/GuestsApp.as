@@ -2,30 +2,31 @@ package org.bigbluebutton.core.model.users
 {
   import mx.collections.ArrayCollection;
   
-  public class GuestPolicy
+  public class GuestsApp
   {
     
-    private var _guestPolicy: String;
+    private var _setBy: String = "";
+    private var _guestPolicy: String = "";
     
     private var _guests:ArrayCollection = new ArrayCollection();
     
-    public function add(user: Guest):void {
+    public function add(user: GuestWaiting):void {
       _guests.addItem(user);
     }
     
-    public function remove(userId: String):Guest {
+    public function remove(userId: String):GuestWaiting {
       var index:int = getIndex(userId);
       if (index >= 0) {
-        return _guests.removeItemAt(index) as Guest;
+        return _guests.removeItemAt(index) as GuestWaiting;
       }
       
       return null;
     }
     
     public function getUserAndIndex(userId: String):Object {
-      var user:Guest;
+      var user:GuestWaiting;
       for (var i:int = 0; i < _guests.length; i++) {
-        user = _guests.getItemAt(i) as Guest;
+        user = _guests.getItemAt(i) as GuestWaiting;
         
         if (user.intId == userId) {
           return {index:i, user:user};;
@@ -35,24 +36,24 @@ package org.bigbluebutton.core.model.users
       return null;      
     }
     
-    public function getUser(userId:String):Guest {
-      var user:Guest;
+    public function getUser(userId:String):GuestWaiting {
+      var user:GuestWaiting;
       
       for (var i:int = 0; i < _guests.length; i++) {
-        user = _guests.getItemAt(i) as Guest;
+        user = _guests.getItemAt(i) as GuestWaiting;
         
         if (user.intId == userId) {
           return user;
         }
-      }				
+      }
       
       return null;
     }
     
     public function getIndex(userId: String):int {
-      var user:Guest;
+      var user:GuestWaiting;
       for (var i:int = 0; i < _guests.length; i++) {
-        user = _guests.getItemAt(i) as Guest;
+        user = _guests.getItemAt(i) as GuestWaiting;
         
         if (user.intId == userId) {
           return i;
@@ -62,11 +63,11 @@ package org.bigbluebutton.core.model.users
       return -1;
     }
     
-    public function userJoined(vu: Guest):void {
+    public function userJoined(vu: GuestWaiting):void {
       add(vu);    
     }
     
-    public function userLeft(intId: String):Guest {
+    public function userLeft(intId: String):GuestWaiting {
       return remove(intId);
     }
     

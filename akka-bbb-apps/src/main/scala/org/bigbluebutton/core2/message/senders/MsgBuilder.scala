@@ -4,14 +4,60 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.GuestWaiting
 
 object MsgBuilder {
-  def buildGuestsWaitingApprovalEvtMsg(meetingId: String, userId: String, guests: Vector[GuestWaiting]): BbbCommonEnvCoreMsg = {
+  def buildGuestPolicyChangedEvtMsg(meetingId: String, userId: String, policy: String, setBy: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GuestPolicyChangedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestPolicyChangedEvtMsg.NAME, meetingId, userId)
+
+    val body = GuestPolicyChangedEvtMsgBody(policy, setBy)
+    val event = GuestPolicyChangedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGuestApprovedEvtMsg(meetingId: String, userId: String, approved: Boolean, approvedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
-    val envelope = BbbCoreEnvelope(GuestsWaitingApprovalEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(GuestsWaitingApprovalEvtMsg.NAME, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GuestApprovedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestApprovedEvtMsg.NAME, meetingId, userId)
+
+    val body = GuestApprovedEvtMsgBody(approved, approvedBy)
+    val event = GuestApprovedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGuestsWaitingApprovedEvtMsg(meetingId: String, userId: String,
+    guests: Vector[GuestApprovedVO], approvedBy: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GuestsWaitingApprovedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestsWaitingApprovedEvtMsg.NAME, meetingId, userId)
+
+    val body = GuestsWaitingApprovedEvtMsgBody(guests, approvedBy)
+    val event = GuestsWaitingApprovedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGetGuestsWaitingApprovalRespMsg(meetingId: String, userId: String, guests: Vector[GuestWaiting]): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GetGuestsWaitingApprovalRespMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
 
     val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role))
-    val body = GuestsWaitingApprovalEvtMsgBody(guestsWaiting)
-    val event = GuestsWaitingApprovalEvtMsg(header, body)
+    val body = GetGuestsWaitingApprovalRespMsgBody(guestsWaiting)
+    val event = GetGuestsWaitingApprovalRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGuestsWaitingForApprovalEvtMsg(meetingId: String, userId: String, guests: Vector[GuestWaiting]): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GuestsWaitingForApprovalEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestsWaitingForApprovalEvtMsg.NAME, meetingId, userId)
+
+    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role))
+    val body = GuestsWaitingForApprovalEvtMsgBody(guestsWaiting)
+    val event = GuestsWaitingForApprovalEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

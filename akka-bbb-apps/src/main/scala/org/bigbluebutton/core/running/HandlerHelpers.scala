@@ -60,7 +60,7 @@ trait HandlerHelpers {
   def notifyModeratorsOfGuestWaiting(outGW: OutMessageGateway, guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
     val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
     mods foreach { m =>
-      val event = MsgBuilder.buildGuestsWaitingApprovalEvtMsg(meetingId, m.intId, guests)
+      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
       Sender.send(outGW, event)
     }
   }
