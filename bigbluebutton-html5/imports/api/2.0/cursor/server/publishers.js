@@ -1,24 +1,26 @@
-import Shapes from '/imports/api/2.0/shapes';
+import Cursor from '/imports/api/2.0/cursor';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+
 import mapToAcl from '/imports/startup/mapToAcl';
 
-function shapes(credentials) {
+function cursor(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Shapes2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Cursor2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
-  return Shapes.find({ meetingId });
+  return Cursor.find({ meetingId });
 }
 
 function publish(...args) {
-  const boundShapes = shapes.bind(this);
-  return mapToAcl('subscriptions.shapes', boundShapes)(args);
+  const boundCursor = cursor.bind(this);
+  return mapToAcl('subscriptions.cursor', boundCursor)(args);
 }
 
-Meteor.publish('shapes2x', publish);
+Meteor.publish('cursor2x', publish);
+

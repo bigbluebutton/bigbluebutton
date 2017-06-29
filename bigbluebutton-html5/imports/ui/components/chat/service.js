@@ -1,5 +1,5 @@
 import Chats from '/imports/api/1.1/chat';
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Meetings from '/imports/api/1.1/meetings';
 
 import Auth from '/imports/ui/services/auth';

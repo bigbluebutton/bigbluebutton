@@ -3,7 +3,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import Users from '/imports/api/1.1/users';
+import Users2x from '/imports/api/2.0/users';
 import { makeCall, logClient } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
@@ -136,7 +136,7 @@ class Auth {
           });
         }, 5000);
 
-        const subscription = Meteor.subscribe('current-user', credentials);
+        const subscription = Meteor.subscribe('current-user2x', credentials);
         if (!subscription.ready()) return;
 
         resolve(c);
@@ -165,7 +165,7 @@ class Auth {
 
       Tracker.autorun((c) => {
         const selector = { meetingId: this.meetingID, userId: this.userID };
-        const query = Users.find(selector);
+        const query = Users2x.find(selector);
 
         const handle = query.observeChanges({
           changed: (id, fields) => {
@@ -186,7 +186,7 @@ class Auth {
         });
       });
 
-      makeCall('validateAuthToken');
+      makeCall('validateAuthToken2x');
     });
   }
 

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import { Acl } from '/imports/api/acl/Acl';
 
 const AclSingleton = new Acl();
