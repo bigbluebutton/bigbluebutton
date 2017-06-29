@@ -14,8 +14,6 @@ export default function addMeeting(meeting) {
     'meetingProp.intId': meetingId,
   };
 
-  console.log(flat(meeting));
-
   const modifier = {
     $set: flat(meeting),
   };
