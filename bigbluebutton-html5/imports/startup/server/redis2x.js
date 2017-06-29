@@ -97,7 +97,6 @@ class RedisPubSub2x {
     const eventName = header.name;
     const meetingId = header.meetingId;
 
-    check(meetingId, String);
     check(eventName, String);
     check(body, Object);
 
