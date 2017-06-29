@@ -2,7 +2,7 @@ package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{EventBus, LookupClassification}
-import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg}
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg}
 
 case class MsgToAkkaApps(val topic: String, val payload: BbbCommonEnvJsNodeMsg)
 

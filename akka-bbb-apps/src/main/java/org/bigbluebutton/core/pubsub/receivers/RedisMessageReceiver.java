@@ -51,9 +51,6 @@ public class RedisMessageReceiver {
 
 		MeetingMessageReceiver meetingRx = new MeetingMessageReceiver(bbbGW);
 		receivers.add(meetingRx);
-		
-		CaptionMessageReceiver captionRx = new CaptionMessageReceiver(bbbGW);
-		receivers.add(captionRx);
 
 		SharedNotesMessageReceiver notesRx = new SharedNotesMessageReceiver(bbbGW);
 		receivers.add(notesRx);

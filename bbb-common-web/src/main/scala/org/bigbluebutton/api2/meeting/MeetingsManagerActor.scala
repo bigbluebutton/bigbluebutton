@@ -6,8 +6,7 @@ import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.api2.util.Util2
 import org.bigbluebutton.common.messages.UserJoinedVoiceMessage
-import org.bigbluebutton.common2.messages.{BbbCommonEnvCoreMsg, MeetingCreatedEvtMsg}
-
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, MeetingCreatedEvtMsg}
 
 sealed trait ApiMsg
 case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,

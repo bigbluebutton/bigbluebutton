@@ -13,7 +13,6 @@ import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
-import org.bigbluebutton.core.pubsub.senders.CaptionMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.DeskShareMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
@@ -139,9 +138,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
     case msg: BreakoutRoomsTimeRemainingUpdateOutMessage => handleBreakoutRoomsTimeRemainingUpdate(msg)
 
-    case msg: SendCaptionHistoryReply => handleSendCaptionHistoryReply(msg)
-    case msg: UpdateCaptionOwnerReply => handleUpdateCaptionOwnerReply(msg)
-    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
@@ -310,23 +306,6 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 
-  private def pageToMap(page: Page): java.util.Map[String, Any] = {
-    val res = new scala.collection.mutable.HashMap[String, Any]
-    res += "id" -> page.id
-    res += "num" -> page.num
-    res += "thumb_uri" -> page.thumbUri
-    res += "swf_uri" -> page.swfUri
-    res += "txt_uri" -> page.txtUri
-    res += "svg_uri" -> page.svgUri
-    res += "current" -> page.current
-    res += "x_offset" -> page.xOffset
-    res += "y_offset" -> page.yOffset
-    res += "width_ratio" -> page.widthRatio
-    res += "height_ratio" -> page.heightRatio
-
-    JavaConverters.mapAsJavaMap(res)
-  }
-
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
     val json = PesentationMessageToJsonConverter.clearPresentationOutMsgToJson(msg)
     service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
@@ -338,36 +317,7 @@ class MessageSenderActor(val service: MessageSender)
   }
 
   private def handleGetPresentationInfoOutMsg(msg: GetPresentationInfoOutMsg) {
-    // Create a map for our current presenter
-    val presenter = new java.util.HashMap[String, Object]()
-    presenter.put(Constants.USER_ID, msg.info.presenter.userId)
-    presenter.put(Constants.NAME, msg.info.presenter.name)
-    presenter.put(Constants.ASSIGNED_BY, msg.info.presenter.assignedBy)
 
-    // Create an array for our presentations
-    val presentations = new java.util.ArrayList[java.util.Map[String, Object]]
-    msg.info.presentations.foreach { pres =>
-      val presentation = new java.util.HashMap[String, Object]()
-      presentation.put(Constants.ID, pres.id)
-      presentation.put(Constants.NAME, pres.name)
-      presentation.put(Constants.CURRENT, pres.current: java.lang.Boolean)
-
-      // Get the pages for a presentation
-      val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
-      pres.pages.values foreach { p =>
-        pages.add(pageToMap(p))
-      }
-      // store the pages in the presentation 
-      presentation.put(Constants.PAGES, pages)
-
-      // add this presentation into our presentations list
-      presentations.add(presentation);
-    }
-
-    val reply = new GetPresentationInfoReplyMessage(msg.meetingID, msg.requesterID, presenter, presentations)
-
-    val json = PesentationMessageToJsonConverter.getPresentationInfoOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
   }
 
   private def handleResizeAndMoveSlideOutMsg(msg: ResizeAndMoveSlideOutMsg) {
@@ -751,23 +701,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleMeetingTimeRemainingUpdate(msg: MeetingTimeRemainingUpdate) {
     val json = MeetingMessageToJsonConverter.meetingTimeRemainingUpdateToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleSendCaptionHistoryReply(msg: SendCaptionHistoryReply) {
-    val json = CaptionMessageToJsonConverter.sendCaptionHistoryReplyToJson(msg)
-    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
-  }
-
-  private def handleUpdateCaptionOwnerReply(msg: UpdateCaptionOwnerReply) {
-    val json = CaptionMessageToJsonConverter.updateCaptionOwnerReplyToJson(msg)
-    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
-  }
-
-  private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
-    println("handleEditCaptionHistoryReply")
-    val json = CaptionMessageToJsonConverter.editCaptionHistoryReplyToJson(msg)
-    println(json)
-    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
   }
 
   private def handleBreakoutRoomsTimeRemainingUpdate(msg: BreakoutRoomsTimeRemainingUpdateOutMessage) {

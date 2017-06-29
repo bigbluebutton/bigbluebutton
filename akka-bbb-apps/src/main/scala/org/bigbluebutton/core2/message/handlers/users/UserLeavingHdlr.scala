@@ -1,8 +1,8 @@
 package org.bigbluebutton.core2.message.handlers.users
 
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ UserJoinedVoiceConfMessage, UserLeaving, UserLeft }
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UserLeavingHdlr {
@@ -10,30 +10,26 @@ trait UserLeavingHdlr {
 
   val outGW: OutMessageGateway
 
-  def handleUserLeft(msg: UserLeaving): Unit = {
+  def handle(msg: UserLeaveReqMsg): Unit = {
     for {
-      u <- Users.userLeft(msg.userID, liveMeeting.users)
+      u <- Users2x.remove(liveMeeting.users2x, msg.body.userId)
     } yield {
-      log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.id + " user=" + u)
-      outGW.send(new UserLeft(msg.meetingID, props.recordProp.record, u))
+      log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-      makeSurePresenterIsAssigned(u)
-
-      val vu = u.voiceUser
-      if (vu.joined || u.listenOnly) {
-        /**
-         * The user that left is still in the voice conference. Maybe this user just got disconnected
-         * and is reconnecting. Make the user as joined only in the voice conference. If we get a
-         * user left voice conference message, then we will remove the user from the users list.
-         */
-        switchUserToPhoneUser(new UserJoinedVoiceConfMessage(props.voiceProp.voiceConf,
-          vu.userId, u.id, u.externalId, vu.callerName,
-          vu.callerNum, vu.muted, vu.talking, vu.avatarURL, u.listenOnly));
-      }
-
-      checkCaptionOwnerLogOut(u.id)
+      captionApp2x.handleUserLeavingMsg(msg.body.userId)
       liveMeeting.startCheckingIfWeNeedToEndVoiceConf()
       stopAutoStartedRecording()
+      sendUserLeftMeetingEvtMsg(outGW, props.meetingProp.intId, msg.body.userId)
     }
+  }
+
+  def sendUserLeftMeetingEvtMsg(outGW: OutMessageGateway, meetingId: String, userId: String): Unit = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserLeftMeetingEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(UserLeftMeetingEvtMsg.NAME, meetingId, userId)
+    val body = UserLeftMeetingEvtMsgBody(userId)
+    val event = UserLeftMeetingEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msgEvent)
   }
 }

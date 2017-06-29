@@ -1,4 +1,4 @@
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Chat from '/imports/api/1.1/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';

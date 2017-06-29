@@ -29,7 +29,6 @@ package org.bigbluebutton.main.model.users
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.LockControlEvent;
   import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;

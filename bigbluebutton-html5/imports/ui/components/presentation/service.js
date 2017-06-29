@@ -1,7 +1,7 @@
 import Presentations from '/imports/api/1.1/presentations';
 import Slides from '/imports/api/1.1/slides';
-import Cursor from '/imports/api/1.1/cursor';
-import Users from '/imports/api/1.1/users';
+import Cursor from '/imports/api/2.0/cursor';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 
 const getCurrentPresentation = () => Presentations.findOne({

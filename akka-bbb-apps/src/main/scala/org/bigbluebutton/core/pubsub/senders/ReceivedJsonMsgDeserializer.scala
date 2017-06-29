@@ -2,7 +2,7 @@ package org.bigbluebutton.core.pubsub.senders
 
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.BbbMsgEvent
 import scala.reflect.runtime.universe._
 

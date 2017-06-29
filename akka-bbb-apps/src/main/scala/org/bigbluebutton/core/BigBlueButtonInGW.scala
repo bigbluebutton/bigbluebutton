@@ -2,9 +2,7 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
-
 import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
 import akka.actor.ActorSystem
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
@@ -13,7 +11,9 @@ import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import akka.event.Logging
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.models.Roles
+import org.bigbluebutton.common2.domain.PageVO
+import org.bigbluebutton.core.models.{ GuestPolicyType, Roles }
+
 import scala.collection.JavaConverters
 
 class BigBlueButtonInGW(
@@ -44,11 +44,11 @@ class BigBlueButtonInGW(
 
       case msg: CreateMeetingRequest => {
         val policy = msg.payload.guestPolicy.toUpperCase() match {
-          case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
-          case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
-          case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+          case "ALWAYS_ACCEPT" => GuestPolicyType.ALWAYS_ACCEPT
+          case "ALWAYS_DENY" => GuestPolicyType.ALWAYS_DENY
+          case "ASK_MODERATOR" => GuestPolicyType.ASK_MODERATOR
           //default
-          case undef => GuestPolicy.ASK_MODERATOR
+          case undef => GuestPolicyType.ASK_MODERATOR
         }
         /*
         val mProps = new MeetingProperties(
@@ -299,11 +299,11 @@ class BigBlueButtonInGW(
 
   def setGuestPolicy(meetingId: String, guestPolicy: String, requesterId: String) {
     val policy = guestPolicy.toUpperCase() match {
-      case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
-      case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
-      case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+      case "ALWAYS_ACCEPT" => GuestPolicyType.ALWAYS_ACCEPT
+      case "ALWAYS_DENY" => GuestPolicyType.ALWAYS_DENY
+      case "ASK_MODERATOR" => GuestPolicyType.ASK_MODERATOR
       //default
-      case undef => GuestPolicy.ASK_MODERATOR
+      case undef => GuestPolicyType.ASK_MODERATOR
     }
     eventBus.publish(BigBlueButtonEvent(meetingId, new SetGuestPolicy(meetingId, policy, requesterId)))
   }
@@ -334,8 +334,8 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationSlideGenerated(meetingId, messageKey, code, presentationId, numberOfPages, pagesCompleted, presName)))
   }
 
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.HashMap[String, Page] = {
-    var pages = new scala.collection.immutable.HashMap[String, Page]
+  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.Map[String, PageVO] = {
+    var pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
       val num = i;
@@ -346,19 +346,19 @@ class BigBlueButtonInGW(
       val txtUri = presBaseUrl + "/textfiles/" + i
       val svgUri = presBaseUrl + "/svg/" + i
 
-      val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
+      val p = new PageVO(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
         txtUri = txtUri, svgUri = svgUri,
         current = current)
-      pages += (p.id -> p)
+      pages += p.id -> p
     }
 
-    pages
+    pages.toMap
   }
 
   def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String, downloadable: Boolean) {
 
     val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
-    val presentation = new Presentation(id = presentationId, name = presName, pages = pages, downloadable = downloadable)
+    val presentation = new Presentation(id = presentationId, name = presName, current = true, pages = pages, downloadable = downloadable)
     eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationConversionCompleted(meetingId, messageKey, code, presentation)))
 
   }
@@ -541,24 +541,6 @@ class BigBlueButtonInGW(
     } else {
       eventBus.publish(BigBlueButtonEvent(meetingId, new HidePollResultRequest(meetingId, requesterId, pollId)))
     }
-  }
-
-  /**
-   * *******************************************************************
-   * Message Interface for Caption
-   * *****************************************************************
-   */
-
-  def sendCaptionHistory(meetingID: String, requesterID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendCaptionHistoryRequest(meetingID, requesterID)))
-  }
-
-  def updateCaptionOwner(meetingID: String, locale: String, localeCode: String, ownerID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new UpdateCaptionOwnerRequest(meetingID, locale, localeCode, ownerID)))
-  }
-
-  def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, localeCode, text)))
   }
 
   /**

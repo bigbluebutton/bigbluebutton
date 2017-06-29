@@ -20,15 +20,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
-	import flash.events.TextEvent;
 	import flash.text.AntiAliasType;
-	import flash.text.TextField;
 	import flash.text.TextFieldType;
-	import flash.text.TextFormat;
-	
+	import flash.text.TextFormat;	
 	import org.bigbluebutton.common.IMETextField;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
 	

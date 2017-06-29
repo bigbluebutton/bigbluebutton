@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.common2.messages.BbbClientMsgHeader
-import org.bigbluebutton.common2.messages.breakoutrooms._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core.running.MeetingActor
@@ -31,7 +30,8 @@ trait BreakoutRoomCreatedMsgHdlr {
         }
       }
 
-      handleBreakoutRoomsListMsg(new BreakoutRoomsListMsg(new BbbClientMsgHeader(BreakoutRoomsListMsg.NAME, msg.header.meetingId, msg.header.userId), new BreakoutRoomsListMsgBody(props.meetingProp.intId)))
+      handleBreakoutRoomsListMsg(new BreakoutRoomsListMsg(new BbbClientMsgHeader(BreakoutRoomsListMsg.NAME,
+        msg.header.meetingId, msg.header.userId), new BreakoutRoomsListMsgBody(props.meetingProp.intId)))
     }
   }
 }

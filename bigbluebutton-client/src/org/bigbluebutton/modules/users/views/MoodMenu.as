@@ -28,10 +28,8 @@ package org.bigbluebutton.modules.users.views {
 	import mx.events.FlexMouseEvent;
 	import mx.events.MenuEvent;
 	import mx.managers.PopUpManager;
-	
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.views.WellPositionedMenu;
 	import org.bigbluebutton.util.i18n.ResourceUtil;

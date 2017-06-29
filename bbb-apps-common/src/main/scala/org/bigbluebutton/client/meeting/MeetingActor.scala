@@ -3,7 +3,7 @@ package org.bigbluebutton.client.meeting
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.SystemConfiguration
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, MessageTypes}
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg, MessageTypes}
 
 object MeetingActor {
   def props(meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,

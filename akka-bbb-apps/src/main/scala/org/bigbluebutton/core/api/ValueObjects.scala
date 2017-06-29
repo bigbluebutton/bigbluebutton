@@ -2,19 +2,14 @@ package org.bigbluebutton.core.api
 
 import java.lang.Boolean
 
+import org.bigbluebutton.core.models.GuestPolicyType
+
 import scala.collection.mutable.Stack
 
 object Metadata extends Enumeration {
   type Metadata = String
   val INACTIVITY_DEADLINE = "inactivity-deadline"
   val INACTIVITY_TIMELEFT = "inactivity-timeleft"
-}
-
-object GuestPolicy extends Enumeration {
-  type GuestPolicy = Value
-  val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")
-  val ALWAYS_DENY = Value("ALWAYS_DENY")
-  val ASK_MODERATOR = Value("ASK_MODERATOR")
 }
 
 object SharedNotesOperation extends Enumeration {
@@ -101,7 +96,7 @@ case class MeetingConfig(name: String,
   duration: MeetingDuration,
   defaultAvatarURL: String,
   defaultConfigToken: String,
-  guestPolicy: GuestPolicy.GuestPolicy = GuestPolicy.ASK_MODERATOR)
+  guestPolicy: String = GuestPolicyType.ASK_MODERATOR)
 
 case class MeetingName(name: String)
 

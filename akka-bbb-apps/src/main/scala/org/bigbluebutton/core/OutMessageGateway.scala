@@ -1,7 +1,7 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.{ BbbCommonEnvCoreMsg, BbbCoreMsg }
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreMsg }
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api.IOutMessage
 

@@ -1,9 +1,9 @@
 package org.bigbluebutton.api2.bus
 
 import org.bigbluebutton.api2.SystemConfiguration
-import org.bigbluebutton.common2.messages.BbbCoreEnvelope
-import org.bigbluebutton.common2.messages.Deserializer
-import org.bigbluebutton.common2.messages.MeetingCreatedEvtMsg
+import org.bigbluebutton.common2.msgs.BbbCoreEnvelope
+import org.bigbluebutton.common2.msgs.Deserializer
+import org.bigbluebutton.common2.msgs.MeetingCreatedEvtMsg
 
 import com.fasterxml.jackson.databind.JsonNode
 

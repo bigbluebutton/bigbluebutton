@@ -1,4 +1,4 @@
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Meetings from '/imports/api/1.1/meetings';
 import { logger } from '/imports/startup/server/logger';
 

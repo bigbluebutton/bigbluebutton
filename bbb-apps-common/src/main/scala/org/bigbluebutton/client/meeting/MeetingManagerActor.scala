@@ -2,7 +2,7 @@ package org.bigbluebutton.client.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg, MessageTypes}
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg, MessageTypes}
 
 
 object MeetingManagerActor {
@@ -78,7 +78,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
 
   private def forwardToMeeting(msg: BbbCommonEnvJsNodeMsg): Unit = {
     msg.envelope.routing.get("meetingId") match {
-      case Some(meetingId2) => println("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2)
+      case Some(meetingId2) => log.debug("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2)
         MeetingManager.findWithMeetingId(meetingMgr, meetingId2) match {
           case Some(meetingId2) => log.debug("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2.meetingId)
           case None => log.debug("**** MeetingManagerActor forwardToMeeting. Could not find meetingId")

@@ -1,10 +1,9 @@
 package org.bigbluebutton.core2.message.handlers.breakoutrooms
 
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.breakoutrooms._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.Users1x
 import org.bigbluebutton.core.running.MeetingActor
 
 trait TransferUserToMeetingRequestHdlr {
@@ -29,7 +28,7 @@ trait TransferUserToMeetingRequestHdlr {
         targetVoiceBridge = props.voiceProp.voiceConf.dropRight(1)
       }
       // We check the user from the mode
-      Users.findWithId(msg.body.userId, liveMeeting.users) match {
+      Users1x.findWithId(msg.body.userId, liveMeeting.users) match {
         case Some(u) => {
           if (u.voiceUser.joined) {
             log.info("Transferring user userId=" + u.id + " from voiceBridge=" + props.voiceProp.voiceConf + " to targetVoiceConf=" + targetVoiceBridge)

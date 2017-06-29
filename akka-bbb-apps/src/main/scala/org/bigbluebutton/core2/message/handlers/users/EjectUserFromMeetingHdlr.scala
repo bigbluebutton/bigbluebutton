@@ -12,7 +12,7 @@ trait EjectUserFromMeetingHdlr {
   val outGW: OutMessageGateway
 
   def handle(msg: EjectUserFromMeeting) {
-
+    /*
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.userId)
     } yield {
@@ -21,6 +21,7 @@ trait EjectUserFromMeetingHdlr {
       pollApp2x.handle(msg, user)
       deskshareApp2x.handle(msg, user)
     }
+    */
   }
 
 }

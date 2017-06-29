@@ -38,24 +38,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.collections.ArrayCollection;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
-			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
-			import org.bigbluebutton.modules.layout.model.LayoutModel;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.collections.ArrayCollection;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
+      import org.bigbluebutton.modules.layout.model.LayoutModel;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(LayoutsCombo);      
       
@@ -69,9 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
-		  var conference:Conference = UserManager.getInstance().getConference();
-		  var thisUser:BBBUser = conference.getMyUser();
-		  this.enabled = ! thisUser.lockedLayout;
+		  this.enabled = ! LiveMeeting.inst().me.lockedLayout;
       }
       
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {

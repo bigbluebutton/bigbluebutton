@@ -2,7 +2,7 @@ package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{EventBus, LookupClassification}
-import org.bigbluebutton.common2.messages.BbbCommonEnvJsNodeMsg
+import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 
 sealed trait ToConnectionMsg
 case class BroadcastMsgToMeeting(meetingId: String, data: BbbCommonEnvJsNodeMsg) extends ToConnectionMsg

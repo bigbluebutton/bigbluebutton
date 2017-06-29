@@ -7,11 +7,11 @@ package org.bigbluebutton.core.model.users
     
     private var _users:ArrayCollection = new ArrayCollection();
     
-    private function add(user: VoiceUser2x):void {
+    public function add(user: VoiceUser2x):void {
       _users.addItem(user);
     }
     
-    private function remove(userId: String):VoiceUser2x {
+    public function remove(userId: String):VoiceUser2x {
       var index:int = getIndex(userId);
       if (index >= 0) {
         return _users.removeItemAt(index) as VoiceUser2x;
@@ -20,7 +20,7 @@ package org.bigbluebutton.core.model.users
       return null;
     }
     
-    private function getUserAndIndex(userId: String):Object {
+    public function getUserAndIndex(userId: String):Object {
       var user:VoiceUser2x;
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as VoiceUser2x;
@@ -33,7 +33,7 @@ package org.bigbluebutton.core.model.users
       return null;      
     }
     
-    private function getUser(userId:String):VoiceUser2x {
+    public function getUser(userId:String):VoiceUser2x {
       var user:VoiceUser2x;
       
       for (var i:int = 0; i < _users.length; i++) {
@@ -47,7 +47,7 @@ package org.bigbluebutton.core.model.users
       return null;
     }
     
-    private function getIndex(userId: String):int {
+    public function getIndex(userId: String):int {
       var user:VoiceUser2x;
       for (var i:int = 0; i < _users.length; i++) {
         user = _users.getItemAt(i) as VoiceUser2x;
@@ -59,15 +59,49 @@ package org.bigbluebutton.core.model.users
       
       return -1;
     }
+       
+    public function getVoiceOnlyUsers():Array {
+      var temp: Array = new Array();
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        if (user.voiceOnlyUser) {
+          temp.push(user);
+        }
+      }
+      return temp;
+    }   
     
-    public function userJoined(vu: VoiceUser2x):void {
-      add(vu);    
+    public function setListenOnlyForUser(userId: String, listenOnly: Boolean): void {
+      
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        if (user.intId == userId) {
+          user.listenOnly = listenOnly;
+        }
+      }
     }
     
-    public function userLeft(intId: String):VoiceUser2x {
-      return remove(intId);
+    public function setMutedForUser(userId: String, muted: Boolean): void {      
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        if (user.intId == userId) {
+          user.muted = muted;
+        }
+      }
     }
     
+    public function setTalkingForUser(userId: String, talking: Boolean): void {      
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
+        
+        if (user.intId == userId) {
+          user.talking = talking;
+        }
+      }
+    }
   }
 }
 

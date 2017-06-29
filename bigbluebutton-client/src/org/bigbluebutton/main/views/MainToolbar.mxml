@@ -71,7 +71,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.model.Config;
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -193,12 +192,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function refreshModeratorButtonsVisibility(e:*):void {
-          var userLoaded:Boolean = UserManager.getInstance().getConference().getMyUser() != null
-                  && ! UserManager.getInstance().getConference().getMyUser().waitingForAcceptance;
+          showGuestSettingsButton = UsersUtil.amIModerator();
 
-          showGuestSettingsButton = userLoaded && UsersUtil.amIModerator();
-
-          showRecordButton = userLoaded;
+          showRecordButton = UsersUtil.amIModerator();
       }
 
       private function getFlashPlayerCapabilities():Object {

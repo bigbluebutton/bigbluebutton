@@ -2,7 +2,7 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ EjectUserFromVoiceRequest, EjectVoiceUser }
-import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.models.Users1x
 import org.bigbluebutton.core.running.MeetingActor
 
 trait EjectUserFromVoiceRequestHdlr {
@@ -14,7 +14,7 @@ trait EjectUserFromVoiceRequestHdlr {
     log.info("Received eject user request. meetingId=" + msg.meetingID + " userId=" + msg.userId)
 
     for {
-      u <- Users.findWithId(msg.userId, liveMeeting.users)
+      u <- Users1x.findWithId(msg.userId, liveMeeting.users)
     } yield {
       if (u.voiceUser.joined) {
         log.info("Ejecting user from voice.  meetingId=" + props.meetingProp.intId + " userId=" + u.id)

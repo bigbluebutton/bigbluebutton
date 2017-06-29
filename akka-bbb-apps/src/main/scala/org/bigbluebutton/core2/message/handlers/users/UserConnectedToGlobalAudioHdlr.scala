@@ -1,12 +1,10 @@
 package org.bigbluebutton.core2.message.handlers.users
 
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.voiceconf.{ UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ UserConnectedToGlobalAudio, UserListeningOnly }
-import org.bigbluebutton.core.models.{ Users, Users2x, VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.api.UserConnectedToGlobalAudio
+import org.bigbluebutton.core.models.{ Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UserConnectedToGlobalAudioHdlr {
   this: MeetingActor =>
@@ -15,18 +13,6 @@ trait UserConnectedToGlobalAudioHdlr {
 
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
     log.info("Handling UserConnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.userid)
-
-    val user = Users.findWithId(msg.userid, liveMeeting.users)
-    user foreach { u =>
-      if (MeetingStatus2x.addGlobalAudioConnection(liveMeeting.status, msg.userid)) {
-        for {
-          uvo <- Users.joinedVoiceListenOnly(msg.userid, liveMeeting.users)
-        } yield {
-          log.info("UserConnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " user=" + uvo)
-          outGW.send(new UserListeningOnly(props.meetingProp.intId, props.recordProp.record, uvo.id, uvo.listenOnly))
-        }
-      }
-    }
 
     def broadcastEvent(vu: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,

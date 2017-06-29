@@ -1,16 +1,17 @@
 package org.bigbluebutton.core.model
 {
-	import mx.collections.ArrayCollection;
 
-	public class MediaStream
-	{
-		public var streamId: String;
-		public var intId: String;
-		public var attributes: ArrayCollection = new ArrayCollection();
-		public var viewers:ArrayCollection = new ArrayCollection();
-		
-		public function MediaStream()
-		{
-		}
-	}
+  public class MediaStream
+  {
+    public var streamId: String;
+    public var userId: String;
+    public var attributes: Object = new Object();
+    public var viewers:Array = new Array();
+    
+    public function MediaStream(streamId: String, userId: String)
+    {
+      this.streamId = streamId;
+      this.userId = userId;
+    }
+  }
 }
