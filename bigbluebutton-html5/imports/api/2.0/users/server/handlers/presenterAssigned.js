@@ -28,7 +28,7 @@ const unassignCurrentPresenter = (meetingId, presenterId) => {
   return Users.update(selector, modifier, cb);
 };
 
-export default function handlePresenterAssigned(meetingId, { body }) {
+export default function handlePresenterAssigned({ body }, meetingId) {
   const { presenterId } = body;
 
   check(presenterId, String);

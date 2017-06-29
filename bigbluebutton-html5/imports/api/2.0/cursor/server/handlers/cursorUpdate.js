@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import updateCursor from '../modifiers/updateCursor';
 
-export default function handleCursorUpdate(meetingId, { header, body }) {
+export default function handleCursorUpdate({ header, body }, meetingId) {
   const userId = header.userId;
   const x = body.xPercent;
   const y = body.yPercent;

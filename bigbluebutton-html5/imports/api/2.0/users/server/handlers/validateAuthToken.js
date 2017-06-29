@@ -34,7 +34,7 @@ const addWelcomeChatMessage = (meetingId, userId) => {
   return addChat(meetingId, message);
 };
 
-export default function handleValidateAuthToken(meetingId, { body }) {
+export default function handleValidateAuthToken({ body }, meetingId) {
   const { userId, valid } = body;
 
   check(userId, String);
