@@ -3,7 +3,6 @@ package org.bigbluebutton.core.running
 import java.io.{ PrintWriter, StringWriter }
 
 import akka.actor._
-import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core._
@@ -12,7 +11,6 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
-import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users1x }
@@ -20,11 +18,15 @@ import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.breakout._
+import org.bigbluebutton.core.apps.layout.LayoutApp2x
+import org.bigbluebutton.core.apps.polls._
+import org.bigbluebutton.core.apps.voice._
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core2.message.handlers.breakoutrooms._
 import org.bigbluebutton.core2.testdata.FakeTestData
-import org.bigbluebutton.core2.message.handlers.layout._
+import org.bigbluebutton.core.apps.layout.LayoutApp2x
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -36,16 +38,19 @@ object MeetingActor {
 class MeetingActor(val props: DefaultProps,
   val eventBus: IncomingEventBus,
   val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
-    extends Actor with ActorLogging
+    extends BaseMeetingActor
+    with GuestsApp
+    with LayoutApp2x
+    with VoiceApp2x
+    with PollApp2x
+    with BreakoutApp2x
+
     with UsersApp with PresentationApp
-    with LayoutApp with ChatApp with WhiteboardApp with PollApp
+    with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp
     with SharedNotesApp with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
-    with UserJoinedVoiceConfEvtMsgHdlr
-    with UserLeftVoiceConfEvtMsgHdlr
     with UserJoinMeetingReqMsgHdlr
-    with StartPollReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
     with UserConnectedToGlobalAudioHdlr
     with UserDisconnectedFromGlobalAudioHdlr
@@ -54,12 +59,6 @@ class MeetingActor(val props: DefaultProps,
     with IsMeetingMutedRequestHdlr
     with MuteUserRequestHdlr
     with EjectUserFromVoiceRequestHdlr
-    with StartCustomPollReqMsgHdlr
-    with StopPollReqMsgHdlr
-    with RespondToPollReqMsgHdlr
-    with GetCurrentPollReqMsgHdlr
-    with HidePollResultReqMsgHdlr
-    with ShowPollResultReqMsgHdlr
     with UserJoinedVoiceConfMessageHdlr
     with ValidateAuthTokenReqMsgHdlr
     with BreakoutRoomsListMsgHdlr
@@ -72,10 +71,7 @@ class MeetingActor(val props: DefaultProps,
     with SendBreakoutUsersUpdateMsgHdlr
     with TransferUserToMeetingRequestHdlr
     with UserMutedInVoiceConfEvtMsgHdlr
-    with UserTalkingInVoiceConfEvtMsgHdlr
-    with GetCurrentLayoutMsgHdlr
-    with LockLayoutMsgHdlr
-    with BroadcastLayoutMsgHdlr {
+    with UserTalkingInVoiceConfEvtMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -101,7 +97,6 @@ class MeetingActor(val props: DefaultProps,
 
   val usersApp2x = new UsersApp2x(liveMeeting, outGW = outGW)
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
-  val pollApp2x = new PollApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
 
@@ -141,8 +136,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
     case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
     case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
-    case msg: GetCurrentLayoutRequest => handleGetCurrentLayoutRequest(msg)
-    case msg: BroadcastLayoutRequest => handleBroadcastLayoutRequest(msg)
     case msg: InitializeMeeting => handleInitializeMeeting(msg)
     case msg: ClearPresentation => handleClearPresentation(msg)
     case msg: PresentationConversionUpdate => handlePresentationConversionUpdate(msg)
@@ -233,7 +226,7 @@ class MeetingActor(val props: DefaultProps,
       case m: UserLeftVoiceConfEvtMsg => handle(m)
       case m: UserMutedInVoiceConfEvtMsg => handle(m)
       case m: UserTalkingInVoiceConfEvtMsg => handle(m)
-      case m: GetCurrentLayoutMsg => handleGetCurrentLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg => handle(m)
       case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
@@ -246,9 +239,17 @@ class MeetingActor(val props: DefaultProps,
       case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
       case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
       case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+
+      // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
       case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
       case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
+
+      //Guests
+      case m: GetGuestsWaitingApprovalReqMsg => handle(m)
+      case m: SetGuestPolicyMsg => handle(m)
+      case m: GuestsWaitingApprovedMsg => handle(m)
+
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }

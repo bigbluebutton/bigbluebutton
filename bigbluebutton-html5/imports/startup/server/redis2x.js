@@ -97,14 +97,13 @@ class RedisPubSub2x {
     const eventName = header.name;
     const meetingId = header.meetingId;
 
-    check(meetingId, String);
     check(eventName, String);
     check(body, Object);
 
     try {
       this._debug(`${eventName} emitted`);
       return this.emitter
-        .emitAsync(eventName, meetingId, { header, body })
+        .emitAsync(eventName, { header, body }, meetingId)
         .then((_) => {
           this._debug(`${eventName} completed`);
           return next();

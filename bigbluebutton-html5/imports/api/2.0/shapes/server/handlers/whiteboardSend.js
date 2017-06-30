@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 
 import addShape from '../modifiers/addShape';
 
-export default function handleWhiteboardSend(meetingId, { header, body }) {
+export default function handleWhiteboardSend({ header, body }, meetingId) {
   const userId = header.userId;
   const shape = body.annotation;
 

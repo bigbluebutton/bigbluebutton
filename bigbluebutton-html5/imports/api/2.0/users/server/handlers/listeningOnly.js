@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
 
-export default function handleListeningOnly(meetingId, { payload }) {
+export default function handleListeningOnly({ payload }, meetingId) {
   const userId = payload.userid;
   const listenOnly = payload.listen_only;
 

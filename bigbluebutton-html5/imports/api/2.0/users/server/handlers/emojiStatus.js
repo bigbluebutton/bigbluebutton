@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import Users from '/imports/api/2.0/users';
 
-export default function handleEmojiStatus(meetingId, { body }) {
+export default function handleEmojiStatus({ body }, meetingId) {
   const { userId, status } = body;
 
   check(userId, String);
