@@ -20,7 +20,7 @@ trait SetLockSettingsHdlr {
         MeetingStatus2x.getPermissions(liveMeeting.status),
         Users.getUsers(liveMeeting.users).toArray))
 */
-      handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
+      //      handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }
   }
 }

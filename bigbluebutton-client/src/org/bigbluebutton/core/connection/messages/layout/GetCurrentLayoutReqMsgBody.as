@@ -18,12 +18,9 @@
  */
 package org.bigbluebutton.core.connection.messages.layout {
 
-	public class BroadcastLayoutMsgBody {
+	public class GetCurrentLayoutReqMsgBody {
 
-		public var layout:String;
-
-		public function BroadcastLayoutMsgBody(layout:String) {
-			this.layout = layout;
+		public function GetCurrentLayoutReqMsgBody() {
 		}
 	}
 }

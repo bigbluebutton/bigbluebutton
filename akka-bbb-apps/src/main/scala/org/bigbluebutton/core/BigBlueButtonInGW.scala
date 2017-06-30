@@ -2,8 +2,9 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
+
 import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.core.apps.{ Presentation, SharedNotesOperation }
 import akka.actor.ActorSystem
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage

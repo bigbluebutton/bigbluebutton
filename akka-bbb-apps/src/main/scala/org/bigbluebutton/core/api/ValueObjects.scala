@@ -12,14 +12,6 @@ object Metadata extends Enumeration {
   val INACTIVITY_TIMELEFT = "inactivity-timeleft"
 }
 
-object SharedNotesOperation extends Enumeration {
-  type SharedNotesOperation = Value
-  val PATCH = Value("PATCH")
-  val UNDO = Value("UNDO")
-  val REDO = Value("REDO")
-  val UNDEFINED = Value("UNDEFINED")
-}
-
 case class StatusCode(val code: Int, val text: String)
 object StatusCodes {
   // Borrowed from https://dev.twitter.com/overview/api/response-codes (ralam June 18, 2015)
