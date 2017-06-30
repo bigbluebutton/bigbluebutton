@@ -27,6 +27,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
+import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -69,6 +70,7 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomEndedMsgHdlr
     with BreakoutRoomUsersUpdateMsgHdlr
     with SendBreakoutUsersUpdateMsgHdlr
+    with SyncGetMeetingInfoRespMsgHdlr
     with TransferUserToMeetingRequestHdlr
     with UserMutedInVoiceConfEvtMsgHdlr
     with UserTalkingInVoiceConfEvtMsgHdlr {
@@ -110,6 +112,7 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+    case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
 
     //======================================
 
@@ -268,6 +271,21 @@ class MeetingActor(val props: DefaultProps,
       log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.extUserId + " user=" + regUser)
       outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
     }
+  }
+
+  def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
+    // sync all meetings
+    handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
+
+    // sync all users
+    usersApp2x.handleSyncGetUsersMeetingRespMsg()
+
+    // sync all presentations
+    presentationApp2x.handleSyncGetPresentationInfoRespMsg()
+
+    // TODO send all chat
+    // TODO send all lock settings
+    // TODO send all screen sharing info
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {

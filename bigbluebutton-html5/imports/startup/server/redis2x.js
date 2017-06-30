@@ -26,6 +26,7 @@ class RedisPubSub2x {
 
     this.queue.reset();
     this.sub.psubscribe(this.config.channels.fromAkkaApps); // 2.0
+    this.sub.psubscribe(this.config.channels.toHTML5); // 2.0
 
     Logger.info(`Subscribed to '${this.config.channels.fromBBBApps}'`);
   }
@@ -72,6 +73,20 @@ class RedisPubSub2x {
   handleSubscribe() {
     if (this.didSendRequestEvent) return;
 
+    // populate collections with pre-existing data
+    const REDIS_CONFIG = Meteor.settings.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'GetAllMeetingsReqMsg';
+
+    const body = {
+      requesterId: "nodeJSapp",
+    };
+
+    const header = {
+      name: EVENT_NAME,
+    };
+
+    this.publish(CHANNEL, EVENT_NAME, "someMeetingId", body, header);
     this.didSendRequestEvent = true;
   }
 
