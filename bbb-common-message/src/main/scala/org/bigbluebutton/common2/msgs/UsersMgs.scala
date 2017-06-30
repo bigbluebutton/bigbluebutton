@@ -119,6 +119,10 @@ object GetUsersMeetingRespMsg {
 
 }
 
+object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg"}
+case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg
+case class SyncGetUsersMeetingRespMsgBody(users: Vector[WebUser])
+
 case class GetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetUsersMeetingRespMsgBody) extends BbbCoreMsg
 
 case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])

@@ -66,6 +66,10 @@ import org.bigbluebutton.common2.domain.PresentationVO
   case class GetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: GetPresentationInfoRespMsgBody) extends BbbCoreMsg
   case class GetPresentationInfoRespMsgBody(presentations: Vector[PresentationVO])
 
+  object SyncGetPresentationInfoRespMsg { val NAME = "SyncGetPresentationInfoRespMsg"}
+  case class SyncGetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: SyncGetPresentationInfoRespMsgBody) extends BbbCoreMsg
+  case class SyncGetPresentationInfoRespMsgBody(presentations: Vector[PresentationVO])
+
   object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg"}
   case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
   case class SetCurrentPageEvtMsgBody(presentationId: String, pageId: String)

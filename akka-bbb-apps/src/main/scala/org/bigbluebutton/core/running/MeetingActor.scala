@@ -12,6 +12,7 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
+import org.bigbluebutton.core.apps.meeting._
 import org.bigbluebutton.core.apps.presentation.poll.PollApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.bus._
@@ -75,6 +76,7 @@ class MeetingActor(val props: DefaultProps,
     with UserTalkingInVoiceConfEvtMsgHdlr
     with GetCurrentLayoutMsgHdlr
     with LockLayoutMsgHdlr
+    with SyncGetMeetingInfoRespMsgHdlr
     with BroadcastLayoutMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -115,6 +117,7 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+    case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
 
     //======================================
 
@@ -267,6 +270,21 @@ class MeetingActor(val props: DefaultProps,
       log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.extUserId + " user=" + regUser)
       outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
     }
+  }
+
+  def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
+    // sync all meetings
+    handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
+
+    // sync all users
+    usersApp2x.handleSyncGetUsersMeetingRespMsg()
+
+    // sync all presentations
+    presentationApp2x.handleSyncGetPresentationInfoRespMsg()
+
+    // TODO send all chat
+    // TODO send all lock settings
+    // TODO send all screen sharing info
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
