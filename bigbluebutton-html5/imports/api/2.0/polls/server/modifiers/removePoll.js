@@ -13,11 +13,11 @@ export default function removePoll(meetingId, pollId) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Removing Poll from collection: ${err}`);
+      return Logger.error(`Removing Poll2x from collection: ${err}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Removed Poll id=${pollId}`);
+      return Logger.info(`Removed Poll2x id=${pollId}`);
     }
   };
 

@@ -5,8 +5,8 @@ import Logger from '/imports/startup/server/logger';
 
 export default function publishVote(credentials, pollId, pollAnswerId) { // TODO discuss location
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.polling;
-  const EVENT_NAME = 'vote_poll_user_request_message';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'RespondToPollReqMsg';
 
   const { meetingId, requesterUserId } = credentials;
 
@@ -22,12 +22,19 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
   check(pollAnswerId, Number);
   check(currentPoll.meetingId, String);
 
+  //(requesterId: String, pollId: String, questionId: Int, answerId: Int)
+  
   const payload = {
-    meeting_id: currentPoll.meetingId,
-    user_id: requesterUserId,
-    poll_id: currentPoll.poll.id,
-    question_id: 0,
-    answer_id: pollAnswerId,
+    requesterId: requesterUserId,
+    pollId: currentPoll.poll.id,
+    questionId: 0,
+    answerId: pollAnswerId,
+  };
+
+  const header = {
+    meetingId,
+    name: EVENT_NAME,
+    userId: requesterUserId,
   };
 
   const selector = {
@@ -44,13 +51,13 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Updating Polls collection: ${err}`);
+      return Logger.error(`Updating Polls2x collection: ${err}`);
     }
 
-    return Logger.info(`Updating Polls collection (meetingId: ${meetingId},
+    return Logger.info(`Updating Polls2x collection (meetingId: ${meetingId},
                                             pollId: ${currentPoll.poll.id}!)`);
   };
 
   Polls.update(selector, modifier, cb);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

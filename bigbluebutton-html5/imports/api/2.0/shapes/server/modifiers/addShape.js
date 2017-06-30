@@ -50,12 +50,6 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
       });
       break;
 
-    case SHAPE_TYPE_POLL_RESULT:
-      /**
-       * TODO
-       * shape.annotationInfo.result = JSON.parse(shape.annotationInfo.result);
-       */
-      break;
     case SHAPE_TYPE_PENCIL:
       modifier.$push = { 'shape.shape.points': { $each: shape.annotationInfo.points } };
       break;

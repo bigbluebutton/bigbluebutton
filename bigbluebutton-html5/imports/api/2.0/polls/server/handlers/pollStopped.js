@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import removePoll from '../modifiers/removePoll';
 import clearPolls from '../modifiers/clearPolls';
 
-export default function pollStopped(meetingId, { body }) {
+export default function pollStopped({ body }, meetingId) {
   const { poll } = body;
 
   check(meetingId, String);

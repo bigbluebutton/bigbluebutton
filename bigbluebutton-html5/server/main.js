@@ -15,8 +15,8 @@ import '/imports/api/1.1/users/server';
 import '/imports/api/2.0/meetings/server';
 import '/imports/api/2.0/users/server';
 import '/imports/api/2.0/shapes/server';
-import '/imports/api/2.0/polls/server';
 import '/imports/api/2.0/cursor/server';
+import '/imports/api/2.0/polls/server';
 
 //Commons
 import '/imports/api/log-client/server';

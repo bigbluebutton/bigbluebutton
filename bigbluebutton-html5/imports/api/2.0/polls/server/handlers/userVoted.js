@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import updateVotes from '../modifiers/updateVotes';
 
-export default function userVoted(meetingId, { body }) {
+export default function userVoted({ body }, meetingId) {
   const { poll } = body;
   const { presenterId } = body;
 
