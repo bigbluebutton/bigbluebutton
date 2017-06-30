@@ -4,10 +4,14 @@ import { IntlProvider } from 'react-intl';
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
+  baseControls: PropTypes.object.isRequired,
+  children: PropTypes.object.isRequired,
 };
 
+const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
+
 const defaultProps = {
-  locale: 'en',
+  locale: BROWSER_LANGUAGE,
 };
 
 class IntlStartup extends Component {
@@ -21,11 +25,21 @@ class IntlStartup extends Component {
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
+  componentWillMount() {
+    this.fetchLocalizedMessages(this.state.appLocale);
+  }
+
+  componentWillUpdate(nextProps) {
+    if (this.props.locale !== nextProps.locale) {
+      this.fetchLocalizedMessages(nextProps.locale);
+    }
+  }
 
   fetchLocalizedMessages(locale) {
     const url = `/html5client/locale?locale=${locale}`;
 
     const { baseControls } = this.props;
+    this.setState({ appLocale: locale });
 
     baseControls.updateLoadingState(true);
     fetch(url)
@@ -37,7 +51,10 @@ class IntlStartup extends Component {
         return response.json();
       })
       .then((messages) => {
-        this.setState({ messages }, () => {
+        if (messages.statusCode === 506) {
+          this.setState({ appLocale: 'en' });
+        }
+        this.setState({ messages: messages.messages }, () => {
           baseControls.updateLoadingState(false);
         });
       })
@@ -45,17 +62,6 @@ class IntlStartup extends Component {
         baseControls.updateErrorState(reason);
         baseControls.updateLoadingState(false);
       });
-  }
-
-  componentWillMount() {
-    this.fetchLocalizedMessages(this.state.appLocale);
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.props.locale !== nextProps.locale) {
-      this.setState({ appLocale: nextProps.locale });
-      this.fetchLocalizedMessages(nextProps.locale);
-    }
   }
 
   render() {

@@ -17,16 +17,14 @@
  *
  */
 package org.bigbluebutton.core.connection.messages.layout {
+	import org.bigbluebutton.core.connection.messages.BbbCommonMsg;
 
-	public class GetCurrentLayoutMsgBody {
+	public class GetCurrentLayoutReqMsg extends BbbCommonMsg {
+		public var body:GetCurrentLayoutReqMsgBody;
 
-		public var meetingId:String;
-
-		public var requesterId:String;
-
-		public function GetCurrentLayoutMsgBody(meetingId:String, requesterId:String) {
-			this.meetingId = meetingId;
-			this.requesterId = requesterId;
+		public function GetCurrentLayoutReqMsg(body:GetCurrentLayoutReqMsgBody) {
+			super();
+			this.body = body;
 		}
 	}
 }

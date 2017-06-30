@@ -21,5 +21,6 @@ redis:
       polling: 'bigbluebutton:to-bbb-apps:polling'
   ignoredMessages:
     - 'BbbPubSubPongMessage'
+    - 'GetCurrentLayoutEvtMsg'
     - 'bbb_apps_is_alive_message'
     - 'broadcast_layout_message'

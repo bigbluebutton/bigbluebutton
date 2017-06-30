@@ -13,8 +13,6 @@ export default function removeUser(meetingId, userId) {
     userId,
   };
 
-  const User = Users.findOne(selector);
-
   const modifier = {
     $set: {
       'user.connection_status': 'offline',

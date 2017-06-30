@@ -1,5 +1,5 @@
 import AuthSingleton from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Slides from '/imports/api/1.1/slides';
 import { makeCall } from '/imports/ui/services/api/index.js';
 

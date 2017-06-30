@@ -2,56 +2,27 @@ package org.bigbluebutton.common2.msgs
 
 
 // In messages
-object GetCurrentLayoutMsg {
-  val NAME = "GetCurrentLayoutMsg"
-}
+object GetCurrentLayoutReqMsg { val NAME = "GetCurrentLayoutReqMsg" }
+case class GetCurrentLayoutReqMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutReqMsgBody) extends BbbCoreMsg
+case class GetCurrentLayoutReqMsgBody()
 
-case class GetCurrentLayoutMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutMsgBody) extends BbbCoreMsg
-
-case class GetCurrentLayoutMsgBody(meetingId: String, requesterId: String)
-
-object LockLayoutMsg {
-  val NAME = "LockLayoutMsg"
-}
-
+object LockLayoutMsg { val NAME = "LockLayoutMsg" }
 case class LockLayoutMsg(header: BbbClientMsgHeader, body: LockLayoutMsgBody) extends BbbCoreMsg
+case class LockLayoutMsgBody(lock: Boolean, viewersOnly: Boolean, layout: Option[String])
 
-case class LockLayoutMsgBody(meetingId: String, setById: String, lock: Boolean, viewersOnly: Boolean,
-                             layout: Option[String])
-
-object BroadcastLayoutMsg {
-  val NAME = "BroadcastLayoutMsg"
-}
-
+object BroadcastLayoutMsg { val NAME = "BroadcastLayoutMsg" }
 case class BroadcastLayoutMsg(header: BbbClientMsgHeader, body: BroadcastLayoutMsgBody) extends BbbCoreMsg
-
-case class BroadcastLayoutMsgBody(meetingId: String, requesterId: String, layout: String)
+case class BroadcastLayoutMsgBody(layout: String)
 
 // Out messages
-object GetCurrentLayoutEvtMsg {
-  val NAME = "GetCurrentLayoutEvtMsg"
-}
+object GetCurrentLayoutRespMsg { val NAME = "GetCurrentLayoutRespMsg" }
+case class GetCurrentLayoutRespMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutRespMsgBody) extends BbbCoreMsg
+case class GetCurrentLayoutRespMsgBody(layout: String, locked: Boolean, setByUserId: String)
 
-case class GetCurrentLayoutEvtMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutEvtMsgBody) extends BbbCoreMsg
-
-case class GetCurrentLayoutEvtMsgBody(meetingId: String, recorded: Boolean, requesterId: String, layoutId: String,
-                                      locked: Boolean, setByUserId: String)
-
-object BroadcastLayoutEvtMsg {
-  val NAME = "BroadcastLayoutEvtMsg"
-}
-
+object BroadcastLayoutEvtMsg { val NAME = "BroadcastLayoutEvtMsg" }
 case class BroadcastLayoutEvtMsg(header: BbbClientMsgHeader, body: BroadcastLayoutEvtMsgBody) extends BbbCoreMsg
+case class BroadcastLayoutEvtMsgBody(layout: String, locked: Boolean, setByUserId: String, applyTo: Vector[String])
 
-case class BroadcastLayoutEvtMsgBody(meetingId: String, recorded: Boolean, requesterId: String,
-                                     layoutId: String, locked: Boolean, setByUserId: String, applyTo: Vector[String])
-
-object LockLayoutEvtMsg {
-  val NAME = "LockLayoutEvtMsg"
-}
-
+object LockLayoutEvtMsg { val NAME = "LockLayoutEvtMsg" }
 case class LockLayoutEvtMsg(header: BbbClientMsgHeader, body: LockLayoutEvtMsgBody) extends BbbCoreMsg
-
-case class LockLayoutEvtMsgBody(meetingId: String, recorded: Boolean, setById: String, locked: Boolean,
-                                applyTo: Vector[String])
-
+case class LockLayoutEvtMsgBody(setById: String, locked: Boolean, applyTo: Vector[String])

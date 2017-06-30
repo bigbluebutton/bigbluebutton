@@ -29,8 +29,8 @@ class EmojiMenu extends Component {
    } = this.props;
 
     return (
-      <Dropdown autoFocus>
-        <DropdownTrigger placeInTabOrder>
+      <Dropdown autoFocus={true}>
+        <DropdownTrigger tabIndex={0}>
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}

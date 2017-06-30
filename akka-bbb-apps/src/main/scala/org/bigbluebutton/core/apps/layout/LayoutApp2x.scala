@@ -5,7 +5,7 @@ import org.bigbluebutton.core.running.MeetingActor
 
 trait LayoutApp2x
     extends BroadcastLayoutMsgHdlr
-    with GetCurrentLayoutMsgHdlr
+    with GetCurrentLayoutReqMsgHdlr
     with LockLayoutMsgHdlr {
 
   this: MeetingActor =>

@@ -1,18 +1,17 @@
-import Shapes from './../';
+import Shapes from '/imports/api/2.0/shapes';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 function shapes(credentials) {
-  console.error('shapes2x publish');
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Shapes for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Shapes2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Shapes.find({ meetingId });
 }

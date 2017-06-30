@@ -26,6 +26,7 @@ import org.bigbluebutton.core.apps.voice._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.testdata.FakeTestData
+import org.bigbluebutton.core.apps.layout.LayoutApp2x
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -68,7 +69,9 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomEndedMsgHdlr
     with BreakoutRoomUsersUpdateMsgHdlr
     with SendBreakoutUsersUpdateMsgHdlr
-    with TransferUserToMeetingRequestHdlr {
+    with TransferUserToMeetingRequestHdlr
+    with UserMutedInVoiceConfEvtMsgHdlr
+    with UserTalkingInVoiceConfEvtMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -223,7 +226,7 @@ class MeetingActor(val props: DefaultProps,
       case m: UserLeftVoiceConfEvtMsg => handle(m)
       case m: UserMutedInVoiceConfEvtMsg => handle(m)
       case m: UserTalkingInVoiceConfEvtMsg => handle(m)
-      case m: GetCurrentLayoutMsg => handleGetCurrentLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg => handle(m)
       case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)

@@ -1,16 +1,27 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-
-import IntlStartup from './intl';
-
+import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-
 import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
+import IntlStartup from './intl';
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
+
+const propTypes = {
+  error: PropTypes.object,
+  errorCode: PropTypes.number,
+  subscriptionsReady: PropTypes.bool.isRequired,
+  locale: PropTypes.string,
+};
+
+const defaultProps = {
+  error: undefined,
+  errorCode: undefined,
+  locale: BROWSER_LANGUAGE,
+};
 
 class Base extends Component {
   constructor(props) {
@@ -62,19 +73,22 @@ class Base extends Component {
     const stateControls = { updateLoadingState, updateErrorState };
 
     return (
-      <IntlStartup locale={locale || BROWSER_LANGUAGE} baseControls={stateControls}>
+      <IntlStartup locale={locale} baseControls={stateControls}>
         {this.renderByState()}
       </IntlStartup>
     );
   }
 }
 
+Base.propTypes = propTypes;
+Base.defaultProps = defaultProps;
+
 const SUBSCRIPTIONS_NAME = [
-  'users2x', 'users', 'chat', 'cursor', 'deskshare', 'meetings', 'meetings2x',
+  'users2x', 'users', 'chat', 'cursor', 'cursor2x', 'deskshare', 'meetings', 'meetings2x',
   'polls', 'presentations', 'shapes', 'shapes2x', 'slides', 'captions', 'breakouts',
 ];
 
-export default BaseContainer = createContainer(({ params }) => {
+const BaseContainer = createContainer(({ params }) => {
   if (params.errorCode) return params;
 
   if (!Auth.loggedIn) {
@@ -92,3 +106,5 @@ export default BaseContainer = createContainer(({ params }) => {
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
   };
 }, Base);
+
+export default BaseContainer;
