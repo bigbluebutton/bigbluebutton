@@ -1,7 +1,7 @@
 import probe from 'probe-image-size';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import Slides from '/imports/api/2.0/slides';
 import Logger from '/imports/startup/server/logger';
 import { SVG, PNG } from '/imports/utils/mimeTypes';
@@ -41,7 +41,6 @@ const fetchImageSizes = imageUri =>
     });
 
 export default function addSlide(meetingId, presentationId, slide) {
-  check(meetingId, String);
   check(presentationId, String);
   check(slide, Object);
 

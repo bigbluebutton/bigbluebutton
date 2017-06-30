@@ -15,7 +15,6 @@ const addSlides = (meetingId, presentationId, slides) => {
 };
 
 export default function addPresentation(meetingId, presentation) {
-  check(meetingId, String);
   check(presentation, Object);
 
   const selector = {

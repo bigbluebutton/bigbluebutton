@@ -2,7 +2,7 @@ import Presentations from '/imports/api/2.0/presentations';
 import Slides from '/imports/api/2.0/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 
 export default function switchSlide(credentials, slideNumber) {
   const REDIS_CONFIG = Meteor.settings.redis;

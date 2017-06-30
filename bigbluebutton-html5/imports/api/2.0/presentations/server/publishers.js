@@ -21,5 +21,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.presentations', boundPresentations)(args);
 }
 
-Meteor.publish('presentations', publish);
-
+Meteor.publish('presentations2x', publish);

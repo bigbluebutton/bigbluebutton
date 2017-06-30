@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
-import Cursor from './cursor/component.jsx';
-import PresentationToolbarContainer from './presentation-toolbar/container.jsx';
-import Slide from './slide/component.jsx';
-import styles from './styles.scss';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PollingContainer from '/imports/ui/components/polling/container';
+import ShapeGroupContainer from '../whiteboard/shape-group/container';
+import Cursor from './cursor/component';
+import PresentationToolbarContainer from './presentation-toolbar/container';
+import Slide from './slide/component';
+import styles from './styles.scss';
 
 export default class PresentationArea extends React.Component {
   constructor(props) {

@@ -79,19 +79,19 @@ class RedisPubSub2x {
     const EVENT_NAME = 'GetAllMeetingsReqMsg';
 
     const body = {
-      requesterId: "nodeJSapp",
+      requesterId: 'nodeJSapp',
     };
 
     const header = {
       name: EVENT_NAME,
     };
 
-    this.publish(CHANNEL, EVENT_NAME, "someMeetingId", body, header);
+    this.publish(CHANNEL, EVENT_NAME, 'someMeetingId', body, header);
     this.didSendRequestEvent = true;
   }
 
   handleMessage(pattern, channel, message) {
-    Logger.error(`2.0 handleMessage: ${message}`);
+    Logger.warn(`2.0 handleMessage: ${message}`);
     const parsedMessage = JSON.parse(message);
     const { header } = parsedMessage.core;
     const eventName = header.name;

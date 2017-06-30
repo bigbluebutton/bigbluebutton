@@ -1,19 +1,12 @@
 import { check } from 'meteor/check';
-import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Presentations from '/imports/api/2.0/presentations';
 
 import addPresentation from '../modifiers/addPresentation';
 import removePresentation from '../modifiers/removePresentation';
 
-export default function handlePresentationInfoReply({ payload }) {
-  if (!inReplyToHTML5Client({ payload })) {
-    return;
-  }
+export default function handlePresentationInfoReply({ body }, meetingId) {
+  const presentations = body.presentations;
 
-  const meetingId = payload.meeting_id;
-  const presentations = payload.presentations;
-
-  check(meetingId, String);
   check(presentations, Array);
 
   const presentationsIds = presentations.map(_ => _.id);
