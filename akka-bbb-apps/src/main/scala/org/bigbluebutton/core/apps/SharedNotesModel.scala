@@ -1,8 +1,9 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.api.SharedNotesOperation._
 import name.fraser.neil.plaintext.diff_match_patch
+import org.bigbluebutton.core.apps.SharedNotesOperation.SharedNotesOperation
+
 import scala.collection.mutable.Stack
 import scala.collection.mutable.HashMap
 import scala.collection._

@@ -2,7 +2,15 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.{ MeetingActor }
+import org.bigbluebutton.core.running.MeetingActor
+
+object SharedNotesOperation extends Enumeration {
+  type SharedNotesOperation = Value
+  val PATCH = Value("PATCH")
+  val UNDO = Value("UNDO")
+  val REDO = Value("REDO")
+  val UNDEFINED = Value("UNDEFINED")
+}
 
 trait SharedNotesApp {
   this: MeetingActor =>

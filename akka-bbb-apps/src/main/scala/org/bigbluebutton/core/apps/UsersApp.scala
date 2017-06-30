@@ -14,45 +14,6 @@ trait UsersApp extends UserLeavingHdlr with UserEmojiStatusHdlr {
 
   val outGW: OutMessageGateway
 
-  def automaticallyAssignPresenter(): Unit = {
-    log.debug("auto assigning presenter")
-
-    Users2x.findModerator(liveMeeting.users2x) match {
-      case Some(moderator) =>
-        for {
-          newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
-        } yield {
-          log.debug("sending assigned presenter for intId={} name={}", newPresenter.intId, newPresenter.name)
-          sendPresenterAssigned(newPresenter.intId, newPresenter.name, newPresenter.name)
-        }
-      case None => log.debug("No moderator found.")
-    }
-
-    for {
-      moderator <- Users2x.findModerator(liveMeeting.users2x)
-      newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
-    } yield {
-      log.debug("sending assigned presenter for intId={} name={}", newPresenter.intId, newPresenter.name)
-      sendPresenterAssigned(newPresenter.intId, newPresenter.name, newPresenter.name)
-    }
-  }
-
-  def sendPresenterAssigned(intId: String, name: String, assignedBy: String): Unit = {
-    def build(meetingId: String, intId: String, name: String, assignedBy: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, intId)
-      val envelope = BbbCoreEnvelope(PresenterAssignedEvtMsg.NAME, routing)
-
-      val body = PresenterAssignedEvtMsgBody(intId, name, assignedBy)
-      val header = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, meetingId, intId)
-      val event = PresenterAssignedEvtMsg(header, body)
-
-      BbbCommonEnvCoreMsg(envelope, event)
-    }
-
-    def event = build(props.meetingProp.intId, intId, name, assignedBy)
-    outGW.send(event)
-  }
-
   def usersWhoAreNotPresenter(): Array[UserVO] = {
     Users1x.usersWhoAreNotPresenter(liveMeeting.users).toArray
   }

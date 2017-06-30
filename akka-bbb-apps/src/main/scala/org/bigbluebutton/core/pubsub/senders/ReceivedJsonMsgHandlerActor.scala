@@ -221,9 +221,9 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case GetCurrentLayoutMsg.NAME =>
+      case GetCurrentLayoutReqMsg.NAME =>
         for {
-          m <- deserialize[GetCurrentLayoutMsg](jsonNode)
+          m <- deserialize[GetCurrentLayoutReqMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }

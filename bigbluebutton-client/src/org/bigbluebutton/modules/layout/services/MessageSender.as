@@ -5,8 +5,8 @@ package org.bigbluebutton.modules.layout.services {
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.connection.messages.layout.BroadcastLayoutMsg;
 	import org.bigbluebutton.core.connection.messages.layout.BroadcastLayoutMsgBody;
-	import org.bigbluebutton.core.connection.messages.layout.GetCurrentLayoutMsg;
-	import org.bigbluebutton.core.connection.messages.layout.GetCurrentLayoutMsgBody;
+	import org.bigbluebutton.core.connection.messages.layout.GetCurrentLayoutReqMsg;
+	import org.bigbluebutton.core.connection.messages.layout.GetCurrentLayoutReqMsgBody;
 	import org.bigbluebutton.core.connection.messages.layout.LockLayoutMsg;
 	import org.bigbluebutton.core.connection.messages.layout.LockLayoutMsgBody;
 	import org.bigbluebutton.core.managers.ConnectionManager;
@@ -16,8 +16,8 @@ package org.bigbluebutton.modules.layout.services {
 		private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
 		public function getCurrentLayout():void {
-			var body:GetCurrentLayoutMsgBody = new GetCurrentLayoutMsgBody(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
-			var message:GetCurrentLayoutMsg = new GetCurrentLayoutMsg(body);
+			var body:GetCurrentLayoutReqMsgBody = new GetCurrentLayoutReqMsgBody();
+			var message:GetCurrentLayoutReqMsg = new GetCurrentLayoutReqMsg(body);
 
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage2x(function(result:String):void { // On successful result
@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.layout.services {
 		}
 
 		public function broadcastLayout(layout:LayoutDefinition):void {
-			var body:BroadcastLayoutMsgBody = new BroadcastLayoutMsgBody(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), layout.toXml().toXMLString());
+			var body:BroadcastLayoutMsgBody = new BroadcastLayoutMsgBody(layout.toXml().toXMLString());
 			var message:BroadcastLayoutMsg = new BroadcastLayoutMsg(body);
 
 			var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.layout.services {
 		}
 
 		public function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition = null):void {
-			var body:LockLayoutMsgBody = new LockLayoutMsgBody(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), lock, viewersOnly, layout != null ? layout.toXml().toXMLString() : null);
+			var body:LockLayoutMsgBody = new LockLayoutMsgBody(lock, viewersOnly, layout != null ? layout.toXml().toXMLString() : null);
 			var message:LockLayoutMsg = new LockLayoutMsg(body);
 
 			var _nc:ConnectionManager = BBB.initConnectionManager();
