@@ -278,6 +278,16 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
+      case GetSharedNotesPubMsg.NAME =>
+        routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
+      case SyncSharedNotePubMsg.NAME =>
+        routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
+      case UpdateSharedNoteReqMsg.NAME =>
+        routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
+      case CreateSharedNoteReqMsg.NAME =>
+        routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
+      case DestroySharedNoteReqMsg.NAME =>
+        routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

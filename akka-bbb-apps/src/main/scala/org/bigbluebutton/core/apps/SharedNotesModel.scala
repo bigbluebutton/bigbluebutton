@@ -1,33 +1,39 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.api._
 import name.fraser.neil.plaintext.diff_match_patch
-import org.bigbluebutton.core.apps.SharedNotesOperation.SharedNotesOperation
 
+import scala.collection._
 import scala.collection.mutable.Stack
 import scala.collection.mutable.HashMap
-import scala.collection._
+
+import org.bigbluebutton.common2.msgs.Note
+import org.bigbluebutton.common2.msgs.NoteReport
 
 class SharedNotesModel {
-  val notes = new HashMap[String, Note]()
-  notes += ("MAIN_WINDOW" -> new Note("", "", 0, new Stack(), new Stack()))
+  val MAIN_NOTE_ID = "MAIN_NOTE"
+  val SYSTEM_ID = "SYSTEM"
+  val MAX_UNDO_STACK_SIZE = 30
+
   private val patcher = new diff_match_patch()
+
   private var notesCounter = 0;
   private var removedNotes: Set[Int] = Set()
-  private val maxUndoStackSize = 30
 
-  def patchDocument(noteID: String, patch: String, operation: SharedNotesOperation): (Integer, String, Boolean, Boolean) = {
+  val notes = new HashMap[String, Note]()
+  notes += (MAIN_NOTE_ID -> new Note("", "", 0, new Stack(), new Stack()))
+
+  def patchNote(noteId: String, patch: String, operation: String): (Integer, String, Boolean, Boolean) = {
     notes.synchronized {
-      val note = notes(noteID)
+      val note = notes(noteId)
       val document = note.document
       var undoPatches = note.undoPatches
       var redoPatches = note.redoPatches
 
       var patchToApply = operation match {
-        case SharedNotesOperation.PATCH => {
+        case "PATCH" => {
           patch
         }
-        case SharedNotesOperation.UNDO => {
+        case "UNDO" => {
           if (undoPatches.isEmpty) {
             return (-1, "", false, false)
           } else {
@@ -36,7 +42,7 @@ class SharedNotesModel {
             undo
           }
         }
-        case SharedNotesOperation.REDO => {
+        case "REDO" => {
           if (redoPatches.isEmpty) {
             return (-1, "", false, false)
           } else {
@@ -51,42 +57,38 @@ class SharedNotesModel {
       val result = patcher.patch_apply(patchObjects, document)
 
       // If it is a patch operation, save an undo patch and clear redo stack
-      if (operation == SharedNotesOperation.PATCH) {
+      if (operation == "PATCH") {
         undoPatches.push((patcher.custom_patch_make(result(0).toString(), document), patchToApply))
         redoPatches.clear
 
-        if (undoPatches.size > maxUndoStackSize) {
+        if (undoPatches.size > MAX_UNDO_STACK_SIZE) {
           undoPatches = undoPatches.dropRight(1)
         }
       }
 
       val patchCounter = note.patchCounter + 1
-      notes(noteID) = new Note(note.name, result(0).toString(), patchCounter, undoPatches, redoPatches)
+      notes(noteId) = new Note(note.name, result(0).toString(), patchCounter, undoPatches, redoPatches)
       (patchCounter, patchToApply, !undoPatches.isEmpty, !redoPatches.isEmpty)
     }
   }
 
   def createNote(noteName: String = ""): String = {
-    var noteID = 0
+    var noteId = 0
     if (removedNotes.isEmpty) {
       notesCounter += 1
-      noteID = notesCounter
+      noteId = notesCounter
     } else {
-      noteID = removedNotes.min
-      removedNotes -= noteID
+      noteId = removedNotes.min
+      removedNotes -= noteId
     }
-    notes += (noteID.toString -> new Note(noteName, "", 0, new Stack(), new Stack()))
+    notes += (noteId.toString -> new Note(noteName, "", 0, new Stack(), new Stack()))
 
-    noteID.toString
+    noteId.toString
   }
 
-  def destroyNote(noteID: String) {
-    removedNotes += noteID.toInt
-    notes -= noteID
-  }
-
-  def notesSize(): Int = {
-    notes.size
+  def destroyNote(noteId: String) {
+    removedNotes += noteId.toInt
+    notes -= noteId
   }
 
   def notesReport: HashMap[String, NoteReport] = {
@@ -100,9 +102,9 @@ class SharedNotesModel {
     }
   }
 
-  def getNoteReport(noteID: String): Option[NoteReport] = {
+  def getNoteReport(noteId: String): Option[NoteReport] = {
     notes.synchronized {
-      notes.get(noteID) match {
+      notes.get(noteId) match {
         case Some(note) => Some(noteToReport(note))
         case None => None
       }
