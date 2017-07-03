@@ -91,10 +91,11 @@ wss.on('connection', function(ws) {
     }
 
     switch (message.id) {
-      case 'presenter':
-        console.log('[' + message.id + '] connection [' + sessionId + '][' + message.presenterId + '][' + message.voiceBridge + '][' + message.callerName + ']');
 
-        screenshare = new Screenshare(ws, message.presenterId, bbbGW, message.voiceBridge, message.callerName);
+      case 'presenter':
+        console.log('Presenter message => [' + message.id + '] connection [' + sessionId + '][' + message.presenterId + '][' + message.voiceBridge + '][' + message.callerName + ']');
+
+        screenshare = new Screenshare(ws, message.presenterId, bbbGW, message.voiceBridge, message.callerName, message.vh, message.vw);
         sessions[sessionId][message.presenterId] = screenshare;
 
         // starts presenter by sending sessionID, websocket and sdpoffer
@@ -117,6 +118,10 @@ wss.on('connection', function(ws) {
         });
         break;
 
+      case 'viewer':
+        console.log('Viewer message => [' + message.id + '] connection [' + sessionId + '][' + message.presenterId + '][' + message.voiceBridge + '][' + message.callerName + ']');
+
+        break;
       case 'stop':
 
         console.log('[' + message.id + '] connection ' + sessionId);
@@ -134,6 +139,13 @@ wss.on('connection', function(ws) {
         } else {
           console.log(" [iceCandidate] Why is there no screenshare on ICE CANDIDATE?");
         }
+        break;
+
+      case 'ping':
+        ws.send(JSON.stringify({
+          id : 'pong',
+          response : 'accepted'
+        }));
         break;
 
       default:

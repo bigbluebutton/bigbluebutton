@@ -73,7 +73,7 @@ RedisWrapper.prototype.stopRedis = function(callback) {
 
 RedisWrapper.prototype.publishToChannel = function(message, channel) {
   if(this.redisPub) {
-    console.log("  [RedisWrapper] Sending message to channel: " + message);
+    console.log("  [RedisWrapper] Sending message to channel [" + channel + "]: " + message);
     this.redisPub.publish(channel, message);
   }
 };

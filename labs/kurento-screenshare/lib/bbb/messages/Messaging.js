@@ -33,14 +33,14 @@ Messaging.prototype.generateStopTranscoderRequestMessage =
 }
 
 Messaging.prototype.generateDeskShareRTMPBroadcastStartedEvent = 
-  function(conferenceName, streamUrl, timestamp) {
-  var stadrbem = new DeskShareRTMPBroadcastStartedEventMessage(conferenceName, streamUrl, timestamp);
+  function(conferenceName, streamUrl, vw, vh, timestamp) {
+  var stadrbem = new DeskShareRTMPBroadcastStartedEventMessage(conferenceName, streamUrl, vw, vh, timestamp);
   return stadrbem.toJson();
 }
 
 Messaging.prototype.generateDeskShareRTMPBroadcastStoppedEvent = 
-  function(conferenceName, streamUrl, timestamp) {
-  var stodrbem = new DeskShareRTMPBroadcastStoppedEventMessage(conferenceName, streamUrl, timestamp);
+  function(conferenceName, streamUrl, vw, vh, timestamp) {
+  var stodrbem = new DeskShareRTMPBroadcastStoppedEventMessage(conferenceName, streamUrl, vw, vh, timestamp);
   return stodrbem.toJson();
 }
 

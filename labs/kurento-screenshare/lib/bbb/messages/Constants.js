@@ -8,7 +8,7 @@
     return {
         // Redis channels
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
-        FROM_VOICE_CONF_SYSTEM_CHAN: "bigbluebutton:from_voice_conf:system",
+        FROM_VOICE_CONF_SYSTEM_CHAN: "bigbluebutton:from-voice-conf:system",
         TO_BBB_TRANSCODE_SYSTEM_CHAN: "bigbluebutton:to-bbb-transcode:system",
 
         // RedisWrapper events
@@ -28,7 +28,7 @@
         VOICE_CONF_ID : "voice_conf_id",
         TRANSCODER_ID : "transcoder_id",
         CONFERENCE_NAME: "conference_name",
-        STREAM_URL: "stream_url",
+        STREAM_URL: "streamname",
         TIMESTAMP: "timestamp",
         VIDEO_WIDTH: "vw",
         VIDEO_HEIGHT: "vh",
