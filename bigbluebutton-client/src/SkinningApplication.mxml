@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:Application xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:flexlib="http://code.google.com/p/flexlib/"
+				pageTitle="Skinning Application"
+				layout="absolute"
+				preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
+
+	<fx:Style source="assets/halo.css" />
+
+	<fx:Style source="../branding/default/style/css/BBBDefault.css" />
+
+	<fx:Script>
+		<![CDATA[
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+
+			import org.bigbluebutton.common.Images;
+
+			[Bindable]
+			private var copyrightText:String = "(c) 2017 <a href=event:http://www.bigbluebutton.org/' target='_blank'><u>BigBlueButton Inc.</u></a> (build v2.2017.456)";
+
+			private var images:Images = new Images();
+
+			[Bindable]
+			private var fullscreen_icon:Class = images.full_screen;
+
+			[Bindable]
+			private var logs_icon:Class = images.table;
+		]]>
+	</fx:Script>
+
+	<mx:VBox width="100%"
+			 height="100%"
+			 horizontalScrollPolicy="off"
+			 verticalScrollPolicy="off"
+			 styleName="mainVBox"
+			 verticalAlign="top"
+			 verticalGap="0">
+
+		<mx:ApplicationControlBar dock="true"
+								  width="100%"
+								  height="50">
+			<mx:HBox id="logoHolder"
+					 paddingRight="20">
+				<mx:Image id="logo"
+						  source="@Embed('../resources/prod/logo.png')" />
+			</mx:HBox>
+			<mx:HBox id="quickLinks"
+					 width="1"
+					 includeInLayout="false">
+				<mx:LinkButton id="usersLinkBtn"
+							   label="bbb.users.quickLink.label'"
+							   accessibilityDescription="{usersLinkBtn.label}"
+							   toolTip="{usersLinkBtn.label}"
+							   height="22"
+							   styleName="quickWindowLinkStyle" />
+				<mx:LinkButton id="webcamLinkButton"
+							   label="bbb.videodock.quickLink.label"
+							   accessibilityDescription="{webcamLinkButton.label}"
+							   toolTip="{webcamLinkButton.label}"
+							   height="22"
+							   styleName="quickWindowLinkStyle" />
+				<mx:LinkButton id="presentationLinkBtn"
+							   label="bbb.presentation.quickLink.label"
+							   accessibilityDescription="{presentationLinkBtn.label}"
+							   toolTip="{presentationLinkBtn.label}"
+							   height="22"
+							   styleName="quickWindowLinkStyle" />
+				<mx:LinkButton id="chatLinkBtn"
+							   label="bbb.chat.quickLink.label"
+							   accessibilityDescription="{chatLinkBtn.label}"
+							   toolTip="{chatLinkBtn.label}"
+							   height="22"
+							   styleName="quickWindowLinkStyle" />
+				<mx:LinkButton id="captionLinkBtn"
+							   label="bbb.caption.quickLink.label"
+							   accessibilityDescription="{captionLinkBtn.label}"
+							   toolTip="{captionLinkBtn.label}"
+							   height="22"
+							   styleName="quickWindowLinkStyle" />
+			</mx:HBox>
+			<mx:HBox id="addedBtns" />
+			<!-- views:RecordButton id="recordBtn" /-->
+			<mx:VRule strokeWidth="2"
+					  height="100%" />
+			<!-- views:MuteMeButton id="muteMeBtn"
+								height="20" /-->
+			<!--views:WebRTCAudioStatus id="webRTCAudioStatus"
+									 height="20" /-->
+			<mx:Label id="meetingNameLbl"
+					  width="100%"
+					  minWidth="1"
+					  text="Demo Meeting"
+					  styleName="meetingNameLabelStyle" />
+
+			<mx:Button id="bbbSettings"
+					   toolTip="bbb.settings.btn.toolTip"
+					   styleName="settingsButtonStyle"
+					   height="22" />
+			<!--
+			<mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
+			-->
+			<mx:Button id="btnNetwork"
+					   styleName="bandwidthButtonStyle"
+					   toolTip="dummy text" />
+			<mx:Button id="shortcutKeysBtn"
+					   label="bbb.mainToolbar.shortcutBtn"
+					   styleName="shortcutButtonStyle"
+					   height="22"
+					   toolTip="bbb.mainToolbar.shortcutBtn.toolTip" />
+			<mx:LinkButton id="helpBtn"
+						   label="?"
+						   height="22"
+						   styleName="helpLinkButtonStyle"
+						   toolTip="bbb.mainToolbar.helpBtn"
+						   accessibilityName="bbb.micSettings.access.helpButton" />
+			<mx:Button label=""
+					   id="btnLogout"
+					   styleName="logoutButtonStyle"
+					   toolTip="bbb.mainToolbar.logoutBtn.toolTip"
+					   right="10"
+					   height="22" />
+		</mx:ApplicationControlBar>
+
+		<flexlib:MDICanvas id="mdiCanvasLoad"
+						   horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off"
+						   styleName="mdiCanvasStyle"
+						   effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
+						   height="800"
+						   width="100%">
+
+			<mx:Canvas id="backgroundPlaceHolder"
+					   width="100%"
+					   height="100%" />
+			<mx:ProgressBar id="progressBar"
+							horizontalCenter="0"
+							verticalCenter="0"
+							width="50%" />
+			<mx:Canvas x="{this.width - 300}"
+					   y="{this.height - 300}"
+					   width="200"
+					   height="200" />
+		</flexlib:MDICanvas>
+
+		<mx:ControlBar width="100%"
+					   height="60"
+					   id="controlBar"
+					   paddingTop="2"
+					   paddingBottom="2"
+					   verticalAlign="middle">
+			<mx:Label htmlText="{copyrightText}"
+					  id="copyrightLabel2"
+					  truncateToFit="true"
+					  selectable="true"
+					  paddingRight="10" />
+			<mx:Spacer width="100%"
+					   id="spacer" />
+			<mx:Label id="lblWebRTC"
+					  text="bbb.mainshell.notification.webrtc"
+					  visible="false"
+					  includeInLayout="false" />
+			<mx:Label text="[bbb.mainshell.notification.tunnelling]"
+					  id="isTunnellingLbl"
+					  visible="true"
+					  includeInLayout="true" />
+			<mx:Button id="warningBtn"
+					   width="23"
+					   height="20" />
+			<mx:ComboBox id="langSelector"
+						 visible="false"
+						 height="20"
+						 width="180"
+						 accessibilityName="bbb.mainToolbar.langSelector"
+						 styleName="languageSelectorStyle" />
+			<mx:Button width="20"
+					   height="20"
+					   toolTip="bbb.mainshell.logBtn.toolTip"
+					   id="logBtn"
+					   icon="{logs_icon}" />
+			<mx:HBox id="addedBtnsBottom" />
+
+			<mx:Button width="20"
+					   height="20"
+					   toolTip="bbb.mainshell.fullscreenBtn.toolTip"
+					   id="fullScreen"
+					   icon="{fullscreen_icon}" />
+		</mx:ControlBar>
+
+	</mx:VBox>
+
+</mx:Application>
