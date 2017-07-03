@@ -11,7 +11,7 @@ function presentations(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Presentations for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Presentations2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Presentations.find({ meetingId });
 }

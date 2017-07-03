@@ -109,6 +109,7 @@ class RedisPubSub2x {
   handleTask(data, next) {
     const { header } = data.parsedMessage.core;
     const { body } = data.parsedMessage.core;
+    const { envelope } = data.parsedMessage;
     const eventName = header.name;
     const meetingId = header.meetingId;
 
@@ -118,7 +119,7 @@ class RedisPubSub2x {
     try {
       this._debug(`${eventName} emitted`);
       return this.emitter
-        .emitAsync(eventName, { header, body }, meetingId)
+        .emitAsync(eventName, { envelope, header, body }, meetingId)
         .then((_) => {
           this._debug(`${eventName} completed`);
           return next();
