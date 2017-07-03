@@ -129,6 +129,7 @@ package org.bigbluebutton.modules.screenshare.managers
 
 				var voiceBridge:String = UserManager.getInstance().getConference().voiceBridge;
 				var myName:String = UserManager.getInstance().getConference().getMyName();
+				var internalMeetingID:String = UserManager.getInstance().getConference().internalMeetingID;
 
 				if(usingKurentoWebRTC) {
 					ExternalInterface.call(
@@ -136,7 +137,7 @@ package org.bigbluebutton.modules.screenshare.managers
 							videoTag,
 							voiceBridge,
 							myName,
-							null,
+							internalMeetingID,
 							"onFail",
 							chromeExtensionKey
 							);
