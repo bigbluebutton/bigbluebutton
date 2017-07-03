@@ -10,6 +10,7 @@
 	<property name="BASE_DIR" value="${basedir}" />
 	<property name="themeFile" value="BBBDefault.css" />
 	<property name="blackTheme" value="BBBBlack.css" />
+	<property name="v2Theme" value="V2Theme.css" />
 	<property name="LOCALE" value="en_US" />
 	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />
@@ -97,6 +98,16 @@
 			</mxmlc>
 		</sequential>
 	</target>
+	
+	<target name="branding-v2" depends="init-ant-contrib">
+			<sequential>
+				<mxmlc file="${BASE_DIR}/branding/default/style/css/${v2Theme}" output="${OUTPUT_DIR}/branding/css/${v2Theme}.swf" debug="${DEBUG}" show-unused-type-selector-warnings="false" incremental="true" swf-version="13" optimize="true">
+					<compiler.library-path dir="." append="true">
+						<include name="libs" />
+					</compiler.library-path>
+				</mxmlc>
+			</sequential>
+		</target>
 
 	<target name="build-bbb-main-test" description="Compile BigBlueButton Main Test">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN_TEST}" />
@@ -295,12 +306,14 @@
 		<attribute name="target" description="Module to compile" />
 		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
 		<attribute name="app" default="." />
+		<attribute name="themeDir" default="${BASE_DIR}/branding/default/style/css" />
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" incremental="true" swf-version="13" optimize="true" link-report="linker-report.xml">
 				<target-player>11.2.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<default-background-color>0xFFFFFF</default-background-color>
+				<source-path path-element="@{themeDir}" />
 				<source-path path-element="@{flex}/frameworks" />
 				<show-unused-type-selector-warnings>false</show-unused-type-selector-warnings>
 
@@ -462,7 +475,7 @@
 
 
 	<target name="generate-html-wrapper">
-		<html-wrapper title="BigBlueButton" file="BigBlueButton.html" height="100%" width="100%" bgcolor="white" application="BBB" swf="BigBlueButton" version-major="10" version-minor="3" version-revision="0" history="true" output="${OUTPUT_DIR}" />
+		<html-wrapper title="BigBlueButton" file="BigBlueButton.html" height="100%" width="100%" bgcolor="#F1F3F7" application="BBB" swf="BigBlueButton" version-major="10" version-minor="3" version-revision="0" history="true" output="${OUTPUT_DIR}" />
 	</target>
 
 	<target name="asdoc">
@@ -519,7 +532,7 @@
 	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper,
 		                                     compile-screenshare-standalone, build-mic-check,
 	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone, 
-	                                         compile-bbb, branding, branding-black" description="Build BBB client including locales" />
+	                                         compile-bbb, branding, branding-black, branding-v2" description="Build BBB client including locales" />
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-screenshare-standalone,
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" description="Build BBB client without locales" />
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales" />

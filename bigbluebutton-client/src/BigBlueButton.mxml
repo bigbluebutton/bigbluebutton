@@ -29,13 +29,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<fx:Style source="assets/halo.css" />
 	
+	<fx:Style source="../branding/default/style/css/V2Theme.css" />
+	
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
 
 			private function init():void {
 				LogUtil.initLogging(true);
-				setStyle('backgroundColor', '0xFFFFFF');
 			}
 		]]>
 	</fx:Script>
