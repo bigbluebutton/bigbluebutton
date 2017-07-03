@@ -21,15 +21,11 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
-import org.bigbluebutton.api.messaging.MessagingConstants;
-import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.bigbluebutton.presentation.messages.OfficeDocConversionProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
 
 public class SupportedDocumentFilter {
   private static Logger log = LoggerFactory.getLogger(SupportedDocumentFilter.class);

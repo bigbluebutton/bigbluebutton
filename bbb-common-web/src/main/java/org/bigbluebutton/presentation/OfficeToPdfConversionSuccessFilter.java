@@ -22,14 +22,10 @@ package org.bigbluebutton.presentation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigbluebutton.api.messaging.MessagingConstants;
-import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.messages.OfficeDocConversionProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
 
 public class OfficeToPdfConversionSuccessFilter {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionSuccessFilter.class);

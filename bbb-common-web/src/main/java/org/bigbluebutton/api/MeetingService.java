@@ -39,8 +39,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.messaging.MessageListener;
-import org.bigbluebutton.api.messaging.MessagingConstants;
-import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.RedisStorageService;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
@@ -62,7 +60,6 @@ import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
-import org.bigbluebutton.api.pub.IPublisherService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
@@ -656,7 +653,7 @@ public class MeetingService implements MessageListener {
       logData.put("role", user.getRole());
       logData.put("guest", user.isGuest());
       logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
-      logData.put("event", MessagingConstants.USER_JOINED_EVENT);
+      logData.put("event", "user_joined_message");
       logData.put("description", "User joined the meeting.");
 
       Gson gson = new Gson();
@@ -684,7 +681,7 @@ public class MeetingService implements MessageListener {
         logData.put("role", user.getRole());
         logData.put("guest", user.isGuest());
         logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
-        logData.put("event", MessagingConstants.USER_LEFT_EVENT);
+        logData.put("event", "user_left_message");
         logData.put("description", "User left the meeting.");
 
         Gson gson = new Gson();

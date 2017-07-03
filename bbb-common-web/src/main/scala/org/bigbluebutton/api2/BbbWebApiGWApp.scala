@@ -9,7 +9,7 @@ import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageS
 import org.bigbluebutton.api2.meeting.{MeetingsManagerActor, OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage
 import org.bigbluebutton.common2.domain._
-import org.bigbluebutton.presentation.messages.IDocConversionMsg
+import org.bigbluebutton.presentation.messages.{IDocConversionMsg, OfficeDocConversionInvalid}
 
 import scala.concurrent.duration._
 
@@ -153,6 +153,8 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
   }
 
   def sendDocConversionMsg(msg: IDocConversionMsg): Unit = {
+    if (msg.isInstanceOf[OfficeDocConversionInvalid]) {
 
+    }
   }
 }
