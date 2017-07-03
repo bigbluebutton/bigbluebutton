@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps
 import name.fraser.neil.plaintext.diff_match_patch
 
 import scala.collection._
-import scala.collection.mutable.Stack
+import scala.collection.immutable.List
 import scala.collection.mutable.HashMap
 
 import org.bigbluebutton.common2.msgs.Note
@@ -20,7 +20,7 @@ class SharedNotesModel {
   private var removedNotes: Set[Int] = Set()
 
   val notes = new HashMap[String, Note]()
-  notes += (MAIN_NOTE_ID -> new Note("", "", 0, new Stack(), new Stack()))
+  notes += (MAIN_NOTE_ID -> new Note("", "", 0, List[(String, String)](), List[(String, String)]()))
 
   def patchNote(noteId: String, patch: String, operation: String): (Integer, String, Boolean, Boolean) = {
     notes.synchronized {
@@ -37,8 +37,9 @@ class SharedNotesModel {
           if (undoPatches.isEmpty) {
             return (-1, "", false, false)
           } else {
-            val (undo, redo) = undoPatches.pop()
-            redoPatches.push((undo, redo))
+            val (undo, redo) = undoPatches.head
+            undoPatches = undoPatches.tail
+            redoPatches = (undo, redo) :: redoPatches
             undo
           }
         }
@@ -46,8 +47,9 @@ class SharedNotesModel {
           if (redoPatches.isEmpty) {
             return (-1, "", false, false)
           } else {
-            val (undo, redo) = redoPatches.pop()
-            undoPatches.push((undo, redo))
+            val (undo, redo) = redoPatches.head
+            redoPatches = redoPatches.tail
+            undoPatches = (undo, redo) :: undoPatches
             redo
           }
         }
@@ -58,8 +60,8 @@ class SharedNotesModel {
 
       // If it is a patch operation, save an undo patch and clear redo stack
       if (operation == "PATCH") {
-        undoPatches.push((patcher.custom_patch_make(result(0).toString(), document), patchToApply))
-        redoPatches.clear
+        undoPatches = (patcher.custom_patch_make(result(0).toString(), document), patchToApply) :: undoPatches
+        redoPatches = List[(String, String)]()
 
         if (undoPatches.size > MAX_UNDO_STACK_SIZE) {
           undoPatches = undoPatches.dropRight(1)
@@ -81,7 +83,7 @@ class SharedNotesModel {
       noteId = removedNotes.min
       removedNotes -= noteId
     }
-    notes += (noteId.toString -> new Note(noteName, "", 0, new Stack(), new Stack()))
+    notes += (noteId.toString -> new Note(noteName, "", 0, List[(String, String)](), List[(String, String)]()))
 
     noteId.toString
   }

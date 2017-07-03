@@ -1,13 +1,13 @@
 package org.bigbluebutton.common2.msgs
 
-import scala.collection.mutable.Stack
+import scala.collection.immutable.List
 
 case class Note(
   name: String,
   document: String,
   patchCounter: Int,
-  undoPatches: Stack[(String, String)],
-  redoPatches: Stack[(String, String)])
+  undoPatches: List[(String, String)],
+  redoPatches: List[(String, String)])
 
 case class NoteReport(
   name: String,
