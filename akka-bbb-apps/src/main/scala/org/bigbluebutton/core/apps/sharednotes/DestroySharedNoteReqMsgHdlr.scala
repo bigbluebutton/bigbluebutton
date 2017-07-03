@@ -21,9 +21,7 @@ trait DestroySharedNoteReqMsgHdlr {
       outGW.send(msgEvent)
     }
 
-    liveMeeting.notesModel.synchronized {
-      liveMeeting.notesModel.destroyNote(msg.body.noteId)
-      broadcastEvent(msg)
-    }
+    liveMeeting.notesModel.destroyNote(msg.body.noteId)
+    broadcastEvent(msg)
   }
 }

@@ -23,55 +23,53 @@ class SharedNotesModel {
   notes += (MAIN_NOTE_ID -> new Note("", "", 0, List[(String, String)](), List[(String, String)]()))
 
   def patchNote(noteId: String, patch: String, operation: String): (Integer, String, Boolean, Boolean) = {
-    notes.synchronized {
-      val note = notes(noteId)
-      val document = note.document
-      var undoPatches = note.undoPatches
-      var redoPatches = note.redoPatches
+    val note = notes(noteId)
+    val document = note.document
+    var undoPatches = note.undoPatches
+    var redoPatches = note.redoPatches
 
-      var patchToApply = operation match {
-        case "PATCH" => {
-          patch
-        }
-        case "UNDO" => {
-          if (undoPatches.isEmpty) {
-            return (-1, "", false, false)
-          } else {
-            val (undo, redo) = undoPatches.head
-            undoPatches = undoPatches.tail
-            redoPatches = (undo, redo) :: redoPatches
-            undo
-          }
-        }
-        case "REDO" => {
-          if (redoPatches.isEmpty) {
-            return (-1, "", false, false)
-          } else {
-            val (undo, redo) = redoPatches.head
-            redoPatches = redoPatches.tail
-            undoPatches = (undo, redo) :: undoPatches
-            redo
-          }
+    var patchToApply = operation match {
+      case "PATCH" => {
+        patch
+      }
+      case "UNDO" => {
+        if (undoPatches.isEmpty) {
+          return (-1, "", false, false)
+        } else {
+          val (undo, redo) = undoPatches.head
+          undoPatches = undoPatches.tail
+          redoPatches = (undo, redo) :: redoPatches
+          undo
         }
       }
-
-      val patchObjects = patcher.patch_fromText(patchToApply)
-      val result = patcher.patch_apply(patchObjects, document)
-
-      // If it is a patch operation, save an undo patch and clear redo stack
-      if (operation == "PATCH") {
-        undoPatches = (patcher.custom_patch_make(result(0).toString(), document), patchToApply) :: undoPatches
-        redoPatches = List[(String, String)]()
-
-        if (undoPatches.size > MAX_UNDO_STACK_SIZE) {
-          undoPatches = undoPatches.dropRight(1)
+      case "REDO" => {
+        if (redoPatches.isEmpty) {
+          return (-1, "", false, false)
+        } else {
+          val (undo, redo) = redoPatches.head
+          redoPatches = redoPatches.tail
+          undoPatches = (undo, redo) :: undoPatches
+          redo
         }
       }
-
-      val patchCounter = note.patchCounter + 1
-      notes(noteId) = new Note(note.name, result(0).toString(), patchCounter, undoPatches, redoPatches)
-      (patchCounter, patchToApply, !undoPatches.isEmpty, !redoPatches.isEmpty)
     }
+
+    val patchObjects = patcher.patch_fromText(patchToApply)
+    val result = patcher.patch_apply(patchObjects, document)
+
+    // If it is a patch operation, save an undo patch and clear redo stack
+    if (operation == "PATCH") {
+      undoPatches = (patcher.custom_patch_make(result(0).toString(), document), patchToApply) :: undoPatches
+      redoPatches = List[(String, String)]()
+
+      if (undoPatches.size > MAX_UNDO_STACK_SIZE) {
+        undoPatches = undoPatches.dropRight(1)
+      }
+    }
+
+    val patchCounter = note.patchCounter + 1
+    notes(noteId) = new Note(note.name, result(0).toString(), patchCounter, undoPatches, redoPatches)
+    (patchCounter, patchToApply, !undoPatches.isEmpty, !redoPatches.isEmpty)
   }
 
   def createNote(noteName: String = ""): String = {
@@ -94,22 +92,18 @@ class SharedNotesModel {
   }
 
   def notesReport: HashMap[String, NoteReport] = {
-    notes.synchronized {
-      var report = new HashMap[String, NoteReport]()
-      notes foreach {
-        case (id, note) =>
-          report += (id -> noteToReport(note))
-      }
-      report
+    var report = new HashMap[String, NoteReport]()
+    notes foreach {
+      case (id, note) =>
+        report += (id -> noteToReport(note))
     }
+    report
   }
 
   def getNoteReport(noteId: String): Option[NoteReport] = {
-    notes.synchronized {
-      notes.get(noteId) match {
-        case Some(note) => Some(noteToReport(note))
-        case None => None
-      }
+    notes.get(noteId) match {
+      case Some(note) => Some(noteToReport(note))
+      case None => None
     }
   }
 

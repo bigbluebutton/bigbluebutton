@@ -21,9 +21,7 @@ trait CreateSharedNoteReqMsgHdlr {
       outGW.send(msgEvent)
     }
 
-    liveMeeting.notesModel.synchronized {
-      val noteId = liveMeeting.notesModel.createNote(msg.body.noteName)
-      broadcastEvent(msg, noteId)
-    }
+    val noteId = liveMeeting.notesModel.createNote(msg.body.noteName)
+    broadcastEvent(msg, noteId)
   }
 }
