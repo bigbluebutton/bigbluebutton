@@ -20,6 +20,7 @@
 package org.bigbluebutton.presentation;
 
 import org.bigbluebutton.api.messaging.MessagingService;
+import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
 import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
@@ -30,13 +31,13 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private static Logger log = LoggerFactory
       .getLogger(DocumentConversionServiceImp.class);
 
-  private MessagingService messagingService;
+  private IBbbWebApiGWApp gw;
   private OfficeToPdfConversionService officeToPdfConversionService;
   private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
   private ImageToSwfSlidesGenerationService imageToSwfSlidesGenerationService;
 
   public void processDocument(UploadedPresentation pres) {
-    SupportedDocumentFilter sdf = new SupportedDocumentFilter(messagingService);
+    SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
     log.info("Start presentation conversion. meetingId=" + pres.getMeetingId()
         + " presId=" + pres.getId() + " name=" + pres.getName());
 
@@ -45,8 +46,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
       if (SupportedFileTypes.isOfficeFile(fileType)) {
         pres = officeToPdfConversionService.convertOfficeToPdf(pres);
-        OfficeToPdfConversionSuccessFilter ocsf = new OfficeToPdfConversionSuccessFilter(
-            messagingService);
+        OfficeToPdfConversionSuccessFilter ocsf = new OfficeToPdfConversionSuccessFilter(gw);
         if (ocsf.didConversionSucceed(pres)) {
           // Successfully converted to pdf. Call the process again, this time it
           // should be handled by
@@ -70,8 +70,8 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   }
 
-  public void setMessagingService(MessagingService m) {
-    messagingService = m;
+  public void setBbbWebApiGWApp(IBbbWebApiGWApp m) {
+    gw = m;
   }
 
   public void setOfficeToPdfConversionService(OfficeToPdfConversionService s) {

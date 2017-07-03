@@ -24,21 +24,22 @@ import java.util.Map;
 
 import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
+import org.bigbluebutton.api2.IBbbWebApiGWApp;
+import org.bigbluebutton.presentation.messages.OfficeDocConversionProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
 public class OfficeToPdfConversionSuccessFilter {
-  private static Logger log = LoggerFactory
-      .getLogger(OfficeToPdfConversionSuccessFilter.class);
+  private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionSuccessFilter.class);
 
-  private final MessagingService messagingService;
+  private final IBbbWebApiGWApp gw;
 
   private static Map<String, String> conversionMessagesMap;
 
-  public OfficeToPdfConversionSuccessFilter(MessagingService m) {
-    messagingService = m;
+  public OfficeToPdfConversionSuccessFilter(IBbbWebApiGWApp m) {
+    gw = m;
     conversionMessagesMap = new HashMap<String, String>();
     conversionMessagesMap.put(
         ConversionMessageConstants.OFFICE_DOC_CONVERSION_SUCCESS_KEY,
@@ -70,18 +71,16 @@ public class OfficeToPdfConversionSuccessFilter {
 
     log.info("Notifying of " + pres.getConversionStatus() + " for "
         + pres.getUploadedFile().getAbsolutePath());
-    sendNotification(msg);
+    sendProgress(pres);
   }
 
-  private void sendNotification(Map<String, Object> msg) {
-    if (messagingService != null) {
-      Gson gson = new Gson();
-      String updateMsg = gson.toJson(msg);
-      log.debug("sending: " + updateMsg);
-      messagingService.send(MessagingConstants.TO_PRESENTATION_CHANNEL,
-          updateMsg);
-    } else {
-      log.warn("MessagingService has not been set!.");
-    }
+
+  public void sendProgress(UploadedPresentation pres) {
+    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getMeetingId(),
+      pres.getId(), pres.getId(),
+      pres.getName(), "notUsedYet", "notUsedYet",
+      pres.isDownloadable(), pres.getConversionStatus());
+    gw.sendDocConversionMsg(progress);
   }
+
 }
