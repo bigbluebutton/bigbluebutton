@@ -1,5 +1,6 @@
 package org.bigbluebutton.api2
 
+import org.bigbluebutton.api.messaging.converters.messages.{DestroyMeetingMessage, EndMeetingMessage}
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{DefaultProps, PageVO, PresentationVO}
 import org.bigbluebutton.common2.msgs._
@@ -7,6 +8,24 @@ import org.bigbluebutton.presentation.messages._
 
 
 object MsgBuilder {
+  def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(DestroyMeetingSysCmdMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(DestroyMeetingSysCmdMsg.NAME)
+    val body = DestroyMeetingSysCmdMsgBody(msg.meetingId)
+    val req = DestroyMeetingSysCmdMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildEndMeetingSysCmdMsg(msg: EndMeetingMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(EndMeetingSysCmdMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(EndMeetingSysCmdMsg.NAME)
+    val body = EndMeetingSysCmdMsgBody(msg.meetingId)
+    val req = EndMeetingSysCmdMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildCreateMeetingRequestToAkkaApps(props: DefaultProps): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CreateMeetingReqMsg.NAME, routing)

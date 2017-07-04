@@ -36,9 +36,12 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
   private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus
   private val msgToAkkaAppsEventBus = new MsgToAkkaAppsEventBus
 
-  private val meetingManagerActorRef = system.actorOf(
-    MeetingsManagerActor.props(msgToAkkaAppsEventBus), "meetingManagerActor")
-  msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
+  /**
+    * Not used for now as we will still user MeetingService for 2.0 (ralam july 4, 2017)
+    */
+  //private val meetingManagerActorRef = system.actorOf(
+  //  MeetingsManagerActor.props(msgToAkkaAppsEventBus), "meetingManagerActor")
+  //msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
 
   private val oldMeetingMsgHdlrActor = system.actorOf(
     OldMeetingMsgHdlrActor.props(oldMessageReceivedGW), "oldMeetingMsgHdlrActor"
@@ -125,11 +128,15 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
   }
 
   def destroyMeeting (msg: DestroyMeetingMessage): Unit = {
-
+    val event = MsgBuilder.buildDestroyMeetingSysCmdMsg(msg)
+    println(event)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
   def endMeeting(msg: EndMeetingMessage): Unit = {
-
+    val event = MsgBuilder.buildEndMeetingSysCmdMsg(msg)
+    println(event)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
   def sendKeepAlive(system: String, timestamp: java.lang.Long): Unit = {
