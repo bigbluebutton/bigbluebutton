@@ -10,7 +10,7 @@ object MessageTypes {
   val SYSTEM = "SYSTEM"
 }
 
-// seal trait to force all classes that extends this trait to be defined in this file.
+
 trait BbbCoreMsg
 
 sealed trait BbbCommonMsg
@@ -18,6 +18,10 @@ sealed trait BbbCommonMsg
 trait BbbCoreHeader
 
 trait StandardMsg extends BbbCoreMsg {
+  def header: BbbClientMsgHeader
+}
+
+trait StandardSysMsg extends BbbCoreMsg {
   def header: BbbClientMsgHeader
 }
 

@@ -269,16 +269,16 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
       case RemovePresentationPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
-      case PreuploadedPresentationsPubMsg.NAME =>
-        routeGenericMsg[PreuploadedPresentationsPubMsg](envelope, jsonNode)
-      case PresentationConversionUpdatePubMsg.NAME =>
-        routeGenericMsg[PresentationConversionUpdatePubMsg](envelope, jsonNode)
-      case PresentationPageCountErrorPubMsg.NAME =>
-        routeGenericMsg[PresentationPageCountErrorPubMsg](envelope, jsonNode)
-      case PresentationPageGeneratedPubMsg.NAME =>
-        routeGenericMsg[PresentationPageGeneratedPubMsg](envelope, jsonNode)
-      case PresentationConversionCompletedPubMsg.NAME =>
-        routeGenericMsg[PresentationConversionCompletedPubMsg](envelope, jsonNode)
+      case PreuploadedPresentationsSysPubMsg.NAME =>
+        routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
+      case PresentationConversionUpdateSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
+      case PresentationPageCountErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
+      case PresentationPageGeneratedSysPubMsg.NAME =>
+        routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case PresentationConversionCompletedSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
       case EditCaptionHistoryPubMsg.NAME =>
         routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
       case UpdateCaptionOwnerPubMsg.NAME =>

@@ -231,11 +231,11 @@ class MeetingActor(val props: DefaultProps,
       case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
       case m: ResizeAndMovePagePubMsg => presentationApp2x.handleResizeAndMovePagePubMsg(m)
       case m: RemovePresentationPubMsg => presentationApp2x.handleRemovePresentationPubMsg(m)
-      case m: PreuploadedPresentationsPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
-      case m: PresentationConversionUpdatePubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
-      case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
-      case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
-      case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
+      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
+      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
+      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
+      case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
