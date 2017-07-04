@@ -65,6 +65,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:HBox id="logoHolder"
 					 paddingRight="20">
 				<mx:Image id="logo"
+						  height="26"
+						  maintainAspectRatio="true"
 						  source="@Embed('../resources/prod/logo.png')" />
 			</mx:HBox>
 			<mx:HBox id="quickLinks"
@@ -74,31 +76,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   label="bbb.users.quickLink.label'"
 							   accessibilityDescription="{usersLinkBtn.label}"
 							   toolTip="{usersLinkBtn.label}"
-							   height="22"
+							   height="30"
 							   styleName="quickWindowLinkStyle" />
 				<mx:LinkButton id="webcamLinkButton"
 							   label="bbb.videodock.quickLink.label"
 							   accessibilityDescription="{webcamLinkButton.label}"
 							   toolTip="{webcamLinkButton.label}"
-							   height="22"
+							   height="30"
 							   styleName="quickWindowLinkStyle" />
 				<mx:LinkButton id="presentationLinkBtn"
 							   label="bbb.presentation.quickLink.label"
 							   accessibilityDescription="{presentationLinkBtn.label}"
 							   toolTip="{presentationLinkBtn.label}"
-							   height="22"
+							   height="30"
 							   styleName="quickWindowLinkStyle" />
 				<mx:LinkButton id="chatLinkBtn"
 							   label="bbb.chat.quickLink.label"
 							   accessibilityDescription="{chatLinkBtn.label}"
 							   toolTip="{chatLinkBtn.label}"
-							   height="22"
+							   height="30"
 							   styleName="quickWindowLinkStyle" />
 				<mx:LinkButton id="captionLinkBtn"
 							   label="bbb.caption.quickLink.label"
 							   accessibilityDescription="{captionLinkBtn.label}"
 							   toolTip="{captionLinkBtn.label}"
-							   height="22"
+							   height="30"
 							   styleName="quickWindowLinkStyle" />
 			</mx:HBox>
 			<mx:HBox id="addedBtns">
@@ -139,11 +141,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Button id="shortcutKeysBtn"
 					   label="bbb.mainToolbar.shortcutBtn"
 					   styleName="shortcutButtonStyle"
-					   height="22"
+					   height="30"
 					   toolTip="bbb.mainToolbar.shortcutBtn.toolTip" />
 			<mx:LinkButton id="helpBtn"
 						   label="?"
-						   height="22"
+						   height="30"
 						   styleName="helpLinkButtonStyle"
 						   toolTip="bbb.mainToolbar.helpBtn"
 						   accessibilityName="bbb.micSettings.access.helpButton" />
@@ -152,7 +154,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   styleName="logoutButtonStyle"
 					   toolTip="bbb.mainToolbar.logoutBtn.toolTip"
 					   right="10"
-					   height="22" />
+					   height="30" />
 		</mx:ApplicationControlBar>
 
 		<flexlib:MDICanvas id="mdiCanvasLoad"
@@ -169,7 +171,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:ProgressBar id="progressBar"
 							horizontalCenter="0"
 							verticalCenter="0"
-							width="50%" />
+							minimum="0"
+							maximum="100"
+							mode="manual"
+							labelWidth="280"
+							click="{progressBar.setProgress(Number.random() * 100, 100)}"
+							width="280"
+							height="15" />
 			<mx:Canvas x="{this.width - 300}"
 					   y="{this.height - 300}"
 					   width="200"
@@ -180,7 +188,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   height="60"
 					   id="controlBar"
 					   paddingTop="2"
-					   paddingBottom="2"
+					   paddingBottom="2".
 					   verticalAlign="middle">
 			<mx:Label htmlText="{copyrightText}"
 					  id="copyrightLabel2"

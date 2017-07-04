@@ -436,6 +436,22 @@ mx|Panel {
 
 /*
 //------------------------------
+//  ProgressBar
+//------------------------------
+*/
+
+mx|ProgressBar {
+	color       : #8a9aa7;
+	themeColor  : #8f53a1;
+	barColor    : #3697d3;
+	trackColors : #ffffff, #ffffff;
+	borderColor : #cdd4db;
+	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
+	trackSkin : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+}
+
+/*
+//------------------------------
 //  SharedNotes
 //------------------------------
 */

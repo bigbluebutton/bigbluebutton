@@ -1001,7 +1001,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
 					  width="100%" >
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
-		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
