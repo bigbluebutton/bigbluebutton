@@ -16,107 +16,91 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.sharednotes.services
-{
-  import flash.events.IEventDispatcher;
-
+package org.bigbluebutton.modules.sharednotes.services {
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
 
-  public class MessageSender
-  {
+  public class MessageSender {
     private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-    public var dispatcher:IEventDispatcher;
-    
     private var onSuccessDebugger:Function = function(result:String):void {
       LOGGER.debug(result);
     };
+
     private var onErrorDebugger:Function = function(result:String):void {
       LOGGER.debug(result);
     };
 
     public function currentDocument():void {
-      LOGGER.debug("Sending [sharednotes.currentDocument] to server.");
+      var message:Object = {
+        header: {name: "GetSharedNotesPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {}
+      };
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.currentDocument",
+      _nc.sendMessage2x(
         onSuccessDebugger,
-        onErrorDebugger
+        onErrorDebugger,
+        JSON.stringify(message)
       );
     }
 
-    public function createAdditionalNotes(noteName:String):void {
-      LOGGER.debug("Sending [sharednotes.createAdditionalNotes] to server.");
-      var message:Object = new Object();
-      message["noteName"] = noteName;
+    public function createAdditionalNotes(noteName: String):void {
+      var message:Object = {
+        header: {name: "CreateSharedNoteReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {noteName: noteName}
+      };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.createAdditionalNotes",
+      _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        message
+        JSON.stringify(message)
       );
     }
 
-    public function destroyAdditionalNotes(notesId:String):void {
-      LOGGER.debug("Sending [sharednotes.destroyAdditionalNotes] to server.");
-      var message:Object = new Object();
-      message["noteID"] = notesId;
+    public function destroyAdditionalNotes(noteId: String):void {
+      var message:Object = {
+        header: {name: "DestroySharedNoteReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {noteId: noteId}
+      };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.destroyAdditionalNotes",
+      _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        message
+        JSON.stringify(message)
       );
     }
 
-    public function patchDocument(noteId:String, userid:String, patch:String, operation:String):void {
-      LOGGER.debug("Sending [sharednotes.patchDocument] to server.");
-      var message:Object = new Object();
-      message["noteID"] = noteId;
-      message["patch"] = patch;
-      message["operation"] = operation;
+    public function patchDocument(noteId: String, patch: String, operation: String):void {
+      var message:Object = {
+        header: {name: "UpdateSharedNoteReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {noteId: noteId, patch: patch, operation: operation}
+      };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.patchDocument",
+      _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        message
+        JSON.stringify(message)
       );
     }
 
-    public function requestAdditionalNotesSet(additionalNotesSetSize:Number):void {
-      LOGGER.debug("Sending [sharednotes.requestAdditionalNotesSet] to server.");
-      var message:Object = new Object();
-      message["additionalNotesSetSize"] = additionalNotesSetSize;
+    public function sharedNotesSyncNoteRequest(noteId: String):void {
+      var message:Object = {
+        header: {name: "SyncSharedNotePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {noteId: noteId}
+      };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.requestAdditionalNotesSet",
+      _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        message
-      );
-    }
-
-    public function sharedNotesSyncNoteRequest(noteId:String):void {
-      LOGGER.debug("Sending [sharednotes.sharedNotesSyncNoteRequest] to server.");
-      var message:Object = new Object();
-      message["noteID"] = noteId;
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.sharedNotesSyncNoteRequest",
-        onSuccessDebugger,
-        onErrorDebugger,
-        message
+        JSON.stringify(message)
       );
     }
   }

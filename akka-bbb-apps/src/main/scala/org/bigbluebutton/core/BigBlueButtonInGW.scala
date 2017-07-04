@@ -4,7 +4,7 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 
 import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.{ Presentation, SharedNotesOperation }
+import org.bigbluebutton.core.apps.{ Presentation }
 import akka.actor.ActorSystem
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
@@ -542,41 +542,5 @@ class BigBlueButtonInGW(
     } else {
       eventBus.publish(BigBlueButtonEvent(meetingId, new HidePollResultRequest(meetingId, requesterId, pollId)))
     }
-  }
-
-  /**
-   * *******************************************************************
-   * Message Interface for Shared Notes
-   * *****************************************************************
-   */
-
-  def patchDocument(meetingId: String, userId: String, noteId: String, patch: String, operation: String) {
-    val sharedNotesOperation = operation.toUpperCase() match {
-      case "PATCH" => SharedNotesOperation.PATCH
-      case "UNDO" => SharedNotesOperation.UNDO
-      case "REDO" => SharedNotesOperation.REDO
-      case _ => SharedNotesOperation.UNDEFINED
-    }
-    eventBus.publish(BigBlueButtonEvent(meetingId, new PatchDocumentRequest(meetingId, userId, noteId, patch, sharedNotesOperation)))
-  }
-
-  def getCurrentDocument(meetingId: String, userId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new GetCurrentDocumentRequest(meetingId, userId)))
-  }
-
-  def createAdditionalNotes(meetingId: String, userId: String, noteName: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new CreateAdditionalNotesRequest(meetingId, userId, noteName)))
-  }
-
-  def destroyAdditionalNotes(meetingId: String, userId: String, noteId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new DestroyAdditionalNotesRequest(meetingId, userId, noteId)))
-  }
-
-  def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new RequestAdditionalNotesSetRequest(meetingId, userId, additionalNotesSetSize)))
-  }
-
-  def sharedNotesSyncNoteRequest(meetingId: String, userId: String, noteId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new SharedNotesSyncNoteRequest(meetingId, userId, noteId)))
   }
 }

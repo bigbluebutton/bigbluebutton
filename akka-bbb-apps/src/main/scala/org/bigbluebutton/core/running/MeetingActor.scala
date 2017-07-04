@@ -12,6 +12,7 @@ import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
+import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users1x }
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -49,7 +50,7 @@ class MeetingActor(val props: DefaultProps,
     with UsersApp with PresentationApp
     with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp
-    with SharedNotesApp with PermisssionCheck
+    with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
@@ -101,6 +102,7 @@ class MeetingActor(val props: DefaultProps,
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
+  val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -183,14 +185,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: SetGuestPolicy => handleSetGuestPolicy(msg)
     case msg: RespondToGuest => handleRespondToGuest(msg)
 
-    // Shared Notes
-    case msg: PatchDocumentRequest => handlePatchDocumentRequest(msg)
-    case msg: GetCurrentDocumentRequest => handleGetCurrentDocumentRequest(msg)
-    case msg: CreateAdditionalNotesRequest => handleCreateAdditionalNotesRequest(msg)
-    case msg: DestroyAdditionalNotesRequest => handleDestroyAdditionalNotesRequest(msg)
-    case msg: RequestAdditionalNotesSetRequest => handleRequestAdditionalNotesSetRequest(msg)
-    case msg: SharedNotesSyncNoteRequest => handleSharedNotesSyncNoteRequest(msg)
-
     case _ => // do nothing
   }
 
@@ -247,6 +241,13 @@ class MeetingActor(val props: DefaultProps,
       case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
       case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
       case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
+
+      // SharedNotes
+      case m: GetSharedNotesPubMsg => sharedNotesApp2x.handleGetSharedNotesPubMsg(m)
+      case m: SyncSharedNotePubMsg => sharedNotesApp2x.handleSyncSharedNotePubMsg(m)
+      case m: UpdateSharedNoteReqMsg => sharedNotesApp2x.handleUpdateSharedNoteReqMsg(m)
+      case m: CreateSharedNoteReqMsg => sharedNotesApp2x.handleCreateSharedNoteReqMsg(m)
+      case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handleDestroySharedNoteReqMsg(m)
 
       //Guests
       case m: GetGuestsWaitingApprovalReqMsg => handle(m)

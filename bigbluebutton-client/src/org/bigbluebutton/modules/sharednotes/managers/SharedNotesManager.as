@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.sharednotes.managers {
 		}
 
 		public function patchDocument(e:SendPatchEvent):void {
-			sender.patchDocument(e.noteId, UsersUtil.getMyUserID(), e.patch, e.operation);
+			sender.patchDocument(e.noteId, e.patch, e.operation);
 		}
 
 		public function getCurrentDocument():void {
@@ -61,7 +61,10 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			var notesSet:Number = e.payload.numAdditionalSharedNotes;
 			LOGGER.debug("SharedNotesManager: requested to open a new notes set");
 			LOGGER.debug("SharedNotesManager: set size: " + notesSet);
-			sender.requestAdditionalNotesSet(notesSet);
+			// TODO: Review this
+			for (var i:int = 0; i < notesSet; i++) {
+				sender.createAdditionalNotes("");
+			}
 		}
 
 		public function sharedNotesSyncNoteRequest(e:SharedNotesEvent):void {
