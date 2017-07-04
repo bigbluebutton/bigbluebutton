@@ -115,12 +115,4 @@ public interface IBigBlueButtonInGW {
 	void deskShareRTMPBroadcastStarted(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareGetInfoRequest(String meetingId, String requesterId, String replyTo);
-
-	// Shared notes
-	void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation);
-	void getCurrentDocument(String meetingID, String requesterID);
-	void createAdditionalNotes(String meetingID, String requesterID, String noteName);
-	void destroyAdditionalNotes(String meetingID, String requesterID, String noteID);
-	void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize);
-	void sharedNotesSyncNoteRequest(String meetingID, String requesterID, String noteID);
 }
