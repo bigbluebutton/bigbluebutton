@@ -15,7 +15,7 @@ global {
 	fontSize   : 13;
 	color      : #2A2D33;
 	rollOverColor : #3b97d3;
-	selectionColor : #2e8bb8;
+	selectionColor : #3b97d3;
 	focusColor : #3b97d3;
 }
 
@@ -63,6 +63,84 @@ mx|ApplicationControlBar {
 	color : #ffffff;
 }
 
+.bandwidthButtonStyle {
+	icon:   Embed('assets/images/ic_swap_vert_16px.png');
+}
+
+.logoutButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout");
+}
+
+.settingsButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
+}
+
+.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
+	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
+	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+}
+
+.voiceConfDefaultButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+}
+
+.voiceConfActiveButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+}
+
+.voiceConfInactiveButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+}
+
+.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle {
+	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
+	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+}
+
+.webcamDefaultButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+}
+
+.webcamOnButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
+}
+
+.webcamOffButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
+}
+
+.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle {
+	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
+	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+}
+
+.deskshareDefaultButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare");
+}
+
+.deskshareOnButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+}
+
+.deskshareOffButtonStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+}
+
+.recordButtonStyleNormal {
+	icon:   Embed('assets/images/control-record.png');
+}
+
+.recordButtonStyleStart {
+	icon:   Embed('assets/images/control-record-start.png');
+}
+
+.recordButtonStyleStop {
+	icon:   Embed('assets/images/control-record-stop.png');
+}
+
 /*
 //------------------------------
 //  Alert
@@ -104,7 +182,8 @@ mx|AlertForm {
 //  Button
 //------------------------------
 */
-mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle */{
+
+mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle */{
 	paddingLeft       : 12;
 	paddingRight      : 12;
 	paddingTop        : 8;
@@ -120,11 +199,34 @@ mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .c
 	disabledSkin      : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Disabled");
 }
 
+/*
+//------------------------------
+//  ComboBox
+//------------------------------
+*/
+
 mx|ComboBox
 {
 	upSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
 	overSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
 	downSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
+}
+
+/*
+//------------------------------
+//  DataGrid
+//------------------------------
+*/
+
+mx|DataGrid {
+	backgroundColor: #ffffff;
+	borderStyle : none;
+	rollOverColor: #f3f3f3;
+	textRollOverColor: #3f3f41;
+	textSelectedColor: #3f3f41;
+	alternatingItemColors : #ffffff, #ffffff;
+	dropShadowEnabled: false;
+	verticalSeparatorSkin : ClassReference(null);
 }
 
 /*
@@ -256,58 +358,95 @@ mx|Panel {
 	fontSize: 12;
 }
 
-.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
-	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
-	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
-	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+/*
+//------------------------------
+//  Presentation
+//------------------------------
+*/
+
+.presentationUploadDeleteButtonStyle {
+	fillAlphas: 1, 1, 1, 1;
+	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+	color: #3f3f41;
+	textRollOverColor: #3f3f41;
+	textSelectedColor: #3f3f41;
+	borderColor: #b9babc;  
+	cornerRadius: 5;    
+	icon:   Embed('assets/images/trash.png');
 }
 
-.voiceConfDefaultButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+.presentationUploadButtonStyle {
+	icon:   Embed('assets/images/ic_file_upload_16px.png');
 }
 
-.voiceConfActiveButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+.pollStartButtonStyle {
+	icon:   Embed('assets/images/poll_icon.png');
 }
 
-.voiceConfInactiveButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+.presentationBackButtonStyle {
+	icon:   Embed('assets/images/ic_arrow_back_24px.png');
 }
 
-.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle {
-	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
-	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
-	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+.presentationBackButtonDisabledStyle {
+	icon:   Embed('assets/images/ic_arrow_back_grey_24px.png');
 }
 
-.webcamDefaultButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+.presentationForwardButtonStyle {
+	icon:   Embed('assets/images/ic_arrow_forward_24px.png');
 }
 
-.webcamOnButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
+.presentationForwardButtonDisabledStyle {
+	icon:   Embed('assets/images/ic_arrow_forward_grey_24px.png');
 }
 
-.webcamOffButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
+.presentationFitToWidthButtonStyle {
+	icon:   Embed('assets/images/fit-to-width.png'); 
 }
 
-.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle {
-	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
-	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
-	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+.presentationFitToPageButtonStyle {
+	icon:   Embed('assets/images/fit-to-screen.png'); 
 }
 
-.deskshareDefaultButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare");
+.presentationDownloadButtonStyle {
+	icon:   Embed('assets/images/ic_file_download_16px.png');
 }
 
-.deskshareOnButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+.presentationDownloadButtonDisabledStyle {
+	icon:   Embed('assets/images/ic_file_download_grey_16px.png');
 }
 
-.deskshareOffButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+/*
+//------------------------------
+//  SharedNotes
+//------------------------------
+*/
+
+.sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
+	icon: Embed('assets/images/ic_save_16px.png');
+}
+
+.sharedNotesNewButtonStyle {
+	icon: Embed('assets/images/ic_note_add_16px.png');
+}
+
+.sharedNotesEnabledUndoButtonStyle {
+	icon: Embed('assets/images/arrows_undo_icon.png');
+}
+
+.sharedNotesDisabledUndoButtonStyle {
+	icon: Embed('assets/images/arrows_undo_icon_grey.png');
+}
+
+.sharedNotesEnabledRedoButtonStyle {
+	icon: Embed('assets/images/arrows_redo_icon.png');
+}
+
+.sharedNotesDisabledRedoButtonStyle {
+	icon: Embed('assets/images/arrows_redo_icon_grey.png');
+}
+
+.sharedNotesFormatButtonStyle {
+	icon: Embed('assets/images/ic_note_format_16px.png');
 }
 
 /*
@@ -361,6 +500,57 @@ whiteboard|WhiteboardToolbar {
 	swatchWidth:12;
 	textFieldWidth:72;
 	verticalGap:0;
+}
+
+.multiUserWhiteboardOnButtonStyle 
+{
+	icon: Embed('assets/images/multiuserwhiteboardon.png');
+}
+
+.multiUserWhiteboardOffButtonStyle 
+{
+	icon: Embed('assets/images/multiuserwhiteboardoff.png');
+}
+
+.whiteboardUndoButtonStyle 
+{
+	icon: Embed('assets/images/undo.png');
+}
+
+.whiteboardCircleButtonStyle {
+	icon: Embed('assets/images/ellipse.png');  
+}
+
+.whiteboardClearButtonStyle {
+	icon: Embed('assets/images/delete.png');    
+}
+
+.chatClearButtonStyle {
+	icon: Embed('assets/images/delete.png');
+}
+
+.whiteboardScribbleButtonStyle{
+	icon: Embed('assets/images/pencil.png');  
+}
+
+.whiteboardLineButtonStyle {
+	icon: Embed('assets/images/line.png');    
+}
+
+.whiteboardPanZoomButtonStyle {
+	icon: Embed('assets/images/hand.png');   
+}
+
+.whiteboardRectangleButtonStyle {
+	icon: Embed('assets/images/square.png');   
+}
+
+.whiteboardTextButtonStyle {
+	icon: Embed('assets/images/text.png');   
+}
+
+.whiteboardTriangleButtonStyle {
+	icon: Embed('assets/images/triangle.png');    
 }
 
 /****************************/
@@ -453,63 +643,12 @@ whiteboard|WhiteboardToolbar {
 	fontWeight: bold;
 }
 
-.testJavaLinkButtonStyle {
-	paddingLeft: 4;
-	paddingRight: 4;
-	paddingTop: 2;
-	paddingBottom: 2;
-	fontSize: 14;
-	rollOverColor: #cccccc;
-	selectionColor: #cccccc;
-	color: #e3e3e3;
-	textRollOverColor: #504f46;
-	textSelectedColor: #504f46;
-	fontWeight: bold;
-	textDecoration: none;
-}
-
-.javaVersionRequiredLabelStyle {
-	fontSize: 12;
-	color: #000000;
-	fontFamily: Arial;
-}
-
-.logoutButtonStyle {
-	paddingLeft: 0;
-	paddingRight: 0;
-	icon: Embed('assets/images/logout.png');
-}
-
-.settingsButtonStyle {
-	icon: Embed('assets/images/ic_settings_16px.png');
-}
-
 .acceptButtonStyle {
 	icon: Embed('assets/images/ic_thumb_up_16px.png');
 }
 
 .denyButtonStyle {
 	icon: Embed('assets/images/ic_thumb_down_16px.png');
-}
-
-
-mx|DataGrid {
-	backgroundColor: #e1e2e5;
-	rollOverColor: #f3f3f3;
-	textRollOverColor: #3f3f41;
-	selectionColor: #e1e2e5;
-	color: #3f3f41;
-	textSelectedColor: #3f3f41;
-	dropShadowEnabled: false;
-	fontFamily: arial;
-	fontSize: 11;
-	headerStyleName: "mydataGridHeaderStyle";
-}
-
-.mydataGridHeaderStyle {
-	color: #3f3f41;
-	fontFamily: arial;
-	fontSize: 12;
 }
 
 
@@ -534,57 +673,6 @@ mx|DataGrid {
 	fontSize: 12;
 }
 
-.multiUserWhiteboardOnButtonStyle 
-{
-	icon: Embed('assets/images/multiuserwhiteboardon.png');
-}
-
-.multiUserWhiteboardOffButtonStyle 
-{
-	icon: Embed('assets/images/multiuserwhiteboardoff.png');
-}
-
-.whiteboardUndoButtonStyle 
-{
-	icon: Embed('assets/images/undo.png');
-}
-
-.whiteboardCircleButtonStyle {
-	icon: Embed('assets/images/ellipse.png');  
-}
-
-.whiteboardClearButtonStyle {
-	icon: Embed('assets/images/delete.png');    
-}
-
-.chatClearButtonStyle {
-	icon: Embed('assets/images/delete.png');
-}
-
-.whiteboardScribbleButtonStyle{
-	icon: Embed('assets/images/pencil.png');  
-}
-
-.whiteboardLineButtonStyle {
-	icon: Embed('assets/images/line.png');    
-}
-
-.whiteboardPanZoomButtonStyle {
-	icon: Embed('assets/images/hand.png');   
-}
-
-.whiteboardRectangleButtonStyle {
-	icon: Embed('assets/images/square.png');   
-}
-
-.whiteboardTextButtonStyle {
-	icon: Embed('assets/images/text.png');   
-}
-
-.whiteboardTriangleButtonStyle {
-	icon: Embed('assets/images/triangle.png');    
-}
-
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle,
 .sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesEnabledUndoButtonStyle, .sharedNotesDisabledUndoButtonStyle, .sharedNotesEnabledRedoButtonStyle, .sharedNotesDisabledRedoButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
@@ -604,74 +692,6 @@ mx|DataGrid {
 	themeColor: haloBlue;
 	fontFamily: Arial;
 	fontSize: 12;
-}
-
-.sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
-	icon: Embed('assets/images/ic_save_16px.png');
-}
-
-.sharedNotesNewButtonStyle {
-	icon: Embed('assets/images/ic_note_add_16px.png');
-}
-
-.sharedNotesEnabledUndoButtonStyle {
-	icon: Embed('assets/images/arrows_undo_icon.png');
-}
-
-.sharedNotesDisabledUndoButtonStyle {
-	icon: Embed('assets/images/arrows_undo_icon_grey.png');
-}
-
-.sharedNotesEnabledRedoButtonStyle {
-	icon: Embed('assets/images/arrows_redo_icon.png');
-}
-
-.sharedNotesDisabledRedoButtonStyle {
-	icon: Embed('assets/images/arrows_redo_icon_grey.png');
-}
-
-.sharedNotesFormatButtonStyle {
-	icon: Embed('assets/images/ic_note_format_16px.png');
-}
-
-.presentationUploadButtonStyle {
-	icon:   Embed('assets/images/ic_file_upload_16px.png');
-}
-
-.pollStartButtonStyle {
-	icon:   Embed('assets/images/poll_icon.png');
-}
-
-.presentationBackButtonStyle {
-	icon:   Embed('assets/images/ic_arrow_back_24px.png');
-}
-
-.presentationBackButtonDisabledStyle {
-	icon:   Embed('assets/images/ic_arrow_back_grey_24px.png');
-}
-
-.presentationForwardButtonStyle {
-	icon:   Embed('assets/images/ic_arrow_forward_24px.png');
-}
-
-.presentationForwardButtonDisabledStyle {
-	icon:   Embed('assets/images/ic_arrow_forward_grey_24px.png');
-}
-
-.presentationFitToWidthButtonStyle {
-	icon:   Embed('assets/images/fit-to-width.png'); 
-}
-
-.presentationFitToPageButtonStyle {
-	icon:   Embed('assets/images/fit-to-screen.png'); 
-}
-
-.presentationDownloadButtonStyle {
-	icon:   Embed('assets/images/ic_file_download_16px.png');
-}
-
-.presentationDownloadButtonDisabledStyle {
-	icon:   Embed('assets/images/ic_file_download_grey_16px.png');
 }
 
 .presentationZoomSliderStyle{
@@ -741,22 +761,6 @@ mx|DataGrid {
 	icon:   Embed('assets/images/webcam-muted.png');
 }
 
-.videoUnmutedButtonStyle {
-	icon:   Embed('assets/images/webcam-unmuted.png');
-}
-
-.videoSwitchPresenterButtonStyle {
-	icon:   Embed('assets/images/webcam-switch-presenter.png');
-}
-
-.videoEjectUserButtonStyle {
-	icon:   Embed('assets/images/webcam-eject-user.png');
-}
-
-.videoPrivateChatButtonStyle {
-	icon:   Embed('assets/images/webcam-private-chat.png');
-}
-
 mx|TitleWindow {
 	borderColor: #b9babc;
 	borderAlpha: 1;
@@ -814,29 +818,6 @@ mx|TitleWindow {
 	cornerRadius: 5;  
 }
 
-.presentationUploadDeleteButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5;    
-	icon:   Embed('assets/images/trash.png');
-}
-
-.presentationUploadProgressBarLabelStyle {
-	
-}
-
-.presentationUploadProgressBarStyle {
-	
-}
-
-.presentationNameLabelStyle {
-	
-}
-
 .presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
@@ -871,122 +852,10 @@ mx|TitleWindow {
 	borderStyle: solid
 }
 
-.publishHelpPCIE1 {
-	imageSource: Embed(source='assets/images/bbb_pc_ie_1.png');
-}
-
-.publishHelpPCIE2 {
-	imageSource: Embed(source='assets/images/bbb_pc_ie_2.png');
-}
-
-.publishHelpPCIE3 {
-	imageSource: Embed(source='assets/images/bbb_pc_ie_3.png');
-}
-
-.publishHelpPCFirefox1 {
-	imageSource: Embed(source='assets/images/bbb_pc_firefox_1.png');
-}
-
-.publishHelpPCFirefox2 {
-	imageSource: Embed(source='assets/images/bbb_pc_firefox_2.png');
-}
-
-.publishHelpPCFirefox3 {
-	imageSource: Embed(source='assets/images/bbb_pc_firefox_3.png');
-}
-
-.publishHelpPCChrome1 {
-	imageSource: Embed(source='assets/images/bbb_pc_chrome_1.png');
-}
-
-.publishHelpPCChrome2 {
-	imageSource: Embed(source='assets/images/bbb_pc_chrome_2.png');
-}
-
-.publishHelpPCChrome3 {
-	imageSource: Embed(source='assets/images/bbb_pc_chrome_3.png');
-}
-
-.publishHelpMacSafari1 {
-	imageSource: Embed(source='assets/images/bbb_mac_safari_1.png');
-}
-
-.publishHelpMacSafari2 {
-	imageSource: Embed(source='assets/images/bbb_mac_safari_2.png');
-}
-
-.publishHelpMacSafari3 {
-	imageSource: Embed(source='assets/images/bbb_mac_safari_3.png');
-}
-
-.publishHelpMacSafari4 {
-	imageSource: Embed(source='assets/images/bbb_mac_safari_4.png');
-}
-
-.publishHelpMacFirefox1 {
-	imageSource: Embed(source='assets/images/bbb_mac_firefox_1.png');
-}
-
-.publishHelpMacFirefox2 {
-	imageSource: Embed(source='assets/images/bbb_mac_firefox_2.png');
-}
-
-.publishHelpMacFirefox3 {
-	imageSource: Embed(source='assets/images/bbb_mac_firefox_3.png');
-}
-
-.publishHelpMacFirefox4 {
-	imageSource: Embed(source='assets/images/bbb_mac_firefox_4.png');
-}
-
-.publishHelpMacChrome1 {
-	imageSource: Embed(source='assets/images/bbb_mac_chrome_1.png');
-}
-
-.publishHelpMacChrome2 {
-	imageSource: Embed(source='assets/images/bbb_mac_chrome_2.png');
-}
-
-.publishHelpMacChrome3 {
-	imageSource: Embed(source='assets/images/bbb_mac_chrome_3.png');
-}
-
-.publishHelpMacChrome4 {
-	imageSource: Embed(source='assets/images/bbb_mac_chrome_4.png');
-}
-
-.publishHelpLinuxFirefox1 {
-	imageSource: Embed(source='assets/images/bbb_linux_firefox_1.png');
-}
-
-.publishHelpLinuxFirefox2 {
-	imageSource: Embed(source='assets/images/bbb_linux_firefox_2.png');
-}
-
-.publishHelpLinuxFirefox3 {
-	imageSource: Embed(source='assets/images/bbb_linux_firefox_3.png');
-}
-
-.publishHelpLinuxChrome1 {
-	imageSource: Embed(source='assets/images/bbb_linux_chrome_1.png');
-}
-
-.publishHelpLinuxChrome2 {
-	imageSource: Embed(source='assets/images/bbb_linux_chrome_2.png');
-}
-
-.publishHelpLinuxChrome3 {
-	imageSource: Embed(source='assets/images/bbb_linux_chrome_3.png');
-}
-
 .desktopShareTextStyle {
 	color: #3f3f3f;
 	fontSize:	11;
 	fontWeight:	bold;	
-}
-
-.chromeJavaHelpImage {
-	imageSource: Embed(source='assets/images/jnlp-run-chrome.png');
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
@@ -1189,25 +1058,6 @@ https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
 	fontWeight: bold;
 }
 
-.recordButtonStyleNormal {
-	icon:   Embed('assets/images/control-record.png');
-}
-
-.recordButtonStyleStart {
-	icon:   Embed('assets/images/control-record-start.png');
-}
-
-.recordButtonStyleStop {
-	icon:   Embed('assets/images/control-record-stop.png');
-}
-
-.bandwidthButtonStyle {
-	paddingTop: 0;
-	paddingBottom: 0;
-	height: 22;
-	icon:   Embed('assets/images/ic_swap_vert_16px.png');
-}
-
 .statusImageStyle {
 	successImage:   Embed(source='assets/images/status_success.png');
 	warningImage:   Embed(source='assets/images/status_warning.png');
@@ -1332,50 +1182,6 @@ users|RoomActionsRenderer {
 	backgroundColor: #CCCCCC;
 	verticalAlign: middle;
 	horizontalAlign: center;
-}
-
-.moodStyle {
-	icon:   Embed('assets/images/ic_mood_black_18dp.png');
-}
-
-.moodRaiseHandStyle {
-	icon:   Embed('assets/images/icon-3-high-five.png');
-}
-
-.moodAgreedStyle {
-	icon:   Embed('assets/images/icon-6-thumb-up.png');
-}
-
-.moodDisagreedStyle {
-	icon:   Embed('assets/images/icon-7-thumb-down.png');
-}
-
-.moodSpeakFasterStyle {
-	icon:   Embed('assets/images/ic_fast_forward_black_18dp.png');
-}
-
-.moodSpeakSlowerStyle {
-	icon:   Embed('assets/images/ic_fast_rewind_black_18dp.png');
-}
-
-.moodSpeakLouderStyle {
-	icon:   Embed('assets/images/ic_volume_up_black_18dp.png');
-}
-
-.moodSpeakSofterStyle {
-	icon:   Embed('assets/images/ic_volume_down_black_18dp.png');
-}
-
-.moodBeRightBackStyle {
-	icon:   Embed('assets/images/ic_access_time_black_18dp.png');
-}
-
-.moodHappyStyle {
-	icon:   Embed('assets/images/icon-6-smiling-face.png');
-}
-
-.moodSadStyle {
-	icon:   Embed('assets/images/icon-7-sad-face.png');
 }
 
 .chatCopyButtonStyle{

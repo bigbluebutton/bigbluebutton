@@ -517,7 +517,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     
     <mx:HBox id="logoHolder" paddingRight="20" >
-        <mx:Image id="logo" ioError="hideLogo()" />
+        <mx:Image id="logo" height="26" maintainAspectRatio="true" ioError="hideLogo()" />
     </mx:HBox>
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
