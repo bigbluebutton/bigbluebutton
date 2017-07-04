@@ -2,6 +2,7 @@
 @namespace flexlib "http://code.google.com/p/flexlib/";
 @namespace users "org.bigbluebutton.modules.users.views.*";
 @namespace poll "org.bigbluebutton.modules.polling.views.*";
+@namespace whiteboard "org.bigbluebutton.modules.whiteboard.views.*";
 
 /*
 //------------------------------
@@ -10,8 +11,12 @@
 */
 
 global {
+	fontFamily : Arial, sans-serif;
 	fontSize   : 13;
 	color      : #2A2D33;
+	rollOverColor : #3b97d3;
+	selectionColor : #2e8bb8;
+	focusColor : #3b97d3;
 }
 
 /*
@@ -64,21 +69,12 @@ mx|ApplicationControlBar {
 //------------------------------
 */
 
-Alert {
+mx|Alert {
 	borderColor       : #ffffff;
 	backgroundColor   : #ffffff;
 	borderAlpha       : 1;
 	dropShadowEnabled : false;
 	color             : #6c6c6c;
-	titleStyleName    : "promptWindowTitle";
-}
-
-mx|Alert {
-	borderColor: #DFDFDF;
-	backgroundColor: #EFEFEF;
-	borderAlpha: 1;
-	shadowDistance: 1;
-	dropShadowColor: #FFFFFF;
 	titleStyleName: "alertTitleStyle";
 	messageStyleName: "alertMessageStyle";
 }
@@ -108,7 +104,7 @@ mx|AlertForm {
 //  Button
 //------------------------------
 */
-mx|Button {
+mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle */{
 	paddingLeft       : 12;
 	paddingRight      : 12;
 	paddingTop        : 8;
@@ -117,12 +113,40 @@ mx|Button {
 	textRollOverColor : #5e6d73;
 	textSelectedColor : #5e6d73;
 	fontSize          : 14;
-	highlightAlphas   : 0, 0;
 	themeColor        : #ced4db;
 	upSkin            : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Up");
 	overSkin          : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Over");
-	downSkin          : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Up");
+	downSkin          : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Down");
 	disabledSkin      : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Disabled");
+}
+
+mx|ComboBox
+{
+	upSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
+	overSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
+	downSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
+}
+
+/*
+//------------------------------
+//  PopUpButton
+//------------------------------
+*/
+
+mx|PopUpButton
+{
+	arrowButtonWidth: 18;
+	/*	disabledSkin: null;
+	downSkin: null; */
+	paddingLeft: 3;
+	paddingRight: 3;
+	/*	overSkin: null;
+	popUpDownSkin: null; 
+	popUpIcon: */
+	popUpGap: 0;
+	/*	popUpOverSkin: null; 
+	skin: ;
+	/*	upSkin: null; */
 }
 
 /*
@@ -224,24 +248,36 @@ mx|Panel {
 	borderAlpha: 1;
 	dropShadowEnabled : false;
 	backgroundColor: #ffffff;
-	titleStyleName: "mypanelTitle";
+	titleStyleName: "panelTitleStyle";
 }
 
-.mypanelTitle {
+.panelTitleStyle {
 	color: #2A2D33;
 	fontSize: 12;
 }
 
+.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
+	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
+	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+}
+
 .voiceConfDefaultButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio");
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
 
 .voiceConfActiveButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio");
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
 }
 
 .voiceConfInactiveButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off");
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+}
+
+.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle {
+	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
+	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
 }
 
 .webcamDefaultButtonStyle {
@@ -256,6 +292,12 @@ mx|Panel {
 	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
 }
 
+.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle {
+	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
+	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+}
+
 .deskshareDefaultButtonStyle {
 	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare");
 }
@@ -268,32 +310,63 @@ mx|Panel {
 	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
 }
 
-/****************************/
-/*        Old styles        */
-/****************************/
 /*
+//------------------------------
+//  ToolTip
+//------------------------------
+*/
 
 mx|ToolTip {
 	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
+	backgroundColor : #3b97d3;
+	color			: #ffffff;
+	fontSize		: 13;
 	backgroundAlpha : 0.9;
 	cornerRadius    : 3;
 }
 
 .errorTip {
-	borderColor		: #3b3b3b;
+	borderColor		: #ff6666;
 }
 
+/*
+//------------------------------
+//  Whiteboard
+//------------------------------
+*/
 
-.whiteboardToolbarStyle {
-	backgroundColor: #CCCCCC;
-	cornerRadius: 5;
-	borderStyle: solid;
-	borderThickness: 1;
-	paddingBottom: 3;
-	paddingTop: 3;
-	paddingLeft: 3;
-	paddingRight: 3;
+whiteboard|WhiteboardToolbar {
+	backgroundColor : #f1f3f7;
+	borderColor     : #cfd4db;
+	borderStyle     : solid;
+	borderThickness : 1;
+	cornerRadius    : 4;
+	paddingBottom   : 0;
+	paddingTop      : 0;
+	paddingLeft     : 0;
+	paddingRight    : 0;
 }
+
+.colorPickerStyle {
+	backgroundColor:#E5E6E7;
+	columnCount:13;
+	horizontalGap:0;
+	previewHeight:22;
+	previewWidth:50;
+	swatchGridBackgroundColor:#000000;
+	swatchGridBorderSize:0;
+	swatchHeight:60;
+	swatchHighlightColor:#FFFFFF;
+	swatchHighlightSize:1;
+	swatchWidth:12;
+	textFieldWidth:72;
+	verticalGap:0;
+}
+
+/****************************/
+/*        Old styles        */
+/****************************/
+/*
 
 .chatToolbarStyle {
 	backgroundColor: #CCCCCC;
@@ -353,24 +426,6 @@ mx|ToolTip {
 	fontFamily: Arial;
 	fontSize: 16;
 	fontWeight: bold;
-}
-
-mx|Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle {
-	textIndent: 0;
-	paddingLeft: 10;
-	paddingRight: 10;
-	paddingTop: 5;
-	paddingBottom: 5;
-	highlightAlphas: 0.4, 0;
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;
-	themeColor: haloBlue;
-	fontFamily: Arial;
-	fontSize: 12;
 }
 
 .quickWindowLinkStyle {

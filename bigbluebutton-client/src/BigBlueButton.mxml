@@ -26,11 +26,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				layout="absolute"
 				preinitialize="init()"
 				preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
-	
+
 	<fx:Style source="assets/halo.css" />
-	
+
 	<fx:Style source="../branding/default/style/css/V2Theme.css" />
-	
+
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
@@ -40,7 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</fx:Script>
-   
   <views:BigBlueButtonMainContainer id="bbbShell"/>
- 
+
 </mx:Application>

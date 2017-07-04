@@ -516,31 +516,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
     
-    <mx:HBox id="logoHolder" paddingRight="12" >
+    <mx:HBox id="logoHolder" paddingRight="20" >
         <mx:Image id="logo" ioError="hideLogo()" />
     </mx:HBox>
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
                        accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
                        accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
                        accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
 		<mx:LinkButton id="captionLinkBtn" click="onQuickLinkClicked('caption')" label="{ResourceUtil.getInstance().getString('bbb.caption.quickLink.label')}" 
 					   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
-					   height="22" styleName="quickWindowLinkStyle" />
+					   height="20" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
 	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="20"/>
-	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="20"/>
+	<views:MuteMeButton id="muteMeBtn"  height="30"/>
+	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
 	<mx:Button
@@ -550,7 +550,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
 			click="onSettingsButtonClick()"
 			styleName="settingsButtonStyle"
-			height="22"
+			height="30"
 	/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
@@ -562,12 +562,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			click="onNetStatsButtonClick()"
 			visible="{toolbarOptions.showNetworkMonitor}" />
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
-             click="onShortcutButtonClick()" height="22" 
+             click="onShortcutButtonClick()" height="30" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>
-	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
+	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="30" 
                    styleName="helpLinkButtonStyle"
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"/>
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="30"/>
 </mx:ApplicationControlBar>

@@ -23,6 +23,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:flexlib="http://code.google.com/p/flexlib/"
 				pageTitle="Skinning Application"
+				width="100%"
+				height="100%"
 				layout="absolute"
 				preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 
@@ -99,7 +101,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   height="22"
 							   styleName="quickWindowLinkStyle" />
 			</mx:HBox>
-			<mx:HBox id="addedBtns" />
+			<mx:HBox id="addedBtns">
+				<mx:Button id="micButton"
+						   styleName="voiceConfDefaultButtonStyle"
+						   mouseOver="{micButton.selected = true; micButton.styleName = 'voiceConfActiveButtonStyle'}"
+						   mouseOut="{micButton.selected = false; micButton.styleName = 'voiceConfDefaultButtonStyle'}"
+						   height="30" />
+				<mx:PopUpButton id="webcamPopUp"
+								styleName="webcamDefaultButtonStyle"
+								height="30"
+								toolTip="Share webcam"
+								selected="false" />
+			</mx:HBox>
 			<!-- views:RecordButton id="recordBtn" /-->
 			<mx:VRule strokeWidth="2"
 					  height="100%" />
@@ -178,17 +191,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   id="spacer" />
 			<mx:Label id="lblWebRTC"
 					  text="bbb.mainshell.notification.webrtc"
-					  visible="false"
 					  includeInLayout="false" />
 			<mx:Label text="[bbb.mainshell.notification.tunnelling]"
 					  id="isTunnellingLbl"
-					  visible="true"
 					  includeInLayout="true" />
 			<mx:Button id="warningBtn"
 					   width="23"
 					   height="20" />
 			<mx:ComboBox id="langSelector"
-						 visible="false"
+						 dataProvider="{['English','French','Arabic']}"
 						 height="20"
 						 width="180"
 						 accessibilityName="bbb.mainToolbar.langSelector"

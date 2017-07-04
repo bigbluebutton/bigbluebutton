@@ -30,7 +30,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
     includeInLayout="{showWhiteboardToolbar}"
-    styleName="whiteboardToolbarStyle"
     hideEffect="{fadeOut}" showEffect="{fadeIn}" xmlns:s="library://ns.adobe.com/flex/spark">
 
 	<fx:Declarations>
@@ -41,25 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	</fx:Declarations>
     
-  <fx:Style>
-    .colorPickerStyle {
-      backgroundColor:#E5E6E7;
-      columnCount:13;
-      horizontalGap:0;
-      previewHeight:22;
-      previewWidth:50;
-      swatchGridBackgroundColor:#000000;
-      swatchGridBorderSize:0;
-      swatchHeight:60;
-      swatchHighlightColor:#FFFFFF;
-      swatchHighlightSize:1;
-      swatchWidth:12;
-      textFieldWidth:72;
-      verticalGap:0;
-    }
-
-  </fx:Style>
-
   <fx:Script>
     <![CDATA[
 		import com.asfusion.mate.core.GlobalDispatcher;
@@ -77,7 +57,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.main.events.MadePresenterEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
