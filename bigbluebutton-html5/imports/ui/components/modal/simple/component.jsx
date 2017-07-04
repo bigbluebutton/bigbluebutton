@@ -54,8 +54,7 @@ class ModalSimple extends Component {
             circle={true}
             hideLabel={true}
             onClick={this.handleDismiss.bind(this)}
-            aria-describedby={'modalDismissDescription'}
-            tabIndex={0} />
+            aria-describedby={'modalDismissDescription'} />
         </header>
         <div className={styles.content}>
           {this.props.children}
