@@ -6,12 +6,31 @@
 
 /*
 //------------------------------
+//  @font-face
+//------------------------------
+*/
+@font-face {
+	src        : url("assets/fonts/SourceSansPro-Regular.ttf");
+	fontFamily : "Source Sans Pro";
+	fontStyle  : normal;
+	fontWeight : normal;
+}
+
+@font-face {
+	src        : url("assets/fonts/SourceSansPro-SemiBold.ttf");
+	fontFamily : "Source Sans Pro";
+	fontStyle  : normal;
+	fontWeight : bold;
+}
+
+/*
+//------------------------------
 //  global
 //------------------------------
 */
 
 global {
-	fontFamily : Arial, sans-serif;
+	fontFamily : "Source Sans Pro", Arial, sans-serif;
 	fontSize   : 13;
 	color      : #2A2D33;
 	rollOverColor : #3b97d3;
