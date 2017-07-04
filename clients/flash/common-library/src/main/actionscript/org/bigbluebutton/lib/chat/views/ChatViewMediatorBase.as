@@ -43,10 +43,10 @@ package org.bigbluebutton.lib.chat.views {
 		}
 		
 		protected function openChat(conv:Conversation):void {
-			conv.newMessages = 0;//resetNewMessages();
+			conv.newMessages = 0; //resetNewMessages();
 			view.chatList.dataProvider = conv.messages;
 		}
-	
+		
 		private function onSendSuccess(result:String):void {
 			view.textInput.enabled = true;
 			view.textInput.text = "";

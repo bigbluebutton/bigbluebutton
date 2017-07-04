@@ -1,9 +1,12 @@
+
 import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { callServer } from '/imports/ui/services/api';
+import { makeCall, logClient } from '/imports/ui/services/api';
+
+const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
@@ -61,6 +64,12 @@ class Auth {
     };
   }
 
+  set(meetingId, requesterUserId, requesterToken) {
+    this.meetingID = meetingId;
+    this.userID = requesterUserId;
+    this.token = requesterToken;
+  }
+
   set credentials(value) {
     throw 'Credentials are read-only';
   }
@@ -80,20 +89,28 @@ class Auth {
     }
 
     return new Promise((resolve, reject) => {
-      callServer('userLogout', () => {
-        this.fetchLogoutUrl()
+      const credentialsSnapshot = {
+        meetingId: this.meetingID,
+        requesterUserId: this.userID,
+        requesterToken: this.token,
+      };
+
+      // make sure users who did not connect are not added to the meeting
+      // do **not** use the custom call - it relies on expired data
+      Meteor.call('userLogout', credentialsSnapshot, (error, result) => {
+        if (error) {
+          logClient('error', { error, method: 'userLogout', credentialsSnapshot });
+        } else {
+          this.fetchLogoutUrl()
           .then(this.clearCredentials)
           .then(resolve);
+        }
       });
     });
   };
 
-  authenticate(meetingID, userID, token) {
-    if (arguments.length) {
-      this.meetingID = meetingID;
-      this.userID = userID;
-      this.token = token;
-    }
+  authenticate(force) {
+    if (this.loggedIn && !force) return Promise.resolve();
 
     return this._subscribeToCurrentUser()
       .then(this._addObserverToValidatedField.bind(this));
@@ -104,10 +121,20 @@ class Auth {
 
     return new Promise((resolve, reject) => {
       Tracker.autorun((c) => {
+        if (!(credentials.meetingId && credentials.requesterToken && credentials.requesterUserId)) {
+          return reject({
+            error: 500,
+            description: 'Authentication subscription failed due to missing credentials.',
+          });
+        }
+
         setTimeout(() => {
           c.stop();
-          reject('Authentication subscription timeout.');
-        }, 2000);
+          reject({
+            error: 500,
+            description: 'Authentication subscription timeout.',
+          });
+        }, 5000);
 
         const subscription = Meteor.subscribe('current-user', credentials);
         if (!subscription.ready()) return;
@@ -120,9 +147,14 @@ class Auth {
   _addObserverToValidatedField(prevComp) {
     return new Promise((resolve, reject) => {
       const validationTimeout = setTimeout(() => {
+        clearTimeout(validationTimeout);
+        prevComp.stop();
         this.clearCredentials();
-        reject('Authentication timeout.');
-      }, 2500);
+        reject({
+          error: 500,
+          description: 'Authentication timeout.',
+        });
+      }, CONNECTION_TIMEOUT);
 
       const didValidate = () => {
         this.loggedIn = true;
@@ -135,15 +167,8 @@ class Auth {
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const query = Users.find(selector);
 
-        if (query.count() && query.fetch()[0].validated) {
-          c.stop();
-          didValidate();
-        }
-
         const handle = query.observeChanges({
           changed: (id, fields) => {
-            if (id !== this.userID) return;
-
             if (fields.validated === true) {
               c.stop();
               didValidate();
@@ -152,14 +177,17 @@ class Auth {
             if (fields.validated === false) {
               c.stop();
               this.clearCredentials();
-              reject('Authentication failed.');
+              reject({
+                error: 401,
+                description: 'Authentication failed.',
+              });
             }
           },
         });
       });
 
       const credentials = this.credentials;
-      callServer('validateAuthToken', credentials);
+      makeCall('validateAuthToken', credentials);
     });
   }
 

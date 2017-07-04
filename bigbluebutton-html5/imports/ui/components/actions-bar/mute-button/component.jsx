@@ -2,14 +2,35 @@ import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import styles from '../styles.scss';
 
-export default class MuteAudio extends React.Component {
+import { defineMessages, injectIntl } from 'react-intl';
+
+const intlMessages = defineMessages({
+  muteLabel: {
+    id: 'app.actionsBar.muteLabel',
+    description: 'Mute audio button label',
+  },
+  unmuteLabel: {
+    id: 'app.actionsBar.unmuteLabel',
+    description: 'Unmute audio button label',
+  },
+});
+
+class MuteAudio extends React.Component {
 
   render() {
-    const { isInAudio, isMuted, callback, isTalking} = this.props;
+    const {
+      isInAudio,
+      isMuted,
+      callback,
+      isTalking,
+      intl,
+    } = this.props;
 
     if (!isInAudio) return null;
-    
-    let label = !isMuted ? 'Mute' : 'Unmute';
+    const muteLabel = intl.formatMessage(intlMessages.muteLabel);
+    const unmuteLabel = intl.formatMessage(intlMessages.unmuteLabel);
+
+    let label = !isMuted ? muteLabel : unmuteLabel;
     let icon = !isMuted ? 'unmute' : 'mute';
     let tabIndex = !isInAudio ? -1 : 0;
     let className = null;
@@ -32,3 +53,5 @@ export default class MuteAudio extends React.Component {
     );
   }
 }
+
+export default injectIntl(MuteAudio);

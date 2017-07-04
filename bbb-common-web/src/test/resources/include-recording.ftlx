@@ -7,7 +7,7 @@
     <isBreakout>${r.getMeeting().isBreakout()?c}</isBreakout>
 <#else>
     <meetingID>${r.getMeetingId()?html}</meetingID>
-    <name>${r.getMeetingName()?html}></name>
+    <name>${r.getMeetingName()?html}</name>
     <isBreakout>${r.isBreakout()?c}</isBreakout>
 </#if>
 

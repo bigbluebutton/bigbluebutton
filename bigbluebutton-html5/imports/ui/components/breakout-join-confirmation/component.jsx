@@ -1,33 +1,33 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { clearModal } from '/imports/ui/components/app/service';
-import { exitAudio } from '/imports/api/phone'
-import Modal from '/imports/ui/components/modal/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import AudioService from '../audio/service';
+import Modal from '/imports/ui/components/modal/fullscreen/component';
 
 const intlMessages = defineMessages({
   title: {
     id: 'app.breakoutJoinConfirmation.title',
-    defaultMessage: 'Join Breakout Room',
+    description: 'Join breakout room title',
   },
   message: {
     id: 'app.breakoutJoinConfirmation.message',
-    defaultMessage: 'Do you want to join',
+    description: 'Join breakout confim message',
   },
   confirmLabel: {
     id: 'app.breakoutJoinConfirmation.confirmLabel',
-    defaultMessage: 'Join',
+    description: 'Join confirmation button label',
   },
   confirmDesc: {
     id: 'app.breakoutJoinConfirmation.confirmDesc',
-    defaultMessage: 'Join you to the Breakout Room',
+    description: 'adds context to confirm option',
   },
   dismissLabel: {
     id: 'app.breakoutJoinConfirmation.dismissLabel',
-    defaultMessage: 'Cancel',
+    description: 'Cancel button label',
   },
   dismissDesc: {
     id: 'app.breakoutJoinConfirmation.dismissDesc',
-    defaultMessage: 'Closes and rejects Joining the Breakout Room',
+    description: 'adds context to dismiss option',
   },
 });
 
@@ -39,13 +39,16 @@ class BreakoutJoinConfirmation extends Component {
   }
 
   handleJoinBreakoutConfirmation() {
-    const { breakoutURL } = this.props;
+    const {
+      breakoutURL,
+      mountModal,
+    } = this.props;
 
     // leave main room's audio when joining a breakout room
-    exitAudio();
+    AudioService.exitAudio();
 
     window.open(breakoutURL);
-    clearModal();
+    mountModal(null);
   }
 
   render() {
@@ -68,4 +71,4 @@ class BreakoutJoinConfirmation extends Component {
   }
 };
 
-export default injectIntl(BreakoutJoinConfirmation);
+export default withModalMounter(injectIntl(BreakoutJoinConfirmation));

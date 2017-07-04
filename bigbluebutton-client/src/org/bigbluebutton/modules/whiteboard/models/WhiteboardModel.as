@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.whiteboard.models
 	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
-	import org.bigbluebutton.core.UsersUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.present.model.Page;

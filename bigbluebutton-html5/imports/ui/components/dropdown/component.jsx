@@ -12,7 +12,7 @@ const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
 const intlMessages = defineMessages({
   close: {
     id: 'app.dropdown.close',
-    defaultMessage: 'Close',
+    description: 'Close button label',
   },
 });
 
@@ -83,15 +83,18 @@ class Dropdown extends Component {
 
   handleShow() {
     this.setState({ isOpen: true }, this.handleStateCallback);
-
-    const contentElement = findDOMNode(this.refs.content);
-    contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
   }
 
   handleHide() {
+
+    const { autoFocus } = this.props;
+
     this.setState({ isOpen: false }, this.handleStateCallback);
-    const triggerElement = findDOMNode(this.refs.trigger);
-    triggerElement.focus();
+
+    if (autoFocus) {
+      const triggerElement = findDOMNode(this.refs.trigger);
+      triggerElement.focus();
+    }
   }
 
   componentDidMount () {
@@ -122,7 +125,14 @@ class Dropdown extends Component {
   }
 
   render() {
-    const { children, className, style, intl } = this.props;
+    const {
+      children,
+      className,
+      style, intl,
+      hasPopup,
+      ariaLive,
+      ariaRelevant,
+    } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -143,7 +153,12 @@ class Dropdown extends Component {
     });
 
     return (
-      <div style={style} className={cx(styles.dropdown, className)}>
+      <div
+      style={style}
+      className={cx(styles.dropdown, className)}
+      aria-live={ariaLive}
+      aria-relevant={ariaRelevant}
+      aria-haspopup={hasPopup}>
         {trigger}
         {content}
         { this.state.isOpen ?

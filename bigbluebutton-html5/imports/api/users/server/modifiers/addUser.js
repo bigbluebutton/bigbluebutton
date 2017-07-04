@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
 import requestStunTurn from '../methods/requestStunTurn';
@@ -17,6 +16,21 @@ export default function addUser(meetingId, user) {
     meetingId,
     userId,
   };
+
+  const USER_CONFIG = Meteor.settings.public.user;
+  const ROLE_MODERATOR = USER_CONFIG.role_moderator;
+  const ROLE_VIEWER = USER_CONFIG.role_viewer;
+  const APP_CONFIG = Meteor.settings.public.app;
+  const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
+
+  // override moderator status of html5 client users, depending on a system flag
+  let dummyUser = Users.findOne(selector);
+  if (dummyUser &&
+      dummyUser.clientType === 'HTML5' &&
+      user.role === ROLE_MODERATOR &&
+      !ALLOW_HTML5_MODERATOR) {
+      user.role = ROLE_VIEWER;
+  }
 
   const modifier = {
     $set: {

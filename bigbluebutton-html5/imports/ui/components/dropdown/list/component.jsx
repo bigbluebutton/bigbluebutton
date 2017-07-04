@@ -6,10 +6,13 @@ import KEY_CODES from '/imports/utils/keyCodes';
 
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
+import ListTitle from './title/component';
 
 const propTypes = {
   children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
-    if (propValue[key].type !== ListItem && propValue[key].type !== ListSeparator) {
+    if (propValue[key].type !== ListItem &&
+        propValue[key].type !== ListSeparator &&
+        propValue[key].type !== ListTitle) {
       return new Error(
         'Invalid prop `' + propFullName + '` supplied to' +
         ' `' + componentName + '`. Validation failed.'
@@ -33,7 +36,12 @@ export default class DropdownList extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { activeItemIndex } = this.state;
+    let { activeItemIndex } = this.state;
+
+    if (activeItemIndex === null) {
+      activeItemIndex = 0;
+    }
+
     const activeRef = this.childrenRefs[activeItemIndex];
 
     if (activeRef) {
@@ -70,7 +78,7 @@ export default class DropdownList extends Component {
       nextActiveItemIndex = this.childrenRefs.length - 1;
     }
 
-    if ([KEY_CODES.TAB, KEY_CODES.ESCAPE].includes(event.which)) {
+    if ([KEY_CODES.ESCAPE].includes(event.which)) {
       nextActiveItemIndex = 0;
       dropdownHide();
     }

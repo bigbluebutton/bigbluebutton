@@ -43,7 +43,7 @@
       var flashvars = {};
       var params = {};
       params.quality = "high";
-      params.bgcolor = "#869ca7";
+      params.bgcolor = "#FFFFFF";
       params.allowfullscreen = "true";
       params.allowfullscreeninteractive = "true";
 
@@ -68,13 +68,15 @@
       // In Chrome 56 Google started blocking Flash by default so we force the SWF to 
       // be loaded in the DOM rather than relying on the SWFObject code to detect 
       // Flash because it can't.
+      // Edge 15 also hides the fact that Flash is available so adding a hack for that too.
       var browserInfo = determineBrowser();
-      if (browserInfo && browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) {
+      if (browserInfo && ((browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) ||
+                          (browserInfo[0] === "Edge" && browserInfo[1] >= 15))) {
         // Added a sort of callback idea because when this script runs "content" doesn't exist yet
         var fillContent = function(){
           var content = document.getElementById("content");
           if (content) {
-            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#869ca7"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
           }
         };
       } else {
@@ -114,9 +116,8 @@
     <script src="lib/jquery.json-2.4.min.js" language="javascript"></script>
     <script src="lib/jquery.cookie.js" language="javascript"></script>
     <!--<script src="lib/jquery.dataTables.min.js" language="javascript"></script>-->
-    <script src="lib/jquery.FSRTC.js" language="javascript"></script>
-    <script src="lib/jquery.jsonrpcclient.js" language="javascript"></script>
-    <script src="lib/jquery.verto.js" language="javascript"></script>
+
+    <script src="lib/verto-min.js" language="javascript"></script>
     <script src="lib/verto_extension.js" language="javascript"></script>
 
     <script src="lib/kurento-utils.js" language="javascript"></script>
@@ -126,6 +127,10 @@
 
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
     <script src="lib/sip.js?v=VERSION" language="javascript"></script>
+
+    <script src="lib/adapter.js?v=VERSION" language="javascript"></script>
+    <script src="lib/webrtc_stats_bridge.js?v=VERSION" language="javascript"></script>
+
     <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script>
     <script src="lib/weburl_regex.js?v=VERSION" language="javascript"></script>
     <script src="lib/jsnlog.min.js?v=VERSION" language="javascript"></script>
@@ -197,7 +202,7 @@
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
       <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
-        <h3>You need Adobe Flash installed and enabled in order to use this client.</h3>
+        You need Adobe Flash installed and enabled in order to use this client.
         <br/>
         <div style="width:50%; margin-left: auto; margin-right: auto; ">
           <a href="http://www.adobe.com/go/getflashplayer">
