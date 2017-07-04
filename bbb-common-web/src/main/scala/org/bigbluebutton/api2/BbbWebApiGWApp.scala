@@ -9,7 +9,7 @@ import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageS
 import org.bigbluebutton.api2.meeting.{MeetingsManagerActor, OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage
 import org.bigbluebutton.common2.domain._
-import org.bigbluebutton.presentation.messages.{IDocConversionMsg, OfficeDocConversionInvalid}
+import org.bigbluebutton.presentation.messages._
 
 import scala.concurrent.duration._
 
@@ -153,8 +153,26 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
   }
 
   def sendDocConversionMsg(msg: IDocConversionMsg): Unit = {
-    if (msg.isInstanceOf[OfficeDocConversionInvalid]) {
-
+   if (msg.isInstanceOf[DocPageGeneratedProgress]) {
+      val event = MsgBuilder.buildPresentationPageGeneratedPubMsg(msg.asInstanceOf[DocPageGeneratedProgress])
+     println(event)
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[OfficeDocConversionProgress]) {
+      val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[OfficeDocConversionProgress])
+     println(event)
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
+      val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
+     println(event)
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocPageCountFailed]) {
+      val event = MsgBuilder.buildbuildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
+     println(event)
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocPageCountExceeded]) {
+      val event = MsgBuilder.buildPresentationPageCountExceededSysPubMsg(msg.asInstanceOf[DocPageCountExceeded])
+     println(event)
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
 }
