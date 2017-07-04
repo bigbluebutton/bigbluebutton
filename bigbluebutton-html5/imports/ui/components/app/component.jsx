@@ -55,6 +55,9 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const locale = this.props.locale;
+
+    document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
