@@ -31,7 +31,6 @@ export default function removeMeeting(meetingId) {
       clearPolls(meetingId);
       clearShapes(meetingId);
       clearSlides(meetingId);
-      clearUsers(meetingId);
 
       return Logger.info(`Removed meeting id=${meetingId}`);
     }

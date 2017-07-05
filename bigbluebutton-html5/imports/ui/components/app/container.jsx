@@ -14,6 +14,7 @@ import { withModalMounter } from '../modal/service';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/api/meetings';
 
 import App from './component';
 import NavBarContainer from '../nav-bar/container';
@@ -32,6 +33,11 @@ const intlMessages = defineMessages({
   kickedMessage: {
     id: 'app.error.kicked',
     description: 'Message when the user is kicked out of the meeting',
+  },
+
+  endMeetingMessage: {
+    id: 'app.error.meeting.ended',
+    description: 'You have logged out of the conference',
   },
 });
 
@@ -69,6 +75,19 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
     removed(old) {
       Auth.clearCredentials().then(window.close);
+    },
+  });
+
+  // forcelly logged out when the meeting is ended
+  Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
+    removed(old) {
+      Auth.clearCredentials()
+            .then(() => {
+              router.push('/error/403');
+              baseControls.updateErrorState(
+                intl.formatMessage(intlMessages.endMeetingMessage),
+              );
+            });
     },
   });
 
