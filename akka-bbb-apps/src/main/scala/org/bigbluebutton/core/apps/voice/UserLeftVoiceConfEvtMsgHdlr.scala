@@ -2,8 +2,10 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.api.StopRecordingVoiceConf
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UserLeftVoiceConfEvtMsgHdlr {
   this: MeetingActor =>
@@ -33,6 +35,19 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.intId)
       broadcastEvent(user)
+    }
+
+    stopRecordingVoiceConference()
+  }
+
+  def stopRecordingVoiceConference() {
+    if (VoiceUsers.findAll(liveMeeting.voiceUsers).length == 0 &&
+      props.recordProp.record &&
+      MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
+      MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
+      log.info("Send STOP RECORDING voice conf. meetingId=" + props.meetingProp.intId + " voice conf=" + props.voiceProp.voiceConf)
+      outGW.send(new StopRecordingVoiceConf(props.meetingProp.intId, props.recordProp.record,
+        props.voiceProp.voiceConf, MeetingStatus2x.getVoiceRecordingFilename(liveMeeting.status)))
     }
   }
 }

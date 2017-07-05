@@ -5,15 +5,16 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.domain.Meeting3x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 
 class LiveMeeting(val props: DefaultProps,
   val status: MeetingStatus2x,
+  val deskshareModel: DeskshareModel,
   val chatModel: ChatModel,
   val layoutModel: LayoutModel,
   val layouts: Layouts,
-  val users: Users1x,
   val registeredUsers: RegisteredUsers,
   val polls: Polls, // 2x
   val pollModel: PollModel, // 1.1x
@@ -32,14 +33,8 @@ class LiveMeeting(val props: DefaultProps,
     MeetingStatus2x.hasMeetingEnded(status)
   }
 
-  def webUserJoined() {
-    if (Users1x.numWebUsers(users) > 0) {
-      MeetingStatus2x.resetLastWebUserLeftOn(status)
-    }
-  }
-
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (Users1x.numWebUsers(users) == 0 && !props.meetingProp.isBreakout) {
+    if (Users2x.numUsers(users2x) == 0 && !props.meetingProp.isBreakout) {
       MeetingStatus2x.lastWebUserLeft(status)
     }
   }

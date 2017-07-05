@@ -216,8 +216,7 @@ package org.bigbluebutton.modules.users.services
       message["userId"] = userID;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.logoutEndMeeting",
+      _nc.sendMessage("participants.logoutEndMeeting",
         function(result:String):void { // On successful result
         },
         function(status:String):void { // status - On error occurred
@@ -232,8 +231,7 @@ package org.bigbluebutton.modules.users.services
 
     public function queryForRecordingStatus():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.getRecordingStatus",// Remote function name
+      _nc.sendMessage("participants.getRecordingStatus",// Remote function name
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -261,8 +259,7 @@ package org.bigbluebutton.modules.users.services
 
     public function activityResponse():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.activityResponse", // Remote function name
+      _nc.sendMessage("participants.activityResponse", // Remote function name
         function(result:String):void { // On successful result
         },
         function(status:String):void { // status - On error occurred
@@ -280,8 +277,7 @@ package org.bigbluebutton.modules.users.services
       message["recording"] = recording;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.setRecordingStatus",// Remote function name
+      _nc.sendMessage("participants.setRecordingStatus",// Remote function name
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -299,8 +295,7 @@ package org.bigbluebutton.modules.users.services
       message["mute"] = mute;
     
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.muteAllUsers",
+      _nc.sendMessage("voice.muteAllUsers",
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -318,8 +313,7 @@ package org.bigbluebutton.modules.users.services
       message["mute"] = mute;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.muteAllUsersExceptPresenter",
+      _nc.sendMessage("voice.muteAllUsersExceptPresenter",
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -338,8 +332,7 @@ package org.bigbluebutton.modules.users.services
       message["mute"] = mute;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.muteUnmuteUser",
+      _nc.sendMessage("voice.muteUnmuteUser",
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -357,8 +350,7 @@ package org.bigbluebutton.modules.users.services
       message["userId"] = userid;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.ejectUserFromVoice",
+      _nc.sendMessage("voice.ejectUserFromVoice",
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -375,8 +367,7 @@ package org.bigbluebutton.modules.users.services
       var message:Object = new Object();
          
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.isRoomMuted",
+      _nc.sendMessage("voice.isRoomMuted",
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -392,8 +383,7 @@ package org.bigbluebutton.modules.users.services
       var message:Object = new Object();
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "lock.isRoomLocked",
+      _nc.sendMessage("lock.isRoomLocked",
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -443,8 +433,7 @@ package org.bigbluebutton.modules.users.services
 		message["lock"] = lock;
 		
 		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage(
-			"lock.setUserLock",
+		_nc.sendMessage("lock.setUserLock",
 			function(result:String):void { // On successful result
 			},	                   
 			function(status:String):void { // status - On error occurred
@@ -500,8 +489,7 @@ package org.bigbluebutton.modules.users.services
     
     public function saveLockSettings(newLockSettings:Object):void{   
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "lock.setLockSettings",
+      _nc.sendMessage("lock.setLockSettings",
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -520,8 +508,7 @@ package org.bigbluebutton.modules.users.services
       message["userId"] = userID;
       message["role"] = role;
 
-      _nc.sendMessage(
-        "participants.setParticipantRole",// Remote function name
+      _nc.sendMessage("participants.setParticipantRole",// Remote function name
         function(result:String):void { // On successful result
           LOGGER.debug(result);
         },
@@ -538,8 +525,7 @@ package org.bigbluebutton.modules.users.services
     public function queryForGuestPolicy():void {
       LOGGER.debug("queryForGuestPolicy");
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.getGuestPolicy",
+      _nc.sendMessage("participants.getGuestPolicy",
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
@@ -555,8 +541,7 @@ package org.bigbluebutton.modules.users.services
     public function setGuestPolicy(policy:String):void {
       LOGGER.debug("setGuestPolicy - new policy:[" + policy + "]");
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.setGuestPolicy",
+      _nc.sendMessage("participants.setGuestPolicy",
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
@@ -578,8 +563,7 @@ package org.bigbluebutton.modules.users.services
       message["response"] = response;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.responseToGuest",
+      _nc.sendMessage("participants.responseToGuest",
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },

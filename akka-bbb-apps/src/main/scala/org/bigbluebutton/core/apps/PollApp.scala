@@ -1,12 +1,14 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
+
 import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.models.Users1x
-import org.bigbluebutton.core.running.{ MeetingActor }
+import org.bigbluebutton.core.running.MeetingActor
 import com.google.gson.Gson
 import java.util.ArrayList
+
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.models.Users2x
 
 trait PollApp {
   this: MeetingActor =>
@@ -133,7 +135,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users1x.numUsers(liveMeeting.users) - 1 // subtract the presenter
+      numRespondents = Users2x.numUsers(liveMeeting.users2x) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -157,7 +159,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users1x.numUsers(liveMeeting.users) - 1 // subtract the presenter
+      numRespondents = Users2x.numUsers(liveMeeting.users2x) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -185,11 +187,11 @@ trait PollApp {
     }
 
     for {
-      user <- Users1x.findWithId(msg.requesterId, liveMeeting.users)
-      responder = new Responder(user.id, user.name)
+      user <- Users2x.findWithIntId(liveMeeting.users2x, msg.requesterId)
+      responder = new Responder(user.intId, user.name)
       updatedPoll <- storePollResult(responder)
-      curPres <- Users1x.getCurrentPresenter(liveMeeting.users)
-    } yield outGW.send(new UserRespondedToPollMessage(props.meetingProp.intId, props.recordProp.record, curPres.id, msg.pollId, updatedPoll))
+      curPres <- Users2x.findPresenter(liveMeeting.users2x)
+    } yield outGW.send(new UserRespondedToPollMessage(props.meetingProp.intId, props.recordProp.record, curPres.intId, msg.pollId, updatedPoll))
 
   }
 }

@@ -24,7 +24,7 @@ object Polls {
       page <- lm.presModel.getCurrentPage()
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
-      numRespondents: Int = Users1x.numUsers(lm.users) - 1 // subtract the presenter
+      numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
 
       poll <- createPoll(stampedPollId, numRespondents)
       simplePoll <- getSimplePoll(poll.id, lm.polls)
@@ -129,7 +129,7 @@ object Polls {
       page <- lm.presModel.getCurrentPage()
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
-      numRespondents: Int = Users1x.numUsers(lm.users) - 1 // subtract the presenter
+      numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
       poll <- createPoll(stampedPollId, numRespondents)
       simplePoll <- getSimplePoll(stampedPollId, lm.polls)
     } yield {

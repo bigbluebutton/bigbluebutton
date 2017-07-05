@@ -2,7 +2,7 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ LockUserRequest, UserLocked }
-import org.bigbluebutton.core.models.Users1x
+import org.bigbluebutton.core.models.{ Users2x }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait LockUserRequestHdlr {
@@ -12,10 +12,10 @@ trait LockUserRequestHdlr {
 
   def handleLockUserRequest(msg: LockUserRequest) {
     for {
-      uvo <- Users1x.lockUser(msg.userID, msg.lock, liveMeeting.users)
+      uvo <- Users2x.setUserLocked(liveMeeting.users2x, msg.userID, msg.lock)
     } yield {
-      log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.id + " locked=" + uvo.locked)
-      outGW.send(new UserLocked(props.meetingProp.intId, uvo.id, uvo.locked))
+      log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)
+      outGW.send(new UserLocked(props.meetingProp.intId, uvo.intId, uvo.locked))
     }
   }
 }

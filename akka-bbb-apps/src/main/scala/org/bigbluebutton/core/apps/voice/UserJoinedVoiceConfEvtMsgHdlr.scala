@@ -2,8 +2,10 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.api.StartRecordingVoiceConf
 import org.bigbluebutton.core.models.{ VoiceUser2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UserJoinedVoiceConfEvtMsgHdlr {
   this: MeetingActor =>
@@ -37,5 +39,17 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 
     broadcastEvent(voiceUserState)
+
+    startRecordingVoiceConference()
+  }
+
+  def startRecordingVoiceConference() {
+    if (VoiceUsers.findAll(liveMeeting.voiceUsers) == 1 &&
+      props.recordProp.record &&
+      !MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
+      MeetingStatus2x.startRecordingVoice(liveMeeting.status)
+      log.info("Send START RECORDING voice conf. meetingId=" + props.meetingProp.intId + " voice conf=" + props.voiceProp.voiceConf)
+      outGW.send(new StartRecordingVoiceConf(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf))
+    }
   }
 }

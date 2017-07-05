@@ -23,8 +23,13 @@ trait MuteAllExceptPresenterRequestHdlr {
       MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
 
     usersWhoAreNotPresenter foreach { u =>
-      outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
-        u.id, props.voiceProp.voiceConf, u.voiceUser.userId, msg.mute))
+      for {
+        vu <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, u.intId)
+      } yield {
+        outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
+          u.intId, props.voiceProp.voiceConf, vu.voiceUserId, msg.mute))
+      }
+
     }
 
     def muteUserInVoiceConf(vu: VoiceUserState): Unit = {

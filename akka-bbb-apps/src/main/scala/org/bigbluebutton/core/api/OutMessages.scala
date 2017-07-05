@@ -41,7 +41,7 @@ case class BreakoutRoomEndedOutMessage(parentMeetingId: String, meetingId: Strin
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
-case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
+case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Vector[UserState]) extends IOutMessage
 case class UserLocked(meetingID: String, userId: String, lock: Boolean) extends IOutMessage
 case class GetPermissionsSettingReply(meetingID: String, userId: String) extends IOutMessage
 

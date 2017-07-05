@@ -11,8 +11,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
-import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.models.Users1x
+import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -68,14 +67,14 @@ trait BreakoutRoomApp extends SystemConfiguration {
       }
     }
 
-    MeetingStatus2x.breakoutRoomsdurationInMinutes(liveMeeting.status, msg.durationInMinutes)
-    MeetingStatus2x.breakoutRoomsStartedOn(liveMeeting.status, MeetingStatus2x.timeNowInSeconds)
+    BreakoutRooms.breakoutRoomsdurationInMinutes(liveMeeting.breakoutRooms, msg.durationInMinutes)
+    BreakoutRooms.breakoutRoomsStartedOn(liveMeeting.breakoutRooms, MeetingStatus2x.timeNowInSeconds)
   }
 
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
     log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
     for {
-      user <- Users1x.findWithId(userId, liveMeeting.users)
+      user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
       params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
         externalMeetingId, props.password.moderatorPass)
@@ -121,7 +120,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, externalMeetingId: String,
     breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
-    log.info("Sending breakout room started {} for parent meeting {} ", breakoutMeetingId, meetingId);
+    log.info("Sending breakout room started {} for parent meeting {} ", breakoutMeetingId, meetingId)
     outGW.send(new BreakoutRoomStartedOutMessage(meetingId, props.recordProp.record, new BreakoutRoomInfo(breakoutName,
       externalMeetingId, breakoutMeetingId, sequence)))
   }
@@ -138,8 +137,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
-    val users = Users1x.getUsers(liveMeeting.users)
-    val breakoutUsers = users map { u => new BreakoutUserVO(u.externalId, u.name) }
+    val users = Users2x.findAll(liveMeeting.users2x)
+    val breakoutUsers = users map { u => new BreakoutUserVO(u.intId, u.name) }
     eventBus.publish(BigBlueButtonEvent(props.breakoutProps.parentId,
       new BreakoutRoomUsersUpdate(props.breakoutProps.parentId, props.meetingProp.intId, breakoutUsers)))
   }
@@ -149,9 +148,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
     // If the current room is a parent room we fetch the voice bridge from the breakout room
     if (!props.meetingProp.isBreakout) {
       BreakoutRooms.getBreakoutRoom(liveMeeting.breakoutRooms, msg.targetMeetingId) match {
-        case Some(b) => {
-          targetVoiceBridge = b.voiceConfId;
-        }
+        case Some(b) =>
+          targetVoiceBridge = b.voiceConfId
         case None => // do nothing
       }
     } // if it is a breakout room, the target voice bridge is the same after removing the last digit
@@ -159,13 +157,11 @@ trait BreakoutRoomApp extends SystemConfiguration {
       targetVoiceBridge = props.voiceProp.voiceConf.dropRight(1)
     }
     // We check the user from the mode
-    Users1x.findWithId(msg.userId, liveMeeting.users) match {
-      case Some(u) => {
-        if (u.voiceUser.joined) {
-          log.info("Transferring user userId=" + u.id + " from voiceBridge=" + props.voiceProp.voiceConf + " to targetVoiceConf=" + targetVoiceBridge)
-          outGW.send(new TransferUserToMeeting(props.voiceProp.voiceConf, targetVoiceBridge, u.voiceUser.userId))
-        }
-      }
+    VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.userId) match {
+      case Some(u) =>
+        log.info("Transferring user userId=" + u.intId + " from voiceBridge=" + props.voiceProp.voiceConf
+          + " to targetVoiceConf=" + targetVoiceBridge)
+        outGW.send(new TransferUserToMeeting(props.voiceProp.voiceConf, targetVoiceBridge, u.voiceUserId))
       case None => // do nothing
     }
   }
@@ -230,25 +226,25 @@ object BreakoutRoomsUtil {
     val csbuf = new StringBuffer()
     val keys = sortParams(params)
 
-    var first = true;
+    var first = true
     for (key <- keys) {
       for (value <- params.get(key)) {
         if (first) {
-          first = false;
+          first = false
         } else {
-          csbuf.append("&");
+          csbuf.append("&")
         }
 
-        csbuf.append(key);
-        csbuf.append("=");
-        csbuf.append(value);
+        csbuf.append(key)
+        csbuf.append("=")
+        csbuf.append(value)
       }
     }
 
-    return csbuf.toString();
+    return csbuf.toString()
   }
 
   def urlEncode(s: String): String = {
-    URLEncoder.encode(s, "UTF-8");
+    URLEncoder.encode(s, "UTF-8")
   }
 }

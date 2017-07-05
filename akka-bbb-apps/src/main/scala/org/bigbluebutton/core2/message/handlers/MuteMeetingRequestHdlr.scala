@@ -3,7 +3,7 @@ package org.bigbluebutton.core2.message.handlers
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ MeetingMuted, MuteMeetingRequest, MuteVoiceUser }
-import org.bigbluebutton.core.models.{ Users1x, VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -22,9 +22,9 @@ trait MuteMeetingRequestHdlr {
     outGW.send(new MeetingMuted(props.meetingProp.intId, props.recordProp.record,
       MeetingStatus2x.isMeetingMuted(liveMeeting.status)))
 
-    Users1x.getUsers(liveMeeting.users) foreach { u =>
+    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { u =>
       outGW.send(new MuteVoiceUser(props.meetingProp.intId, props.recordProp.record, msg.requesterID,
-        u.id, props.voiceProp.voiceConf, u.voiceUser.userId, msg.mute))
+        u.intId, props.voiceProp.voiceConf, u.voiceUserId, msg.mute))
     }
 
     def muteUserInVoiceConf(vu: VoiceUserState): Unit = {
