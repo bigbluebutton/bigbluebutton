@@ -56,38 +56,44 @@ class AppContainer extends Component {
 
 export default withRouter(injectIntl(withModalMounter(createContainer((
   { router, intl, mountModal, baseControls }) => {
-    // Check if user is kicked out of the session
+
+  // Displayed error messages according to the mode (kicked, end meeting)
+  let clearCredential = (mode) => {
+    Auth.clearCredentials()
+        .then(() => {
+          router.push('/error/403');
+          baseControls.updateErrorState(
+            mode == 'kicked' ?
+              intl.formatMessage(intlMessages.kickedMessage) :
+              intl.formatMessage(intlMessages.endMeetingMessage)
+          );
+        });
+  };
+
+  let status;
+
+  // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
       if (fields.user && fields.user.kicked) {
-        Auth.clearCredentials()
-            .then(() => {
-              router.push('/error/403');
-              baseControls.updateErrorState(
-                intl.formatMessage(intlMessages.kickedMessage),
-              );
-            });
+        status = 'kicked';
+        clearCredential(status);
       }
-    },
-  });
-
-    // Close the widow when the current breakout room ends
-  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
-    removed(old) {
-      Auth.clearCredentials().then(window.close);
     },
   });
 
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed(old) {
-      Auth.clearCredentials()
-            .then(() => {
-              router.push('/error/403');
-              baseControls.updateErrorState(
-                intl.formatMessage(intlMessages.endMeetingMessage),
-              );
-            });
+      status = 'endMeeting';
+      clearCredential(status);
+    },
+  });
+
+  // Close the widow when the current breakout room ends
+  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+    removed(old) {
+      Auth.clearCredentials().then(window.close);
     },
   });
 
