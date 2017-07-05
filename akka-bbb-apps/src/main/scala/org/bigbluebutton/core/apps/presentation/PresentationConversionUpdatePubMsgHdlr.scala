@@ -8,9 +8,9 @@ trait PresentationConversionUpdatePubMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handlePresentationConversionUpdatePubMsg(msg: PresentationConversionUpdatePubMsg): Unit = {
-
-    def broadcastEvent(msg: PresentationConversionUpdatePubMsg): Unit = {
+  def handlePresentationConversionUpdatePubMsg(msg: PresentationConversionUpdateSysPubMsg): Unit = {
+    log.debug("**************** !!!!!PresentationConversionUpdateSysPubMsg " + msg.body.messageKey)
+    def broadcastEvent(msg: PresentationConversionUpdateSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PresentationConversionUpdateEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(PresentationConversionUpdateEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)

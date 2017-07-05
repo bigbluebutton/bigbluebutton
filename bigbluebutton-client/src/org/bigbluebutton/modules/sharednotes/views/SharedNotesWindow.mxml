@@ -73,7 +73,7 @@
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 			private var _lastPatch:Number = 0;
-			protected var _noteId:String="MAIN_WINDOW";
+			protected var _noteId:String = "MAIN_NOTE";
 			protected var _noteName:String = "";
 
 			[Bindable] private var options:SharedNotesOptions;
@@ -107,7 +107,7 @@
 
 				updateTitle();
 
-				if (noteId == "MAIN_WINDOW") {
+				if (noteId == "MAIN_NOTE") {
 					this.enabled = false;
 					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
 					getDocumentTimer.start();
@@ -115,7 +115,7 @@
 			}
 
 			private function gotCurrentDocument():void {
-				if(noteId == "MAIN_WINDOW"){
+				if(noteId == "MAIN_NOTE"){
 					getDocumentTimer.stop();
 				}
 			}
@@ -143,7 +143,7 @@
 			}
 
 			private function updateRoleDependentProperties(role:String):void {
-				if(noteId == "MAIN_WINDOW"){
+				if(noteId == "MAIN_NOTE"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
 				} else {
 					showCloseButton = role == Role.MODERATOR;

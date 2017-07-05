@@ -8,9 +8,9 @@ trait PresentationPageCountErrorPubMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handlePresentationPageCountErrorPubMsg(msg: PresentationPageCountErrorPubMsg): Unit = {
+  def handlePresentationPageCountErrorPubMsg(msg: PresentationPageCountErrorSysPubMsg): Unit = {
 
-    def broadcastEvent(msg: PresentationPageCountErrorPubMsg): Unit = {
+    def broadcastEvent(msg: PresentationPageCountErrorSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PresentationPageCountErrorEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(PresentationPageCountErrorEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
