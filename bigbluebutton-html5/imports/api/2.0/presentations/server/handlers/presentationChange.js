@@ -23,6 +23,8 @@ const clearCurrentPresentation = (meetingId, presentationId) => {
     if (numChanged) {
       return Logger.info('Unset as current presentation');
     }
+
+    return Logger.info('None presentation to unset');
   };
 
   return Presentations.update(selector, modifier, cb);
@@ -35,7 +37,6 @@ export default function handlePresentationChange({ header, body }) {
   check(meetingId, String);
   check(presentation, Object);
 
-  // We need to clear the flag of the older current presentation ¯\_(ツ)_/¯
   if (presentation.current) {
     clearCurrentPresentation(meetingId, presentation.id);
   }
