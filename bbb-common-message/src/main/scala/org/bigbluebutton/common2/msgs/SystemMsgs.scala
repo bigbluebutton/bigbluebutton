@@ -45,6 +45,15 @@ import org.bigbluebutton.common2.domain.DefaultProps
                                   body: MeetingDestroyedEvtMsgBody) extends BbbCoreMsg
   case class MeetingDestroyedEvtMsgBody(meetingId: String)
 
+object DisconnectAllClientsSysMsg { val NAME = "DisconnectAllClientsSysMsg"}
+case class DisconnectAllClientsSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                  body: DisconnectAllClientsSysMsgBody) extends BbbCoreMsg
+case class DisconnectAllClientsSysMsgBody(meetingId: String)
+
+object EndAndKickAllSysMsg { val NAME = "EndAndKickAllSysMsg"}
+case class EndAndKickAllSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                      body: EndAndKickAllSysMsgBody) extends BbbCoreMsg
+case class EndAndKickAllSysMsgBody(meetingId: String)
 
 
 object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg"}

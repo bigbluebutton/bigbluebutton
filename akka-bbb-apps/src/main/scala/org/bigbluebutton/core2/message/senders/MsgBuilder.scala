@@ -1,5 +1,6 @@
 package org.bigbluebutton.core2.message.senders
 
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.GuestWaiting
 
@@ -112,6 +113,65 @@ object MsgBuilder {
     val body = PresenterAssignedEvtMsgBody(intId, name, assignedBy)
     val header = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, meetingId, intId)
     val event = PresenterAssignedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingCreatedEvtMsg(meetingId: String, props: DefaultProps): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingCreatedEvtMsg.NAME)
+    val body = MeetingCreatedEvtBody(props)
+    val event = MeetingCreatedEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingDestroyedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingDestroyedEvtMsg.NAME, routing)
+    val body = MeetingDestroyedEvtMsgBody(meetingId)
+    val header = BbbCoreBaseHeader(MeetingDestroyedEvtMsg.NAME)
+    val event = MeetingDestroyedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildEndAndKickAllSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(EndAndKickAllSysMsg.NAME, routing)
+    val body = EndAndKickAllSysMsgBody(meetingId)
+    val header = BbbCoreHeaderWithMeetingId(EndAndKickAllSysMsg.NAME, meetingId)
+    val event = EndAndKickAllSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildDisconnectAllClientsSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(DisconnectAllClientsSysMsg.NAME, routing)
+    val body = DisconnectAllClientsSysMsgBody(meetingId)
+    val header = BbbCoreHeaderWithMeetingId(DisconnectAllClientsSysMsg.NAME, meetingId)
+    val event = DisconnectAllClientsSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildEjectAllFromVoiceConfMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(EjectAllFromVoiceConfMsg.NAME, routing)
+    val body = EjectAllFromVoiceConfMsgBody(voiceConf)
+    val header = BbbCoreHeaderWithMeetingId(EjectAllFromVoiceConfMsg.NAME, meetingId)
+    val event = EjectAllFromVoiceConfMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildPubSubPongSysRespMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(PubSubPongSysRespMsg.NAME, routing)
+    val body = PubSubPongSysRespMsgBody(system, timestamp)
+    val header = BbbCoreBaseHeader(PubSubPongSysRespMsg.NAME)
+    val event = PubSubPongSysRespMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
