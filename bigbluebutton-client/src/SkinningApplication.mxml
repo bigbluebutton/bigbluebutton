@@ -65,9 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:HBox id="logoHolder"
 					 paddingRight="20">
 				<mx:Image id="logo"
-						  height="26"
-						  maintainAspectRatio="true"
-						  source="@Embed('../resources/prod/logo.png')" />
+						  source="@Embed('../resources/prod/logo.swf')" />
 			</mx:HBox>
 			<mx:HBox id="quickLinks"
 					 width="1"
@@ -188,7 +186,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   height="60"
 					   id="controlBar"
 					   paddingTop="2"
-					   paddingBottom="2".
+					   paddingBottom="2"
 					   verticalAlign="middle">
 			<mx:Label htmlText="{copyrightText}"
 					  id="copyrightLabel2"

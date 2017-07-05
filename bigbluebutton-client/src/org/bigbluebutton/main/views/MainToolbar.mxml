@@ -487,7 +487,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function hideLogo():void {
-				logoHolder.visible = logoHolder.includeInLayout = false;
+				logo.visible = logo.includeInLayout = false;
 			}
 
 			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
@@ -516,9 +516,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
     
-    <mx:HBox id="logoHolder" paddingRight="20" >
-        <mx:Image id="logo" height="26" maintainAspectRatio="true" ioError="hideLogo()" />
-    </mx:HBox>
+    <mx:Image id="logo" verticalCenter="0" right="20" maxHeight="30" ioError="hideLogo()" />
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
