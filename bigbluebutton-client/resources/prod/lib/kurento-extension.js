@@ -3,7 +3,6 @@ var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isChrome = !!window.chrome && !isOpera;
 var kurentoHandler = null;
 
-/* prototypal code above, real shit below */
 Kurento = function (
     tag,
     voiceBridge,
@@ -53,12 +52,10 @@ Kurento = function (
   }
 };
 
-
 this.KurentoManager= function () {
   this.kurentoVideo = null;
   this.kurentoScreenShare = null;
 };
-
 
 KurentoManager.prototype.exitScreenShare = function () {
   console.log("exitScreenShare");
@@ -120,11 +117,11 @@ Kurento.prototype.init = function () {
 
     this.ws.onmessage = this.onWSMessage;
     this.ws.onclose = function (close) {
-      self.exitScreenShare();
+      kurentoManager.exitScreenShare();
       console.log("TODO WS onclose");
     };
     this.ws.onerror = function (error) {
-      self.exitScreenShare();
+      kurentoManager.exitScreenShare();
       console.log("TODO WS error");
     };
     this.ws.onopen = function() {
@@ -225,7 +222,6 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   kurentoHandler.sendMessage(message);
 }
 
-//streamId for streaming
 Kurento.prototype.startScreenStreamFrom = function () {
   console.log("Kurento.startScreenStreamFrom");
   var screenInfo = null;
@@ -369,7 +365,6 @@ Kurento.prototype.logError = function (obj) {
 };
 
 Kurento.prototype.getChromeScreenConstraints = function(callback, extensionId) {
-  console.log('getting screen constraints');
   chrome.runtime.sendMessage(extensionId, {
     getStream: true,
     sources: [
@@ -398,10 +393,7 @@ window.getScreenConstraints = function(sendSource, callback) {
       // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
       kurentoHandler.screenConstraints.video.chromeMediaSource = { exact: [sendSource]};
       kurentoHandler.screenConstraints.video.chromeMediaSourceId= sourceId;
-      //kurentoHandler.screenConstraints.video.width= {max: kurentoHandler.vid_width};
-      //kurentoHandler.screenConstraints.video.height = {max:  kurentoHandler.vid_height};
-
-      console.log("getScreenConstraints is now => " +JSON.stringify(kurentoHandler.screenConstraints, null, 2));
+      console.log("getScreenConstraints for Chrome returns => " +JSON.stringify(kurentoHandler.screenConstraints, null, 2));
       // now invoking native getUserMedia API
       callback(null, kurentoHandler.screenConstraints);
 
@@ -412,21 +404,19 @@ window.getScreenConstraints = function(sendSource, callback) {
     kurentoHandler.screenConstraints.video.width= {max: kurentoHandler.vid_width};
     kurentoHandler.screenConstraints.video.height = {max:  kurentoHandler.vid_height};
 
-    console.log("getScreenConstraints is now => " +JSON.stringify(kurentoHandler.screenConstraints, null, 2));
+    console.log("getScreenConstraints for Firefox returns => " +JSON.stringify(kurentoHandler.screenConstraints, null, 2));
     // now invoking native getUserMedia API
     callback(null, kurentoHandler.screenConstraints);
   }
 }
 
 window.kurentoInitialize = function () {
-  console.log("kurentoInitialize");
   if (window.kurentoManager == null || window.KurentoManager == undefined) {
     window.kurentoManager = new KurentoManager();
   }
 };
 
 window.kurentoShareScreen = function() {
-  console.log("window.kurentoShareScreen");
   window.kurentoInitialize();
   window.kurentoManager.shareScreen.apply(window.kurentoManager, arguments);
 };

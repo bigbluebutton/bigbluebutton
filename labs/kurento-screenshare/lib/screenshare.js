@@ -98,13 +98,13 @@ function Screenshare(_ws, _id, _bbbgw, _voiceBridge, _caller, _vh, _vw) {
     sdpOffer = h264_sdp.transform(sdpOffer);
     console.log("Starting presenter for " + sdpOffer);
 
-    MediaHandler.getKurentoClient(function(error, kurentoClient) {
+    getKurentoClient(function(error, kurentoClient) {
       if (error) {
         console.log("Kurento client error " + error);
         return theCallback(error);
       }
 
-      MediaHandler.getMediaPipeline(id, function(error, pipeline) {
+      getMediaPipeline(id, function(error, pipeline) {
         if (error) {
           console.log("Media pipeline client error" + error);
           return theCallback(error);
