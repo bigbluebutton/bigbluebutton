@@ -253,6 +253,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</fx:Script>
+	
+	<mx:HRule strokeWidth="1" width="100%"/>
+	
 	<mx:Box width="100%" height="100%" horizontalAlign="left">
 		<containers:SuperTabNavigator id="captionTabs"
 									  width="100%" height="100%" minTabWidth="20"

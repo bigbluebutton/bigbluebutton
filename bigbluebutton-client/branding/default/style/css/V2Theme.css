@@ -68,6 +68,13 @@ mx|ApplicationControlBar {
 	shadowDirection: center;
 }
 
+.toolbarSeparator {
+	strokeWidth : 1;
+	strokeColor : #cdd4db;
+	paddingLeft : 20;
+	paddingRight : 20;
+}
+
 .meetingNameLabelStyle {
 	fontSize: 14;
 	textAlign: left;
@@ -312,17 +319,17 @@ flexlib|MDIWindow {
 
 .mdiMaximizeButtonStyle {
 	upSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Up");
-	overSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Up");
-	downSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Up");
-	disabledSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Up");
+	overSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Over");
+	downSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Down");
+	disabledSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Disabled");
 }
 
 
 .mdiMinimizeButtonStyle {
 	upSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Up");
-	overSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Up");
-	downSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Up");
-	disabledSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Up");
+	overSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Over");
+	downSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Down");
+	disabledSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Disabled");
 }
 
 .mdiWindowTitle {

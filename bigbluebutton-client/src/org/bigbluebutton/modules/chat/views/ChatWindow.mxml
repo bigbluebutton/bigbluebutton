@@ -194,5 +194,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 	
+	<mx:HRule strokeWidth="1" width="100%"/>
+	
 	<views:ChatView id="chatView" chatOptions="{chatOptions}" includeInLayout="false"/>
 </CustomMdiWindow>

@@ -516,7 +516,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
     
-    <mx:Image id="logo" verticalCenter="0" right="20" maxHeight="30" ioError="hideLogo()" />
+    <mx:Image id="logo" right="20" maxHeight="30" ioError="hideLogo()" />
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
@@ -534,12 +534,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
 					   height="20" styleName="quickWindowLinkStyle" />
     </mx:HBox>
+	<mx:VRule styleName="toolbarSeparator" height="10" />
+	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 	<mx:HBox id="addedBtns"/>
 	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="30"/>
 	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
-	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
 	<mx:Button
 			id="bbbSettings"

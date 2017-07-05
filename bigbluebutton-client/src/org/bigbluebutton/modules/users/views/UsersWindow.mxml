@@ -682,6 +682,8 @@
 		<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
 	</fx:Declarations>
 	
+	<mx:HRule strokeWidth="1" width="100%"/> 
+	
 	<views:BBBDataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" draggableColumns="false"
     	itemRollOver="onItemRollOver(event)"

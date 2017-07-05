@@ -62,11 +62,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:ApplicationControlBar dock="true"
 								  width="100%"
 								  height="50">
-			<mx:HBox id="logoHolder"
-					 paddingRight="20">
-				<mx:Image id="logo"
-						  source="@Embed('../resources/prod/logo.swf')" />
-			</mx:HBox>
+			<mx:Image id="logo"
+					  source="@Embed('../resources/prod/logo.swf')" />
 			<mx:HBox id="quickLinks"
 					 width="1"
 					 includeInLayout="false">
@@ -101,6 +98,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   height="30"
 							   styleName="quickWindowLinkStyle" />
 			</mx:HBox>
+			<mx:VRule styleName="toolbarSeparator"
+					  height="10" />
+			<mx:Label id="meetingNameLbl"
+					  width="100%"
+					  minWidth="1"
+					  text="Demo Meeting"
+					  styleName="meetingNameLabelStyle" />
 			<mx:HBox id="addedBtns">
 				<mx:Button id="micButton"
 						   styleName="voiceConfDefaultButtonStyle"
@@ -120,12 +124,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								height="20" /-->
 			<!--views:WebRTCAudioStatus id="webRTCAudioStatus"
 									 height="20" /-->
-			<mx:Label id="meetingNameLbl"
-					  width="100%"
-					  minWidth="1"
-					  text="Demo Meeting"
-					  styleName="meetingNameLabelStyle" />
-
 			<mx:Button id="bbbSettings"
 					   toolTip="bbb.settings.btn.toolTip"
 					   styleName="settingsButtonStyle"
