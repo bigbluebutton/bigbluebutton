@@ -295,7 +295,8 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
 
                 //Generate video stream name
                 videoStreamName = generateVideoStreamName(type);
-                outputLive = "rtmp://" + destinationIp + "/video/" + meetingId + "/"
+                // TODO make stream path dynamic by turning it into a param
+                outputLive = "rtmp://" + destinationIp + "/video-broadcast/" + meetingId + "/"
                         + videoStreamName+" live=1";
                 output = videoStreamName;
 
