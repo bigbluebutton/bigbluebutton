@@ -89,6 +89,13 @@ package org.bigbluebutton.skins {
 			var borderColorDown:uint = getStyle("borderColorDown");
 			var borderColorDisabled:uint = getStyle("borderColorDisabled");
 
+			var borderAlphaUp:uint = getStyle("borderAlphaUp");
+			var borderAlphaOver:uint = getStyle("borderAlphaOver");
+			var borderAlphaDown:uint = getStyle("borderAlphaDown");
+			var borderAlphaDisabled:uint = getStyle("borderAlphaDisabled");
+
+			var borderThikness:uint = getStyle("borderThikness");
+
 			var fillColorUp:uint = getStyle("fillColorUp");
 			var fillColorOver:uint = getStyle("fillColorOver");
 			var fillColorDown:uint = getStyle("fillColorDown");
@@ -107,7 +114,7 @@ package org.bigbluebutton.skins {
 
 			// Corner radius
 			var cr:Number = Math.max(0, cornerRadius);
-			var cr1:Number = Math.max(0, cornerRadius - 1);
+			var cr1:Number = Math.max(0, cornerRadius - borderThikness);
 
 			graphics.clear();
 
@@ -150,38 +157,38 @@ package org.bigbluebutton.skins {
 
 				case "upSkin":  {
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorUp, borderAlphaUp);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorUp, 1);
+					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
 					break;
 				}
 
 				case "overSkin":  {
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorOver, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorOver, borderAlphaOver);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorOver, 1);
+					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorOver, 1);
 					break;
 				}
 
 				case "downSkin":  {
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorDown, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorDown, borderAlphaDown);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorDown, 1);
+					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorDown, 1);
 					break;
 				}
 
 
 				case "disabledSkin":  {
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorDisabled, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorDisabled, borderAlphaDisabled);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorDisabled, 1);
+					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorDisabled, 1);
 					break;
 				}
 

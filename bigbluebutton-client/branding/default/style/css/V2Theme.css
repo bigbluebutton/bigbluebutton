@@ -48,6 +48,58 @@ mx|Application {
 	backgroundColor : #F1F3F7;
 }
 
+
+/*
+//------------------------------
+//  AudioSelectionWindow
+//------------------------------
+*/
+
+.micSettingsWindowStyle {
+	borderColor : #FFFFFF;
+	cornerRadius : 4;
+	roundedBottomCorners : true;
+	dropShadowEnabled : true;
+	shadowDistance : 0;
+}
+
+.webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
+	fontSize: 24;
+	textAlign : center;
+}
+
+.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
+	borderAlphaUp : 0;
+	borderAlphaOver : 1;
+	borderAlphaDown : 1;
+	borderAlphaDisabled : 0;
+	
+	fillColorUp : #eff5fa;
+	borderColorOver : #3797d3;
+	borderColorDown : #3797d3;
+	
+	borderThikness : 5;
+	cornerRadius : 70;
+}
+
+.btnMicrophoneStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Big");
+}
+
+.btnListenOnlyStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Headset_Big");
+}
+
+.btnPhoneStyle {
+	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Phone_Big");
+}
+
+.audioSubtitle {
+	color : #363b43;
+	fontSize : 14;
+	fontWeight : bold;
+}
+
 /*
 //------------------------------
 //  ApplicationControlBar
@@ -174,8 +226,8 @@ mx|Alert {
 	borderAlpha       : 1;
 	dropShadowEnabled : false;
 	color             : #6c6c6c;
-	titleStyleName: "alertTitleStyle";
-	messageStyleName: "alertMessageStyle";
+	titleStyleName    : "alertTitleStyle";
+	messageStyleName  : "alertMessageStyle";
 }
 
 mx|AlertForm {
@@ -225,6 +277,13 @@ mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .c
 	borderColorOver     : #cdd4db;
 	borderColorDown     : #acb2b7;
 	borderColorDisabled : #cdd4db;
+	
+	borderAlphaUp : 1;
+	borderAlphaOver : 1;
+	borderAlphaDown : 1;
+	borderAlphaDisabled : 1;
+	
+	borderThikness : 1;
 	
 	/* Selected state */
 	fillColorSelectedUp       : #f0f2f6;
@@ -908,12 +967,6 @@ mx|TitleWindow {
 	color: #3f3f3f;
 	fontSize:	11;
 	fontWeight:	bold;	
-}
-
-.webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
-	fontFamily: Arial;
-	fontSize: 20;  
-	fontWeight: bold;
 }
 
 .micSettingsWindowTestSpeakersLabelStyle, .micSettingsWindowTestMicrophoneLabelStyle {

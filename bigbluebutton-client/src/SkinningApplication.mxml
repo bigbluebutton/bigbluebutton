@@ -126,8 +126,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  styleName="meetingNameLabelStyle" />
 			<mx:HBox id="addedBtns">
 				<mx:Button id="micButton"
-						   styleName="voiceConfButtonStyle"
-						   click="{micButton.selected = !micButton.selected}"
+						   styleName="voiceConfDefaultButtonStyle"
+						   mouseOver="{micButton.selected == true ? micButton.styleName = 'voiceConfInactiveButtonStyle' : micButton.styleName = 'voiceConfActiveButtonStyle'}"
+						   mouseOut="{micButton.selected == true ? micButton.styleName = 'voiceConfActiveButtonStyle' : micButton.styleName = 'voiceConfActiveButtonStyle'}"
+						   click="{micButton.selected = !micButton.selected; micButton.selected == true ? micButton.styleName = 'voiceConfActiveButtonStyle' : micButton.styleName = 'voiceConfDefaultButtonStyle'}"
 						   height="30" />
 				<mx:PopUpButton id="webcamPopUp"
 								styleName="webcamDefaultButtonStyle"
