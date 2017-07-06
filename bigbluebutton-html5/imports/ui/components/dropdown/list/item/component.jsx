@@ -58,7 +58,7 @@ export default class DropdownListItem extends Component {
         {
           description ?
           (<span id={this.descID} key="describedby" hidden>{description}</span>)
-          : null
+          : (<span id={this.descID} key="describedby" hidden></span>)
         }
       </li>
     );
