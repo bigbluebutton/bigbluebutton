@@ -20,7 +20,6 @@ import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
-import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
 
@@ -38,38 +37,33 @@ object MeetingActor {
 
 class MeetingActor(val props: DefaultProps,
   val eventBus: IncomingEventBus,
-  val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
+  val outGW: OutMessageGateway,
+  val liveMeeting: LiveMeeting)
     extends BaseMeetingActor
     with GuestsApp
     with LayoutApp2x
     with VoiceApp2x
     with PollApp2x
-    with BreakoutApp2x
+    with BreakoutApp2XCmdReq
+    with UsersApp2x
 
-    with UsersApp with PresentationApp
-    with ChatApp with WhiteboardApp
+    with PresentationApp
+    with ChatApp
+    with WhiteboardApp
+
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
     with UserConnectedToGlobalAudioHdlr
     with UserDisconnectedFromGlobalAudioHdlr
-    with MuteAllExceptPresenterRequestHdlr
-    with MuteMeetingRequestHdlr
-    with IsMeetingMutedRequestHdlr
-    with MuteUserRequestHdlr
-    with EjectUserFromVoiceRequestHdlr
-    with ValidateAuthTokenReqMsgHdlr
-    with BreakoutRoomsListMsgHdlr
-    with CreateBreakoutRoomsMsgHdlr
-    with EndAllBreakoutRoomsMsgHdlr
-    with RequestBreakoutJoinURLMsgHdlr
-    with BreakoutRoomCreatedMsgHdlr
-    with BreakoutRoomEndedMsgHdlr
-    with BreakoutRoomUsersUpdateMsgHdlr
-    with SendBreakoutUsersUpdateMsgHdlr
-    with SyncGetMeetingInfoRespMsgHdlr
-    with TransferUserToMeetingRequestHdlr {
+    with MuteAllExceptPresentersCmdMsgHdlr
+    with MuteMeetingCmdMsgHdlr
+    with IsMeetingMutedReqMsgHdlr
+    with MuteUserCmdMsgHdlr
+    with EjectUserFromVoiceCmdMsgHdlr
+
+    with SyncGetMeetingInfoRespMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -93,7 +87,6 @@ class MeetingActor(val props: DefaultProps,
   eventBus.subscribe(actorMonitor, props.voiceProp.voiceConf)
   eventBus.subscribe(actorMonitor, props.screenshareProps.screenshareConf)
 
-  val usersApp2x = new UsersApp2x(liveMeeting, outGW = outGW)
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
@@ -108,7 +101,7 @@ class MeetingActor(val props: DefaultProps,
     //=============================
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-    case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+
     case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
 
     //======================================
@@ -117,19 +110,10 @@ class MeetingActor(val props: DefaultProps,
     // old messages
     case msg: ActivityResponse => handleActivityResponse(msg)
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
-    //case msg: RegisterUser => handleRegisterUser(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
 
-    case msg: AssignPresenter => handleAssignPresenter(msg)
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
 
-    case msg: UserEmojiStatus => handleUserEmojiStatus(msg)
-
-    case msg: MuteMeetingRequest => handleMuteMeetingRequest(msg)
-    case msg: MuteAllExceptPresenterRequest => handleMuteAllExceptPresenterRequest(msg)
-    case msg: IsMeetingMutedRequest => handleIsMeetingMutedRequest(msg)
-    case msg: MuteUserRequest => handleMuteUserRequest(msg)
-    case msg: EjectUserFromVoiceRequest => handleEjectUserRequest(msg)
     case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
     case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
     case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
@@ -160,13 +144,17 @@ class MeetingActor(val props: DefaultProps,
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
+
+      // Users
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
-      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
+      case m: RegisterUserReqMsg => handle(m)
       case m: UserJoinMeetingReqMsg => handle(m)
       case m: UserLeaveReqMsg => handle(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
+
+      // Whiteboard
       case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)
       case m: ClearWhiteboardPubMsg => handleClearWhiteboardPubMsg(m)
       case m: UndoWhiteboardPubMsg => handleUndoWhiteboardPubMsg(m)
@@ -174,6 +162,8 @@ class MeetingActor(val props: DefaultProps,
       case m: GetWhiteboardAccessReqMsg => handleGetWhiteboardAccessReqMsg(m)
       case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
       case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
+
+      // Poll
       case m: StartPollReqMsg => handleStartPollReqMsg(m)
       case m: StartCustomPollReqMsg => handleStartCustomPollReqMsg(m)
       case m: StopPollReqMsg => handleStopPollReqMsg(m)
@@ -181,6 +171,8 @@ class MeetingActor(val props: DefaultProps,
       case m: HidePollResultReqMsg => handleHidePollResultReqMsg(m)
       case m: GetCurrentPollReqMsg => handleGetCurrentPollReqMsg(m)
       case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
+
+      // Breakout
       case m: BreakoutRoomsListMsg => handleBreakoutRoomsListMsg(m)
       case m: CreateBreakoutRoomsMsg => handleCreateBreakoutRoomsMsg(m)
       case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
@@ -190,12 +182,18 @@ class MeetingActor(val props: DefaultProps,
       case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
       case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+
+      // Voice
       case m: UserLeftVoiceConfEvtMsg => handle(m)
       case m: UserMutedInVoiceConfEvtMsg => handle(m)
       case m: UserTalkingInVoiceConfEvtMsg => handle(m)
+
+      // Layout
       case m: GetCurrentLayoutReqMsg => handle(m)
       case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
+
+      // Presentation
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
       case m: GetPresentationInfoReqMsg => presentationApp2x.handleGetPresentationInfoReqMsg(m)
       case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
@@ -219,7 +217,7 @@ class MeetingActor(val props: DefaultProps,
       case m: CreateSharedNoteReqMsg => sharedNotesApp2x.handleCreateSharedNoteReqMsg(m)
       case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handleDestroySharedNoteReqMsg(m)
 
-      //Guests
+      // Guests
       case m: GetGuestsWaitingApprovalReqMsg => handle(m)
       case m: SetGuestPolicyMsg => handle(m)
       case m: GuestsWaitingApprovedMsg => handle(m)
@@ -228,28 +226,12 @@ class MeetingActor(val props: DefaultProps,
     }
   }
 
-  def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
-    log.debug("****** RECEIVED RegisterUserReqMsg msg {}", msg)
-    if (MeetingStatus2x.hasMeetingEnded(liveMeeting.status)) {
-      // Check first if the meeting has ended and the user refreshed the client to re-connect.
-      log.info("Register user failed. Mmeeting has ended. meetingId=" + props.meetingProp.intId +
-        " userId=" + msg.body.intUserId)
-    } else {
-      val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
-        msg.body.name, msg.body.role, msg.body.authToken,
-        msg.body.avatarURL, msg.body.guest, msg.body.authed, msg.body.guest, liveMeeting.registeredUsers)
-
-      log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.extUserId + " user=" + regUser)
-      outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
-    }
-  }
-
   def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
     // sync all meetings
     handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
 
     // sync all users
-    usersApp2x.handleSyncGetUsersMeetingRespMsg()
+    handleSyncGetUsersMeetingRespMsg()
 
     // sync all presentations
     presentationApp2x.handleSyncGetPresentationInfoRespMsg()
@@ -270,9 +252,9 @@ class MeetingActor(val props: DefaultProps,
       DeskshareModel.broadcastingRTMPStopped(liveMeeting.deskshareModel)
 
       // notify viewers that RTMP broadcast stopped
-      outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId,
-        DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
-        msg.videoWidth, msg.videoHeight, false))
+      //outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId,
+      //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
+      //  msg.videoWidth, msg.videoHeight, false))
     } else {
       log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
     }
@@ -286,10 +268,10 @@ class MeetingActor(val props: DefaultProps,
 
     if (DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel)) {
       // if the meeting has an ongoing WebRTC Deskshare session, send a notification
-      outGW.send(new DeskShareNotifyASingleViewer(props.meetingProp.intId, msg.requesterID,
-        DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
-        DeskshareModel.getDesktopShareVideoWidth(liveMeeting.deskshareModel),
-        DeskshareModel.getDesktopShareVideoHeight(liveMeeting.deskshareModel), true))
+      //outGW.send(new DeskShareNotifyASingleViewer(props.meetingProp.intId, msg.requesterID,
+      //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
+      //  DeskshareModel.getDesktopShareVideoWidth(liveMeeting.deskshareModel),
+      //  DeskshareModel.getDesktopShareVideoHeight(liveMeeting.deskshareModel), true))
     }
   }
 
@@ -313,7 +295,6 @@ class MeetingActor(val props: DefaultProps,
         handleEndMeeting(EndMeeting(props.meetingProp.intId))
       }
     }
-
   }
 
   def handleActivityResponse(msg: ActivityResponse) {

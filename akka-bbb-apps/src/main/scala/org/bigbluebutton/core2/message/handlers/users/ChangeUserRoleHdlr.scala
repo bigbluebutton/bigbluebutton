@@ -7,6 +7,6 @@ trait ChangeUserRoleHdlr {
   this: MeetingActor =>
 
   def handle(msg: ChangeUserRole): Unit = {
-    usersApp2x.handle(msg)
+    log.error("TODO:: To be implemented !!!!!")
   }
 }

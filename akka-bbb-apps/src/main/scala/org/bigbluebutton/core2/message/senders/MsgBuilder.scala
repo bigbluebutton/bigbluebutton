@@ -136,8 +136,8 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildEndAndKickAllSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+  def buildEndAndKickAllSysMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
     val envelope = BbbCoreEnvelope(EndAndKickAllSysMsg.NAME, routing)
     val body = EndAndKickAllSysMsgBody(meetingId)
     val header = BbbCoreHeaderWithMeetingId(EndAndKickAllSysMsg.NAME, meetingId)
@@ -172,6 +172,26 @@ object MsgBuilder {
     val body = PubSubPongSysRespMsgBody(system, timestamp)
     val header = BbbCoreBaseHeader(PubSubPongSysRespMsg.NAME)
     val event = PubSubPongSysRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildEjectUserFromVoiceConfSysMsg(meetingId: String, voiceConf: String, voiceUserId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(EjectUserFromVoiceConfSysMsg.NAME, routing)
+    val body = EjectUserFromVoiceConfSysMsgBody(voiceConf, voiceUserId)
+    val header = BbbCoreHeaderWithMeetingId(EjectUserFromVoiceConfSysMsg.NAME, meetingId)
+    val event = EjectUserFromVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMuteUserInVoiceConfSysMsg(meetingId: String, voiceConf: String, voiceUserId: String, mute: Boolean): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MuteUserInVoiceConfSysMsg.NAME, routing)
+    val body = MuteUserInVoiceConfSysMsgBody(voiceConf, voiceUserId, mute)
+    val header = BbbCoreHeaderWithMeetingId(MuteUserInVoiceConfSysMsg.NAME, meetingId)
+    val event = MuteUserInVoiceConfSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

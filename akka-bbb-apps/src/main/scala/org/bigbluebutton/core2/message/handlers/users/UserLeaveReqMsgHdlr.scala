@@ -5,7 +5,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor
 
-trait UserLeavingHdlr {
+trait UserLeaveReqMsgHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway

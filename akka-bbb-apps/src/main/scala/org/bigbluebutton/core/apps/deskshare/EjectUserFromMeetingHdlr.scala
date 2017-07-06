@@ -12,13 +12,13 @@ trait EjectUserFromMeetingHdlr {
     if (userToEject.presenter) {
       if (DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel)) {
         // The presenter left during desktop sharing. Stop desktop sharing on FreeSWITCH
-        outGW.send(new DeskShareHangUp(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf))
+        //    outGW.send(new DeskShareHangUp(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf))
 
         // notify other clients to close their deskshare view
-        outGW.send(new DeskShareNotifyViewersRTMP(liveMeeting.props.meetingProp.intId,
-          DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
-          DeskshareModel.getDesktopShareVideoWidth(liveMeeting.deskshareModel),
-          DeskshareModel.getDesktopShareVideoHeight(liveMeeting.deskshareModel), false))
+        //    outGW.send(new DeskShareNotifyViewersRTMP(liveMeeting.props.meetingProp.intId,
+        //      DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
+        //      DeskshareModel.getDesktopShareVideoWidth(liveMeeting.deskshareModel),
+        //      DeskshareModel.getDesktopShareVideoHeight(liveMeeting.deskshareModel), false))
 
         // reset meeting info
         DeskshareModel.resetDesktopSharingParams(liveMeeting.deskshareModel)

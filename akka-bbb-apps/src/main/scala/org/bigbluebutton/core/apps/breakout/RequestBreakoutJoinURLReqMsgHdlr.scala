@@ -2,18 +2,17 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.apps.BreakoutRoomsUtil
 import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x }
 import org.bigbluebutton.core.running.MeetingActor
 
-trait RequestBreakoutJoinURLMsgHdlr {
+trait RequestBreakoutJoinURLReqMsgHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
-  def handleRequestBreakoutJoinURLMsg(msg: RequestBreakoutJoinURLMsg): Unit = {
+  def handle(msg: RequestBreakoutJoinURLReqMsg): Unit = {
 
-    def broadcastEvent(msg: RequestBreakoutJoinURLMsg): Unit = {
+    def broadcastEvent(msg: RequestBreakoutJoinURLReqMsg): Unit = {
       for {
         breakoutRoom <- BreakoutRooms.getRoomWithExternalId(liveMeeting.breakoutRooms, msg.body.breakoutMeetingId)
       } yield sendJoinURL(msg.body.userId, msg.body.breakoutMeetingId, breakoutRoom.sequence.toString())
@@ -35,13 +34,13 @@ trait RequestBreakoutJoinURLMsgHdlr {
         noRedirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, noRedirectBaseString,
           BreakoutRoomsUtil.calculateChecksum(apiCall, noRedirectBaseString, bbbWebSharedSecret))
       } yield {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
-        val envelope = BbbCoreEnvelope(BreakoutRoomJoinURLEvtMsg.NAME, routing)
-        val header = BbbClientMsgHeader(BreakoutRoomJoinURLEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
+        val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, props.meetingProp.intId, msg.header.userId)
+        val envelope = BbbCoreEnvelope(RequestBreakoutJoinURLRespMsg.NAME, routing)
+        val header = BbbClientMsgHeader(RequestBreakoutJoinURLRespMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-        val body = BreakoutRoomJoinURLEvtMsgBody(props.meetingProp.intId,
-          props.recordProp.record, externalMeetingId, userId, redirectJoinURL, noRedirectJoinURL)
-        val event = BreakoutRoomJoinURLEvtMsg(header, body)
+        val body = RequestBreakoutJoinURLRespMsgBody(props.meetingProp.intId,
+          externalMeetingId, userId, redirectJoinURL, noRedirectJoinURL)
+        val event = RequestBreakoutJoinURLRespMsg(header, body)
         val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
         outGW.send(msgEvent)

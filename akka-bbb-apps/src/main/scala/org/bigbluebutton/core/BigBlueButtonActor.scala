@@ -217,7 +217,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       }
 
       // Eject all users using the client.
-      val endAndKickAllEvt = MsgBuilder.buildEndAndKickAllSysMsg(msg.meetingID)
+      val endAndKickAllEvt = MsgBuilder.buildEndAndKickAllSysMsg(msg.meetingID, "not-used")
       outGW.send(endAndKickAllEvt)
 
       // Eject all users from the voice conference

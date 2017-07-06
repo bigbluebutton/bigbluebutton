@@ -10,9 +10,11 @@ trait ChangeUserRoleHdlr {
     for {
       uvo <- Users2x.changeRole(liveMeeting.users2x, msg.userID, msg.role)
     } yield {
-      val userRole = if (msg.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
-      outGW.send(new UserRoleChange(liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.recordProp.record, msg.userID, userRole))
+      val userRole = if (uvo.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
+      // TODO: Implement handler
+
+      //outGW.send(new UserRoleChange(liveMeeting.props.meetingProp.intId,
+      //  liveMeeting.props.recordProp.record, msg.userID, userRole))
     }
   }
 }

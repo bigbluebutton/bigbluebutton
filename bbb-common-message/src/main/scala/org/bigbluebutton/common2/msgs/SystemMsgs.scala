@@ -67,6 +67,18 @@ object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg"}
   case class PubSubPongSysRespMsgBody(system: String, timestamp: Long)
 
   /** System Messages **/
+
+
+object MeetingInactivityWarningEvtMsg { val NAME = "MeetingInactivityWarningEvtMsg" }
+case class MeetingInactivityWarningEvtMsg(header: BbbClientMsgHeader,
+                                body: MeetingInactivityWarningEvtMsgBody) extends BbbCoreMsg
+case class MeetingInactivityWarningEvtMsgBody(timeLeftInSec: Long)
+
+object MeetingIsActiveEvtMsg { val NAME = "MeetingIsActiveEvtMsg" }
+case class MeetingIsActiveEvtMsg(header: BbbClientMsgHeader,
+                                          body: MeetingIsActiveEvtMsgBody) extends BbbCoreMsg
+case class MeetingIsActiveEvtMsgBody(meetingId: String)
+
   case class AkkaAppsCheckAliveReqBody(timestamp: Long)
   case class AkkaAppsCheckAliveReqMsg(header: BbbCoreHeader, body: AkkaAppsCheckAliveReqBody)
   case class AkkaAppsCheckAliveReq(envelope: BbbCoreEnvelope, msg: AkkaAppsCheckAliveReqMsg) extends BbbCoreMsg
