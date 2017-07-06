@@ -1,14 +1,9 @@
 import { check } from 'meteor/check';
-import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users/';
 import addUser from '../modifiers/addUser';
 import removeUser from '../modifiers/removeUser';
-import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 
-export default function handleGetUsers({ envelope, body }, meetingId) {
-  if (!inReplyToHTML5Client(envelope)) {
-    return;
-  }
+export default function handleGetUsers({ body }, meetingId) {
   const { users } = body;
 
   check(meetingId, String);

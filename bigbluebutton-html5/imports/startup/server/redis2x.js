@@ -95,18 +95,27 @@ class RedisPubSub2x {
 
   handleMessage(pattern, channel, message) {
     Logger.warn(`2.0 handleMessage: ${message}`);
+    const REDIS_CONFIG = Meteor.settings.redis;
+    const { fromAkkaApps, toHTML5 } = REDIS_CONFIG.channels;
+
     const parsedMessage = JSON.parse(message);
     const { header } = parsedMessage.core;
     const eventName = header.name;
 
-    Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName}`);
+    Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName} | CHANNEL ${channel}`);
 
-    return this.queue.add({
-      pattern,
-      channel,
-      eventName,
-      parsedMessage,
-    });
+    // We should only handle messages from this two channels, else, we simple ignore them.
+    if (channel === fromAkkaApps || channel === toHTML5) {
+      this.queue.add({
+        pattern,
+        channel,
+        eventName,
+        parsedMessage,
+      });
+      return;
+    }
+
+    Logger.warn(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
   }
 
   handleTask(data, next) {
