@@ -17,10 +17,10 @@ export default class DropdownListTitle extends Component {
     const { intl, description } = this.props;
 
     return (
-      <div>
-        <li className={styles.title} aria-describedby={this.labelID}>{this.props.children}</li>
+      <li className={styles.title} aria-describedby={this.labelID}>
+        {this.props.children}
         <div id={this.labelID} aria-label={description} />
-      </div>
+      </li>
     );
   }
 }
