@@ -2,7 +2,6 @@ package org.bigbluebutton.core.api
 
 import org.bigbluebutton.common2.msgs.BreakoutUserVO
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.apps.SharedNotesOperation.SharedNotesOperation
 import spray.json.JsObject
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
@@ -192,14 +191,3 @@ case class DeskShareStoppedRequest(conferenceName: String, callerId: String, cal
 case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
 case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
 case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
-
-/////////////////////////////////////////////////////////////////////////////////////
-// Shared notes
-/////////////////////////////////////////////////////////////////////////////////////
-
-case class PatchDocumentRequest(meetingID: String, requesterID: String, noteID: String, patch: String, operation: SharedNotesOperation) extends InMessage
-case class GetCurrentDocumentRequest(meetingID: String, requesterID: String) extends InMessage
-case class CreateAdditionalNotesRequest(meetingID: String, requesterID: String, noteName: String) extends InMessage
-case class DestroyAdditionalNotesRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage
-case class RequestAdditionalNotesSetRequest(meetingID: String, requesterID: String, additionalNotesSetSize: Int) extends InMessage
-case class SharedNotesSyncNoteRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage
