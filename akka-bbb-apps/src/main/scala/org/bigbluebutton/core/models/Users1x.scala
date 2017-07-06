@@ -6,19 +6,6 @@ import com.softwaremill.quicklens.ModifyPimp
 import com.softwaremill.quicklens.modify
 import org.bigbluebutton.common2.domain.{ UserVO, VoiceUserVO }
 
-object CallingWith {
-  val WEBRTC = "webrtc"
-  val FLASH = "flash"
-  val PHONE = "phone"
-}
-
-object Roles {
-  val MODERATOR_ROLE = "MODERATOR"
-  val PRESENTER_ROLE = "PRESENTER"
-  val VIEWER_ROLE = "VIEWER"
-  val GUEST_ROLE = "GUEST"
-}
-
 object Users1x {
 
   def newUser(userId: String, lockStatus: Boolean, ru: RegisteredUser, waitingForAcceptance: Boolean,

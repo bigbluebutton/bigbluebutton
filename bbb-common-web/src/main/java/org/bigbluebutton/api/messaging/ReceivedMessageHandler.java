@@ -1,76 +1,76 @@
 package org.bigbluebutton.api.messaging;
 
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.bigbluebutton.api.IReceivedOldMessageHandler;
+import org.bigbluebutton.api.messaging.messages.IMessage;
+import org.bigbluebutton.api2.bus.OldMessageReceivedGW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReceivedMessageHandler implements IReceivedOldMessageHandler {
-	private static Logger log = LoggerFactory.getLogger(ReceivedMessageHandler.class);
-	
-	private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
-	
-	private volatile boolean processMessage = false;
-	
-	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
-	private final Executor runExec = Executors.newSingleThreadExecutor();
-	
-	private MessageDistributor handler;
-	
-	public void stop() {
-		processMessage = false;
-	}
-	
-	public void start() {	
-		log.info("Ready to handle messages from Redis pubsub!");
+  private static Logger log = LoggerFactory.getLogger(ReceivedMessageHandler.class);
 
-		try {
-			processMessage = true;
-			
-			Runnable messageProcessor = new Runnable() {
-			    public void run() {
-			    	while (processMessage) {
-			    		try {
-							ReceivedMessage msg = receivedMessages.take();
-							processMessage(msg);
-						} catch (InterruptedException e) {
-							log.warn("Error while taking received message from queue.");
-						}   			    		
-			    	}
-			    }
-			};
-			msgProcessorExec.execute(messageProcessor);
-		} catch (Exception e) {
-			log.error("Error subscribing to channels: " + e.getMessage());
-		}			
-	}
-	
-	private void processMessage(final ReceivedMessage msg) {
-		Runnable task = new Runnable() {
-	    public void run() {
-	  		if (handler != null) {
-//	  			log.debug("Let's process this message: " + msg.getMessage());
+  private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
 
-	  			handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
-	  		} else {
-	  			log.warn("No listeners interested in messages from Redis!");
-	  		}	    	
-	    }
-		};
-		
-		runExec.execute(task);
-	}
-	
-	public void handleMessage(String pattern, String channel, String message) {
-		ReceivedMessage rm = new ReceivedMessage(pattern, channel, message);
-		receivedMessages.add(rm);
-	}
-	
-	public void setMessageDistributor(MessageDistributor h) {
-		this.handler = h;
-	}
+  private volatile boolean processMessage = false;
+
+  private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
+  private final Executor runExec = Executors.newSingleThreadExecutor();
+
+  private MessageDistributor outGW;
+
+  public void stop() {
+    processMessage = false;
+  }
+
+  public void start() {
+    log.info("Ready to handle messages from Redis pubsub!");
+
+    try {
+      processMessage = true;
+
+      Runnable messageProcessor = new Runnable() {
+        public void run() {
+          while (processMessage) {
+            try {
+              ReceivedMessage msg = receivedMessages.take();
+              processMessage(msg);
+            } catch (InterruptedException e) {
+              log.warn("Error while taking received message from queue.");
+            }
+          }
+        }
+      };
+      msgProcessorExec.execute(messageProcessor);
+    } catch (Exception e) {
+      log.error("Error subscribing to channels: " + e.getMessage());
+    }
+  }
+
+  private void notifyListeners(IMessage message) {
+    outGW.notifyListeners(message);
+  }
+
+  private void processMessage(final ReceivedMessage msg) {
+    Runnable task = new Runnable() {
+      public void run() {
+        notifyListeners(msg.getMessage());
+      }
+    };
+
+    runExec.execute(task);
+  }
+
+  public void handleMessage(IMessage message) {
+    ReceivedMessage rm = new ReceivedMessage(message);
+    receivedMessages.add(rm);
+  }
+
+  public void setMessageDistributor(MessageDistributor outGW) {
+    this.outGW = outGW;
+  }
 }

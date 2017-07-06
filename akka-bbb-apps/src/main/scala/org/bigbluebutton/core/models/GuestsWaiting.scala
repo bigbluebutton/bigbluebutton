@@ -58,4 +58,6 @@ object GuestPolicyType {
   val ALWAYS_ACCEPT = "ALWAYS_ACCEPT"
   val ALWAYS_DENY = "ALWAYS_DENY"
   val ASK_MODERATOR = "ASK_MODERATOR"
+
+  val policyTypes = Set(ALWAYS_ACCEPT, ALWAYS_ACCEPT, ASK_MODERATOR)
 }

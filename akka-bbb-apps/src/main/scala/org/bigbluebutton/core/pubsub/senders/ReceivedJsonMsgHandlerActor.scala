@@ -75,6 +75,13 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.userId, envelope, m)
         }
+      case GetAllMeetingsReqMsg.NAME =>
+        // for {
+        //   m <- deserialize[GetAllMeetingsReqMsg](jsonNode)
+        // } yield {
+        route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+      // }
+
       case StartCustomPollReqMsg.NAME =>
         for {
           m <- deserialize[StartCustomPollReqMsg](jsonNode)
@@ -214,9 +221,9 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case GetCurrentLayoutMsg.NAME =>
+      case GetCurrentLayoutReqMsg.NAME =>
         for {
-          m <- deserialize[GetCurrentLayoutMsg](jsonNode)
+          m <- deserialize[GetCurrentLayoutReqMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
@@ -262,22 +269,32 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
       case RemovePresentationPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
-      case PreuploadedPresentationsPubMsg.NAME =>
-        routeGenericMsg[PreuploadedPresentationsPubMsg](envelope, jsonNode)
-      case PresentationConversionUpdatePubMsg.NAME =>
-        routeGenericMsg[PresentationConversionUpdatePubMsg](envelope, jsonNode)
-      case PresentationPageCountErrorPubMsg.NAME =>
-        routeGenericMsg[PresentationPageCountErrorPubMsg](envelope, jsonNode)
-      case PresentationPageGeneratedPubMsg.NAME =>
-        routeGenericMsg[PresentationPageGeneratedPubMsg](envelope, jsonNode)
-      case PresentationConversionCompletedPubMsg.NAME =>
-        routeGenericMsg[PresentationConversionCompletedPubMsg](envelope, jsonNode)
+      case PreuploadedPresentationsSysPubMsg.NAME =>
+        routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
+      case PresentationConversionUpdateSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
+      case PresentationPageCountErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
+      case PresentationPageGeneratedSysPubMsg.NAME =>
+        routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case PresentationConversionCompletedSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
       case EditCaptionHistoryPubMsg.NAME =>
         routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
       case UpdateCaptionOwnerPubMsg.NAME =>
         routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
+      case GetSharedNotesPubMsg.NAME =>
+        routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
+      case SyncSharedNotePubMsg.NAME =>
+        routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
+      case UpdateSharedNoteReqMsg.NAME =>
+        routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
+      case CreateSharedNoteReqMsg.NAME =>
+        routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
+      case DestroySharedNoteReqMsg.NAME =>
+        routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

@@ -101,7 +101,8 @@ object TestKitUsageSpec {
   // Define your test specific configuration here
   val config = """
     akka {
-      loglevel = "WARNING"
+      loggers = ["akka.testkit.TestEventListener"]
+      loglevel = "DEBUG"
     }
     """
 

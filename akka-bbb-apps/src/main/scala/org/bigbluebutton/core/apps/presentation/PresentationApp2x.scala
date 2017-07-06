@@ -21,7 +21,8 @@ class PresentationApp2x(val liveMeeting: LiveMeeting,
     with PresentationConversionUpdatePubMsgHdlr
     with PresentationPageCountErrorPubMsgHdlr
     with PresentationPageGeneratedPubMsgHdlr
-    with PresentationConversionCompletedPubMsgHdlr {
+    with PresentationConversionCompletedPubMsgHdlr
+    with SyncGetPresentationInfoRespMsgHdlr {
 
   val log = Logging(context.system, getClass)
 

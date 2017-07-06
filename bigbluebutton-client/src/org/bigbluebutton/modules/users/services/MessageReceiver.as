@@ -29,10 +29,12 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.NewGuestWaitingEvent;
   import org.bigbluebutton.core.events.UserEmojiChangedEvent;
   import org.bigbluebutton.core.events.UserStatusChangedEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.MediaStream;
+  import org.bigbluebutton.core.model.users.GuestWaiting;
   import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.model.users.VoiceUser2x;
   import org.bigbluebutton.core.vo.LockSettingsVO;
@@ -103,6 +105,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "UserMutedEvtMsg":
           handleUserMutedEvtMsg(message);
+          break;
+        case "GuestsWaitingForApprovalEvtMsg":
+          handleGuestsWaitingForApprovalEvtMsg(message);
           break;
         case "meetingEnded":
           handleLogout(message);
@@ -257,6 +262,24 @@ package org.bigbluebutton.modules.users.services
       event.message.userID = intId;
       event.message.talking = talking;
       globalDispatcher.dispatchEvent(event); 
+    }
+    
+    private function processGuestWaitingForApproval(guest: Object): void {
+      var guestWaiting: GuestWaiting = new GuestWaiting(guest.intId, guest.name, guest.role);
+      LiveMeeting.inst().guestsWaiting.add(guestWaiting);
+    }
+    private function handleGuestsWaitingForApprovalEvtMsg(msg: Object): void {
+      var body: Object = msg.body as Object;
+      var guests: Array = body.guests as Array;
+      
+      for (var i: int = 0; i < guests.length; i++) {
+        var guest: Object = guests[i] as Object;
+        processGuestWaitingForApproval(guest);
+      }
+      
+      var guestsWaitingEvent:NewGuestWaitingEvent = new NewGuestWaitingEvent();
+      dispatcher.dispatchEvent(guestsWaitingEvent);	
+      
     }
     
     private function handleGetUsersMeetingRespMsg(msg: Object):void {

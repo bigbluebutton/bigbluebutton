@@ -20,19 +20,13 @@ package org.bigbluebutton.core.connection.messages.layout {
 
 	public class LockLayoutMsgBody {
 
-		public var meetingId:String;
-
-		public var setById:String;
-
 		public var lock:Boolean;
 
 		public var viewersOnly:Boolean;
 
 		public var layout:String;
 
-		public function LockLayoutMsgBody(meetingId:String, setById:String, lock:Boolean, viewersOnly:Boolean, layout:String) {
-			this.meetingId = meetingId;
-			this.setById = setById;
+		public function LockLayoutMsgBody(lock:Boolean, viewersOnly:Boolean, layout:String) {
 			this.lock = lock;
 			this.viewersOnly = viewersOnly;
 			this.layout = layout;

@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.model
 {
-  import org.bigbluebutton.core.model.users.GuestPolicy;
+  import org.bigbluebutton.core.model.users.GuestsApp;
   import org.bigbluebutton.core.model.users.Users2x;
   import org.bigbluebutton.core.model.users.VoiceUsers2x;
   
@@ -12,7 +12,7 @@ package org.bigbluebutton.core.model
     public var webcams: Webcams = new Webcams();
     public var voiceUsers: VoiceUsers2x = new VoiceUsers2x();
     public var users: Users2x = new Users2x();
-    public var guestsWaitingForApproval: GuestPolicy = new GuestPolicy();
+    public var guestsWaiting: GuestsApp = new GuestsApp();
     public var meetingStatus: MeetingStatus = new MeetingStatus();
     public var meeting: Meeting = new Meeting();
     public var config: Config;

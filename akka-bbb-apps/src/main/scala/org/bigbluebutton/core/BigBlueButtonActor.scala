@@ -74,6 +74,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     msg.core match {
       case m: CreateMeetingReqMsg => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
       case _ => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
@@ -133,6 +134,12 @@ class BigBlueButtonActor(val system: ActorSystem,
       }
     }
 
+  }
+
+  private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
+    RunningMeetings.meetings(meetings).foreach(m => {
+      m.actorRef ! msg
+    })
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {

@@ -18,6 +18,10 @@ object Users2x {
     users.remove(intId)
   }
 
+  def numUsers(users: Users2x): Int = {
+    users.toVector.length
+  }
+
   def findNotPresenters(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => !u.presenter)
   }
@@ -123,3 +127,15 @@ case class UserState(intId: String, extId: String, name: String, role: String,
   guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
   presenter: Boolean, avatar: String)
 
+object CallingWith {
+  val WEBRTC = "webrtc"
+  val FLASH = "flash"
+  val PHONE = "phone"
+}
+
+object Roles {
+  val MODERATOR_ROLE = "MODERATOR"
+  val PRESENTER_ROLE = "PRESENTER"
+  val VIEWER_ROLE = "VIEWER"
+  val GUEST_ROLE = "GUEST"
+}
