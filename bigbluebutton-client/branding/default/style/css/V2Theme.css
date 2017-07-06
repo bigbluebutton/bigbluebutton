@@ -33,7 +33,6 @@ global {
 	fontFamily : "Source Sans Pro", Arial, sans-serif;
 	fontSize   : 13;
 	color      : #2A2D33;
-	rollOverColor : #3b97d3;
 	selectionColor : #3b97d3;
 	focusColor : #3b97d3;
 }
@@ -101,14 +100,22 @@ mx|ApplicationControlBar {
 	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
-.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
-	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
-	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
-	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
+.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle,
+.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle,
+.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle
+{
+	/* Selected state */
+	fillColorSelectedUp       : #3b97d3;
+	fillColorSelectedOver     : #2e8bb8;
+	fillColorSelectedDown     : #3b97d3;
+	borderColorSelectedUp     : #3b97d3;
+	borderColorSelectedOver   : #2e8bb8;
+	borderColorSelectedDown   : #3b97d3;
 }
 
 .voiceConfDefaultButtonStyle {
 	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
 }
 
 .voiceConfActiveButtonStyle {
@@ -117,12 +124,6 @@ mx|ApplicationControlBar {
 
 .voiceConfInactiveButtonStyle {
 	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
-}
-
-.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle {
-	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
-	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
-	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
 }
 
 .webcamDefaultButtonStyle {
@@ -135,12 +136,6 @@ mx|ApplicationControlBar {
 
 .webcamOffButtonStyle {
 	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
-}
-
-.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle {
-	selectedUpSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
-	selectedOverSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Over_Blue");
-	selectedDownSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Selected_Up_Blue");
 }
 
 .deskshareDefaultButtonStyle {
@@ -214,15 +209,32 @@ mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .c
 	paddingRight      : 12;
 	paddingTop        : 8;
 	paddingBottom     : 8;
+	cornerRadius      : 2;
 	color             : #5e6d73;
 	textRollOverColor : #5e6d73;
 	textSelectedColor : #5e6d73;
 	fontSize          : 14;
-	themeColor        : #ced4db;
-	upSkin            : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Up");
-	overSkin          : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Over");
-	downSkin          : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Down");
-	disabledSkin      : Embed(source="assets/swf/v2_skin.swf", symbol="Button_Default_Disabled");
+	skin			  : ClassReference("org.bigbluebutton.skins.ButtonSkin");
+
+	/* Normal state */
+	fillColorUp         : #f0f2f6;
+	fillColorOver       : #cdd4db;
+	fillColorDown       : #acb2b7;
+	fillColorDisabled   : #f0f2f6;
+	borderColorUp       : #cdd4db;
+	borderColorOver     : #cdd4db;
+	borderColorDown     : #acb2b7;
+	borderColorDisabled : #cdd4db;
+	
+	/* Selected state */
+	fillColorSelectedUp       : #f0f2f6;
+	fillColorSelectedOver     : #cdd4db;
+	fillColorSelectedDown     : #acb2b7;
+	fillColorSelectedDisabled : #f0f2f6;
+	borderColorSelectedUp     : #cdd4db;
+	borderColorSelectedOver   : #cdd4db;
+	borderColorSelectedDown   : #acb2b7;
+	borderColorSelectedDisabled : #cdd4db;
 }
 
 /*
@@ -233,9 +245,7 @@ mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .c
 
 mx|ComboBox
 {
-	upSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
-	overSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
-	downSkin : Embed(source="assets/swf/v2_skin.swf", symbol="ComboBox_Up");
+	/* TODO */
 }
 
 /*

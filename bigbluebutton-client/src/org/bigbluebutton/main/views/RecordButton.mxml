@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:views="org.bigbluebutton.main.views.*"
 	styleName="recordButtonStyleNormal"
 	click="confirmChangeRecordingStatus()"
-	height="24"
+	height="30"
 	enabled="false"
 	creationComplete="onCreationComplete()"
 	visible="true"

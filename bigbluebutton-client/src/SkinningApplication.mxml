@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				width="100%"
 				height="100%"
 				layout="absolute"
+				creationComplete="application1_creationCompleteHandler(event)"
 				preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 
 	<fx:Style source="assets/halo.css" />
@@ -34,7 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			import mx.events.FlexEvent;
 
 			import org.bigbluebutton.common.Images;
 
@@ -48,6 +49,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable]
 			private var logs_icon:Class = images.table;
+
+			protected function application1_creationCompleteHandler(event:FlexEvent):void {
+			/*
+			   var hrule : HRule = new HRule();
+
+			   var window:CustomMdiWindow = new CustomMdiWindow();
+			   window.title = "Window one";
+
+			   mdiCanvas.windowManager.add(window as MDIWindow);
+
+			   window.titleBarOverlay.addChild(hrule);
+
+			   hrule.setStyle("strokeWidth", 1);
+			   hrule.setStyle("strokeColor", 0xff0000);
+			   hrule.percentWidth = 100;
+			   hrule.bottom = 5;
+			 */
+			}
 		]]>
 	</fx:Script>
 
@@ -107,9 +126,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  styleName="meetingNameLabelStyle" />
 			<mx:HBox id="addedBtns">
 				<mx:Button id="micButton"
-						   styleName="voiceConfDefaultButtonStyle"
-						   mouseOver="{micButton.selected = true; micButton.styleName = 'voiceConfActiveButtonStyle'}"
-						   mouseOut="{micButton.selected = false; micButton.styleName = 'voiceConfDefaultButtonStyle'}"
+						   styleName="voiceConfButtonStyle"
+						   click="{micButton.selected = !micButton.selected}"
 						   height="30" />
 				<mx:PopUpButton id="webcamPopUp"
 								styleName="webcamDefaultButtonStyle"
@@ -117,20 +135,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								toolTip="Share webcam"
 								selected="false" />
 			</mx:HBox>
-			<!-- views:RecordButton id="recordBtn" /-->
+			<!--views:RecordButton id="recordBtn" /-->
 			<mx:VRule strokeWidth="2"
 					  height="100%" />
-			<!-- views:MuteMeButton id="muteMeBtn"
-								height="20" /-->
-			<!--views:WebRTCAudioStatus id="webRTCAudioStatus"
-									 height="20" /-->
+			<!--views:MuteMeButton id="muteMeBtn"
+								height="30" />
+			<views:WebRTCAudioStatus id="webRTCAudioStatus"
+									 height="30" /-->
 			<mx:Button id="bbbSettings"
 					   toolTip="bbb.settings.btn.toolTip"
 					   styleName="settingsButtonStyle"
-					   height="22" />
-			<!--
-			<mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
-			-->
+					   height="30" />
+			<mx:Button label="DISCONNECT!"
+					   height="30"
+					   toolTip="Click to simulate disconnection" />
 			<mx:Button id="btnNetwork"
 					   styleName="bandwidthButtonStyle"
 					   toolTip="dummy text" />
@@ -153,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   height="30" />
 		</mx:ApplicationControlBar>
 
-		<flexlib:MDICanvas id="mdiCanvasLoad"
+		<!--flexlib:MDICanvas id="mdiCanvasLoad"
 						   horizontalScrollPolicy="off"
 						   verticalScrollPolicy="off"
 						   styleName="mdiCanvasStyle"
@@ -178,7 +196,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   y="{this.height - 300}"
 					   width="200"
 					   height="200" />
-		</flexlib:MDICanvas>
+		</flexlib:MDICanvas-->
 
 		<mx:ControlBar width="100%"
 					   height="60"
