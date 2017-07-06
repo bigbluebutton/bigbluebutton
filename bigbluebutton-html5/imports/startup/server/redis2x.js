@@ -1,3 +1,4 @@
+/* global PowerQueue */
 import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
@@ -19,7 +20,7 @@ class RedisPubSub2x {
     this.handleMessage = this.handleMessage.bind(this);
   }
 
-  init(config = {}) {
+  init() {
     this.queue.taskHandler = this.handleTask;
     this.sub.on('psubscribe', Meteor.bindEnvironment(this.handleSubscribe));
     this.sub.on('pmessage', Meteor.bindEnvironment(this.handleMessage));
@@ -35,8 +36,8 @@ class RedisPubSub2x {
     this.config = Object.assign({}, this.config, config);
   }
 
-  on(event, listener) {
-    return this.emitter.on(...arguments);
+  on(...args) {
+    return this.emitter.on(args);
   }
 
   publish(channel, eventName, meetingId, payload = {}, header = {}) {
@@ -86,7 +87,7 @@ class RedisPubSub2x {
       name: EVENT_NAME,
     };
 
-    this.publish(CHANNEL, EVENT_NAME, 'someMeetingId', body, header);
+    this.publish(CHANNEL, EVENT_NAME, '', body, header);
     this.didSendRequestEvent = true;
   }
 
@@ -120,7 +121,7 @@ class RedisPubSub2x {
       this._debug(`${eventName} emitted`);
       return this.emitter
         .emitAsync(eventName, { envelope, header, body }, meetingId)
-        .then((_) => {
+        .then(() => {
           this._debug(`${eventName} completed`);
           return next();
         })
