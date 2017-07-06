@@ -302,19 +302,13 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                 ffmpeg = new FFmpegCommand();
                 ffmpeg.setFFmpegPath(FFMPEG_PATH);
                 ffmpeg.setInput(input);
-                ffmpeg.setFormat("flv");
-                ffmpeg.setLoglevel("verbose");
+
+                ffmpeg.setLoglevel("quiet");
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.addRtmpOutputConnectionParameter(meetingId);
                 ffmpeg.addRtmpOutputConnectionParameter("transcoder-"+transcoderId);
-                ffmpeg.setVideoBitRate(1024);
-                ffmpeg.setBufSize(1024);
-                ffmpeg.setMaxRate(1024);
-                ffmpeg.setCodec("libopenh264");
-                ffmpeg.setProfile("baseline");
-                ffmpeg.setAnalyzeDuration("1000"); // 1ms
-                ffmpeg.addCustomParameter("-s", globalVideoWidth+"x"+globalVideoHeight);
-                ffmpeg.addCustomParameter("-filter:v","scale=iw*min("+globalVideoWidth+"/iw\\,"+globalVideoHeight+"/ih):ih*min("+globalVideoWidth+"/iw\\,"+globalVideoHeight+"/ih), pad="+globalVideoWidth+":"+globalVideoHeight+":("+globalVideoWidth+"-iw*min("+globalVideoWidth+"/iw\\,"+globalVideoHeight+"/ih))/2:("+globalVideoHeight+"-ih*min("+globalVideoWidth+"/iw\\,"+globalVideoHeight+"/ih))/2, fps=fps=15");
+                ffmpeg.setCodec("copy");
+                ffmpeg.setFormat("flv");
                 command = ffmpeg.getFFmpegCommand(true);
                 break;
 

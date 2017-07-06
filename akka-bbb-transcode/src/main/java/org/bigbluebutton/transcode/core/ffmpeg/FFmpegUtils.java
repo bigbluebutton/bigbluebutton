@@ -46,9 +46,13 @@ public class FFmpegUtils {
                        + "s=Session SIP/SDP\r\n"
                        + "c=IN IP4 " + localIpAddress + "\r\n"
                        + "t=0 0\r\n"
-                       + "m=video " + localVideoPort + " RTP/AVP " + codecId +"\r\n"
-                       + "a=rtpmap:" + codecId + " " + codecName + "/" + sampleRate + "/1\r\n";
-
+                       + "m=video " + localVideoPort + " RTP/AVPF " + codecId +"\r\n"
+                       + "a=rtpmap:" + codecId + " " + codecName + "/" + sampleRate + "/1\r\n"
+                       + "a=fmtp:96\r\n"
+                       + "a=rtcp-fb:" + codecId + " ccm fir \r\n"
+                       + "a=rtcp-fb:" + codecId + " nack \r\n"
+                       + "a=rtcp-fb:" + codecId + " nack pli \r\n"
+                       + "a=rtcp-fb:" + codecId + " goog-remb \r\n";
 
         Charset charset = Charset.forName("US-ASCII");
         try {
