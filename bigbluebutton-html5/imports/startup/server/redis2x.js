@@ -37,7 +37,7 @@ class RedisPubSub2x {
   }
 
   on(...args) {
-    return this.emitter.on(args);
+    return this.emitter.on(...args);
   }
 
   publish(channel, eventName, meetingId, payload = {}, header = {}) {
