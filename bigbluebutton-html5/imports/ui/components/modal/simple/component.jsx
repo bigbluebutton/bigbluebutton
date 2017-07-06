@@ -59,7 +59,7 @@ class ModalSimple extends Component {
         <div className={styles.content}>
           {this.props.children}
         </div>
-        <div id="modalConfirmDescription" hidden>{confirm.description}</div>
+        <div id="modalDismissDescription" hidden>{confirm.description}</div>
       </ModalBase>
     );
   }
