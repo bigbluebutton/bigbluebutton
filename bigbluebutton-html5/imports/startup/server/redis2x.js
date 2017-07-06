@@ -87,6 +87,8 @@ class RedisPubSub2x {
       name: EVENT_NAME,
     };
 
+    // We need to send an empty string in the this.publish as third param,
+    // the bbb does not support null or undefined meetingId.
     this.publish(CHANNEL, EVENT_NAME, '', body, header);
     this.didSendRequestEvent = true;
   }
