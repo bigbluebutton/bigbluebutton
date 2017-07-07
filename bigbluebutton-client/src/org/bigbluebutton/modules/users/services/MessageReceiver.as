@@ -576,7 +576,7 @@ package org.bigbluebutton.modules.users.services
       var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
       e.userID = newPresenterID;
       e.presenterName = newPresenterName;
-      e.assignerBy = assignedBy;
+      e.assignedBy = assignedBy;
       dispatcher.dispatchEvent(e);
       
       dispatcher.dispatchEvent(new UserStatusChangedEvent(newPresenterID));
@@ -595,7 +595,7 @@ package org.bigbluebutton.modules.users.services
       var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
       e.userID = oldPresenterID;
       e.presenterName = oldPresenterName;
-      e.assignerBy = assignedBy;
+      e.assignedBy = assignedBy;
 
       dispatcher.dispatchEvent(e);
 

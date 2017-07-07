@@ -79,12 +79,10 @@ package org.bigbluebutton.modules.users.services
       // TODO: Send joine meeting message to server.
     }
     
-    public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:Number):void {
-      var assignedByUserId: String = assignedBy.toString(); // TODO - why is assignedBy a number? It should be a string
-
+    public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:String):void {
       var message:Object = {
         header: {name: "AssignPresenterReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID(), newPresenterId: newPresenterUserId, newPresenterName: newPresenterName, assignedBy: assignedByUserId}
+        body: {requesterId: UsersUtil.getMyUserID(), newPresenterId: newPresenterUserId, newPresenterName: newPresenterName, assignedBy: assignedBy}
       };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
