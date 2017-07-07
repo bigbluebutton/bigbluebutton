@@ -22,8 +22,6 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
   check(pollAnswerId, Number);
   check(currentPoll.meetingId, String);
 
-  //(requesterId: String, pollId: String, questionId: Int, answerId: Int)
-  
   const payload = {
     requesterId: requesterUserId,
     pollId: currentPoll.poll.id,
