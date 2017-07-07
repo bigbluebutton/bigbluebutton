@@ -81,11 +81,11 @@ case class UserJoining(meetingID: String, userID: String, authToken: String) ext
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
 case class UserEmojiStatus(meetingID: String, userId: String, emojiStatus: String) extends InMessage
-case class EjectUserFromMeeting(meetingID: String, userId: String, ejectedBy: String) extends InMessage
+
 case class UserShareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class UserUnshareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class ChangeUserStatus(meetingID: String, userID: String, status: String, value: Object) extends InMessage
-case class ChangeUserRole(meetingID: String, userID: String, role: String) extends InMessage
+
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
 case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage

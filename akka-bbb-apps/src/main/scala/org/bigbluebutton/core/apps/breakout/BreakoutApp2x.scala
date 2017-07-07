@@ -7,7 +7,7 @@ import scala.collection.SortedSet
 import scala.collection.mutable
 import org.apache.commons.codec.digest.DigestUtils
 
-trait BreakoutApp2XCmdReq extends BreakoutRoomCreatedMsgHdlr
+trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
     with BreakoutRoomEndedMsgHdlr
     with BreakoutRoomsListMsgHdlr
     with BreakoutRoomUsersUpdateMsgHdlr

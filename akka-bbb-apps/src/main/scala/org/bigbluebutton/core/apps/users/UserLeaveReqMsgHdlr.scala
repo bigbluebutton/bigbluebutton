@@ -1,4 +1,4 @@
-package org.bigbluebutton.core2.message.handlers.users
+package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
@@ -10,7 +10,7 @@ trait UserLeaveReqMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handle(msg: UserLeaveReqMsg): Unit = {
+  def handleUserLeaveReqMsg(msg: UserLeaveReqMsg): Unit = {
     for {
       u <- Users2x.remove(liveMeeting.users2x, msg.body.userId)
     } yield {

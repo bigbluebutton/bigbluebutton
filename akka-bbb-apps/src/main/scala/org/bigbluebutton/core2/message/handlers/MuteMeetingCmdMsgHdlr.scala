@@ -11,7 +11,7 @@ trait MuteMeetingCmdMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handle(msg: MuteMeetingCmdMsg) {
+  def handleMuteMeetingCmdMsg(msg: MuteMeetingCmdMsg) {
 
     if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
       MeetingStatus2x.unmuteMeeting(liveMeeting.status)

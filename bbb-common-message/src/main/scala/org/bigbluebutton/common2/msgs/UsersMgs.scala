@@ -84,7 +84,16 @@ case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiCha
 
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
 
+/**
+  * Sent from client to change the rolr of the user the user in the meeting.
+  */
+object ChangeUserRoleCmdMsg { val NAME = "ChangeUserRoleCmdMsg" }
+case class ChangeUserRoleCmdMsg(header: BbbClientMsgHeader, body: ChangeUserRoleCmdMsgBody) extends BbbCoreMsg
+case class ChangeUserRoleCmdMsgBody(userId: String, role: String, changedBy: String)
 
+object UserRoleChangedEvtMsg { val NAME = "UserRoleChangedEvtMsg" }
+case class UserRoleChangedEvtMsg(header: BbbClientMsgHeader, body: UserRoleChangedEvtMsgBody) extends BbbCoreMsg
+case class UserRoleChangedEvtMsgBody(userId: String, role: String, changedBy: String)
 
 /**
   * Sent from client to eject the user from the meeting.
@@ -111,12 +120,8 @@ object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends BbbCoreMsg
 case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
 
-object UserLeaveReqMsg {
-  val NAME = "UserLeaveReqMsg"
-}
-
+object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends BbbCoreMsg
-
 case class UserLeaveReqMsgBody(userId: String, sessionId: String)
 
 object GetUsersMeetingReqMsg {

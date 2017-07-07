@@ -44,7 +44,7 @@ class MeetingActor(val props: DefaultProps,
     with LayoutApp2x
     with VoiceApp2x
     with PollApp2x
-    with BreakoutApp2XCmdReq
+    with BreakoutApp2x
     with UsersApp2x
 
     with PresentationApp
@@ -147,9 +147,9 @@ class MeetingActor(val props: DefaultProps,
 
       // Users
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
-      case m: RegisterUserReqMsg => handle(m)
-      case m: UserJoinMeetingReqMsg => handle(m)
-      case m: UserLeaveReqMsg => handle(m)
+      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
+      case m: UserJoinMeetingReqMsg => handleUserJoinMeetingReqMsg(m)
+      case m: UserLeaveReqMsg => handleUserLeaveReqMsg(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
@@ -174,9 +174,9 @@ class MeetingActor(val props: DefaultProps,
 
       // Breakout
       case m: BreakoutRoomsListMsg => handleBreakoutRoomsListMsg(m)
-      case m: CreateBreakoutRoomsMsg => handleCreateBreakoutRoomsMsg(m)
+      case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomsCmdMsg(m)
       case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
-      case m: RequestBreakoutJoinURLMsg => handleRequestBreakoutJoinURLMsg(m)
+      case m: RequestBreakoutJoinURLReqMsg => handleRequestBreakoutJoinURLReqMsg(m)
       case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m)
       case m: BreakoutRoomEndedMsg => handleBreakoutRoomEndedMsg(m)
       case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
@@ -184,12 +184,12 @@ class MeetingActor(val props: DefaultProps,
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg => handle(m)
-      case m: UserMutedInVoiceConfEvtMsg => handle(m)
-      case m: UserTalkingInVoiceConfEvtMsg => handle(m)
+      case m: UserLeftVoiceConfEvtMsg => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserTalkingInVoiceConfEvtMsg => handleUserTalkingInVoiceConfEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg => handle(m)
+      case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
       case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
 
@@ -218,9 +218,9 @@ class MeetingActor(val props: DefaultProps,
       case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handleDestroySharedNoteReqMsg(m)
 
       // Guests
-      case m: GetGuestsWaitingApprovalReqMsg => handle(m)
-      case m: SetGuestPolicyMsg => handle(m)
-      case m: GuestsWaitingApprovedMsg => handle(m)
+      case m: GetGuestsWaitingApprovalReqMsg => handleGetGuestsWaitingApprovalReqMsg(m)
+      case m: SetGuestPolicyMsg => handleSetGuestPolicyMsg(m)
+      case m: GuestsWaitingApprovedMsg => handleGuestsWaitingApprovedMsg(m)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }

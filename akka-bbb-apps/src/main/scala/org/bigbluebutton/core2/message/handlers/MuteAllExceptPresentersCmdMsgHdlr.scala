@@ -12,7 +12,7 @@ trait MuteAllExceptPresentersCmdMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handle(msg: MuteAllExceptPresentersCmdMsg) {
+  def handleMuteAllExceptPresentersCmdMsg(msg: MuteAllExceptPresentersCmdMsg) {
     if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
       MeetingStatus2x.unmuteMeeting(liveMeeting.status)
     } else {

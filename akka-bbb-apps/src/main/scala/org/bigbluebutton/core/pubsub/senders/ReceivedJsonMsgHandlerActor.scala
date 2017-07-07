@@ -173,15 +173,15 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case CreateBreakoutRoomsMsg.NAME =>
+      case CreateBreakoutRoomsCmdMsg.NAME =>
         for {
-          m <- deserialize[CreateBreakoutRoomsMsg](jsonNode)
+          m <- deserialize[CreateBreakoutRoomsCmdMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case RequestBreakoutJoinURLMsg.NAME =>
+      case RequestBreakoutJoinURLReqMsg.NAME =>
         for {
-          m <- deserialize[RequestBreakoutJoinURLMsg](jsonNode)
+          m <- deserialize[RequestBreakoutJoinURLReqMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }

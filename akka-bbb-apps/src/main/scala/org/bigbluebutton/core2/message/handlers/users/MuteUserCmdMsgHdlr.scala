@@ -12,7 +12,7 @@ trait MuteUserCmdMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handle(msg: MuteUserCmdMsg) {
+  def handleMuteUserCmdMsg(msg: MuteUserCmdMsg) {
     log.info("Received mute user request. meetingId=" + props.meetingProp.intId + " userId="
       + msg.body.userId)
     for {

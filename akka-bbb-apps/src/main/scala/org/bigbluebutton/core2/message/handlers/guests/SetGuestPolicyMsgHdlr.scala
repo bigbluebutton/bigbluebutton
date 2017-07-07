@@ -12,7 +12,7 @@ trait SetGuestPolicyMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: SetGuestPolicyMsg): Unit = {
+  def handleSetGuestPolicyMsg(msg: SetGuestPolicyMsg): Unit = {
     val newPolicy = msg.body.policy.toUpperCase()
     if (GuestPolicyType.policyTypes.contains(newPolicy)) {
       val policy = GuestPolicy(newPolicy, msg.body.setBy)

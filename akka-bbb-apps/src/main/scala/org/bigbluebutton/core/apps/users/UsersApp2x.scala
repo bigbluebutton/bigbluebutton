@@ -8,7 +8,8 @@ trait UsersApp2x
     with ChangeUserRoleHdlr
     with SyncGetUsersMeetingRespMsgHdlr
     with EjectUserFromMeetingHdlr
-    with ValidateAuthTokenReqMsgHdlr {
+    with ValidateAuthTokenReqMsgHdlr
+    with UserLeaveReqMsgHdlr {
 
   this: MeetingActor =>
 

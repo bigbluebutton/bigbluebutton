@@ -10,7 +10,7 @@ trait RequestBreakoutJoinURLReqMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handle(msg: RequestBreakoutJoinURLReqMsg): Unit = {
+  def handleRequestBreakoutJoinURLReqMsg(msg: RequestBreakoutJoinURLReqMsg): Unit = {
 
     def broadcastEvent(msg: RequestBreakoutJoinURLReqMsg): Unit = {
       for {

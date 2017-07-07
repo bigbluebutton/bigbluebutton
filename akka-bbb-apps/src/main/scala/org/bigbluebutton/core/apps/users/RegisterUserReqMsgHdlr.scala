@@ -12,7 +12,7 @@ trait RegisterUserReqMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: RegisterUserReqMsg): Unit = {
+  def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
     log.debug("****** RECEIVED RegisterUserReqMsg msg {}", msg)
     if (MeetingStatus2x.hasMeetingEnded(liveMeeting.status)) {
       // Check first if the meeting has ended and the user refreshed the client to re-connect.

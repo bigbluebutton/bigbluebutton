@@ -2,9 +2,8 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ BreakoutRoomOutPayload, CreateBreakoutRoom }
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
 
 trait CreateBreakoutRoomsCmdMsgHdlr {
   this: BaseMeetingActor =>
@@ -12,7 +11,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: CreateBreakoutRoomsCmdMsg): Unit = {
+  def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg): Unit = {
     // If breakout rooms are being created we ignore the coming message
     if (liveMeeting.breakoutRooms.pendingRoomsNumber > 0) {
       log.warning("CreateBreakoutRooms event received while {} are pending to be created for meeting {}",
