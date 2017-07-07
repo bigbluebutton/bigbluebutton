@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import ShapeHelpers from '../helpers.js';
 
 export default class PollDrawComponent extends React.Component {
   constructor(props) {
@@ -98,7 +96,7 @@ export default class PollDrawComponent extends React.Component {
         _tempArray.push('0%');
         _tempArray.push(i);
       } else {
-        percResult = _result.numVotes / votesTotal * 100;
+        const percResult = _result.numVotes / votesTotal * 100;
         _tempArray.push(`${Math.round(percResult)}%`);
         _tempArray.push(i);
       }
@@ -176,7 +174,7 @@ export default class PollDrawComponent extends React.Component {
             calcFontSize: this.state.calcFontSize + 1,
           });
 
-        // we can't increase font-size anymore, start decreasing
+          // we can't increase font-size anymore, start decreasing
         }
         return this.setState({
           fontSizeDirection: -1,
@@ -191,8 +189,8 @@ export default class PollDrawComponent extends React.Component {
             calcFontSize: this.state.calcFontSize - 1,
           });
 
-        // font size is fine for the current line, switch to the next line
-        // or finish with the font-size calculations if this we are at the end of the array
+          // font size is fine for the current line, switch to the next line
+          // or finish with the font-size calculations if this we are at the end of the array
         }
         if (this.state.currentLine < this.state.textArray.length - 1) {
           return this.setState({
@@ -322,30 +320,30 @@ export default class PollDrawComponent extends React.Component {
       }
 
       extendedTextArray[i] =
-      {
-        key: `${this.props.shape.id}_${this.state.textArray[i][3]}`,
-        keyColumn: {
-          keyString: this.state.textArray[i][0],
-          xLeft,
-          yLeft,
-        },
-        barColumn: {
-          votesString: this.state.textArray[i][1],
-          xBar,
-          yBar,
-          barWidth,
-          barHeight,
-          yNumVotes,
-          xNumVotes,
-          color,
-          numVotes: this.props.shape.result[i].numVotes,
-        },
-        percentColumn: {
-          xRight,
-          yRight,
-          percentString: this.state.textArray[i][2],
-        },
-      };
+        {
+          key: `${this.props.shape.id}_${this.state.textArray[i][3]}`,
+          keyColumn: {
+            keyString: this.state.textArray[i][0],
+            xLeft,
+            yLeft,
+          },
+          barColumn: {
+            votesString: this.state.textArray[i][1],
+            xBar,
+            yBar,
+            barWidth,
+            barHeight,
+            yNumVotes,
+            xNumVotes,
+            color,
+            numVotes: this.props.shape.result[i].numVotes,
+          },
+          percentColumn: {
+            xRight,
+            yRight,
+            percentString: this.state.textArray[i][2],
+          },
+        };
 
       // changing the Y coordinate for all the objects
       yBar = yBar + barHeight + verticalPadding;
@@ -491,8 +489,8 @@ export default class PollDrawComponent extends React.Component {
     return (
       <g>
         {this.state.textArray.map(line =>
-            this.renderLine(line),
-          )
+          this.renderLine(line),
+        )
         }
         <text
           fontFamily="Arial"
@@ -500,7 +498,7 @@ export default class PollDrawComponent extends React.Component {
           ref={(ref) => { this[`${this.props.shape.id}_digit`] = ref; }}
         >
           <tspan>
-              0
+            0
           </tspan>
         </text>
       </g>
@@ -512,7 +510,7 @@ export default class PollDrawComponent extends React.Component {
       <g>
         {this.state.prepareToDisplay ?
           this.renderTestStrings()
-        :
+          :
           this.renderPoll()
         }
       </g>

@@ -3,7 +3,6 @@ import Logger from '/imports/startup/server/logger';
 import Shapes from '/imports/api/2.0/shapes';
 
 const SHAPE_TYPE_TEXT = 'text';
-const SHAPE_TYPE_POLL_RESULT = 'poll_result';
 const SHAPE_TYPE_PENCIL = 'pencil';
 
 export default function addShape(meetingId, whiteboardId, userId, shape) {
@@ -78,9 +77,7 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
       return Logger.info(`Added shape id=${shape.id} whiteboard=${whiteboardId}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Upserted shape id=${shape.id} whiteboard=${whiteboardId}`);
-    }
+    return Logger.info(`Upserted shape id=${shape.id} whiteboard=${whiteboardId}`);
   };
 
   return Shapes.upsert(selector, modifier, cb);
