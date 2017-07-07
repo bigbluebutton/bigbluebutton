@@ -55,12 +55,10 @@ mx|Application {
 //------------------------------
 */
 
-.micSettingsWindowStyle {
-	borderColor : #FFFFFF;
-	cornerRadius : 4;
-	roundedBottomCorners : true;
-	dropShadowEnabled : true;
-	shadowDistance : 0;
+.audioSelectionsStyle {
+	horizontalGap:60;
+	paddingLeft:30;
+	paddingRight:30;
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
@@ -304,7 +302,27 @@ mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .c
 
 mx|ComboBox
 {
-	/* TODO */
+	cornerRadius      : 2;
+	color             : #5e6c73;
+	textRollOverColor : #5e6c73;
+	textSelectedColor : #5e6c73;
+	fontSize          : 12;
+	
+	/* Normal state */
+	fillColorUp         : #ffffff;
+	fillColorOver       : #cdd4db;
+	fillColorDown       : #acb2b7;
+	fillColorDisabled   : #f0f2f6;
+	borderColorUp       : #cdd4db;
+	borderColorOver     : #cdd4db;
+	borderColorDown     : #acb2b7;
+	borderColorDisabled : #cdd4db;
+	
+	iconColor : #5e6c73;
+	
+	borderThikness : 1;
+	
+	skin: ClassReference("org.bigbluebutton.skins.ComboBoxSkin");
 }
 
 /*
@@ -558,6 +576,20 @@ mx|ProgressBar {
 
 .sharedNotesFormatButtonStyle {
 	icon: Embed('assets/images/ic_note_format_16px.png');
+}
+
+/*
+//------------------------------
+//  TitleWindow
+//------------------------------
+*/
+
+mx|TitleWindow {
+	borderColor : #FFFFFF;
+	cornerRadius : 4;
+	roundedBottomCorners : true;
+	dropShadowEnabled : true;
+	shadowDistance : 0;
 }
 
 /*
@@ -870,21 +902,6 @@ whiteboard|WhiteboardToolbar {
 	borderColor: #b9babc;  
 	cornerRadius: 17;
 	icon:   Embed('assets/images/webcam-muted.png');
-}
-
-mx|TitleWindow {
-	borderColor: #b9babc;
-	borderAlpha: 1;
-	borderThicknessLeft: 10;
-	borderThicknessTop: 0;
-	borderThicknessBottom: 10;
-	borderThicknessRight: 10;
-	roundedBottomCorners: true;
-	cornerRadius: 5;
-	headerHeight: 20;
-	backgroundAlpha: 1;
-	backgroundColor: #EFEFEF;
-	dropShadowEnabled: true;
 }
 
 .presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {

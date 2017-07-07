@@ -28,7 +28,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				close="onCancelClicked()"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
-				styleName="micSettingsWindowStyle"
 				showCloseButton="true">
 
 	<fx:Script>
@@ -144,7 +143,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="audioBrowserHint" styleName="audioBroswerHintBoxStyle">
 			<mx:Text width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.message')}" styleName="audioBroswerHintTextStyle"/>
 		</mx:Box>
-		<mx:HBox width="100%" height="100%">
+		<mx:HBox width="100%" height="100%" styleName="audioSelectionsStyle">
 			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
 				<mx:Button id="btnMicrophone" buttonMode="true" styleName="btnMicrophoneStyle" width="140" height="140"
 						   click="onMicClick()"
