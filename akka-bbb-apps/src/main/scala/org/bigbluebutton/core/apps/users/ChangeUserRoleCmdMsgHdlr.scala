@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 
-trait ChangeUserRoleHdlr {
+trait ChangeUserRoleCmdMsgHdlr {
   this: UsersApp2x =>
 
   def handleChangeUserRoleCmdMsg(msg: ChangeUserRoleCmdMsg) {

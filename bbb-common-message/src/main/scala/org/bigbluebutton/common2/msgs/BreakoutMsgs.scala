@@ -38,7 +38,7 @@ package org.bigbluebutton.common2.msgs
   object BreakoutRoomsTimeRemainingUpdateEvtMsg { val NAME = "BreakoutRoomsTimeRemainingUpdateEvtMsg" }
   case class BreakoutRoomsTimeRemainingUpdateEvtMsg(header: BbbClientMsgHeader,
                                                     body: BreakoutRoomsTimeRemainingUpdateEvtMsgBody) extends BbbCoreMsg
-  case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(meetingId: String, timeRemaining: Int)
+  case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeRemaining: Long)
 
 
   // Sent by breakout actor to tell meeting actor the list of users in the breakout room.
@@ -46,6 +46,9 @@ package org.bigbluebutton.common2.msgs
   case class BreakoutRoomUsersUpdateMsg(header: BbbClientMsgHeader, body: BreakoutRoomUsersUpdateMsgBody) extends BbbCoreMsg
   case class BreakoutRoomUsersUpdateMsgBody(meetingId: String, breakoutMeetingId: String, users: Vector[BreakoutUserVO])
 
+/**
+  * Sent to bbb-web to create breakout rooms.
+  */
   object CreateBreakoutRoomSysCmdMsg { val NAME = "CreateBreakoutRoomSysCmdMsg" }
   case class CreateBreakoutRoomSysCmdMsg(header: BbbCoreBaseHeader,
                                       body: CreateBreakoutRoomSysCmdMsgBody) extends BbbCoreMsg
@@ -54,6 +57,9 @@ package org.bigbluebutton.common2.msgs
                                 voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
                                 sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
 
+/**
+  * Sent by client to request to create breakout rooms.
+  */
   object CreateBreakoutRoomsCmdMsg { val NAME = "CreateBreakoutRoomsCmdMsg" }
   case class CreateBreakoutRoomsCmdMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsCmdMsgBody) extends BbbCoreMsg
   case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInMinutes: Int, record: Boolean, rooms: Vector[BreakoutRoomMsgBody])
@@ -67,10 +73,6 @@ package org.bigbluebutton.common2.msgs
   object EndBreakoutRoomEvtMsg { val NAME = "EndBreakoutRoomEvtMsg" }
   case class EndBreakoutRoomEvtMsg(header: BbbClientMsgHeader, body: EndBreakoutRoomEvtMsgBody) extends BbbCoreMsg
   case class EndBreakoutRoomEvtMsgBody(breakoutMeetingId: String)
-
-  object MeetingTimeRemainingUpdateEvtMsg { val NAME = "MeetingTimeRemainingUpdateEvtMsg" }
-  case class MeetingTimeRemainingUpdateEvtMsg(header: BbbClientMsgHeader, body: MeetingTimeRemainingUpdateEvtMsgBody) extends BbbCoreMsg
-  case class MeetingTimeRemainingUpdateEvtMsgBody(meetingId: String, timeRemaining: Int)
 
 /**
   * Sent by client to request a join URL for the breakout room.

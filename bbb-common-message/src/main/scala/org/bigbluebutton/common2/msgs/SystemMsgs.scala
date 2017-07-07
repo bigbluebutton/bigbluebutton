@@ -14,7 +14,7 @@ import org.bigbluebutton.common2.domain.DefaultProps
                                  body: DestroyMeetingSysCmdMsgBody) extends BbbCoreMsg
   case class DestroyMeetingSysCmdMsgBody(meetingId: String)
 
-  object EndMeetingSysCmdMsg { val NAME = "DestroyMeetingReqMsg" }
+  object EndMeetingSysCmdMsg { val NAME = "EndMeetingSysCmdMsg" }
   case class EndMeetingSysCmdMsg(header: BbbCoreBaseHeader,
                                   body: EndMeetingSysCmdMsgBody) extends BbbCoreMsg
   case class EndMeetingSysCmdMsgBody(meetingId: String)
@@ -39,6 +39,11 @@ import org.bigbluebutton.common2.domain.DefaultProps
   case class MeetingEndedEvtMsg(header: BbbCoreBaseHeader,
                                   body: MeetingEndedEvtMsgBody) extends BbbCoreMsg
   case class MeetingEndedEvtMsgBody(meetingId: String)
+
+object MeetingEndingEvtMsg { val NAME = "MeetingEndingEvtMsg"}
+case class MeetingEndingEvtMsg(header: BbbClientMsgHeader,
+                              body: MeetingEndingEvtMsgBody) extends BbbCoreMsg
+case class MeetingEndingEvtMsgBody(meetingId: String)
 
   object MeetingDestroyedEvtMsg { val NAME = "MeetingDestroyedEvtMsg"}
   case class MeetingDestroyedEvtMsg(header: BbbCoreBaseHeader,
@@ -68,6 +73,10 @@ object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg"}
 
   /** System Messages **/
 
+object MeetingTimeRemainingUpdateEvtMsg { val NAME = "MeetingTimeRemainingUpdateEvtMsg" }
+case class MeetingTimeRemainingUpdateEvtMsg(header: BbbClientMsgHeader,
+                                          body: MeetingTimeRemainingUpdateEvtMsgBody) extends BbbCoreMsg
+case class MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec: Long)
 
 object MeetingInactivityWarningEvtMsg { val NAME = "MeetingInactivityWarningEvtMsg" }
 case class MeetingInactivityWarningEvtMsg(header: BbbClientMsgHeader,
@@ -78,6 +87,7 @@ object MeetingIsActiveEvtMsg { val NAME = "MeetingIsActiveEvtMsg" }
 case class MeetingIsActiveEvtMsg(header: BbbClientMsgHeader,
                                           body: MeetingIsActiveEvtMsgBody) extends BbbCoreMsg
 case class MeetingIsActiveEvtMsgBody(meetingId: String)
+
 
   case class AkkaAppsCheckAliveReqBody(timestamp: Long)
   case class AkkaAppsCheckAliveReqMsg(header: BbbCoreHeader, body: AkkaAppsCheckAliveReqBody)

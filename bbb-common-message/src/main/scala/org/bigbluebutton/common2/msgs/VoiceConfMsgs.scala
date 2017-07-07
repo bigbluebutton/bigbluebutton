@@ -230,4 +230,14 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   case class UserTalkingInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, talking: Boolean)
 
 
+object VoiceRecordingStartedEvtMsg { val NAME = "VoiceRecordingStartedEvtMsg" }
+case class VoiceRecordingStartedEvtMsg(header: BbbCoreVoiceConfHeader,
+                                        body: VoiceRecordingStartedEvtMsgBody) extends BbbCoreMsg
+case class VoiceRecordingStartedEvtMsgBody(meetingId: String, stream: String, timestamp: String, voiceConf: String)
+
+object VoiceRecordingStoppedEvtMsg { val NAME = "VoiceRecordingStoppedEvtMsg" }
+case class VoiceRecordingStoppedEvtMsg(header: BbbCoreVoiceConfHeader,
+                                        body: VoiceRecordingStoppedEvtMsgBody) extends BbbCoreMsg
+case class VoiceRecordingStoppedEvtMsgBody(meetingId: String, stream: String, timestamp: String, voiceConf: String)
+
 

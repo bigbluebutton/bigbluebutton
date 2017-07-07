@@ -67,22 +67,56 @@ case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: Strin
                                        guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
                                        presenter: Boolean, locked: Boolean, avatar: String)
 
-object GetUsersReqMsg {
-  val NAME = "GetUsersReqMsg"
-}
-
+/**
+  * Sent by client to get all users in a meeting.
+  */
+object GetUsersReqMsg { val NAME = "GetUsersReqMsg" }
 case class GetUsersReqMsg(header: BbbClientMsgHeader, body: GetUsersReqMsgBody) extends BbbCoreMsg
-
 case class GetUsersReqMsgBody(requesterId: String)
 
+/**
+  * Sent by user to get status of recording mark.
+  */
+object GetRecordingStatusReqMsg { val NAME = "GetRecordingStatusReqMsg" }
+case class GetRecordingStatusReqMsg(header: BbbClientMsgHeader, body: GetRecordingStatusReqMsgBody) extends BbbCoreMsg
+case class GetRecordingStatusReqMsgBody(requestedBy: String)
 
-object UserEmojiChangedEvtMsg {
-  val NAME = "UserEmojiChangedEvtMsg"
-}
 
+/**
+  * Sent by user as response to get recording mark.
+  */
+object GetRecordingStatusRespMsg { val NAME = "GetRecordingStatusRespMsg" }
+case class GetRecordingStatusRespMsg(header: BbbClientMsgHeader, body: GetRecordingStatusRespMsgBody) extends BbbCoreMsg
+case class GetRecordingStatusRespMsgBody(recording: Boolean, requestedBy: String)
+
+
+/**
+  * Sent by user to start recording mark.
+  */
+object SetRecordingStatusCmdMsg { val NAME = "SetRecordingStatusCmdMsg" }
+case class SetRecordingStatusCmdMsg(header: BbbClientMsgHeader, body: SetRecordingStatusCmdMsgBody) extends BbbCoreMsg
+case class SetRecordingStatusCmdMsgBody(recording: Boolean, setBy: String)
+
+/**
+  * Sent to all users about start recording mark.
+  */
+object RecordingStatusChangedEvtMsg { val NAME = "RecordingStatusChangedEvtMsg" }
+case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: RecordingStatusChangedEvtMsgBody) extends BbbCoreMsg
+case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
+
+/**
+  * Sent to all clients about a user changing emoji.
+  */
+object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
 case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
-
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
+
+/**
+  * Sent from client as a response to inactivity notifaction from server.
+  */
+object MeetingActivityResponseCmdMsg { val NAME = "MeetingActivityResponseCmdMsg" }
+case class MeetingActivityResponseCmdMsg(header: BbbClientMsgHeader, body: MeetingActivityResponseCmdMsgBody) extends BbbCoreMsg
+case class MeetingActivityResponseCmdMsgBody(respondedBy: String)
 
 /**
   * Sent from client to change the rolr of the user the user in the meeting.
@@ -108,6 +142,13 @@ case class EjectUserFromMeetingCmdMsgBody(userId: String, ejectedBy: String)
 object LockUserInMeetingCmdMsg { val NAME = "LockUserInMeetingCmdMsg" }
 case class LockUserInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUserInMeetingCmdMsgBody) extends BbbCoreMsg
 case class LockUserInMeetingCmdMsgBody(userId: String, lock: Boolean, lockedBy: String)
+
+/**
+  * Sent from client to logout and end meeting.
+  */
+object LogoutAndEndMeetingCmdMsg { val NAME = "LogoutAndEndMeetingCmdMsg" }
+case class LogoutAndEndMeetingCmdMsg(header: BbbClientMsgHeader, body: LogoutAndEndMeetingCmdMsgBody) extends BbbCoreMsg
+case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
 /**
   * Send to client that user has been locked.

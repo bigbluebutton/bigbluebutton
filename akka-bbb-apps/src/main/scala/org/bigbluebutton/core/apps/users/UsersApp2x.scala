@@ -5,11 +5,15 @@ import org.bigbluebutton.core2.message.handlers.users.ValidateAuthTokenReqMsgHdl
 
 trait UsersApp2x
     extends RegisterUserReqMsgHdlr
-    with ChangeUserRoleHdlr
+    with ChangeUserRoleCmdMsgHdlr
     with SyncGetUsersMeetingRespMsgHdlr
     with EjectUserFromMeetingHdlr
     with ValidateAuthTokenReqMsgHdlr
-    with UserLeaveReqMsgHdlr {
+    with UserLeaveReqMsgHdlr
+    with LogoutAndEndMeetingCmdMsgHdlr
+    with MeetingActivityResponseCmdMsgHdlr
+    with SetRecordingStatusCmdMsgHdlr
+    with GetRecordingStatusReqMsgHdlr {
 
   this: MeetingActor =>
 

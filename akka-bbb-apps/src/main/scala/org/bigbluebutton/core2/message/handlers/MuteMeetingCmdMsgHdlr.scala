@@ -13,21 +13,6 @@ trait MuteMeetingCmdMsgHdlr {
 
   def handleMuteMeetingCmdMsg(msg: MuteMeetingCmdMsg) {
 
-    if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
-      MeetingStatus2x.unmuteMeeting(liveMeeting.status)
-    } else {
-      MeetingStatus2x.muteMeeting(liveMeeting.status)
-    }
-
-    val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
-    val event = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
-
-    outGW.send(event)
-
-    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { u =>
-      muteUserInVoiceConf(u)
-    }
-
     def build(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(MeetingMutedEvtMsg.NAME, routing)
@@ -50,6 +35,21 @@ trait MuteMeetingCmdMsgHdlr {
 
       outGW.send(msgEvent)
 
+    }
+
+    if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+      MeetingStatus2x.unmuteMeeting(liveMeeting.status)
+    } else {
+      MeetingStatus2x.muteMeeting(liveMeeting.status)
+    }
+
+    val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
+    val meetingMutedEvent = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
+
+    outGW.send(meetingMutedEvent)
+
+    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { u =>
+      muteUserInVoiceConf(u)
     }
 
     VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
