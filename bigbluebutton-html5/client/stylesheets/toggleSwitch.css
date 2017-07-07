@@ -119,13 +119,13 @@
 }
 
 .react-toggle--focus .react-toggle-thumb {
-  -webkit-box-shadow: 0px 0px 3px 2px #53bdee;
-  -moz-box-shadow: 0px 0px 3px 2px #53bdee;
-  box-shadow: 0px 0px 2px 3px #53bdee;
+  -webkit-box-shadow: 0px 0px 3px 2px #0F70D7;
+  -moz-box-shadow: 0px 0px 3px 2px #0F70D7;
+  box-shadow: 0px 0px 2px 3px #0F70D7;
 }
 
 .react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
-  -webkit-box-shadow: 0px 0px 5px 5px #53bdee;
-  -moz-box-shadow: 0px 0px 5px 5px #53bdee;
-  box-shadow: 0px 0px 5px 5px #53bdee;
+  -webkit-box-shadow: 0px 0px 5px 5px #0F70D7;
+  -moz-box-shadow: 0px 0px 5px 5px #0F70D7;
+  box-shadow: 0px 0px 5px 5px #0F70D7;
 }
