@@ -78,9 +78,9 @@ export default class PollDrawComponent extends React.Component {
 
     // counting the total number of votes, finding the biggest number of votes
     this.props.shape.result.reduce((previousValue, currentValue, currentIndex, array) => {
-      votesTotal = previousValue + currentValue.num_votes;
-      if (maxNumVotes < currentValue.num_votes) {
-        maxNumVotes = currentValue.num_votes;
+      votesTotal = previousValue + currentValue.numVotes;
+      if (maxNumVotes < currentValue.numVotes) {
+        maxNumVotes = currentValue.numVotes;
       }
 
       return votesTotal;
@@ -93,12 +93,12 @@ export default class PollDrawComponent extends React.Component {
     for (let i = 0; i < arrayLength; ++i) {
       const _tempArray = [];
       const _result = this.props.shape.result[i];
-      _tempArray.push(_result.key, `${_result.num_votes}`);
+      _tempArray.push(_result.key, `${_result.numVotes}`);
       if (votesTotal === 0) {
         _tempArray.push('0%');
         _tempArray.push(i);
       } else {
-        percResult = _result.num_votes / votesTotal * 100;
+        percResult = _result.numVotes / votesTotal * 100;
         _tempArray.push(`${Math.round(percResult)}%`);
         _tempArray.push(i);
       }
@@ -295,10 +295,10 @@ export default class PollDrawComponent extends React.Component {
     let yNumVotes = this.state.innerRect.y + verticalPadding - magicNumber;
     const extendedTextArray = [];
     for (let i = 0; i < this.state.textArray.length; i++) {
-      if (this.state.maxNumVotes == 0 || this.props.shape.result[i].num_votes === 0) {
+      if (this.state.maxNumVotes == 0 || this.props.shape.result[i].numVotes === 0) {
         barWidth = 1;
       } else {
-        barWidth = this.props.shape.result[i].num_votes / this.state.maxNumVotes * maxBarWidth;
+        barWidth = this.props.shape.result[i].numVotes / this.state.maxNumVotes * maxBarWidth;
       }
 
       // coordinates and color of the text inside the line bar
@@ -338,7 +338,7 @@ export default class PollDrawComponent extends React.Component {
           yNumVotes,
           xNumVotes,
           color,
-          numVotes: this.props.shape.result[i].num_votes,
+          numVotes: this.props.shape.result[i].numVotes,
         },
         percentColumn: {
           xRight,
@@ -435,7 +435,7 @@ export default class PollDrawComponent extends React.Component {
               x={line.barColumn.xNumVotes + line.barColumn.barWidth / 2}
               y={line.barColumn.yNumVotes + line.barColumn.barHeight / 2}
               dy={this.state.maxLineHeight / 2}
-              key={`${line.key}_num_votes`}
+              key={`${line.key}_numVotes`}
               fill={line.barColumn.color}
             >
               {line.barColumn.numVotes}

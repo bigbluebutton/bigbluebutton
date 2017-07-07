@@ -49,7 +49,6 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
         'shape.shape.dataPoints': shape.annotationInfo.dataPoints,
       });
       break;
-
     case SHAPE_TYPE_PENCIL:
       modifier.$push = { 'shape.shape.points': { $each: shape.annotationInfo.points } };
       break;

@@ -105,7 +105,7 @@ class RedisPubSub2x {
     Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName} | CHANNEL ${channel}`);
 
     // We should only handle messages from this two channels, else, we simple ignore them.
-    if (channel !== fromAkkaApps || channel !== toHTML5) {
+    if (channel !== fromAkkaApps && channel !== toHTML5) {
       Logger.warn(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
       return;
     }
