@@ -58,26 +58,19 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   { router, intl, mountModal, baseControls }) => {
 
   // Displayed error messages according to the mode (kicked, end meeting)
-  let clearCredential = (mode) => {
+  let sendToError = (code, message) => {
     Auth.clearCredentials()
         .then(() => {
-          router.push('/error/403');
-          baseControls.updateErrorState(
-            mode == 'kicked' ?
-              intl.formatMessage(intlMessages.kickedMessage) :
-              intl.formatMessage(intlMessages.endMeetingMessage)
-          );
+          router.push(`/error/${code}`);
+          baseControls.updateErrorState(message);
         });
   };
-
-  let status;
 
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
       if (fields.user && fields.user.kicked) {
-        status = 'kicked';
-        clearCredential(status);
+        sendToError(403, intl.formatMessage(intlMessages.kickedMessage));
       }
     },
   });
@@ -85,8 +78,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed(old) {
-      status = 'endMeeting';
-      clearCredential(status);
+      sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
     },
   });
 
