@@ -1,21 +1,19 @@
 $color-white: #F3F6F9 !default;
 
 $color-gray: #4E5A66 !default;
-$color-gray-dark: #2A2D33 !default;
+$color-gray-dark: #06172A !default;
 $color-gray-light: #8B9AA8 !default;
 $color-gray-lighter: lighten($color-gray-light, 25%) !default;
 
-//$color-primary: #299AD5 !default;
 $color-primary: #0F70D7 !default;
-$color-success: #4DC0A2 !default;
-$color-danger: #EC6365 !default;
+$color-success: #008081 !default;
+$color-danger: #DF2721 !default;
 
 $color-background: $color-gray-dark !default;
 
 $color-text: $color-gray !default;
-$color-heading: $color-gray !default;
+$color-heading: $color-gray-dark !default;
 
-//$color-link: #3E9DD6 !default;
 $color-link: $color-primary !default;
 $color-link-hover: darken($color-link, 15%) !default;
 
