@@ -28,10 +28,10 @@ trait RxJsonMsgDeserializer {
   }
 
   def routeEjectUserFromVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    def deserialize(jsonNode: JsonNode): Option[EjectUserFromVoiceConfMsg] = {
-      val (result, error) = JsonDeserializer.toBbbCommonMsg[EjectUserFromVoiceConfMsg](jsonNode)
+    def deserialize(jsonNode: JsonNode): Option[EjectUserFromVoiceConfSysMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[EjectUserFromVoiceConfSysMsg](jsonNode)
       result match {
-        case Some(msg) => Some(msg.asInstanceOf[EjectUserFromVoiceConfMsg])
+        case Some(msg) => Some(msg.asInstanceOf[EjectUserFromVoiceConfSysMsg])
         case None =>
           log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
           None
@@ -46,10 +46,10 @@ trait RxJsonMsgDeserializer {
   }
 
   def routeMuteUserInVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    def deserialize(jsonNode: JsonNode): Option[MuteUserInVoiceConfMsg] = {
-      val (result, error) = JsonDeserializer.toBbbCommonMsg[MuteUserInVoiceConfMsg](jsonNode)
+    def deserialize(jsonNode: JsonNode): Option[MuteUserInVoiceConfSysMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[MuteUserInVoiceConfSysMsg](jsonNode)
       result match {
-        case Some(msg) => Some(msg.asInstanceOf[MuteUserInVoiceConfMsg])
+        case Some(msg) => Some(msg.asInstanceOf[MuteUserInVoiceConfSysMsg])
         case None =>
           log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
           None
@@ -64,10 +64,10 @@ trait RxJsonMsgDeserializer {
   }
 
   def routeTransferUserToVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    def deserialize(jsonNode: JsonNode): Option[TransferUserToVoiceConfMsg] = {
-      val (result, error) = JsonDeserializer.toBbbCommonMsg[TransferUserToVoiceConfMsg](jsonNode)
+    def deserialize(jsonNode: JsonNode): Option[TransferUserToVoiceConfSysMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[TransferUserToVoiceConfSysMsg](jsonNode)
       result match {
-        case Some(msg) => Some(msg.asInstanceOf[TransferUserToVoiceConfMsg])
+        case Some(msg) => Some(msg.asInstanceOf[TransferUserToVoiceConfSysMsg])
         case None =>
           log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
           None
@@ -82,10 +82,10 @@ trait RxJsonMsgDeserializer {
   }
 
   def routeStartRecordingVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    def deserialize(jsonNode: JsonNode): Option[StartRecordingVoiceConfMsg] = {
-      val (result, error) = JsonDeserializer.toBbbCommonMsg[StartRecordingVoiceConfMsg](jsonNode)
+    def deserialize(jsonNode: JsonNode): Option[StartRecordingVoiceConfSysMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[StartRecordingVoiceConfSysMsg](jsonNode)
       result match {
-        case Some(msg) => Some(msg.asInstanceOf[StartRecordingVoiceConfMsg])
+        case Some(msg) => Some(msg.asInstanceOf[StartRecordingVoiceConfSysMsg])
         case None =>
           log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
           None
@@ -100,10 +100,10 @@ trait RxJsonMsgDeserializer {
   }
 
   def routeStopRecordingVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    def deserialize(jsonNode: JsonNode): Option[StopRecordingVoiceConfMsg] = {
-      val (result, error) = JsonDeserializer.toBbbCommonMsg[StopRecordingVoiceConfMsg](jsonNode)
+    def deserialize(jsonNode: JsonNode): Option[StopRecordingVoiceConfSysMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[StopRecordingVoiceConfSysMsg](jsonNode)
       result match {
-        case Some(msg) => Some(msg.asInstanceOf[StopRecordingVoiceConfMsg])
+        case Some(msg) => Some(msg.asInstanceOf[StopRecordingVoiceConfSysMsg])
         case None =>
           log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
           None

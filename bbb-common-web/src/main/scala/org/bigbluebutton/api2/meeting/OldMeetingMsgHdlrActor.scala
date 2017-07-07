@@ -32,7 +32,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserLeftVoiceConfToClientEvtMsg => handleUserLeftVoiceConfToClientEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg => handleUserBroadcastCamStoppedEvtMsg(m)
-      case m: CreateBreakoutRoomEvtMsg => handleCreateBreakoutRoomSysCmdMsg(m)
+      case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: EndBreakoutRoomEvtMsg => handleEndBreakoutRoomEvtMsg(m)
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
@@ -50,7 +50,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     olgMsgGW.handle(new MeetingDestroyed(msg.body.meetingId))
   }
 
-  def handleCreateBreakoutRoomSysCmdMsg(msg: CreateBreakoutRoomEvtMsg): Unit = {
+  def handleCreateBreakoutRoomSysCmdMsg(msg: CreateBreakoutRoomSysCmdMsg): Unit = {
     olgMsgGW.handle(new CreateBreakoutRoom(
        msg.body.room.breakoutMeetingId,
        msg.body.room.parentId,
