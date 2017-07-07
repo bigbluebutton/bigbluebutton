@@ -34,14 +34,12 @@ export default function handleCaptionOwnerUpdate({ body }, meetingId) {
     return addCaption(meetingId, locale, captionHistory);
   }
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Updating captions owner: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.verbose(`Update caption owner locale=${locale} meeting=${meetingId}`);
-    }
+    return Logger.verbose(`Update caption owner locale=${locale} meeting=${meetingId}`);
   };
 
   return Captions.update(selector, modifier, { multi: true }, cb);

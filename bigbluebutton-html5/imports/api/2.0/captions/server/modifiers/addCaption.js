@@ -40,9 +40,7 @@ export default function addCaption(meetingId, locale, captionHistory, id = false
       return Logger.verbose(`Added caption2x locale=${locale} meeting=${meetingId}`);
     }
 
-    if (numChanged) {
-      return Logger.verbose(`Upserted caption2x locale=${locale} meeting=${meetingId}`);
-    }
+    return Logger.verbose(`Upserted caption2x locale=${locale} meeting=${meetingId}`);
   };
 
   return Captions.upsert(selector, modifier, cb);

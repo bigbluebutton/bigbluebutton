@@ -1,14 +1,9 @@
 import _ from 'lodash';
 import Captions from '/imports/api/2.0/captions';
 import { check } from 'meteor/check';
-import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import addCaption from '../modifiers/addCaption';
 
 export default function handleCaptionHistory({ body }, meetingId) {
-  if (!inReplyToHTML5Client({ body })) {
-    return;
-  }
-
   const SERVER_CONFIG = Meteor.settings.app;
   const CAPTION_CHUNK_LENGTH = SERVER_CONFIG.captionsChunkLength || 1000;
 
@@ -45,11 +40,11 @@ export default function handleCaptionHistory({ body }, meetingId) {
 
     Captions.remove(selectorToRemove);
 
-    chunks.forEach((captions, index) => {
+    chunks.forEach((chunkCaptions, index) => {
       const captionHistoryObject = {
         locale,
         ownerId,
-        captions,
+        chunkCaptions,
         index,
         next: (index < chunks.length - 1) ? index + 1 : undefined,
       };
