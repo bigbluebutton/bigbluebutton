@@ -79,25 +79,22 @@ package org.bigbluebutton.modules.users.services
       // TODO: Send joine meeting message to server.
     }
     
-    public function assignPresenter(userid:String, name:String, assignedBy:Number):void {
-      var message:Object = new Object();
-      message["newPresenterID"] = userid;
-      message["newPresenterName"] = name;
-      message["assignedBy"] = assignedBy.toString();
-      
+    public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:Number):void {
+      var assignedByUserId: String = assignedBy.toString(); // TODO - why is assignedBy a number? It should be a string
+
+      var message:Object = {
+        header: {name: "AssignPresenterReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), newPresenterId: newPresenterUserId, newPresenterName: newPresenterName, assignedBy: assignedByUserId}
+      };
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.assignPresenter", 
-        function(result:String):void { // On successful result
-        },	                   
-        function(status:String):void { // status - On error occurred
-            var logData:Object = UsersUtil.initLogData();
-            logData.tags = ["apps"];
-            logData.message = "Error occured assigning presenter.";
-            LOGGER.info(JSON.stringify(logData));
-        },
-        message
-      );
-      
+      _nc.sendMessage2x(function(result:String):void { // On successful result
+      }, function(status:String):void { // status - On error occurred
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["apps"];
+        logData.message = "Error occurred assigning a presenter.";
+        LOGGER.info(JSON.stringify(logData));
+      }, JSON.stringify(message));
     }
 
     public function emojiStatus(userID:String, emoji:String):void {

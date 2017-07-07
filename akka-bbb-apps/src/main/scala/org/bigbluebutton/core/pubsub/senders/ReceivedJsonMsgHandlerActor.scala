@@ -76,12 +76,9 @@ class ReceivedJsonMsgHandlerActor(
           send(m.header.userId, envelope, m)
         }
       case GetAllMeetingsReqMsg.NAME =>
-        // for {
-        //   m <- deserialize[GetAllMeetingsReqMsg](jsonNode)
-        // } yield {
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
-      // }
-
+      case AssignPresenterReqMsg.NAME =>
+        routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
       case StartCustomPollReqMsg.NAME =>
         for {
           m <- deserialize[StartCustomPollReqMsg](jsonNode)

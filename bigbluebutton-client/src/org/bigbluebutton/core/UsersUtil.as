@@ -180,11 +180,9 @@ package org.bigbluebutton.core
     public static function setIAskedToLogout(value:Boolean): void {
       LiveMeeting.inst().me.iAskedToLogout = value;
     }
-    
-    
-    public static function setMeAsPresenter(value: Boolean): void {
-      LiveMeeting.inst().me.isPresenter = value;
-      var user: User2x = LiveMeeting.inst().users.getUser(LiveMeeting.inst().me.id)
+
+    public static function setUserAsPresent(userId: String, value: Boolean): void {
+      var user: User2x = LiveMeeting.inst().users.getUser(userId);
       user.presenter = value;
       applyLockSettings();
     }

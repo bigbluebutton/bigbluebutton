@@ -224,6 +224,7 @@ class MeetingActor(val props: DefaultProps,
       case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
       case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
       case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case m: AssignPresenterReqMsg => handlePresenterChange(m)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
@@ -275,6 +276,17 @@ class MeetingActor(val props: DefaultProps,
     // TODO send all chat
     // TODO send all lock settings
     // TODO send all screen sharing info
+  }
+
+  def handlePresenterChange(msg: AssignPresenterReqMsg): Unit = {
+    // Stop poll if one is running as presenter left
+    handleStopPollReqMsg(msg.header.userId)
+
+    // switch user presenter status for old and new presenter
+    usersApp2x.handleAssignPresenterReqMsg(msg)
+
+    // TODO stop current screen sharing session (initiated by the old presenter)
+
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {

@@ -55,6 +55,16 @@ object Users2x {
     }
   }
 
+  def unmakePresenter(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.presenter).setTo(false)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
