@@ -64,7 +64,7 @@ Button.audioBtn:last-of-type {
 .backBtn {
   border: none;
   i {
-    color: $color-primary;
+    color: $color-link;
   }
 }
 
@@ -132,8 +132,8 @@ Button.audioBtn:last-of-type {
 .select {
   background-color: #fff;
   border: 0;
-  border-bottom: 0.1rem solid $color-gray-lighter;
-  color: $color-gray-light;
+  border-bottom: 0.1rem solid $color-text;
+  color: $color-text;
   width: 100%;
   // appearance: none;
   height: 1.75rem;

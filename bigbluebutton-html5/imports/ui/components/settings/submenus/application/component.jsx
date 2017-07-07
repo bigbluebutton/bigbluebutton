@@ -224,7 +224,7 @@ class ApplicationMenu extends BaseMenu {
                   <div className={styles.col}>
                     <Button
                       onClick={() => this.handleIncreaseFontSize()}
-                      color={'success'}
+                      color={'primary'}
                       icon={'add'}
                       circle
                       hideLabel
@@ -234,7 +234,7 @@ class ApplicationMenu extends BaseMenu {
                   <div className={styles.col}>
                     <Button
                       onClick={() => this.handleDecreaseFontSize()}
-                      color={'success'}
+                      color={'primary'}
                       icon={'substract'}
                       circle
                       hideLabel

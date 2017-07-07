@@ -4,7 +4,7 @@ $btn-default-color: $color-gray;
 $btn-default-bg: $color-white;
 $btn-default-border: $color-white;
 
-$btn-primary-color: $color-white;
+$btn-primary-color: #fff;
 $btn-primary-bg: $color-primary;
 $btn-primary-border: $color-primary;
 
@@ -104,7 +104,8 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     display: block;
     margin-top: $btn-spacing;
     font-size: 90%;
-    color: $color-white;
+    //color: $color-white;
+    color: #fff;
     font-weight: normal;
     line-height: 1.5;
     text-align: center;
@@ -137,7 +138,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 .icon {
   width: 1.28571429em;
   text-align: center;
-  color: $color-white;
+  color: #fff;
 
   .buttonWrapper & {
     font-size: 125%;
