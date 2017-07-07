@@ -4,13 +4,17 @@
  * ==========
  */
 $user-avatar-border: $color-gray-light;
-$user-avatar-text: $user-avatar-border;
+$user-avatar-text: #fff;
 
 $voice-user-bg: $color-success;
 $voice-user-text: $color-gray-light;
 
 $moderator-text: $color-white;
 $moderator-bg: $color-primary;
+
+.avatarText {
+  color: $user-avatar-text;
+}
 
 .userAvatar {
   // @extend .flex-column;
