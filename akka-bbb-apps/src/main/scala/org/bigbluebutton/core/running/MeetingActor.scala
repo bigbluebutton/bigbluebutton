@@ -11,7 +11,9 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
+import org.bigbluebutton.core.apps.meeting._
 import org.bigbluebutton.core.apps.users.UsersApp2x
+import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users1x }
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -27,6 +29,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
+import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 
 object MeetingActor {
   def props(props: DefaultProps,
@@ -48,7 +51,7 @@ class MeetingActor(val props: DefaultProps,
     with UsersApp with PresentationApp
     with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp
-    with SharedNotesApp with PermisssionCheck
+    with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
@@ -69,6 +72,7 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutRoomEndedMsgHdlr
     with BreakoutRoomUsersUpdateMsgHdlr
     with SendBreakoutUsersUpdateMsgHdlr
+    with SyncGetMeetingInfoRespMsgHdlr
     with TransferUserToMeetingRequestHdlr
     with UserMutedInVoiceConfEvtMsgHdlr
     with UserTalkingInVoiceConfEvtMsgHdlr {
@@ -99,6 +103,7 @@ class MeetingActor(val props: DefaultProps,
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
+  val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -110,6 +115,7 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+    case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
 
     //======================================
 
@@ -137,18 +143,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
     case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
     case msg: InitializeMeeting => handleInitializeMeeting(msg)
-    case msg: ClearPresentation => handleClearPresentation(msg)
-    case msg: PresentationConversionUpdate => handlePresentationConversionUpdate(msg)
-    case msg: PresentationPageCountError => handlePresentationPageCountError(msg)
-    case msg: PresentationSlideGenerated => handlePresentationSlideGenerated(msg)
-    case msg: PresentationConversionCompleted => handlePresentationConversionCompleted(msg)
-    case msg: RemovePresentation => handleRemovePresentation(msg)
-    case msg: GetPresentationInfo => handleGetPresentationInfo(msg)
-    case msg: ResizeAndMoveSlide => handleResizeAndMoveSlide(msg)
-    case msg: GotoSlide => handleGotoSlide(msg)
-    case msg: SharePresentation => handleSharePresentation(msg)
-    case msg: GetSlideInfo => handleGetSlideInfo(msg)
-    case msg: PreuploadedPresentations => handlePreuploadedPresentations(msg)
     case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
     case msg: GetPollRequest => handleGetPollRequest(msg)
@@ -179,14 +173,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: GetGuestPolicy => handleGetGuestPolicy(msg)
     case msg: SetGuestPolicy => handleSetGuestPolicy(msg)
     case msg: RespondToGuest => handleRespondToGuest(msg)
-
-    // Shared Notes
-    case msg: PatchDocumentRequest => handlePatchDocumentRequest(msg)
-    case msg: GetCurrentDocumentRequest => handleGetCurrentDocumentRequest(msg)
-    case msg: CreateAdditionalNotesRequest => handleCreateAdditionalNotesRequest(msg)
-    case msg: DestroyAdditionalNotesRequest => handleDestroyAdditionalNotesRequest(msg)
-    case msg: RequestAdditionalNotesSetRequest => handleRequestAdditionalNotesSetRequest(msg)
-    case msg: SharedNotesSyncNoteRequest => handleSharedNotesSyncNoteRequest(msg)
 
     case _ => // do nothing
   }
@@ -234,16 +220,23 @@ class MeetingActor(val props: DefaultProps,
       case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
       case m: ResizeAndMovePagePubMsg => presentationApp2x.handleResizeAndMovePagePubMsg(m)
       case m: RemovePresentationPubMsg => presentationApp2x.handleRemovePresentationPubMsg(m)
-      case m: PreuploadedPresentationsPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
-      case m: PresentationConversionUpdatePubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
-      case m: PresentationPageCountErrorPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
-      case m: PresentationPageGeneratedPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
-      case m: PresentationConversionCompletedPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
+      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
+      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
+      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
+      case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
       case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
       case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
+
+      // SharedNotes
+      case m: GetSharedNotesPubMsg => sharedNotesApp2x.handleGetSharedNotesPubMsg(m)
+      case m: SyncSharedNotePubMsg => sharedNotesApp2x.handleSyncSharedNotePubMsg(m)
+      case m: UpdateSharedNoteReqMsg => sharedNotesApp2x.handleUpdateSharedNoteReqMsg(m)
+      case m: CreateSharedNoteReqMsg => sharedNotesApp2x.handleCreateSharedNoteReqMsg(m)
+      case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handleDestroySharedNoteReqMsg(m)
 
       //Guests
       case m: GetGuestsWaitingApprovalReqMsg => handle(m)
@@ -268,6 +261,21 @@ class MeetingActor(val props: DefaultProps,
       log.info("Register user success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.extUserId + " user=" + regUser)
       outGW.send(new UserRegistered(props.meetingProp.intId, props.recordProp.record, regUser))
     }
+  }
+
+  def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
+    // sync all meetings
+    handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
+
+    // sync all users
+    usersApp2x.handleSyncGetUsersMeetingRespMsg()
+
+    // sync all presentations
+    presentationApp2x.handleSyncGetPresentationInfoRespMsg()
+
+    // TODO send all chat
+    // TODO send all lock settings
+    // TODO send all screen sharing info
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {

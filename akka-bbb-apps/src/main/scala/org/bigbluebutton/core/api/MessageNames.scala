@@ -165,11 +165,6 @@ object MessageNames {
   var GET_GUEST_POLICY_REPLY = "get_guest_policy_reply"
   val GUEST_POLICY_CHANGED = "guest_policy_changed"
   val GUEST_ACCESS_DENIED = "guest_access_denied"
-  val PATCH_DOCUMENT_REPLY = "patch_document_reply"
-  val GET_CURRENT_DOCUMENT_REPLY = "get_current_document_reply"
-  val CREATE_ADDITIONAL_NOTES_REPLY = "create_additional_notes_reply"
-  val DESTROY_ADDITIONAL_NOTES_REPLY = "destroy_additional_notes_reply"
-  val SHAREDNOTES_SYNC_NOTE_REPLY = "sharednotes_sync_note_reply"
   val INACTIVITY_WARNING = "inactivity_warning_message"
   val MEETING_IS_ACTIVE = "meeting_is_active_message"
 }

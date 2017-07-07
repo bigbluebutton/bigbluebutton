@@ -2,7 +2,7 @@ package org.bigbluebutton.core2
 
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, SyncGetMeetingInfoRespMsg, SyncGetPresentationInfoRespMsg, SyncGetUsersMeetingRespMsg }
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.MessageSender
 
@@ -20,6 +20,12 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     val json = JsonUtil.toJson(msg)
-    msgSender.send(fromAkkaAppsRedisChannel, json)
+
+    msg.envelope.name match {
+      case SyncGetPresentationInfoRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetMeetingInfoRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetUsersMeetingRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
+      case _ => msgSender.send(fromAkkaAppsRedisChannel, json)
+    }
   }
 }

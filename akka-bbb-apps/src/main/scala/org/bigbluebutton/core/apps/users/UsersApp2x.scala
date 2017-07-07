@@ -8,6 +8,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 class UsersApp2x(val liveMeeting: LiveMeeting,
   val outGW: OutMessageGateway)(implicit val context: ActorContext)
     extends ChangeUserRoleHdlr
+    with SyncGetUsersMeetingRespMsgHdlr
     with EjectUserFromMeetingHdlr {
 
   val log = Logging(context.system, getClass)

@@ -284,36 +284,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
 
-	public void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation) {
-		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch, operation);
-		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
-	}
-
-	public void getCurrentDocument(String meetingID, String requesterID) {
-		GetCurrentDocumentRequestMessage msg = new GetCurrentDocumentRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
-	}
-
-	public void createAdditionalNotes(String meetingID, String requesterID, String noteName) {
-		CreateAdditionalNotesRequestMessage msg = new CreateAdditionalNotesRequestMessage(meetingID, requesterID, noteName);
-		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
-	}
-
-	public void destroyAdditionalNotes(String meetingID, String requesterID, String noteID) {
-		DestroyAdditionalNotesRequestMessage msg = new DestroyAdditionalNotesRequestMessage(meetingID, requesterID, noteID);
-		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
-	}
-
-	public void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize) {
-		RequestAdditionalNotesSetRequestMessage msg = new RequestAdditionalNotesSetRequestMessage(meetingID, requesterID, additionalNotesSetSize);
-		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
-	}
-
-	public void sharedNotesSyncNoteRequest(String meetingID, String requesterID, String noteID) {
-		SharedNotesSyncNoteRequestMessage msg = new SharedNotesSyncNoteRequestMessage(meetingID, requesterID, noteID);
-		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
-	}
-
 	public void logoutEndMeeting(String meetingId, String userId) {
 		LogoutEndMeetingRequestMessage msg = new LogoutEndMeetingRequestMessage(meetingId, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());

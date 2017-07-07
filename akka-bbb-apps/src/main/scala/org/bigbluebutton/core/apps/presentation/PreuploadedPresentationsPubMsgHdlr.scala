@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.domain.PageVO
-import org.bigbluebutton.common2.msgs.PreuploadedPresentationsPubMsg
+import org.bigbluebutton.common2.msgs.PreuploadedPresentationsSysPubMsg
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.Presentation
 
@@ -10,7 +10,7 @@ trait PreuploadedPresentationsPubMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handlePreuploadedPresentationsPubMsg(msg: PreuploadedPresentationsPubMsg): Unit = {
+  def handlePreuploadedPresentationsPubMsg(msg: PreuploadedPresentationsSysPubMsg): Unit = {
 
     val presos = new collection.mutable.HashMap[String, Presentation]
 

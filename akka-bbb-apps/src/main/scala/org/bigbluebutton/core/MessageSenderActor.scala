@@ -22,7 +22,6 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
-import org.bigbluebutton.core.pubsub.senders.SharedNotesMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
@@ -146,11 +145,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: GetGuestPolicyReply => handleGetGuestPolicyReply(msg)
     case msg: GuestPolicyChanged => handleGuestPolicyChanged(msg)
     case msg: GuestAccessDenied => handleGuestAccessDenied(msg)
-    case msg: PatchDocumentReply => handlePatchDocumentReply(msg)
-    case msg: GetCurrentDocumentReply => handleGetCurrentDocumentReply(msg)
-    case msg: CreateAdditionalNotesReply => handleCreateAdditionalNotesReply(msg)
-    case msg: DestroyAdditionalNotesReply => handleDestroyAdditionalNotesReply(msg)
-    case msg: SharedNotesSyncNoteReply => handleSharedNotesSyncNoteReply(msg)
     case _ => // do nothing
   }
 
@@ -721,30 +715,5 @@ class MessageSenderActor(val service: MessageSender)
   private def handleGuestAccessDenied(msg: GuestAccessDenied) {
     val json = UsersMessageToJsonConverter.guestAccessDeniedToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handlePatchDocumentReply(msg: PatchDocumentReply) {
-    val json = SharedNotesMessageToJsonConverter.patchDocumentReplyToJson(msg)
-    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
-  }
-
-  private def handleGetCurrentDocumentReply(msg: GetCurrentDocumentReply) {
-    val json = SharedNotesMessageToJsonConverter.getCurrentDocumentReplyToJson(msg)
-    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
-  }
-
-  private def handleCreateAdditionalNotesReply(msg: CreateAdditionalNotesReply) {
-    val json = SharedNotesMessageToJsonConverter.createAdditionalNotesReplyToJson(msg)
-    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
-  }
-
-  private def handleDestroyAdditionalNotesReply(msg: DestroyAdditionalNotesReply) {
-    val json = SharedNotesMessageToJsonConverter.destroyAdditionalNotesReplyToJson(msg)
-    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
-  }
-
-  private def handleSharedNotesSyncNoteReply(msg: SharedNotesSyncNoteReply) {
-    val json = SharedNotesMessageToJsonConverter.sharedNotesSyncNoteReplyToJson(msg)
-    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
   }
 }

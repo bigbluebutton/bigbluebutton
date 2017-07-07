@@ -32,25 +32,35 @@ import org.bigbluebutton.common2.domain.PresentationVO
   case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
   case class RemovePresentationPubMsgBody(presentationId: String)
 
-  object PreuploadedPresentationsPubMsg { val NAME = "PreuploadedPresentationsPubMsg"}
-  case class PreuploadedPresentationsPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsPubMsgBody) extends StandardMsg
-  case class PreuploadedPresentationsPubMsgBody(presentations: Vector[PresentationVO])
+  object PreuploadedPresentationsSysPubMsg { val NAME = "PreuploadedPresentationsSysPubMsg"}
+  case class PreuploadedPresentationsSysPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsSysPubMsgBody) extends StandardMsg
+  case class PreuploadedPresentationsSysPubMsgBody(presentations: Vector[PresentationVO])
 
-  object PresentationConversionUpdatePubMsg { val NAME = "PresentationConversionUpdatePubMsg"}
-  case class PresentationConversionUpdatePubMsg(header: BbbClientMsgHeader, body: PresentationConversionUpdatePubMsgBody) extends StandardMsg
-  case class PresentationConversionUpdatePubMsgBody(messageKey: String, code: String, presentationId: String, presName: String)
+  object PresentationConversionUpdateSysPubMsg { val NAME = "PresentationConversionUpdateSysPubMsg"}
+  case class PresentationConversionUpdateSysPubMsg(header: BbbClientMsgHeader,
+                                                   body: PresentationConversionUpdateSysPubMsgBody) extends StandardMsg
+  case class PresentationConversionUpdateSysPubMsgBody(messageKey: String,
+                                                       code: String,
+                                                       presentationId: String,
+                                                       presName: String)
 
-  object PresentationPageCountErrorPubMsg { val NAME = "PresentationPageCountErrorPubMsg"}
-  case class PresentationPageCountErrorPubMsg(header: BbbClientMsgHeader, body: PresentationPageCountErrorPubMsgBody) extends StandardMsg
-  case class PresentationPageCountErrorPubMsgBody(messageKey: String, code: String, presentationId: String, numberOfPages: Int, maxNumberPages: Int, presName: String)
+  object PresentationPageCountErrorSysPubMsg { val NAME = "PresentationPageCountErrorSysPubMsg"}
+  case class PresentationPageCountErrorSysPubMsg(header: BbbClientMsgHeader,
+                                                 body: PresentationPageCountErrorSysPubMsgBody) extends StandardMsg
+  case class PresentationPageCountErrorSysPubMsgBody(messageKey: String, code: String, presentationId: String,
+                                                     numberOfPages: Int, maxNumberPages: Int, presName: String)
 
-  object PresentationPageGeneratedPubMsg { val NAME = "PresentationPageGeneratedPubMsg"}
-  case class PresentationPageGeneratedPubMsg(header: BbbClientMsgHeader, body: PresentationPageGeneratedPubMsgBody) extends StandardMsg
-  case class PresentationPageGeneratedPubMsgBody(messageKey: String, code: String, presentationId: String, numberOfPages: Int, pagesCompleted: Int, presName: String)
+  object PresentationPageGeneratedSysPubMsg { val NAME = "PresentationPageGeneratedSysPubMsg"}
+  case class PresentationPageGeneratedSysPubMsg(header: BbbClientMsgHeader,
+                                                body: PresentationPageGeneratedSysPubMsgBody) extends StandardMsg
+  case class PresentationPageGeneratedSysPubMsgBody(messageKey: String, code: String, presentationId: String,
+                                                    numberOfPages: Int, pagesCompleted: Int, presName: String)
 
-  object PresentationConversionCompletedPubMsg { val NAME = "PresentationConversionCompletedPubMsg"}
-  case class PresentationConversionCompletedPubMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedPubMsgBody) extends StandardMsg
-  case class PresentationConversionCompletedPubMsgBody(messageKey: String, code: String, presentation: PresentationVO)
+  object PresentationConversionCompletedSysPubMsg { val NAME = "PresentationConversionCompletedSysPubMsg"}
+  case class PresentationConversionCompletedSysPubMsg(header: BbbClientMsgHeader,
+                                                      body: PresentationConversionCompletedSysPubMsgBody) extends StandardMsg
+  case class PresentationConversionCompletedSysPubMsgBody(messageKey: String, code: String,
+                                                          presentation: PresentationVO)
 
 
   /** Presentation Messages */
@@ -65,6 +75,10 @@ import org.bigbluebutton.common2.domain.PresentationVO
   object GetPresentationInfoRespMsg { val NAME = "GetPresentationInfoRespMsg"}
   case class GetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: GetPresentationInfoRespMsgBody) extends BbbCoreMsg
   case class GetPresentationInfoRespMsgBody(presentations: Vector[PresentationVO])
+
+  object SyncGetPresentationInfoRespMsg { val NAME = "SyncGetPresentationInfoRespMsg"}
+  case class SyncGetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: SyncGetPresentationInfoRespMsgBody) extends BbbCoreMsg
+  case class SyncGetPresentationInfoRespMsgBody(presentations: Vector[PresentationVO])
 
   object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg"}
   case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg

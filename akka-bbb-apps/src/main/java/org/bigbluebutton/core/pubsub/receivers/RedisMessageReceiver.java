@@ -51,9 +51,6 @@ public class RedisMessageReceiver {
 
 		MeetingMessageReceiver meetingRx = new MeetingMessageReceiver(bbbGW);
 		receivers.add(meetingRx);
-
-		SharedNotesMessageReceiver notesRx = new SharedNotesMessageReceiver(bbbGW);
-		receivers.add(notesRx);
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {
