@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
   import org.bigbluebutton.modules.phone.models.Constants;
+  import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
   import org.bigbluebutton.modules.phone.models.WebRTCModel;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -174,6 +175,7 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleUseFlashModeCommand():void {
       usingWebRTC = false;
+      WebRTCAudioStatus.getInstance().setAudioFailState(true);
     }
 
     public function handleWebRTCEchoTestFailedEvent(event:WebRTCEchoTestEvent):void {

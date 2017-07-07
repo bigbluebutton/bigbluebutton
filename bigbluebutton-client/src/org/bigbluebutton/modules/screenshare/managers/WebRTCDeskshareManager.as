@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
 	import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -186,7 +187,7 @@ package org.bigbluebutton.modules.screenshare.managers
 				startWebRTCDeskshare();
 			};
 
-			if (options.tryWebRTCFirst && BrowserCheck.isWebRTCSupported()) {
+			if (options.tryWebRTCFirst && BrowserCheck.isWebRTCSupported() && BrowserCheck.isHttps()) {
 				LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent WebRTC Supported");
 				if (BrowserCheck.isFirefox()) {
 					onSuccess("Firefox, lets try");
@@ -224,6 +225,12 @@ package org.bigbluebutton.modules.screenshare.managers
 		/*handle start sharing event*/
 		public function handleStartSharingEvent():void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
+			if (WebRTCAudioStatus.getInstance().getDidWebRTCAudioFail()) {
+                               usingWebRTC = false;
+                               globalDispatcher.dispatchEvent(new UseJavaModeCommand());
+                               return;
+			}
+
 			canIUseVertoOnThisBrowser();
 		}
 
