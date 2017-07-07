@@ -43,8 +43,7 @@ package org.bigbluebutton.modules.chat.services
     {
       LOGGER.debug("sendPublicMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.chatType = ChatConstants.PUBLIC_CHAT;
-      msgVO.fromUserID = message.fromUserID;
+      msgVO.fromUserId = message.fromUserID;
       msgVO.fromUsername = message.fromUsername;
       msgVO.fromColor = message.fromColor;
       msgVO.fromTime = message.fromTime;
@@ -59,14 +58,13 @@ package org.bigbluebutton.modules.chat.services
     {
 	  LOGGER.debug("sendPrivateMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.chatType = ChatConstants.PUBLIC_CHAT;
-      msgVO.fromUserID = message.fromUserID;
+      msgVO.fromUserId = message.fromUserID;
       msgVO.fromUsername = message.fromUsername;
       msgVO.fromColor = message.fromColor;
       msgVO.fromTime = message.fromTime;
       msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
       
-      msgVO.toUserID = message.toUserID;
+      msgVO.toUserId = message.toUserID;
       msgVO.toUsername = message.toUsername;
       
       msgVO.message = message.message;
@@ -98,19 +96,17 @@ package org.bigbluebutton.modules.chat.services
       var welcome:String = LiveMeeting.inst().me.welcome;
       if (welcome != "") {
         var welcomeMsg:ChatMessageVO = new ChatMessageVO();
-        welcomeMsg.chatType = ChatConstants.PUBLIC_CHAT;
-        welcomeMsg.fromUserID = SPACE;
+        welcomeMsg.fromUserId = SPACE;
         welcomeMsg.fromUsername = SPACE;
         welcomeMsg.fromColor = "86187";
-        welcomeMsg.fromTime = -1;
+        welcomeMsg.fromTime = new Date().getTime();
         welcomeMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        welcomeMsg.toUserID = SPACE;
+        welcomeMsg.toUserId = SPACE;
         welcomeMsg.toUsername = SPACE;
         welcomeMsg.message = welcome;
         
         var welcomeMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
         welcomeMsgEvent.message = welcomeMsg;
-        welcomeMsgEvent.history = false;
         dispatcher.dispatchEvent(welcomeMsgEvent);
         
         //Say that client is ready when sending the welcome message
@@ -120,19 +116,17 @@ package org.bigbluebutton.modules.chat.services
       if (UsersUtil.amIModerator()) {
         if (LiveMeeting.inst().meeting.modOnlyMessage != null) {
           var moderatorOnlyMsg:ChatMessageVO = new ChatMessageVO();
-          moderatorOnlyMsg.chatType = ChatConstants.PUBLIC_CHAT;
-          moderatorOnlyMsg.fromUserID = SPACE;
+          moderatorOnlyMsg.fromUserId = SPACE;
           moderatorOnlyMsg.fromUsername = SPACE;
           moderatorOnlyMsg.fromColor = "86187";
           moderatorOnlyMsg.fromTime = new Date().getTime();
           moderatorOnlyMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-          moderatorOnlyMsg.toUserID = SPACE;
+          moderatorOnlyMsg.toUserId = SPACE;
           moderatorOnlyMsg.toUsername = SPACE;
           moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
           
           var moderatorOnlyMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
           moderatorOnlyMsgEvent.message = moderatorOnlyMsg;
-          moderatorOnlyMsgEvent.history = false;
           dispatcher.dispatchEvent(moderatorOnlyMsgEvent);
         }
       }

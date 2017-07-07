@@ -39,7 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
       import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-      import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
       import org.bigbluebutton.modules.chat.services.ChatMessageService;
       import org.bigbluebutton.modules.chat.services.MessageReceiver;
       import org.bigbluebutton.modules.chat.services.MessageSender;
@@ -79,16 +79,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	 		<MethodInvoker generator="{ChatMessageService}" method="sendPrivateMessage" arguments="{event.chatMessage}"/>		
 	    </EventHandlers>
 	    		
-		<EventHandlers type="{TranscriptEvent.LOAD_TRANSCRIPT}" >
+		<EventHandlers type="{ChatHistoryEvent.REQUEST_HISTORY}" >
 	    <MethodInvoker generator="{ChatMessageService}" method="getPublicChatMessages"/>
 		</EventHandlers>    
 	  
-	  <EventHandlers type="{TranscriptEvent.TRANSCRIPT_EVENT}" >
+	  <EventHandlers type="{ChatHistoryEvent.RECEIVED_HISTORY}" >
 	    <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage"/>
 	  </EventHandlers>      
 	
 	  <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-	    <EventAnnouncer generator="{TranscriptEvent}" type="{TranscriptEvent.LOAD_TRANSCRIPT}"/>
+	    <EventAnnouncer generator="{ChatHistoryEvent}" type="{ChatHistoryEvent.REQUEST_HISTORY}"/>
 	  </EventHandlers>
 	  
 	  <EventHandlers type="{ChatSaveEvent.SAVE_CHAT_EVENT}">

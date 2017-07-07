@@ -12,12 +12,12 @@ trait ChatApp {
   val outGW: OutMessageGateway
 
   def handleGetChatHistoryRequest(msg: GetChatHistoryRequest) {
-    val history = liveMeeting.chatModel.getChatHistory()
-    outGW.send(new GetChatHistoryReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.replyTo, history))
+    //val history = liveMeeting.chatModel.getChatHistory()
+    //outGW.send(new GetChatHistoryReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID, msg.replyTo, history))
   }
 
   def handleSendPublicMessageRequest(msg: SendPublicMessageRequest) {
-    liveMeeting.chatModel.addNewChatMessage(msg.message)
+    //liveMeeting.chatModel.addNewChatMessage(msg.message)
     val pubMsg = msg.message
 
     outGW.send(new SendPublicMessageEvent(props.meetingProp.intId, props.recordProp.record, msg.requesterID, pubMsg))
@@ -29,7 +29,7 @@ trait ChatApp {
   }
 
   def handleClearPublicChatHistoryRequest(msg: ClearPublicChatHistoryRequest) {
-    liveMeeting.chatModel.clearPublicChatHistory()
+    //liveMeeting.chatModel.clearPublicChatHistory()
     outGW.send(new ClearPublicChatHistoryReply(props.meetingProp.intId, props.recordProp.record, msg.requesterID))
   }
 

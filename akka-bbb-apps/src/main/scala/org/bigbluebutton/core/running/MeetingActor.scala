@@ -9,6 +9,7 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
+import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
@@ -103,6 +104,7 @@ class MeetingActor(val props: DefaultProps,
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW = outGW)
+  val chatApp2x = new ChatApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -236,6 +238,12 @@ class MeetingActor(val props: DefaultProps,
       case m: UpdateSharedNoteReqMsg => sharedNotesApp2x.handleUpdateSharedNoteReqMsg(m)
       case m: CreateSharedNoteReqMsg => sharedNotesApp2x.handleCreateSharedNoteReqMsg(m)
       case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handleDestroySharedNoteReqMsg(m)
+
+      // Chat
+      case m: GetChatHistoryReqMsg => chatApp2x.handleGetChatHistoryReqMsg(m)
+      case m: SendPublicMessagePubMsg => chatApp2x.handleSendPublicMessagePubMsg(m)
+      case m: SendPrivateMessagePubMsg => chatApp2x.handleSendPrivateMessagePubMsg(m)
+      case m: ClearPublicChatHistoryPubMsg => chatApp2x.handleClearPublicChatHistoryPubMsg(m)
 
       //Guests
       case m: GetGuestsWaitingApprovalReqMsg => handle(m)

@@ -20,12 +20,14 @@ package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
 
-	public class TranscriptEvent extends Event
+	public class ChatHistoryEvent extends Event
 	{
-		public static const LOAD_TRANSCRIPT:String = "LOAD_TRANSCRIPT";
-		public static const TRANSCRIPT_EVENT:String = 'TRANSCRIPT_EVENT';
+		public static const REQUEST_HISTORY:String = "REQUEST_HISTORY";
+		public static const RECEIVED_HISTORY:String = 'RECEIVED_HISTORY';
 		
-		public function TranscriptEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public var history:Array;
+		
+		public function ChatHistoryEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

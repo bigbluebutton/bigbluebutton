@@ -10,6 +10,7 @@
 		visible="{toolbarVisible}"
 		styleName="chatToolbarStyle"
 		horizontalAlign="center"
+		width="28"
 		hideEffect="{fadeOut}" showEffect="{fadeIn}"
 		backgroundColor="{bgColor}">
 

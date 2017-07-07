@@ -49,7 +49,7 @@ package org.bigbluebutton.modules.chat.views
       //sovled on forum by Flex HarUI
       measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
 
-      dispatchEvent(new ChatEvent(ChatEvent.RESIZE_CHAT_TOOLBAR));
+      //dispatchEvent(new ChatEvent(ChatEvent.RESIZE_CHAT_TOOLBAR));
     }
     
     public function scrollToBottom():void {
