@@ -51,7 +51,7 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: In
     //log.error(s"SHOULD NOT BE RECEIVING: $message")
     if (message.channel == toAkkaAppsRedisChannel || message.channel == fromVoiceConfRedisChannel) {
       val receivedJsonMessage = new ReceivedJsonMessage(message.channel, message.data.utf8String)
-      log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
+      //  log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
       jsonMsgBus.publish(IncomingJsonMessage(toAkkaAppsJsonChannel, receivedJsonMessage))
     }
   }

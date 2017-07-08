@@ -85,6 +85,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     for {
       m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
     } yield {
+      log.debug("FORWARDING Registere user message")
       m.actorRef forward (msg)
     }
   }

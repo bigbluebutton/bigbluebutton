@@ -103,6 +103,9 @@ class MeetingActor(val props: DefaultProps,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
 
+      // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
+      // its type is not BbbCommonEnvCoreMsg
+    case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
     case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
 
     //======================================
@@ -139,11 +142,10 @@ class MeetingActor(val props: DefaultProps,
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
-    msg.core match {
 
+    msg.core match {
       // Users
       case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
-      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
       case m: UserJoinMeetingReqMsg => handleUserJoinMeetingReqMsg(m)
       case m: UserLeaveReqMsg => handleUserLeaveReqMsg(m)
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
-
 import scala.reflect.runtime.universe._
 
 object ReceivedJsonMsgHandlerActor {
@@ -24,7 +23,7 @@ class ReceivedJsonMsgHandlerActor(
 
   def receive = {
     case msg: ReceivedJsonMessage =>
-      log.debug("handling {} - {}", msg.channel, msg.data)
+      //log.debug("handling {} - {}", msg.channel, msg.data)
       handleReceivedJsonMessage(msg)
     case _ => // do nothing
   }
@@ -44,8 +43,8 @@ class ReceivedJsonMsgHandlerActor(
   }
 
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    if (SendCursorPositionPubMsg.NAME != envelope.name)
-      log.debug("Route envelope name " + envelope.name)
+    // if (SendCursorPositionPubMsg.NAME != envelope.name)
+    //   log.debug("Route envelope name " + envelope.name)
 
     envelope.name match {
       case CreateMeetingReqMsg.NAME =>

@@ -30,12 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.messaging.MessageListener;
@@ -282,10 +277,6 @@ public class MeetingService implements MessageListener {
   }
 
   private void processRegisterUser(RegisterUser message) {
-    gw.registerUser(message.meetingID,
-      message.internalUserId, message.fullname, message.role,
-      message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
-
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
