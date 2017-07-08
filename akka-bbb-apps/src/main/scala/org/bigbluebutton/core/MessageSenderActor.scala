@@ -8,7 +8,6 @@ import akka.actor.SupervisorStrategy.Resume
 import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants
-import org.bigbluebutton.core.pubsub.senders.ChatMessageToJsonConverter
 import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
@@ -55,10 +54,6 @@ class MessageSenderActor(val service: MessageSender)
   val encoder = new ToJsonEncoder()
   def receive = {
     case msg: UserEjectedFromMeeting => handleUserEjectedFromMeeting(msg)
-    case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
-    case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
-    case msg: SendPrivateMessageEvent => handleSendPrivateMessageEvent(msg)
-    case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
     case msg: MeetingCreated => handleMeetingCreated(msg)
     case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
     case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
@@ -176,26 +171,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
     val json = DeskShareMessageToJsonConverter.getDeskShareStartRTMPBroadcastToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
-  }
-
-  private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {
-    val json = ChatMessageToJsonConverter.getChatHistoryReplyToJson(msg)
-    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
-  }
-
-  private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
-    val json = ChatMessageToJsonConverter.sendPublicMessageEventToJson(msg)
-    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
-  }
-
-  private def handleSendPrivateMessageEvent(msg: SendPrivateMessageEvent) {
-    val json = ChatMessageToJsonConverter.sendPrivateMessageEventToJson(msg)
-    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
-  }
-
-  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
-    val json = ChatMessageToJsonConverter.clearPublicChatHistoryReplyToJson(msg)
-    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
   }
 
   private def handleStartRecordingVoiceConf(msg: StartRecordingVoiceConf) {

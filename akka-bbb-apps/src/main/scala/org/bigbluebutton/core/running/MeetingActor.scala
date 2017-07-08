@@ -49,7 +49,7 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutApp2x
 
     with UsersApp with PresentationApp
-    with ChatApp with WhiteboardApp with PollApp
+    with WhiteboardApp with PollApp
     with BreakoutRoomApp
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
@@ -138,9 +138,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: MuteUserRequest => handleMuteUserRequest(msg)
     case msg: EjectUserFromVoiceRequest => handleEjectUserRequest(msg)
     case msg: TransferUserToMeetingRequest => handleTransferUserToMeeting(msg)
-    case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
-    case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
-    case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
     case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
     case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
     case msg: InitializeMeeting => handleInitializeMeeting(msg)
@@ -148,7 +145,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
     case msg: GetPollRequest => handleGetPollRequest(msg)
     case msg: LogoutEndMeeting => handleLogoutEndMeeting(msg)
-    case msg: ClearPublicChatHistoryRequest => handleClearPublicChatHistoryRequest(msg)
 
     // Breakout rooms
     case msg: BreakoutRoomsListMessage => handleBreakoutRoomsList(msg)
