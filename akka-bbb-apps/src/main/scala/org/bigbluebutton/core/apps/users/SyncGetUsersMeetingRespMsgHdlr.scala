@@ -3,10 +3,12 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
 
 trait SyncGetUsersMeetingRespMsgHdlr {
-  this: UsersApp2x =>
+  this: BaseMeetingActor =>
 
+  val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
   def handleSyncGetUsersMeetingRespMsg(): Unit = {

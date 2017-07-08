@@ -32,15 +32,15 @@ class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with Ac
     envelope.name match {
       case EjectAllFromVoiceConfMsg.NAME =>
         routeEjectAllFromVoiceConfMsg(envelope, jsonNode)
-      case EjectUserFromVoiceConfMsg.NAME =>
+      case EjectUserFromVoiceConfSysMsg.NAME =>
         routeEjectUserFromVoiceConfMsg(envelope, jsonNode)
-      case MuteUserInVoiceConfMsg.NAME =>
+      case MuteUserInVoiceConfSysMsg.NAME =>
         routeMuteUserInVoiceConfMsg(envelope, jsonNode)
-      case TransferUserToVoiceConfMsg.NAME =>
+      case TransferUserToVoiceConfSysMsg.NAME =>
         routeTransferUserToVoiceConfMsg(envelope, jsonNode)
-      case StartRecordingVoiceConfMsg.NAME =>
+      case StartRecordingVoiceConfSysMsg.NAME =>
         routeStartRecordingVoiceConfMsg(envelope, jsonNode)
-      case StopRecordingVoiceConfMsg.NAME =>
+      case StopRecordingVoiceConfSysMsg.NAME =>
         routeStopRecordingVoiceConfMsg(envelope, jsonNode)
       case _ => // do nothing
     }

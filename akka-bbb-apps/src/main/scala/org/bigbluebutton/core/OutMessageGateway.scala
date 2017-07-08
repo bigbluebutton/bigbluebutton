@@ -16,7 +16,7 @@ class OutMessageGateway(outgoingEventBus: OutgoingEventBus,
     outBus2: OutEventBus2,
     recordBus: RecordingEventBus) extends SystemConfiguration {
 
-  def send(msg: IOutMessage) {
+  def send1(msg: IOutMessage) {
     outgoingEventBus.publish(BigBlueButtonOutMessage(outMessageChannel, msg))
   }
 

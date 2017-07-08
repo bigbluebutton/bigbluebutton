@@ -88,6 +88,9 @@ package org.bigbluebutton.modules.users.services
         case "PresenterAssignedEvtMsg":
           handleAssignPresenterCallback(message);
           break;
+        case "PresenterUnassignedEvtMsg":
+           handleUnassignPresenterCallback(message);
+          break;
         case "UserBroadcastCamStartedEvtMsg": 
           handleUserBroadcastCamStartedEvtMsg(message);
           break;
@@ -561,41 +564,44 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     
-      var header:Object = msg.header as Object;
       var body: Object = msg.body as Object;
       
       var newPresenterID:String = body.presenterId as String;
       var newPresenterName:String = body.presenterName as String;
       var assignedBy:String = body.assignedBy as String;
-      
-      if (UsersUtil.isMe(newPresenterID)) {
-        sendSwitchedPresenterEvent(true, newPresenterID);
-        
-        UsersUtil.setMeAsPresenter(true);
-        
-        var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
-        e.userID = newPresenterID;
-        e.presenterName = newPresenterName;
-        e.assignerBy = assignedBy;
-        
-        dispatcher.dispatchEvent(e);	
-        
-      } else {	
-        sendSwitchedPresenterEvent(false, newPresenterID);
-        
-        UsersUtil.setMeAsPresenter(false);
-        var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-        viewerEvent.userID = newPresenterID;
-        viewerEvent.presenterName = newPresenterName;
-        viewerEvent.assignerBy = assignedBy;
-        
-        dispatcher.dispatchEvent(viewerEvent);
-      }
+
+      UsersUtil.setUserAsPresent(newPresenterID, true);
+      sendSwitchedPresenterEvent(true, newPresenterID);
+
+      var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+      e.userID = newPresenterID;
+      e.presenterName = newPresenterName;
+      e.assignedBy = assignedBy;
+      dispatcher.dispatchEvent(e);
       
       dispatcher.dispatchEvent(new UserStatusChangedEvent(newPresenterID));
-      
     }
-    
+
+    public function handleUnassignPresenterCallback(msg:Object):void {
+      var body: Object = msg.body as Object;
+
+      var oldPresenterID:String = body.intId as String;
+      var oldPresenterName:String = body.name as String;
+      var assignedBy:String = body.assignedBy as String;
+
+      UsersUtil.setUserAsPresent(oldPresenterID, false);
+      sendSwitchedPresenterEvent(false, oldPresenterID);
+
+      var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+      e.userID = oldPresenterID;
+      e.presenterName = oldPresenterName;
+      e.assignedBy = assignedBy;
+
+      dispatcher.dispatchEvent(e);
+
+      dispatcher.dispatchEvent(new UserStatusChangedEvent(oldPresenterID));
+    }
+
     private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
       var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
       roleEvent.amIPresenter = amIPresenter;

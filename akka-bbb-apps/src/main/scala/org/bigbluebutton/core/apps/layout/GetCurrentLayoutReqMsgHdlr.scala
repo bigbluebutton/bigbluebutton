@@ -12,7 +12,7 @@ trait GetCurrentLayoutReqMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: GetCurrentLayoutReqMsg): Unit = {
+  def handleGetCurrentLayoutReqMsg(msg: GetCurrentLayoutReqMsg): Unit = {
 
     def broadcastEvent(msg: GetCurrentLayoutReqMsg): Unit = {
 

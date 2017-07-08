@@ -227,7 +227,7 @@ class BigBlueButtonInGW(
   }
 
   def ejectUserFromMeeting(meetingId: String, userId: String, ejectedBy: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new EjectUserFromMeeting(meetingId, userId, ejectedBy)))
+
   }
 
   def logoutEndMeeting(meetingId: String, userId: String) {
@@ -247,8 +247,7 @@ class BigBlueButtonInGW(
   }
 
   def setUserRole(meetingID: String, userID: String, role: String) {
-    val userRole = if (role == "MODERATOR") Roles.MODERATOR_ROLE else Roles.VIEWER_ROLE
-    eventBus.publish(BigBlueButtonEvent(meetingID, new ChangeUserRole(meetingID, userID, userRole)))
+
   }
 
   def getUsers(meetingID: String, requesterID: String) {
