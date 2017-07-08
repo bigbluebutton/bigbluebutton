@@ -36,6 +36,15 @@ package org.bigbluebutton.modules.users.views
         users.refresh();
       }
     }
+
+    public function handleSwitchedPresenterEvent(amIPresenter: Boolean, newPresenterUserID: String): void {
+      var webUser: BBBUser2x = findUser(newPresenterUserID);
+
+      if (webUser != null) {
+        webUser.presenter = amIPresenter;
+        users.refresh();
+      }
+    }
     
     public function userStatusChanged(userId: String): void {
       var user: User2x = UsersUtil.getUser2x(userId);

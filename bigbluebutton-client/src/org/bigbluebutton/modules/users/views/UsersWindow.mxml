@@ -51,7 +51,8 @@
     <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
     <mate:Listener type="{UserEmojiChangedEvent.USER_EMOJI_CHANGED}" method="handleUserEmojiChangedEvent" />
-    
+    <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleSwitchedPresenterEvent" />
+
     
 	</fx:Declarations>
 	<fx:Script>
@@ -97,6 +98,7 @@
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.BreakoutRoom;
@@ -168,6 +170,10 @@
       
       private function handleUserEmojiChangedEvent(event: UserEmojiChangedEvent):void {
         handler.handleUserEmojiChangedEvent(event.userId, event.emoji);
+      }
+
+      private function handleSwitchedPresenterEvent(event: SwitchedPresenterEvent):void {
+        handler.handleSwitchedPresenterEvent(event.amIPresenter, event.newPresenterUserID);
       }
       
       private function handleUserJoinedVoiceConfEvent(event: BBBEvent): void {

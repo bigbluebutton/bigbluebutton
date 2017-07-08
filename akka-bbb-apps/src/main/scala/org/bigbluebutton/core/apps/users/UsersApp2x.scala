@@ -7,13 +7,14 @@ trait UsersApp2x
     extends RegisterUserReqMsgHdlr
     with ChangeUserRoleCmdMsgHdlr
     with SyncGetUsersMeetingRespMsgHdlr
-    with EjectUserFromMeetingHdlr
     with ValidateAuthTokenReqMsgHdlr
     with UserLeaveReqMsgHdlr
     with LogoutAndEndMeetingCmdMsgHdlr
     with MeetingActivityResponseCmdMsgHdlr
     with SetRecordingStatusCmdMsgHdlr
-    with GetRecordingStatusReqMsgHdlr {
+    with GetRecordingStatusReqMsgHdlr
+    with AssignPresenterReqMsgHdlr
+    with EjectUserFromMeetingHdlr {
 
   this: MeetingActor =>
 
