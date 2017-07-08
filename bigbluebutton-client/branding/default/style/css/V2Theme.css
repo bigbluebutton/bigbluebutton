@@ -402,6 +402,8 @@ flexlib|MDIWindow {
 	maximizeBtnStyleName : "mdiMaximizeButtonStyle";
 	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
 	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
+	
+	showHeaderSeparator : true;
 }
 
 .mdiMaximizeButtonStyle {
@@ -464,6 +466,8 @@ mx|Panel {
 	dropShadowEnabled : false;
 	backgroundColor: #ffffff;
 	titleStyleName: "panelTitleStyle";
+	showHeaderSeparator : false;
+	borderSkin: ClassReference("org.bigbluebutton.skins.PanelSkin");
 }
 
 .panelTitleStyle {

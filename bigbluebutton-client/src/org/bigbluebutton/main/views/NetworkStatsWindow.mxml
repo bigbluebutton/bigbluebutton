@@ -38,16 +38,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flash.utils.Timer;
 			
-			import mx.core.IFlexDisplayObject;
-			import mx.effects.Fade;
-			import mx.events.EffectEvent;
-			import mx.managers.PopUpManager;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.core.services.BandwidthMonitor;
 			import org.bigbluebutton.main.model.NetworkStatsData;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
