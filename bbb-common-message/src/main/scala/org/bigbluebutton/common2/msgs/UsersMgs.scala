@@ -102,6 +102,13 @@ case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: Record
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
 
 /**
+  * Sent from client about a user changing emoji.
+  */
+object ChangeUserEmojiCmdMsg { val NAME = "ChangeUserEmojiCmdMsg" }
+case class ChangeUserEmojiCmdMsg(header: BbbClientMsgHeader, body: ChangeUserEmojiCmdMsgBody) extends StandardMsg
+case class ChangeUserEmojiCmdMsgBody(userId: String, emoji: String)
+
+/**
   * Sent to all clients about a user changing emoji.
   */
 object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }

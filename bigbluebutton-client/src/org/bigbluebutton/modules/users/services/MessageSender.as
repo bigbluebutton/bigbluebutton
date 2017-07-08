@@ -96,21 +96,21 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function emojiStatus(userID:String, emoji:String):void {
-        var message:Object = new Object();
-        message["emojiStatus"] = emoji;
-        message["userId"] = userID;
+      var message:Object = {
+        header: {name: "ChangeUserEmojiCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: userID, emoji: emoji}
+      };
         
         var _nc:ConnectionManager = BBB.initConnectionManager();
-        _nc.sendMessage("participants.userEmojiStatus", 
-            function(result:String):void { // On successful result   
-                
+        _nc.sendMessage2x(function(result:String):void {   
+          // On successful result
             }, function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
                 logData.message = "Error occured setting emoji status.";
                 LOGGER.info(JSON.stringify(logData));
             },
-            message
+          JSON.stringify(message)
         );
 		}
 

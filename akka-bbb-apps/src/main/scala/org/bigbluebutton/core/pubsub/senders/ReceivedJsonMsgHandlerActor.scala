@@ -241,6 +241,8 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
+      case ChangeUserEmojiCmdMsg.NAME =>
+        routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
       case SendCursorPositionPubMsg.NAME =>
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
       case ModifyWhiteboardAccessPubMsg.NAME =>
