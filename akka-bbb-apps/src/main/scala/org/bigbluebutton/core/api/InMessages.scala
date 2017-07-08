@@ -94,14 +94,9 @@ case class ActivityResponse(meetingID: String) extends InMessage
 case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////////
-// Chat
+// Global Audio
 /////////////////////////////////////////////////////////////////////////////////
 
-case class GetAllChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
-case class GetChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String, chatId: String) extends InMessage
-case class SendPublicMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
-case class SendPrivateMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
-case class ClearPublicChatHistoryRequest(meetingID: String, requesterID: String) extends InMessage
 case class UserConnectedToGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
   userid: String, name: String) extends InMessage
 case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,

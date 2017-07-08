@@ -80,15 +80,6 @@ case class StartRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceCo
 case class StopRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceConfId: String, recordedStream: String) extends IOutMessage
 case class StopRecording(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
 
-// Chat
-case class GetChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String,
-  replyTo: String, history: Array[Map[String, String]]) extends IOutMessage
-case class SendPublicMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  message: Map[String, String]) extends IOutMessage
-case class SendPrivateMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  message: Map[String, String]) extends IOutMessage
-case class ClearPublicChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
-
 // Layout
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
   locked: Boolean, setByUserID: String) extends IOutMessage

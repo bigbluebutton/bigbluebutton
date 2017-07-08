@@ -9,6 +9,7 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
+import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.meeting._
@@ -49,9 +50,7 @@ class MeetingActor(val props: DefaultProps,
     with UsersApp2x
 
     with PresentationApp
-    with ChatApp
     with WhiteboardApp
-
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
@@ -93,6 +92,7 @@ class MeetingActor(val props: DefaultProps,
   val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW = outGW)
+  val chatApp2x = new ChatApp2x(liveMeeting, outGW = outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -116,16 +116,9 @@ class MeetingActor(val props: DefaultProps,
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
 
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
-
-    case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
-    case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
-    case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
     case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
     case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
     case msg: InitializeMeeting => handleInitializeMeeting(msg)
-
-    case msg: ClearPublicChatHistoryRequest => handleClearPublicChatHistoryRequest(msg)
-
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
 
@@ -226,6 +219,12 @@ class MeetingActor(val props: DefaultProps,
       case m: GetGuestsWaitingApprovalReqMsg => handleGetGuestsWaitingApprovalReqMsg(m)
       case m: SetGuestPolicyMsg => handleSetGuestPolicyMsg(m)
       case m: GuestsWaitingApprovedMsg => handleGuestsWaitingApprovedMsg(m)
+
+      // Chat
+      case m: GetChatHistoryReqMsg => chatApp2x.handleGetChatHistoryReqMsg(m)
+      case m: SendPublicMessagePubMsg => chatApp2x.handleSendPublicMessagePubMsg(m)
+      case m: SendPrivateMessagePubMsg => chatApp2x.handleSendPrivateMessagePubMsg(m)
+      case m: ClearPublicChatHistoryPubMsg => chatApp2x.handleClearPublicChatHistoryPubMsg(m)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
