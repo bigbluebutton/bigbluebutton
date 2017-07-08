@@ -200,6 +200,7 @@ package org.bigbluebutton.modules.whiteboard
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
+				if (userName == null) userName = "Unknown";
 				var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
 				wbCanvas.addCursor(newCursor);
 				

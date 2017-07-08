@@ -413,33 +413,6 @@ class BigBlueButtonInGW(
 
   /**
    * *******************************************************************
-   * Message Interface for Chat
-   * *****************************************************************
-   */
-
-  def getAllChatHistory(meetingID: String, requesterID: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetAllChatHistoryRequest(meetingID, requesterID, replyTo)))
-  }
-
-  def getChatHistory(meetingID: String, requesterID: String, replyTo: String, chatId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetChatHistoryRequest(meetingID, requesterID, replyTo, chatId)))
-  }
-
-  def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
-    // Convert java Map to Scala Map, then convert Mutable map to immutable map
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendPublicMessageRequest(meetingID, requesterID, JavaConverters.mapAsScalaMap(message).toMap)))
-  }
-
-  def sendPrivateMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendPrivateMessageRequest(meetingID, requesterID, JavaConverters.mapAsScalaMap(message).toMap)))
-  }
-
-  def clearPublicChatHistory(meetingID: String, requesterID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new ClearPublicChatHistoryRequest(meetingID, requesterID)))
-  }
-
-  /**
-   * *******************************************************************
    * Message Interface for Voice
    * *****************************************************************
    */

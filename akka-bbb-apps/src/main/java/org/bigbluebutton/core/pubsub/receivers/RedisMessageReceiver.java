@@ -31,9 +31,6 @@ public class RedisMessageReceiver {
 	}
 	
 	private void setupReceivers() {
-		ChatMessageReceiver chatRx = new ChatMessageReceiver(bbbGW);
-		receivers.add(chatRx);
-		
 		LockMessageReceiver lockRx = new LockMessageReceiver(bbbGW);
 		receivers.add(lockRx);
 		

@@ -170,48 +170,6 @@ public class Util {
 		return null;
 	}
 
-	public ArrayList<Map<String, Object>> extractChatHistory(JsonArray history) {
-		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
-		Iterator<JsonElement> historyIter = history.iterator();
-		while (historyIter.hasNext()){
-			JsonElement chat = historyIter.next();
-			Map<String, Object> chatMap = extractChat((JsonObject)chat);
-			if (chatMap != null) {
-				collection.add(chatMap);
-			}
-		}
-		return collection;
-	}
-
-	private Map<String, Object> extractChat(JsonObject chat) {
-
-		if (chat.has(Constants.FROM_COLOR)
-				&& chat.has(Constants.MESSAGE)
-				&& chat.has(Constants.TO_USERNAME)
-				&& chat.has(Constants.FROM_TZ_OFFSET)
-				&& chat.has(Constants.FROM_COLOR)
-				&& chat.has(Constants.TO_USERID)
-				&& chat.has(Constants.FROM_USERID)
-				&& chat.has(Constants.FROM_TIME)
-				&& chat.has(Constants.FROM_USERNAME)){
-
-			Map<String, Object> chatMap = new HashMap<String, Object>();
-
-			chatMap.put(ChatKeyUtil.CHAT_TYPE, chat.get(Constants.CHAT_TYPE).getAsString());
-			chatMap.put(ChatKeyUtil.MESSAGE, chat.get(Constants.MESSAGE).getAsString());
-			chatMap.put(ChatKeyUtil.TO_USERNAME, chat.get(Constants.TO_USERNAME).getAsString());
-			chatMap.put(ChatKeyUtil.FROM_TZ_OFFSET, chat.get(Constants.FROM_TZ_OFFSET).getAsString());
-			chatMap.put(ChatKeyUtil.FROM_COLOR, chat.get(Constants.FROM_COLOR).getAsString());
-			chatMap.put(ChatKeyUtil.TO_USERID, chat.get(Constants.TO_USERID).getAsString());
-			chatMap.put(ChatKeyUtil.FROM_USERID, chat.get(Constants.FROM_USERID).getAsString());
-			chatMap.put(ChatKeyUtil.FROM_TIME, chat.get(Constants.FROM_TIME).getAsString());
-			chatMap.put(ChatKeyUtil.FROM_USERNAME, chat.get(Constants.FROM_USERNAME).getAsString());
-
-			return chatMap;
-		}
-		return null;
-	}
-
 	public ArrayList<Map<String, Object>> extractUsers(JsonArray users) {
 		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
 
