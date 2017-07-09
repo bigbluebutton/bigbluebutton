@@ -20,8 +20,10 @@
 package org.bigbluebutton.modules.screenshare.utils
 {
   import flash.external.ExternalInterface;
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
   import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 
@@ -29,6 +31,7 @@ package org.bigbluebutton.modules.screenshare.utils
     private static const LOGGER:ILogger = getClassLogger(WebRTCScreenshareUtility);
     public static var chromeExtensionKey:String = null;
     public static var extensionLink:String = null;
+    private static var options:ScreenshareOptions = null;
 
     public static function canIUseVertoOnThisBrowser (cannotUseWebRTC:Function, webRTCWorksButNotConfigured:Function, webRTCWorksAndConfigured:Function):void {
       LOGGER.debug("WebRTCScreenshareUtility::canIUseVertoOnThisBrowser");
@@ -39,13 +42,14 @@ package org.bigbluebutton.modules.screenshare.utils
       }
 
       // https is required for verto and for peripheral sharing
-      /*if (!BrowserCheck.isHttps()) {
+      if (!BrowserCheck.isHttps()) {
         cannotUseWebRTC("Requires Https");
         return;
-      }*/
+      }
 
-      var options:ScreenshareOptions = new ScreenshareOptions();
-      options.parseOptions();
+      if (options == null) {
+        options = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+      }
 
       // fail if you dont want to try webrtc first
       if (!options.tryWebRTCFirst) {
@@ -60,7 +64,7 @@ package org.bigbluebutton.modules.screenshare.utils
       }
 
       // if theres no extension link-- users cant download-- fail
-      if (options.chromeExtensionLink == null || options.chromeExtensionLink == "") {
+      if (StringUtils.isEmpty(options.chromeExtensionLink)) {
         cannotUseWebRTC("No extensionLink in config.xml");
         return;
       }
@@ -77,7 +81,7 @@ package org.bigbluebutton.modules.screenshare.utils
         WebRTCScreenshareUtility.chromeExtensionKey = options.chromeExtensionKey;
 
         // if theres no key we cannot connect to the extension-- fail
-        if (WebRTCScreenshareUtility.chromeExtensionKey == null || WebRTCScreenshareUtility.chromeExtensionKey == "") {
+        if (StringUtils.isEmpty(WebRTCScreenshareUtility.chromeExtensionKey)) {
           cannotUseWebRTC("No chromeExtensionKey in config.xml");
           return;
         }
@@ -107,4 +111,3 @@ package org.bigbluebutton.modules.screenshare.utils
     }
   }
 }
-
