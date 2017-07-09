@@ -3,15 +3,15 @@ package org.bigbluebutton.common2.msgs
 
 // In messages
 object GetCurrentLayoutReqMsg { val NAME = "GetCurrentLayoutReqMsg" }
-case class GetCurrentLayoutReqMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutReqMsgBody) extends BbbCoreMsg
+case class GetCurrentLayoutReqMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutReqMsgBody) extends StandardMsg
 case class GetCurrentLayoutReqMsgBody()
 
 object LockLayoutMsg { val NAME = "LockLayoutMsg" }
-case class LockLayoutMsg(header: BbbClientMsgHeader, body: LockLayoutMsgBody) extends BbbCoreMsg
+case class LockLayoutMsg(header: BbbClientMsgHeader, body: LockLayoutMsgBody) extends StandardMsg
 case class LockLayoutMsgBody(lock: Boolean, viewersOnly: Boolean, layout: Option[String])
 
 object BroadcastLayoutMsg { val NAME = "BroadcastLayoutMsg" }
-case class BroadcastLayoutMsg(header: BbbClientMsgHeader, body: BroadcastLayoutMsgBody) extends BbbCoreMsg
+case class BroadcastLayoutMsg(header: BbbClientMsgHeader, body: BroadcastLayoutMsgBody) extends StandardMsg
 case class BroadcastLayoutMsgBody(layout: String)
 
 // Out messages
