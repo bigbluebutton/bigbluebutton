@@ -5,41 +5,35 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.domain.Meeting3x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 
 class LiveMeeting(val props: DefaultProps,
-  val status: MeetingStatus2x,
-  val chatModel: ChatModel,
-  val layoutModel: LayoutModel,
-  val layouts: Layouts,
-  val users: Users1x,
-  val registeredUsers: RegisteredUsers,
-  val polls: Polls, // 2x
-  val pollModel: PollModel, // 1.1x
-  val wbModel: WhiteboardModel,
-  val presModel: PresentationModel,
-  val breakoutRooms: BreakoutRooms,
-  val captionModel: CaptionModel,
-  val notesModel: SharedNotesModel,
-  val webcams: Webcams,
-  val voiceUsers: VoiceUsers,
-  val users2x: Users2x,
-  val guestsWaiting: GuestsWaiting)
-    extends ChatModelTrait {
+    val status: MeetingStatus2x,
+    val deskshareModel: DeskshareModel,
+    val chatModel: ChatModel,
+    val layoutModel: LayoutModel,
+    val layouts: Layouts,
+    val registeredUsers: RegisteredUsers,
+    val polls: Polls, // 2x
+    val pollModel: PollModel, // 1.1x
+    val wbModel: WhiteboardModel,
+    val presModel: PresentationModel,
+    val breakoutRooms: BreakoutRooms,
+    val captionModel: CaptionModel,
+    val notesModel: SharedNotesModel,
+    val webcams: Webcams,
+    val voiceUsers: VoiceUsers,
+    val users2x: Users2x,
+    val guestsWaiting: GuestsWaiting) {
 
   def hasMeetingEnded(): Boolean = {
     MeetingStatus2x.hasMeetingEnded(status)
   }
 
-  def webUserJoined() {
-    if (Users1x.numWebUsers(users) > 0) {
-      MeetingStatus2x.resetLastWebUserLeftOn(status)
-    }
-  }
-
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (Users1x.numWebUsers(users) == 0 && !props.meetingProp.isBreakout) {
+    if (Users2x.numUsers(users2x) == 0 && !props.meetingProp.isBreakout) {
       MeetingStatus2x.lastWebUserLeft(status)
     }
   }

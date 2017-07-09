@@ -102,13 +102,6 @@ public interface IBigBlueButtonInGW {
                   boolean lock, boolean viewersOnly,
                   String layout);
 
-	// Chat
-	void getAllChatHistory(String meetingID, String requesterID, String replyTo);
-	void getChatHistory(String meetingID, String requesterID, String replyTo, String chatId);
-	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
-	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
-	void clearPublicChatHistory(String meetingID, String requesterID);
-
 	// DeskShare
 	void deskShareStarted(String confId, String callerId, String callerIdName);
 	void deskShareStopped(String conferenceName, String callerId, String callerIdName);

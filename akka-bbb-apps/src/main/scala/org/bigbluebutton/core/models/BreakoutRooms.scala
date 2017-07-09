@@ -3,6 +3,11 @@ package org.bigbluebutton.core.models
 import org.bigbluebutton.common2.msgs.{ BreakoutRoomVO, BreakoutUserVO }
 
 object BreakoutRooms {
+  def breakoutRoomsStartedOn(status: BreakoutRooms) = status.breakoutRoomsStartedOn
+  def breakoutRoomsStartedOn(status: BreakoutRooms, startedOn: Long) = status.breakoutRoomsStartedOn = startedOn
+
+  def breakoutRoomsdurationInMinutes(status: BreakoutRooms) = status.breakoutRoomsdurationInMinutes
+  def breakoutRoomsdurationInMinutes(status: BreakoutRooms, duration: Int) = status.breakoutRoomsdurationInMinutes = duration
 
   def newBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, voiceConfId: String,
     assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
@@ -42,11 +47,13 @@ object BreakoutRooms {
   }
 
   def removeRoom(breakoutRooms: BreakoutRooms, id: String) {
-    breakoutRooms.remove(id);
+    breakoutRooms.remove(id)
   }
 }
 
 class BreakoutRooms {
+  private var breakoutRoomsStartedOn: Long = 0
+  private var breakoutRoomsdurationInMinutes: Int = 0
 
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoomVO]
 

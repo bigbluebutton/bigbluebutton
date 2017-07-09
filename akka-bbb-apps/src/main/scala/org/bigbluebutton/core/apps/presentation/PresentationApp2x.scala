@@ -10,8 +10,7 @@ import org.bigbluebutton.core.apps.Presentation
 
 class PresentationApp2x(val liveMeeting: LiveMeeting,
   val outGW: OutMessageGateway)(implicit val context: ActorContext)
-    extends EjectUserFromMeetingHdlr
-    with NewPresentationMsgHdlr
+    extends NewPresentationMsgHdlr
     with SetCurrentPresentationPubMsgHdlr
     with GetPresentationInfoReqMsgHdlr
     with SetCurrentPagePubMsgHdlr

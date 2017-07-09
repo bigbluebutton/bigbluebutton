@@ -38,7 +38,7 @@ trait AssignPresenterReqMsgHdlr {
       oldPres <- Users2x.findPresenter(this.liveMeeting.users2x)
       newPres <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.newPresenterId)
     } yield {
-      Users2x.unmakePresenter(this.liveMeeting.users2x, oldPres.intId)
+      Users2x.makeNotPresenter(this.liveMeeting.users2x, oldPres.intId)
       Users2x.makePresenter(this.liveMeeting.users2x, newPres.intId)
       broadcastPresenterChange(oldPres, newPres)
     }

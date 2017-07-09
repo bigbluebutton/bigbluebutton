@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
-
 import scala.reflect.runtime.universe._
 
 object ReceivedJsonMsgHandlerActor {
@@ -24,7 +23,7 @@ class ReceivedJsonMsgHandlerActor(
 
   def receive = {
     case msg: ReceivedJsonMessage =>
-      log.debug("handling {} - {}", msg.channel, msg.data)
+      //log.debug("handling {} - {}", msg.channel, msg.data)
       handleReceivedJsonMessage(msg)
     case _ => // do nothing
   }
@@ -44,8 +43,8 @@ class ReceivedJsonMsgHandlerActor(
   }
 
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    if (SendCursorPositionPubMsg.NAME != envelope.name)
-      log.debug("Route envelope name " + envelope.name)
+    // if (SendCursorPositionPubMsg.NAME != envelope.name)
+    //   log.debug("Route envelope name " + envelope.name)
 
     envelope.name match {
       case CreateMeetingReqMsg.NAME =>
@@ -170,15 +169,15 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case CreateBreakoutRoomsMsg.NAME =>
+      case CreateBreakoutRoomsCmdMsg.NAME =>
         for {
-          m <- deserialize[CreateBreakoutRoomsMsg](jsonNode)
+          m <- deserialize[CreateBreakoutRoomsCmdMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case RequestBreakoutJoinURLMsg.NAME =>
+      case RequestBreakoutJoinURLReqMsg.NAME =>
         for {
-          m <- deserialize[RequestBreakoutJoinURLMsg](jsonNode)
+          m <- deserialize[RequestBreakoutJoinURLReqMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
@@ -292,6 +291,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
       case DestroySharedNoteReqMsg.NAME =>
         routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
+      case GetChatHistoryReqMsg.NAME =>
+        routeGenericMsg[GetChatHistoryReqMsg](envelope, jsonNode)
+      case SendPublicMessagePubMsg.NAME =>
+        routeGenericMsg[SendPublicMessagePubMsg](envelope, jsonNode)
+      case SendPrivateMessagePubMsg.NAME =>
+        routeGenericMsg[SendPrivateMessagePubMsg](envelope, jsonNode)
+      case ClearPublicChatHistoryPubMsg.NAME =>
+        routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

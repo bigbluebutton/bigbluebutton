@@ -6,8 +6,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.LiveMeeting
 
 class DeskshareApp2x(val liveMeeting: LiveMeeting,
-  val outGW: OutMessageGateway)(implicit val context: ActorContext)
-    extends EjectUserFromMeetingHdlr {
+    val outGW: OutMessageGateway)(implicit val context: ActorContext) {
 
   val log = Logging(context.system, getClass)
 

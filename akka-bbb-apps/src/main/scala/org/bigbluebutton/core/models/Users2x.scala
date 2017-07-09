@@ -55,7 +55,7 @@ object Users2x {
     }
   }
 
-  def unmakePresenter(users: Users2x, intId: String): Option[UserState] = {
+  def makeNotPresenter(users: Users2x, intId: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
     } yield {
@@ -70,6 +70,16 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.emoji).setTo(emoji)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserLocked(users: Users2x, intId: String, locked: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.locked).setTo(locked)
       users.save(newUser)
       newUser
     }
@@ -136,6 +146,8 @@ class Users2x {
 case class UserState(intId: String, extId: String, name: String, role: String,
   guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
   presenter: Boolean, avatar: String)
+
+case class UserIdAndName(id: String, name: String)
 
 object CallingWith {
   val WEBRTC = "webrtc"

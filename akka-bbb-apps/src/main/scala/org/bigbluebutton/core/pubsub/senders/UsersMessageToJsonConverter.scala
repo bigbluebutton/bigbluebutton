@@ -145,9 +145,9 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.PERMISSIONS, buildPermissionsHashMap(msg.permissions))
 
     val users = new java.util.ArrayList[java.util.Map[String, Any]]
-    msg.applyTo.foreach(uvo => {
-      users.add(userToMap(uvo))
-    })
+    //msg.applyTo.foreach(uvo => {
+    //  users.add(userToMap(uvo))
+    //})
 
     payload.put("users", users)
 

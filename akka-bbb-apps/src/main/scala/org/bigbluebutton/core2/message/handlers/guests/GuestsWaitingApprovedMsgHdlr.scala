@@ -12,7 +12,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: GuestsWaitingApprovedMsg): Unit = {
+  def handleGuestsWaitingApprovedMsg(msg: GuestsWaitingApprovedMsg): Unit = {
     msg.body.guests foreach { g =>
       approveOrRejectGuest(g, msg.body.approvedBy)
     }

@@ -103,15 +103,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
                 if (!usersList.visible || !usersList.enabled) return;
                 
-                var chatWithUserID:String = usersList.selectedItem.userID;
+                var chatWithIntId:String = usersList.selectedItem.intId;
                 
                 // Don't want to be chatting with ourself.
-                if (UsersUtil.isMe(chatWithUserID)) return;
+                if (UsersUtil.isMe(chatWithIntId)) return;
                 
                 usersList.selectedIndex = -1;
                 
                 var e:CoreEvent = new CoreEvent(EventConstants.START_PRIVATE_CHAT);
-                e.message.chatWith = chatWithUserID;
+                e.message.chatWith = chatWithIntId;
                 var gd:Dispatcher = new Dispatcher();
                 gd.dispatchEvent(e);
                 

@@ -2,8 +2,8 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ UserChangedEmojiStatus, UserEmojiStatus }
-import org.bigbluebutton.core.models.{ Users1x, Users2x }
+import org.bigbluebutton.core.api.{ UserEmojiStatus }
+import org.bigbluebutton.core.models.{ Users2x }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UserEmojiStatusHdlr {
