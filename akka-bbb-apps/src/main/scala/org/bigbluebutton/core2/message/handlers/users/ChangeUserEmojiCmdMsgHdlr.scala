@@ -2,20 +2,21 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ UserEmojiStatus }
-import org.bigbluebutton.core.models.{ Users2x }
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
 
-trait UserEmojiStatusHdlr {
-  this: MeetingActor =>
+trait ChangeUserEmojiCmdMsgHdlr {
+  this: BaseMeetingActor =>
 
+  val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handleUserEmojiStatus(msg: UserEmojiStatus) {
+  def handleChangeUserEmojiCmdMsg(msg: ChangeUserEmojiCmdMsg) {
+    log.debug("handling " + msg)
     for {
-      uvo <- Users2x.setEmojiStatus(liveMeeting.users2x, msg.userId, msg.emojiStatus)
+      uvo <- Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, msg.body.emoji)
     } yield {
-      sendUserEmojiChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.userId, msg.emojiStatus)
+      sendUserEmojiChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.emoji)
     }
   }
 

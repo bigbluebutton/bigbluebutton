@@ -1,7 +1,11 @@
 package org.bigbluebutton.common2.msgs
 
 
-  case class BbbCoreVoiceConfHeader(name: String, voiceConf: String) extends BbbCoreHeader
+case class BbbCoreVoiceConfHeader(name: String, voiceConf: String) extends BbbCoreHeader
+
+trait VoiceStandardMsg extends BbbCoreMsg {
+  def header: BbbCoreVoiceConfHeader
+}
 
   object DeskshareHangUpVoiceConfMsg { val NAME = "DeskshareHangUpVoiceConfMsg" }
   case class DeskshareHangUpVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
@@ -56,7 +60,7 @@ package org.bigbluebutton.common2.msgs
   */
 object EjectUserFromVoiceCmdMsg { val NAME = "EjectUserFromVoiceCmdMsg"}
 case class EjectUserFromVoiceCmdMsg(header: BbbClientMsgHeader,
-                                     body: EjectUserFromVoiceCmdMsgBody) extends BbbCoreMsg
+                                     body: EjectUserFromVoiceCmdMsgBody) extends StandardMsg
 case class EjectUserFromVoiceCmdMsgBody(userId: String, ejectedBy: String)
 
 
@@ -65,7 +69,7 @@ case class EjectUserFromVoiceCmdMsgBody(userId: String, ejectedBy: String)
   */
 object MuteAllExceptPresentersCmdMsg { val NAME = "MuteAllExceptPresentersCmdMsg"}
 case class MuteAllExceptPresentersCmdMsg(header: BbbClientMsgHeader,
-                          body: MuteAllExceptPresentersCmdMsgBody) extends BbbCoreMsg
+                          body: MuteAllExceptPresentersCmdMsgBody) extends StandardMsg
 case class MuteAllExceptPresentersCmdMsgBody(mutedBy: String)
 
 /**
@@ -73,7 +77,7 @@ case class MuteAllExceptPresentersCmdMsgBody(mutedBy: String)
   */
 object IsMeetingMutedReqMsg { val NAME = "IsMeetingMutedReqMsg"}
 case class IsMeetingMutedReqMsg(header: BbbClientMsgHeader,
-                                         body: IsMeetingMutedReqMsgBody) extends BbbCoreMsg
+                                         body: IsMeetingMutedReqMsgBody) extends StandardMsg
 case class IsMeetingMutedReqMsgBody(requesterId: String)
 
 object IsMeetingMutedRespMsg { val NAME = "IsMeetingMutedRespMsg"}
@@ -86,7 +90,7 @@ case class IsMeetingMutedRespMsgBody(muted: Boolean)
   */
 object MuteUserCmdMsg { val NAME = "MuteUserCmdMsg"}
 case class MuteUserCmdMsg(header: BbbClientMsgHeader,
-                                    body: MuteUserCmdMsgBody) extends BbbCoreMsg
+                                    body: MuteUserCmdMsgBody) extends StandardMsg
 case class MuteUserCmdMsgBody(userId: String, mutedBy: String)
 
 /**
@@ -118,7 +122,7 @@ case class GetUsersInVoiceConfSysMsgBody(voiceConf: String)
   */
 object MuteMeetingCmdMsg { val NAME = "MuteMeetingCmdMsg" }
 case class MuteMeetingCmdMsg(header: BbbClientMsgHeader,
-                                  body: MuteMeetingCmdMsgBody) extends BbbCoreMsg
+                                  body: MuteMeetingCmdMsgBody) extends StandardMsg
 case class MuteMeetingCmdMsgBody(mutedBy: String)
 
 /**
@@ -136,7 +140,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   */
   object RecordingStartedVoiceConfEvtMsg { val NAME = "RecordingStartedVoiceConfEvtMsg" }
   case class RecordingStartedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                             body: RecordingStartedVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                             body: RecordingStartedVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class RecordingStartedVoiceConfEvtMsgBody(voiceConf: String, stream: String, recording: Boolean, timestamp: String)
 
 /**
@@ -168,7 +172,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   */
   object UserJoinedVoiceConfEvtMsg { val NAME = "UserJoinedVoiceConfEvtMsg" }
   case class UserJoinedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                       body: UserJoinedVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                       body: UserJoinedVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, intId: String,
                                            callerIdName: String, callerIdNum: String, muted: Boolean,
                                            talking: Boolean, callingWith: String)
@@ -187,7 +191,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   */
   object UserLeftVoiceConfEvtMsg { val NAME = "UserLeftVoiceConfEvtMsg" }
   case class UserLeftVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                     body: UserLeftVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                     body: UserLeftVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class UserLeftVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String)
 
 /**
@@ -209,7 +213,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   */
   object UserMutedInVoiceConfEvtMsg { val NAME = "UserMutedInVoiceConfEvtMsg" }
   case class UserMutedInVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                        body: UserMutedInVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                        body: UserMutedInVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class UserMutedInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, muted: Boolean)
 
 
@@ -226,7 +230,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   */
   object UserTalkingInVoiceConfEvtMsg { val NAME = "UserTalkingInVoiceConfEvtMsg" }
   case class UserTalkingInVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                          body: UserTalkingInVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                          body: UserTalkingInVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class UserTalkingInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, talking: Boolean)
 
 
