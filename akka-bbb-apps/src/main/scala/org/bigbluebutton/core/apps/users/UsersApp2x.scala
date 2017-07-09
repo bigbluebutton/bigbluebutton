@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.message.handlers.users.ValidateAuthTokenReqMsgHdlr
+import org.bigbluebutton.core2.message.handlers.users.{ ChangeUserEmojiCmdMsgHdlr, ValidateAuthTokenReqMsgHdlr }
 
 trait UsersApp2x
     extends RegisterUserReqMsgHdlr
@@ -14,7 +14,8 @@ trait UsersApp2x
     with SetRecordingStatusCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
     with AssignPresenterReqMsgHdlr
-    with EjectUserFromMeetingHdlr {
+    with EjectUserFromMeetingHdlr
+    with ChangeUserEmojiCmdMsgHdlr {
 
   this: MeetingActor =>
 
