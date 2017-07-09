@@ -11,7 +11,6 @@ import akka.testkit.ImplicitSender
 import akka.testkit.TestKit
 import scala.concurrent.duration._
 import scala.collection.immutable
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.WordSpecLike
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Matchers
@@ -102,7 +101,8 @@ object TestKitUsageSpec {
   // Define your test specific configuration here
   val config = """
     akka {
-      loglevel = "WARNING"
+      loggers = ["akka.testkit.TestEventListener"]
+      loglevel = "DEBUG"
     }
     """
 

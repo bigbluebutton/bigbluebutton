@@ -148,8 +148,10 @@ package org.bigbluebutton.main.views
                 _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 
                 if (_camera.muted) {
-                    if (_cameraAccessDenied) {
+                    if (_cameraAccessDenied && !_chromePermissionDenied) {
                         Security.showSettings(SecurityPanel.PRIVACY)
+                    } else if (_chromePermissionDenied) {
+                        showWarning('bbb.video.publish.hint.cameraDenied');
                     } else {
                         onFailCallback('bbb.video.publish.hint.waitingApproval');
                     }

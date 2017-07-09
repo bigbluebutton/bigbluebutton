@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
   
   public class MessageSender {
@@ -28,136 +29,76 @@ package org.bigbluebutton.modules.present.services.messaging
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);
     
     /**
-     * Send an event to the server to update the presenter's cursor view on the client 
-     * @param xPercent
-     * @param yPercent
-     * 
-     */		
-    public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
-      var message:Object = new Object();
-      message["xPercent"] = xPercent;
-      message["yPercent"] = yPercent;
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.sendCursorUpdate", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        },
-        message
-      );		      
-    }
-    
-    /**
      * Sends an event to the server to update the clients with the new slide position 
-     * @param slideXPosition
-     * @param slideYPosition
      * 
      */		
-    public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-      var message:Object = new Object();
-      message["xOffset"] = xOffset;
-      message["yOffset"] = yOffset;
-      message["widthRatio"] = widthRatio;
-      message["heightRatio"] = heightRatio;
+    public function move(presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+      var message:Object = {
+        header: {name: "ResizeAndMovePagePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {presentationId: presentationId, pageId: pageId, xOffset: xOffset, yOffset: yOffset, widthRatio: widthRatio, heightRatio: heightRatio}
+      };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.resizeAndMoveSlide", 
-        function(result:String):void { // On successful result
-          //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        },
-        message
-      );	
-    }
-    
-    public function sharePresentation(share:Boolean, presentationID:String):void {
-      var message:Object = new Object();
-      message["presentationID"] = presentationID;
-      message["share"] = share;
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.sharePresentation", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        },
-        message
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error(status); },
+        JSON.stringify(message)
       );
     }
     
-    public function goToPage(id: String):void {
-      var message:Object = new Object();
-      message["page"] = id;      
+    public function sharePresentation(presentationId:String):void {
+      var message:Object = {
+        header: {name: "SetCurrentPresentationPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {presentationId: presentationId}
+      };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.gotoSlide", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        },
-        message
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error(status); },
+        JSON.stringify(message)
+      );
+    }
+    
+    public function goToPage(presentationId: String, pageId: String):void {
+      var message:Object = {
+        header: {name: "SetCurrentPagePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {presentationId: presentationId, pageId: pageId}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error(status); },
+        JSON.stringify(message)
       );
     }
     
     public function getPresentationInfo():void {
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.getPresentationInfo", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        }
-      );
+      var message:Object = {
+        header: {name: "GetPresentationInfoReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: UsersUtil.getMyUserID()}
+      };
       
-    }
-    
-    public function removePresentation(name:String):void {
-      var message:Object = new Object();
-      message["presentationID"] = name;          
-
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.removePresentation", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        },
-        message
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error(status); },
+        JSON.stringify(message)
       );
     }
     
-    public function clearPresentation() : void {
+    public function removePresentation(presentationId:String):void {
+      var message:Object = {
+        header: {name: "RemovePresentationPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {presentationId: presentationId}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.clear", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        }
-      );		
-    }
-    
-    public function queryPresenterForSlideInfo():void {
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.getSlideInfo", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        }
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error(status); },
+        JSON.stringify(message)
       );
     }
   }

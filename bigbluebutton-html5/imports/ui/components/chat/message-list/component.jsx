@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import styles from './styles';
@@ -34,7 +35,7 @@ class MessageList extends Component {
   }
 
   scrollTo(position = null) {
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     if (position === null) {
       position = scrollArea.scrollHeight - scrollArea.clientHeight;
@@ -45,7 +46,7 @@ class MessageList extends Component {
 
   handleScrollUpdate(position, target) {
     if (position !== null && position + target.offsetHeight === target.scrollHeight) {
-      position = null; //update with null so it keeps auto scrolling
+      position = null; // update with null so it keeps auto scrolling
     }
 
     this.props.handleScrollUpdate(position);
@@ -56,7 +57,7 @@ class MessageList extends Component {
 
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
-        let position = this.lastKnowScrollPosition;
+        const position = this.lastKnowScrollPosition;
         this.handleScrollUpdate(position, e.target);
         this.ticking = false;
       });
@@ -67,7 +68,7 @@ class MessageList extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-      const { scrollArea } = this.refs;
+      const { scrollArea } = this;
       this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     }
   }
@@ -78,12 +79,12 @@ class MessageList extends Component {
       return;
     }
 
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
-    let position = scrollArea.scrollTop + scrollArea.offsetHeight;
+    const position = scrollArea.scrollTop + scrollArea.offsetHeight;
 
-    //Compare with <1 to account for the chance scrollArea.scrollTop is a float
-    //value in some browsers.
+    // Compare with <1 to account for the chance scrollArea.scrollTop is a float
+    // value in some browsers.
     this.shouldScrollBottom = position === scrollArea.scrollHeight ||
                               (scrollArea.scrollHeight - position < 1) ||
                               nextProps.scrollPosition === null;
@@ -100,14 +101,14 @@ class MessageList extends Component {
   }
 
   componentDidMount() {
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     this.scrollTo(this.props.scrollPosition);
     scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
   componentWillUnmount() {
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
@@ -143,7 +144,7 @@ class MessageList extends Component {
         <div
           role="log"
           tabIndex="0"
-          ref="scrollArea"
+          ref={(ref) => { this.scrollArea = ref; }}
           id={this.props.id}
           className={styles.messageList}
           aria-live="polite"
@@ -151,7 +152,7 @@ class MessageList extends Component {
           aria-relevant="additions"
           aria-label={intl.formatMessage(intlMessages.emptyLogLabel)}
         >
-          {messages.map((message) => (
+          {messages.map(message => (
             <MessageListItem
               handleReadMessage={this.props.handleReadMessage}
               className={styles.messageListItem}

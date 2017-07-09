@@ -1,0 +1,2 @@
+sbt publish publishLocal
+

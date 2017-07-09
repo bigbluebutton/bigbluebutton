@@ -1,9 +1,9 @@
-import AuthSingleton from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/users';
-import Slides from '/imports/api/slides';
-import { makeCall } from '/imports/ui/services/api/index.js';
+import AuthSingleton from '/imports/ui/services/auth';
+import Users from '/imports/api/2.0/users';
+import Slides from '/imports/api/2.0/slides';
+import { makeCall } from '/imports/ui/services/api';
 
-let getSlideData = (params) => {
+const getSlideData = (params) => {
   const { currentSlideNum, presentationId } = params;
 
   // Get userId and meetingId
@@ -12,8 +12,8 @@ let getSlideData = (params) => {
 
   // Find the user object of this specific meeting and userid
   const currentUser = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
+    meetingId,
+    userId,
   });
 
   let userIsPresenter;
@@ -23,13 +23,13 @@ let getSlideData = (params) => {
 
   // Get total number of slides in this presentation
   const numberOfSlides = Slides.find({
-    meetingId: meetingId,
-    presentationId: presentationId,
+    meetingId,
+    presentationId,
   }).fetch().length;
 
   return {
-    userIsPresenter: userIsPresenter,
-    numberOfSlides: numberOfSlides,
+    userIsPresenter,
+    numberOfSlides,
   };
 };
 

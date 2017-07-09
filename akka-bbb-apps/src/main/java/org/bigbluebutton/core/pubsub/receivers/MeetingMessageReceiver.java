@@ -3,6 +3,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.common.messages.ActivityResponseMessage;
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
 import org.bigbluebutton.common.messages.GetAllMeetingsRequest;
@@ -11,12 +12,13 @@ import org.bigbluebutton.common.messages.KeepAliveMessage;
 import org.bigbluebutton.common.messages.MessageFromJsonConverter;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.PubSubPingMessage;
-import org.bigbluebutton.common.messages.RegisterUserMessage;
+
 import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.messages.CreateMeetingRequest;
+import org.bigbluebutton.messages.RegisterUserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +47,14 @@ public class MeetingMessageReceiver implements MessageHandler {
 					String messageName = header.get("name").getAsString();
 					if (CreateMeetingRequest.NAME.equals(messageName)) {
 						Gson gson = new Gson();
-                        CreateMeetingRequest msg = gson.fromJson(message,
-                                CreateMeetingRequest.class);
+                        CreateMeetingRequest msg = gson.fromJson(message, CreateMeetingRequest.class);
 						bbbGW.handleBigBlueButtonMessage(msg);
+					} else if (RegisterUserMessage.NAME.equals(messageName)) {
+						Gson gson = new Gson();
+						RegisterUserMessage msg = gson.fromJson(message, RegisterUserMessage.class);
+						bbbGW.registerUser(msg.payload.meetingId, msg.payload.userId, msg.payload.name, msg.payload.role,
+								msg.payload.extUserId, msg.payload.authToken, msg.payload.avatarUrl, msg.payload.guest,
+						msg.payload.authed);
 					}
 				}
 			}
@@ -58,9 +65,6 @@ public class MeetingMessageReceiver implements MessageHandler {
 				if (msg instanceof EndMeetingMessage) {
 					EndMeetingMessage emm = (EndMeetingMessage) msg;
 					bbbGW.endMeeting(emm.meetingId);
-				} else if (msg instanceof RegisterUserMessage) {
-					RegisterUserMessage rum = (RegisterUserMessage) msg;
-					bbbGW.registerUser(rum.meetingID, rum.internalUserId, rum.fullname, rum.role, rum.externUserID, rum.authToken, rum.avatarURL);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage dmm = (DestroyMeetingMessage) msg;
 					bbbGW.destroyMeeting(dmm.meetingId);
@@ -104,6 +108,9 @@ public class MeetingMessageReceiver implements MessageHandler {
 				else if (msg instanceof GetAllMeetingsRequest) {
 					GetAllMeetingsRequest gamr = (GetAllMeetingsRequest) msg;
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
+				} else if (msg instanceof ActivityResponseMessage) {
+					ActivityResponseMessage arm = (ActivityResponseMessage) msg;
+					bbbGW.activityResponse(arm.meetingId);
 				} else {
 					System.out.println("Unknown message: [" + message + "]");
 				}

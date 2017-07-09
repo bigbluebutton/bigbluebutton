@@ -1,9 +1,9 @@
 import { Tracker } from 'meteor/tracker';
 import React, { Component } from 'react';
 
-let currentModal = {
+const currentModal = {
   component: null,
-  tracker: new Tracker.Dependency,
+  tracker: new Tracker.Dependency(),
 };
 
 const showModal = (component) => {
@@ -18,7 +18,7 @@ export const getModal = () => {
   return currentModal.component;
 };
 
-export const withModalMounter = (ComponentToWrap) =>
+export const withModalMounter = ComponentToWrap =>
   class ModalMounterWrapper extends Component {
     constructor(props) {
       super(props);
@@ -33,9 +33,9 @@ export const withModalMounter = (ComponentToWrap) =>
     }
 
     render() {
-      return <ComponentToWrap
+      return (<ComponentToWrap
         {...this.props}
         mountModal={this.mount}
-      />;
+      />);
     }
   };

@@ -21,7 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <dspub:CustomMdiWindow
-	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="org.bigbluebutton.common.*"
@@ -33,20 +34,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	title="{ResourceUtil.getInstance().getString('bbb.screensharePublish.title')}"
 	resizable="false">
 
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />
-	<mate:Listener type="{WebRTCViewStreamEvent.STOP}" method="closePublishWindow" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
-	<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-        <mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_INSTALL}" method="displayInstall" />
-        <mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_RETRY}" method="displayRetry" />
-        <mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_FALLBACK}" method="displayFallback" />
+	<fx:Declarations>
+		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
+		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />
+		<mate:Listener type="{WebRTCViewStreamEvent.STOP}" method="closePublishWindow" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
+		<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
+		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_INSTALL}" method="displayInstall" />
+		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_RETRY}" method="displayRetry" />
+		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_FALLBACK}" method="displayFallback" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
+			import org.bigbluebutton.core.Options;
 			import com.asfusion.mate.events.Dispatcher;
-		        import flash.external.ExternalInterface;
+			import flash.external.ExternalInterface;
 			import mx.core.UIComponent;
 
 			import org.as3commons.logging.api.ILogger;
@@ -147,7 +151,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function init():void {
 				dsOptions = new ScreenshareOptions();
-				dsOptions.parseOptions();
+				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 			}
 
 			private function onCreationComplete():void {
@@ -204,7 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function startSharing(connection:NetConnection, uri:String , useTLS:Boolean , room:String, fullScreen:Boolean):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;
-				
+
 			}
 
 			public function stopSharing():void{
@@ -229,7 +233,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var meetingUrl:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
 				stream = rtmp.substring(rtmp.lastIndexOf('/')+1, rtmp.length);
 				LOGGER.debug("WebRTCDesktopPublishWindow::startVideo meetingurl=[{0}] and stream=[{1}]",[meetingUrl, stream]);
-				
+
 				JSLog.warn("WebRTCDesktopPublishWindow::startVideo meetingurl= ",meetingUrl);
 				JSLog.warn("WebRTCDesktopPublishWindow::startVideo stream=", stream);
 
@@ -335,7 +339,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnClosePublish.enabled = true;
 			}
 
-			private function stopStream():void{ 
+			private function stopStream():void{
 				streaming = false;
 				captureHeight = Capabilities.screenResolutionY;
 				captureWidth = Capabilities.screenResolutionX;
@@ -410,78 +414,64 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeWindow();
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<dspub:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}"
-					  tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnClosePublish]}"/>
+	<fx:Declarations>
+		<dspub:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}"
+			tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnClosePublish]}"/>
+	</fx:Declarations>
 
-<dspub:states>
-  <mx:State name="dispFullRegionControlBar">
-  <mx:AddChild relativeTo="mainElement" position="after">
-      <mx:HBox width="100%" horizontalAlign="center">
-          <mx:Button id="btnClosePublish"
-                     toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.toolTip')}"
-                     label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}"
-                     visible="true"
-                     enabled="false"
-                     click="stopSharing()" />
-      </mx:HBox>
-  </mx:AddChild>
-  </mx:State>
+	<dspub:states>
+		<mx:State name="dispFullRegionControlBar" />
+		<mx:State name="displayInstall" />
+		<mx:State name="displayRetry" />
+		<mx:State name="displayFallback" />
+	</dspub:states>
 
-	<mx:State name="displayInstall">
-    <mx:AddChild relativeTo="mainElement" position="after">
-      <mx:VBox width="100%" height="100%" horizontalAlign="center">
-        <mx:HBox width="100%" horizontalAlign="center">
-          <mx:Text width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCChromeExtensionMissing.label')}"/>
-        </mx:HBox>
-        <mx:HBox width="100%" horizontalAlign="center">
-          <mx:LinkButton id="btnInstallExtension" 
-            label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionInstallButton.label')}" 
-            visible="true" 
-            enabled="true" 
-            styleName="quickWindowLinkStyle"
-            click="onInstallButtonClicked()" />
-        </mx:HBox>
-      </mx:VBox>
-    </mx:AddChild>
-  </mx:State>
+	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+		<mx:HBox width="100%" height="90%" id="mainElement"/>
+		<mx:HBox includeIn="dispFullRegionControlBar" width="100%" horizontalAlign="center">
+			<mx:Button id="btnClosePublish"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.toolTip')}"
+				label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}"
+				visible="true"
+				enabled="false"
+				click="stopSharing()" />
+		</mx:HBox>
+		<mx:VBox includeIn="displayInstall" width="100%" height="100%" horizontalAlign="center">
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Text width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCChromeExtensionMissing.label')}"/>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:LinkButton id="btnInstallExtension"
+					label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionInstallButton.label')}"
+					visible="true"
+					enabled="true"
+					styleName="quickWindowLinkStyle"
+					click="onInstallButtonClicked()" />
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox includeIn="displayRetry" width="100%" height="100%" horizontalAlign="center">
+			<mx:LinkButton id="btnInstallExtension2"
+				label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionInstallButton.label')}"
+				visible="true"
+				enabled="true"
+				styleName="quickWindowLinkStyle"
+				click="onInstallButtonClicked()" />
+			<mx:Label width="70%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCRetryExtensionInstallation.label')}"/>
+			<mx:Button id="btnRetry" label="Retry" visible="true" enabled="true" click="onRetryButtonClicked()" />
+		</mx:VBox>
+		<mx:VBox includeIn="displayFallback" width="100%" height="100%" horizontalAlign="center">
+			<mx:HBox width="100%" height="100%" horizontalAlign="center">
+				<mx:Text width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionFailFallback.label')}" />
+			</mx:HBox>
+			<mx:HBox width="100%" height="100%" horizontalAlign="center">
+				<mx:Text id="incognitoLbl" width="100%" visible="false" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCPrivateBrowsingWarning.label')}" />
+			</mx:HBox>
+			<mx:HBox width="100%" height="100%" horizontalAlign="center">
+				<mx:Button id="btnFallback" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCUseJavaButton.label')}" visible="true" enabled="true" click="onFallbackButtonClicked()" />
+			</mx:HBox>
+		</mx:VBox>
+	</mx:VBox>
 
-  <mx:State name="displayRetry">
-    <mx:AddChild relativeTo="mainElement" position="after">
-      <mx:VBox width="100%" height="100%" horizontalAlign="center">
-        <mx:LinkButton id="btnInstallExtension2" 
-          label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionInstallButton.label')}"
-          visible="true" 
-          enabled="true" 
-          styleName="quickWindowLinkStyle"
-          click="onInstallButtonClicked()" />
-        <mx:Label width="70%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCRetryExtensionInstallation.label')}"/>
-        <mx:Button id="btnRetry" label="Retry" visible="true" enabled="true" click="onRetryButtonClicked()" />
-      </mx:VBox>
-    </mx:AddChild>
-  </mx:State>
-
-  <mx:State name="displayFallback">
-    <mx:AddChild relativeTo="mainElement" position="after">
-      <mx:VBox width="100%" height="100%" horizontalAlign="center">
-        <mx:HBox width="100%" height="100%" horizontalAlign="center">
-          <mx:Text width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionFailFallback.label')}" />
-        </mx:HBox>
-        <mx:HBox width="100%" height="100%" horizontalAlign="center">
-          <mx:Text id="incognitoLbl" width="100%" visible="false" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCPrivateBrowsingWarning.label')}" />
-        </mx:HBox>
-        <mx:HBox width="100%" height="100%" horizontalAlign="center">
-          <mx:Button id="btnFallback" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCUseJavaButton.label')}" visible="true" enabled="true" click="onFallbackButtonClicked()" />
-        </mx:HBox>
-      </mx:VBox>
-    </mx:AddChild>
-  </mx:State>
-
-  </dspub:states>
-
-  <mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
-    <mx:HBox width="100%" height="90%" id="mainElement"/>
-  </mx:VBox>
-
-  </dspub:CustomMdiWindow>
+</dspub:CustomMdiWindow>

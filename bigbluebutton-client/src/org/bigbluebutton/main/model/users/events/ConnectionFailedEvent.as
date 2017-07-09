@@ -31,6 +31,7 @@ package org.bigbluebutton.main.model.users.events
         public static const ASYNC_ERROR:String = "asyncError";
         public static const USER_LOGGED_OUT:String = "userHasLoggedOut";
         public static const USER_EJECTED_FROM_MEETING:String = "userHasBeenEjectFromMeeting";
+        public static const MODERATOR_DENIED_ME:String = "moderatorDeniedMe";
 
         public function ConnectionFailedEvent(type:String) {
             super(type, true, false);

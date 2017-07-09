@@ -20,12 +20,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
 		   xmlns:maps="org.bigbluebutton.modules.dynamicinfo.maps.*" 
 		   xmlns:views="org.bigbluebutton.modules.dynamicinfo.views.*">
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -34,6 +35,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.controls.Label;
 			import mx.core.UIComponent;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -41,13 +44,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoComboBox;
 			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoLabel;
 			
+			private static const LOGGER:ILogger = getClassLogger(DynamicInfoModule);
+
 			private var _moduleName:String = "Dynamic Info Module";			
 			private var _attributes:Object;
 			
 			private var globalDispatcher:Dispatcher;
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("DynamicInfoModule Initialized");	
+				LOGGER.debug("DynamicInfoModule Initialized");	
 				globalDispatcher = new Dispatcher();
 			}
 			
@@ -80,9 +85,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				// debugging code:
 				/*
-				LogUtil.debug('all attributes:');
+				LOGGER.debug('all attributes:');
 				for (var p:String in _attributes) {
-					LogUtil.debug(p + ' = ' + _attributes[p]);
+					LOGGER.debug(p + ' = ' + _attributes[p]);
 				}
 				*/
 				// TODO: HACK!  should not be using voicebridge here.  we just don't have the meeting ID yet, and the voice bridge is currently the same value
@@ -91,13 +96,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function stop():void {
-				LogUtil.debug("stop DynamicInfoModule");
+				LOGGER.debug("stop DynamicInfoModule");
 			}
 
 			/* END OF IBigBlueButtonModule interface methods (that we're not really using here) */
 
 			public function loadXml(url:String):void {
-				LogUtil.debug("DynamicInfoModule:load(...) " + url);
+				LOGGER.debug("DynamicInfoModule:load(...) " + url);
 
 				var request:URLRequest = new URLRequest();
 				var vars:URLVariables = new URLVariables();
@@ -114,24 +119,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function handleComplete(e:Event):void{
 				var xml:XML = new XML(e.target.data)
-				LogUtil.debug("load URL complete: " + xml);
+				LOGGER.debug("load URL complete: " + xml);
 
 				var returncode:String = xml.returncode;
-				LogUtil.debug("return code: " + returncode);
+				LOGGER.debug("return code: " + returncode);
 				if (returncode != 'SUCCESS') {
-					LogUtil.debug("failed to load any dynamic info to add to the UI");
+					LOGGER.debug("failed to load any dynamic info to add to the UI");
 					return;
 				}
 
 				var components:XMLList = xml.topbar.components.children();
-				LogUtil.debug("create components: " + components.length());
+				LOGGER.debug("create components: " + components.length());
 				createComponents(components);
 			}
 
 			private function createComponents(components:XMLList):void {
 				for each(var compXML:XML in components) {
 					var type:String = compXML.name();
-					LogUtil.debug("create a component of type: " + type);
+					LOGGER.debug("create a component of type: " + type);
 					var cmp:UIComponent = null;
 					if (type == 'button') {
 						cmp = createButton(compXML);
@@ -183,11 +188,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function createUrlNavigatingClickHandler(url:String):Function {
 				return function():void { 
-					LogUtil.debug("navigate to url: " + url); 
+					LOGGER.debug("navigate to url: " + url); 
 					navigateToURL(new URLRequest(url), '_blank');
 				};
 			}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Module>

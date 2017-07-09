@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
   /**
@@ -92,7 +93,7 @@ export default class ButtonBase extends Component {
   }
 
   render() {
-    let Component = this.props.tagName;
+    const Component = this.props.tagName;
 
     const remainingProps = Object.assign({}, this.props);
     delete remainingProps.label;

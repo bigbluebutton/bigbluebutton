@@ -50,9 +50,9 @@ public class ConversionUpdatesProcessor {
 	
 	public void sendConversionCompleted(String messageKey, String conference, 
             String code, String presId, Integer numberOfPages, String presName,
-            String presBaseUrl) {
+            String presBaseUrl, Boolean downloadable) {
 		bbbInGW.sendConversionCompleted(messageKey, conference, 
-	            code, presId, numberOfPages, presName, presBaseUrl);
+	            code, presId, numberOfPages, presName, presBaseUrl, downloadable);
 	}
 	
     public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {

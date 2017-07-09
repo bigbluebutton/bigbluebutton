@@ -12,7 +12,7 @@ Meteor.startup(() => {
 });
 
 WebApp.connectHandlers.use('/check', (req, res, next) => {
-  let payload = { html5clientStatus: 'running' };
+  const payload = { html5clientStatus: 'running' };
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
@@ -21,35 +21,34 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
-  let defaultLocale = APP_CONFIG.defaultLocale;
-  let localeRegion = req.query.locale.split('-');
+  const defaultLocale = APP_CONFIG.defaultLocale;
+  const localeRegion = req.query.locale.split('-');
   let messages = {};
-  let locales = [defaultLocale, localeRegion[0]];
+  const locales = [defaultLocale, localeRegion[0]];
   let statusCode = 200;
   if (localeRegion.length > 1) {
     locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
   }
 
-  locales.forEach(locale => {
+  locales.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
     } catch (e) {
-      //Variant Also Negotiates Status-Code, to alert the client that we
-      //do not support the following lang.
-      //https://en.wikipedia.org/wiki/Content_negotiation
+      // Variant Also Negotiates Status-Code, to alert the client that we
+      // do not support the following lang.
+      // https://en.wikipedia.org/wiki/Content_negotiation
       statusCode = 506;
     }
   });
 
   res.setHeader('Content-Type', 'application/json');
-  res.writeHead(statusCode);
-  res.end(JSON.stringify(messages));
+  res.end(JSON.stringify({ statusCode, messages }));
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
   if (!availableLocales.length) {
-    locales.forEach(l => {
+    locales.forEach((l) => {
       try {
         Assets.absoluteFilePath(`locales/${l.locale}.json`);
         availableLocales.push(l);
@@ -66,4 +65,4 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
 
 export const eventEmitter = Redis.emitter;
 
-export let redisPubSub = Redis;
+export const redisPubSub = Redis;

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import BaseButton from './base/component';
 import styles from './styles';
 import cx from 'classnames';

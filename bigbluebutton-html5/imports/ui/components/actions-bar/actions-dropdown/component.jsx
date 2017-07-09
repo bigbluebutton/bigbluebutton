@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
@@ -39,11 +40,11 @@ const intlMessages = defineMessages({
   },
 });
 
-const presentation = () => {console.log('Should show the uploader component');};
+const presentation = () => { console.log('Should show the uploader component'); };
 
-const polling = () => {console.log('Should initiate a polling');};
+const polling = () => { console.log('Should initiate a polling'); };
 
-const shareScreen = () => {console.log('Should start screen sharing');};
+const shareScreen = () => { console.log('Should start screen sharing'); };
 
 class ActionsDropdown extends Component {
   constructor(props) {
@@ -57,14 +58,14 @@ class ActionsDropdown extends Component {
     return null; // temporarily disabling the functionality
 
     return (
-      <Dropdown ref="dropdown">
-        <DropdownTrigger>
+      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
+        <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="add"
             color="primary"
             size="lg"
-            circle={true}
+            circle
             onClick={() => null}
           />
         </DropdownTrigger>

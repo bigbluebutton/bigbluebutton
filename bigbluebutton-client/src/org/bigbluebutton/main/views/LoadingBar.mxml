@@ -20,16 +20,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" labelPlacement="bottom" minimum="0" maximum="100" mode="manual" >
+<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+				labelPlacement="bottom" minimum="0" maximum="100" mode="manual" >
 	
-	<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}" method="moduleLoadingStarted" />
-	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
-	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
-	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
-	<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}" method="testRTMPupdate" />
-	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
+	<fx:Declarations>
+		<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}" method="moduleLoadingStarted" />
+		<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
+		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
+		<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
+		<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}" method="testRTMPupdate" />
+		<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
+	</fx:Declarations>
 		
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -47,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function moduleLoadingStarted(e:ModuleLoadEvent):void{
 		  numModules = BBB.getConfigManager().config.numberOfModules();
         this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
+        this.visible = true;
       }
 			
       private function moduleLoadProgress(e:ModuleLoadEvent):void{
@@ -89,5 +93,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:ProgressBar>

@@ -20,7 +20,8 @@
   $Id: $
 -->
 
-<mdi:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+<mdi:CustomMdiWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:fx="http://ns.adobe.com/mxml/2009"
 					 xmlns:mdi="org.bigbluebutton.common.*"
 					 xmlns:flc="flexlib.controls.*"
 					 implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -30,64 +31,91 @@
 					 title="{ResourceUtil.getInstance().getString('bbb.users.title')}"
 					 showCloseButton="false">
 
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
-	<mate:Listener type="{ShortcutEvent.OPEN_BREAKOUT_ROOMS}" method="handleOpenBreakoutRooms" />
-	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
-	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
-	<mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
+		<mate:Listener type="{ShortcutEvent.OPEN_BREAKOUT_ROOMS}" method="handleOpenBreakoutRooms" />
+		<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
+		<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
+		<mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />    
+    <mate:Listener type="{BreakoutRoomsListUpdatedEvent.BREAKOUT_ROOMS_LIST_UPDATED_EVENT}" method="handleBreakoutRoomsListUpdatedEvent" />
+    <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="handleUserStatusChangedEvent" />
+    <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleUserJoinedVoiceConfEvent" />
+    <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserLeftVoiceConfEvent" />
+    <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserMutedEvent" />
+    <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+    <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
+    <mate:Listener type="{UserEmojiChangedEvent.USER_EMOJI_CHANGED}" method="handleUserEmojiChangedEvent" />
+    <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleSwitchedPresenterEvent" />
+
+    
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.net.navigateToURL;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.Menu;
-			import mx.controls.dataGridClasses.DataGridColumn;
-			import mx.controls.listClasses.IListItemRenderer;
-			import mx.core.FlexGlobals;
-			import mx.core.mx_internal;
-			import mx.events.CloseEvent;
-			import mx.events.CollectionEvent;
-			import mx.events.ListEvent;
-			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.KeyboardUtil;
-			import org.bigbluebutton.core.PopUpUtil;
-			import org.bigbluebutton.core.TimerUtil;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.core.model.MeetingModel;
-			import org.bigbluebutton.core.vo.LockSettingsVO;
-			import org.bigbluebutton.main.events.BreakoutRoomEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.BreakoutRoom;
-			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
-			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
-			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-			import org.bigbluebutton.modules.users.events.UsersRollEvent;
-			import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
-			import org.bigbluebutton.modules.users.model.UsersOptions;
-			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.net.navigateToURL;
+      
+      import mx.binding.utils.BindingUtils;
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.controls.Menu;
+      import mx.controls.dataGridClasses.DataGridColumn;
+      import mx.controls.listClasses.IListItemRenderer;
+      import mx.core.FlexGlobals;
+      import mx.core.mx_internal;
+      import mx.events.CloseEvent;
+      import mx.events.CollectionEvent;
+      import mx.events.ListEvent;
+      import mx.events.MenuEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.common.IBbbModuleWindow;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.KeyboardUtil;
+      import org.bigbluebutton.core.PopUpUtil;
+      import org.bigbluebutton.core.TimerUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
+      import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.UserEmojiChangedEvent;
+      import org.bigbluebutton.core.events.UserStatusChangedEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.core.model.users.User2x;
+      import org.bigbluebutton.core.vo.LockSettingsVO;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
+      import org.bigbluebutton.main.model.users.BreakoutRoom;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+      import org.bigbluebutton.main.model.users.events.KickUserEvent;
+      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.main.views.WellPositionedMenu;
+      import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+      import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+      import org.bigbluebutton.modules.users.events.UsersRollEvent;
+      import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
+      import org.bigbluebutton.modules.users.model.UsersOptions;
+      import org.bigbluebutton.modules.users.views.model.BBBUser2x;
+      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(UsersWindow);
 
@@ -116,7 +144,7 @@
 			
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
-			
+			      
 			[Bindable]
 			private var breakoutRoomsList:ArrayCollection = new ArrayCollection();
 			
@@ -138,20 +166,64 @@
 
 			private var muteMeRolled:Boolean = false;
 			
+      private var handler: UsersWindowEventHandler = new UsersWindowEventHandler();
+      
+      private function handleUserEmojiChangedEvent(event: UserEmojiChangedEvent):void {
+        handler.handleUserEmojiChangedEvent(event.userId, event.emoji);
+      }
+
+      private function handleSwitchedPresenterEvent(event: SwitchedPresenterEvent):void {
+        handler.handleSwitchedPresenterEvent(event.amIPresenter, event.newPresenterUserID);
+      }
+      
+      private function handleUserJoinedVoiceConfEvent(event: BBBEvent): void {
+        handler.handleUserJoinedVoiceConfEvent(event.payload.userID);  
+      }
+      
+      private function handleUserLeftVoiceConfEvent(event: BBBEvent): void {
+        handler.handleUserLeftVoiceConfEvent(event.payload.userID);  
+      }
+      
+      private function handleUserMutedEvent(event: BBBEvent): void {
+        handler.handleUserMutedEvent(event.payload.userID, event.payload.muted);  
+      }
+      
+      private function handleUserTalkingEvent(event: CoreEvent): void {
+        handler.handleUserTalkingEvent(event.message.userID, event.message.talking);  
+      }
+      
+      private function handleUserLeftEvent(event: UserLeftEvent): void {
+        handler.handleUserLeftEvent(event.userID);  
+      }
+      
+      
+      private function handleUserJoinedEvent(event: UserJoinedEvent):void {
+        handler.handleUserJoinedEvent(event);
+      }
+      
+      private function handleUserStatusChangedEvent(event: UserStatusChangedEvent): void {
+        handler.userStatusChanged(event.userId);
+      }
+      
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
-			
-				users = UserManager.getInstance().getConference().users;
-
-				breakoutRoomsList = UserManager.getInstance().getConference().breakoutRooms;
+        
+        handler.populateAllUsers()
+        users = handler.users;
+        
+				breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
 				breakoutRoomsList.addEventListener(CollectionEvent.COLLECTION_CHANGE, breakoutRoomsListChangeListener);
 
-				amIModerator = UserManager.getInstance().getConference().amIModerator();
-				amIPresenter = UserManager.getInstance().getConference().amIPresenter;
+				amIModerator = UsersUtil.amIModerator();
+				amIPresenter = UsersUtil.amIPresenter();
 
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 				closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
-
+				refreshRole(UsersUtil.amIModerator());
 				emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
 
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
@@ -164,8 +236,8 @@
 				
 				resourcesChanged();
 				
-				roomMuted = MeetingModel.getInstance().meetingMuted;
-				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				roomMuted = LiveMeeting.inst().meetingStatus.isMeetingMuted;
+				var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
 				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 				
 				titleBarOverlay.tabIndex = partOptions.baseTabIndex;
@@ -179,6 +251,16 @@
 				addContextMenuItems();
 			}
 			
+			private function refreshRole(moderator:Boolean = true):void {
+				amIModerator = moderator;
+
+				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+
+				changeButtons(UsersUtil.amIPresenter());
+
+				if (paramsMenu) paramsMenu.hide();
+			}
+
 			public function getPrefferedPosition():String {
 				return MainCanvas.TOP_LEFT;
 			}
@@ -216,6 +298,10 @@
 				resourcesChanged();
 			}
 			
+			private function changeButtons(presenter:Boolean):void {
+				emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
+			}
+			
 			/*
 			 * Work around for a bug with the users grid. When you click on one of the buttons in an item renderer the client
 			 * locks up briefly and any mouse movements while the client is locked up are ignored. This means that roll outs
@@ -247,24 +333,23 @@
 			 */
 			private function onItemRollOver(event:ListEvent):void {
 				var item:IListItemRenderer = event.itemRenderer;
-				var user:BBBUser = item.data as BBBUser;
-				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OVER, user.userID);
+				var user:BBBUser2x = item.data as BBBUser2x;
+				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OVER, user.userId);
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
 			private function onItemRollOut(event:ListEvent):void {
 				var item:IListItemRenderer = event.itemRenderer;
-				var user:BBBUser = item.data as BBBUser;
-				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userID);
+				var user:BBBUser2x = item.data as BBBUser2x;
+				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userId);
 				dispatcher.dispatchEvent(rollEvent);
 			}
-
-            private function openEmojiStatusMenu():void {
-                var grid:EmojiGrid = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
-                var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
-                grid.x = menuXY.x;
-                grid.y = menuXY.y;
-            }
+     
+			private function openEmojiStatusMenu():void {
+				var moodMenu:MoodMenu = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
+				moodMenu.btn = emojiStatusBtn;
+				moodMenu.show();
+			}
 
 			private function openSettings():void {
 				paramsMenuData = [];
@@ -272,13 +357,15 @@
 				
 				if (!roomMuted) {
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
-					if (UserManager.getInstance().getConference().getPresenter())
-						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler: muteAlmostAll});
+					var presenter: User2x = UsersUtil.getPresenter();
+          if (presenter != null)
+						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + 
+              presenter.name, icon: images.audio_muted, handler: muteAlmostAll});
 				} else
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler: muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				if (breakoutOptions.enabled && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+				if (breakoutOptions.enabled && amIModerator && ! UsersUtil.isBreakout()) {
 					if (breakoutRoomsList.length == 0) {
 						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
 					} else {
@@ -291,13 +378,10 @@
 				// but it would require an extra listener for the MenuCloseEvent.
 				if (paramsMenu) {
 					paramsMenu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-					paramsMenu.removeEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
 					paramsMenu.hide();
 				}
-				paramsMenu = Menu.createMenu(null, paramsMenuData, true);
-				paramsMenu.variableRowHeight = false;
+				paramsMenu = WellPositionedMenu.createMenu(null, paramsMenuData, settingsBtn, true);
 				paramsMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-				paramsMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
 				paramsMenu.show();
 			}
 			
@@ -307,15 +391,8 @@
 				}
 			}
 			
-			private function menuShowHandler(e:MenuEvent):void {
-				paramsMenu.setFocus();
-				var menuXY:Point = settingsBtn.localToGlobal(new Point(settingsBtn.width + 2, settingsBtn.height - paramsMenu.height));
-				paramsMenu.x = menuXY.x;
-				paramsMenu.y = menuXY.y;
-			}
-			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
-				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
 				roomLocked = lockSettings.isAnythingLocked() && (lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 			}
 			
@@ -349,6 +426,10 @@
 					removeJoinAlert();
 				}
 			}
+      
+      private function handleBreakoutRoomsListUpdatedEvent(event: BreakoutRoomsListUpdatedEvent):void {
+        breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
+      }
 
 			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
 				// We display only one alert
@@ -376,7 +457,7 @@
 			}
 
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
-				roomMuted = MeetingModel.getInstance().meetingMuted;
+				roomMuted = LiveMeeting.inst().meetingStatus.isMeetingMuted;
 			}
 			
 			private function muteAll():void {
@@ -405,9 +486,9 @@
 			
 			private function resetEmojiStatuses():void {
 				for (var i:int = 0; i < users.length; i++) {
-					var p:BBBUser = users.getItemAt(i) as BBBUser;
+					var p:BBBUser2x = users.getItemAt(i) as BBBUser2x;
 					if (p.hasEmojiStatus)
-						dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", p.userID));
+						dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", p.userId));
 				}
 			}
 			
@@ -440,7 +521,7 @@
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array bbb.shortcutkey.users.muteall
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.makePresenter') as String)] = MAKE_PRESENTER;
-				if (!UserManager.getInstance().getConference().isBreakout) {
+				if (! UsersUtil.isBreakout()) {
 					keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
 				}
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
@@ -471,15 +552,6 @@
 						case MUTE_ALL_USER:
 							muteAll();
 							break;
-						case FOCUS_BREAKOUT_ROOMS_LIST:
-							remoteFocusBreakoutRooms();
-							break;
-						case LISTEN_TO_BREAKOUT_ROOM:
-							listenToBreakoutRoom();
-							break;
-						case JOIN_BREAKOUT_ROOM:
-							joinBreakoutRoom();
-							break;
 						case ShortcutEvent.MAXIMIZE_USERS:
 							remoteMaximize();
 							break;
@@ -501,7 +573,7 @@
 			}
 			
 			public function remoteRaiseHand(e:ShortcutEvent):void{
-				if (UserManager.getInstance().getConference().myEmojiStatus == "raiseHand")
+				if (UsersUtil.myEmoji() == "raiseHand")
 					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none"));
 				else 
 					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "raiseHand"));
@@ -535,7 +607,7 @@
 			}
 			
 			public function remoteKickUser():void {
-				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser && !UserManager.getInstance().getConference().isBreakout) {
+				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser && !UsersUtil.isBreakout()) {
 					var selData:Object = usersGrid.selectedItem;
 					
 					if (!selData.me)
@@ -545,12 +617,12 @@
 			
 			public function remoteMuteUser():void {
 				if (amIModerator && usersGrid.selectedIndex != -1) {
-					var selData:BBBUser = (usersGrid.selectedItem) as BBBUser;
+					var selData:BBBUser2x = (usersGrid.selectedItem) as BBBUser2x;
 					
-					if (selData.voiceJoined) {
+					if (selData.inVoiceConf) {
 						var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-						e.userid = selData.userID;
-						e.mute = !selData.voiceMuted;
+						e.userid = selData.userId;
+						e.mute = !selData.muted;
 						dispatchEvent(e);
 					}
 				}
@@ -592,7 +664,7 @@
 			}
 
 			private function handleOpenBreakoutRooms(e:ShortcutEvent):void{
-				if (breakoutOptions.enabled && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+				if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {
 					breakoutRooms();
 				}
 			}
@@ -610,9 +682,11 @@
                 return names.join("\n");
             }
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
+	<fx:Declarations>
+		<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
+	</fx:Declarations>
 	
 	<views:BBBDataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" draggableColumns="false"
@@ -620,15 +694,15 @@
 		itemRollOut="onItemRollOut(event)" 
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<views:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="56" resizable="false"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
-    		<mx:DataGridColumn dataField="displayName" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="110" minWidth="110"
+    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="112" resizable="false"
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
     	</views:columns>
     </views:BBBDataGrid>
-	
+	 
 	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox"
 			 visible="{breakoutRoomsList.length > 0}"
 			 includeInLayout="{breakoutRoomsList.length > 0}"
@@ -662,7 +736,7 @@
 	</mx:VBox>
 
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.emoji_happy}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{images.mood}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"

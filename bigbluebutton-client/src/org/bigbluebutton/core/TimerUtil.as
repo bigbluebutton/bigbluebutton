@@ -24,7 +24,6 @@ package org.bigbluebutton.core {
 	
 	import mx.controls.Label;
 	
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {

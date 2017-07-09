@@ -48,6 +48,7 @@ def processPanAndZooms
       timestamp_orig_prev = nil
       timestamp_prev = nil
       last_time = nil
+      desksharing = false
       if $panzoom_events.empty?
         BigBlueButton.logger.info("No panzoom events; old recording?")
         BigBlueButton.logger.info("Synthesizing a panzoom event")
@@ -71,15 +72,42 @@ def processPanAndZooms
       else
         last_time = $panzoom_events.last[:timestamp].to_f
       end
-      $panzoom_events.each do |panZoomEvent|
+      $panzoom_events.each_with_index do |node, index|
         # Get variables
-        timestamp_orig = panZoomEvent[:timestamp].to_f
-
+        timestamp_orig = node[:timestamp].to_f
         timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
-        h_ratio = panZoomEvent.xpath(".//heightRatio")[0].text()
-        w_ratio = panZoomEvent.xpath(".//widthRatio")[0].text()
-        x = panZoomEvent.xpath(".//xOffset")[0].text()
-        y = panZoomEvent.xpath(".//yOffset")[0].text()
+        eventname = node['eventname']
+
+        if eventname == "DeskshareStartedEvent"
+          desksharing = true
+          next
+        elsif eventname == "DeskshareStoppedEvent"
+          desksharing = false
+          last_panzoom = getFirstPanAndZoomBeforeDeskshare(index)
+          if last_panzoom == nil
+            $xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
+              $xml.viewBox "0.0 0.0 #{$vbox_width}.0 #{$vbox_height}.0"
+            end
+            timestamp_orig_prev = timestamp_orig
+            timestamp_prev = timestamp
+            h_ratio_prev = 100
+            w_ratio_prev = 100
+            x_prev = 0
+            y_prev = 0
+            next
+          end
+          h_ratio = last_panzoom.xpath(".//heightRatio")[0].text()
+          w_ratio = last_panzoom.xpath(".//widthRatio")[0].text()
+          x = last_panzoom.xpath(".//xOffset")[0].text()
+          y = last_panzoom.xpath(".//yOffset")[0].text()
+        else
+          h_ratio = node.xpath(".//heightRatio")[0].text()
+          w_ratio = node.xpath(".//widthRatio")[0].text()
+          x = node.xpath(".//xOffset")[0].text()
+          y = node.xpath(".//yOffset")[0].text()
+        end
+        # We need to skip this if in the middle of deskshare
+        next if desksharing
 
         if(timestamp_prev == timestamp)
           if(timestamp_orig == last_time)
@@ -128,10 +156,56 @@ def processPanAndZooms
         end
         $xml.viewBox "#{($vbox_width-((1-((x_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*$vbox_height).round(1)}"
       end
-
     end
   end
   BigBlueButton.logger.info("Finished creating panzooms.xml")
+end
+
+def getFirstPanAndZoomBeforeDeskshare(index)
+  return nil if index < 0
+  deskshare_started_found = false
+
+  while index >= 0 do
+    eventname = $panzoom_events[index]['eventname']
+   if eventname == "DeskshareStartedEvent"
+      deskshare_started_found = true
+    else
+      if deskshare_started_found and eventname == "ResizeAndMoveSlideEvent"
+        return $panzoom_events[index]
+      end
+      deskshare_started_found = false
+    end
+    index -= 1
+  end
+
+  return nil
+end
+
+def scaleToDeskshareVideo(width, height)
+  deskshare_video_height = 720.to_f
+  deskshare_video_width = 1280.to_f
+
+  scale = [deskshare_video_width/width, deskshare_video_height/height]
+  video_width = width * scale.min
+  video_height = height * scale.min
+
+  return video_width.floor, video_height.floor
+end
+
+def getDeskshareVideoDimension(deskshare_stream_name)
+  video_width = 1280
+  video_height = 720
+  deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
+
+  if File.exist?(deskshare_video_filename)
+    video_width = BigBlueButton.get_video_width(deskshare_video_filename)
+    video_height = BigBlueButton.get_video_height(deskshare_video_filename)
+    video_width, video_height = scaleToDeskshareVideo(video_width, video_height)
+  else
+    BigBlueButton.logger.error("Could not find deskshare video: #{deskshare_video_filename}")
+  end
+
+  return video_width, video_height
 end
 
 def processCursorEvents
@@ -190,9 +264,15 @@ def processClearEvents
     #clearTime = ( clearEvent[:timestamp].to_f / 1000 ).round(1)
     $pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
     slideFolder = clearEvent.xpath(".//presentation")[0].text()
+    whiteboardId = clearEvent.xpath(".//whiteboardId")[0].text()
     if $version_atleast_0_9_0
-      $clearPageTimes[($prev_clear_time..clearTime)] =
-        [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
+        if (whiteboardId == "deskshare")
+           $clearPageTimes[($prev_clear_time..clearTime)] =
+             [$pageCleared, $canvas_number, "presentation/deskshare/slide-1.png", nil]
+        else
+           $clearPageTimes[($prev_clear_time..clearTime)] =
+             [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
+        end
     else
       $clearPageTimes[($prev_clear_time..clearTime)] =
         [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared}.png", nil]
@@ -616,10 +696,23 @@ def preprocessSlideEvents
   return new_slides_events
 end
 
+def getLastProcessedSlide(index)
+  return nil if (index < 0)
+  eventname = $slides_events[index]['eventname']
+  while eventname != "GotoSlideEvent" do
+    index -= 1
+    return nil if (index < 0)
+    eventname = $slides_events[index]['eventname']
+  end
+  return $slides_events[index]
+end
+
 def processSlideEvents
   BigBlueButton.logger.info("Slide events processing")
+  deskshare_slide = false
+
   # For each slide (there is only one image per slide)
-  $slides_events.each do |node|
+  $slides_events.each_with_index do |node, index|
     # Ignore slide events that happened after the last recording period.
     if(node[:timestamp].to_f > $rec_events.last[:stop_timestamp].to_f)
       next
@@ -628,40 +721,60 @@ def processSlideEvents
     if eventname == "SharePresentationEvent"
       $presentation_name = node.xpath(".//presentationName")[0].text()
     else
-      slide_timestamp =  node[:timestamp]
+
+      slide_timestamp = node[:timestamp]
+      if eventname == "DeskshareStartedEvent"
+        deskshare_slide = true
+        slide_number = -1
+      elsif eventname == "DeskshareStoppedEvent"
+        deskshare_slide = false
+        # TODO: Watch out for NPE
+        slide_number = getLastProcessedSlide(index).xpath(".//slide")[0].text().to_i
+      else
+        slide_number = node.xpath(".//slide")[0].text().to_i
+      end
+
       slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
       orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
-      slide_number = node.xpath(".//slide")[0].text().to_i
+
       slide_number = slide_number < 0 ? 0 : slide_number
-      slide_src = "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
-      txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number + 1}.txt"
+      slide_src = deskshare_slide ?
+          "presentation/deskshare/slide-1.png" :
+          "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
+      txt_file_path = deskshare_slide ?
+          "presentation/deskshare/slide-1.txt" :
+          "presentation/#{$presentation_name}/textfiles/slide-#{slide_number + 1}.txt"
       slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
       image_url = "#{$process_dir}/#{slide_src}"
 
       if !File.exist?(image_url)
         BigBlueButton.logger.warn("Missing image file #{slide_src}!")
         # Emergency last-ditch blank image creation
-        FileUtils.mkdir_p("#{$process_dir}/presentation/#{$presentation_name}")
-        command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_url}"
+        if deskshare_slide
+          FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
+          command = "convert -size 1280x720 xc:transparent -background transparent #{image_url}"
+        else
+          FileUtils.mkdir_p("#{$process_dir}/presentation/#{$presentation_name}")
+          command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_url}"
+        end
         BigBlueButton.execute(command)
       end
 
       slide_size = FastImage.size(image_url)
-      current_index = $slides_events.index(node)
-      if(current_index + 1 < $slides_events.length)
-        slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
-        orig_slide_end = ( $slides_events[current_index + 1][:timestamp].to_f / 1000 ).round(1)
+      if (index + 1 < $slides_events.length)
+        slide_end = ( translateTimestamp($slides_events[index + 1][:timestamp]) / 1000 ).round(1)
+        orig_slide_end = ( $slides_events[index + 1][:timestamp].to_f / 1000 ).round(1)
       else
         slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
         orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
       end
 
       if slide_start == slide_end
-        BigBlueButton.logger.info("#{slide_src} is never displayed (slide_start = slide_end), so it won't be included in the svg")
+        BigBlueButton.logger.info("Slide is never displayed (slide_start = slide_end), so it won't be included in the svg")
         next
       end
 
-      BigBlueButton.logger.info("Processing slide image")
+      BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
       # Is this a new image or one previously viewed?
       if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
         # If it is, add it to the list with all the data.
@@ -877,12 +990,42 @@ def processChatMessages
             chat_sender = node.xpath(".//sender")[0].text()
             chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
             chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
-            $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+            # Creates a list of the clear timestamps that matter for this message
+            next_clear_timestamps = $clear_chat_timestamps.select{ |e| e >= node[:timestamp] }
+            # If there is none we skip it, or else we add the out time that will remove a message
+            if next_clear_timestamps.empty?
+              $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+            else
+              chat_end = ( translateTimestamp( next_clear_timestamps.first ) / 1000).to_i
+              $xml.chattimeline(:in => chat_start, :out => chat_end, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+            end
           end
         end
         current_time += re[:stop_timestamp] - re[:start_timestamp]
       end
     }
+  end
+end
+
+def processDeskshareEvents
+  BigBlueButton.logger.info("Processing deskshare events")
+  deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events("#{$process_dir}/events.xml")
+
+  $deskshare_xml = Nokogiri::XML::Builder.new do |xml|
+    $xml = xml
+    $xml.recording('id' => 'deskshare_events') do
+      deskshare_matched_events.each do |event|
+        start_timestamp = (translateTimestamp(event[:start_timestamp].to_f) / 1000).round(1)
+        stop_timestamp = (translateTimestamp(event[:stop_timestamp].to_f) / 1000).round(1)
+        if (start_timestamp != stop_timestamp)
+          video_width, video_height = getDeskshareVideoDimension(event[:stream])
+          $xml.event(:start_timestamp => start_timestamp,
+                     :stop_timestamp => stop_timestamp,
+                     :video_width => video_width,
+                     :video_height => video_height)
+        end
+      end
+    end
   end
 end
 
@@ -893,6 +1036,7 @@ $shapesold_svg_filename = 'shapes_old.svg'
 $shapes_svg_filename = 'shapes.svg'
 $panzooms_xml_filename = 'panzooms.xml'
 $cursor_xml_filename = 'cursor.xml'
+$deskshare_xml_filename = 'deskshare.xml'
 
 $originX = "NaN"
 $originY = "NaN"
@@ -960,6 +1104,8 @@ begin
     playback_host = bbb_props['playback_host']
     BigBlueButton.logger.info("setting target dir")
     target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
+    $deskshare_dir = "#{recording_dir}/raw/#{$meeting_id}/deskshare"
+
     if not FileTest.directory?(target_dir)
       BigBlueButton.logger.info("Making dir target_dir")
       FileUtils.mkdir_p target_dir
@@ -997,6 +1143,20 @@ begin
           end
         end
 
+        if File.exist?("#{$process_dir}/deskshare.webm")
+          BigBlueButton.logger.info("Making deskshare dir")
+          deskshare_dir = "#{package_dir}/deskshare"
+          FileUtils.mkdir_p deskshare_dir
+          BigBlueButton.logger.info("Made deskshare dir - copying: #{$process_dir}/deskshare.webm to -> #{deskshare_dir}")
+          FileUtils.cp("#{$process_dir}/deskshare.webm", deskshare_dir)
+          BigBlueButton.logger.info("Copied deskshare.webm file")
+        else
+          BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
+        end
+
+        if File.exist?("#{$process_dir}/presentation_text.json")
+          FileUtils.cp("#{$process_dir}/presentation_text.json", package_dir)
+        end
 
         processing_time = File.read("#{$process_dir}/processing_time")
 
@@ -1073,15 +1233,21 @@ begin
         BigBlueButton.logger.info("Generating xml for slides and chat")
 
         # Gathering all the events from the events.xml
-        $slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
+        $slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent' or @eventname='DeskshareStartedEvent' or @eventname='DeskshareStoppedEvent']")
         $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
         $shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
-        $panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
+        $panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent' or @eventname='DeskshareStartedEvent' or @eventname='DeskshareStoppedEvent']") # for the action of panning and/or zooming
         $cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
         $clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
         $undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
         $join_time = $meeting_start.to_f
         $end_time = $meeting_end.to_f
+
+        # Create a list of timestamps when the moderator cleared the public chat
+        $clear_chat_timestamps = [ ]
+        clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
+        clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
+        $clear_chat_timestamps.sort!
 
         calculateRecordEventsOffset()
 
@@ -1100,6 +1266,8 @@ begin
 
         processCursorEvents()
 
+        processDeskshareEvents()
+
         # Write slides.xml to file
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
         # Write shapes.svg to file
@@ -1111,6 +1279,9 @@ begin
         # Write panzooms.xml to file
         File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
 
+        # Write deskshare.xml to file
+        File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }
+
         BigBlueButton.logger.info("Copying files to package dir")
         FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
         BigBlueButton.logger.info("Copied files to package dir")
@@ -1120,6 +1291,13 @@ begin
         if not FileTest.directory?(publish_dir)
           FileUtils.mkdir_p publish_dir
         end
+
+        # Get raw size of presentation files
+        raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
+        # After all the processing we'll add the published format and raw sizes to the metadata file
+        BigBlueButton.add_raw_size_to_metadata(package_dir, raw_dir)
+        BigBlueButton.add_playback_size_to_metadata(package_dir)
+
         FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
         BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
 

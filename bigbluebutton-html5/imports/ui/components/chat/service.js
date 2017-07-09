@@ -1,6 +1,6 @@
-import Chats from '/imports/api/chat';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Chats from '/imports/api/1.1/chat';
+import Users from '/imports/api/2.0/users';
+import Meetings from '/imports/api/1.1/meetings';
 
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -27,7 +27,7 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
-const mapUser = (user) => ({
+const mapUser = user => ({
   id: user.userid,
   name: user.name,
   emoji: {
@@ -48,10 +48,10 @@ const mapUser = (user) => ({
 const mapMessage = (messagePayload) => {
   const { message } = messagePayload;
 
-  let mappedMessage = {
+  const mappedMessage = {
     id: messagePayload._id,
     content: messagePayload.content,
-    time: message.from_time, //+ message.from_tz_offset,
+    time: message.from_time, // + message.from_tz_offset,
     sender: null,
   };
 
@@ -63,8 +63,8 @@ const mapMessage = (messagePayload) => {
 };
 
 const reduceMessages = (previous, current, index, array) => {
-  let lastMessage = previous[previous.length - 1];
-  let currentPayload = current.message;
+  const lastMessage = previous[previous.length - 1];
+  const currentPayload = current.message;
 
   current.content = [];
   current.content.push({
@@ -77,7 +77,7 @@ const reduceMessages = (previous, current, index, array) => {
     return previous.concat(current);
   }
 
-  let lastPayload = lastMessage.message;
+  const lastPayload = lastMessage.message;
 
   // Check if the last message is from the same user and time discrepancy
   // between the two messages exceeds window and then group current message
@@ -87,9 +87,8 @@ const reduceMessages = (previous, current, index, array) => {
     && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(current.content.pop());
     return previous;
-  } else {
-    return previous.concat(current);
   }
+  return previous.concat(current);
 };
 
 const getUser = (userID, userName) => {
@@ -97,16 +96,16 @@ const getUser = (userID, userName) => {
   if (!user) {
     return null;
   }
-  return mapUser(user.user);
 
+  return mapUser(user.user);
 };
 
 const getPublicMessages = () => {
-  let publicMessages = Chats.find({
+  const publicMessages = Chats.find({
     'message.chat_type': { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
   }, {
-      sort: ['message.from_time'],
-    })
+    sort: ['message.from_time'],
+  })
     .fetch();
 
   return publicMessages
@@ -115,15 +114,15 @@ const getPublicMessages = () => {
 };
 
 const getPrivateMessages = (userID) => {
-  let messages = Chats.find({
+  const messages = Chats.find({
     'message.chat_type': PRIVATE_CHAT_TYPE,
     $or: [
       { 'message.to_userid': userID },
       { 'message.from_userid': userID },
     ],
   }, {
-      sort: ['message.from_time'],
-    }).fetch();
+    sort: ['message.from_time'],
+  }).fetch();
 
   return messages.reduce(reduceMessages, []).map(mapMessage);
 };
@@ -172,8 +171,8 @@ const sendMessage = (receiverID, message) => {
    * The server only really needs the message, from_userid, to_userid and from_lang
    */
 
-  let messagePayload = {
-    message: message,
+  const messagePayload = {
+    message,
     chat_type: isPublic ? PUBLIC_CHAT_TYPE : PRIVATE_CHAT_TYPE,
     from_userid: sender.id,
     from_username: sender.name,
@@ -185,27 +184,25 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.
   if (_.indexOf(currentClosedChats, receiver.id) > -1) {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
   }
 
-  makeCall('sendChat', messagePayload);
-
-  return messagePayload;
+  return makeCall('sendChat', messagePayload);
 };
 
 const getScrollPosition = (receiverID) => {
-  let scroll = ScrollCollection.findOne({ receiver: receiverID }) || { position: null };
+  const scroll = ScrollCollection.findOne({ receiver: receiverID }) || { position: null };
   return scroll.position;
 };
 
 const updateScrollPosition =
   (receiverID, position) => ScrollCollection.upsert(
     { receiver: receiverID },
-    { $set: { position: position } },
+    { $set: { position } },
   );
 
 const updateUnreadMessage = (receiverID, timestamp) => {
@@ -215,8 +212,7 @@ const updateUnreadMessage = (receiverID, timestamp) => {
 };
 
 const closePrivateChat = (chatID) => {
-
-  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
   if (_.indexOf(currentClosedChats, chatID) < 0) {
     currentClosedChats.push(chatID);

@@ -6,36 +6,36 @@ class NotificationService {
      * Database to be transacted
      * @param {Object} database
      */
-    constructor(database) {
-        this.database = database;
-    }
+  constructor(database) {
+    this.database = database;
+  }
 
     /**
      * @param {string} notificationID
      */
-    get(notificationID) {
-        this.database.findById(notificationID);
-    }
+  get(notificationID) {
+    this.database.findById(notificationID);
+  }
 
     /**
      * @param {Object} notification
      */
-    add(notification) {
-        this.database.add(notification);
-    }
+  add(notification) {
+    this.database.add(notification);
+  }
 
     /**
      * @param {string} notificationID
      */
-    remove(notificationID) {
-        this.database.remove(notificationID);
-    }
+  remove(notificationID) {
+    this.database.remove(notificationID);
+  }
 }
 
-let NotificationServiceSingleton = new NotificationService(db);
+const NotificationServiceSingleton = new NotificationService(db);
 
 export {
-    NotificationService
+    NotificationService,
 };
 
 export default NotificationServiceSingleton;

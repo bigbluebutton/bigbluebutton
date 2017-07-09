@@ -1,11 +1,12 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const propTypes = {
-  children: React.PropTypes.element.isRequired,
+  children: PropTypes.element.isRequired,
 };
 
 export default class DropdownTrigger extends Component {
@@ -21,7 +22,7 @@ export default class DropdownTrigger extends Component {
   }
 
   handleKeyDown(event) {
-    const { dropdownShow, dropdownHide, } = this.props;
+    const { dropdownShow, dropdownHide } = this.props;
 
     if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
       event.preventDefault();
@@ -37,21 +38,19 @@ export default class DropdownTrigger extends Component {
     if (KEY_CODES.ESCAPE === event.which) {
       dropdownHide();
     }
-
   }
 
   render() {
-    const { children, style, className, placeInTabOrder, } = this.props;
+    const { children, style, className, tabIndex, } = this.props;
     const TriggerComponent = React.Children.only(children);
-
-    let index = (placeInTabOrder) ? '0' : '-1';
 
     const TriggerComponentBounded = React.cloneElement(children, {
       onClick: this.handleClick,
       onKeyDown: this.handleKeyDown,
       'aria-haspopup': true,
-      tabIndex: index,
+      tabIndex: tabIndex,
       style: style,
+
       className: cx(children.props.className, className),
     });
 

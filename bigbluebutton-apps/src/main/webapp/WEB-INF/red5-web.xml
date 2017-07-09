@@ -49,11 +49,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="web.handler" class="org.bigbluebutton.red5.BigBlueButtonApplication">
-        <property name="applicationListeners">
-                <set> <ref bean="whiteboardApplication" /> </set>
-        </property>
         <property name="connInvokerService"><ref bean="connInvokerService"/></property>
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
+        <property name="clientInGW" ref="clientInGW" />
+    </bean>
+
+    <bean id="clientInGW" class="org.bigbluebutton.client.ClientInGW" >
+        <constructor-arg index="0" ref="clientGWApp"/>
+    </bean>
+
+    <bean id="msgToClientGW" class="org.bigbluebutton.client.MsgToClientGW" >
+        <constructor-arg index="0" ref="connInvokerService"/>
+    </bean>
+
+    <bean id="clientGWApp" class="org.bigbluebutton.client.ClientGWApplication" destroy-method="shutdown">
+        <constructor-arg index="0" ref="msgToClientGW"/>
+        <constructor-arg index="1" ref="oldMessageReceivedGW"/>
+    </bean>
+
+    <bean id="oldMessageReceivedGW" class="org.bigbluebutton.client.OldMessageReceivedGW">
+        <constructor-arg index="0" ref="red5RedisHandler"/>
     </bean>
 
     <bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService"
@@ -71,11 +86,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>
 
-    <bean id="chat.service" class="org.bigbluebutton.red5.service.ChatService">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-        <property name="maxMessageLength" value="1024"/>
-    </bean>
-
     <bean id="participants.service" class="org.bigbluebutton.red5.service.ParticipantsService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
@@ -91,20 +101,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="presentation.service" class="org.bigbluebutton.red5.service.PresentationService">
         <property name="presentationApplication"> <ref local="presentationApplication"/></property>
     </bean>
-    
-    <bean id="whiteboardApplication" class="org.bigbluebutton.red5.service.WhiteboardApplication">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-    </bean>
 
     <bean id="poll.service" class="org.bigbluebutton.red5.service.PollingService">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-    </bean>
-    
-    <bean id="whiteboard.service" class="org.bigbluebutton.red5.service.WhiteboardService">
-        <property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
-    </bean>
-    
-    <bean id="caption.service" class="org.bigbluebutton.red5.service.CaptionService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
     
@@ -113,18 +111,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
     
     <bean id="red5Publisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
-        <property name="messageSender" ref="red5RedisSender"/>
+        <property name="messageSender" ref="clientInGW"/>
     </bean>
 
     <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
         <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
-        <property name="bbbAppsIsKeepAliveHandler"> <ref bean="bbbAppsIsKeepAliveHandler"/></property>
+      <!--  <property name="bbbAppsIsKeepAliveHandler"> <ref bean="bbbAppsIsKeepAliveHandler"/></property> -->
     </bean>
 
     <bean id="bbbAppsIsAliveMonitorService" class="org.bigbluebutton.red5.monitoring.BbbAppsIsAliveMonitorService"
                 init-method="start" destroy-method="stop">
         <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
-        <property name="messageSender" ref="red5RedisSender"/>
+        <property name="messageSender" ref="clientInGW"/>
     </bean>
 
     <bean id="bbbAppsIsKeepAliveHandler" class="org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler">

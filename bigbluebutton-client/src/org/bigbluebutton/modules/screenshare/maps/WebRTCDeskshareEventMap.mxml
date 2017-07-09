@@ -34,7 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
 			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
-                        import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
+			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewWindowEvent;
@@ -63,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>
-	
+
 	<EventHandlers type="{RequestToStartSharing.REQUEST_SHARE_START}">
     <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStartSharingEvent"/>
   </EventHandlers>
@@ -71,7 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{RequestToStopSharing.REQUEST_SHARE_STOP}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStopSharingEvent"/>
 	</EventHandlers>
-	
+
 	<EventHandlers type="{ShareStartRequestResponseEvent.SHARE_START_REQUEST_RESPONSE}">
     <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleShareStartRequestResponseEvent" arguments="{event}"/>
   </EventHandlers>
@@ -95,11 +95,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{WebRTCViewStreamEvent.STOP}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStreamStopEvent" arguments="{event}"/>
 	</EventHandlers>
-	
+
 	<EventHandlers type="{ShareStartedEvent.SHARE_STATED}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleScreenShareStartedEvent" arguments="{event}"/>
 	</EventHandlers>
-	
+
 	<EventHandlers type="{IsSharingScreenEvent.IS_SCREENSHARING}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleIsSharingScreenEvent" arguments="{event}"/>
 	</EventHandlers>
@@ -132,12 +132,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 
-        <!--
-        This is when the WebRTC deskshare manager detects that either WebRTC is
-        not supported, one one of the requirements (browser version, extension,
-        etc) is not met so it issues a fallback to Java deskshare event
-        -->
-        <EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
-                <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
-        </EventHandlers>
+	<!--
+	This is when the WebRTC deskshare manager detects that either WebRTC is
+	not supported, one one of the requirements (browser version, extension,
+	etc) is not met so it issues a fallback to Java deskshare event
+	-->
+	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
+	</EventHandlers>
 </EventMap>

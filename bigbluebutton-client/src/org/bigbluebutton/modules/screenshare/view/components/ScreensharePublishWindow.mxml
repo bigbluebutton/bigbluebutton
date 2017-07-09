@@ -21,38 +21,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <common:CustomMdiWindow
-  xmlns:mx="http://www.adobe.com/2006/mxml" 
+  xmlns:mx="library://ns.adobe.com/flex/mx"
+  xmlns:fx="http://ns.adobe.com/mxml/2009"
   implements="org.bigbluebutton.common.IBbbModuleWindow"
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:common="org.bigbluebutton.common.*"
   backgroundColor="#C0C0C0"
   initialize="init()"
-  creationComplete="onCreationComplete()"	
+  creationComplete="onCreationComplete()"
   verticalScrollPolicy="off" horizontalScrollPolicy="off"
   width="700" height="350"
   title="{ResourceUtil.getInstance().getString('bbb.screensharePublish.title')}"
   resizable="false">
-  
-  <mate:Listener type="{StartShareRequestSuccessEvent.START_SHARE_REQUEST_SUCCESS}" method="handleStartShareRequestSuccessEvent" />
-  <mate:Listener type="{ScreenSharePausedEvent.SCREENSHARE_PAUSED}" method="handleScreenSharePausedEvent" />
-  <mate:Listener type="{ShareStoppedEvent.SHARE_STOPPED}" method="handleScreenShareShareStoppedEvent" />
-  <mate:Listener type="{ViewStreamEvent.START}" method="handleStartViewStreamEvent" />
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
-  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
-  <mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
-  <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-  <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
-  <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
-    
-  <mx:Script>
+
+  <fx:Declarations>
+    <mate:Listener type="{StartShareRequestSuccessEvent.START_SHARE_REQUEST_SUCCESS}" method="handleStartShareRequestSuccessEvent" />
+    <!--mate:Listener type="{ScreenSharePausedEvent.SCREENSHARE_PAUSED}" method="handleScreenSharePausedEvent" /-->
+    <mate:Listener type="{ShareStoppedEvent.SHARE_STOPPED}" method="handleScreenShareShareStoppedEvent" />
+    <mate:Listener type="{ViewStreamEvent.START}" method="handleStartViewStreamEvent" />
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />
+    <mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
+    <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+    <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
+    <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
+    <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
+  </fx:Declarations>
+
+  <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
-      
+
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.ReconnectionManager;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -73,23 +77,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
       import org.bigbluebutton.modules.screenshare.services.red5.Connection;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      
+
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
-      
+
       public static const SCALE:Number = 5;
       private static const VID_HEIGHT_PAD:Number = 73;
       private static const VID_WIDTH_PAD:Number = 6;
-      
+
       private var images:Images = new Images();
       [Bindable] public var bbbLogo:Class = images.bbb_logo;
-      
+
       private var connection:Connection;
       private var uri:String;
       private var room:String;
       private var tunnel:Boolean = false;
       private var sharingFullScreen:Boolean = false;
       private var streaming:Boolean = false;
-      
+
       private var video:Video;
       private var ns:NetStream;
       private var stream:String;
@@ -98,23 +102,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var captureHeight:Number = Capabilities.screenResolutionY;
       private var captureWidth:Number = Capabilities.screenResolutionX;
       private var globalDispatcher:Dispatcher = new Dispatcher();
-      
+
       [Bindable] private var baseIndex:int;
       [Bindable] private var dsOptions:ScreenshareOptions;
-      
+
       private var paused:Boolean = false;
-      
+
       private var os:String;
       private var browser:String;
-      
+
       [Bindable]
       private var shareTypeProvider:Array;
-      
+
       private function init():void {
-        dsOptions = new ScreenshareOptions();
+        dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
         baseIndex = dsOptions.baseTabIndex;
       }
-      
+
       private function onCreationComplete():void {
         var fullOS:String = Capabilities.os;
         if (fullOS.indexOf("Windows") != -1) {
@@ -127,81 +131,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           LOGGER.error("Browser not recognized, full value: {0}", [fullOS]);
           os = "";
         }
-        
+
         browser = ExternalInterface.call("determineBrowser")[0];
-        
+
         windowControls.maximizeRestoreBtn.enabled = false;
-        
+
         titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
         titleBarOverlay.focusEnabled = true;
-        
+
         resourcesChanged();
-		
+
 		focusManager.setFocus(titleBarOverlay);
-		
+
 		if (tunnel) {
 			helpInfoBox.visible = helpInfoBox.includeInLayout = false;
 			previewBox.visible = previewBox.includeInLayout = false;
 			tunnelBox.visible = tunnelBox.includeInLayout = true;
-			
+
 			shareTypeBox.visible = false;
 			cancelBtn.visible = cancelBtn.includeInLayout = true;
 			startBtn.visible = startBtn.includeInLayout = false;
 			stopBtn.visible = stopBtn.includeInLayout = false;
 		}
       }
-      
+
       private function remoteFocus(e:ShortcutEvent):void{
         focusManager.setFocus(minimizeBtn);
       }
-      
+
       public function get defaultWidth():int{
         return this.width;
       }
-      
+
       public function get defaultHeight():int{
         return this.height;
       }
-      
+
       public function set defaultHeight(height:int):void{
         this.height = height;
       }
-      
+
       public function set defaultWidth(width:int):void{
         this.width = width;
       }
-      
+
       public function getPrefferedPosition():String{
         return MainCanvas.DESKTOP_SHARING_PUBLISH;
       }
-      
+
       public function handleDisconnectedEvent(event:BBBEvent):void {
           if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
-            closeWindow();  
+            closeWindow();
           }
       }
-      
+
       /*
       * Implement resizeable interface.
       */
       public function resetWidthAndHeight():void{/* do nothing */}
-      
+
       public function initWindow(connection:Connection, uri:String, room:String, tunnel:Boolean):void {
         this.connection = connection;
         this.uri = uri;
         this.room = room;
 		this.tunnel = tunnel;
       }
-      
+
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
-        
+
       }
-      
+
       private function handleScreenShareShareStoppedEvent(event:ShareStoppedEvent):void {
         LOGGER.debug("handleScreenShareShareStoppedEvent reason="+event.reason);
-        
+
         var showReason:Boolean = false;
-        
+
         if (event.reason == "JWS_START_FAILED_REASON") {
           showReason = true;
           if (paused) {
@@ -213,12 +217,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           showReason = true;
           jwsCrashedLbl.visible = jwsCrashedLbl.includeInLayout = true;
         }
-        
+
         if (showReason) {
           helpInfoBox.visible = helpInfoBox.includeInLayout = false;
           previewBox.visible = previewBox.includeInLayout = false;
           errorBox.visible = errorBox.includeInLayout = true;
-          
+
           shareTypeBox.visible = false;
           cancelBtn.visible = cancelBtn.includeInLayout = true;
           startBtn.visible = startBtn.includeInLayout = false;
@@ -227,11 +231,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           closeWindow();
         }
       }
-      
+
       private function handleScreenSharePausedEvent(event:ScreenSharePausedEvent):void {
         if (videoWrapper != null && video != null && video.parent == videoWrapper) {
             videoWrapper.removeChild(video);
-            
+
             if (paused) {
                 LOGGER.debug("handleScreenSharePausedEvent - enable push button.");
                 pauseBtn.enabled = true;
@@ -244,7 +248,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
         }
       }
-      
+
       public function shareScreen(fullScreen:Boolean):void {
         LOGGER.debug("Calling shareScreen");
         startBtn.enabled = false;
@@ -252,7 +256,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         dispatchEvent(shareStartEvent);
         startSharing(connection.getConnection(), uri, room, fullScreen);
       }
-      
+
       private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
         var captureX:Number = 0;
         var captureY:Number = 0;
@@ -262,22 +266,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         LOGGER.debug("StartScreensharing jnlp=" + jnlp + " token=" + authToken);
         ExternalInterface.call("startScreensharing", jnlp, UsersUtil.getInternalMeetingID(), authToken, fullScreen);
       }
-      
+
       public function stopSharing():void {
         LOGGER.debug("Calling stopSharing");
         if (streaming) {
           stopStream();
         }
-        
+
         var streamEvent:RequestToStopSharing = new RequestToStopSharing();
         dispatchEvent(streamEvent);
-        
+
         sharingFullScreen = false;
         streaming = false;
-        
+
         //closeWindow();
       }
-      
+
       public function pauseSharing():void {
         LOGGER.debug("Calling pauseSharing");
         if (!paused) {
@@ -289,28 +293,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
           sharingFullScreen = false;
           streaming = false;
-          
+
           pauseBtn.enabled = false;
         } else {
           paused = false;
-          
+
           restartBtn.enabled = false;
-          
+
           var restartSharingEvent:RequestToRestartSharing = new RequestToRestartSharing();
           dispatchEvent(restartSharingEvent);
         }
       }
-      
+
       public function stopSharingEvent(evt:StopSharingButtonEvent):void{
         if (streaming) {
           stopStream();
         }
         sharingFullScreen = false;
         streaming = false;
-        
+
         closeWindow();
       }
-           
+
       private function handleStartViewStreamEvent(event:ViewStreamEvent):void{
         LOGGER.debug("handleStartViewStreamEvent");
         var width: int = ScreenshareModel.getInstance().width;
@@ -318,44 +322,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var streamId: String = ScreenshareModel.getInstance().streamId;
         startPreviewStream(connection.getConnection(), streamId, width, height);
       }
-      
+
       private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{
-        
+
         switchView(false);
-        
+
         LOGGER.debug("Viewing stream =[" + streamId + "]");
         streaming = true;
-        
+
         restartBtn.enabled = true;
         pauseBtn.visible = pauseBtn.includeInLayout = true;
         restartBtn.visible = restartBtn.includeInLayout = false;
-        
+
         // Store capture dimensions so we can position cursor properly.
         captureWidth = capWidth;
         captureHeight = capHeight;
-        
+
         var vidW:Number = captureWidth;
         var vidH:Number = captureHeight;
-        
+
         // for some reason videoHolder's height is always '0' even when set to 100% so we have to do it manually
         videoWrapper.height = this.height - controlBar.height - this.titleBar.height - pauseBtn.height - publishView.getStyle('paddingTop') - publishView.getStyle('paddingBottom') - 10;
         videoWrapper.width = this.width - publishView.getStyle('paddingLeft') - publishView.getStyle('paddingRight') - 10;
-        
+
         vidW = videoWrapper.width;
         vidH = videoWrapper.width * captureHeight / captureWidth;
-        
+
         if (vidH > videoWrapper.height) {
           vidH = videoWrapper.height;
           vidW = videoWrapper.height * captureWidth / captureHeight;
         }
-        
+
         LOGGER.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
         video = new Video(vidW, vidH);
-		
+
         videoWrapper.addChild(video);
         video.x = videoWrapper.width/2 - video.width/2;
         video.y = videoWrapper.height/2 - video.height/2;
-        
+
         ns = new NetStream(nc);
         ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
         ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
@@ -365,28 +369,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ns.receiveAudio(false);
         video.attachNetStream(ns);
         ns.play(streamId);
-        
+
         pauseBox.visible = pauseBox.includeInLayout = false;
         videoWrapper.visible = videoWrapper.includeInLayout = true;
         pauseBox.width = vidW;
         pauseBox.height = vidH;
       }
-      
+
       public function onMetaData(info:Object):void{
         LOGGER.debug("metadata: width=" + info.width + " height=" + info.height);
       }
-      
+
       private function stopStream():void{
         streaming = false;
         captureHeight = Capabilities.screenResolutionY;
         captureWidth = Capabilities.screenResolutionX;
         ns.close();
       }
-      
+
       private function onAsyncError(e:AsyncErrorEvent):void{
         LOGGER.debug("VIdeoWindow::asyncerror " + e.toString());
       }
-      
+
       private function onNetStatus(e:NetStatusEvent):void{
         switch(e.info.code){
           case "NetStream.Publish.Start":
@@ -401,21 +405,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
         }
       }
-      
+
       private function onChangedPresenter(e:Event):void{
         stopSharing();
         closeWindow();
       }
-      
+
       private function closeWindow():void {
         dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));
       }
-      
+
       private function restartJava():void {
         shareScreen(sharingFullScreen);
       }
-      
-      
+
+
       /*
       * Override the close handler. We want the Event Map to send a message to
       * the MDIManager to close this window;
@@ -424,53 +428,53 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         stopSharing();
         closeWindow();
       }
-      
+
       override protected function resourcesChanged():void{
         super.resourcesChanged();
         this.title = ResourceUtil.getInstance().getString('bbb.screensharePublish.title');
-        
+
         if (titleBarOverlay != null) {
           titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.screensharePublish.title');
         }
-        
+
         if (windowControls != null) {
           minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.minimizeBtn.toolTip');
           minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screensharePublish.minimizeBtn.accessibilityName");
-          
+
           maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.maximizeRestoreBtn.toolTip');
           maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screensharePublish.maximizeRestoreBtn.accessibilityName");
-          
+
           closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.closeBtn.toolTip');
           closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screensharePublish.closeBtn.accessibilityName");
         }
-        
+
         shareTypeProvider = [ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.fullScreen'),
                              ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.region')];
-        
+
         setHelpText();
       }
-      
+
       private function localeChanged(e:Event):void{
         resourcesChanged();
       }
-      
+
       private function closePublishWindow(event:ViewStreamEvent):void{
         stopStream();
         closeWindow();
       }
-      
+
       private function isUsingMac():Boolean {
         return (Capabilities.os.indexOf("Mac") >= 0);
       }
-      
+
       private function onHelpButtonClicked():void {
         var option:ScreenshareOptions = new ScreenshareOptions();
         option.parseOptions();
-        var DEFAULT_HELP_URL:String = option.helpUrl;
+        var DEFAULT_HELP_URL:String = dsOptions.help;
         LOGGER.debug("onHelpButtonClicked - " + DEFAULT_HELP_URL);
         navigateToURL(new URLRequest(DEFAULT_HELP_URL), "_blank")
       }
-      
+
       private function setHelpText():void {
         if (helpBox != null) {
           var info:String = "";
@@ -505,42 +509,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               info += "Chrome";
             }
           }
-          
+
           if (info != "") {
             helpImg1.styleName = "publishHelp" + info + "1";
             helpLbl1.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"1");
-            
+
             helpImg2.styleName = "publishHelp" + info + "2";
             helpLbl2.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"2");
-            
+
             helpImg3.styleName = "publishHelp" + info + "3";
             helpLbl3.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"3");
-            
+
             helpImg4.styleName = "publishHelp" + info + "4";
             helpLbl4.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"4");
           }
         }
       }
-      
+
       private function onStartButtonClick():void {
         shareScreen(shareTypeCombo.selectedIndex == 0);
       }
-      
+
       private function switchView(showHelp:Boolean):void {
         helpInfoBox.visible = helpInfoBox.includeInLayout = showHelp;
         previewBox.visible = !showHelp;
-		
+
         shareTypeBox.visible = showHelp;
         cancelBtn.visible = cancelBtn.includeInLayout = showHelp;
         startBtn.visible = startBtn.includeInLayout = showHelp;
         stopBtn.visible = stopBtn.includeInLayout = !showHelp;
       }
     ]]>
-  </mx:Script>
-  
-	<common:TabIndexer id="tabIndexer" startIndex="{dsOptions.baseTabIndex + 1}"
-					   tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, helpButton, shareTypeCombo, startBtn, cancelBtn, stopBtn, pauseBtn, restartBtn]}"/>
-	
+  </fx:Script>
+
+  <fx:Declarations>
+    <common:TabIndexer id="tabIndexer" startIndex="{dsOptions.baseTabIndex + 1}"
+                                       tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, helpButton, shareTypeCombo, startBtn, cancelBtn, stopBtn, pauseBtn, restartBtn]}"/>
+  </fx:Declarations>
+
   <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
   <mx:Box id="publishView" height="100%" width="100%" styleName="desktopShareViewStyle">
     <mx:VBox id="helpInfoBox" width="100%" height="100%" verticalAlign="middle" verticalGap="12">
@@ -549,7 +555,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                   text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.commonHelpText.text')}" />
         <mx:LinkButton id="helpButton"
                        height="22"
-                       label="?" 
+                       label="?"
                        styleName="micSettingsWindowHelpButtonStyle"
                        right="0"
                        click="onHelpButtonClicked()"
@@ -584,12 +590,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  </mx:Box>
       <mx:Button id="pauseBtn"
                  click="pauseSharing()"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}" 
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}"
                  label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" />
       <mx:Button id="restartBtn"
                  visible="false" includeInLayout="false"
                  click="pauseSharing()"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip')}" 
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip')}"
                  label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label')}" />
     </mx:VBox>
     <mx:VBox id="errorBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">

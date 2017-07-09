@@ -20,50 +20,74 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:ApplicationControlBar xmlns:mx="library://ns.adobe.com/flex/mx" 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/" xmlns:common="org.bigbluebutton.common.*"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	enabled="true" visible="{showToolbar}"
 	initialize="init()">   
 	
-	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
-	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
-	<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
-	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
-	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
-	<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
-	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
-	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
-	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
-	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
-	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
-  
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
+		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
+		<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
+		<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
+		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
+		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
+		<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
+		<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
+		<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
+		<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
+		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
+		<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
+		<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
+		<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
+	</fx:Declarations>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			import mx.core.UIComponent;
-			import mx.events.CloseEvent;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbToolbarComponent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigLoadedEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
-			import org.bigbluebutton.main.events.SettingsEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.binding.utils.BindingUtils;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.core.IToolTip;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.events.ToolTipEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.as3commons.lang.ArrayUtils;
+      import org.as3commons.lang.StringUtils;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.common.IBbbToolbarComponent;
+      import org.bigbluebutton.common.events.SettingsComponentEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.model.Config;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ConfigLoadedEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.NetworkStatsEvent;
+      import org.bigbluebutton.main.events.SettingsEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+      import org.bigbluebutton.main.model.NetworkStatsData;
+      import org.bigbluebutton.main.model.options.BrandingOptions;
+      import org.bigbluebutton.main.model.options.LayoutOptions;
+      import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(MainToolbar);
 
@@ -74,11 +98,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
-			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();		
+			[Bindable] private var showGuestSettingsButton:Boolean = false;
+			[Bindable] private var showRecordButton:Boolean = false;
+			[Bindable] public var toolbarOptions:LayoutOptions;
+			[Bindable] private var brandingOptions:BrandingOptions;
+
 			[Bindable] private var numButtons:int;
-			
-			private var logoutAlert:Alert; 
       
+			[Bindable] private var _bandwidthConsumedUp:String = "-";
+			[Bindable] private var _bandwidthConsumedDown:String = "-";
+			private var _updateBandwidthTimer:Timer = new Timer(1000);
+			private var _bandwidthToolTip:IToolTip;
+
 			/*
 			 * Because of the de-centralized way buttons are added to the toolbar, there is a large gap between the tab indexes of the main buttons
 			 * on the left and the tab indexes of the "other" items on the right (shortcut glossary, language slector, etc). This will make it more
@@ -88,8 +119,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			
 			private var xml:XML;
+			private var settingsComponents:Array = new Array();
+			private var settingsPopup:BBBSettings = null;
 			
 			private function init():void{
+				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
+				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -97,6 +132,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
                 timer.start();
 
+				BindingUtils.bindSetter(refreshModeratorButtonsVisibility, LiveMeeting.inst().meeting, "recorded");
 			}
       
       private function checkAccessiblity(e:TimerEvent):void {
@@ -128,8 +164,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        }
 								
 			public function displayToolbar():void{
-				toolbarOptions = new LayoutOptions();
-				toolbarOptions.parseOptions();	
 				if (toolbarOptions.showToolbar) {
 					showToolbar = true;
 				} else {
@@ -141,17 +175,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					showHelpBtn = false;
 				}
+				if(toolbarOptions.showNetworkMonitor) {
+					initBandwidthToolTip();
+				}
 			}
 			
       private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
          if (toolbarOptions.showMeetingName) {
-              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
+              var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
               if (meetingTitle != null) {
                   meetingNameLbl.text = meetingTitle;
                   meetingNameLbl.toolTip = meetingTitle;
                } 
           }
           logFlashPlayerCapabilities();
+      }
+
+      private function refreshModeratorButtonsVisibility(e:*):void {
+          showGuestSettingsButton = UsersUtil.amIModerator();
+
+          showRecordButton = UsersUtil.amIModerator();
       }
 
       private function getFlashPlayerCapabilities():Object {
@@ -217,28 +260,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Received end meeting event.");
 				doLogout();
 			}
+			
+			
+			private function confirmLogout():void {
+				if (toolbarOptions.confirmLogout) {
+					var logoutWindow:LogoutWindow;
+					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
 
-            private function confirmLogout():void {
-                if (toolbarOptions.confirmLogout) {
-                    if (logoutAlert == null) {
-                        // Confirm logout using built-in alert
-                        logoutAlert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
+					var newX:Number = btnLogout.x + btnLogout.width - logoutWindow.width;
+					var newY:Number = btnLogout.y + btnLogout.height + 5;
 
-                        var newX:Number = btnLogout.x + btnLogout.width - logoutAlert.width;
-                        var newY:Number = btnLogout.y + btnLogout.height + 5;
+					PopUpManager.centerPopUp(logoutWindow);
 
-                        logoutAlert.validateNow();
-                        logoutAlert.move(newX, newY);
-                    }
-                } else {
-                    doLogout();
-                }
-            }
-
+					logoutWindow.x = newX;
+					logoutWindow.y = newY;
+				} else {
+					doLogout();
+				}
+			}
+			
+						
 			private function alertLogout(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
-					UserManager.getInstance().getConference().iAskedToLogout = true;
+					UsersUtil.setIAskedToLogout(true);
 					/* 
 					 * If doLogout() is called immediately there is a null exception in AlertAccImpl
 					 * line 185, but if we delay calling doLogout() until the next frame the Alert 
@@ -248,11 +293,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 */
 					callLater(doLogout);
 				}
-				logoutAlert = null;
 			}
 			
 			private function doLogout():void {
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
+			}
+
+			private function confirmEndSession(event:BBBEvent):void {
+				var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.endSession.confirm.message'), ResourceUtil.getInstance().getString('bbb.endSession.confirm.title'), Alert.YES | Alert.NO, null, onConfirmEndSessionAlertClosed, null, Alert.YES);
+				// we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially
+				alert.setStyle("modalTransparencyDuration", 250);
+			}
+
+			private function onConfirmEndSessionAlertClosed(e:CloseEvent):void {
+				// Check to see if the YES button was pressed.
+				if (e.detail == Alert.YES) {
+					endSession();
+				}
+			}
+
+			private function endSession():void {
+				dispatchEvent(new BBBEvent(BBBEvent.LOGOUT_END_MEETING_EVENT));
 			}
 			
 			private function hideToolbar(e:ConnectionFailedEvent):void{
@@ -314,12 +375,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//}
 				}
 			}
-			
-			public function initOptions(e:Event):void {
-				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = BBB.getConfigManager().config.shortcutKeys['showButton'];
-				DEFAULT_HELP_URL = BBB.getConfigManager().config.help['url'];
-			}
+						
+			private function handleConfigLoadedEvent(e:ConfigLoadedEvent):void{
+				var config:Config = BBB.getConfigManager().config;
+				var shortcutKeysOptions : ShortcutKeysOptions = Options.getOptions(ShortcutKeysOptions) as ShortcutKeysOptions;
+				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = shortcutKeysOptions.showButton;
 
+				if (StringUtils.isEmpty(brandingOptions.logo)) {
+					hideLogo();
+				} else {
+					logo.source = brandingOptions.logo;
+				}
+
+				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
+					setStyle("backgroundColor", brandingOptions.toolbarColor);
+				}
+
+				if (ArrayUtils.isNotEmpty(brandingOptions.toolbarColorAlphas)) {
+					setStyle("highlightAlphas", brandingOptions.toolbarColorAlphas);
+				}
+			}
+			
 			private function onDisconnectTest():void{
 				var d:Dispatcher = new Dispatcher();
 				var e:LogoutEvent = new LogoutEvent(LogoutEvent.DISCONNECT_TEST);
@@ -368,21 +444,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
         
         if (toolbarOptions.showMeetingName) {
-          var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
+          var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
           if (meetingTitle != null) {
             meetingNameLbl.text += " " + meetingTitle;
           } 
         }
       }
 
+			private function onNetStatsButtonClick(e:Event = null):void {
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(new NetworkStatsEvent(NetworkStatsEvent.OPEN_NETSTATS_WIN));
+			}
+
+			private function initBandwidthToolTip():void {
+				_updateBandwidthTimer.addEventListener(TimerEvent.TIMER, updateBandwidthTimerHandler);
+				_updateBandwidthTimer.start();
+				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_SHOW, bwToolTipShowHandler);
+				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_END, bwToolTipEndHandler);
+			}
+
+			private function bwToolTipShowHandler(e:ToolTipEvent):void {
+				// The ToolTip must be stored so it's text can be updated
+				_bandwidthToolTip = e.toolTip;
+				updateBwToolTip();
+			}
+
+			private function bwToolTipEndHandler(e:ToolTipEvent):void {
+				_bandwidthToolTip = null;
+			}
+
+			private function updateBandwidthTimerHandler(e:TimerEvent):void {
+				_bandwidthConsumedDown = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
+				_bandwidthConsumedUp = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
+				updateBwToolTip();
+			}
+
+			private function updateBwToolTip():void {
+				if(_bandwidthToolTip) {
+					_bandwidthToolTip.text = ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short') + ": " + _bandwidthConsumedUp +
+						" | " + ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')+": "+_bandwidthConsumedDown;
+				}
+			}
+
+			private function hideLogo():void {
+				logoHolder.visible = logoHolder.includeInLayout = false;
+			}
+
+			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
+				settingsComponents.push(e.component);
+			}
+
+			private function removeSettingsComponent(e:SettingsComponentEvent = null):void {
+				throw("Not implemented");
+			}
+
+			private function onSettingsButtonClick():void {
+				settingsPopup = BBBSettings(PopUpManager.createPopUp(this.parent, BBBSettings, true));
+				settingsPopup.pushComponents(settingsComponents);
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				refreshModeratorButtonsVisibility(null);
+			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
-	<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
-					   tabIndices="{[recordBtn, muteMeBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
+		<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
+						   tabIndices="{[recordBtn, muteMeBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+	</fx:Declarations>
 
     
+    <mx:HBox id="logoHolder" paddingRight="12" >
+        <mx:Image id="logo" ioError="hideLogo()" />
+    </mx:HBox>
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
@@ -401,15 +537,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
-	<views:RecordButton id="recordBtn"/>
+	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20"/>
 	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="20"/>
 	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
+	<mx:Button
+			id="bbbSettings"
+			visible="{showGuestSettingsButton}"
+			includeInLayout="{showGuestSettingsButton}"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
+			click="onSettingsButtonClick()"
+			styleName="settingsButtonStyle"
+			height="22"
+	/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
+	<mx:Button
+			id="btnNetwork"
+			styleName="bandwidthButtonStyle"
+			toolTip="dummy text"
+			click="onNetStatsButtonClick()"
+			visible="{toolbarOptions.showNetworkMonitor}" />
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>

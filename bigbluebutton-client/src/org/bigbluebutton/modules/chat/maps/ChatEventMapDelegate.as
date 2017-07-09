@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.chat.maps {
 	
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.modules.chat.model.ChatOptions;
 	import org.bigbluebutton.modules.chat.views.ChatWindow;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -44,7 +45,7 @@ package org.bigbluebutton.modules.chat.maps {
 		}
 
 		private function getChatOptions():void {
-			chatOptions = new ChatOptions();
+			chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 		}
 		
 		public function openChatWindow():void {	

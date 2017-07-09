@@ -9,9 +9,11 @@ package org.bigbluebutton.modules.videoconf.views
     
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
+    import org.bigbluebutton.core.model.LiveMeeting;
     import org.bigbluebutton.core.model.VideoProfile;
-    import org.bigbluebutton.main.model.users.BBBUser;
+    import org.bigbluebutton.core.model.users.User2x;
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
 
@@ -19,14 +21,16 @@ package org.bigbluebutton.modules.videoconf.views
 
 		private static const LOGGER:ILogger = getClassLogger(GraphicsWrapper);      
 
-		private var _options:VideoConfOptions = new VideoConfOptions();
-        private var priorityWeight:Number = _options.priorityRatio;
+		private var _options:VideoConfOptions;
+        private var priorityWeight:Number;
         private var priorityMode:Boolean = false;
         private var priorityItem:DisplayObject = null;
         private var _minContentAspectRatio:Number=4/3;
 
         public function GraphicsWrapper() {
             percentWidth = percentHeight = 100;
+			_options = Options.getOptions(VideoConfOptions) as VideoConfOptions;
+			priorityWeight = _options.priorityRatio;
         }
 
         override public function addChild(child:DisplayObject):DisplayObject {
@@ -264,13 +268,14 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         public function addVideoFor(userId:String, connection:NetConnection):void {
-            var user:BBBUser = UsersUtil.getUser(userId);
+            var user:User2x = LiveMeeting.inst().users.getUser(userId);
             if (user == null) return;
 
-            var streamNames:Array = user.streamNames;
+            var streamNames:Array = LiveMeeting.inst().webcams.getStreamIdsForUser(userId);
 
             for each (var streamName:String in streamNames) {
-                if (user.viewingStream.indexOf(streamName) == -1) {
+              var viewingStream: Boolean = LiveMeeting.inst().webcams.isViewingStream(user.intId, streamName)
+                if (! viewingStream) {
                     // When reconnecting there is discrepancy between the time when the usermodel's viewingStream array
                     // is updated and the time when we check whether the steam needs to be displayed.
                     // To avoid duplication of video views we must check if a view for the stream exists
@@ -284,7 +289,7 @@ package org.bigbluebutton.modules.videoconf.views
                         }
                     }
                     if (0 == numChildren || !streamIsDisplayed) {
-                        addVideoForHelper(user.userID, connection, streamName);
+                        addVideoForHelper(user.intId, connection, streamName);
                     }
                 }
             }
@@ -337,7 +342,7 @@ package org.bigbluebutton.modules.videoconf.views
             var alreadyPublishing:Boolean = false;
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
-                if (item.user && item.user.userID == userId && item.visibleComponent is UserVideo && item.video.camIndex == camIndex) {
+                if (item.user && item.user.intId == userId && item.visibleComponent is UserVideo && item.video.camIndex == camIndex) {
                     alreadyPublishing = true;
                     break;
                 }
@@ -360,7 +365,7 @@ package org.bigbluebutton.modules.videoconf.views
 			LOGGER.debug("[GraphicsWrapper:removeAvatarFor] userId {0}", [userId]);
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
-                if (item.user && item.user.userID == userId && item.visibleComponent is UserAvatar) {
+                if (item.user && item.user.intId == userId && item.visibleComponent is UserAvatar) {
 					LOGGER.debug("[GraphicsWrapper:removeAvatarFor] removing graphic");
                     removeChildHelper(item);
                     // recursive call to remove all avatars for userId
@@ -376,7 +381,7 @@ package org.bigbluebutton.modules.videoconf.views
 
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
-                if (item.user && item.user.userID == userId && item.visibleComponent is UserVideo && item.video.camIndex == camIndex) {
+                if (item.user && item.user.intId == userId && item.visibleComponent is UserVideo && item.video.camIndex == camIndex) {
                     streamName = item.video.streamName;
                     removeChildHelper(item);
                     break;
@@ -403,7 +408,7 @@ package org.bigbluebutton.modules.videoconf.views
 			LOGGER.debug("[GraphicsWrapper:removeGraphicsFor] userId {0}", [userId]);
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
-                if (item.user && item.user.userID == userId) {
+                if (item.user && item.user.intId == userId) {
 					LOGGER.debug("[GraphicsWrapper:removeGraphicsFor] removing graphic");
                     removeChildHelper(item);
                     // recursive call to remove all graphics for userId
@@ -416,7 +421,7 @@ package org.bigbluebutton.modules.videoconf.views
         public function hasGraphicsFor(userId:String):Boolean {
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
-                if (item.user && item.user.userID == userId) {
+                if (item.user && item.user.intId == userId) {
                     return true;
                 }
             }

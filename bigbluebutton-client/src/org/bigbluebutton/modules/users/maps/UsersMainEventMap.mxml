@@ -20,139 +20,198 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" >
-	<mx:Script>
+<EventMap xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="http://mate.asfusion.com/" >
+	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.BreakoutRoomEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
+      import mx.events.FlexEvent;
+      
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.TokenValidEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+			<!--TODO: Move guest events to user events? -->
+			import org.bigbluebutton.main.events.ResponseModeratorEvent;
+
 			import org.bigbluebutton.main.events.UserServicesEvent;
+			import org.bigbluebutton.main.model.GuestManager;
 			import org.bigbluebutton.main.model.users.UserService;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
+	<fx:Declarations>
+		<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}" >
+	    <ObjectBuilder generator="{UserService}" cache="global" />
+	    <ObjectBuilder generator="{GuestManager}" cache="global" />
+		</EventHandlers>
+		
+	  <EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
+	    <MethodInvoker generator="{UserService}" method="logoutUser" />
+	  </EventHandlers>
 	
-	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}" >
-    <ObjectBuilder generator="{UserService}" cache="global" />
-	</EventHandlers>
+	  <EventHandlers type="{LogoutEvent.DISCONNECT_TEST}" >
+	    <MethodInvoker generator="{UserService}" method="disconnectTest" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{UserServicesEvent.START_USER_SERVICES}" >
+	    <MethodInvoker generator="{UserService}" method="startService" arguments="{event}" />
+	  </EventHandlers>
+	  
+
+		
+	  <!-- Breakout Room Stuff -->
 	
-  <EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
-    <MethodInvoker generator="{UserService}" method="logoutUser" />
-  </EventHandlers>
-
-  <EventHandlers type="{LogoutEvent.DISCONNECT_TEST}" >
-    <MethodInvoker generator="{UserService}" method="disconnectTest" />
-  </EventHandlers>
-  
-  <EventHandlers type="{UserServicesEvent.START_USER_SERVICES}" >
-    <MethodInvoker generator="{UserService}" method="startService" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
-    <MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
-  </EventHandlers>
+	  <EventHandlers type="{BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS}" >
+	    <MethodInvoker generator="{UserService}" method="createBreakoutRooms" arguments="{event}" />
+	  </EventHandlers>
 	
-  <!-- Breakout Room Stuff -->
-
-  <EventHandlers type="{BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS}" >
-    <MethodInvoker generator="{UserService}" method="createBreakoutRooms" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL}" >
-    <MethodInvoker generator="{UserService}" method="requestBreakoutJoinUrl" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{BreakoutRoomEvent.LISTEN_IN}" >
-    <MethodInvoker generator="{UserService}" method="listenInOnBreakout" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS}" >
-    <MethodInvoker generator="{UserService}" method="endAllBreakoutRooms" arguments="{event}" />
-  </EventHandlers>
-
-  <!-- Viewers Stuff -->
-  <EventHandlers type="{EmojiStatusEvent.EMOJI_STATUS}" >
-    <MethodInvoker generator="{UserService}" method="emojiStatus" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
-    <MethodInvoker generator="{UserService}" method="addStream" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
-    <MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
-  </EventHandlers>
-  <!-- End Viewers Stuff -->
-  
-  <EventHandlers type="{KickUserEvent.KICK_USER}" >
-    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
-    <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{KickUserEvent.KICK_USER}" >
-    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
-  </EventHandlers>
-  
-  
-  <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
-    <MethodInvoker generator="{UserService}" method="ejectUser" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{VoiceConfEvent.MUTE_USER}" >
-    <MethodInvoker generator="{UserService}" method="muteUnmuteUser" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{VoiceConfEvent.MUTE_ALL}" >
-    <MethodInvoker generator="{UserService}" method="muteAllUsers" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{VoiceConfEvent.UNMUTE_ALL}" >
-    <MethodInvoker generator="{UserService}" method="unmuteAllUsers" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{VoiceConfEvent.MUTE_ALMOST_ALL}" >
-    <MethodInvoker generator="{UserService}" method="muteAllUsersExceptPresenter" arguments="{event}" />
-  </EventHandlers>
-  
-  <!-- Lock Events -->
-  <EventHandlers type="{LockControlEvent.LOCK_ALL}" >
-    <MethodInvoker generator="{UserService}" method="lockAllUsers" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{LockControlEvent.UNLOCK_ALL}" >
-    <MethodInvoker generator="{UserService}" method="unlockAllUsers" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{LockControlEvent.LOCK_ALMOST_ALL}" >
-    <MethodInvoker generator="{UserService}" method="lockAlmostAllUsers" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{LockControlEvent.LOCK_USER}" >
-    <MethodInvoker generator="{UserService}" method="lockUser" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{LockControlEvent.UNLOCK_USER}" >
-    <MethodInvoker generator="{UserService}" method="unlockUser" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{LockControlEvent.SAVE_LOCK_SETTINGS}" >
-    <MethodInvoker generator="{UserService}" method="saveLockSettings" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
-    <MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
-  </EventHandlers>
+	  <EventHandlers type="{BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL}" >
+	    <MethodInvoker generator="{UserService}" method="requestBreakoutJoinUrl" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BreakoutRoomEvent.LISTEN_IN}" >
+	    <MethodInvoker generator="{UserService}" method="listenInOnBreakout" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS}" >
+	    <MethodInvoker generator="{UserService}" method="endAllBreakoutRooms" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <!-- Viewers Stuff -->
+	  <EventHandlers type="{EmojiStatusEvent.EMOJI_STATUS}" >
+	    <MethodInvoker generator="{UserService}" method="emojiStatus" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+	    <MethodInvoker generator="{UserService}" method="addStream" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+	    <MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
+	  </EventHandlers>
+	  <!-- End Viewers Stuff -->
+	  
+	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
+	    <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
+	    <MethodInvoker generator="{UserService}" method="activityResponse" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
+	  </EventHandlers>
+    
+    <EventHandlers type="{TokenValidEvent.TOKEN_VALID_EVENT}" >
+      <MethodInvoker generator="{UserService}" method="tokenValidEventHandler" arguments="{event}" />
+    </EventHandlers>
+        
+	  <EventHandlers type="{ChangeRoleEvent.CHANGE_ROLE_EVENT}" >
+	    <MethodInvoker generator="{UserService}" method="changeRole" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
+	    <MethodInvoker generator="{UserService}" method="ejectUser" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{VoiceConfEvent.MUTE_USER}" >
+	    <MethodInvoker generator="{UserService}" method="muteUnmuteUser" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{VoiceConfEvent.MUTE_ALL}" >
+	    <MethodInvoker generator="{UserService}" method="muteAllUsers" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{VoiceConfEvent.UNMUTE_ALL}" >
+	    <MethodInvoker generator="{UserService}" method="unmuteAllUsers" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{VoiceConfEvent.MUTE_ALMOST_ALL}" >
+	    <MethodInvoker generator="{UserService}" method="muteAllUsersExceptPresenter" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <!-- Lock Events -->
+	  <EventHandlers type="{LockControlEvent.LOCK_ALL}" >
+	    <MethodInvoker generator="{UserService}" method="lockAllUsers" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LockControlEvent.UNLOCK_ALL}" >
+	    <MethodInvoker generator="{UserService}" method="unlockAllUsers" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LockControlEvent.LOCK_ALMOST_ALL}" >
+	    <MethodInvoker generator="{UserService}" method="lockAlmostAllUsers" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LockControlEvent.LOCK_USER}" >
+	    <MethodInvoker generator="{UserService}" method="lockUser" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LockControlEvent.UNLOCK_USER}" >
+	    <MethodInvoker generator="{UserService}" method="unlockUser" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LockControlEvent.SAVE_LOCK_SETTINGS}" >
+	    <MethodInvoker generator="{UserService}" method="saveLockSettings" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
+	    <MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+	    <MethodInvoker generator="{UserService}" method="onReconnecting"  arguments="{event}" />
+	  </EventHandlers>
+	  <!-- End Lock Events -->
+	
+	  <!-- Guest Events -->
+	  <EventHandlers type="{BBBEvent.ADD_GUEST_TO_LIST}" >
+	    <MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" >
+	    <MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.payload.userId}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{LogoutEvent.MODERATOR_DENIED_ME}" >
+	    <MethodInvoker generator="{UserService}" method="guestDisconnect" />
+	    <MethodInvoker generator="{UserService}" method="logoutUser" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
+	    <MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
+	    <!-- MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" /-->
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ResponseModeratorEvent.RESPONSE_ALL}" >
+	    <MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >
+	    <MethodInvoker generator="{UserService}" method="setGuestPolicy" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.LOGOUT_END_MEETING_EVENT}" >
+	    <MethodInvoker generator="{UserService}" method="logoutEndMeeting" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" >
+	    <MethodInvoker generator="{GuestManager}" method="refreshGuestView" />
+	  </EventHandlers>
+	  <!-- End Guest Events -->
+	</fx:Declarations>
 </EventMap>

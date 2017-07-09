@@ -1,6 +1,7 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import styles from './styles.scss';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -34,125 +35,81 @@ class UserList extends Component {
 
     this.rovingIndex = this.rovingIndex.bind(this);
     this.focusList = this.focusList.bind(this);
-    this.focusListItem = this.focusListItem.bind(this);
-    this.counter = -1;
+    this.focusedItemIndex = -1;
   }
 
-  focusList(activeElement, list) {
-    activeElement.tabIndex = -1;
-    this.counter = 0;
+  focusList(list) {
+    document.activeElement.tabIndex = -1;
+    this.focusedItemIndex = -1;
     list.tabIndex = 0;
     list.focus();
   }
 
-  focusListItem(active, direction, element, count) {
-
-    function select() {
-      element.tabIndex = 0;
-      element.focus();
-    }
-
-    active.tabIndex = -1;
-
-    switch (direction) {
-      case 'down':
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
-        this.counter++;
-        break;
-      case 'up':
-        this.counter--;
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
-        break;
-      case 'upLoopUp':
-      case 'upLoopDown':
-        this.counter = count - 1;
-        select();
-        break;
-      case 'downLoopDown':
-        this.counter = -1;
-        select();
-        break;
-      case 'downLoopUp':
-        this.counter = 1;
-        select();
-        break;
-    }
-  }
-
-  rovingIndex(...Args) {
+  rovingIndex(event, listType) {
     const { users, openChats } = this.props;
-
+    
     let active = document.activeElement;
     let list;
     let items;
-    let count;
-
-    switch (Args[1]) {
+    let numberOfItems;
+    
+    const focusElement = () => {
+      active.tabIndex = -1;
+      items.childNodes[this.focusedItemIndex].tabIndex = 0;
+      items.childNodes[this.focusedItemIndex].focus();
+    }
+    
+    switch (listType) {
       case 'users':
         list = this._usersList;
         items = this._userItems;
-        count = users.length;
+        numberOfItems = users.length;
         break;
       case 'messages':
         list = this._msgsList;
         items = this._msgItems;
-        count = openChats.length;
+        numberOfItems = openChats.length;
         break;
     }
 
-    if (Args[0].keyCode === KEY_CODES.ESCAPE
-      || this.counter === -1
-      || this.counter > count) {
-      this.focusList(active, list);
+    if (event.keyCode === KEY_CODES.ESCAPE
+      || this.focusedItemIndex < 0
+      || this.focusedItemIndex > numberOfItems) {
+        this.focusList(list);
     }
 
-    if (Args[0].keyCode === KEY_CODES.ENTER
-        || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
-        || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
+    if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.ARROW_SPACE].includes(event.keyCode)) {
       active.firstChild.click();
     }
 
-    if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
-      if (this.counter < count) {
-        this.focusListItem(active, 'down', items);
-      }else if (this.counter === count) {
-        this.focusListItem(active, 'downLoopDown', list);
-      }else if (this.counter === 0) {
-        this.focusListItem(active, 'downLoopUp', list);
+    if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+      this.focusedItemIndex += 1;
+
+      if (this.focusedItemIndex == numberOfItems) {
+        this.focusedItemIndex = 0;
       }
+      focusElement();
     }
 
-    if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
-      if (this.counter < count && this.counter !== 0) {
-        this.focusListItem(active, 'up', items);
-      }else if (this.counter === 0) {
-        this.focusListItem(active, 'upLoopUp', list, count);
-      }else if (this.counter === count) {
-        this.focusListItem(active, 'upLoopDown', list, count);
+    if (event.keyCode === KEY_CODES.ARROW_UP) {
+      this.focusedItemIndex -= 1;
+
+      if (this.focusedItemIndex < 0) {
+        this.focusedItemIndex = numberOfItems - 1;
       }
+
+      focusElement();
     }
   }
 
   componentDidMount() {
-    let _this = this;
-
     if (!this.state.compact) {
-      this._msgsList.addEventListener('keypress', function (event) {
-        _this.rovingIndex.call(this, event, 'messages');
-      });
+      this._msgsList.addEventListener('keydown',
+        event=>this.rovingIndex(event, "messages"));
 
-      this._usersList.addEventListener('keypress', function (event) {
-        _this.rovingIndex.call(this, event, 'users');
-      });
+      this._usersList.addEventListener('keydown',
+        event=>this.rovingIndex(event, "users"));
     }
-  }
-
-  componentWillUnmount() {
-    this._msgsList.removeEventListener('keypress', function (event) {}, false);
-
-    this._usersList.removeEventListener('keypress', function (event) {}, false);
   }
 
   render() {
@@ -171,9 +128,9 @@ class UserList extends Component {
       <div className={styles.header}>
         {
           !this.state.compact ?
-          <div className={styles.headerTitle} role="banner">
-            {intl.formatMessage(intlMessages.participantsTitle)}
-          </div> : null
+            <div className={styles.headerTitle} role="banner">
+              {intl.formatMessage(intlMessages.participantsTitle)}
+            </div> : null
         }
       </div>
     );
@@ -199,15 +156,16 @@ class UserList extends Component {
       <div className={styles.messages}>
         {
           !this.state.compact ?
-          <div className={styles.smallTitle} role="banner">
-            {intl.formatMessage(intlMessages.messagesTitle)}
-          </div> : <hr className={styles.separator}></hr>
+            <div className={styles.smallTitle} role="banner">
+              {intl.formatMessage(intlMessages.messagesTitle)}
+            </div> : <hr className={styles.separator} />
         }
         <div
           tabIndex={0}
           className={styles.scrollableList}
-          ref={(r) => this._msgsList = r}>
-          <ReactCSSTransitionGroup
+          ref={(ref) => { this._msgsList = ref; }}
+        >
+          <CSSTransitionGroup
             transitionName={listTransition}
             transitionAppear={true}
             transitionEnter={true}
@@ -216,18 +174,20 @@ class UserList extends Component {
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.chatsList, styles.scrollableList)}>
-            <div ref={(r) => this._msgItems = r}>
+            className={cx(styles.chatsList, styles.scrollableList)}
+          >
+            <div ref={(ref) => { this._msgItems = ref; }}>
               {openChats.map(chat => (
                 <ChatListItem
                   compact={this.state.compact}
                   key={chat.id}
                   openChat={openChat}
                   chat={chat}
-                  tabIndex={-1} />
+                  tabIndex={-1}
+                />
               ))}
             </div>
-          </ReactCSSTransitionGroup>
+          </CSSTransitionGroup>
         </div>
       </div>
     );
@@ -280,16 +240,17 @@ class UserList extends Component {
       <div className={styles.participants}>
         {
           !this.state.compact ?
-          <div className={styles.smallTitle} role="banner">
-            {intl.formatMessage(intlMessages.usersTitle)}
+            <div className={styles.smallTitle} role="banner">
+              {intl.formatMessage(intlMessages.usersTitle)}
             &nbsp;({users.length})
-          </div> : <hr className={styles.separator}></hr>
+          </div> : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
           tabIndex={0}
-          ref={(r) => this._usersList = r}>
-          <ReactCSSTransitionGroup
+          ref={(ref) => { this._usersList = ref; }}
+        >
+          <CSSTransitionGroup
             transitionName={listTransition}
             transitionAppear={true}
             transitionEnter={true}
@@ -298,22 +259,24 @@ class UserList extends Component {
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.participantsList, styles.scrollableList)}>
-            <div ref={(r) => this._userItems = r}>
+            className={cx(styles.participantsList, styles.scrollableList)}
+          >
+            <div ref={(ref) => { this._userItems = ref; }}>
               {
                 users.map(user => (
-                <UserListItem
-                  compact={this.state.compact}
-                  key={user.id}
-                  isBreakoutRoom={isBreakoutRoom}
-                  user={user}
-                  currentUser={currentUser}
-                  userActions={userActions}
-                  meeting={meeting}
-                />))
+                  <UserListItem
+                    compact={this.state.compact}
+                    key={user.id}
+                    isBreakoutRoom={isBreakoutRoom}
+                    user={user}
+                    currentUser={currentUser}
+                    userActions={userActions}
+                    meeting={meeting}
+                  />
+                ))
               }
             </div>
-          </ReactCSSTransitionGroup>
+          </CSSTransitionGroup>
         </div>
       </div>
     );

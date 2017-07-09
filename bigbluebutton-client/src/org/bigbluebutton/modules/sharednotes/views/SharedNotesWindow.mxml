@@ -1,0 +1,498 @@
+<!--
+	This file is part of BBB-Notes.
+
+	Copyright (c) Islam El-Ashi. All rights reserved.
+
+	BBB-Notes is free software: you can redistribute it and/or modify
+	it under the terms of the Lesser GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	any later version.
+
+	BBB-Notes is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	Lesser GNU General Public License for more details.
+
+	You should have received a copy of the Lesser GNU General Public License
+	along with BBB-Notes.  If not, see <http://www.gnu.org/licenses/>.
+
+	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
+-->
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:mate="http://mate.asfusion.com/"
+		implements="org.bigbluebutton.common.IBbbModuleWindow"
+		creationComplete="onCreationComplete()"
+		xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
+		showCloseButton="false"
+		minHeight="161" minWidth="191">
+
+	<fx:Declarations>
+		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
+		<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
+		<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.KeyboardEvent;
+			import flash.ui.Keyboard;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.controls.Menu;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.main.views.WellPositionedMenu;
+			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
+			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
+			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private static const LOGGER:ILogger = getClassLogger(SharedNotesWindow);
+
+			protected var _dispatcher:Dispatcher = new Dispatcher();
+			private var _document:String = "";
+			private var _lastPatch:Number = 0;
+			protected var _noteId:String = "MAIN_NOTE";
+			protected var _noteName:String = "";
+
+			[Bindable] private var options:SharedNotesOptions;
+
+			private var sendUpdateTimer:Timer;
+			private var getDocumentTimer:Timer = new Timer(5000);
+
+			public function onCreationComplete():void {
+				sendUpdateTimer = new Timer(options.refreshDelay, 1);
+
+				/*
+				 * This is a workaround on a Flex issue,
+				 * for more details see http://dev.mconf.org/redmine/issues/1712
+				 */
+				this.addEventListener(flexlib.mdi.events.MDIWindowEvent.FOCUS_END, function(e:MDIWindowEvent):void {
+					richTextEditor.refresh();
+				});
+
+				richTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {
+					if (!sendUpdateTimer.running) {
+						sendUpdateTimer.reset();
+						sendUpdateTimer.start();
+					}
+				});
+
+				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
+					sendPatch();
+				});
+
+				BindingUtils.bindSetter(updateRoleDependentProperties, UsersUtil.getMyself(), "role");
+
+				updateTitle();
+
+				if (noteId == "MAIN_NOTE") {
+					this.enabled = false;
+					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
+					getDocumentTimer.start();
+				}
+			}
+
+			private function gotCurrentDocument():void {
+				if(noteId == "MAIN_NOTE"){
+					getDocumentTimer.stop();
+				}
+			}
+
+			private function checkCurrentDocument(e:Event):void {
+				if (!this.enabled) {
+					_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				} else {
+					getDocumentTimer.stop();
+				}
+			}
+
+			private function initSharedNotesRichTextEditor():void {
+				options = Options.getOptions(SharedNotesOptions) as SharedNotesOptions;
+				richTextEditor.textArea.setStyle("fontSize", options.fontSize);
+
+				richTextEditor.linkTextInput.visible = false;
+				richTextEditor.linkTextInput.height = 0;
+				richTextEditor.linkTextInput.width = 0;
+
+				// Bullets are messy: http://dev.mconf.org/redmine/issues/1715
+				richTextEditor.bulletButton.visible = false;
+				richTextEditor.bulletButton.height = 0;
+				richTextEditor.bulletButton.width = 0;
+			}
+
+			private function updateRoleDependentProperties(role:String):void {
+				if(noteId == "MAIN_NOTE"){
+					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
+				} else {
+					showCloseButton = role == Role.MODERATOR;
+				}
+			}
+
+			public function get noteId():String{
+				return _noteId;
+			}
+
+			public function addRemoteDocument(notes:Object):void{
+				var note:Object = notes[noteId];
+				_document = note["document"];
+				_noteName = note["name"];
+				_lastPatch = note["patchCounter"];
+				richTextEditor.htmlText = _document;
+				if (!this.enabled) this.enabled = true;
+				updateTitle();
+				updateUndoRedoButtons(note["undo"], note["redo"]);
+			}
+
+			private function sendPatch():void {
+				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
+//				LOGGER.debug("SEND PATCH" + clientText + "::" + _document);
+				if (_document != clientText) {
+					richTextEditor.textArea.editable = false;
+					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+					sendPatchEvent.noteId = noteId;
+					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
+					sendPatchEvent.operation = "PATCH";
+					_dispatcher.dispatchEvent(sendPatchEvent);
+					_document = clientText;
+					richTextEditor.textArea.editable = true;
+				}
+			}
+
+			private function possiblePatchError():Boolean {
+				if (richTextEditor.htmlText != _document) {
+					// When losing sync between UI and server
+					return true;
+				}
+
+				return false;
+			}
+
+			private function receivePatch(e:ReceivePatchEvent):void {
+//				LOGGER.debug("SharedNotesWindow: patch received");
+//				LOGGER.debug("=====\n" + e.patch + "\n=====");
+				if (e.noteId == noteId) {
+					if (_lastPatch == (e.patchId - 1)) {
+						if (e.patch != "") {
+							var result:String = DiffPatch.patch(e.patch, _document);
+//							LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
+//							LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
+							_document = result;
+//							LOGGER.debug("SharedNotes: patching local with server modifications");
+							richTextEditor.patch(e.patch);
+							if (possiblePatchError()) {
+								syncNote();
+								return;
+							}
+						}
+						_lastPatch = e.patchId;
+						updateUndoRedoButtons(e.undo, e.redo);
+					} else {
+						LOGGER.error("Patch missmatch");
+						// Resync if we missed a patch
+						if (e.patchId > (_lastPatch + 1)) {
+							syncNote();
+							return;
+						}
+					}
+				}
+			}
+
+			private function syncNote():void {
+				richTextEditor.textArea.editable = false;
+				var sharedNotesSyncNoteRequestEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.SYNC_NOTE_REQUEST_EVENT);
+				sharedNotesSyncNoteRequestEvent.payload["noteId"] = noteId;
+				_dispatcher.dispatchEvent(sharedNotesSyncNoteRequestEvent);
+			}
+
+			private function handleSyncNote(e:SharedNotesEvent):void {
+				if (e.payload.noteId == noteId) {
+					LOGGER.debug("Syncing note: {0}", [noteId]);
+					_document = e.payload.note["document"];
+					_lastPatch = e.payload.note["patchCounter"];
+					richTextEditor.htmlText = _document;
+					if (!richTextEditor.textArea.editable) richTextEditor.textArea.editable = true;
+					updateUndoRedoButtons(e.payload.note["undo"], e.payload.note["redo"]);
+				}
+			}
+
+			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
+				btnUndo.styleName = undo ? "sharedNotesEnabledUndoButtonStyle" : "sharedNotesDisabledUndoButtonStyle";
+				btnRedo.styleName = redo ? "sharedNotesEnabledRedoButtonStyle" : "sharedNotesDisabledRedoButtonStyle";
+				btnUndo.enabled = undo;
+				btnRedo.enabled = redo;
+			}
+
+			protected function saveNotes(title:String, text:String, extension:String):void {
+				var filename:String = title.replace(/\s+/g, '-').toLowerCase() + "." + extension;
+				var fileRef:FileReference = new FileReference();
+				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
+				});
+
+				var cr:String = String.fromCharCode(13);
+				var lf:String = String.fromCharCode(10);
+				var crlf:String = String.fromCharCode(13, 10);
+
+				text = text.replace(new RegExp(crlf, "g"), '\n');
+				text = text.replace(new RegExp(cr, "g"), '\n');
+				text = text.replace(new RegExp(lf, "g"), '\n');
+				text = text.replace(new RegExp('\n', "g"), crlf);
+
+				var b:ByteArray = new ByteArray();
+				// Include the byte order mark for UTF-8 (http://stackoverflow.com/a/16201680)
+				b.writeByte(0xEF);
+				b.writeByte(0xBB);
+				b.writeByte(0xBF);
+				b.writeUTFBytes(text);
+
+				fileRef.save(b, filename);
+			}
+
+			private function fixFormatTags(text:String):String {
+				const fontRegex:RegExp = /<font ([^>]*)>(.*?)<\/font>/gi;
+				const textFormatRegex:RegExp = /<textformat [^>]*>|<\/textformat>/gi;
+				const emptyParagraphRegex:RegExp = /<p [^>]*><\/p>/gi;
+				// transform font tags in span tags
+				text = text.replace(fontRegex, replaceFontTag);
+				// remove textformat tags
+				text = text.replace(textFormatRegex, "");
+				// transform empty paragraph tags in breakline tags
+				text = text.replace(emptyParagraphRegex, "<br/>");
+				text = "<HEAD><style>p { margin: 0px; }</style></HEAD>" + text;
+				return text;
+			}
+
+			private function translateFontFamily(font:String):String {
+				switch (font) {
+					case "_sans": return "sans-serif";
+					case "_serif": return "serif";
+					case "_typewriter": return "monospace";
+					default: return font;
+				}
+			}
+
+			private function removeHtmlTags(text:String):String {
+				const tagRegex:RegExp = /<[^>]*>/gi;
+				return text.replace(tagRegex, "");
+			}
+
+			private function replaceFontTag(matchedSubstring:String, fontAttributes:String, text:String, index:int, str:String):String {
+				// remove html tags and all white spaces to see if there's any visible character
+				if (removeHtmlTags(text).replace(/\s/g, "").length == 0) {
+					return "";
+				}
+
+				var regex:Object = {
+					"font-size": /SIZE="(\d+)"/gi,
+					"color": /COLOR="(\#\S{6})"/gi,
+					"font-family": /FACE="([^\"]*)"/gi,
+					"letter-spacing": /LETTERSPACING="(\d+)"/gi
+				}
+				var style:Object = {};
+				var i:String;
+				for (i in regex) {
+					var result:Array = regex[i].exec(fontAttributes);
+					if (result != null) {
+						switch (i) {
+							case "font-size":
+							case "letter-spacing":
+								style[i] = result[1] + "px";
+								break;
+							case "font-family":
+								style[i] = translateFontFamily(result[1]);
+								break;
+							default:
+								style[i] = result[1];
+								break;
+						}
+					}
+				}
+
+				var styleStr:String = "";
+				for (i in style) {
+					styleStr += i + ": " + style[i] + "; ";
+				}
+				return "<span style=\"" + styleStr + "\">" + text + "</span>";
+			}
+
+			protected function saveNotesWithFormat(title:String):void {
+				saveNotes(title, fixFormatTags(richTextEditor.htmlText), "html");
+			}
+
+			protected function saveNotesWithoutFormat(title:String):void {
+				saveNotes(title, richTextEditor.text, "txt");
+			}
+
+			protected function btnSave_clickHandler(event:MouseEvent):void {
+				var menuData:Array = [];
+				menuData.push( {label: ResourceUtil.getInstance().getString('bbb.sharedNotes.save.htmlLabel'), handler: function():void { saveNotesWithFormat(title); }} );
+				menuData.push( {label: ResourceUtil.getInstance().getString('bbb.sharedNotes.save.txtLabel'), handler: function():void { saveNotesWithoutFormat(title); }} );
+
+				var menu:Menu = WellPositionedMenu.createMenu(null, menuData, btnSave, true);
+
+				registerListenersOnSaveMenu(menu);
+				menu.show();
+			}
+
+			private function registerListenersOnSaveMenu(menu:Menu):void {
+				menu.addEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
+				menu.addEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
+			}
+
+			private function unregisterListenersOnSaveMenu(menu:Menu):void {
+				menu.removeEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
+				menu.removeEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
+			}
+
+			private function saveMenuClickHandler(e:MenuEvent):void {
+				e.item.handler();
+			}
+
+			private function saveMenuHideHandler(e:MenuEvent):void {
+				var menu:Menu = e.currentTarget as Menu;
+				unregisterListenersOnSaveMenu(menu);
+
+				btnSave.emphasized = false;
+			}
+
+			protected function btnNew_clickHandler(event:MouseEvent):void {
+				var noteNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
+				PopUpManager.centerPopUp(noteNameWindow);
+			}
+
+			protected function btnUndo_clickHandler(event:MouseEvent = null):void {
+				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+				sendPatchEvent.noteId = noteId;
+				sendPatchEvent.operation = "UNDO";
+				_dispatcher.dispatchEvent(sendPatchEvent);
+			}
+
+			protected function btnRedo_clickHandler(event:MouseEvent = null):void {
+				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+				sendPatchEvent.noteId = noteId;
+				sendPatchEvent.operation = "REDO";
+				_dispatcher.dispatchEvent(sendPatchEvent);
+			}
+
+			public function handleCtrlCmd(event:KeyboardEvent):Boolean {
+				switch (event.keyCode) {
+					case Keyboard.Z:
+						if (btnUndo.enabled) btnUndo_clickHandler();
+						break;
+					case Keyboard.Y:
+						if (btnRedo.enabled) btnRedo_clickHandler();
+						break;
+					default:
+						return false;
+				}
+				return true;
+			}
+
+			protected function btnToolbar_clickHandler(event:MouseEvent):void {
+				richTextEditor.showControlBar = !richTextEditor.showControlBar;
+			}
+
+			public function getPrefferedPosition():String {
+				return MainCanvas.BOTTOM_LEFT;
+			}
+
+			override protected function resourcesChanged():void {
+				super.resourcesChanged();
+
+				updateTitle();
+			}
+
+			protected function updateTitle():void {
+				title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title');
+			}
+
+			public function handleDraggableStatus(value:Boolean):void {
+				this.draggable = value;
+			}
+
+			public function handleResizableStatus(value:Boolean):void {
+				this.resizable = value;
+			}
+
+		]]>
+	</fx:Script>
+
+	<mx:VBox width="100%" height="100%">
+		<components:SharedNotesRichTextEditor id="richTextEditor"
+				width="100%"
+				height="100%"
+				showControlBar="{options.toolbarVisibleByDefault}"
+				dropShadowEnabled="false"
+				headerHeight="0"
+				borderThicknessLeft="0"
+				borderThicknessRight="0"
+				borderThicknessTop="0"
+				borderThicknessBottom="0"
+				minWidth="120"
+				minHeight="100"
+				initialize="initSharedNotesRichTextEditor()"/>
+
+		<mx:HBox width="100%" paddingTop="0">
+			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
+				<mx:Button id="btnUndo"
+						styleName="sharedNotesDisabledUndoButtonStyle"
+						width="26"
+						height="26"
+						click="btnUndo_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}"
+						enabled="false"
+						visible="true"/>
+				<mx:Button id="btnRedo"
+						styleName="sharedNotesDisabledRedoButtonStyle"
+						width="26"
+						height="26"
+						click="btnRedo_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}"
+						enabled="false" visible="true"/>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
+				<mx:Button id="btnNew"
+						styleName="sharedNotesNewButtonStyle"
+						width="26"
+						height="26"
+						click="btnNew_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+				<mx:Button id="btnFormat"
+						styleName="sharedNotesFormatButtonStyle"
+						width="26" height="26"
+						click="btnToolbar_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}"
+						visible="{options.showToolbarButton}"
+						includeInLayout="{options.showToolbarButton}"/>
+				<mx:Button id="btnSave"
+						styleName="sharedNotesSaveButtonStyle"
+						width="26"
+						height="26"
+						click="btnSave_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			</mx:HBox>
+		</mx:HBox>
+	</mx:VBox>
+</CustomMdiWindow>

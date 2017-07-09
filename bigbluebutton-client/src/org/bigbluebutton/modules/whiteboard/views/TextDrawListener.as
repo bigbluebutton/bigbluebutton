@@ -17,22 +17,19 @@
  *
  */
 package org.bigbluebutton.modules.whiteboard.views {
+    import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
     import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
     import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawAnnotation;
-    import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
     import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
     import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+    import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
     import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
     import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
 
     public class TextDrawListener implements IDrawListener {
         private var _wbCanvas:WhiteboardCanvas;
 
-        private var _sendFrequency:int;
-
         private var _shapeFactory:ShapeFactory;
-
-        private var _textStatus:String = TextObject.TEXT_CREATED;
 
         private var _mouseXDown:Number = 0;
 
@@ -50,25 +47,21 @@ package org.bigbluebutton.modules.whiteboard.views {
 
         private var _mousedDown:Boolean = false;
 
+        private var _wasEditing:Boolean = false;
+
         private var _curID:String;
+
+        private var _wbId:String;
 
         private var feedback:RectangleFeedbackTextBox = new RectangleFeedbackTextBox();
 
-        private var _wbModel:WhiteboardModel;
-
-        public function TextDrawListener(idGenerator:AnnotationIDGenerator, wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory, wbModel:WhiteboardModel) {
+        public function TextDrawListener(idGenerator:AnnotationIDGenerator, wbCanvas:WhiteboardCanvas, shapeFactory:ShapeFactory) {
             _idGenerator = idGenerator;
             _wbCanvas = wbCanvas;
-            _sendFrequency = sendShapeFrequency;
             _shapeFactory = shapeFactory;
-            _wbModel = wbModel;
         }
 
-        public function ctrlKeyDown(down:Boolean):void {
-            // Ignore
-        }
-
-        public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
+        public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool, wbId:String):void {
             if (tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
                 _mouseXDown = _mouseXMove = mouseX;
                 _mouseYDown = _mouseYMove = mouseY;
@@ -77,6 +70,13 @@ package org.bigbluebutton.modules.whiteboard.views {
                 // dispatched when the mouse goes out of the canvas, theu we end up sending a new text
                 // even if the user has mousedDown yet.
                 _mousedDown = true;
+                
+                _wbId = wbId;
+                
+                // Need to check whether we were editing on mouse down because the edit will be finished by the time mouse up happens
+                _wasEditing = _wbCanvas.isEditingText();
+                
+                _wbCanvas.addGraphic(feedback);
             }
         }
 
@@ -85,12 +85,7 @@ package org.bigbluebutton.modules.whiteboard.views {
                 _mouseXMove = mouseX;
                 _mouseYMove = mouseY;
 
-                if (_wbCanvas.contains(feedback)) {
-                    _wbCanvas.removeRawChild(feedback);
-                }
-
                 feedback.draw(_mouseXDown, _mouseYDown, mouseX - _mouseXDown, mouseY - _mouseYDown);
-                _wbCanvas.addRawChild(feedback);
             }
         }
 
@@ -101,7 +96,7 @@ package org.bigbluebutton.modules.whiteboard.views {
             if (tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
                 feedback.clear();
                 if (_wbCanvas.contains(feedback)) {
-                    _wbCanvas.removeRawChild(feedback);
+                    _wbCanvas.removeGraphic(feedback);
                 }
 
                 _mousedDown = false;
@@ -109,7 +104,7 @@ package org.bigbluebutton.modules.whiteboard.views {
                 var tbWidth:Number = Math.abs(_mouseXMove - _mouseXDown);
                 var tbHeight:Number = Math.abs(_mouseYMove - _mouseYDown);
 
-                if (tbHeight == 0 && tbWidth == 0 && !_wbCanvas.finishedTextEdit) {
+                if (tbHeight == 0 && tbWidth == 0 && !_wasEditing) {
                     tbWidth = _singleClickWidth;
                     tbHeight = _singleClickHeight;
                     if (_mouseXDown + _singleClickWidth > _wbCanvas.width || _mouseYDown + _singleClickHeight > _wbCanvas.height) {
@@ -120,32 +115,20 @@ package org.bigbluebutton.modules.whiteboard.views {
                     return;
                 }
 
-                var tobj:TextDrawAnnotation = _shapeFactory.createTextObject("", 0x000000, Math.min(_mouseXDown, _mouseXMove), Math.min(_mouseYDown, _mouseYMove), tbWidth, tbHeight, 18);
+                var tobj:TextDrawAnnotation = _shapeFactory.createTextAnnotation("", 0x000000, Math.min(_mouseXDown, _mouseXMove), Math.min(_mouseYDown, _mouseYMove), tbWidth, tbHeight, 18);
 
-                sendTextToServer(TextObject.TEXT_CREATED, tobj);
+                sendTextToServer(AnnotationStatus.DRAW_START, tobj);
             }
         }
 
         private function sendTextToServer(status:String, tobj:TextDrawAnnotation):void {
-            switch (status) {
-                case TextObject.TEXT_CREATED:
-                    tobj.status = TextObject.TEXT_CREATED;
-                    _textStatus = TextObject.TEXT_UPDATED;
-                    _curID = _idGenerator.generateID();
-                    tobj.id = _curID;
-                    break;
-                case TextObject.TEXT_UPDATED:
-                    tobj.status = TextObject.TEXT_UPDATED;
-                    tobj.id = _curID;
-                    break;
-                case TextObject.TEXT_PUBLISHED:
-                    tobj.status = TextObject.TEXT_PUBLISHED;
-                    _textStatus = TextObject.TEXT_CREATED;
-                    tobj.id = _curID;
-                    break;
+            if (status == AnnotationStatus.DRAW_START) {
+                _curID = _idGenerator.generateID();
             }
+            tobj.status = status;
+            tobj.id = _curID;
 
-            _wbCanvas.sendGraphicToServer(tobj.createAnnotation(_wbModel), WhiteboardDrawEvent.SEND_TEXT);
+            _wbCanvas.sendGraphicToServer(tobj.createAnnotation(_wbId));
         }
     }
 }

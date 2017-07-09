@@ -41,18 +41,18 @@ class RedisPubSub {
   }
 
   publish(channel, eventName, payload = {}, header = {}) {
-    let message = {
+    const message = {
       header: Object.assign({
         timestamp: new Date().getTime(),
         name: eventName,
       }, header),
-      payload: payload,
+      payload,
     };
 
     this._debug(`Publishing ${eventName} to ${channel}`);
     return this.pub.publish(channel, JSON.stringify(message), (err, res) => {
       if (err) {
-        Logger.error(`Tried to publish to %s`, channel, message);
+        Logger.error('Tried to publish to %s', channel, message);
       }
     });
   }
@@ -65,6 +65,7 @@ class RedisPubSub {
   }
 
   handleMessage(pattern, channel, message = '') {
+    Logger.info(` 1.1: ${message}`);
     try {
       message = JSON.parse(message);
     } catch (e) {}
@@ -75,13 +76,13 @@ class RedisPubSub {
     if (!messagesWeIgnore.includes(eventName)) {
       this._debug(`${eventName} added to queue`);
 
-      //Logger.info(`QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}}`);
+      // Logger.info(`QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}}`);
 
       return this.queue.add({
-        pattern: pattern,
-        channel: channel,
-        eventName: eventName,
-        message: message,
+        pattern,
+        channel,
+        eventName,
+        message,
       });
     }
   }
@@ -95,11 +96,11 @@ class RedisPubSub {
       this._debug(`${eventName} emitted`);
       return this.emitter
         .emitAsync(eventName, message)
-        .then(_ => {
+        .then((_) => {
           this._debug(`${eventName} completed`);
           return next();
         })
-        .catch(reason => {
+        .catch((reason) => {
           this._debug(`${eventName} completed with error`);
           Logger.error(`${eventName}: ${reason}`);
           return next();
@@ -116,9 +117,9 @@ class RedisPubSub {
       Logger.info(message);
     }
   }
-};
+}
 
-let RedisPubSubSingleton = new RedisPubSub();
+const RedisPubSubSingleton = new RedisPubSub();
 
 Meteor.startup(() => {
   const REDIS_CONFIG = Meteor.settings.redis;

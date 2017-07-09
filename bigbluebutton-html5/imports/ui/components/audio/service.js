@@ -1,18 +1,18 @@
 import React from 'react';
 import AudioModal from './audio-modal/component';
-import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
+import Meetings from '/imports/api/1.1/meetings';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 
-import AudioManager from '/imports/api/audio/client/manager';
+import AudioManager from '/imports/api/1.1/audio/client/manager';
 
-let audioManager = undefined;
+let audioManager;
 const init = () => {
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
   const username = User.user.name;
 
-  const Meeting = Meetings.findOne(); //TODO test this with Breakouts
+  const Meeting = Meetings.findOne(); // TODO test this with Breakouts
   const turns = Meeting.turns;
   const stuns = Meeting.stuns;
   const voiceBridge = Meeting.voiceConf;
@@ -30,9 +30,9 @@ const init = () => {
   audioManager = new AudioManager(userData);
 };
 
-let exitAudio = () => audioManager.exitAudio();
-let joinListenOnly = () => audioManager.joinAudio(true);
-let joinMicrophone = () => audioManager.joinAudio(false);
+const exitAudio = () => audioManager.exitAudio();
+const joinListenOnly = () => audioManager.joinAudio(true);
+const joinMicrophone = () => audioManager.joinAudio(false);
 
 export default {
   init,

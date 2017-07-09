@@ -18,10 +18,11 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.main.views.MainToolbar;
 			
@@ -29,5 +30,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return MainToolbar.ALIGN_RIGHT;
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>

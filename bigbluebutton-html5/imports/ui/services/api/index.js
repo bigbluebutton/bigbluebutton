@@ -24,7 +24,7 @@ function makeCall(name, ...args) {
       resolve(result);
     });
   });
-};
+}
 
 /**
  * Send the request to the server via Meteor.call and treat the error to a default callback.
@@ -39,7 +39,7 @@ function call(name, ...args) {
     NotificationService.add({ notification: `Error while executing ${name}` });
     throw e;
   });
-};
+}
 
 /**
  * Log the error to the client and to the server.
@@ -70,9 +70,9 @@ function logClient() {
   Meteor.call('logClient',
     logTypeInformed ? args[0] : 'info',
     credentials,
-    outputLog
+    outputLog,
   );
-};
+}
 
 const API = {
   logClient,

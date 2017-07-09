@@ -20,45 +20,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" styleName="webcamDefaultButtonStyle"
+<mx:PopUpButton xmlns:mx="library://ns.adobe.com/flex/mx" styleName="webcamDefaultButtonStyle"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()"
 		   initialize="init()"
-		   mouseOver = "mouseOverHandler(event)"
-		   mouseOut = "mouseOutHandler(event)"
            height="24"
 		   toolTip="{_currentState == ON_STATE ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="false"
 		   enabled="true"
+		   selected="false"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
-	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
-	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
-	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<fx:Declarations>
+		<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
+		<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
+		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Menu;
-			import mx.events.MenuEvent;
-			import mx.styles.IStyleManager2;
-			import mx.styles.StyleManager;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.Media;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.controls.Menu;
+      import mx.events.MenuEvent;
+      import mx.styles.IStyleManager2;
+      import mx.styles.StyleManager;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.common.Media;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.main.views.MainToolbar;
+      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+      import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(ToolbarPopupButton);      
 
@@ -78,12 +80,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher;
 
 			public function lockSettingsChanged(e:*):void{
-				var userManager:UserManager = UserManager.getInstance();
-				var conference:Conference = userManager.getConference();
-				var me:BBBUser = conference.getMyUser();
+				updateButton();
+			}
 
-				this.visible = !me.disableMyCam;
-				this.includeInLayout = !me.disableMyCam;
+			private function refreshRole(e:ChangeMyRole):void {
+				updateButton();
+			}
+
+			private function updateButton():void {
+				this.visible = ! LiveMeeting.inst().me.disableMyCam;
+				this.includeInLayout = ! LiveMeeting.inst().me.disableMyCam;
 			}
 
 			private function init():void{
@@ -100,7 +106,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dataMenu.iconFunction = webcamMenuIcon;
 
 				this.popUp = dataMenu;
-				switchStateToNormal();
+
+				if (Media.availableCameras == 0) {
+					setAsNoMedia();
+				} else {
+					this.addEventListener("mouseOver", mouseOverHandler);
+					this.addEventListener("mouseOut", mouseOutHandler);
+					switchStateToNormal();
+				}
+			}
+
+			private function setAsNoMedia():void {
+				this.enabled = false;
+				this.styleName = "webcamOffButtonStyle";
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.video.publish.hint.noCamera');
 			}
 
 			private function webcamMenuIcon(item:Object):Class {
@@ -117,6 +136,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
 				this.styleName = "webcamDefaultButtonStyle";
 				this.enabled = true;
+				this.selected = false;
 				_currentState = OFF_STATE;
 				lockSettingsChanged(null);
 			}
@@ -136,6 +156,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					this.styleName = "webcamOnButtonStyle";
 					this.enabled = true;
+					this.selected = true;
 				}
 				else {
 					if(camID != -1) {
@@ -174,6 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						numberOfCamerasOff--;
 					_currentState = ON_STATE;
 					this.styleName = "webcamOnButtonStyle";
+					this.selected = true;
 					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
 					shareCameraRequestEvent.camerasArray = dp;
 					dispatchEvent(shareCameraRequestEvent);
@@ -197,6 +219,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.styleName = "webcamOffButtonStyle";
 				else
 					this.styleName = "webcamOnButtonStyle";
+				this.selected = false;
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
@@ -204,6 +227,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.styleName = "webcamOnButtonStyle";
 				else
 					this.styleName = "webcamDefaultButtonStyle";
+				this.selected = false;
 			}
 
 
@@ -254,5 +278,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:PopUpButton>

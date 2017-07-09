@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"  
-	xmlns:maps="org.bigbluebutton.modules.monitoring.maps.*"
-	xmlns:mate="http://mate.asfusion.com/"
-	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="init()">
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"  
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:maps="org.bigbluebutton.modules.monitoring.maps.*"
+		   xmlns:mate="http://mate.asfusion.com/"
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule"
+		   creationComplete="init()">
 	
-	<maps:MonitoringEventMap />
+	<fx:Declarations>
+		<maps:MonitoringEventMap />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			
 			private var _moduleId:String = "MonitoringModule";
 			private var _moduleName:String = "Monitoring Module";			
@@ -37,6 +43,8 @@
 			
 			private static var deskshareStarted:Boolean = false;
 			
+			private static const LOGGER:ILogger = getClassLogger(MonitoringModule);
+			
 			private function init():void {
 				ExternalInterface.addCallback("checkLogin", checkLogin);
 				ExternalInterface.addCallback("sendRandomChatMessage", sendRandomChatMessage);
@@ -50,7 +58,7 @@
 				ExternalInterface.addCallback("checkDeskshare", checkDeskshare);
 				ExternalInterface.addCallback("startDeskshare", startDeskshare);
 				
-				LogUtil.debug("Monitoring Module initialized");			
+				LOGGER.debug("Monitoring Module initialized");			
 			}
 							
 			public function get moduleId():String {
@@ -90,8 +98,8 @@
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("Starting monitoring module");
-				LogUtil.debug("monitoring attr: " + attributes.username);
+				LOGGER.debug("Starting monitoring module");
+				LOGGER.debug("monitoring attr: " + attributes.username);
 				_attributes = attributes;
 			}
 		
@@ -99,7 +107,7 @@
 			}
 			
 			public static function handleLoginEvent(event:BBBEvent):void {
-				LogUtil.debug("RECEVING LOGIN EVENT!!!!!!!!!!!!!!!!!!");
+				LOGGER.debug("RECEVING LOGIN EVENT!!!!!!!!!!!!!!!!!!");
 				if (event.type == BBBEvent.LOGIN_EVENT)
 					isLoggedIn = true;
 			}
@@ -153,13 +161,13 @@
 			 */ 
 			
 			private static function testPresentationConversion():String {
-				LogUtil.debug("testPresentationConversion !!!!!" + didPresentationConvert.toString());
+				LOGGER.debug("testPresentationConversion !!!!!" + didPresentationConvert.toString());
 				return didPresentationConvert.toString();
 			}
 			
-			public static function handlePresentationConversion(event:BBBEvent):void {
-				if (event.type == BBBEvent.PRESENTATION_CONVERTED) {
-					LogUtil.debug("Presentation has been converted!!!!!");
+			public static function handlePresentationConversion(event:PresentationEvent):void {
+				if (event.type == PresentationEvent.PRESENTATION_LOADED) {
+					LOGGER.debug("Presentation has been converted!!!!!");
 					didPresentationConvert = true;
 				}
 					
@@ -217,6 +225,6 @@
 		}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 </mx:Module>

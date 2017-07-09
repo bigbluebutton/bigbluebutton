@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.present.commands
     
     public var filename:String;
     public var file:FileReference;
+    public var isDownloadable:Boolean;
     
     public function UploadFileCommand()
     {

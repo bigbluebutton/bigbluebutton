@@ -1,15 +1,13 @@
-import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
+import Presentations from '/imports/api/2.0/presentations';
 import { isVideoBroadcasting } from '../deskshare/service';
 
-let getPresentationInfo = () => {
-  let currentPresentation;
-  currentPresentation = Presentations.findOne({
-      'presentation.current': true,
-    });
+const getPresentationInfo = () => {
+  const currentPresentation = Presentations.findOne({
+    'presentation.current': true,
+  });
 
   return {
-    current_presentation: (currentPresentation != null ? true : false),
+    current_presentation: (currentPresentation != null),
 
   };
 };

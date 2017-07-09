@@ -3,12 +3,11 @@ package org.bigbluebutton.core.pubsub.senders
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.apps.Page
-import collection.JavaConverters._
-import scala.collection.JavaConversions._
-
+import scala.collection.JavaConverters
 object PesentationMessageToJsonConverter {
+  /*
   private def pageToMap(page: Page): java.util.Map[String, Any] = {
-    val res = new scala.collection.mutable.HashMap[String, Any]
+    val res = new scala.collection.mutable.Map[String, Any]
     res += "id" -> page.id
     res += "num" -> page.num
     res += "thumb_uri" -> page.thumbUri
@@ -21,9 +20,9 @@ object PesentationMessageToJsonConverter {
     res += "width_ratio" -> page.widthRatio
     res += "height_ratio" -> page.heightRatio
 
-    mapAsJavaMap(res)
+    JavaConverters.mapAsScalaMap(res)
   }
-
+*/
   def clearPresentationOutMsgToJson(msg: ClearPresentationOutMsg): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -64,12 +63,13 @@ object PesentationMessageToJsonConverter {
       presentation.put(Constants.ID, pres.id)
       presentation.put(Constants.NAME, pres.name)
       presentation.put(Constants.CURRENT, pres.current: java.lang.Boolean)
+      presentation.put(Constants.DOWNLOADABLE, pres.downloadable: java.lang.Boolean)
 
       // Get the pages for a presentation
       val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
-      pres.pages.values foreach { p =>
-        pages.add(pageToMap(p))
-      }
+      //     pres.pages.values foreach { p =>
+      //       pages.add(p)
+      //     }
       // store the pages in the presentation 
       presentation.put(Constants.PAGES, pages)
 
@@ -84,20 +84,10 @@ object PesentationMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def sendCursorUpdateOutMsgToJson(msg: SendCursorUpdateOutMsg): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.X_PERCENT, msg.xPercent)
-    payload.put(Constants.Y_PERCENT, msg.yPercent)
-
-    val header = Util.buildHeader(MessageNames.PRESENTATION_CURSOR_UPDATED, None)
-    Util.buildJson(header, payload)
-  }
-
   def resizeAndMoveSlideOutMsgToJson(msg: ResizeAndMoveSlideOutMsg): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PAGE, pageToMap(msg.page))
+    //  payload.put(Constants.PAGE, pageToMap(msg.page))
 
     val header = Util.buildHeader(MessageNames.PRESENTATION_PAGE_RESIZED, None)
     Util.buildJson(header, payload)
@@ -106,7 +96,7 @@ object PesentationMessageToJsonConverter {
   def gotoSlideOutMsgToJson(msg: GotoSlideOutMsg): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PAGE, pageToMap(msg.page))
+    //   payload.put(Constants.PAGE, pageToMap(msg.page))
 
     val header = Util.buildHeader(MessageNames.PRESENTATION_PAGE_CHANGED, None)
     Util.buildJson(header, payload)
@@ -120,12 +110,13 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     // Get the pages for a presentation
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
-    msg.presentation.pages.values foreach { p =>
-      pages.add(pageToMap(p))
-    }
+    //   msg.presentation.pages.values foreach { p =>
+    //     pages.add(pageToMap(p))
+    //  }
 
     // store the pages in the presentation 
     presentation.put(Constants.PAGES, pages)
@@ -140,7 +131,7 @@ object PesentationMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.PAGE, pageToMap(msg.page))
+    //  payload.put(Constants.PAGE, pageToMap(msg.page))
 
     val header = Util.buildHeader(MessageNames.GET_SLIDE_INFO_REPLY, None)
     Util.buildJson(header, payload)
@@ -204,11 +195,12 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
-    msg.presentation.pages.values foreach { p =>
-      pages.add(pageToMap(p))
-    }
+    //   msg.presentation.pages.values foreach { p =>
+    //     pages.add(pageToMap(p))
+    //   }
 
     presentation.put(Constants.PAGES, pages)
 
@@ -225,11 +217,12 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
-    msg.presentation.pages.values foreach { p =>
-      pages.add(pageToMap(p))
-    }
+    //   msg.presentation.pages.values foreach { p =>
+    //     pages.add(pageToMap(p))
+    //   }
 
     presentation.put(Constants.PAGES, pages)
     payload.put(Constants.PRESENTATION, presentation);
@@ -246,12 +239,13 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.current.id)
     presentation.put(Constants.NAME, msg.current.name)
     presentation.put(Constants.CURRENT, msg.current.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.current.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
 
-    msg.current.pages.values foreach { p =>
-      pages.add(pageToMap(p))
-    }
+    //  msg.current.pages.values foreach { p =>
+    //    pages.add(pageToMap(p))
+    //  }
 
     presentation.put(Constants.PAGES, pages)
 
@@ -273,7 +267,7 @@ object PesentationMessageToJsonConverter {
   def pageChangedToJson(msg: PageChanged): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PAGE, pageToMap(msg.page))
+    //   payload.put(Constants.PAGE, pageToMap(msg.page))
 
     val header = Util.buildHeader(MessageNames.PRESENTATION_PAGE_CHANGED, None)
     Util.buildJson(header, payload)

@@ -208,4 +208,38 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
     
 	   return Some(broadcastStream)
 	}
+
+	def destroyScreenVideoBroadcastStream(name: String):Boolean = {
+		logger.debug("DeskshareApplication: Destroying ScreenVideoBroadcastStream")
+		getRoomSharedObject(appScope, name) match {
+			case None => logger.error("Failed to get shared object for room %s", name)
+			case Some(deskSO) => {
+				logger.debug("DeskshareApplication: Destroying Broadcast Stream for room [ %s ]", name)
+				return destroyBroadcastStream(name, appScope)
+			}
+		}
+		return false
+	}
+
+	private def destroyBroadcastStream(name:String, roomScope:IScope):Boolean = {
+		if (name == null || roomScope == null) {
+			logger.error("Cannot destroy broadcast stream. Invalid parameter")
+			return false
+		}
+
+		val context: IContext  = roomScope.getContext()
+
+		logger.debug("DeskshareApplication: Getting provider service for room [ %s ]", name)
+		val providerService: IProviderService  = context.getBean(IProviderService.BEAN_NAME).asInstanceOf[IProviderService]
+
+		logger.debug("DeskshareApplication: Unregistering broadcast stream for room [ %s ]", name)
+		if (providerService.unregisterBroadcastStream(roomScope, name)) {
+			// Do nothing. Successfully unregistered a live broadcast stream
+		} else {
+			logger.error("DeskShareStream: Could not unregister broadcast stream")
+			return false
+		}
+
+		return true
+	}
 }

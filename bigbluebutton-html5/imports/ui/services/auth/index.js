@@ -3,7 +3,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import Users from '/imports/api/users';
+import Users2x from '/imports/api/2.0/users';
 import { makeCall, logClient } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
@@ -15,7 +15,7 @@ class Auth {
     this._authToken = Storage.getItem('authToken');
     this._loggedIn = {
       value: false,
-      tracker: new Tracker.Dependency,
+      tracker: new Tracker.Dependency(),
     };
   }
 
@@ -81,7 +81,7 @@ class Auth {
     this.loggedIn = false;
 
     return Promise.resolve(...arguments);
-  };
+  }
 
   logout() {
     if (!this.loggedIn) {
@@ -107,7 +107,7 @@ class Auth {
         }
       });
     });
-  };
+  }
 
   authenticate(force) {
     if (this.loggedIn && !force) return Promise.resolve();
@@ -136,7 +136,7 @@ class Auth {
           });
         }, 5000);
 
-        const subscription = Meteor.subscribe('current-user', credentials);
+        const subscription = Meteor.subscribe('current-user2x', credentials);
         if (!subscription.ready()) return;
 
         resolve(c);
@@ -165,7 +165,7 @@ class Auth {
 
       Tracker.autorun((c) => {
         const selector = { meetingId: this.meetingID, userId: this.userID };
-        const query = Users.find(selector);
+        const query = Users2x.find(selector);
 
         const handle = query.observeChanges({
           changed: (id, fields) => {
@@ -186,19 +186,18 @@ class Auth {
         });
       });
 
-      const credentials = this.credentials;
-      makeCall('validateAuthToken', credentials);
+      makeCall('validateAuthToken2x');
     });
   }
 
   fetchLogoutUrl() {
-    const url = `/bigbluebutton/api/enter`;
+    const url = '/bigbluebutton/api/enter';
 
     return fetch(url)
       .then(response => response.json())
       .then(data => Promise.resolve(data.response.logoutURL));
   }
-};
+}
 
-let AuthSingleton = new Auth();
+const AuthSingleton = new Auth();
 export default AuthSingleton;
