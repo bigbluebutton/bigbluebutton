@@ -16,7 +16,7 @@ trait AssignPresenterReqMsgHdlr {
       val headerUnassign = BbbClientMsgHeader(PresenterUnassignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
         oldPres.intId)
 
-      val bodyUnassign = PresenterUnassignedEvtMsgBody(oldPres.intId, oldPres.name, msg.body.assignedBy) // TODO make sure assignedBy is a userID
+      val bodyUnassign = PresenterUnassignedEvtMsgBody(oldPres.intId, oldPres.name, msg.body.assignedBy)
       val eventUnassign = PresenterUnassignedEvtMsg(headerUnassign, bodyUnassign)
       val msgEventUnassign = BbbCommonEnvCoreMsg(envelopeUnassign, eventUnassign)
       outGW.send(msgEventUnassign)
@@ -28,7 +28,7 @@ trait AssignPresenterReqMsgHdlr {
       val headerAssign = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
         newPres.intId)
 
-      val bodyAssign = PresenterAssignedEvtMsgBody(newPres.intId, newPres.name, msg.body.assignedBy) // TODO make sure assignedBy is a userID
+      val bodyAssign = PresenterAssignedEvtMsgBody(newPres.intId, newPres.name, msg.body.assignedBy)
       val eventAssign = PresenterAssignedEvtMsg(headerAssign, bodyAssign)
       val msgEventAssign = BbbCommonEnvCoreMsg(envelopeAssign, eventAssign)
       outGW.send(msgEventAssign)

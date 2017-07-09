@@ -268,7 +268,7 @@ package org.bigbluebutton.main.model.users
 		public function assignPresenter(e:RoleChangeEvent):void{
 			var assignTo:String = e.userid;
 			var name:String = e.username;
-			sender.assignPresenter(assignTo, name, LiveMeeting.inst().me.id);
+			sender.assignPresenter(assignTo, name, UsersUtil.getMyUserID());
 		}
 
     public function muteUnmuteUser(command:VoiceConfEvent):void {
