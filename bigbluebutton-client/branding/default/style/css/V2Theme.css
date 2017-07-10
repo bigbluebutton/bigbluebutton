@@ -350,18 +350,21 @@ mx|DataGrid {
 
 mx|PopUpButton
 {
-	arrowButtonWidth: 18;
-	/*	disabledSkin: null;
-	downSkin: null; */
-	paddingLeft: 3;
-	paddingRight: 3;
-	/*	overSkin: null;
-	popUpDownSkin: null; 
-	popUpIcon: */
-	popUpGap: 0;
-	/*	popUpOverSkin: null; 
-	skin: ;
-	/*	upSkin: null; */
+	/* Normal state */
+	fillColorUp         : #f0f2f6;
+	fillColorOver       : #cdd4db;
+	fillColorDown       : #acb2b7;
+	fillColorDisabled   : #f0f2f6;
+	borderColorUp       : #cdd4db;
+	borderColorOver     : #cdd4db;
+	borderColorDown     : #acb2b7;
+	borderColorDisabled : #cdd4db;
+	
+	borderThikness : 1;
+	
+	iconColor : #5e6c73;
+	
+	skin : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
 }
 
 /*
