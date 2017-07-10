@@ -406,10 +406,14 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function getRoomLockState():void{
-      var message:Object = new Object();
+      var message:Object = {
+        header: {name: "IsMeetingLockedReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("lock.isRoomLocked",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -417,7 +421,8 @@ package org.bigbluebutton.modules.users.services
                 logData.tags = ["apps"];
                 logData.message = "Error occured getting lock state.";
                 LOGGER.info(JSON.stringify(logData));
-        }
+        },
+        JSON.stringify(message)
       );    
     }    
 
@@ -454,12 +459,14 @@ package org.bigbluebutton.modules.users.services
      * Set lock state of all users in the room, except the users listed in second parameter
      * */
     public function setUserLock(internalUserID:String, lock:Boolean):void {
-		var message:Object = new Object();
-		message["userId"] = internalUserID;
-		message["lock"] = lock;
-		
+      var message:Object = {
+        header: {name: "LockUserInMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {userId: internalUserID, lock: lock, lockedBy: UsersUtil.getMyUserID()}
+      };
+      
 		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage("lock.setUserLock",
+		_nc.sendMessage2x(
 			function(result:String):void { // On successful result
 			},	                   
 			function(status:String):void { // status - On error occurred
@@ -468,7 +475,7 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured setting user lock status.";
                 LOGGER.info(JSON.stringify(logData));
 			},
-			message
+      JSON.stringify(message)
 		);
 /*      
       var nc:NetConnection = _module.connection;
@@ -514,8 +521,21 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function saveLockSettings(newLockSettings:Object):void{   
+      
+      var message:Object = {
+        header: {name: "ChangeLockSettingsInMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {disableCam: newLockSettings.disableCam, disableMic: newLockSettings.disableMic, 
+          disablePrivChat: newLockSettings.disablePrivateChat,
+          disablePubChat: newLockSettings.disablePublicChat, 
+          lockedLayout: newLockSettings.lockedLayout, lockOnJoin: newLockSettings.lockOnJoin, 
+          lockOnJoinConfigurable: newLockSettings.lockOnJoinConfigurable, 
+          changedBy: UsersUtil.getMyUserID()}
+      };
+      
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("lock.setLockSettings",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -524,7 +544,7 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured saving lock settings.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        newLockSettings
+        JSON.stringify(message)
       );      
     }
 

@@ -133,6 +133,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 		</EventHandlers>
 
+		<!--
+		This is when the WebRTC deskshare manager detects that either WebRTC is
+		not supported, one one of the requirements (browser version, extension,
+		etc) is not met so it issues a fallback to Java deskshare event
+		-->
 		<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
 			<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
 		</EventHandlers>

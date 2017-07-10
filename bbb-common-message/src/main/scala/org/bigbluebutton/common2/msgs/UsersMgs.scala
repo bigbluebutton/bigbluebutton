@@ -159,18 +159,48 @@ case class LockUserInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUserInM
 case class LockUserInMeetingCmdMsgBody(userId: String, lock: Boolean, lockedBy: String)
 
 /**
+  * Send to client that user has been locked.
+  */
+object UserLockedInMeetingEvtMsg { val NAME = "UserLockedInMeetingEvtMsg" }
+case class UserLockedInMeetingEvtMsg(header: BbbClientMsgHeader, body: UserLockedInMeetingEvtMsgBody) extends BbbCoreMsg
+case class UserLockedInMeetingEvtMsgBody(userId: String, locked: Boolean, lockedBy: String)
+
+/**
+  * Sent by client to check if meeting is locked.
+  */
+object IsMeetingLockedReqMsg { val NAME = "IsMeetingLockedReqMsg" }
+case class IsMeetingLockedReqMsg(header: BbbClientMsgHeader, body: IsMeetingLockedReqMsgBody) extends StandardMsg
+case class IsMeetingLockedReqMsgBody(requesterId: String)
+
+object IsMeetingLockedRespMsg { val NAME = "IsMeetingLockedRespMsg" }
+case class IsMeetingLockedRespMsg(header: BbbClientMsgHeader, body: IsMeetingLockedRespMsgBody) extends BbbCoreMsg
+case class IsMeetingLockedRespMsgBody(locked: Boolean)
+
+/**
+  * Sent by client to set lock setting.
+  */
+object ChangeLockSettingsInMeetingCmdMsg { val NAME = "ChangeLockSettingsInMeetingCmdMsg" }
+case class ChangeLockSettingsInMeetingCmdMsg(header: BbbClientMsgHeader,
+                                             body: ChangeLockSettingsInMeetingCmdMsgBody) extends StandardMsg
+case class ChangeLockSettingsInMeetingCmdMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
+                                         disablePubChat: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                         lockOnJoinConfigurable: Boolean, setBy: String)
+
+object LockSettingsInMeetingChangedEvtMsg { val NAME = "LockSettingsInMeetingChangedEvtMsg" }
+case class LockSettingsInMeetingChangedEvtMsg(header: BbbClientMsgHeader,
+                                              body: LockSettingsInMeetingChangedEvtMsgBody) extends BbbCoreMsg
+case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
+                                              disablePubChat: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                              lockOnJoinConfigurable: Boolean, setBy: String)
+
+/**
   * Sent from client to logout and end meeting.
   */
 object LogoutAndEndMeetingCmdMsg { val NAME = "LogoutAndEndMeetingCmdMsg" }
 case class LogoutAndEndMeetingCmdMsg(header: BbbClientMsgHeader, body: LogoutAndEndMeetingCmdMsgBody) extends StandardMsg
 case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
-/**
-  * Send to client that user has been locked.
-  */
-object UserLockedInMeetingEvtMsg { val NAME = "UserLockedInMeetingEvtMsg" }
-case class UserLockedInMeetingEvtMsg(header: BbbClientMsgHeader, body: UserLockedInMeetingEvtMsgBody) extends BbbCoreMsg
-case class UserLockedInMeetingEvtMsgBody(userId: String, locked: Boolean, lockedBy: String)
+
 
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg

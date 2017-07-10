@@ -48,11 +48,7 @@ class ReceivedJsonMsgHandlerActor(
 
     envelope.name match {
       case CreateMeetingReqMsg.NAME =>
-        // for {
-        //   m <- deserialize[CreateMeetingReqMsg](jsonNode)
-        // } yield {
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
-      // }
       case ValidateAuthTokenReqMsg.NAME =>
         for {
           m <- deserialize[ValidateAuthTokenReqMsg](jsonNode)
@@ -60,13 +56,8 @@ class ReceivedJsonMsgHandlerActor(
           send(m.header.meetingId, envelope, m)
         }
       case RegisterUserReqMsg.NAME =>
-        //for {
-        //  m <- deserialize[RegisterUserReqMsg](jsonNode)
-        //} yield {
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
-        //  send(meetingManagerChannel, envelope, m)
-        //}
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         for {
@@ -76,8 +67,8 @@ class ReceivedJsonMsgHandlerActor(
         }
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
-      case AssignPresenterReqMsg.NAME =>
-        routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
+
+      // Poll
       case StartCustomPollReqMsg.NAME =>
         routeGenericMsg[StartCustomPollReqMsg](envelope, jsonNode)
       case StartPollReqMsg.NAME =>
@@ -92,10 +83,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
         routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+
+      // Webcam
       case UserBroadcastCamStartMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStopMsg](envelope, jsonNode)
+
+      // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[RecordingStartedVoiceConfEvtMsg](envelope, jsonNode)
       case UserJoinedVoiceConfEvtMsg.NAME =>
@@ -106,6 +101,14 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserMutedInVoiceConfEvtMsg](envelope, jsonNode)
       case UserTalkingInVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserTalkingInVoiceConfEvtMsg](envelope, jsonNode)
+      case MuteUserCmdMsg.NAME =>
+        routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
+      case MuteAllExceptPresentersCmdMsg.NAME =>
+        routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
+      case EjectUserFromMeetingCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+
+      // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
         for {
           m <- deserialize[BreakoutRoomsListMsg](jsonNode)
@@ -160,16 +163,21 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
+
+      // Layout
       case GetCurrentLayoutReqMsg.NAME =>
         routeGenericMsg[GetCurrentLayoutReqMsg](envelope, jsonNode)
       case LockLayoutMsg.NAME =>
         routeGenericMsg[LockLayoutMsg](envelope, jsonNode)
       case BroadcastLayoutMsg.NAME =>
         routeGenericMsg[BroadcastLayoutMsg](envelope, jsonNode)
+
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
       case ChangeUserEmojiCmdMsg.NAME =>
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+
+      // Whiteboard
       case SendCursorPositionPubMsg.NAME =>
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
       case ModifyWhiteboardAccessPubMsg.NAME =>
@@ -184,6 +192,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+
+      // Presentation
       case SetCurrentPresentationPubMsg.NAME =>
         routeGenericMsg[SetCurrentPresentationPubMsg](envelope, jsonNode)
       case GetPresentationInfoReqMsg.NAME =>
@@ -204,12 +214,18 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
       case PresentationConversionCompletedSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
+      case AssignPresenterReqMsg.NAME =>
+        routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
+
+      // Caption
       case EditCaptionHistoryPubMsg.NAME =>
         routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
       case UpdateCaptionOwnerPubMsg.NAME =>
         routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
+
+      // Shared notes
       case GetSharedNotesPubMsg.NAME =>
         routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
       case SyncSharedNotePubMsg.NAME =>
@@ -220,6 +236,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
       case DestroySharedNoteReqMsg.NAME =>
         routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
+
+      // Chat
       case GetChatHistoryReqMsg.NAME =>
         routeGenericMsg[GetChatHistoryReqMsg](envelope, jsonNode)
       case SendPublicMessagePubMsg.NAME =>
@@ -228,6 +246,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendPrivateMessagePubMsg](envelope, jsonNode)
       case ClearPublicChatHistoryPubMsg.NAME =>
         routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
+
+      // Meeting
       case MeetingActivityResponseCmdMsg.NAME =>
         routeGenericMsg[MeetingActivityResponseCmdMsg](envelope, jsonNode)
       case LogoutAndEndMeetingCmdMsg.NAME =>
@@ -236,12 +256,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
       case GetRecordingStatusReqMsg.NAME =>
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
-      case MuteUserCmdMsg.NAME =>
-        routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
-      case MuteAllExceptPresentersCmdMsg.NAME =>
-        routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
-      case EjectUserFromMeetingCmdMsg.NAME =>
-        routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+
+      // Lock settings
+      case LockUserInMeetingCmdMsg.NAME =>
+        routeGenericMsg[LockUserInMeetingCmdMsg](envelope, jsonNode)
+      case IsMeetingLockedReqMsg.NAME =>
+        routeGenericMsg[IsMeetingLockedReqMsg](envelope, jsonNode)
+      case ChangeLockSettingsInMeetingCmdMsg.NAME =>
+        routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing
