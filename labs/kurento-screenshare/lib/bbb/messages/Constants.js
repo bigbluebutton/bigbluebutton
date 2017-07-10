@@ -6,6 +6,13 @@
  */
   function Constants () {
     return {
+        // Media elements
+        WebRTC: "WebRtcEndpoint",
+        RTP: "RtpEndpoint",
+        AUDIO: "AUDIO",
+        VIDEO: "VIDEO",
+        ALL: "ALL",
+
         // Redis channels
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
         FROM_VOICE_CONF_SYSTEM_CHAN: "bigbluebutton:from-voice-conf:system",

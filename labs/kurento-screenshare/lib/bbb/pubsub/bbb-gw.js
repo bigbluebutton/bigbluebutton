@@ -39,24 +39,10 @@ BigBlueButtonGW.prototype.addSubscribeChannel = function (channel, callback) {
       console.log("  [BigBlueButtonGW] Could not start redis client for channel " + channel);
       return callback(error);
     }
+
     console.log("  [BigBlueButtonGW] Added redis client to this.redisClients[" + channel + "]");
-    wrobj.on(Constants.REDIS_MESSAGE, function(message) {  var msg = JSON.parse(message);
-      var header = msg.header;
-      var payload = msg.payload;
-      if (header){
-        switch (header.name) {
-          case Constants.START_TRANSCODER_REPLY:
-            console.log("Received TRANSCODER REPLY => " + payload);
-            self.emit(Constants.START_TRANSCODER_REPLY, payload);
-            break;
-          case Constants.STOP_TRANSCODER_REPLY:
-            self.emit(Constants.STOP_TRANSCODER_REPLY, payload);
-            break;
-          default:
-            console.log("  [BigBlueButtonGW] Unknown Redis message with ID =>" + header.name);
-        }
-      }
-    });
+    wrobj.on(Constants.REDIS_MESSAGE, self.incomingMessage.bind(self));
+
     return callback(null, wrobj);
   });
 };
@@ -74,7 +60,6 @@ BigBlueButtonGW.prototype.incomingMessage = function (message) {
   if (header){
     switch (header.name) {
       case Constants.START_TRANSCODER_REPLY:
-        console.log("Received TRANSCODER REPLY => " + payload);
         this.emit(Constants.START_TRANSCODER_REPLY, payload);
         break;
       case Constants.STOP_TRANSCODER_REPLY:

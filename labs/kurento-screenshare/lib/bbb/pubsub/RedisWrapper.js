@@ -50,12 +50,7 @@ RedisWrapper.prototype.startRedis = function(callback) {
     console.log(" [RedisWrapper] Successfully subscribed to pattern [" + channel + "]");
   });
 
-  this.redisCli.on("pmessage", function(pattern, channel, message) {
-    console.log(" [RedisWrapper] Message received from channel [" + channel +  "] : " + message);
-    // use event emitter to throw new message
-    self.emit(Constants.REDIS_MESSAGE, message);
-  });
-
+  this.redisCli.on("pmessage", self.onMessage.bind(self));
   this.redisCli.psubscribe(this.subpattern);
 
   console.log("  [RedisWrapper] Started Redis client at " + options.host + ":" + options.port +

@@ -5,16 +5,18 @@
  *
  */
 
+'use strict'
+
 // Imports
-var Constants = require('./bbb/messages/Constants');
-var MediaHandler = require('./media-handler');
-var Messaging = require('./bbb/messages/Messaging');
-var moment = require('moment');
-var h264_sdp = require('./h264-sdp');
-var now = moment();
+const C = require('./bbb/messages/Constants');
+const MediaHandler = require('./media-handler');
+const Messaging = require('./bbb/messages/Messaging');
+const moment = require('moment');
+const h264_sdp = require('./h264-sdp');
+const now = moment();
+const MediaController = require('./media-controller');
 
 // Global stuff
-var mediaPipelines = {};
 var sharedScreens = {};
 var rtpEndpoints = {};
 
@@ -28,160 +30,116 @@ if (config.get('acceptSelfSignedCertificate')) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED=0;
 }
 
-var kurentoClient = null;
-
-function getKurentoClient(callback) {
-
-  if (kurentoClient !== null) {
-    return callback(null, kurentoClient);
+module.exports = class Screenshare {
+  constructor(ws, id, bbbgw, voiceBridge, caller, vh, vw) {
+    this._ws = ws;
+    this._id = id;
+    this._BigBlueButtonGW = bbbgw;
+    this._webRtcEndpoint = null;
+    this._rtpEndpoint = null;
+    this._voiceBridge = voiceBridge;
+    this._caller = caller;
+    this._streamUrl = "";
+    this._vw = vw;
+    this._vh = vh;
+    this._candidatesQueue = [];
   }
 
-  kurento(kurentoUrl, function(error, _kurentoClient) {
-    if (error) {
-      console.log("Could not find media server at address " + kurentoUrl);
-      return callback("Could not find media server at address" + kurentoUrl + ". Exiting with error " + error);
-    }
+  // TODO isolate ICE
+  _onIceCandidate(_candidate) {
+    let candidate = kurento.getComplexType('IceCandidate')(_candidate);
 
-    console.log(" [server] Initiating kurento client. Connecting to: " + kurentoUrl);
-
-    kurentoClient = _kurentoClient;
-    callback(null, kurentoClient);
-  });
-}
-
-function getMediaPipeline(id, callback) {
-  console.log(' [media] Creating media pipeline for ' + id);
-
-  if (mediaPipelines[id]) {
-    console.log(' [media] Pipeline already exists.');
-    callback(null, mediaPipelines[id]);
-  } else {
-    kurentoClient.create('MediaPipeline', function(err, pipeline) {
-      mediaPipelines[id] = pipeline;
-      return callback(err, pipeline);
-    });
-  }
-}
-
-function Screenshare(_ws, _id, _bbbgw, _voiceBridge, _caller, _vh, _vw) {
-  var ws = _ws;
-  var id = _id;
-  var BigBlueButtonGW = _bbbgw;
-  var webRtcEndpoint = null;
-  var rtpEndpoint = null;
-  var voiceBridge = _voiceBridge;
-  var caller = _caller;
-  var streamUrl = "";
-  var vw = _vw;
-  var vh = _vh;
-
-  var candidatesQueue = [];
-
-  this.onIceCandidate = function(_candidate) {
-    var candidate = kurento.getComplexType('IceCandidate')(_candidate);
-
-    if (webRtcEndpoint) {
-      webRtcEndpoint.addIceCandidate(candidate);
+    if (this._webRtcEndpoint) {
+      this._webRtcEndpoint.addIceCandidate(candidate);
     }
     else {
-      candidatesQueue.push(candidate);
+      this._candidatesQueue.push(candidate);
     }
   };
 
-
-  // TODO this method could use a refactor
-  this.startPresenter = function(id, ws, sdpOffer, callback) {
-    var self = this;
-    var theCallback = callback;
+  _startPresenter(id, ws, sdpOffer, callback) {
+    let self = this;
+    let theCallback = callback;
 
     // Force H264 on Firefox and Chrome
     sdpOffer = h264_sdp.transform(sdpOffer);
     console.log("Starting presenter for " + sdpOffer);
-
-    getKurentoClient(function(error, kurentoClient) {
+    MediaController.createMediaElement(self._voiceBridge, C.WebRTC, function(error, webRtcEndpoint) {
       if (error) {
-        console.log("Kurento client error " + error);
+        console.log("Media elements error" + error);
         return theCallback(error);
       }
-
-      getMediaPipeline(id, function(error, pipeline) {
+      MediaController.createMediaElement(self._voiceBridge, C.RTP, function(error, rtpEndpoint) {
         if (error) {
-          console.log("Media pipeline client error" + error);
+          console.log("Media elements error" + error);
           return theCallback(error);
         }
 
-        createMediaElements(pipeline, function(error, _webRtcEndpoint, _rtpEndpoint) {
+
+        while(self._candidatesQueue.length) {
+          let candidate = self._candidatesQueue.shift();
+          MediaController.addIceCandidate(webRtcEndpoint.id, candidate);
+        }
+
+        MediaController.connectMediaElements(webRtcEndpoint.id, rtpEndpoint.id, C.VIDEO, function(error) {
           if (error) {
-            console.log("Media elements error" + error);
-            pipeline.release();
+            console.log("Media elements CONNECT error " + error);
+            //pipeline.release();
             return theCallback(error);
           }
 
-          while(candidatesQueue.length) {
-            var candidate = candidatesQueue.shift();
-            _webRtcEndpoint.addIceCandidate(candidate);
-          }
+          // It's a user sharing a Screen
+          sharedScreens[id] = webRtcEndpoint;
+          rtpEndpoints[id] = rtpEndpoint;
 
-          connectMediaElements(_webRtcEndpoint, _rtpEndpoint, function(error) {
+          // Store our endpoint
+          self._webRtcEndpoint = webRtcEndpoint;
+          self._rtpEndpoint = rtpEndpoint;
+
+          self._webRtcEndpoint.on('OnIceCandidate', function(event) {
+            let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+            ws.sendMessage({ id : 'iceCandidate', cameraId: id, candidate : candidate });
+          });
+
+          MediaController.processOffer(webRtcEndpoint.id, sdpOffer, function(error, webRtcSdpAnswer) {
             if (error) {
-              console.log("Media elements CONNECT error" + error);
-              pipeline.release();
+              console.log("  [webrtc] processOffer error => " + error + " for SDP " + sdpOffer);
+              //pipeline.release();
               return theCallback(error);
             }
 
-            // It's a user sharing a Screen
-            sharedScreens[id] = _webRtcEndpoint;
-            rtpEndpoints[id] = _rtpEndpoint;
+            let sendVideoPort = MediaHandler.getVideoPort();
 
-            // Store our endpoint
-            webRtcEndpoint = _webRtcEndpoint;
-            rtpEndpoint = _rtpEndpoint;
+            let rtpSdpOffer = MediaHandler.generateVideoSdp(localIpAddress, sendVideoPort);
+            console.log("  [rtpendpoint] RtpEndpoint processing => " + rtpSdpOffer);
 
-            _webRtcEndpoint.on('OnIceCandidate', function(event) {
-              var candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-              ws.sendMessage({ id : 'iceCandidate', cameraId: id, candidate : candidate });
-            });
-
-            _webRtcEndpoint.processOffer(sdpOffer, function(error, webRtcSdpAnswer) {
+            MediaController.gatherCandidates(webRtcEndpoint.id, function(error) {
               if (error) {
-                console.log("  [webrtc] processOffer error => " + error + "for SDP " + sdpOffer);
-                pipeline.release();
                 return theCallback(error);
               }
 
-              sendVideoPort = MediaHandler.getVideoPort();
-
-              var rtpSdpOffer = MediaHandler.generateVideoSdp(localIpAddress, sendVideoPort);
-              console.log("  [rtpendpoint] RtpEndpoint processing => " + rtpSdpOffer);
-
-              _webRtcEndpoint.gatherCandidates(function(error) {
+              MediaController.processOffer(rtpEndpoint.id, rtpSdpOffer, function(error, rtpSdpAnswer) {
                 if (error) {
+                  console.log("  [rtpendpoint] processOffer error => " + error + " for SDP " + rtpSdpOffer);
+                  //pipeline.release();
                   return theCallback(error);
                 }
 
-                _rtpEndpoint.processOffer(rtpSdpOffer, function(error, rtpSdpAnswer) {
-                  if (error) {
-                    console.log("  [rtpendpoint] processOffer error => " + error + "for SDP " + rtpSdpOffer);
-                    pipeline.release();
-                    return theCallback(error);
+                console.log("  [rtpendpoint] KMS answer SDP => " + rtpSdpAnswer);
+                let recvVideoPort = rtpSdpAnswer.match(/m=video\s(\d*)/)[1];
+                let rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
+                    sendVideoPort, recvVideoPort, self._voiceBridge, "stream_type_video", C.RTP_TO_RTMP, "copy", "caller");
+                console.log(" RTP PARAMS => " + JSON.stringify(rtpParams, null, 2));
+
+                self._rtpEndpoint.on('MediaFlowInStateChange', function(event) {
+                  if (event.state === 'NOT_FLOWING') {
+                    self._onRtpMediaNotFlowing();
                   }
-
-                  console.log("  [rtpendpoint] KMS answer SDP => " + rtpSdpAnswer);
-                  var recvVideoPort = rtpSdpAnswer.match(/m=video\s(\d*)/)[1];
-                  var rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
-                      sendVideoPort, recvVideoPort, voiceBridge, "stream_type_video", Constants.RTP_TO_RTMP, "copy", "caller");
-                  console.log(" RTP PARAMS => " + JSON.stringify(rtpParams, null, 2));
-
-                  _rtpEndpoint.on('MediaFlowInStateChange', function(event) {
-                    if (event.state === 'NOT_FLOWING') {
-                      onRtpMediaNotFlowing();
-                    }
-                    else if (event.state === 'FLOWING') {
-                      onRtpMediaFlowing(voiceBridge, rtpParams);
-                    }
-                  });
-                  return theCallback(null, webRtcSdpAnswer);
+                  else if (event.state === 'FLOWING') {
+                    self._onRtpMediaFlowing(self._voiceBridge, rtpParams);
+                  }
                 });
+                return theCallback(null, webRtcSdpAnswer);
               });
             });
           });
@@ -190,110 +148,71 @@ function Screenshare(_ws, _id, _bbbgw, _voiceBridge, _caller, _vh, _vw) {
     });
   };
 
-  var createMediaElements = function(pipeline, callback) {
-    console.log(" [webrtc] Creating webrtc and rtp endpoints");
-    pipeline.create('WebRtcEndpoint', function(error, _webRtcEndpoint) {
-      if (error) {
-        return callback(error);
-      }
-      webRtcEndpoint = _webRtcEndpoint;
-      pipeline.create('RtpEndpoint', function(error, _rtpEndpoint) {
+  _stop() {
 
-        if (error) {
-          return callback(error);
-        }
-        rtpEndpoint = _rtpEndpoint;
-        return callback(null, _webRtcEndpoint, _rtpEndpoint);
-      });
-    });
-  };
+    console.log(' [stop] Releasing endpoints for ' + this._id);
 
-  var connectMediaElements = function(webRtcEndpoint, rtpEndpoint, callback) {
-    // User is sharing Screen (sendOnly connection from the client)
-    console.log(" [webrtc] User wants to receive Screen ");
-    webRtcEndpoint.connect(rtpEndpoint, function(error) {
+    this._stopScreensharing();
 
-      if (error) {
-        return callback(error);
-      }
-      return callback(null);
-    });
-  };
-
-  this.stop = function() {
-
-    console.log(' [stop] Releasing endpoints for ' + id);
-
-    this.stopScreensharing();
-
-    if (webRtcEndpoint) {
-      webRtcEndpoint.release();
-      webRtcEndpoint = null;
+    if (this._webRtcEndpoint) {
+      MediaController.releaseMediaElement(this._webRtcEndpoint.id);
+      this._webRtcEndpoint = null;
     } else {
       console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
     }
 
-    if (rtpEndpoint) {
-      rtpEndpoint.release();
-      rtpEndpoint = null;
+    if (this._rtpEndpoint) {
+      MediaController.releaseMediaElement(this._rtpEndpoint.id);
+      this._rtpEndpoint = null;
     } else {
       console.log(" [rtpEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
     }
 
-    console.log(' [stop] Screen is shared, releasing ' + id);
+    console.log(' [stop] Screen is shared, releasing ' + this._id);
 
-    if (mediaPipelines[id]) {
-      mediaPipelines[id].release();
-    } else {
-      console.log(" [mediaPipeline] PLEASE DONT TRY STOPPING THINGS TWICE");
-    }
+    delete sharedScreens[this._id];
 
-    delete mediaPipelines[id];
-    delete sharedScreens[id];
-
-    delete candidatesQueue;
+    delete this._candidatesQueue;
   };
 
-  this.stopScreensharing = function () {
-    var strm = Messaging.generateStopTranscoderRequestMessage(voiceBridge, voiceBridge);
-    BigBlueButtonGW.publish(strm, Constants.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+  _stopScreensharing() {
+    let self = this;
+    let strm = Messaging.generateStopTranscoderRequestMessage(this._voiceBridge, this._voiceBridge);
+    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
-    BigBlueButtonGW.on(Constants.STOP_TRANSCODER_REPLY, function(payload) {
-      var meetingId = payload[Constants.MEETING_ID];
-      var transcoderId = payload[Constants.TRANSCODER_ID];
-      if(voiceBridge === meetingId) {
+    self._BigBlueButtonGW.on(C.STOP_TRANSCODER_REPLY, function(payload) {
+      let meetingId = payload[C.MEETING_ID];
+      let transcoderId = payload[C.TRANSCODER_ID];
+      if(self._voiceBridge === meetingId) {
         // TODO correctly assemble this timestamp
-        var timestamp = now.format('hhmmss');
-        var dsrstom = Messaging.generateDeskShareRTMPBroadcastStoppedEvent(voiceBridge,
-            streamUrl, vw, vh, timestamp);
-        BigBlueButtonGW.publish(dsrstom, Constants.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+        let timestamp = now.format('hhmmss');
+        let dsrstom = Messaging.generateDeskShareRTMPBroadcastStoppedEvent(self._voiceBridge,
+            self._streamUrl, self._vw, self._vh, timestamp);
+        self._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
       }
     });
   }
 
-  var onRtpMediaFlowing = function(voiceBridge, rtpParams) {
-    var strm = Messaging.generateStartTranscoderRequestMessage(voiceBridge, voiceBridge, rtpParams);
-    BigBlueButtonGW.on(Constants.START_TRANSCODER_REPLY, function(payload) {
-      var meetingId = payload[Constants.MEETING_ID];
-      var transcoderId = payload[Constants.TRANSCODER_ID];
+  _onRtpMediaFlowing(voiceBridge, rtpParams) {
+    let self = this;
+    let strm = Messaging.generateStartTranscoderRequestMessage(voiceBridge, voiceBridge, rtpParams);
+    self._BigBlueButtonGW.on(C.START_TRANSCODER_REPLY, function(payload) {
+      let meetingId = payload[C.MEETING_ID];
+      let transcoderId = payload[C.TRANSCODER_ID];
       if(voiceBridge === meetingId) {
-        var output = payload["params"].output;
-        streamUrl = MediaHandler.generateStreamUrl(localIpAddress, voiceBridge, output);
-        console.log("  [screenshare] STREAM URL " + streamUrl);
+        let output = payload["params"].output;
+        self._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, voiceBridge, output);
+        console.log("  [screenshare] STREAM URL " + self._streamUrl);
         // TODO correctly assemble this timestamp
-        var timestamp = now.format('hhmmss');
-        var dsrbstam = Messaging.generateDeskShareRTMPBroadcastStartedEvent(voiceBridge, streamUrl, vw, vh, timestamp);
-        BigBlueButtonGW.publish(dsrbstam, Constants.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+        let timestamp = now.format('hhmmss');
+        let dsrbstam = Messaging.generateDeskShareRTMPBroadcastStartedEvent(voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
+        self._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
       }
     });
-    BigBlueButtonGW.publish(strm, Constants.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
   };
 
-  var onRtpMediaNotFlowing = function() {
+  _onRtpMediaNotFlowing() {
     console.log("  [screenshare] TODO RTP NOT_FLOWING");
   };
-
-  return this;
 };
-
-module.exports = Screenshare;
