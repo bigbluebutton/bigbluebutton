@@ -166,6 +166,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildUserEjectedFromMeetingEvtMsg(meetingId: String, userId: String, ejectedBy: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserEjectedFromMeetingEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(UserEjectedFromMeetingEvtMsg.NAME, meetingId, userId)
+    val body = UserEjectedFromMeetingEvtMsgBody(userId, ejectedBy)
+    val event = UserEjectedFromMeetingEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildPubSubPongSysRespMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PubSubPongSysRespMsg.NAME, routing)

@@ -288,8 +288,8 @@ package org.bigbluebutton.main.model.users
     }
         
     public function ejectUser(command:VoiceConfEvent):void {
-      sender.ejectUser(command.userid);			
-    }	
+      if (this.isModerator()) sender.ejectUserFromVoice(command.userid);
+    }
     
     //Lock events
     public function lockAllUsers(command:LockControlEvent):void {

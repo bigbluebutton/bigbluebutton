@@ -240,6 +240,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
       case MuteAllExceptPresentersCmdMsg.NAME =>
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
+      case EjectUserFromMeetingCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

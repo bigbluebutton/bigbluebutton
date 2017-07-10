@@ -173,7 +173,7 @@ package org.bigbluebutton.modules.users.services
 		case "BreakoutRoomClosedEvtMsg":
 		  handleBreakoutRoomClosed(message);
 		  break;
-        case "userEjectedFromMeeting":
+        case "UserEjectedFromMeetingEvtMsg":
           handleUserEjectedFromMeeting(message);
           break;
         case "DeskShareRTMPBroadcastNotification":
@@ -428,14 +428,16 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleUserEjectedFromMeeting(msg: Object):void {
-        UsersUtil.setUserEjected();
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["users"];
-        logData.status = "user_ejected";
-        logData.message = "User ejected from meeting.";
+      var body: Object = msg.body as Object;
+      var userId:String = body.userId as String;
 
-        LOGGER.info(JSON.stringify(logData));
-      
+      UsersUtil.setUserEjected();
+
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["users"];
+      logData.status = "user_ejected";
+      logData.message = "User ejected from meeting.";
+      LOGGER.info(JSON.stringify(logData));
     }
 
 	private function handleUserLocked(msg:Object):void {

@@ -115,6 +115,13 @@ object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
 case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
 
+/**
+  * Sent to all clients about a user ejected (kicked) from the meeting
+  */
+object UserEjectedFromMeetingEvtMsg { val NAME = "UserEjectedFromMeetingEvtMsg" }
+case class UserEjectedFromMeetingEvtMsg(header: BbbClientMsgHeader, body: UserEjectedFromMeetingEvtMsgBody) extends StandardMsg
+case class UserEjectedFromMeetingEvtMsgBody(userId: String, ejectedBy: String)
+
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg"}
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
@@ -127,7 +134,7 @@ case class MeetingActivityResponseCmdMsg(header: BbbClientMsgHeader, body: Meeti
 case class MeetingActivityResponseCmdMsgBody(respondedBy: String)
 
 /**
-  * Sent from client to change the rolr of the user the user in the meeting.
+  * Sent from client to change the role of the user in the meeting.
   */
 object ChangeUserRoleCmdMsg { val NAME = "ChangeUserRoleCmdMsg" }
 case class ChangeUserRoleCmdMsg(header: BbbClientMsgHeader, body: ChangeUserRoleCmdMsgBody) extends StandardMsg
