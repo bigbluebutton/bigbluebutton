@@ -21,7 +21,7 @@
 
 performance_start = Time.now
 
-require '../../core/lib/recordandplayback'
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -941,7 +941,7 @@ begin
   if ($playback == "presentation")
 
     # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-    bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+    bbb_props = BigBlueButton.read_props
     simple_props = YAML::load(File.open('presentation.yml'))
 
     log_dir = bbb_props['log_dir']

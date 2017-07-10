@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# encoding: UTF-8
+# encoding: utf-8
 
 # Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
 #
@@ -14,123 +14,114 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
 # details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require '../lib/recordandplayback'
+require File.expand_path('../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
+require 'resque'
 
-def publish_processed_meetings(recording_dir)
-  processed_done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
+module BigBlueButton
+  module Resque
+    class PublishWorker
+      @queue = 'rap:publish'
 
-  FileUtils.mkdir_p("#{recording_dir}/status/published")
-  processed_done_files.each do |processed_done|
-    match = /([^\/]*)-([^\/-]*).done$/.match(processed_done)
-    meeting_id = match[1]
-    publish_type = match[2]
-
-    step_succeeded = false
-
-    published_done = "#{recording_dir}/status/published/#{meeting_id}-#{publish_type}.done"
-    next if File.exists?(published_done)
-
-    published_fail = "#{recording_dir}/status/published/#{meeting_id}-#{publish_type}.fail"
-    next if File.exists?(published_fail)
-
-    publish_script = "publish/#{publish_type}.rb"
-    if File.exists?(publish_script)
-      BigBlueButton.redis_publisher.put_publish_started(publish_type, meeting_id)
-
-      # If the publish directory exists, the script does nothing
-      FileUtils.rm_rf("#{recording_dir}/publish/#{publish_type}/#{meeting_id}")
-
-      step_start_time = BigBlueButton.monotonic_clock
-      # For legacy reasons, the meeting ID passed to the publish script contains
-      # the playback format name.
-      ret = BigBlueButton.exec_ret("ruby", publish_script, "-m", "#{meeting_id}-#{publish_type}")
-      step_stop_time = BigBlueButton.monotonic_clock
-      step_time = step_stop_time - step_start_time
-
-      step_succeeded = (ret == 0 and File.exists?(published_done))
-
-      BigBlueButton.redis_publisher.put_publish_ended(publish_type, meeting_id, {
-        "success" => step_succeeded,
-        "step_time" => step_time
-      })
-    else
-      BigBlueButton.logger.warn("Processed recording found for type #{publish_type}, but no publish script exists")
-      step_succeeded = true
-    end
-
-    if step_succeeded
-      BigBlueButton.logger.info("Publish format #{publish_type} succeeded for #{meeting_id}")
-      FileUtils.rm_f(processed_done)
-      FileUtils.rm_rf("#{recording_dir}/process/#{publish_type}/#{meeting_id}")
-      FileUtils.rm_rf("#{recording_dir}/publish/#{publish_type}/#{meeting_id}")
-      
-      # Check if this is the last format to be published
-      if Dir.glob("#{recording_dir}/status/processed/#{meeting_id}-*.done").length == 0
-        post_publish(meeting_id)
+      def self.perform(meeting_id, publish_type)
+        worker = BigBlueButton::Resque::PublishWorker.new(meeting_id, publish_type)
+        worker.perform
       end
-    else
-      BigBlueButton.logger.info("Publish format #{publish_type} failed for #{meeting_id}")
-      FileUtils.touch(published_fail)
+
+      def perform
+        @logger.info("Running publish worker for #{@meeting_id}, #{@publish_type}")
+
+        publish_script = File.expand_path("../publish/#{@publish_type}.rb", __FILE__)
+        if File.exists?(publish_script)
+          BigBlueButton.redis_publisher.put_publish_started(@publish_type, @meeting_id)
+
+          # If the publish directory exists, the script does nothing
+          FileUtils.rm_rf("#{@recording_dir}/publish/#{@publish_type}/#{@meeting_id}")
+
+          step_start_time = BigBlueButton.monotonic_clock
+          # For legacy reasons, the meeting ID passed to the publish script contains
+          # the playback format name.
+          ret = BigBlueButton.exec_ret("ruby", publish_script, "-m", "#{@meeting_id}-#{@publish_type}")
+          step_stop_time = BigBlueButton.monotonic_clock
+          step_time = step_stop_time - step_start_time
+
+          step_succeeded = (ret == 0 and File.exists?(@published_done))
+
+          BigBlueButton.redis_publisher.put_publish_ended(
+            @publish_type, @meeting_id, {
+              "success" => step_succeeded,
+              "step_time" => step_time
+            })
+        else
+          @logger.warn("Processed recording found for type #{@publish_type}, but no publish script exists")
+          step_succeeded = true
+        end
+
+        if step_succeeded
+          @logger.info("Publish format #{@publish_type} succeeded for #{@meeting_id}")
+          FileUtils.rm_rf("#{@recording_dir}/process/#{@publish_type}/#{@meeting_id}")
+          FileUtils.rm_rf("#{@recording_dir}/publish/#{@publish_type}/#{@meeting_id}")
+
+          # Check if this is the last format to be published
+          if Dir.glob("#{@recording_dir}/status/processed/#{@meeting_id}-*.done").length == 0
+            self.post_publish
+          end
+        else
+          @logger.info("Publish format #{@publish_type} failed for #{@meeting_id}")
+          FileUtils.touch(@published_fail)
+        end
+      end
+
+      def post_publish
+        glob = File.join(@post_scripts_path, "*.rb")
+        Dir.glob(glob).sort.each do |post_publish_script|
+          match = /([^\/]*).rb$/.match(post_publish_script)
+          post_type = match[1]
+          BigBlueButton.logger.info("Running post publish script #{post_type}")
+
+          BigBlueButton.redis_publisher.put_post_publish_started post_type, @meeting_id
+
+          step_start_time = BigBlueButton.monotonic_clock
+          ret = BigBlueButton.exec_ret("ruby", post_publish_script, "-m", @meeting_id)
+          step_stop_time = BigBlueButton.monotonic_clock
+          step_time = step_stop_time - step_start_time
+          step_succeeded = (ret == 0)
+
+          BigBlueButton.redis_publisher.put_post_publish_ended(
+            post_type, @meeting_id, {
+              "success" => step_succeeded,
+              "step_time" => step_time
+            })
+
+          if not step_succeeded
+            BigBlueButton.logger.warn("Post publish script #{post_publish_script} failed")
+          end
+        end
+      end
+
+      def initialize(meeting_id, publish_type)
+        props = BigBlueButton.read_props
+        BigBlueButton.create_redis_publisher
+
+        @log_dir = props['log_dir']
+        @recording_dir = props['recording_dir']
+        @meeting_id = meeting_id
+        @publish_type = publish_type
+        @post_scripts_path = File.expand_path('../post_publish', __FILE__)
+
+        @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@publish_type}.done"
+        @published_fail = "#{@recording_dir}/status/published/#{@meeting_id}-#{@publish_type}.fail"
+
+        @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
+        @logger.level = Logger::INFO
+      end
+
     end
-
   end
 end
-
-def post_publish(meeting_id)
-  Dir.glob("post_publish/*.rb").sort.each do |post_publish_script|
-    match = /([^\/]*).rb$/.match(post_publish_script)
-    post_type = match[1]
-    BigBlueButton.logger.info("Running post publish script #{post_type}")
-
-    BigBlueButton.redis_publisher.put_post_publish_started post_type, meeting_id
-
-    step_start_time = BigBlueButton.monotonic_clock
-    ret = BigBlueButton.exec_ret("ruby", post_publish_script, "-m", meeting_id)
-    step_stop_time = BigBlueButton.monotonic_clock
-    step_time = step_stop_time - step_start_time
-    step_succeeded = (ret == 0)
-
-    BigBlueButton.redis_publisher.put_post_publish_ended post_type, meeting_id, {
-      "success" => step_succeeded,
-      "step_time" => step_time
-    }
-
-    if not step_succeeded
-      BigBlueButton.logger.warn("Post publish script #{post_publish_script} failed")
-    end
-  end
-end
-
-begin
-  props = YAML::load(File.open('bigbluebutton.yml'))
-  redis_host = props['redis_host']
-  redis_port = props['redis_port']
-  BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
-
-  log_dir = props['log_dir']
-  recording_dir = props['recording_dir']
-
-  logger = Logger.new("#{log_dir}/bbb-rap-worker.log")
-  logger.level = Logger::INFO
-  BigBlueButton.logger = logger
-
-  BigBlueButton.logger.debug("Running rap-publish-worker...")
-  
-  publish_processed_meetings(recording_dir)
-
-  BigBlueButton.logger.debug("rap-publish-worker done")
-
-rescue Exception => e
-  BigBlueButton.logger.error(e.message)
-  e.backtrace.each do |traceline|
-    BigBlueButton.logger.error(traceline)
-  end
-end
-

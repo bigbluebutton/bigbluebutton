@@ -14,7 +14,7 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
 # details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -35,7 +35,7 @@ module BigBlueButton
       end
 
       def perform
-        @logger.debug("Running archive worker for #{@meeting_id}")
+        @logger.info("Running archive worker for #{@meeting_id}")
         BigBlueButton.redis_publisher.put_archive_started(@meeting_id)
 
         step_start_time = BigBlueButton.monotonic_clock

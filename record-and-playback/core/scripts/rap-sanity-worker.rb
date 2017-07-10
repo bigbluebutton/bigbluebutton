@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# encoding: UTF-8
+# encoding: utf-8
 
 # Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
 #
@@ -14,101 +14,96 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
 # details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require '../lib/recordandplayback'
+require File.expand_path('../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
+require 'resque'
 
-def sanity_archived_meetings(recording_dir)
-  archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
+module BigBlueButton
+  module Resque
+    class SanityWorker
+      @queue = 'rap:sanity'
 
-  FileUtils.mkdir_p("#{recording_dir}/status/sanity")
-  archived_done_files.each do |archived_done|
-    match = /([^\/]*).done$/.match(archived_done)
-    meeting_id = match[1]
+      def self.perform(meeting_id)
+        worker = BigBlueButton::Resque::SanityWorker.new(meeting_id)
+        worker.perform
+      end
 
-    sanity_done = "#{recording_dir}/status/sanity/#{meeting_id}.done"
-    next if File.exists?(sanity_done)
+      def perform
+        @logger.info("Running sanity worker for #{@meeting_id}")
+        BigBlueButton.redis_publisher.put_sanity_started(@meeting_id)
 
-    sanity_fail = "#{recording_dir}/status/sanity/#{meeting_id}.fail"
-    next if File.exists?(sanity_fail)
+        step_start_time = BigBlueButton.monotonic_clock
+        script = File.expand_path('../sanity/sanity.rb', __FILE__)
+        ret = BigBlueButton.exec_ret("ruby", script, "-m", @meeting_id)
+        step_stop_time = BigBlueButton.monotonic_clock
+        step_time = step_stop_time - step_start_time
 
-    BigBlueButton.redis_publisher.put_sanity_started(meeting_id)
+        step_succeeded = (ret == 0 && File.exists?(@sanity_done))
 
-    step_start_time = BigBlueButton.monotonic_clock
-    ret = BigBlueButton.exec_ret("ruby", "sanity/sanity.rb", "-m", meeting_id)
-    step_stop_time = BigBlueButton.monotonic_clock
-    step_time = step_stop_time - step_start_time
+        BigBlueButton.redis_publisher.put_sanity_ended(
+          @meeting_id, {
+            "success" => step_succeeded,
+            "step_time" => step_time
+          })
 
-    step_succeeded = (ret == 0 && File.exists?(sanity_done))
+        if step_succeeded
+          @logger.info("Successfully sanity checked #{@meeting_id}")
+          self.post_archive
+        else
+          @logger.error("Sanity check failed on #{@meeting_id}")
+          FileUtils.touch(@sanity_fail)
+        end
+      end
 
-    BigBlueButton.redis_publisher.put_sanity_ended(meeting_id, {
-      "success" => step_succeeded,
-      "step_time" => step_time
-    })
+      def post_archive
+        glob = File.join(@post_scripts_path, "*.rb")
+        Dir.glob(glob).sort.each do |post_archive_script|
+          match = /([^\/]*).rb$/.match(post_archive_script)
+          post_type = match[1]
+          @logger.info("Running post archive script #{post_type}")
 
-    if step_succeeded
-      BigBlueButton.logger.info("Successfully sanity checked #{meeting_id}")
-      post_archive(meeting_id)
-      FileUtils.rm_f(archived_done)
-    else
-      BigBlueButton.logger.error("Sanity check failed on #{meeting_id}")
-      FileUtils.touch(sanity_fail)
+          BigBlueButton.redis_publisher.put_post_archive_started(post_type, @meeting_id)
+
+          step_start_time = BigBlueButton.monotonic_clock
+          ret = BigBlueButton.exec_ret("ruby", post_archive_script, "-m", @meeting_id)
+          step_stop_time = BigBlueButton.monotonic_clock
+          step_time = step_stop_time - step_start_time
+          step_succeeded = (ret == 0)
+
+          BigBlueButton.redis_publisher.put_post_archive_ended(
+            post_type, @meeting_id, {
+              "success" => step_succeeded,
+              "step_time" => step_time
+            })
+
+          if not step_succeeded
+            @logger.warn("Post archive script #{post_archive_script} failed")
+          end
+        end
+      end
+
+      def initialize(meeting_id)
+        props = BigBlueButton.read_props
+        BigBlueButton.create_redis_publisher
+
+        @log_dir = props['log_dir']
+        @recording_dir = props['recording_dir']
+        @meeting_id = meeting_id
+        @post_scripts_path = File.expand_path('../post_archive', __FILE__)
+
+        @sanity_fail = "#{@recording_dir}/status/sanity/#{@meeting_id}.fail"
+        @sanity_done = "#{@recording_dir}/status/sanity/#{@meeting_id}.done"
+
+        @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
+        @logger.level = Logger::INFO
+      end
+
     end
-  end
-end
-
-def post_archive(meeting_id)
-  Dir.glob("post_archive/*.rb").sort.each do |post_archive_script|
-    match = /([^\/]*).rb$/.match(post_archive_script)
-    post_type = match[1]
-    BigBlueButton.logger.info("Running post archive script #{post_type}")
-
-    BigBlueButton.redis_publisher.put_post_archive_started(post_type, meeting_id)
-
-    step_start_time = BigBlueButton.monotonic_clock
-    ret = BigBlueButton.exec_ret("ruby", post_archive_script, "-m", meeting_id)
-    step_stop_time = BigBlueButton.monotonic_clock
-    step_time = step_stop_time - step_start_time
-    step_succeeded = (ret == 0)
-
-    BigBlueButton.redis_publisher.put_post_archive_ended(post_type, meeting_id, {
-      "success" => step_succeeded,
-      "step_time" => step_time
-    })
-
-    if not step_succeeded
-      BigBlueButton.logger.warn("Post archive script #{post_archive_script} failed")
-    end
-  end
-end
-
-begin
-  props = YAML::load(File.open('bigbluebutton.yml'))
-  redis_host = props['redis_host']
-  redis_port = props['redis_port']
-  BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
-
-  log_dir = props['log_dir']
-  recording_dir = props['recording_dir']
-
-  logger = Logger.new("#{log_dir}/bbb-rap-worker.log")
-  logger.level = Logger::INFO
-  BigBlueButton.logger = logger
-
-  BigBlueButton.logger.debug("Running rap-sanity-worker...")
-  
-  sanity_archived_meetings(recording_dir)
-
-  BigBlueButton.logger.debug("rap-sanity-worker done")
-
-rescue Exception => e
-  BigBlueButton.logger.error(e.message)
-  e.backtrace.each do |traceline|
-    BigBlueButton.logger.error(traceline)
   end
 end

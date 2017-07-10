@@ -18,8 +18,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-
-require '../lib/recordandplayback'
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'logger'
 require 'trollop'
 require 'yaml'
@@ -135,8 +134,7 @@ end
 
 meeting_id = opts[:meeting_id]
 
-# This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
-props = YAML::load(File.open('bigbluebutton.yml'))
+props = BigBlueButton.read_props
 log_dir = props['log_dir']
 audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
