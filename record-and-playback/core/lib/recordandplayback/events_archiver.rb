@@ -204,7 +204,7 @@ module BigBlueButton
       result = xml.instruct! :xml, :version => "1.0", :encoding=>"UTF-8"
       
       meeting_metadata = @redis.metadata_for(meeting_id)
-      version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
+      version = BigBlueButton.read_props["bbb_version"]
 
       if (meeting_metadata != nil)
           xml.recording(:meeting_id => meeting_id, :bbb_version => version) {

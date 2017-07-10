@@ -155,4 +155,17 @@ module BigBlueButton
   def self.monotonic_clock()
     return (AbsoluteTime.now * 1000).to_i
   end
+
+  def self.read_props
+    return @props if @props
+    filepath = File.expand_path('../../scripts/bigbluebutton.yml', __FILE__)
+    @props = YAML::load(File.open(filepath))
+  end
+
+  def self.create_redis_publisher
+    props = BigBlueButton.read_props
+    redis_host = props['redis_host']
+    redis_port = props['redis_port']
+    BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+  end
 end

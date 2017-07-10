@@ -1,0 +1,13 @@
+require 'resque/tasks'
+
+task "resque:setup" => :environment do
+  props = BigBlueButton.read_props
+  redis_host = props['redis_host']
+  redis_port = props['redis_port']
+  Resque.redis = "#{redis_host}:#{redis_port}"
+end
+
+task :environment do
+  require File.expand_path('../lib/recordandplayback', __FILE__)
+  require File.expand_path('../scripts/rap-archive-worker', __FILE__)
+end

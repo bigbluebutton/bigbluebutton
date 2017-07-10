@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# encoding: UTF-8
+# encoding: utf-8
 
 # Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
 #
@@ -18,84 +18,74 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require '../lib/recordandplayback'
+require File.expand_path('../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
+require 'resque'
 
-# Number of seconds to delay archiving (red5 race condition workaround)
-ARCHIVE_DELAY_SECONDS = 120
+module BigBlueButton
+  module Resque
+    class ArchiveWorker
+      @queue = 'rap:archive'
 
-def archive_recorded_meetings(recording_dir)
-  recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
+      def self.perform(meeting_id)
+        worker = BigBlueButton::Resque::ArchiveWorker.new(meeting_id)
+        worker.perform
+      end
 
-  FileUtils.mkdir_p("#{recording_dir}/status/archived")
-  recorded_done_files.each do |recorded_done|
-    match = /([^\/]*).done$/.match(recorded_done)
-    meeting_id = match[1]
+      def perform
+        @logger.debug("Running archive worker for #{@meeting_id}")
+        BigBlueButton.redis_publisher.put_archive_started(@meeting_id)
 
-    if File.mtime(recorded_done) + ARCHIVE_DELAY_SECONDS > Time.now
-      BigBlueButton.logger.info("Temporarily skipping #{meeting_id} for Red5 race workaround")
-      next
-    end
+        step_start_time = BigBlueButton.monotonic_clock
+        script = File.expand_path('../archive/archive.rb', __FILE__)
+        ret = BigBlueButton.exec_ret("ruby", script, "-m", @meeting_id)
+        step_stop_time = BigBlueButton.monotonic_clock
+        step_time = step_stop_time - step_start_time
 
-    archived_done = "#{recording_dir}/status/archived/#{meeting_id}.done"
-    next if File.exists?(archived_done)
+        step_succeeded = (ret == 0 &&
+                          (File.exists?(@archived_done) ||
+                           File.exists?(@archived_norecord)))
 
-    archived_norecord = "#{recording_dir}/status/archived/#{meeting_id}.norecord"
-    next if File.exists?(archived_norecord)
+        BigBlueButton.redis_publisher.put_archive_ended(
+          @meeting_id, {
+            "success" => step_succeeded,
+            "step_time" => step_time
+          })
 
-    archived_fail = "#{recording_dir}/status/archived/#{meeting_id}.fail"
-    next if File.exists?(archived_fail)
+        if step_succeeded
+          @logger.info("Successfully archived #{@meeting_id}")
+        else
+          @logger.error("Failed to archive #{@meeting_id}")
+          FileUtils.touch(@archived_fail)
+        end
+        @logger.debug("Finished archive worker for #{@meeting_id}")
 
-    BigBlueButton.redis_publisher.put_archive_started(meeting_id)
+      rescue Exception => e
+        @logger.error(e.message)
+        e.backtrace.each do |traceline|
+          @logger.error(traceline)
+        end
+      end
 
-    step_start_time = BigBlueButton.monotonic_clock
-    ret = BigBlueButton.exec_ret("ruby", "archive/archive.rb", "-m", meeting_id)
-    step_stop_time = BigBlueButton.monotonic_clock
-    step_time = step_stop_time - step_start_time
+      def initialize(meeting_id)
+        props = BigBlueButton.read_props
+        BigBlueButton.create_redis_publisher
 
-    step_succeeded = (ret == 0 &&
-                      (File.exists?(archived_done) ||
-                       File.exists?(archived_norecord)))
+        @log_dir = props['log_dir']
+        @recording_dir = props['recording_dir']
+        @meeting_id = meeting_id
 
-    BigBlueButton.redis_publisher.put_archive_ended(meeting_id, {
-      "success" => step_succeeded,
-      "step_time" => step_time
-    })
+        @archived_fail = "#{@recording_dir}/status/archived/#{@meeting_id}.fail"
+        @archived_done = "#{@recording_dir}/status/archived/#{@meeting_id}.done"
+        @archived_norecord = "#{@recording_dir}/status/archived/#{@meeting_id}.norecord"
 
-    if step_succeeded
-      BigBlueButton.logger.info("Successfully archived #{meeting_id}")
-      FileUtils.rm_f(recorded_done)
-    else
-      BigBlueButton.logger.error("Failed to archive #{meeting_id}")
-      FileUtils.touch(archived_fail)
+        @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
+        @logger.level = Logger::INFO
+      end
+
     end
   end
 end
 
-begin
-  props = YAML::load(File.open('bigbluebutton.yml'))
-  redis_host = props['redis_host']
-  redis_port = props['redis_port']
-  BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
-
-  log_dir = props['log_dir']
-  recording_dir = props['recording_dir']
-
-  logger = Logger.new("#{log_dir}/bbb-rap-worker.log")
-  logger.level = Logger::INFO
-  BigBlueButton.logger = logger
-
-  BigBlueButton.logger.debug("Running rap-archive-worker...")
-  
-  archive_recorded_meetings(recording_dir)
-
-  BigBlueButton.logger.debug("rap-archive-worker done")
-
-rescue Exception => e
-  BigBlueButton.logger.error(e.message)
-  e.backtrace.each do |traceline|
-    BigBlueButton.logger.error(traceline)
-  end
-end
