@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.screenshare.events
   public class DeskshareToolbarEvent extends Event
   {
     public static const STOP:String = "deactivate toolbar status";
+    public static const START:String = "activate toolbar status";
 
     public function DeskshareToolbarEvent(type:String)
     {

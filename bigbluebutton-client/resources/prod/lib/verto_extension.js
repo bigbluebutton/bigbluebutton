@@ -11,8 +11,8 @@ Verto = function (
   this.share_call = null;
   this.vertoHandle;
 
-  this.vid_width = window.screen.width;
-  this.vid_height = window.screen.height;
+  this.vid_width = Math.max(window.screen.width, 1920);
+  this.vid_height = Math.max(window.screen.height, 1080);
 
   this.outgoingBandwidth = "default";
   this.incomingBandwidth = "default";
@@ -36,9 +36,8 @@ Verto = function (
   this.useMic = false;
 
   this.callWasSuccessful = false;
-
+  this.shouldConnect = true;
   this.iceServers = null;
-
   this.userCallback = userCallback;
 
   if (chromeExtension != null) {
@@ -86,6 +85,10 @@ Verto.normalizeCallback = function (callback) {
 Verto.prototype.onWSLogin = function (v, success) {
   this.cur_call = null;
   if (success) {
+    if (!this.shouldConnect) {
+      return;
+    }
+
     this.callWasSuccessful = true;
     this.mediaCallback();
     return;
@@ -211,12 +214,21 @@ Verto.prototype.hold = function () {
 Verto.prototype.hangup = function () {
   if (this.cur_call) {
     // the duration of the call
-    this.logger('call ended ' + this.cur_call.audioStream.currentTime);
+    if (this.cur_call.audioStream) {
+      this.logger('call ended ' + this.cur_call.audioStream.currentTime);
+    }
+
     this.cur_call.hangup();
     this.cur_call = null;
   }
 
   if (this.share_call) {
+    if (this.share_call.state == $.verto.enum.state.active) {
+      this.shouldConnect = false;
+    } else {
+      this.shouldConnect = true;
+    }
+
     // the duration of the call
     this.logger('call ended ' + this.share_call.audioStream.currentTime);
     this.share_call.rtc.localStream.getTracks().forEach(track => track.stop());
@@ -307,6 +319,8 @@ Verto.prototype.docall = function () {
     return;
   }
 
+  this.shouldConnect = true;
+
   this.cur_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
@@ -360,8 +374,6 @@ Verto.prototype.makeShare = function () {
       screenInfo = {
         chromeMediaSource: "desktop",
         chromeMediaSourceId: constraints.streamId,
-        maxWidth: window.screen.width > 1920 ? window.screen.width : 1920,
-        maxHeight: window.screen.height > 1080 ? window.screen.height : 1080
       };
 
       _this.logger(screenInfo);
@@ -371,7 +383,7 @@ Verto.prototype.makeShare = function () {
 };
 
 Verto.prototype.doShare = function (screenConstraints) {
-
+  this.shouldConnect = true;
   screenConstraints.maxWidth = this.vid_width;
   screenConstraints.maxHeight = this.vid_height;
 
@@ -510,7 +522,6 @@ VertoManager.prototype.exitAudio = function () {
   if (this.vertoAudio != null) {
     console.log('Hanging up vertoAudio');
     this.vertoAudio.hangup();
-    this.vertoAudio = null;
   }
 };
 
@@ -518,7 +529,6 @@ VertoManager.prototype.exitVideo = function () {
   if (this.vertoVideo != null) {
     console.log('Hanging up vertoVideo');
     this.vertoVideo.hangup();
-    this.vertoVideo = null;
   }
 };
 
@@ -526,39 +536,54 @@ VertoManager.prototype.exitScreenShare = function () {
   if (this.vertoScreenShare != null) {
     console.log('Hanging up vertoScreenShare');
     this.vertoScreenShare.hangup();
-    this.vertoScreenShare = null;
   }
 };
 
 VertoManager.prototype.joinListenOnly = function (tag) {
   this.exitAudio();
-  var obj = Object.create(Verto.prototype);
-  Verto.apply(obj, arguments);
-  this.vertoAudio = obj;
+
+  if (this.vertoAudio == null) {
+    var obj = Object.create(Verto.prototype);
+    Verto.apply(obj, arguments);
+    this.vertoAudio = obj;
+  }
+
   this.vertoAudio.setListenOnly(tag);
 };
 
 VertoManager.prototype.joinMicrophone = function (tag) {
   this.exitAudio();
-  var obj = Object.create(Verto.prototype);
-  Verto.apply(obj, arguments);
-  this.vertoAudio = obj;
+
+  if (this.vertoAudio == null) {
+    var obj = Object.create(Verto.prototype);
+    Verto.apply(obj, arguments);
+    this.vertoAudio = obj;
+  }
+
   this.vertoAudio.setMicrophone(tag);
 };
 
 VertoManager.prototype.joinWatchVideo = function (tag) {
   this.exitVideo();
-  var obj = Object.create(Verto.prototype);
-  Verto.apply(obj, arguments);
-  this.vertoVideo = obj;
+
+  if (this.vertoVideo == null) {
+    var obj = Object.create(Verto.prototype);
+    Verto.apply(obj, arguments);
+    this.vertoVideo = obj;
+  }
+
   this.vertoVideo.setWatchVideo(tag);
 };
 
 VertoManager.prototype.shareScreen = function (tag) {
   this.exitScreenShare();
-  var obj = Object.create(Verto.prototype);
-  Verto.apply(obj, arguments);
-  this.vertoScreenShare = obj;
+
+  if (this.vertoScreenShare == null) {
+    var obj = Object.create(Verto.prototype);
+    Verto.apply(obj, arguments);
+    this.vertoScreenShare = obj;
+  }
+
   this.vertoScreenShare.setScreenShare(tag);
 };
 
