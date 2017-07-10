@@ -1,9 +1,11 @@
 package org.bigbluebutton.client
 
 import akka.actor.{Actor, ActorLogging, Props}
-import org.bigbluebutton.client.bus.{BroadcastMsgToMeeting, DirectMsgToClient}
+import org.bigbluebutton.client.bus.{BroadcastMsgToMeeting, DirectMsgToClient, SystemMsgToClient}
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.red5.client.messaging.{BroadcastToMeetingMsg, DirectToClientMsg}
+import org.bigbluebutton.red5.client.messaging.{DisconnectAllClientsMessage, DisconnectClientMessage}
+import org.bigbluebutton.common2.msgs.{DisconnectAllClientsSysMsg, DisconnectClientsSysMsg}
 
 
 object MsgToClientJsonActor {
@@ -16,6 +18,7 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   def receive = {
     case msg: BroadcastMsgToMeeting => handleBroadcastMsg(msg)
     case msg: DirectMsgToClient => handleDirectMsg(msg)
+    case msg: SystemMsgToClient => handleSystemMsg(msg)
   }
 
 
@@ -38,5 +41,20 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
 
     val direct = new DirectToClientMsg(meetingId, connId, msgName, json)
     msgToClientGW.directToClient(direct)
+  }
+
+  def handleSystemMsg(msg: SystemMsgToClient): Unit = {
+    println("Received SystemMsgToClient " + msg)
+    val meetingId = msg.meetingId
+    val connId = msg.connId
+
+    msg.data.envelope.name match {
+      case DisconnectAllClientsSysMsg.NAME =>
+        val disconnect = new DisconnectAllClientsMessage(meetingId)
+        msgToClientGW.systemMessage(disconnect)
+      case DisconnectClientSysMsg.NAME =>
+        val disconnect = new DisconnectClientMessage(meetingId, connId)
+        msgToClientGW.systemMessage(disconnect)
+    }
   }
 }
