@@ -85,6 +85,7 @@ KurentoManager.prototype.shareScreen = function (tag) {
   this.kurentoScreenShare.setScreenShare(tag);
 };
 
+// Still unused, part of the HTMl5 implementation
 KurentoManager.prototype.joinWatchVideo = function (tag) {
   this.exitVideo();
   var obj = Object.create(Kurento.prototype);
@@ -103,7 +104,6 @@ Kurento.prototype.setScreenShare = function (tag) {
 
 Kurento.prototype.create = function (tag) {
   this.setRenderTag(tag);
-  //this.configStuns(this.init);
   this.iceServers = true;
   this.init();
 };
@@ -149,7 +149,7 @@ Kurento.prototype.onWSMessage = function (message) {
       kurentoHandler.presenterResponse(parsedMessage);
       break;
     case 'stopSharing':
-      kurentoHandler.dispose();
+      kurentoManager.exitScreenShare();
       break;
     case 'iceCandidate':
       kurentoHandler.webRtcPeer.addIceCandidate(parsedMessage.candidate);
@@ -170,7 +170,7 @@ Kurento.prototype.presenterResponse = function (message) {
   if (message.response != 'accepted') {
     var errorMsg = message.message ? message.message : 'Unknow error';
     console.warn('Call not accepted for the following reason: ' + errorMsg);
-    dispose();
+    kurentoManager.exitScreenShare();
   } else {
     console.log("Presenter call was accepted with SDP => " + message.sdpAnswer);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
@@ -181,7 +181,7 @@ Kurento.prototype.serverResponse = function (message) {
   if (message.response != 'accepted') {
     var errorMsg = message.message ? message.message : 'Unknow error';
     console.warn('Call not accepted for the following reason: ' + errorMsg);
-    dispose();
+    kurentoHandler.dispose();
   } else {
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
@@ -332,7 +332,7 @@ Kurento.prototype.stop = function() {
       presenterId : kurentoHandler.sessId,
     }
     kurentoHandler.sendMessage(message);
-    dispose();
+    kurentoHandler.disposeScreenShare();
   }
 }
 
