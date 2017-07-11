@@ -199,4 +199,12 @@ module BigBlueButton
     size = BigBlueButton.get_dir_size(dir_name)
     BigBlueButton.add_tag_to_xml("#{dir_name}/metadata.xml", "//recording/download", "size", size)
   end
+
+  def self.record_id_to_timestamp(r)
+    r.split("-")[1].to_i / 1000
+  end
+
+  def self.done_to_timestamp(r)
+    BigBlueButton.record_id_to_timestamp(File.basename(r, ".done"))
+  end
 end

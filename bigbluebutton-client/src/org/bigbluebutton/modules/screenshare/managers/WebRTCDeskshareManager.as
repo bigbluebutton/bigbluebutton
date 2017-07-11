@@ -50,6 +50,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var globalDispatcher:Dispatcher;
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
+		private var usingKurentoWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
 		private var options:ScreenshareOptions;
 
@@ -108,7 +109,12 @@ package org.bigbluebutton.modules.screenshare.managers
 			publishWindowManager.stopSharing();
 
 			if (ExternalInterface.available) {
-				ExternalInterface.call("vertoExitScreenShare");
+				if(usingKurentoWebRTC) {
+					ExternalInterface.call("kurentoExitScreenShare");
+				}
+				else {
+					ExternalInterface.call("vertoExitScreenShare");
+				}
 			}
 		}
 
@@ -125,16 +131,29 @@ package org.bigbluebutton.modules.screenshare.managers
 
 				var voiceBridge:String = UsersUtil.getVoiceBridge();
 				var myName:String = UsersUtil.getMyUsername();
+				var internalMeetingID:String = UsersUtil.getInternalMeetingID();
 
-				ExternalInterface.call(
-					'vertoShareScreen',
-					videoTag,
-					voiceBridge,
-					myName,
-					null,
-					"onFail",
-					chromeExtensionKey
-				);
+				if(usingKurentoWebRTC) {
+					ExternalInterface.call(
+							'kurentoShareScreen',
+							videoTag,
+							voiceBridge,
+							myName,
+							internalMeetingID,
+							"onFail",
+							chromeExtensionKey
+							);
+				} else {
+					ExternalInterface.call(
+							'vertoShareScreen',
+							videoTag,
+							voiceBridge,
+							myName,
+							null,
+							"onFail",
+							chromeExtensionKey
+							);
+				}
 			}
 		}
 
@@ -146,6 +165,7 @@ package org.bigbluebutton.modules.screenshare.managers
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
 			usingWebRTC = options.tryWebRTCFirst;
+			usingKurentoWebRTC = options.tryKurentoWebRTC;
 		}
 
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
@@ -168,6 +188,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		private function cannotUseWebRTC (message:String):void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent - falling back to java");
 			usingWebRTC = false;
+			usingKurentoWebRTC = false;
 			// send out event to fallback to Java
 			globalDispatcher.dispatchEvent(new UseJavaModeCommand());
 		};
@@ -195,6 +216,7 @@ package org.bigbluebutton.modules.screenshare.managers
 
 			if (WebRTCAudioStatus.getInstance().getDidWebRTCAudioFail()) {
 				usingWebRTC = false;
+				usingKurentoWebRTC = false;
 				globalDispatcher.dispatchEvent(new UseJavaModeCommand());
 				return;
 			}
@@ -237,6 +259,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		public function handleUseJavaModeCommand():void {
 			LOGGER.debug("WebRTCDeskshareManager::handleUseJavaModeCommand");
 			usingWebRTC = false;
+			usingKurentoWebRTC = false;
 		}
 
 		public function handleRequestStartSharingEvent():void {
