@@ -3,6 +3,7 @@
 @namespace users "org.bigbluebutton.modules.users.views.*";
 @namespace poll "org.bigbluebutton.modules.polling.views.*";
 @namespace whiteboard "org.bigbluebutton.modules.whiteboard.views.*";
+@namespace videoconf "org.bigbluebutton.modules.videoconf.views.*";
 
 /*
 //------------------------------
@@ -637,6 +638,54 @@ mx|ToolTip {
 
 /*
 //------------------------------
+//  VideoDock
+//------------------------------
+*/
+
+videoconf|UserGraphicHolder {
+	presenterIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Presenter");
+	moderatorIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Moderator");
+}
+
+.videoToolbarBackgroundTalkingStyle {
+	backgroundColor : #3B97D3;
+	backgroundAlpha : 0.5;
+}
+
+.videoToolbarBackgroundNotTalkingStyle {
+	backgroundColor : #000000;
+	backgroundAlpha : 0.5;
+}
+
+.videoToolbarLabelStyle {
+	color      : #FFFFFF;
+	fontSize   : 12;
+	textIndent : 0;
+}
+
+.muteOverlayBtn {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+}
+
+.unmuteOverlayBtn {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+}
+
+.closeBtnFocus, .closeBtnNoFocus {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
+}
+
+/*
+//------------------------------
 //  Whiteboard
 //------------------------------
 */
@@ -757,22 +806,6 @@ whiteboard|WhiteboardToolbar {
 .videoMessageBackgroundStyle {
 	backgroundAlpha: 0.6;
 	backgroundColor: #b9babc;
-}
-
-.videoToolbarBackgroundTalkingStyle {
-	backgroundColor: #20c600;
-	backgroundAlpha: 0.6;
-}
-
-.videoToolbarBackgroundNotTalkingStyle {
-	backgroundColor: #42444c;
-	backgroundAlpha: 0.6;
-}
-
-.videoToolbarLabelStyle {
-	textIndent: 0;
-	color: #ffffff;
-	fontFamily: Arial;
 }
 
 .pollResondersLabelStyle {
@@ -1102,15 +1135,6 @@ whiteboard|WhiteboardToolbar {
 	backgroundColor: #42444c;
 }
 
-.closeBtnFocus, .closeBtnNoFocus
-{
-	upSkin:        Embed('assets/images/3_closeButton.png');
-	overSkin:      Embed('assets/images/3_closeButton.png');
-	downSkin:      Embed('assets/images/3_closeButton.png');
-	disabledSkin:  Embed('assets/images/3_closeButton.png');
-}
-
-
 .increaseBtnFocus, .increaseBtnNoFocus
 {
 	upSkin:        Embed('assets/images/3_increaseButton.png');
@@ -1133,28 +1157,6 @@ whiteboard|WhiteboardToolbar {
 	overSkin:      Embed('assets/images/3_minimizeButton.png');
 	downSkin:      Embed('assets/images/3_minimizeButton.png');
 	disabledSkin:  Embed('assets/images/3_minimizeButton.png');
-}
-
-/*
-https://www.iconfinder.com/icons/172512/mute_icon#size=128
-
-.muteOverlayBtn
-{
-	upSkin:        Embed('assets/images/audio_20_white.png');
-	overSkin:      Embed('assets/images/audio_20_white.png');
-	downSkin:      Embed('assets/images/audio_20_white.png');
-	disabledSkin:  Embed('assets/images/audio_20_white.png');
-}
-
-/*
-https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
-
-.unmuteOverlayBtn
-{
-	upSkin:        Embed('assets/images/audio_muted_20_white.png');
-	overSkin:      Embed('assets/images/audio_muted_20_white.png');
-	downSkin:      Embed('assets/images/audio_muted_20_white.png');
-	disabledSkin:  Embed('assets/images/audio_muted_20_white.png');
 }
 
 .resizeHndlr 

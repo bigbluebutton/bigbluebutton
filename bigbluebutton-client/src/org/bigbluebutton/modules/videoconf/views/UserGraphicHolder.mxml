@@ -245,11 +245,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
                     var userIconVisibility:Boolean;
                     if (user.presenter) {
-                        userIcon.source = _images.presenter_white;
+                        userIcon.source = getStyle("presenterIcon");
                         userIconVisibility = true;
                     } else {
                         if (user.role == Role.MODERATOR) {
-                            userIcon.source = _images.moderator_white;
+                            userIcon.source = getStyle("moderatorIcon");
                             userIconVisibility = true;
                         } else {
                             userIconVisibility = false;
@@ -262,9 +262,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function updateTalkingStatus():void {
               var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(user.intId);
                 if (voiceUser != null && voiceUser.talking) {
-                    titleBox.setStyle("styleName", "videoToolbarBackgroundTalkingStyle");
+                    titleBox.styleName = "videoToolbarBackgroundTalkingStyle";
                 } else {
-                    titleBox.setStyle("styleName", "videoToolbarBackgroundNotTalkingStyle");
+                    titleBox.styleName = "videoToolbarBackgroundNotTalkingStyle";
                 }
             }
 
@@ -329,7 +329,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     paddingRight="0"
                     paddingLeft="0"
                     styleName="videoToolbarBackgroundNotTalkingStyle" >
-                <mx:Box id="userIconWrapper" visible="false" includeInLayout="false" paddingLeft="3" paddingRight="0" >
+                <mx:Box id="userIconWrapper" visible="false" includeInLayout="false" paddingLeft="5" paddingRight="0" >
                     <mx:Image id="userIcon" />
                 </mx:Box>
                 <mx:Label
@@ -340,10 +340,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         minWidth="0"
                         truncateToFit="true"
                         styleName="videoToolbarLabelStyle" />
-                <mx:Box paddingRight="5">
-                    <mx:Button id="closeBtn" styleName="closeBtnFocus" buttonMode="true" click="shutdown()" 
+                    <mx:Button id="closeBtn" styleName="closeBtnFocus" buttonMode="true" click="shutdown()" paddingRight="5" 
                                toolTip="{ResourceUtil.getInstance().getString('bbb.video.streamClose.toolTip', [_username])}" />
-                </mx:Box>
             </mx:HBox>
             <mx:Box
                     width="100%"
@@ -356,7 +354,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         hideEffect="{fadeOut}" showEffect="{fadeIn}" >
                     <mx:Button 
                             id="muteBtn"
-                            styleName="talkingOverlayBtn"
                             buttonMode="true"
                             click="onMuteBtnClick(event)"
                             mouseOver="onMuteBtnMouseOver()"
