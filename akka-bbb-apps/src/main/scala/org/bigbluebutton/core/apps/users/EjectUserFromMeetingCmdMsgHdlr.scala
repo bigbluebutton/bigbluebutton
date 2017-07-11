@@ -31,6 +31,11 @@ trait EjectUserFromMeetingCmdMsgHdlr {
       log.info("Ejecting user from meeting (system msg).  meetingId=" + liveMeeting.props.meetingProp.intId +
         " userId=" + msg.body.userId)
 
+      // send a user left event for the clients to update
+      val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, user.intId)
+      outGW.send(userLeftMeetingEvent)
+      log.info("User left meetingId=" + liveMeeting.props.meetingProp.intId + " userId=" + msg.body.userId)
+
       for {
         vu <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
       } yield {
