@@ -28,7 +28,7 @@ export default function userLeaving(credentials, userId) {
   };
 
   const User = Users.findOne(selector);
-  const Meeting = Meetings.findOne({ meetingId: meetingId });
+  const Meeting = Meetings.findOne({ meetingId });
 
   if(!Meeting) {
     return;
