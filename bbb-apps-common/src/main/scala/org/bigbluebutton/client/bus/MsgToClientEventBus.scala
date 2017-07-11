@@ -7,7 +7,7 @@ import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 sealed trait ToConnectionMsg
 case class BroadcastMsgToMeeting(meetingId: String, data: BbbCommonEnvJsNodeMsg) extends ToConnectionMsg
 case class DirectMsgToClient(meetingId: String, connId: String, data: BbbCommonEnvJsNodeMsg) extends ToConnectionMsg
-case class SystemMsgToClient(meetingId: String, connId: String, data: BbbCommonEnvJsNodeMsg) extends ToConnectionMsg
+case class SystemMsgToClient(meetingId: String, userId: String, data: BbbCommonEnvJsNodeMsg) extends ToConnectionMsg
 
 case class MsgToClientBusMsg(val topic: String, payload: ToConnectionMsg)
 

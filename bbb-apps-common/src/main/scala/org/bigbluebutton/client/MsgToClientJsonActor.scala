@@ -46,14 +46,14 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   def handleSystemMsg(msg: SystemMsgToClient): Unit = {
     println("Received SystemMsgToClient " + msg)
     val meetingId = msg.meetingId
-    val connId = msg.connId
+    val userId = msg.userId
 
     msg.data.envelope.name match {
       case DisconnectAllClientsSysMsg.NAME =>
         val disconnect = new DisconnectAllClientsMessage(meetingId)
         msgToClientGW.systemMessage(disconnect)
       case DisconnectClientSysMsg.NAME =>
-        val disconnect = new DisconnectClientMessage(meetingId, connId)
+        val disconnect = new DisconnectClientMessage(meetingId, userId)
         msgToClientGW.systemMessage(disconnect)
     }
   }

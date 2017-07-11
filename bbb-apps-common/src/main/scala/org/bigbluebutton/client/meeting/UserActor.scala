@@ -148,25 +148,10 @@ class UserActor(val userId: String,
 
   def handleSystemMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     for {
-      conn <- Connections.findActiveConnection(conns)
-    } yield {
-      // val json = JsonUtil.toJson(msg.core)
-
-      msg.envelope.name match {
-        case DisconnectClientSysMsg.NAME => handleDisconnectClientSysMsg(msg)
-        case _ => {
-          msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, conn.connId, msg)))
-        }
-      }
-    }
-  }
-
-  def handleDisconnectClientSysMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    for {
       userId <- msg.envelope.routing.get("userId")
     } yield {
-      // Note - we use userId rather than connId for DisconnectClientSysMsg
       msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, userId, msg)))
     }
   }
+
 }
