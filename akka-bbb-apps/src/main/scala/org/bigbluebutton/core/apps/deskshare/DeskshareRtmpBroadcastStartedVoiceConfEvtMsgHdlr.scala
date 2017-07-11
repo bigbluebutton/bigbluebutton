@@ -32,7 +32,7 @@ trait DeskshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
     if (!DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel)) {
       DeskshareModel.setRTMPBroadcastingUrl(liveMeeting.deskshareModel, msg.body.stream)
       DeskshareModel.broadcastingRTMPStarted(liveMeeting.deskshareModel)
-      DeskshareModel.setDesktopShareVideoWidth(liveMeeting.deskshareModel, msg.body.vidWidth)
+      DeskshareModel.setDesktopShareVideoWidth(liveMeeting.deskshareModel, msg.body.vidHeight)
       DeskshareModel.setDesktopShareVideoHeight(liveMeeting.deskshareModel, msg.body.vidHeight)
       log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
