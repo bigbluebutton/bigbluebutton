@@ -16,13 +16,24 @@
   padding: 2rem 0;
 }
 
+.closeBtnWrapper {
+   display: flex;
+   justify-content: flex-end;
+}
+
 .closeBtn {
-  background-color: #FFFFFF;
+  background-color: $color-white;
   border: none;
-  display: flex;
-  justify-content: flex-end;
   i {
     color: $color-gray-light;
+  }
+
+  &:focus,
+  &:hover{
+    background-color: #0a5eac;
+    i{
+      color: $color-white;
+    }
   }
 }
 
@@ -41,7 +52,8 @@ Button.audioBtn span:first-child {
 }
 
 // When hovering over a button of class audioBtn, change the border colour of first span-child
-Button.audioBtn:hover span:first-child {
+Button.audioBtn:hover span:first-child, 
+Button.audioBtn:focus span:first-child {
   border: 5px solid $color-primary;
   background-color: #f1f8ff;
 }
