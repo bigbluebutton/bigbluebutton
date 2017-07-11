@@ -147,6 +147,7 @@ class MeetingActor(val props: DefaultProps,
       case m: SetRecordingStatusCmdMsg => handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg => handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
+      case m: EjectUserFromMeetingCmdMsg => handleEjectUserFromMeetingCmdMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)
