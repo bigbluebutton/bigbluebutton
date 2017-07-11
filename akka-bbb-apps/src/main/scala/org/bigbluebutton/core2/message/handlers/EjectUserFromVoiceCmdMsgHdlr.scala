@@ -11,7 +11,7 @@ trait EjectUserFromVoiceCmdMsgHdlr {
 
   val outGW: OutMessageGateway
 
-  def handleEjectUserRequest(msg: EjectUserFromVoiceCmdMsg) {
+  def handleEjectUserFromVoiceCmdMsg(msg: EjectUserFromVoiceCmdMsg) {
     log.info("Received eject user request. meetingId=" + msg.header.meetingId + " userId=" + msg.body.userId)
 
     for {
