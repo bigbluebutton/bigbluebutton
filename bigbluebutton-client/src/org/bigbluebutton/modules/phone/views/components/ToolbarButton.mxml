@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	mouseOut = "mouseOutHandler(event)"
 	creationComplete="onCreationComplete()"
 	height="30"
+	width="40"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 

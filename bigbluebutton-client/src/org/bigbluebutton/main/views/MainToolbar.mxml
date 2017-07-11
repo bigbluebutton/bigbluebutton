@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/" xmlns:common="org.bigbluebutton.common.*"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	enabled="true" visible="{showToolbar}"
-	initialize="init()">   
+	initialize="init()" xmlns:components="org.bigbluebutton.modules.phone.views.components.*">   
 	
 	<fx:Declarations>
 		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
@@ -512,7 +512,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
 		<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
-						   tabIndices="{[recordBtn, muteMeBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
 
     
@@ -536,10 +536,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>
 	<mx:VRule styleName="toolbarSeparator" height="10" />
 	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
-	<mx:HBox id="addedBtns"/>
+	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center"/>
 	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
-	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="30"/>
 	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 
 	<mx:Button

@@ -30,11 +30,11 @@
 */
 
 global {
-	fontFamily : "Source Sans Pro", Arial, sans-serif;
-	fontSize   : 13;
-	color      : #2A2D33;
-	selectionColor : #3b97d3;
-	focusColor : #3b97d3;
+	fontFamily     : "Source Sans Pro", Arial, sans-serif;
+	fontSize       : 13;
+	color          : #2A2D33;
+	selectionColor : #3B97D3;
+	focusColor     : #3B97D3;
 }
 
 /*
@@ -45,9 +45,8 @@ global {
 
 mx|Application {
 	backgroundGradientColors : #F1F3F7, #F1F3F7;
-	backgroundColor : #F1F3F7;
+	backgroundColor          : #F1F3F7;
 }
-
 
 /*
 //------------------------------
@@ -56,45 +55,45 @@ mx|Application {
 */
 
 .audioSelectionsStyle {
-	horizontalGap:60;
-	paddingLeft:30;
-	paddingRight:30;
+	horizontalGap : 60;
+	paddingLeft   : 30;
+	paddingRight  : 30;
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
-	fontSize: 24;
+	fontSize  : 24;
 	textAlign : center;
 }
 
 .btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
-	borderAlphaUp : 0;
-	borderAlphaOver : 1;
-	borderAlphaDown : 1;
+	borderAlphaUp       : 0;
+	borderAlphaOver     : 1;
+	borderAlphaDown     : 1;
 	borderAlphaDisabled : 0;
-	
-	fillColorUp : #eff5fa;
-	borderColorOver : #3797d3;
-	borderColorDown : #3797d3;
-	
-	borderThikness : 5;
-	cornerRadius : 70;
+
+	fillColorUp         : #EFF5FA;
+	borderColorOver     : #3797D3;
+	borderColorDown     : #3797D3;
+
+	borderThikness      : 5;
+	cornerRadius        : 70;
 }
 
 .btnMicrophoneStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Big");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Big");
 }
 
 .btnListenOnlyStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Headset_Big");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Headset_Big");
 }
 
 .btnPhoneStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Phone_Big");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Phone_Big");
 }
 
 .audioSubtitle {
-	color : #363b43;
-	fontSize : 14;
+	color      : #363B43;
+	fontSize   : 14;
 	fontWeight : bold;
 }
 
@@ -105,29 +104,29 @@ mx|Application {
 */
 
 mx|ApplicationControlBar {
-	cornerRadius: 0;
-	dropShadowColor: #ababab;
+	cornerRadius      : 0;
+	dropShadowColor   : #ABABAB;
 	dropShadowEnabled : true;
-	fillAlphas : 1, 1;
-	fillColors : #FFFFFF, #FFFFFF;
-	backgroundColor   : #ffffff;
+	fillAlphas        : 1, 1;
+	fillColors        : #FFFFFF, #FFFFFF;
+	backgroundColor   : #FFFFFF;
 	backgroundAlpha   : 1;
-	highlightAlphas: 0, 0;
-	shadowDistance: 1;
-	shadowDirection: center;
+	highlightAlphas   : 0, 0;
+	shadowDistance    : 1;
+	shadowDirection   : center;
 }
 
 .toolbarSeparator {
-	strokeWidth : 1;
-	strokeColor : #cdd4db;
-	paddingLeft : 20;
+	strokeWidth  : 1;
+	strokeColor  : #CDD4DB;
+	paddingLeft  : 20;
 	paddingRight : 20;
 }
 
 .meetingNameLabelStyle {
-	fontSize: 14;
-	textAlign: left;
-	color: #2A2D33;
+	fontSize  : 14;
+	textAlign : left;
+	color     : #2A2D33;
 }
 
 .defaultControlBarStyle {
@@ -135,81 +134,103 @@ mx|ApplicationControlBar {
 }
 
 .darkControlBarStyle {
-	color : #ffffff;
+	color : #FFFFFF;
 }
 
 .bandwidthButtonStyle {
-	icon:   Embed('assets/images/ic_swap_vert_16px.png');
+	icon : Embed('assets/images/ic_swap_vert_16px.png');
 }
 
 .logoutButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout");
 }
 
 .settingsButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
-.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle,
 .webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle,
-.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle
-{
+.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
+.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
+	fillColorSelectedUp     : #3B97D3;
+	fillColorSelectedOver   : #2E8BB8;
+	fillColorSelectedDown   : #3B97D3;
+	borderColorSelectedUp   : #3B97D3;
+	borderColorSelectedOver : #2E8BB8;
+	borderColorSelectedDown : #3B97D3;
+}
+
+.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
 	/* Selected state */
-	fillColorSelectedUp       : #3b97d3;
-	fillColorSelectedOver     : #2e8bb8;
-	fillColorSelectedDown     : #3b97d3;
-	borderColorSelectedUp     : #3b97d3;
-	borderColorSelectedOver   : #2e8bb8;
-	borderColorSelectedDown   : #3b97d3;
+	fillColorSelectedUp     : #FF6666;
+	fillColorSelectedOver   : #FF6666;
+	fillColorSelectedDown   : #FF6666;
+	borderColorSelectedUp   : #FF6666;
+	borderColorSelectedOver : #FF6666;
+	borderColorSelectedDown : #FF6666;
 }
 
 .voiceConfDefaultButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Disabled");
 }
 
 .voiceConfActiveButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_On");
 }
 
 .voiceConfInactiveButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off");
 }
 
 .webcamDefaultButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
 }
 
 .webcamOnButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
 }
 
 .webcamOffButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_White");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off");
 }
 
 .deskshareDefaultButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare");
 }
 
 .deskshareOnButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
 }
 
 .deskshareOffButtonStyle {
-	icon: Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
 }
 
 .recordButtonStyleNormal {
-	icon:   Embed('assets/images/control-record.png');
+	icon : Embed('assets/images/control-record.png');
 }
 
 .recordButtonStyleStart {
-	icon:   Embed('assets/images/control-record-start.png');
+	icon : Embed('assets/images/control-record-start.png');
 }
 
 .recordButtonStyleStop {
-	icon:   Embed('assets/images/control-record-stop.png');
+	icon : Embed('assets/images/control-record-stop.png');
+}
+
+.muteMeDefaultButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
+}
+
+.muteMeOnButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_On");
+}
+
+.muteMeOffButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
 }
 
 /*
@@ -219,33 +240,33 @@ mx|ApplicationControlBar {
 */
 
 mx|Alert {
-	borderColor       : #ffffff;
-	backgroundColor   : #ffffff;
+	borderColor       : #FFFFFF;
+	backgroundColor   : #FFFFFF;
 	borderAlpha       : 1;
 	dropShadowEnabled : false;
-	color             : #6c6c6c;
+	color             : #6C6C6C;
 	titleStyleName    : "alertTitleStyle";
 	messageStyleName  : "alertMessageStyle";
 }
 
 mx|AlertForm {
-	paddingTop: 8;
-	fontSize: 13;
+	paddingTop : 8;
+	fontSize   : 13;
 }
 
 .alertMessageStyle {
-	color: #8a9aa7;
-	fontSize: 14;
-	textAlign: center;
-	paddingTop: 6;
-	paddingLeft: 12;
-	paddingRight: 12;
-	paddingBottom: 6;
+	color         : #8A9AA7;
+	fontSize      : 14;
+	textAlign     : center;
+	paddingTop    : 6;
+	paddingLeft   : 12;
+	paddingRight  : 12;
+	paddingBottom : 6;
 }
 
 .alertTitleStyle {
-	textAlign: center;
-	fontSize: 24;  
+	textAlign : center;
+	fontSize  : 24;
 }
 
 /*
@@ -254,44 +275,45 @@ mx|AlertForm {
 //------------------------------
 */
 
-mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle */{
-	paddingLeft       : 12;
-	paddingRight      : 12;
-	paddingTop        : 8;
-	paddingBottom     : 8;
-	cornerRadius      : 2;
-	color             : #5e6d73;
-	textRollOverColor : #5e6d73;
-	textSelectedColor : #5e6d73;
-	fontSize          : 14;
-	skin			  : ClassReference("org.bigbluebutton.skins.ButtonSkin");
+mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle */
+{
+	paddingLeft                 : 12;
+	paddingRight                : 12;
+	paddingTop                  : 8;
+	paddingBottom               : 8;
+	cornerRadius                : 2;
+	color                       : #5E6D73;
+	textRollOverColor           : #5E6D73;
+	textSelectedColor           : #5E6D73;
+	fontSize                    : 14;
+	skin                        : ClassReference("org.bigbluebutton.skins.ButtonSkin");
 
 	/* Normal state */
-	fillColorUp         : #f0f2f6;
-	fillColorOver       : #cdd4db;
-	fillColorDown       : #acb2b7;
-	fillColorDisabled   : #f0f2f6;
-	borderColorUp       : #cdd4db;
-	borderColorOver     : #cdd4db;
-	borderColorDown     : #acb2b7;
-	borderColorDisabled : #cdd4db;
-	
-	borderAlphaUp : 1;
-	borderAlphaOver : 1;
-	borderAlphaDown : 1;
-	borderAlphaDisabled : 1;
-	
-	borderThikness : 1;
-	
+	fillColorUp                 : #F0F2F6;
+	fillColorOver               : #CDD4DB;
+	fillColorDown               : #ACB2B7;
+	fillColorDisabled           : #F0F2F6;
+	borderColorUp               : #CDD4DB;
+	borderColorOver             : #CDD4DB;
+	borderColorDown             : #ACB2B7;
+	borderColorDisabled         : #CDD4DB;
+
+	borderAlphaUp               : 1;
+	borderAlphaOver             : 1;
+	borderAlphaDown             : 1;
+	borderAlphaDisabled         : 1;
+
+	borderThikness              : 1;
+
 	/* Selected state */
-	fillColorSelectedUp       : #f0f2f6;
-	fillColorSelectedOver     : #cdd4db;
-	fillColorSelectedDown     : #acb2b7;
-	fillColorSelectedDisabled : #f0f2f6;
-	borderColorSelectedUp     : #cdd4db;
-	borderColorSelectedOver   : #cdd4db;
-	borderColorSelectedDown   : #acb2b7;
-	borderColorSelectedDisabled : #cdd4db;
+	fillColorSelectedUp         : #F0F2F6;
+	fillColorSelectedOver       : #CDD4DB;
+	fillColorSelectedDown       : #ACB2B7;
+	fillColorSelectedDisabled   : #F0F2F6;
+	borderColorSelectedUp       : #CDD4DB;
+	borderColorSelectedOver     : #CDD4DB;
+	borderColorSelectedDown     : #ACB2B7;
+	borderColorSelectedDisabled : #CDD4DB;
 }
 
 /*
@@ -300,29 +322,28 @@ mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .c
 //------------------------------
 */
 
-mx|ComboBox
-{
-	cornerRadius      : 2;
-	color             : #5e6c73;
-	textRollOverColor : #5e6c73;
-	textSelectedColor : #5e6c73;
-	fontSize          : 12;
-	
+mx|ComboBox {
+	cornerRadius        : 2;
+	color               : #5E6C73;
+	textRollOverColor   : #5E6C73;
+	textSelectedColor   : #5E6C73;
+	fontSize            : 12;
+
 	/* Normal state */
-	fillColorUp         : #ffffff;
-	fillColorOver       : #cdd4db;
-	fillColorDown       : #acb2b7;
-	fillColorDisabled   : #f0f2f6;
-	borderColorUp       : #cdd4db;
-	borderColorOver     : #cdd4db;
-	borderColorDown     : #acb2b7;
-	borderColorDisabled : #cdd4db;
-	
-	iconColor : #5e6c73;
-	
-	borderThikness : 1;
-	
-	skin: ClassReference("org.bigbluebutton.skins.ComboBoxSkin");
+	fillColorUp         : #FFFFFF;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #CDD4DB;
+	borderColorDown     : #ACB2B7;
+	borderColorDisabled : #CDD4DB;
+
+	iconColor           : #5E6C73;
+
+	borderThikness      : 1;
+
+	skin                : ClassReference("org.bigbluebutton.skins.ComboBoxSkin");
 }
 
 /*
@@ -332,13 +353,13 @@ mx|ComboBox
 */
 
 mx|DataGrid {
-	backgroundColor: #ffffff;
-	borderStyle : none;
-	rollOverColor: #f3f3f3;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	alternatingItemColors : #ffffff, #ffffff;
-	dropShadowEnabled: false;
+	backgroundColor       : #FFFFFF;
+	borderStyle           : none;
+	rollOverColor         : #F3F3F3;
+	textRollOverColor     : #3F3F41;
+	textSelectedColor     : #3F3F41;
+	alternatingItemColors : #FFFFFF, #FFFFFF;
+	dropShadowEnabled     : false;
 	verticalSeparatorSkin : ClassReference(null);
 }
 
@@ -348,23 +369,22 @@ mx|DataGrid {
 //------------------------------
 */
 
-mx|PopUpButton
-{
+mx|PopUpButton {
 	/* Normal state */
-	fillColorUp         : #f0f2f6;
-	fillColorOver       : #cdd4db;
-	fillColorDown       : #acb2b7;
-	fillColorDisabled   : #f0f2f6;
-	borderColorUp       : #cdd4db;
-	borderColorOver     : #cdd4db;
-	borderColorDown     : #acb2b7;
-	borderColorDisabled : #cdd4db;
-	
-	borderThikness : 1;
-	
-	iconColor : #5e6c73;
-	
-	skin : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
+	fillColorUp         : #F0F2F6;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #CDD4DB;
+	borderColorDown     : #ACB2B7;
+	borderColorDisabled : #CDD4DB;
+
+	borderThikness      : 1;
+
+	iconColor           : #5E6C73;
+
+	skin                : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
 }
 
 /*
@@ -374,86 +394,83 @@ mx|PopUpButton
 */
 
 flexlib|MDICanvas {
-	backgroundColor: #F1F3F7;
+	backgroundColor : #F1F3F7;
 }
 
 flexlib|MDIWindow {
 	/*None of the following properties are overridden by the MDIWindow class*/
-	backgroundSize: "100%";
-	
-	cornerRadius: 4;
-	dropShadowEnabled: false;
-	titleStyleName: "mdiWindowTitle";
-	
-	cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-	cornerResizeWidth: 2;
-	cornerResizeHeight: 2;
-	cornerResizePaddingRight: 2;
-	cornerResizePaddingBottom: 2;
-	
-	controlButtonWidth: 10;
-	controlButtonHeight: 10;
-	controlButtonGap: 4;
-	
-	borderStyle: solid;
-	borderColor: #CDD4DB;
-	borderAlpha: 1;
-	
-	styleNameFocus   : "mdiWindowFocus";
-	styleNameNoFocus : "mdiWindowNoFocus";
-	
-	maximizeBtnStyleName : "mdiMaximizeButtonStyle";
-	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
-	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
-	
-	showHeaderSeparator : true;
+	backgroundSize            : "100%";
+
+	cornerRadius              : 4;
+	dropShadowEnabled         : false;
+	titleStyleName            : "mdiWindowTitle";
+
+	cornerResizeImg           : Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+	cornerResizeWidth         : 2;
+	cornerResizeHeight        : 2;
+	cornerResizePaddingRight  : 2;
+	cornerResizePaddingBottom : 2;
+
+	controlButtonWidth        : 10;
+	controlButtonHeight       : 10;
+	controlButtonGap          : 4;
+
+	borderStyle               : solid;
+	borderColor               : #CDD4DB;
+	borderAlpha               : 1;
+
+	styleNameFocus            : "mdiWindowFocus";
+	styleNameNoFocus          : "mdiWindowNoFocus";
+
+	maximizeBtnStyleName      : "mdiMaximizeButtonStyle";
+	restoreBtnStyleName       : "mdiMaximizeButtonStyle";
+	minimizeBtnStyleName      : "mdiMinimizeButtonStyle";
+
+	showHeaderSeparator       : true;
 }
 
 .mdiMaximizeButtonStyle {
-	upSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Up");
-	overSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Over");
-	downSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Down");
-	disabledSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Disabled");
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Disabled");
 }
 
-
 .mdiMinimizeButtonStyle {
-	upSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Up");
-	overSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Over");
-	downSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Down");
-	disabledSkin: Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Disabled");
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Disabled");
 }
 
 .mdiWindowTitle {
-	color: #2A2D33;
-	fontSize: 12;
+	color    : #2A2D33;
+	fontSize : 12;
 }
 
-.mdiWindowFocus, .presentationWindowStyleFocus, .videoDockStyleFocus, .videoDockStyleFocusChatLayout, .videoViewStyleFocus, .videoPublishStyleFocus, .videoAvatarStyleFocus
-{
-	headerHeight: 30;
-	roundedBottomCorners: true;
-	
+.mdiWindowFocus, .presentationWindowStyleFocus, .videoDockStyleFocus, .videoDockStyleFocusChatLayout, .videoViewStyleFocus, .videoPublishStyleFocus, .videoAvatarStyleFocus {
+	headerHeight         : 30;
+	roundedBottomCorners : true;
+
 	borderStyle          : solid;
 	borderAlpha          : 1;
 	borderThickness      : 1;
-	borderColor          : #9eaeba;
-	
-	backgroundColor      : #ffffff;
+	borderColor          : #9EAEBA;
+
+	backgroundColor      : #FFFFFF;
 	backgroundAlpha      : 1;
 }
 
-.mdiWindowNoFocus, .presentationWindowStyleNoFocus, .videoDockStyleNoFocus, .videoDockStyleNoFocusChatLayout, .videoViewStyleNoFocus, .videoPublishStyleNoFocus, .videoAvatarStyleNoFocus
-{
-	headerHeight: 30;
-	roundedBottomCorners: true;
-	
+.mdiWindowNoFocus, .presentationWindowStyleNoFocus, .videoDockStyleNoFocus, .videoDockStyleNoFocusChatLayout, .videoViewStyleNoFocus, .videoPublishStyleNoFocus, .videoAvatarStyleNoFocus {
+	headerHeight         : 30;
+	roundedBottomCorners : true;
+
 	borderStyle          : solid;
 	borderAlpha          : 1;
 	borderThickness      : 1;
-	borderColor          : #cdd4db;
-	
-	backgroundColor      : #ffffff;
+	borderColor          : #CDD4DB;
+
+	backgroundColor      : #FFFFFF;
 	backgroundAlpha      : 1;
 }
 
@@ -464,18 +481,18 @@ flexlib|MDIWindow {
 */
 
 mx|Panel {
-	borderColor: #cdd4db;
-	borderAlpha: 1;
-	dropShadowEnabled : false;
-	backgroundColor: #ffffff;
-	titleStyleName: "panelTitleStyle";
+	borderColor         : #CDD4DB;
+	borderAlpha         : 1;
+	dropShadowEnabled   : false;
+	backgroundColor     : #FFFFFF;
+	titleStyleName      : "panelTitleStyle";
 	showHeaderSeparator : false;
-	borderSkin: ClassReference("org.bigbluebutton.skins.PanelSkin");
+	borderSkin          : ClassReference("org.bigbluebutton.skins.PanelSkin");
 }
 
 .panelTitleStyle {
-	color: #2A2D33;
-	fontSize: 12;
+	color    : #2A2D33;
+	fontSize : 12;
 }
 
 /*
@@ -485,54 +502,54 @@ mx|Panel {
 */
 
 .presentationUploadDeleteButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5;    
-	icon:   Embed('assets/images/trash.png');
+	fillAlphas        : 1, 1, 1, 1;
+	fillColors        : #FEFEFF, #E1E2E5, #FFFFFF, #EEEEEE;
+	color             : #3F3F41;
+	textRollOverColor : #3F3F41;
+	textSelectedColor : #3F3F41;
+	borderColor       : #B9BABC;
+	cornerRadius      : 5;
+	icon              : Embed('assets/images/trash.png');
 }
 
 .presentationUploadButtonStyle {
-	icon:   Embed('assets/images/ic_file_upload_16px.png');
+	icon : Embed('assets/images/ic_file_upload_16px.png');
 }
 
 .pollStartButtonStyle {
-	icon:   Embed('assets/images/poll_icon.png');
+	icon : Embed('assets/images/poll_icon.png');
 }
 
 .presentationBackButtonStyle {
-	icon:   Embed('assets/images/ic_arrow_back_24px.png');
+	icon : Embed('assets/images/ic_arrow_back_24px.png');
 }
 
 .presentationBackButtonDisabledStyle {
-	icon:   Embed('assets/images/ic_arrow_back_grey_24px.png');
+	icon : Embed('assets/images/ic_arrow_back_grey_24px.png');
 }
 
 .presentationForwardButtonStyle {
-	icon:   Embed('assets/images/ic_arrow_forward_24px.png');
+	icon : Embed('assets/images/ic_arrow_forward_24px.png');
 }
 
 .presentationForwardButtonDisabledStyle {
-	icon:   Embed('assets/images/ic_arrow_forward_grey_24px.png');
+	icon : Embed('assets/images/ic_arrow_forward_grey_24px.png');
 }
 
 .presentationFitToWidthButtonStyle {
-	icon:   Embed('assets/images/fit-to-width.png'); 
+	icon : Embed('assets/images/fit-to-width.png');
 }
 
 .presentationFitToPageButtonStyle {
-	icon:   Embed('assets/images/fit-to-screen.png'); 
+	icon : Embed('assets/images/fit-to-screen.png');
 }
 
 .presentationDownloadButtonStyle {
-	icon:   Embed('assets/images/ic_file_download_16px.png');
+	icon : Embed('assets/images/ic_file_download_16px.png');
 }
 
 .presentationDownloadButtonDisabledStyle {
-	icon:   Embed('assets/images/ic_file_download_grey_16px.png');
+	icon : Embed('assets/images/ic_file_download_grey_16px.png');
 }
 
 /*
@@ -542,13 +559,13 @@ mx|Panel {
 */
 
 mx|ProgressBar {
-	color       : #8a9aa7;
-	themeColor  : #8f53a1;
-	barColor    : #3697d3;
-	trackColors : #ffffff, #ffffff;
-	borderColor : #cdd4db;
+	color       : #8A9AA7;
+	themeColor  : #8F53A1;
+	barColor    : #3697D3;
+	trackColors : #FFFFFF, #FFFFFF;
+	borderColor : #CDD4DB;
 	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
-	trackSkin : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+	trackSkin   : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
 }
 
 /*
@@ -558,31 +575,31 @@ mx|ProgressBar {
 */
 
 .sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
-	icon: Embed('assets/images/ic_save_16px.png');
+	icon : Embed('assets/images/ic_save_16px.png');
 }
 
 .sharedNotesNewButtonStyle {
-	icon: Embed('assets/images/ic_note_add_16px.png');
+	icon : Embed('assets/images/ic_note_add_16px.png');
 }
 
 .sharedNotesEnabledUndoButtonStyle {
-	icon: Embed('assets/images/arrows_undo_icon.png');
+	icon : Embed('assets/images/arrows_undo_icon.png');
 }
 
 .sharedNotesDisabledUndoButtonStyle {
-	icon: Embed('assets/images/arrows_undo_icon_grey.png');
+	icon : Embed('assets/images/arrows_undo_icon_grey.png');
 }
 
 .sharedNotesEnabledRedoButtonStyle {
-	icon: Embed('assets/images/arrows_redo_icon.png');
+	icon : Embed('assets/images/arrows_redo_icon.png');
 }
 
 .sharedNotesDisabledRedoButtonStyle {
-	icon: Embed('assets/images/arrows_redo_icon_grey.png');
+	icon : Embed('assets/images/arrows_redo_icon_grey.png');
 }
 
 .sharedNotesFormatButtonStyle {
-	icon: Embed('assets/images/ic_note_format_16px.png');
+	icon : Embed('assets/images/ic_note_format_16px.png');
 }
 
 /*
@@ -592,11 +609,11 @@ mx|ProgressBar {
 */
 
 mx|TitleWindow {
-	borderColor : #FFFFFF;
-	cornerRadius : 4;
+	borderColor          : #FFFFFF;
+	cornerRadius         : 4;
 	roundedBottomCorners : true;
-	dropShadowEnabled : true;
-	shadowDistance : 0;
+	dropShadowEnabled    : true;
+	shadowDistance       : 0;
 }
 
 /*
@@ -607,15 +624,15 @@ mx|TitleWindow {
 
 mx|ToolTip {
 	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
-	backgroundColor : #3b97d3;
-	color			: #ffffff;
-	fontSize		: 13;
+	backgroundColor : #3B97D3;
+	color           : #FFFFFF;
+	fontSize        : 13;
 	backgroundAlpha : 0.9;
 	cornerRadius    : 3;
 }
 
 .errorTip {
-	borderColor		: #ff6666;
+	borderColor : #FF6666;
 }
 
 /*
@@ -625,8 +642,8 @@ mx|ToolTip {
 */
 
 whiteboard|WhiteboardToolbar {
-	backgroundColor : #f1f3f7;
-	borderColor     : #cfd4db;
+	backgroundColor : #F1F3F7;
+	borderColor     : #CFD4DB;
 	borderStyle     : solid;
 	borderThickness : 1;
 	cornerRadius    : 4;
@@ -637,70 +654,67 @@ whiteboard|WhiteboardToolbar {
 }
 
 .colorPickerStyle {
-	backgroundColor:#E5E6E7;
-	columnCount:13;
-	horizontalGap:0;
-	previewHeight:22;
-	previewWidth:50;
-	swatchGridBackgroundColor:#000000;
-	swatchGridBorderSize:0;
-	swatchHeight:60;
-	swatchHighlightColor:#FFFFFF;
-	swatchHighlightSize:1;
-	swatchWidth:12;
-	textFieldWidth:72;
-	verticalGap:0;
+	backgroundColor           : #E5E6E7;
+	columnCount               : 13;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 50;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
 }
 
-.multiUserWhiteboardOnButtonStyle 
-{
-	icon: Embed('assets/images/multiuserwhiteboardon.png');
+.multiUserWhiteboardOnButtonStyle {
+	icon : Embed('assets/images/multiuserwhiteboardon.png');
 }
 
-.multiUserWhiteboardOffButtonStyle 
-{
-	icon: Embed('assets/images/multiuserwhiteboardoff.png');
+.multiUserWhiteboardOffButtonStyle {
+	icon : Embed('assets/images/multiuserwhiteboardoff.png');
 }
 
-.whiteboardUndoButtonStyle 
-{
-	icon: Embed('assets/images/undo.png');
+.whiteboardUndoButtonStyle {
+	icon : Embed('assets/images/undo.png');
 }
 
 .whiteboardCircleButtonStyle {
-	icon: Embed('assets/images/ellipse.png');  
+	icon : Embed('assets/images/ellipse.png');
 }
 
 .whiteboardClearButtonStyle {
-	icon: Embed('assets/images/delete.png');    
+	icon : Embed('assets/images/delete.png');
 }
 
 .chatClearButtonStyle {
-	icon: Embed('assets/images/delete.png');
+	icon : Embed('assets/images/delete.png');
 }
 
-.whiteboardScribbleButtonStyle{
-	icon: Embed('assets/images/pencil.png');  
+.whiteboardScribbleButtonStyle {
+	icon : Embed('assets/images/pencil.png');
 }
 
 .whiteboardLineButtonStyle {
-	icon: Embed('assets/images/line.png');    
+	icon : Embed('assets/images/line.png');
 }
 
 .whiteboardPanZoomButtonStyle {
-	icon: Embed('assets/images/hand.png');   
+	icon : Embed('assets/images/hand.png');
 }
 
 .whiteboardRectangleButtonStyle {
-	icon: Embed('assets/images/square.png');   
+	icon : Embed('assets/images/square.png');
 }
 
 .whiteboardTextButtonStyle {
-	icon: Embed('assets/images/text.png');   
+	icon : Embed('assets/images/text.png');
 }
 
 .whiteboardTriangleButtonStyle {
-	icon: Embed('assets/images/triangle.png');    
+	icon : Embed('assets/images/triangle.png');
 }
 
 /****************************/
