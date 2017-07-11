@@ -122,10 +122,7 @@ class MeetingActor(val props: DefaultProps,
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
 
-    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
-    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
-    case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
-    case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
+    // Deskshare
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
 
     // Guest
@@ -228,6 +225,12 @@ class MeetingActor(val props: DefaultProps,
       case m: SendPrivateMessagePubMsg => chatApp2x.handleSendPrivateMessagePubMsg(m)
       case m: ClearPublicChatHistoryPubMsg => chatApp2x.handleClearPublicChatHistoryPubMsg(m)
 
+      // Deskshare
+      case m: DeskshareStartedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareStartedVoiceConfEvtMsg(m)
+      case m: DeskshareStoppedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareStoppedVoiceConfEvtMsg(m)
+      case m: DeskshareRtmpBroadcastStartedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
+      case m: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
+
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -256,25 +259,6 @@ class MeetingActor(val props: DefaultProps,
 
     // TODO stop current screen sharing session (initiated by the old presenter)
 
-  }
-
-  def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" +
-      DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel) + " URL:" +
-      DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel))
-
-    // only valid if currently broadcasting
-    if (DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel)) {
-      log.info("STOP broadcast ALLOWED when isBroadcastingRTMP=true")
-      DeskshareModel.broadcastingRTMPStopped(liveMeeting.deskshareModel)
-
-      // notify viewers that RTMP broadcast stopped
-      //outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId,
-      //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
-      //  msg.videoWidth, msg.videoHeight, false))
-    } else {
-      log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
-    }
   }
 
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
@@ -311,56 +295,6 @@ class MeetingActor(val props: DefaultProps,
         //   outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
       }
       case None => // do nothing
-    }
-  }
-
-  // WebRTC Desktop Sharing
-
-  def handleDeskShareStartedRequest(msg: DeskShareStartedRequest): Unit = {
-    log.info("handleDeskShareStartedRequest: dsStarted=" + DeskshareModel.getDeskShareStarted(liveMeeting.deskshareModel))
-
-    if (!DeskshareModel.getDeskShareStarted(liveMeeting.deskshareModel)) {
-      val timestamp = System.currentTimeMillis().toString
-      val streamPath = "rtmp://" + props.screenshareProps.red5ScreenshareIp + "/" + props.screenshareProps.red5ScreenshareApp +
-        "/" + props.meetingProp.intId + "/" + props.meetingProp.intId + "-" + timestamp
-      log.info("handleDeskShareStartedRequest: streamPath=" + streamPath)
-
-      // Tell FreeSwitch to broadcast to RTMP
-      //outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath))
-
-      DeskshareModel.setDeskShareStarted(liveMeeting.deskshareModel, true)
-    }
-  }
-
-  def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit = {
-    log.info("handleDeskShareStoppedRequest: dsStarted=" +
-      DeskshareModel.getDeskShareStarted(liveMeeting.deskshareModel) +
-      " URL:" + DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel))
-
-    // Tell FreeSwitch to stop broadcasting to RTMP
-    //outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName,
-    //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel)))
-
-    DeskshareModel.setDeskShareStarted(liveMeeting.deskshareModel, false)
-  }
-
-  def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" +
-      DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel) +
-      " URL:" + DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel))
-
-    // only valid if not broadcasting yet
-    if (!DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel)) {
-      DeskshareModel.setRTMPBroadcastingUrl(liveMeeting.deskshareModel, msg.streamname)
-      DeskshareModel.broadcastingRTMPStarted(liveMeeting.deskshareModel)
-      DeskshareModel.setDesktopShareVideoWidth(liveMeeting.deskshareModel, msg.videoWidth)
-      DeskshareModel.setDesktopShareVideoHeight(liveMeeting.deskshareModel, msg.videoHeight)
-      log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
-
-      // Notify viewers in the meeting that there's an rtmp stream to view
-      //outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId, msg.streamname, msg.videoWidth, msg.videoHeight, true))
-    } else {
-      log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
     }
   }
 
