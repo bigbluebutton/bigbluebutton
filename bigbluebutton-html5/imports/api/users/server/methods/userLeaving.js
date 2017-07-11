@@ -30,41 +30,41 @@ export default function userLeaving(credentials, userId) {
   const User = Users.findOne(selector);
   const Meeting = Meetings.findOne({ meetingId: meetingId });
 
-  if(Meeting) {
+  if(!Meeting) {
+    return;
+  }
 
-    if (!User) {
-      throw new Meteor.Error(
-        'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
-    }
+  if (!User) {
+    throw new Meteor.Error(
+      'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
+  }
 
-    if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
-      return;
-    }
+  if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
+    return;
+  }
 
-    if (User.user.listenOnly) {
-      listenOnlyToggle(credentials, false);
-    }
+  if (User.user.listenOnly) {
+    listenOnlyToggle(credentials, false);
+  }
 
-    if (User.validated) {
-      const modifier = {
-        $set: {
-          validated: null,
-        },
-      };
+  if (User.validated) {
+    const modifier = {
+      $set: {
+        validated: null,
+      },
+    };
 
-      const cb = (err, numChanged) => {
-        if (err) {
-          return Logger.error(`Invalidating user: ${err}`);
-        }
+    const cb = (err, numChanged) => {
+      if (err) {
+        return Logger.error(`Invalidating user: ${err}`);
+      }
 
-        if (numChanged) {
-          return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
-        }
-      };
+      if (numChanged) {
+        return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
+      }
+    };
 
-      Users.update(selector, modifier, cb);
-    }
-
+    Users.update(selector, modifier, cb);
   }
 
   const payload = {
