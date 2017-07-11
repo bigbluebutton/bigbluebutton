@@ -105,6 +105,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
       case MuteAllExceptPresentersCmdMsg.NAME =>
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
+      case MuteUserCmdMsg.NAME =>
+        routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -273,6 +275,8 @@ class ReceivedJsonMsgHandlerActor(
       case DeskshareStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[DeskshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
 
+      case EjectUserFromMeetingCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

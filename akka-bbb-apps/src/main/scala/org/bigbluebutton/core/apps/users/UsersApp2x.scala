@@ -14,7 +14,7 @@ trait UsersApp2x
     with SetRecordingStatusCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
     with AssignPresenterReqMsgHdlr
-    with EjectUserFromMeetingHdlr
+    with EjectUserFromMeetingCmdMsgHdlr
     with ChangeUserEmojiCmdMsgHdlr {
 
   this: MeetingActor =>

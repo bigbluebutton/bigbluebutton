@@ -268,7 +268,7 @@ package org.bigbluebutton.main.model.users
 		public function assignPresenter(e:RoleChangeEvent):void{
 			var assignTo:String = e.userid;
 			var name:String = e.username;
-			sender.assignPresenter(assignTo, name, LiveMeeting.inst().me.id);
+			sender.assignPresenter(assignTo, name, UsersUtil.getMyUserID());
 		}
 
     public function muteUnmuteUser(command:VoiceConfEvent):void {
@@ -288,8 +288,8 @@ package org.bigbluebutton.main.model.users
     }
         
     public function ejectUser(command:VoiceConfEvent):void {
-      sender.ejectUser(command.userid);			
-    }	
+      if (this.isModerator()) sender.ejectUserFromVoice(command.userid);
+    }
     
     //Lock events
     public function lockAllUsers(command:LockControlEvent):void {
