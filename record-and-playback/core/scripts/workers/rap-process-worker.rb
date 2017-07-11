@@ -26,75 +26,67 @@ module BigBlueButton
 
       def perform
         super do
-          @logger.info("Running process worker for #{@meeting_id}")
+          @logger.info("Running process worker for #{@meeting_id}/#{@format_name}")
 
-          all_succeeded = true
+          script = File.expand_path("../../process/#{@format_name}.rb", __FILE__)
+          if File.exists?(script)
+            @publisher.put_publish_started(@publish_type, @meeting_id)
 
-          # Iterate over the list of recording processing scripts to find available types
-          # For now, we look for the ".rb" extension - TODO other scripting languages?
-          glob = File.join(File.expand_path('../../process', __FILE__), "*.rb")
-          Dir.glob(glob).sort.each do |process_script|
-            match2 = /([^\/]*).rb$/.match(process_script)
-            process_type = match2[1]
+            self.remove_status_files
 
-            self.remove_status_files(process_type)
-
-            @logger.info("Running process worker for #{@meeting_id}, type #{process_type}")
-            @publisher.put_process_started(process_type, @meeting_id)
+            @logger.info("Running process worker for #{@meeting_id}/#{@format_name}")
+            @publisher.put_process_started(@format_name, @meeting_id)
 
             # If the process directory exists, the script does nothing
-            FileUtils.rm_rf("#{@recording_dir}/process/#{process_type}/#{@meeting_id}")
+            FileUtils.rm_rf("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}")
 
-            ret, step_time = self.run_script(process_script)
+            ret, step_time = self.run_script(script, "-m", @meeting_id)
             step_succeeded = (
               ret == 0 &&
-              File.exists?(processed_done(process_type)) && !File.exists?(processed_fail(process_type))
+              File.exists?(@processed_done) && !File.exists?(@processed_fail)
             )
 
             @publisher.put_process_ended(
-              process_type, @meeting_id, {
+              @format_name, @meeting_id, {
                 "success" => step_succeeded,
                 "step_time" => step_time
               })
 
             if step_succeeded
-              @logger.info("Process format #{process_type} succeeded for #{@meeting_id}")
+              @logger.info("Process format succeeded for #{@meeting_id}/#{@format_name}")
               @logger.info("Process took #{step_time}ms")
-              IO.write("#{@recording_dir}/process/#{process_type}/#{@meeting_id}/processing_time", step_time)
-              self.schedule_next_step(process_type) unless @single_step
+
+              FileUtils.mkdir_p("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}")
+              IO.write("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}/processing_time", step_time)
+
+              self.run_post_scripts(@post_scripts_path)
+
+              self.schedule_next_step unless @single_step
             else
-              @logger.info("Process format #{process_type} failed for #{@meeting_id}")
+              @logger.info("Process format failed for #{@meeting_id}/#{@format_name}")
               @logger.info("Process took #{step_time}ms")
               FileUtils.touch(@processed_fail)
             end
 
-            all_succeeded &&= step_succeeded
-          end
-
-          if all_succeeded
-            @logger.info("Successfully processed #{@meeting_id}, calling post process")
-            self.run_post_scripts(@post_scripts_path)
+          else
+            @logger.warn("Processed recording found for #{@meeting_id}/#{@format_name}, but no process script exists")
+            step_succeeded = true
           end
         end
       end
 
-      def remove_status_files(process_type)
-        FileUtils.rm_f(processed_done(process_type))
-        FileUtils.rm_f(processed_fail(process_type))
+      def remove_status_files
+        FileUtils.rm_f(@processed_done)
+        FileUtils.rm_f(@processed_fail)
       end
 
-      def processed_done(process_type)
-        "#{@recording_dir}/status/processed/#{@meeting_id}-#{process_type}.done"
-      end
-
-      def processed_fail(process_type)
-        "#{@recording_dir}/status/processed/#{@meeting_id}-#{process_type}.fail"
-      end
-
-      def initialize(meeting_id, single_step=false)
+      def initialize(meeting_id, single_step=false, format_name)
         super(meeting_id, single_step)
         @step_name = "process"
+        @format_name = format_name
         @post_scripts_path = File.expand_path('../../post_process', __FILE__)
+        @processed_done = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.done"
+        @processed_fail = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.fail"
       end
 
     end

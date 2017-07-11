@@ -56,7 +56,11 @@ module BigBlueButton
 
           post_started_method(post_type, @meeting_id)
 
-          ret, step_time = self.run_script(post_script)
+          if @format_name.nil?
+            ret, step_time = self.run_script(post_script, "-m", @meeting_id)
+          else
+            ret, step_time = self.run_script(post_script, "-m", @meeting_id, "-f", @format_name)
+          end
           step_succeeded = (ret == 0)
 
           post_ended_method(
@@ -66,14 +70,14 @@ module BigBlueButton
             })
 
           if not step_succeeded
-            @logger.warn("Post #{type} script #{post_script} failed")
+            @logger.warn("Post #{@step_name} script #{post_script}/#{post_type} failed")
           end
         end
       end
 
-      def run_script(script, meeting_id=@meeting_id)
+      def run_script(script, *args)
         step_start_time = BigBlueButton.monotonic_clock
-        ret = BigBlueButton.exec_ret("ruby", script, "-m", meeting_id)
+        ret = BigBlueButton.exec_ret("ruby", script, *args)
         step_stop_time = BigBlueButton.monotonic_clock
         step_time = step_stop_time - step_start_time
         [ret, step_time]
@@ -101,15 +105,28 @@ module BigBlueButton
         end
       end
 
-      def schedule_next_step(*args)
-        @logger.info("Scheduling next step for #{@step_name} with (#{@meeting_id}, false, #{args.inspect})")
+      def schedule_next_step
+        @logger.info("Scheduling next step for #{@step_name}")
+
         case @step_name
         when "archive"
-          ::Resque.enqueue(BigBlueButton::Resque::SanityWorker, @meeting_id, false, *args)
+          @logger.info("Enqueueing sanity worker for (#{@meeting_id}, false)")
+          ::Resque.enqueue(BigBlueButton::Resque::SanityWorker, @meeting_id, false)
+
         when "sanity"
-          ::Resque.enqueue(BigBlueButton::Resque::ProcessWorker, @meeting_id, false, *args)
+          # find all processing scripts available, schedule one worker for each
+          glob = File.join(File.expand_path('../../process', __FILE__), "*.rb")
+          Dir.glob(glob).sort.each do |process_script|
+            match2 = /([^\/]*).rb$/.match(process_script)
+            format_name = match2[1]
+
+            @logger.info("Enqueueing process for (#{@meeting_id}, false, #{format_name})")
+            ::Resque.enqueue(BigBlueButton::Resque::ProcessWorker, @meeting_id, false, format_name)
+          end
+
         when "process"
-          ::Resque.enqueue(BigBlueButton::Resque::PublishWorker, @meeting_id, false, *args)
+          @logger.info("Enqueueing publish worker for (#{@meeting_id}, false, #{@format_name})")
+          ::Resque.enqueue(BigBlueButton::Resque::PublishWorker, @meeting_id, false, @format_name)
         end
       end
 
@@ -123,6 +140,7 @@ module BigBlueButton
         @meeting_id = meeting_id
         @single_step = single_step
         @step_name = nil
+        @format_name = nil
 
         @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
         @logger.level = Logger::INFO

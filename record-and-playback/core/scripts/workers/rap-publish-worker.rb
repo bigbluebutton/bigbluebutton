@@ -26,47 +26,42 @@ module BigBlueButton
 
       def perform
         super do
-          @logger.info("Running publish worker for #{@meeting_id}, #{@publish_type}")
+          @logger.info("Running publish worker for #{@meeting_id}/#{@format_name}")
 
-          publish_script = File.expand_path("../../publish/#{@publish_type}.rb", __FILE__)
+          publish_script = File.expand_path("../../publish/#{@format_name}.rb", __FILE__)
           if File.exists?(publish_script)
-            @publisher.put_publish_started(@publish_type, @meeting_id)
+            @publisher.put_publish_started(@format_name, @meeting_id)
 
             # If the publish directory exists, the script does nothing
-            FileUtils.rm_rf("#{@recording_dir}/publish/#{@publish_type}/#{@meeting_id}")
+            FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@meeting_id}")
             self.remove_status_files
 
             # For legacy reasons, the meeting ID passed to the publish script contains
             # the playback format name.
-            ret, step_time = self.run_script(publish_script, "#{@meeting_id}-#{@publish_type}")
+            ret, step_time = self.run_script(publish_script, "-m", "#{@meeting_id}-#{@format_name}")
             step_succeeded = (
               ret == 0 &&
               File.exists?(@published_done) && !File.exists?(@published_fail)
             )
 
             @publisher.put_publish_ended(
-              @publish_type, @meeting_id, {
+              @format_name, @meeting_id, {
                 "success" => step_succeeded,
                 "step_time" => step_time
               })
           else
-            @logger.warn("Processed recording found for type #{@publish_type}, but no publish script exists")
+            @logger.warn("Processed recording found for #{@meeting_id}/#{@format_name}, but no publish script exists")
             step_succeeded = true
           end
 
           if step_succeeded
-            @logger.info("Publish format #{@publish_type} succeeded for #{@meeting_id}")
-            FileUtils.rm_rf("#{@recording_dir}/process/#{@publish_type}/#{@meeting_id}")
-            FileUtils.rm_rf("#{@recording_dir}/publish/#{@publish_type}/#{@meeting_id}")
+            @logger.info("Publish format succeeded for #{@meeting_id}/#{@format_name}")
+            FileUtils.rm_rf("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}")
+            FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@meeting_id}")
 
-            # Check if this is the last format to be published
-            if Dir.glob("#{@recording_dir}/status/processed/#{@meeting_id}-*.done").length == 0
-              self.run_post_scripts(@post_scripts_path)
-            end
-
-            self.schedule_next_step unless @single_step
+            self.run_post_scripts(@post_scripts_path)
           else
-            @logger.info("Publish format #{@publish_type} failed for #{@meeting_id}")
+            @logger.info("Publish format failed for #{@meeting_id}/#{@format_name}")
             FileUtils.touch(@published_fail)
           end
         end
@@ -77,13 +72,13 @@ module BigBlueButton
         FileUtils.rm_f(@published_fail)
       end
 
-      def initialize(meeting_id, single_step=false, publish_type)
+      def initialize(meeting_id, single_step=false, format_name)
         super(meeting_id, single_step)
         @step_name = "publish"
-        @publish_type = publish_type
+        @format_name = format_name
         @post_scripts_path = File.expand_path('../../post_publish', __FILE__)
-        @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@publish_type}.done"
-        @published_fail = "#{@recording_dir}/status/published/#{@meeting_id}-#{@publish_type}.fail"
+        @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.done"
+        @published_fail = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.fail"
       end
 
     end

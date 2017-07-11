@@ -32,7 +32,7 @@ module BigBlueButton
           self.remove_status_files
 
           script = File.expand_path('../../archive/archive.rb', __FILE__)
-          ret, step_time = self.run_script(script)
+          ret, step_time = self.run_script(script, "-m", @meeting_id)
           step_succeeded = (
             ret == 0 &&
             (File.exists?(@archived_done) || File.exists?(@archived_norecord)) &&

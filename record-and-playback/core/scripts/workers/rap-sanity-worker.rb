@@ -32,7 +32,7 @@ module BigBlueButton
           self.remove_status_files
 
           script = File.expand_path('../../sanity/sanity.rb', __FILE__)
-          ret, step_time = self.run_script(script)
+          ret, step_time = self.run_script(script, "-m", @meeting_id)
           step_succeeded = (ret == 0 && File.exists?(@sanity_done))
 
           @publisher.put_sanity_ended(
