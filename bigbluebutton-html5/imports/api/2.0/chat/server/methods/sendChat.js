@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import RegexWebUrl from '/imports/utils/regex-weburl';
 
 const HTML_SAFE_MAP = {
@@ -28,7 +28,7 @@ const parseMessage = (message) => {
 
 export default function sendChat(credentials, message) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.chat;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
@@ -41,6 +41,7 @@ export default function sendChat(credentials, message) {
   check(message, Object);
 
   let eventName = 'SendPrivateMessagePubMsg';
+
   const parsedMessage = message;
 
   parsedMessage.message = parseMessage(message.message);
@@ -49,11 +50,11 @@ export default function sendChat(credentials, message) {
     eventName = 'SendPublicMessagePubMsg';
   }
 
-  const payload = {
-    parsedMessage,
+  const header = {
     meetingId,
-    requesterId: message.fromUserid,
+    name: eventName,
+    userId: requesterUserId,
   };
 
-  return RedisPubSub.publish(CHANNEL, eventName, payload);
+  return RedisPubSub.publish(CHANNEL, eventName, meetingId, { message: parsedMessage }, header);
 }
