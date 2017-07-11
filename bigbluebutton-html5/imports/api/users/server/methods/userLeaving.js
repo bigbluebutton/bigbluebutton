@@ -4,6 +4,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 
 import setConnectionStatus from '../modifiers/setConnectionStatus';
 import listenOnlyToggle from './listenOnlyToggle';
@@ -27,6 +28,12 @@ export default function userLeaving(credentials, userId) {
   };
 
   const User = Users.findOne(selector);
+  const Meeting = Meetings.findOne({ meetingId });
+
+  if(!Meeting) {
+    return;
+  }
+
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
