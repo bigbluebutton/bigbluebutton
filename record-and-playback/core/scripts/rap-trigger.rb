@@ -19,10 +19,7 @@
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
 require File.expand_path('../../lib/recordandplayback', __FILE__)
-require File.expand_path('../rap-archive-worker', __FILE__)
-require File.expand_path('../rap-sanity-worker', __FILE__)
-require File.expand_path('../rap-process-worker', __FILE__)
-require File.expand_path('../rap-publish-worker', __FILE__)
+require File.expand_path('../workers/workers', __FILE__)
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
