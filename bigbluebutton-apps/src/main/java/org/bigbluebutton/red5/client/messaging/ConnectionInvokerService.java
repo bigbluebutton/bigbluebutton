@@ -112,7 +112,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     } else if (message instanceof SharedObjectClientMessage) {
       sendSharedObjectMessage((SharedObjectClientMessage) message);
     } else if (message instanceof DisconnectClientMessage) {
-      handlDisconnectClientMessage((DisconnectClientMessage) message);
+      handleDisconnectClientMessage((DisconnectClientMessage) message);
     } else if (message instanceof DisconnectAllClientsMessage) {
       handleDisconnectAllClientsMessage((DisconnectAllClientsMessage) message);
     } else if (message instanceof DisconnectAllMessage) {
@@ -256,7 +256,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     }
   }
   
-  private void handlDisconnectClientMessage(DisconnectClientMessage msg) {
+  private void handleDisconnectClientMessage(DisconnectClientMessage msg) {
     IScope meetingScope = getScope(msg.getMeetingId());
     if (meetingScope != null) {
       String userId = msg.getUserId();

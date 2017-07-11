@@ -16,12 +16,20 @@ trait EjectUserFromMeetingCmdMsgHdlr {
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, msg.body.userId)
     } yield {
-      val ejectFromMeetingEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(liveMeeting.props.meetingProp.intId,
-        user.intId, msg.body.ejectedBy)
-      outGW.send(ejectFromMeetingEvent)
-      log.info("Ejecting user from meeting.  meetingId=" + ejectFromMeetingEvent.core + "  " + liveMeeting.props.meetingProp.intId + " userId=" + msg.body.userId)
-
       RegisteredUsers.remove(msg.body.userId, liveMeeting.registeredUsers)
+
+      // send a message to client
+      val ejectFromMeetingClientEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(liveMeeting.props.meetingProp.intId,
+        user.intId, msg.body.ejectedBy)
+      outGW.send(ejectFromMeetingClientEvent)
+      log.info("Ejecting user from meeting (client msg).  meetingId=" + liveMeeting.props.meetingProp.intId +
+        " userId=" + msg.body.userId)
+
+      // send a system message to force disconnection
+      val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, user.intId)
+      outGW.send(ejectFromMeetingSystemEvent)
+      log.info("Ejecting user from meeting (system msg).  meetingId=" + liveMeeting.props.meetingProp.intId +
+        " userId=" + msg.body.userId)
 
       for {
         vu <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)

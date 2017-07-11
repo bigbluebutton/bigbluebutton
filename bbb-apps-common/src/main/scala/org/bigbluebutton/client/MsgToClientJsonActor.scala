@@ -5,7 +5,7 @@ import org.bigbluebutton.client.bus.{BroadcastMsgToMeeting, DirectMsgToClient, S
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.red5.client.messaging.{BroadcastToMeetingMsg, DirectToClientMsg}
 import org.bigbluebutton.red5.client.messaging.{DisconnectAllClientsMessage, DisconnectClientMessage}
-import org.bigbluebutton.common2.msgs.{DisconnectAllClientsSysMsg, DisconnectClientsSysMsg}
+import org.bigbluebutton.common2.msgs.{DisconnectAllClientsSysMsg, DisconnectClientSysMsg}
 
 
 object MsgToClientJsonActor {

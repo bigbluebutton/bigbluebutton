@@ -55,6 +55,11 @@ case class DisconnectAllClientsSysMsg(header: BbbCoreHeaderWithMeetingId,
                                   body: DisconnectAllClientsSysMsgBody) extends BbbCoreMsg
 case class DisconnectAllClientsSysMsgBody(meetingId: String)
 
+object DisconnectClientSysMsg { val NAME = "DisconnectClientSysMsg"}
+case class DisconnectClientSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                  body: DisconnectClientSysMsgBody) extends BbbCoreMsg
+case class DisconnectClientSysMsgBody(meetingId: String, userId: String)
+
 object EndAndKickAllSysMsg { val NAME = "EndAndKickAllSysMsg"}
 case class EndAndKickAllSysMsg(header: BbbCoreHeaderWithMeetingId,
                                       body: EndAndKickAllSysMsgBody) extends BbbCoreMsg
