@@ -28,7 +28,7 @@ module BigBlueButton
         super do
           @logger.info("Running process worker for #{@meeting_id}")
 
-          step_succeeded = true
+          all_succeeded = true
 
           # Iterate over the list of recording processing scripts to find available types
           # For now, we look for the ".rb" extension - TODO other scripting languages?
@@ -37,22 +37,21 @@ module BigBlueButton
             match2 = /([^\/]*).rb$/.match(process_script)
             process_type = match2[1]
 
-            next if File.exists?(processed_done(process_type))
-            if File.exists?(processed_fail(process_type))
-              step_succeeded = false
-              next
-            end
+            self.remove_status_files(process_type)
 
             @logger.info("Running process worker for #{@meeting_id}, type #{process_type}")
-            BigBlueButton.redis_publisher.put_process_started(process_type, @meeting_id)
+            @publisher.put_process_started(process_type, @meeting_id)
 
             # If the process directory exists, the script does nothing
             FileUtils.rm_rf("#{@recording_dir}/process/#{process_type}/#{@meeting_id}")
 
             ret, step_time = self.run_script(process_script)
-            step_succeeded = (ret == 0 and File.exists?(processed_done(process_type)))
+            step_succeeded = (
+              ret == 0 &&
+              File.exists?(processed_done(process_type)) && !File.exists?(processed_fail(process_type))
+            )
 
-            BigBlueButton.redis_publisher.put_process_ended(
+            @publisher.put_process_ended(
               process_type, @meeting_id, {
                 "success" => step_succeeded,
                 "step_time" => step_time
@@ -62,19 +61,26 @@ module BigBlueButton
               @logger.info("Process format #{process_type} succeeded for #{@meeting_id}")
               @logger.info("Process took #{step_time}ms")
               IO.write("#{@recording_dir}/process/#{process_type}/#{@meeting_id}/processing_time", step_time)
+              self.schedule_next_step(process_type) unless @single_step
             else
               @logger.info("Process format #{process_type} failed for #{@meeting_id}")
               @logger.info("Process took #{step_time}ms")
               FileUtils.touch(@processed_fail)
-              step_succeeded = false
             end
+
+            all_succeeded &&= step_succeeded
           end
 
-          if step_succeeded
+          if all_succeeded
             @logger.info("Successfully processed #{@meeting_id}, calling post process")
-            self.run_post_scripts("process", @post_scripts_path)
+            self.run_post_scripts(@post_scripts_path)
           end
         end
+      end
+
+      def remove_status_files(process_type)
+        FileUtils.rm_f(processed_done(process_type))
+        FileUtils.rm_f(processed_fail(process_type))
       end
 
       def processed_done(process_type)
@@ -85,8 +91,9 @@ module BigBlueButton
         "#{@recording_dir}/status/processed/#{@meeting_id}-#{process_type}.fail"
       end
 
-      def initialize(meeting_id)
-        super(meeting_id)
+      def initialize(meeting_id, single_step=false)
+        super(meeting_id, single_step)
+        @step_name = "process"
         @post_scripts_path = File.expand_path('../../post_process', __FILE__)
       end
 

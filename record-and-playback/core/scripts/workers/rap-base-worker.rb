@@ -36,7 +36,10 @@ module BigBlueButton
       end
 
       def perform
+        @logger.info("Started worker #{@step_name} for #{@meeting_id}")
         yield
+        @logger.info("Ended worker #{@step_name} for #{@meeting_id}")
+
       rescue Exception => e
         @logger.error(e.message)
         e.backtrace.each do |traceline|
@@ -44,19 +47,19 @@ module BigBlueButton
         end
       end
 
-      def run_post_scripts(type, post_scripts_path)
+      def run_post_scripts(post_scripts_path)
         glob = File.join(post_scripts_path, "*.rb")
         Dir.glob(glob).sort.each do |post_script|
           match = /([^\/]*).rb$/.match(post_script)
           post_type = match[1]
-          @logger.info("Running post #{type} script #{post_type}")
+          @logger.info("Running post #{@step_name} script #{post_type}")
 
-          post_started_method(type).call(post_type, @meeting_id)
+          post_started_method(post_type, @meeting_id)
 
           ret, step_time = self.run_script(post_script)
           step_succeeded = (ret == 0)
 
-          post_ended_method(type).call(
+          post_ended_method(
             post_type, @meeting_id, {
               "success" => step_succeeded,
               "step_time" => step_time
@@ -76,35 +79,50 @@ module BigBlueButton
         [ret, step_time]
       end
 
-      def post_started_method(type)
-        case type
+      def post_started_method(*args)
+        case @step_name
         when "archive"
-          BigBlueButton.redis_publisher.method(:put_post_archive_started)
+          @publisher.put_post_archive_started(*args)
         when "process"
-          BigBlueButton.redis_publisher.method(:put_post_process_started)
+          @publisher.put_post_process_started(*args)
         when "publish"
-          BigBlueButton.redis_publisher.method(:put_post_publish_started)
+          @publisher.put_post_publish_started(*args)
         end
       end
 
-      def post_ended_method(type)
-        case type
+      def post_ended_method(*args)
+        case @step_name
         when "archive"
-          BigBlueButton.redis_publisher.method(:put_post_archive_ended)
+          @publisher.put_post_archive_ended(*args)
         when "process"
-          BigBlueButton.redis_publisher.method(:put_post_process_ended)
+          @publisher.put_post_process_ended(*args)
         when "publish"
-          BigBlueButton.redis_publisher.method(:put_post_publish_ended)
+          @publisher.put_post_publish_ended(*args)
         end
       end
 
-      def initialize(meeting_id)
+      def schedule_next_step(*args)
+        @logger.info("Scheduling next step for #{@step_name} with (#{@meeting_id}, false, #{args.inspect})")
+        case @step_name
+        when "archive"
+          ::Resque.enqueue(BigBlueButton::Resque::SanityWorker, @meeting_id, false, *args)
+        when "sanity"
+          ::Resque.enqueue(BigBlueButton::Resque::ProcessWorker, @meeting_id, false, *args)
+        when "process"
+          ::Resque.enqueue(BigBlueButton::Resque::PublishWorker, @meeting_id, false, *args)
+        end
+      end
+
+      def initialize(meeting_id, single_step=false)
         props = BigBlueButton.read_props
         BigBlueButton.create_redis_publisher
 
+        @publisher = BigBlueButton.redis_publisher
         @log_dir = props['log_dir']
         @recording_dir = props['recording_dir']
         @meeting_id = meeting_id
+        @single_step = single_step
+        @step_name = nil
 
         @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
         @logger.level = Logger::INFO

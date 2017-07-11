@@ -30,17 +30,21 @@ module BigBlueButton
 
           publish_script = File.expand_path("../../publish/#{@publish_type}.rb", __FILE__)
           if File.exists?(publish_script)
-            BigBlueButton.redis_publisher.put_publish_started(@publish_type, @meeting_id)
+            @publisher.put_publish_started(@publish_type, @meeting_id)
 
             # If the publish directory exists, the script does nothing
             FileUtils.rm_rf("#{@recording_dir}/publish/#{@publish_type}/#{@meeting_id}")
+            self.remove_status_files
 
             # For legacy reasons, the meeting ID passed to the publish script contains
             # the playback format name.
             ret, step_time = self.run_script(publish_script, "#{@meeting_id}-#{@publish_type}")
-            step_succeeded = (ret == 0 and File.exists?(@published_done))
+            step_succeeded = (
+              ret == 0 &&
+              File.exists?(@published_done) && !File.exists?(@published_fail)
+            )
 
-            BigBlueButton.redis_publisher.put_publish_ended(
+            @publisher.put_publish_ended(
               @publish_type, @meeting_id, {
                 "success" => step_succeeded,
                 "step_time" => step_time
@@ -57,8 +61,10 @@ module BigBlueButton
 
             # Check if this is the last format to be published
             if Dir.glob("#{@recording_dir}/status/processed/#{@meeting_id}-*.done").length == 0
-              self.run_post_scripts("publish", @post_scripts_path)
+              self.run_post_scripts(@post_scripts_path)
             end
+
+            self.schedule_next_step unless @single_step
           else
             @logger.info("Publish format #{@publish_type} failed for #{@meeting_id}")
             FileUtils.touch(@published_fail)
@@ -66,8 +72,14 @@ module BigBlueButton
         end
       end
 
-      def initialize(meeting_id, publish_type)
-        super(meeting_id)
+      def remove_status_files
+        FileUtils.rm_f(@published_done)
+        FileUtils.rm_f(@published_fail)
+      end
+
+      def initialize(meeting_id, single_step=false, publish_type)
+        super(meeting_id, single_step)
+        @step_name = "publish"
         @publish_type = publish_type
         @post_scripts_path = File.expand_path('../../post_publish', __FILE__)
         @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@publish_type}.done"

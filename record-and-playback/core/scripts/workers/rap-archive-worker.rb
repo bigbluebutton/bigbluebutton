@@ -27,19 +27,19 @@ module BigBlueButton
       def perform
         super do
           @logger.info("Running archive worker for #{@meeting_id}")
-          BigBlueButton.redis_publisher.put_archive_started(@meeting_id)
+          @publisher.put_archive_started(@meeting_id)
 
-          step_start_time = BigBlueButton.monotonic_clock
+          self.remove_status_files
+
           script = File.expand_path('../../archive/archive.rb', __FILE__)
-          ret = BigBlueButton.exec_ret("ruby", script, "-m", @meeting_id)
-          step_stop_time = BigBlueButton.monotonic_clock
-          step_time = step_stop_time - step_start_time
+          ret, step_time = self.run_script(script)
+          step_succeeded = (
+            ret == 0 &&
+            (File.exists?(@archived_done) || File.exists?(@archived_norecord)) &&
+            !File.exists?(@archived_fail)
+          )
 
-          step_succeeded = (ret == 0 &&
-                            (File.exists?(@archived_done) ||
-                             File.exists?(@archived_norecord)))
-
-          BigBlueButton.redis_publisher.put_archive_ended(
+          @publisher.put_archive_ended(
             @meeting_id, {
               "success" => step_succeeded,
               "step_time" => step_time
@@ -47,6 +47,7 @@ module BigBlueButton
 
           if step_succeeded
             @logger.info("Successfully archived #{@meeting_id}")
+            self.schedule_next_step unless @single_step
           else
             @logger.error("Failed to archive #{@meeting_id}")
             FileUtils.touch(@archived_fail)
@@ -55,8 +56,15 @@ module BigBlueButton
         end
       end
 
-      def initialize(meeting_id)
-        super(meeting_id)
+      def remove_status_files
+        FileUtils.rm_f(@archived_done)
+        FileUtils.rm_f(@archived_norecord)
+        FileUtils.rm_f(@archived_fail)
+      end
+
+      def initialize(meeting_id, single_step=false)
+        super(meeting_id, single_step)
+        @step_name = "archive"
         @archived_fail = "#{@recording_dir}/status/archived/#{@meeting_id}.fail"
         @archived_done = "#{@recording_dir}/status/archived/#{@meeting_id}.done"
         @archived_norecord = "#{@recording_dir}/status/archived/#{@meeting_id}.norecord"

@@ -41,79 +41,10 @@ def archive_recorded_meetings(recording_dir)
       next
     end
 
-    archived_done = "#{recording_dir}/status/archived/#{meeting_id}.done"
-    next if File.exists?(archived_done)
-
-    archived_norecord = "#{recording_dir}/status/archived/#{meeting_id}.norecord"
-    next if File.exists?(archived_norecord)
-
-    archived_fail = "#{recording_dir}/status/archived/#{meeting_id}.fail"
-    next if File.exists?(archived_fail)
-
     BigBlueButton.logger.info("Enqueuing job to archive #{meeting_id}")
     Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, meeting_id)
 
     FileUtils.rm_f(recorded_done)
-  end
-end
-
-def sanity_archived_meetings(recording_dir)
-  archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
-
-  FileUtils.mkdir_p("#{recording_dir}/status/sanity")
-  archived_done_files.each do |archived_done|
-    match = /([^\/]*).done$/.match(archived_done)
-    meeting_id = match[1]
-
-    sanity_done = "#{recording_dir}/status/sanity/#{meeting_id}.done"
-    next if File.exists?(sanity_done)
-
-    sanity_fail = "#{recording_dir}/status/sanity/#{meeting_id}.fail"
-    next if File.exists?(sanity_fail)
-
-    BigBlueButton.logger.info("Enqueuing job to sanity #{meeting_id}")
-    Resque.enqueue(BigBlueButton::Resque::SanityWorker, meeting_id)
-
-    FileUtils.rm_f(archived_done)
-  end
-end
-
-def process_archived_meetings(recording_dir)
-  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
-
-  FileUtils.mkdir_p("#{recording_dir}/status/processed")
-  sanity_done_files.each do |sanity_done|
-    match = /([^\/]*).done$/.match(sanity_done)
-    meeting_id = match[1]
-
-    BigBlueButton.logger.info("Enqueuing job to process #{meeting_id}")
-    Resque.enqueue(BigBlueButton::Resque::ProcessWorker, meeting_id)
-
-    FileUtils.rm_f(sanity_done)
-  end
-end
-
-def publish_processed_meetings(recording_dir)
-  processed_done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
-
-  FileUtils.mkdir_p("#{recording_dir}/status/published")
-  processed_done_files.each do |processed_done|
-    match = /([^\/]*)-([^\/-]*).done$/.match(processed_done)
-    meeting_id = match[1]
-    publish_type = match[2]
-
-    step_succeeded = false
-
-    published_done = "#{recording_dir}/status/published/#{meeting_id}-#{publish_type}.done"
-    next if File.exists?(published_done)
-
-    published_fail = "#{recording_dir}/status/published/#{meeting_id}-#{publish_type}.fail"
-    next if File.exists?(published_fail)
-
-    BigBlueButton.logger.info("Enqueuing job to publish #{meeting_id}, type #{publish_type}")
-    Resque.enqueue(BigBlueButton::Resque::PublishWorker, meeting_id, publish_type)
-
-    FileUtils.rm_f(processed_done)
   end
 end
 
@@ -129,9 +60,6 @@ begin
   BigBlueButton.logger.debug("Running rap-trigger...")
 
   archive_recorded_meetings(recording_dir)
-  sanity_archived_meetings(recording_dir)
-  process_archived_meetings(recording_dir)
-  publish_processed_meetings(recording_dir)
 
   BigBlueButton.logger.debug("rap-trigger done")
 

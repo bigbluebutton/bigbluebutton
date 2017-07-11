@@ -27,13 +27,15 @@ module BigBlueButton
       def perform
         super do
           @logger.info("Running sanity worker for #{@meeting_id}")
-          BigBlueButton.redis_publisher.put_sanity_started(@meeting_id)
+          @publisher.put_sanity_started(@meeting_id)
+
+          self.remove_status_files
 
           script = File.expand_path('../../sanity/sanity.rb', __FILE__)
           ret, step_time = self.run_script(script)
           step_succeeded = (ret == 0 && File.exists?(@sanity_done))
 
-          BigBlueButton.redis_publisher.put_sanity_ended(
+          @publisher.put_sanity_ended(
             @meeting_id, {
               "success" => step_succeeded,
               "step_time" => step_time
@@ -41,7 +43,8 @@ module BigBlueButton
 
           if step_succeeded
             @logger.info("Successfully sanity checked #{@meeting_id}")
-            self.run_post_scripts("archive", @post_scripts_path)
+            self.run_post_scripts(@post_scripts_path)
+            self.schedule_next_step unless @single_step
           else
             @logger.error("Sanity check failed on #{@meeting_id}")
             FileUtils.touch(@sanity_fail)
@@ -49,8 +52,14 @@ module BigBlueButton
         end
       end
 
-      def initialize(meeting_id)
-        super(meeting_id)
+      def remove_status_files
+        FileUtils.rm_f(@sanity_done)
+        FileUtils.rm_f(@sanity_fail)
+      end
+
+      def initialize(meeting_id, single_step=false)
+        super(meeting_id, single_step)
+        @step_name = "sanity"
         @post_scripts_path = File.expand_path('../../post_archive', __FILE__)
         @sanity_fail = "#{@recording_dir}/status/sanity/#{@meeting_id}.fail"
         @sanity_done = "#{@recording_dir}/status/sanity/#{@meeting_id}.done"
