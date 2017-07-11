@@ -14,21 +14,21 @@ trait VoiceStandardMsg extends BbbCoreMsg {
 
   object DeskshareRtmpBroadcastStartedVoiceConfEvtMsg { val NAME = "DeskshareRtmpBroadcastStartedVoiceConfEvtMsg"}
   case class DeskshareRtmpBroadcastStartedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                                          body: DeskshareRtmpBroadcastStartedVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                                          body: DeskshareRtmpBroadcastStartedVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class DeskshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
-                                                              stream: String, vidWidth: String, vidHeight: String,
+                                                              stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String)
 
   object DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg { val NAME = "DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg"}
   case class DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                                          body: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                                          body: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
-                                                              stream: String, vidWidth: String, vidHeight: String,
+                                                              stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String)
 
   object DeskshareStartedVoiceConfEvtMsg { val NAME = "DeskshareStartedVoiceConfEvtMsg" }
   case class DeskshareStartedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                             body: DeskshareStartedVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                             body: DeskshareStartedVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class DeskshareStartedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
                                                  callerIdNum: String, callerIdName: String)
 
@@ -40,7 +40,7 @@ trait VoiceStandardMsg extends BbbCoreMsg {
 
   object DeskshareStoppedVoiceConfEvtMsg { val NAME = "DeskshareStoppedVoiceConfEvtMsg"}
   case class DeskshareStoppedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                             body: DeskshareStoppedVoiceConfEvtMsgBody) extends BbbCoreMsg
+                                             body: DeskshareStoppedVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class DeskshareStoppedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
                                                  callerIdNum: String, callerIdName: String)
 
