@@ -12,8 +12,6 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
-const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
-const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
@@ -105,11 +103,10 @@ const reduceMessages = (previous, current) => {
 
 const getPublicMessages = () => {
   const publicMessages = Chats.find({
-    'message.chatType': { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
+    'message.toUsername': { $in: ['public_chat_username', SYSTEM_CHAT_TYPE] },
   }, {
     sort: ['message.fromTime'],
-  })
-    .fetch();
+  }).fetch();
 
   return publicMessages
     .reduce(reduceMessages, [])
@@ -118,10 +115,10 @@ const getPublicMessages = () => {
 
 const getPrivateMessages = (userID) => {
   const messages = Chats.find({
-    'message.chatType': PRIVATE_CHAT_TYPE,
+    'message.toUsername': { $ne: 'public_chat_username' },
     $or: [
-      { 'message.toUserid': userID },
-      { 'message.fromUserid': userID },
+      { 'message.toUserId': userID },
+      { 'message.fromUserId': userID },
     ],
   }, {
     sort: ['message.fromTime'],

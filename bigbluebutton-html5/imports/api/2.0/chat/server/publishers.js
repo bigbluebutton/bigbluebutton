@@ -6,9 +6,6 @@ import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 function chat(credentials) {
-  const CHAT_CONFIG = Meteor.settings.public.chat;
-  const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
-
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -20,13 +17,13 @@ function chat(credentials) {
   return Chat.find({
     $or: [
       {
-        'message.chatType': PUBLIC_CHAT_TYPE,
+        'message.toUsername': 'public_chat_username',
         meetingId,
       }, {
-        'message.fromUserid': requesterUserId,
+        'message.fromUserId': requesterUserId,
         meetingId,
       }, {
-        'message.toUserid': requesterUserId,
+        'message.toUserId': requesterUserId,
         meetingId,
       },
     ],
