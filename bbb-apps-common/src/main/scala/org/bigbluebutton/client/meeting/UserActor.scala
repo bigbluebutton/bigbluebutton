@@ -150,8 +150,10 @@ class UserActor(val userId: String,
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {
-      val json = JsonUtil.toJson(msg.core)
-      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, conn.connId, msg)))
+      msg.envelope.name match {
+        case DisconnectClientSysMsg.NAME =>
+          msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+      }
     }
   }
 }
