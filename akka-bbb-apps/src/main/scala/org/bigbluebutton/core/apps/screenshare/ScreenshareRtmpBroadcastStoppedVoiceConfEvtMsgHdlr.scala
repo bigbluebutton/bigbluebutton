@@ -1,17 +1,17 @@
-package org.bigbluebutton.core.apps.deskshare
+package org.bigbluebutton.core.apps.screenshare
 
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.DeskshareModel
+import org.bigbluebutton.core.apps.ScreenshareModel
 
-trait DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
-  this: DeskshareApp2x =>
+trait ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
+  this: ScreenshareApp2x =>
 
   val outGW: OutMessageGateway
 
-  def handleDeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(msg: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg): Unit = {
+  def handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(msg: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg): Unit = {
 
-    def broadcastEvent(voiceConf: String, deskshareConf: String,
+    def broadcastEvent(voiceConf: String, screenshareConf: String,
       stream: String, vidWidth: Int, vidHeight: Int,
       timestamp: String): BbbCommonEnvCoreMsg = {
 
@@ -21,23 +21,23 @@ trait DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
       val header = BbbClientMsgHeader(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME,
         liveMeeting.props.meetingProp.intId, "not-used")
 
-      val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, deskshareConf,
+      val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, screenshareConf,
         stream, vidWidth, vidHeight, timestamp)
       val event = ScreenshareRtmpBroadcastStoppedEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" +
-      DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel) + " URL:" +
-      DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel))
+    log.info("handleScreenshareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" +
+      ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) + " URL:" +
+      ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
 
     // only valid if currently broadcasting
-    if (DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel)) {
+    if (ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
       log.info("STOP broadcast ALLOWED when isBroadcastingRTMP=true")
-      DeskshareModel.broadcastingRTMPStopped(liveMeeting.deskshareModel)
+      ScreenshareModel.broadcastingRTMPStopped(liveMeeting.screenshareModel)
 
       // notify viewers that RTMP broadcast stopped
-      val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.deskshareConf, msg.body.stream,
+      val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
         msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp)
       outGW.send(msgEvent)
     } else {

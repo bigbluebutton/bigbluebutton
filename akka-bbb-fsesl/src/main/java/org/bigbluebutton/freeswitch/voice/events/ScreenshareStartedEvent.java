@@ -18,12 +18,12 @@
 */
 package org.bigbluebutton.freeswitch.voice.events;
 
-public class DeskShareStartedEvent extends VoiceConferenceEvent {
+public class ScreenshareStartedEvent extends VoiceConferenceEvent {
 
 	private final String callerIdNum;
 	private final String callerIdName;
 	
-	public DeskShareStartedEvent(String room, String callerIdNum, String callerIdName) {
+	public ScreenshareStartedEvent(String room, String callerIdNum, String callerIdName) {
 		super(room);
 		this.callerIdName = callerIdName;
 		this.callerIdNum = callerIdNum;

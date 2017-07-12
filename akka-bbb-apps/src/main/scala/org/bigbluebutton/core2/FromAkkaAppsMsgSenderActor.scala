@@ -27,9 +27,9 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case SyncGetUsersMeetingRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
 
       // Sent to FreeSWITCH
-      case DeskshareStartRtmpBroadcastVoiceConfMsg.NAME =>
+      case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
-      case DeskshareStopRtmpBroadcastVoiceConfMsg.NAME =>
+      case ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
       case EjectAllFromVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)

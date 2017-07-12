@@ -1,7 +1,6 @@
 package org.bigbluebutton.freeswitch
 
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common.messages.{ DeskShareRTMPBroadcastStartedEventMessage, DeskShareRTMPBroadcastStoppedEventMessage, DeskShareStartedEventMessage, DeskShareStoppedEventMessage }
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.endpoint.redis.RedisPublisher
 import org.bigbluebutton.common2.msgs._
@@ -94,12 +93,12 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   def deskShareStarted(voiceConfId: String, callerIdNum: String, callerIdName: String) {
     println("******** FreeswitchConferenceService send deskShareStarted to BBB " + voiceConfId)
 
-    val header = BbbCoreVoiceConfHeader(DeskshareStartedVoiceConfEvtMsg.NAME, voiceConfId)
-    val body = DeskshareStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, deskshareConf = voiceConfId,
+    val header = BbbCoreVoiceConfHeader(ScreenshareStartedVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = ScreenshareStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
       callerIdNum = callerIdNum, callerIdName = callerIdName)
-    val envelope = BbbCoreEnvelope(DeskshareStartedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+    val envelope = BbbCoreEnvelope(ScreenshareStartedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
-    val msg = new DeskshareStartedVoiceConfEvtMsg(header, body)
+    val msg = new ScreenshareStartedVoiceConfEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
 
     val json = JsonUtil.toJson(msgEvent)
@@ -109,12 +108,12 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   def deskShareEnded(voiceConfId: String, callerIdNum: String, callerIdName: String) {
     println("******** FreeswitchConferenceService send deskShareStopped to BBB " + voiceConfId)
 
-    val header = BbbCoreVoiceConfHeader(DeskshareStoppedVoiceConfEvtMsg.NAME, voiceConfId)
-    val body = DeskshareStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, deskshareConf = voiceConfId,
+    val header = BbbCoreVoiceConfHeader(ScreenshareStoppedVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = ScreenshareStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
       callerIdNum = callerIdNum, callerIdName = callerIdName)
-    val envelope = BbbCoreEnvelope(DeskshareStoppedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+    val envelope = BbbCoreEnvelope(ScreenshareStoppedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
-    val msg = new DeskshareStoppedVoiceConfEvtMsg(header, body)
+    val msg = new ScreenshareStoppedVoiceConfEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
 
     val json = JsonUtil.toJson(msgEvent)
@@ -124,13 +123,13 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   def deskShareRTMPBroadcastStarted(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
     println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStarted to BBB " + voiceConfId)
 
-    val header = BbbCoreVoiceConfHeader(DeskshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, voiceConfId)
-    val body = DeskshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, deskshareConf = voiceConfId,
+    val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
       stream = streamname, vidWidth = vw.intValue(), vidHeight = vh.intValue(),
       timestamp)
-    val envelope = BbbCoreEnvelope(DeskshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+    val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
-    val msg = new DeskshareRtmpBroadcastStartedVoiceConfEvtMsg(header, body)
+    val msg = new ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
 
     val json = JsonUtil.toJson(msgEvent)
@@ -141,13 +140,13 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
     println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStopped to BBB " + voiceConfId)
 
-    val header = BbbCoreVoiceConfHeader(DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME, voiceConfId)
-    val body = DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, deskshareConf = voiceConfId,
+    val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
       stream = streamname, vidWidth = vw.intValue(), vidHeight = vh.intValue(),
       timestamp)
-    val envelope = BbbCoreEnvelope(DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+    val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
-    val msg = new DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(header, body)
+    val msg = new ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
 
     val json = JsonUtil.toJson(msgEvent)

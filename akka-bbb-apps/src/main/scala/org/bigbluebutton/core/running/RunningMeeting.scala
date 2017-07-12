@@ -33,7 +33,7 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val users2x = new Users2x
   val polls2x = new Polls
   val guestsWaiting = new GuestsWaiting
-  val deskshareModel = new DeskshareModel
+  val deskshareModel = new ScreenshareModel
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
