@@ -3,7 +3,7 @@ package org.bigbluebutton.client.meeting
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.SystemConfiguration
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg, MessageTypes}
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg, DisconnectAllClientsSysMsg, MessageTypes}
 
 object MeetingActor {
   def props(meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
@@ -101,6 +101,11 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
 
   def handleSystemMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
-    forwardToUser(msg)
+    msg.envelope.name match {
+      case DisconnectAllClientsSysMsg.NAME =>
+        msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectAllMeetingClientsMsg(meetingId)))
+      case _ => forwardToUser(msg)
+    }
+
   }
 }

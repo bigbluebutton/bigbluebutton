@@ -103,10 +103,10 @@ package org.bigbluebutton.modules.users.services
         case "UserLeftVoiceConfToClientEvtMsg":
           handleUserLeftVoiceConfToClientEvtMsg(message);
           break;
-        case "UserTalkingEvtMsg":
+        case "UserTalkingVoiceEvtMsg":
           handleUserTalkingEvtMsg(message);
           break;
-        case "UserMutedEvtMsg":
+        case "UserMutedVoiceEvtMsg":
           handleUserMutedEvtMsg(message);
           break;
         case "GuestsWaitingForApprovalEvtMsg":
@@ -173,11 +173,14 @@ package org.bigbluebutton.modules.users.services
 		case "BreakoutRoomClosedEvtMsg":
 		  handleBreakoutRoomClosed(message);
 		  break;
-        case "userEjectedFromMeeting":
+        case "UserEjectedFromMeetingEvtMsg":
           handleUserEjectedFromMeeting(message);
           break;
-        case "DeskShareRTMPBroadcastNotification":
-          handleDeskShareRTMPBroadcastNotification(message);
+        case "ScreenshareRtmpBroadcastStartedEvtMsg":
+          handleScreenshareRtmpBroadcastStartedEvtMsg(message);
+          break;
+        case "ScreenshareRtmpBroadcastStoppedEvtMsg":
+          handleScreenshareRtmpBroadcastStoppedEvtMsg(message);
           break;
         case "get_guest_policy_reply":
           handleGetGuestPolicyReply(message);
@@ -412,30 +415,48 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
-    private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
-      var event:WebRTCViewStreamEvent;
-      if (msg.broadcasting) {
-        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
-      } else {
-        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
-      }
 
-      event.videoWidth = msg.width;
-      event.videoHeight = msg.height;
-      event.rtmp = msg.rtmpUrl;
-
+    private function handleScreenshareRtmpBroadcastStartedEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var stream: String = body.stream as String;
+      var vidWidth: Number = body.vidWidth as Number;
+      var vidHeight: Number = body.vidHeight as Number;
+      
+      var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
+      
+      event.videoWidth = vidWidth;
+      event.videoHeight = vidHeight;
+      event.rtmp = stream;
+      
+      dispatcher.dispatchEvent(event);
+    }
+    
+    private function handleScreenshareRtmpBroadcastStoppedEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var stream: String = body.stream as String;
+      var vidWidth: Number = body.vidWidth as Number;
+      var vidHeight: Number = body.vidHeight as Number;
+      
+      var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
+      
+      event.videoWidth = vidWidth;
+      event.videoHeight = vidHeight;
+      event.rtmp = stream;
+      
       dispatcher.dispatchEvent(event);
     }
 
     private function handleUserEjectedFromMeeting(msg: Object):void {
-        UsersUtil.setUserEjected();
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["users"];
-        logData.status = "user_ejected";
-        logData.message = "User ejected from meeting.";
+      var body: Object = msg.body as Object;
+      var userId:String = body.userId as String;
 
-        LOGGER.info(JSON.stringify(logData));
-      
+      UsersUtil.setUserEjected();
+
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["users"];
+      logData.status = "user_ejected";
+      logData.message = "User ejected from meeting.";
+      LOGGER.info(JSON.stringify(logData));
     }
 
 	private function handleUserLocked(msg:Object):void {

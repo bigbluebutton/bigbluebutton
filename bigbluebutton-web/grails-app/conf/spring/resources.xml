@@ -51,6 +51,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
         <constructor-arg index="0" ref="oldMessageReceivedGW"/>
+        <constructor-arg index="1" value="${screenshareRtmpServer}"/>
+        <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
+        <constructor-arg index="3" value="${screenshareConfSuffix}"/>
     </bean>
 
     <bean id="redisStorageService" class="org.bigbluebutton.api.messaging.RedisStorageService"

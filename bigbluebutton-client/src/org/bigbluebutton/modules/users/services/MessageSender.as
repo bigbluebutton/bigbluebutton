@@ -39,28 +39,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.managers.ConnectionManager;
 
   public class MessageSender {
-	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
+	private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-    public function kickUser(userID:String):void {
-      var message:Object = new Object();
-      message["userId"] = userID;
-      message["ejectedBy"] = UsersUtil.getMyUserID();
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.ejectUserFromMeeting", 
-        function(result:String):void { // On successful result
-        },	                   
-        function(status:String):void { // status - On error occurred
-            var logData:Object = UsersUtil.initLogData();
-            logData.tags = ["apps"];
-            logData.userId = userID;
-            logData.message = "Error occured ejecting user.";
-            LOGGER.info(JSON.stringify(logData));
-        },
-        message
-      );
-    }
-    
     public function queryForParticipants():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.getParticipants", 
@@ -360,16 +340,16 @@ package org.bigbluebutton.modules.users.services
         function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
-                logData.message = "Error occured muting user.";
+                logData.message = "Error occurred muting user.";
                 LOGGER.info(JSON.stringify(logData));
         },
         JSON.stringify(message)
-      );          
+      );
      }
 
-    public function ejectUser(userid:String):void {
+    public function ejectUserFromVoice(userid:String):void {
       var message:Object = {
-        header: {name: "EjectUserFromMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+        header: {name: "EjectUserFromVoiceCmdMsg", meetingId: UsersUtil.getInternalMeetingID(),
           userId: UsersUtil.getMyUserID()},
         body: {userId: userid, ejectedBy: UsersUtil.getMyUserID()}
       };
@@ -381,14 +361,30 @@ package org.bigbluebutton.modules.users.services
         function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
-                logData.message = "Error occured ejecting user.";
+                logData.message = "Error occurred ejecting user from voice.";
                 LOGGER.info(JSON.stringify(logData));
         },
         JSON.stringify(message)
       );    
     }
-    
-    public function getRoomMuteState():void{
+
+    public function kickUser(userID:String):void {
+      var message:Object = {
+        header: {name: "EjectUserFromMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: userID, ejectedBy: UsersUtil.getMyUserID()}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(function(result:String):void { // On successful result
+      }, function(status:String):void { // status - On error occurred
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["apps"];
+        logData.message = "Error occurred kicking a user - ejecting from meeting.";
+        LOGGER.info(JSON.stringify(logData));
+      }, JSON.stringify(message));
+    }
+
+      public function getRoomMuteState():void{
       var message:Object = {
         header: {name: "IsMeetingMutedReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},

@@ -112,15 +112,55 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     } else if (message instanceof SharedObjectClientMessage) {
       sendSharedObjectMessage((SharedObjectClientMessage) message);
     } else if (message instanceof DisconnectClientMessage) {
-      handlDisconnectClientMessage((DisconnectClientMessage) message);
+      handleDisconnectClientMessage((DisconnectClientMessage) message);
     } else if (message instanceof DisconnectAllClientsMessage) {
       handleDisconnectAllClientsMessage((DisconnectAllClientsMessage) message);
     } else if (message instanceof DisconnectAllMessage) {
       handleDisconnectAllMessage((DisconnectAllMessage) message);
-    } else if (message instanceof DirectToClientMsg) {
+    }
+
+    // New messages for 2.0
+    else if (message instanceof DirectToClientMsg) {
       handleDirectToClientMsg((DirectToClientMsg) message);
     } else if (message instanceof BroadcastToMeetingMsg) {
       handleBroadcastToMeetingMsg((BroadcastToMeetingMsg) message);
+    }  else if (message instanceof CloseConnectionMsg) {
+      handleCloseConnectionMsg((CloseConnectionMsg) message);
+    } else if (message instanceof CloseMeetingAllConnectionsMsg) {
+      handleCloseMeetingAllConnectionsMsg((CloseMeetingAllConnectionsMsg) message);
+    }
+  }
+
+  private void handleCloseConnectionMsg(CloseConnectionMsg msg) {
+    if (log.isTraceEnabled()) {
+      log.trace("Handle direct message: " + msg.getMessageName() + " conn=" + msg.connId);
+    }
+
+    IScope meetingScope = getScope(msg.meetingId);
+    if (meetingScope != null) {
+      String connId = msg.connId;
+      IConnection conn = getConnectionWithConnId(meetingScope, connId);
+      if (conn != null) {
+        if (conn.isConnected()) {
+          log.info("Closing conn=[{}] from meeting=[{}]", msg.connId, msg.meetingId);
+          conn.close();
+        }
+      }
+    }
+  }
+
+  private void handleCloseMeetingAllConnectionsMsg(CloseMeetingAllConnectionsMsg msg) {
+    IScope meetingScope = getScope(msg.meetingId);
+    if (meetingScope != null) {
+      Set<IConnection> conns = meetingScope.getClientConnections();
+
+      for (IConnection conn : conns) {
+        if (conn.isConnected()) {
+          String connId = (String) conn.getAttribute("INTERNAL_USER_ID");
+          log.info("Disconnecting client=[{}] from meeting=[{}]", connId, msg.meetingId);
+          conn.close();
+        }
+      }
     }
   }
 
@@ -256,7 +296,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     }
   }
   
-  private void handlDisconnectClientMessage(DisconnectClientMessage msg) {
+  private void handleDisconnectClientMessage(DisconnectClientMessage msg) {
     IScope meetingScope = getScope(msg.getMeetingId());
     if (meetingScope != null) {
       String userId = msg.getUserId();

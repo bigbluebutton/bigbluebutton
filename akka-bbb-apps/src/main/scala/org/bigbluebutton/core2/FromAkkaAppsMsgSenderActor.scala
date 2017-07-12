@@ -2,7 +2,7 @@ package org.bigbluebutton.core2
 
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, SyncGetMeetingInfoRespMsg, SyncGetPresentationInfoRespMsg, SyncGetUsersMeetingRespMsg }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.MessageSender
 
@@ -25,6 +25,27 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case SyncGetPresentationInfoRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
       case SyncGetMeetingInfoRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
       case SyncGetUsersMeetingRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
+
+      // Sent to FreeSWITCH
+      case DeskshareStartRtmpBroadcastVoiceConfMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case DeskshareStopRtmpBroadcastVoiceConfMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case EjectAllFromVoiceConfMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case GetUsersInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case EjectUserFromVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case MuteUserInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case StartRecordingVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case StopRecordingVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case TransferUserToVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+
       case _ => msgSender.send(fromAkkaAppsRedisChannel, json)
     }
   }

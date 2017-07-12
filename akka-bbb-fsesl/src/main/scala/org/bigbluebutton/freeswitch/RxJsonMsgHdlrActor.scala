@@ -30,6 +30,8 @@ class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with Ac
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
     log.debug("Route envelope name " + envelope.name)
     envelope.name match {
+      case GetUsersInVoiceConfSysMsg.NAME =>
+        routeGetUsersInVoiceConfSysMsg(envelope, jsonNode)
       case EjectAllFromVoiceConfMsg.NAME =>
         routeEjectAllFromVoiceConfMsg(envelope, jsonNode)
       case EjectUserFromVoiceConfSysMsg.NAME =>
@@ -42,6 +44,10 @@ class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with Ac
         routeStartRecordingVoiceConfMsg(envelope, jsonNode)
       case StopRecordingVoiceConfSysMsg.NAME =>
         routeStopRecordingVoiceConfMsg(envelope, jsonNode)
+      case DeskshareStopRtmpBroadcastVoiceConfMsg.NAME =>
+        routeDeskshareStopRtmpBroadcastVoiceConfMsg(envelope, jsonNode)
+      case DeskshareStartRtmpBroadcastVoiceConfMsg.NAME =>
+        routeDeskshareStartRtmpBroadcastVoiceConfMsg(envelope, jsonNode)
       case _ => // do nothing
     }
   }

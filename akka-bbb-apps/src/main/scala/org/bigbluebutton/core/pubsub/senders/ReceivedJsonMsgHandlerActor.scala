@@ -105,6 +105,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
       case MuteAllExceptPresentersCmdMsg.NAME =>
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
+      case EjectUserFromMeetingCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -262,6 +264,17 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[IsMeetingLockedReqMsg](envelope, jsonNode)
       case ChangeLockSettingsInMeetingCmdMsg.NAME =>
         routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
+
+      // Deskshare
+      case DeskshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[DeskshareRtmpBroadcastStartedVoiceConfEvtMsg](envelope, jsonNode)
+      case DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      case DeskshareStartedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[DeskshareStartedVoiceConfEvtMsg](envelope, jsonNode)
+      case DeskshareStoppedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[DeskshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing
