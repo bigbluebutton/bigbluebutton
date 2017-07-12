@@ -103,7 +103,7 @@ const reduceMessages = (previous, current) => {
 
 const getPublicMessages = () => {
   const publicMessages = Chats.find({
-    'message.toUsername': { $in: ['public_chat_username', SYSTEM_CHAT_TYPE] },
+    'message.toUsername': { $in: [PUBLIC_CHAT_USERNAME, SYSTEM_CHAT_TYPE] },
   }, {
     sort: ['message.fromTime'],
   }).fetch();
@@ -115,7 +115,7 @@ const getPublicMessages = () => {
 
 const getPrivateMessages = (userID) => {
   const messages = Chats.find({
-    'message.toUsername': { $ne: 'public_chat_username' },
+    'message.toUsername': { $ne: PUBLIC_CHAT_USERNAME },
     $or: [
       { 'message.toUserId': userID },
       { 'message.fromUserId': userID },
