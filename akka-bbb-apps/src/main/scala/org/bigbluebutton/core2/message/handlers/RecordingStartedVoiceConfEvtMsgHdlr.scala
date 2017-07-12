@@ -15,12 +15,13 @@ trait RecordingStartedVoiceConfEvtMsgHdlr {
     if (msg.body.recording) {
       MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, msg.body.stream)
 
-      def buildVoiceRecordingStartedEvtMsg(meetingId: String, stream: String, timestamp: String, voiceConf: String): BbbCommonEnvCoreMsg = {
+      def buildVoiceRecordingStartedEvtMsg(meetingId: String, stream: String, timestamp: String,
+        voiceConf: String): BbbCommonEnvCoreMsg = {
         val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
         val envelope = BbbCoreEnvelope(VoiceRecordingStartedEvtMsg.NAME, routing)
 
         val body = VoiceRecordingStartedEvtMsgBody(meetingId, stream, timestamp, voiceConf)
-        val header = BbbCoreVoiceConfHeader(VoiceRecordingStartedEvtMsg.NAME, meetingId)
+        val header = BbbClientMsgHeader(VoiceRecordingStartedEvtMsg.NAME, meetingId, "not-used")
         val event = VoiceRecordingStartedEvtMsg(header, body)
 
         BbbCommonEnvCoreMsg(envelope, event)
@@ -32,12 +33,13 @@ trait RecordingStartedVoiceConfEvtMsgHdlr {
     } else {
       MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, "")
 
-      def buildVoiceRecordingStoppedEvtMsg(meetingId: String, stream: String, timestamp: String, voiceConf: String): BbbCommonEnvCoreMsg = {
+      def buildVoiceRecordingStoppedEvtMsg(meetingId: String, stream: String, timestamp: String,
+        voiceConf: String): BbbCommonEnvCoreMsg = {
         val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
         val envelope = BbbCoreEnvelope(VoiceRecordingStoppedEvtMsg.NAME, routing)
 
         val body = VoiceRecordingStoppedEvtMsgBody(meetingId, stream, timestamp, voiceConf)
-        val header = BbbCoreVoiceConfHeader(VoiceRecordingStoppedEvtMsg.NAME, meetingId)
+        val header = BbbClientMsgHeader(VoiceRecordingStoppedEvtMsg.NAME, meetingId, "not-used")
         val event = VoiceRecordingStoppedEvtMsg(header, body)
 
         BbbCommonEnvCoreMsg(envelope, event)
