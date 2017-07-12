@@ -62,8 +62,8 @@ module BigBlueButton
         FileUtils.rm_f(@archived_fail)
       end
 
-      def initialize(meeting_id, single_step=false)
-        super(meeting_id, single_step)
+      def initialize(opts)
+        super(opts)
         @step_name = "archive"
         @archived_fail = "#{@recording_dir}/status/archived/#{@meeting_id}.fail"
         @archived_done = "#{@recording_dir}/status/archived/#{@meeting_id}.done"

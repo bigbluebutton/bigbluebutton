@@ -57,8 +57,8 @@ module BigBlueButton
         FileUtils.rm_f(@sanity_fail)
       end
 
-      def initialize(meeting_id, single_step=false)
-        super(meeting_id, single_step)
+      def initialize(opts)
+        super(opts)
         @step_name = "sanity"
         @post_scripts_path = File.expand_path('../../post_archive', __FILE__)
         @sanity_fail = "#{@recording_dir}/status/sanity/#{@meeting_id}.fail"

@@ -108,10 +108,15 @@ module BigBlueButton
       def schedule_next_step
         @logger.info("Scheduling next step for #{@step_name}")
 
+        opts = {
+          "meeting_id": @meeting_id,
+          "single_step": false
+        }
+
         case @step_name
         when "archive"
-          @logger.info("Enqueueing sanity worker for (#{@meeting_id}, false)")
-          ::Resque.enqueue(BigBlueButton::Resque::SanityWorker, @meeting_id, false)
+          @logger.info("Enqueueing sanity worker with #{opts.inspect}")
+          ::Resque.enqueue(BigBlueButton::Resque::SanityWorker, opts)
 
         when "sanity"
           # find all processing scripts available, schedule one worker for each
@@ -120,25 +125,27 @@ module BigBlueButton
             match2 = /([^\/]*).rb$/.match(process_script)
             format_name = match2[1]
 
-            @logger.info("Enqueueing process for (#{@meeting_id}, false, #{format_name})")
-            ::Resque.enqueue(BigBlueButton::Resque::ProcessWorker, @meeting_id, false, format_name)
+            opts["format_name"] = format_name
+            @logger.info("Enqueueing process worker with #{opts.inspect}")
+            ::Resque.enqueue(BigBlueButton::Resque::ProcessWorker, opts)
           end
 
         when "process"
-          @logger.info("Enqueueing publish worker for (#{@meeting_id}, false, #{@format_name})")
-          ::Resque.enqueue(BigBlueButton::Resque::PublishWorker, @meeting_id, false, @format_name)
+          opts["format_name"] = @format_name
+          @logger.info("Enqueueing publish worker with #{opts.inspect}")
+          ::Resque.enqueue(BigBlueButton::Resque::PublishWorker, opts)
         end
       end
 
-      def initialize(meeting_id, single_step=false)
+      def initialize(opts)
         props = BigBlueButton.read_props
         BigBlueButton.create_redis_publisher
 
         @publisher = BigBlueButton.redis_publisher
         @log_dir = props['log_dir']
         @recording_dir = props['recording_dir']
-        @meeting_id = meeting_id
-        @single_step = single_step
+        @meeting_id = opts["meeting_id"]
+        @single_step = opts["single_step"] || false
         @step_name = nil
         @format_name = nil
 

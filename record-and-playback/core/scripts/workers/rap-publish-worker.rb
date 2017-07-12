@@ -72,10 +72,10 @@ module BigBlueButton
         FileUtils.rm_f(@published_fail)
       end
 
-      def initialize(meeting_id, single_step=false, format_name)
-        super(meeting_id, single_step)
+      def initialize(opts)
+        super(opts)
         @step_name = "publish"
-        @format_name = format_name
+        @format_name = opts["format_name"]
         @post_scripts_path = File.expand_path('../../post_publish', __FILE__)
         @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.done"
         @published_fail = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.fail"

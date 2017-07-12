@@ -80,10 +80,10 @@ module BigBlueButton
         FileUtils.rm_f(@processed_fail)
       end
 
-      def initialize(meeting_id, single_step=false, format_name)
-        super(meeting_id, single_step)
+      def initialize(opts)
+        super(opts)
         @step_name = "process"
-        @format_name = format_name
+        @format_name = opts["format_name"]
         @post_scripts_path = File.expand_path('../../post_process', __FILE__)
         @processed_done = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.done"
         @processed_fail = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.fail"
