@@ -7,9 +7,6 @@ import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage;
-import org.bigbluebutton.common.messages.DeskShareStartRTMPBroadcastEventMessage;
-import org.bigbluebutton.common.messages.DeskShareStopRTMPBroadcastEventMessage;
-import org.bigbluebutton.common.messages.DeskShareHangUpEventMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
@@ -59,37 +56,10 @@ public class RedisMessageReceiver {
 					case StopRecordingVoiceConfRequestMessage.STOP_RECORD_VOICE_CONF_REQUEST:
 						processStopRecordingVoiceConfRequestMessage(message);
 						break;
-					case DeskShareStartRTMPBroadcastEventMessage.DESKSHARE_START_RTMP_BROADCAST_MESSAGE:
-						System.out.println("RedisMessageReceiver got DESKSHARE_START_RTMP_BROADCAST_MESSAGE");
-						processDeskShareStartRTMPBroadcastEventMessage(message);
-						break;
-					case DeskShareStopRTMPBroadcastEventMessage.DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE:
-						System.out.println("RedisMessageReceiver got DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE");
-						processDeskShareStopRTMPBroadcastEventMessage(message);
-						break;
-					case DeskShareHangUpEventMessage.DESKSHARE_HANG_UP_MESSAGE:
-						System.out.println("RedisMessageReceiver got DESKSHARE_HANG_UP_MESSAGE");
-						processDeskShareHangUpEventMessage(message);
-						break;
 					}
 				}
 			}
 		}
-	}
-
-	private void processDeskShareStartRTMPBroadcastEventMessage(String json) {
-		DeskShareStartRTMPBroadcastEventMessage msg = DeskShareStartRTMPBroadcastEventMessage.fromJson(json);
-		fsApp.deskShareBroadcastRTMP(msg.conferenceName, msg.streamUrl, msg.timestamp, true);
-	}
-
-	private void processDeskShareStopRTMPBroadcastEventMessage(String json) {
-		DeskShareStopRTMPBroadcastEventMessage msg = DeskShareStopRTMPBroadcastEventMessage.fromJson(json);
-		fsApp.deskShareBroadcastRTMP(msg.conferenceName, msg.streamUrl, msg.timestamp, false);
-	}
-
-	private void processDeskShareHangUpEventMessage(String json) {
-		DeskShareHangUpEventMessage msg = DeskShareHangUpEventMessage.fromJson(json);
-		fsApp.deskShareHangUp(msg.conferenceName, msg.fsConferenceName, msg.timestamp);
 	}
 
 	private void processEjectAllVoiceUsersRequestMessage(String json) {

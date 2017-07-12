@@ -11,7 +11,7 @@ import org.bigbluebutton.core2.MeetingStatus2x
 
 class LiveMeeting(val props: DefaultProps,
     val status: MeetingStatus2x,
-    val deskshareModel: DeskshareModel,
+    val screenshareModel: ScreenshareModel,
     val chatModel: ChatModel,
     val layoutModel: LayoutModel,
     val layouts: Layouts,

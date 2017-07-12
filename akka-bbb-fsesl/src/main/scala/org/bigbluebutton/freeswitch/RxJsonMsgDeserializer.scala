@@ -10,10 +10,10 @@ trait RxJsonMsgDeserializer {
   object JsonDeserializer extends Deserializer
 
   def routeDeskshareStartRtmpBroadcastVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    def deserialize(jsonNode: JsonNode): Option[DeskshareStartRtmpBroadcastVoiceConfMsg] = {
-      val (result, error) = JsonDeserializer.toBbbCommonMsg[DeskshareStartRtmpBroadcastVoiceConfMsg](jsonNode)
+    def deserialize(jsonNode: JsonNode): Option[ScreenshareStartRtmpBroadcastVoiceConfMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[ScreenshareStartRtmpBroadcastVoiceConfMsg](jsonNode)
       result match {
-        case Some(msg) => Some(msg.asInstanceOf[DeskshareStartRtmpBroadcastVoiceConfMsg])
+        case Some(msg) => Some(msg.asInstanceOf[ScreenshareStartRtmpBroadcastVoiceConfMsg])
         case None =>
           log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
           None
@@ -23,15 +23,15 @@ trait RxJsonMsgDeserializer {
     for {
       m <- deserialize(jsonNode)
     } yield {
-      fsApp.deskShareBroadcastRTMP(m.body.deskshareConf, m.body.url, m.body.timestamp, true)
+      fsApp.deskShareBroadcastRTMP(m.body.screenshareConf, m.body.url, m.body.timestamp, true)
     }
   }
 
   def routeDeskshareStopRtmpBroadcastVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    def deserialize(jsonNode: JsonNode): Option[DeskshareStopRtmpBroadcastVoiceConfMsg] = {
-      val (result, error) = JsonDeserializer.toBbbCommonMsg[DeskshareStopRtmpBroadcastVoiceConfMsg](jsonNode)
+    def deserialize(jsonNode: JsonNode): Option[ScreenshareStopRtmpBroadcastVoiceConfMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[ScreenshareStopRtmpBroadcastVoiceConfMsg](jsonNode)
       result match {
-        case Some(msg) => Some(msg.asInstanceOf[DeskshareStopRtmpBroadcastVoiceConfMsg])
+        case Some(msg) => Some(msg.asInstanceOf[ScreenshareStopRtmpBroadcastVoiceConfMsg])
         case None =>
           log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
           None
@@ -41,7 +41,7 @@ trait RxJsonMsgDeserializer {
     for {
       m <- deserialize(jsonNode)
     } yield {
-      fsApp.deskShareBroadcastRTMP(m.body.deskshareConf, m.body.url, m.body.timestamp, false)
+      fsApp.deskShareBroadcastRTMP(m.body.screenshareConf, m.body.url, m.body.timestamp, false)
     }
   }
 

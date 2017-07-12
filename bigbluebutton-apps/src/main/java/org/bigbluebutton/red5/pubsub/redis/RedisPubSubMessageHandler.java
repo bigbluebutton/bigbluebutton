@@ -6,7 +6,6 @@ import org.bigbluebutton.red5.client.PollingClientMessageSender;
 import org.bigbluebutton.red5.client.PresentationClientMessageSender;
 import org.bigbluebutton.red5.client.UserClientMessageSender;
 import org.bigbluebutton.red5.client.WhiteboardClientMessageSender;
-import org.bigbluebutton.red5.client.DeskShareMessageSender;
 import org.bigbluebutton.red5.client.messaging.IConnectionInvokerService;
 import org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	private MeetingClientMessageSender meetingMessageSender;
 	private PresentationClientMessageSender presentationMessageSender;
 	private WhiteboardClientMessageSender whiteboardMessageSender;
-	private DeskShareMessageSender deskShareMessageSender;
 	//private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
 	private PollingClientMessageSender pollingMessageSender;
 	
@@ -28,7 +26,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		meetingMessageSender = new MeetingClientMessageSender(service);
 		presentationMessageSender = new PresentationClientMessageSender(service);
 		whiteboardMessageSender = new WhiteboardClientMessageSender(service);
-		deskShareMessageSender = new DeskShareMessageSender(service);
 		pollingMessageSender = new PollingClientMessageSender(service);
 	}
 	
@@ -49,8 +46,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 			whiteboardMessageSender.handleWhiteboardMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {
 			//bbbAppsIsKeepAliveHandler.handleKeepAliveMessage(message);
-		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_DESK_SHARE_CHANNEL)) {
-			deskShareMessageSender.handleDeskShareMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_POLLING_CHANNEL)) {
 			pollingMessageSender.handlePollMessage(message);
 		}
