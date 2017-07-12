@@ -103,10 +103,10 @@ package org.bigbluebutton.modules.users.services
         case "UserLeftVoiceConfToClientEvtMsg":
           handleUserLeftVoiceConfToClientEvtMsg(message);
           break;
-        case "UserTalkingEvtMsg":
+        case "UserTalkingVoiceEvtMsg":
           handleUserTalkingEvtMsg(message);
           break;
-        case "UserMutedEvtMsg":
+        case "UserMutedVoiceEvtMsg":
           handleUserMutedEvtMsg(message);
           break;
         case "GuestsWaitingForApprovalEvtMsg":
@@ -176,8 +176,11 @@ package org.bigbluebutton.modules.users.services
         case "UserEjectedFromMeetingEvtMsg":
           handleUserEjectedFromMeeting(message);
           break;
-        case "DeskShareRTMPBroadcastNotification":
-          handleDeskShareRTMPBroadcastNotification(message);
+        case "ScreenshareRtmpBroadcastStartedEvtMsg":
+          handleScreenshareRtmpBroadcastStartedEvtMsg(message);
+          break;
+        case "ScreenshareRtmpBroadcastStoppedEvtMsg":
+          handleScreenshareRtmpBroadcastStoppedEvtMsg(message);
           break;
         case "get_guest_policy_reply":
           handleGetGuestPolicyReply(message);
@@ -412,18 +415,34 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
-    private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
-      var event:WebRTCViewStreamEvent;
-      if (msg.broadcasting) {
-        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
-      } else {
-        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
-      }
 
-      event.videoWidth = msg.width;
-      event.videoHeight = msg.height;
-      event.rtmp = msg.rtmpUrl;
-
+    private function handleScreenshareRtmpBroadcastStartedEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var stream: String = body.stream as String;
+      var vidWidth: Number = body.vidWidth as Number;
+      var vidHeight: Number = body.vidHeight as Number;
+      
+      var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
+      
+      event.videoWidth = vidWidth;
+      event.videoHeight = vidHeight;
+      event.rtmp = stream;
+      
+      dispatcher.dispatchEvent(event);
+    }
+    
+    private function handleScreenshareRtmpBroadcastStoppedEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var stream: String = body.stream as String;
+      var vidWidth: Number = body.vidWidth as Number;
+      var vidHeight: Number = body.vidHeight as Number;
+      
+      var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
+      
+      event.videoWidth = vidWidth;
+      event.videoHeight = vidHeight;
+      event.rtmp = stream;
+      
       dispatcher.dispatchEvent(event);
     }
 

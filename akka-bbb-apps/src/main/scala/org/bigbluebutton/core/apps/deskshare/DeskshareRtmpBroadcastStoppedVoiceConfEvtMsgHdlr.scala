@@ -10,18 +10,21 @@ trait DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
   val outGW: OutMessageGateway
 
   def handleDeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(msg: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg): Unit = {
-    def broadcastEvent(msg: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg): Unit = {
-      /*
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
-      val envelope = BbbCoreEnvelope(ClearPublicChatHistoryEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(ClearPublicChatHistoryEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = ClearPublicChatHistoryEvtMsgBody()
-      val event = ClearPublicChatHistoryEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-      */
-      //record(event)
+    def broadcastEvent(voiceConf: String, deskshareConf: String,
+      stream: String, vidWidth: Int, vidHeight: Int,
+      timestamp: String): BbbCommonEnvCoreMsg = {
+
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
+        liveMeeting.props.meetingProp.intId, "not-used")
+      val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME,
+        liveMeeting.props.meetingProp.intId, "not-used")
+
+      val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, deskshareConf,
+        stream, vidWidth, vidHeight, timestamp)
+      val event = ScreenshareRtmpBroadcastStoppedEvtMsg(header, body)
+      BbbCommonEnvCoreMsg(envelope, event)
     }
 
     log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" +
@@ -34,10 +37,9 @@ trait DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
       DeskshareModel.broadcastingRTMPStopped(liveMeeting.deskshareModel)
 
       // notify viewers that RTMP broadcast stopped
-      //outGW.send(new DeskShareNotifyViewersRTMP(props.meetingProp.intId,
-      //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
-      //  msg.videoWidth, msg.videoHeight, false))
-      broadcastEvent(msg)
+      val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.deskshareConf, msg.body.stream,
+        msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp)
+      outGW.send(msgEvent)
     } else {
       log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
     }

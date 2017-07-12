@@ -20,7 +20,7 @@ import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
-  val channels = Seq("time")
+  val channels = Seq(toVoiceConfRedisChannel)
   val patterns = Seq("bigbluebutton:to-voice-conf:*", "bigbluebutton:from-bbb-apps:*")
 
   def props(system: ActorSystem, msgReceiver: RedisMessageReceiver, inJsonMgBus: InsonMsgBus): Props =
@@ -64,7 +64,6 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
   }
 
   def onMessage(message: Message) {
-    log.debug(s"message received: $message")
     if (message.channel == toVoiceConfRedisChannel) {
       val receivedJsonMessage = new ReceivedJsonMsg(message.channel, message.data.utf8String)
       log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")

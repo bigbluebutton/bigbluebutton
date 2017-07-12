@@ -183,6 +183,11 @@ class MeetingActor(val props: DefaultProps,
       case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg => handleUserTalkingInVoiceConfEvtMsg(m)
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
+      case m: MuteUserCmdMsg => handleMuteUserCmdMsg(m)
+      case m: MuteAllExceptPresentersCmdMsg => handleMuteAllExceptPresentersCmdMsg(m)
+      case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
+      case m: IsMeetingMutedReqMsg => handleIsMeetingMutedReqMsg(m)
+      case m: MuteMeetingCmdMsg => handleMuteMeetingCmdMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
