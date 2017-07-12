@@ -31,7 +31,7 @@ export default function sendChat(credentials, message) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 
   const CHAT_CONFIG = Meteor.settings.public.chat;
-  const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+  const TO_PUBLIC_CHAT = CHAT_CONFIG.public_username;
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -46,7 +46,7 @@ export default function sendChat(credentials, message) {
 
   parsedMessage.message = parseMessage(message.message);
 
-  if (message.chat_type === PUBLIC_CHAT_TYPE) {
+  if (message.toUsername === TO_PUBLIC_CHAT) {
     eventName = 'SendPublicMessagePubMsg';
   }
 

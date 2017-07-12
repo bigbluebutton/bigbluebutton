@@ -1,6 +1,5 @@
-import Chats from '/imports/api/1.1/chat';
+import Chats from '/imports/api/2.0/chat';
 import Users from '/imports/api/2.0/users';
-import Meetings from '/imports/api/1.1/meetings';
 
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -56,7 +55,7 @@ const mapMessage = (messagePayload) => {
   };
 
   if (message.chat_type !== SYSTEM_CHAT_TYPE) {
-    mappedMessage.sender = getUser(message.from_userid, message.from_username);
+    mappedMessage.sender = getUser(message.fromUserid, message.fromUsername);
   }
 
   return mappedMessage;
@@ -70,10 +69,10 @@ const reduceMessages = (previous, current, index, array) => {
   current.content.push({
     id: current._id,
     text: currentPayload.message,
-    time: currentPayload.from_time,
+    time: currentPayload.fromTime,
   });
 
-  if (!lastMessage || !current.message.chat_type === SYSTEM_CHAT_TYPE) {
+  if (!lastMessage || !current.message.chatType === SYSTEM_CHAT_TYPE) {
     return previous.concat(current);
   }
 
@@ -83,8 +82,8 @@ const reduceMessages = (previous, current, index, array) => {
   // between the two messages exceeds window and then group current message
   // with the last one
 
-  if (lastPayload.from_userid === currentPayload.from_userid
-    && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
+  if (lastPayload.fromUserid === currentPayload.fromUserid
+    && (currentPayload.fromTime - lastPayload.fromTime) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(current.content.pop());
     return previous;
   }
@@ -102,9 +101,9 @@ const getUser = (userID, userName) => {
 
 const getPublicMessages = () => {
   const publicMessages = Chats.find({
-    'message.chat_type': { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
+    'message.chatType': { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
   }, {
-    sort: ['message.from_time'],
+    sort: ['message.fromTime'],
   })
     .fetch();
 
@@ -115,13 +114,13 @@ const getPublicMessages = () => {
 
 const getPrivateMessages = (userID) => {
   const messages = Chats.find({
-    'message.chat_type': PRIVATE_CHAT_TYPE,
+    'message.chatType': PRIVATE_CHAT_TYPE,
     $or: [
-      { 'message.to_userid': userID },
-      { 'message.from_userid': userID },
+      { 'message.toUserid': userID },
+      { 'message.fromUserid': userID },
     ],
   }, {
-    sort: ['message.from_time'],
+    sort: ['message.fromTime'],
   }).fetch();
 
   return messages.reduce(reduceMessages, []).map(mapMessage);
@@ -130,9 +129,8 @@ const getPrivateMessages = (userID) => {
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const currentUser = getUser(Auth.userID);
-  const meeting = Meetings.findOne({});
 
-  const lockSettings = meeting.roomLockSettings || {
+  const lockSettings = {
     disablePublicChat: false,
     disablePrivateChat: false,
   };
@@ -170,18 +168,15 @@ const sendMessage = (receiverID, message) => {
   /* FIX: Why we need all this payload to send a message?
    * The server only really needs the message, from_userid, to_userid and from_lang
    */
-
   const messagePayload = {
     message,
-    chat_type: isPublic ? PUBLIC_CHAT_TYPE : PRIVATE_CHAT_TYPE,
-    from_userid: sender.id,
-    from_username: sender.name,
-    from_tz_offset: (new Date()).getTimezoneOffset(),
-    to_username: receiver.name,
-    to_userid: receiver.id,
-    from_lang: window.navigator.userLanguage || window.navigator.language,
-    from_time: Date.now(),
-    from_color: 0,
+    fromUserId: sender.id,
+    fromUsername: sender.name,
+    fromTimezoneOffset: (new Date()).getTimezoneOffset(),
+    toUsername: receiver.name,
+    toUserId: receiver.id,
+    fromTime: Date.now(),
+    fromColor: 0,
   };
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);

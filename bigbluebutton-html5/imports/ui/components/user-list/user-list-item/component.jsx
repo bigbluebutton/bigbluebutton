@@ -171,7 +171,7 @@ class UserListItem extends Component {
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
       }
-            
+
       this.setState(nextState);
     }
   }
@@ -193,7 +193,7 @@ class UserListItem extends Component {
         }
       }
     }
-    
+
     return isActionsOpen && !dropdownVisible;
   }
 
@@ -257,11 +257,13 @@ class UserListItem extends Component {
       : '';
 
     const userAriaLabel = intl.formatMessage(messages.userAriaLabel,
-        { 0: user.name,
-          1: presenter,
-          2: you,
-          3: user.emoji.status });
-      
+      {
+        0: user.name,
+        1: presenter,
+        2: you,
+        3: user.emoji.status
+      });
+
     let actions = this.getAvailableActions();
     let contents = (
       <div
@@ -305,8 +307,8 @@ class UserListItem extends Component {
           placement={`right ${dropdownDirection}`}
         >
 
-          <DropdownList 
-            ref={(ref) => { this.list = ref; }} 
+          <DropdownList
+            ref={(ref) => { this.list = ref; }}
             getDropdownMenuParent={this.getDropdownMenuParent}
             onActionsHide={this.onActionsHide}>
             {
@@ -410,10 +412,10 @@ class UserListItem extends Component {
 
     userNameSub = userNameSub.join(' ');
 
-    const { disablePrivateChat,
+    /*const { disablePrivateChat,
             disableCam,
             disableMic,
-            disablePublicChat } = meeting.roomLockSettings;
+            disablePublicChat } = meeting.roomLockSettings;*/
 
     return (
       <div className={styles.userName}>
@@ -422,14 +424,11 @@ class UserListItem extends Component {
         </span>
         <span className={styles.userNameSub}>
           {userNameSub}
-          {(user.isLocked && (disablePrivateChat
-            || disableCam
-            || disableMic
-            || disablePublicChat)) ?
-              <span> {(user.isCurrent ? ' | ' : null)}
-                <Icon iconName="lock" />
-                {intl.formatMessage(messages.locked)}
-              </span> : null}
+          {(user.isLocked) ?
+            <span> {(user.isCurrent ? ' | ' : null)}
+              <Icon iconName="lock" />
+              {intl.formatMessage(messages.locked)}
+            </span> : null}
         </span>
       </div>
     );

@@ -1,5 +1,5 @@
 import Users from '/imports/api/2.0/users';
-import Chat from '/imports/api/1.1/chat';
+import Chat from '/imports/api/2.0/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -38,9 +38,9 @@ const mapUser = user => ({
 
 const mapOpenChats = (chat) => {
   const currentUserId = Auth.userID;
-  return chat.message.from_userid !== currentUserId
-    ? chat.message.from_userid
-    : chat.message.to_userid;
+  return chat.message.fromUserId !== currentUserId
+    ? chat.message.fromUserId
+    : chat.message.toUserId;
 };
 
 const sortUsersByName = (a, b) => {
