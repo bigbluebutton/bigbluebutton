@@ -226,4 +226,35 @@ object MsgBuilder {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildMeetingEndingEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
+    val body = MeetingEndingEvtMsgBody(meetingId)
+    val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
+    val event = MeetingEndingEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingEndedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingEndedEvtMsg.NAME, routing)
+    val body = MeetingEndedEvtMsgBody(meetingId)
+    val header = BbbCoreBaseHeader(MeetingEndedEvtMsg.NAME)
+    val event = MeetingEndedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildBreakoutRoomEndedEvtMsg(meetingId: String, userId: String, breakoutRoomId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(BreakoutRoomEndedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(BreakoutRoomEndedEvtMsg.NAME, meetingId, userId)
+
+    val body = BreakoutRoomEndedEvtMsgBody(meetingId, breakoutRoomId)
+    val event = BreakoutRoomEndedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }

@@ -76,6 +76,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
       case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
       case m: PubSubPingSysReqMsg => handlePubSubPingSysReqMsg(m)
+      case m: DestroyMeetingSysCmdMsg => handleDestroyMeeting(m)
       case _ => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
@@ -202,8 +203,36 @@ class BigBlueButtonActor(val system: ActorSystem,
     outGW.send(event)
   }
 
+  private def handleDestroyMeeting(msg: DestroyMeetingSysCmdMsg): Unit = {
+
+    for {
+      m <- RunningMeetings.findWithId(meetings, msg.body.meetingId)
+      m2 <- RunningMeetings.remove(meetings, msg.body.meetingId)
+    } yield {
+      // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client
+      context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
+        // Disconnect all clients
+
+        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.body.meetingId)
+        outGW.send(disconnectEvnt)
+
+        log.info("Destroyed meetingId={}", msg.body.meetingId)
+        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.body.meetingId)
+        outGW.send(destroyedEvent)
+
+        /** Unsubscribe to meeting and voice events. **/
+        eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
+        eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+        // Stop the meeting actor.
+        context.stop(m.actorRef)
+      }
+    }
+
+  }
+
   private def handleDestroyMeeting(msg: DestroyMeeting) {
-    log.info("Received DestroyMeeting message for meetingId={}", msg.meetingID)
+    /*log.info("Received DestroyMeeting message for meetingId={}", msg.meetingID)
 
     for {
       m <- RunningMeetings.findWithId(meetings, msg.meetingID)
@@ -243,7 +272,7 @@ class BigBlueButtonActor(val system: ActorSystem,
         // Stop the meeting actor.
         context.stop(m.actorRef)
       }
-    }
+    } */
 
     /*
     meetings.get(msg.meetingID) match {
