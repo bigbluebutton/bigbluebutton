@@ -13,7 +13,10 @@ import org.bigbluebutton.presentation.messages._
 
 import scala.concurrent.duration._
 
-class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBbbWebApiGWApp with SystemConfiguration{
+class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
+                    val screenshareRtmpServer: String,
+                    val screenshareRtmpBroadcastApp: String,
+                    val screenshareConfSuffix: String) extends IBbbWebApiGWApp with SystemConfiguration{
 
   implicit val system = ActorSystem("bbb-web-common")
 
@@ -98,8 +101,9 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       guestPolicy = guestPolicy)
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
-    val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
-      red5ScreenshareApp = "fixMe!")
+    val screenshareProps = ScreenshareProps(screenshareConf = voiceBridge + screenshareConfSuffix,
+      red5ScreenshareIp = screenshareRtmpServer,
+      red5ScreenshareApp = screenshareRtmpBroadcastApp)
 
     val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
       usersProp, metadataProp, screenshareProps)

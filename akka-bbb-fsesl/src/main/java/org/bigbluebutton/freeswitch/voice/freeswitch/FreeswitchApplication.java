@@ -128,12 +128,13 @@ public class FreeswitchApplication {
   }
 
   public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast) {
-    DeskShareBroadcastRTMPCommand rtmp = new DeskShareBroadcastRTMPCommand(voiceConfId, USER, streamUrl, timestamp, broadcast);
+    ScreenshareBroadcastRTMPCommand rtmp = new ScreenshareBroadcastRTMPCommand(voiceConfId, USER,
+            streamUrl, timestamp, broadcast);
     queueMessage(rtmp);
   }
 
   public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp) {
-    DeskShareHangUpCommand huCmd = new DeskShareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
+    ScreenshareHangUpCommand huCmd = new ScreenshareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
     queueMessage(huCmd);
   }
 
@@ -163,10 +164,10 @@ public class FreeswitchApplication {
           manager.tranfer(cmd);
         } else if (command instanceof RecordConferenceCommand) {
           manager.record((RecordConferenceCommand) command);
-        } else if (command instanceof DeskShareBroadcastRTMPCommand) {
-          manager.broadcastRTMP((DeskShareBroadcastRTMPCommand) command);
-        } else if (command instanceof DeskShareHangUpCommand) {
-          DeskShareHangUpCommand cmd = (DeskShareHangUpCommand) command;
+        } else if (command instanceof ScreenshareBroadcastRTMPCommand) {
+          manager.broadcastRTMP((ScreenshareBroadcastRTMPCommand) command);
+        } else if (command instanceof ScreenshareHangUpCommand) {
+          ScreenshareHangUpCommand cmd = (ScreenshareHangUpCommand) command;
           manager.hangUp(cmd);
         } else if (command instanceof BroadcastConferenceCommand) {
           manager.broadcast((BroadcastConferenceCommand) command);

@@ -21,38 +21,30 @@ package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
 import org.freeswitch.esl.client.transport.message.EslMessage;
 
-public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
+public class ScreenshareRecordCommand extends FreeswitchCommand {
 
-	private String broadcastPath;
-	private boolean broadcast;
-	private String timestamp;
-	private final String DESKSHARE_SUFFIX = "-DESKSHARE";
+	private String recordPath;
+	private boolean record;
 
-	public DeskShareBroadcastRTMPCommand(String room, String requesterId, String broadcastPath, String timestamp, boolean broadcast){
+	public ScreenshareRecordCommand(String room, String requesterId, boolean record, String recordPath){
 		super(room, requesterId);
-		this.broadcastPath = broadcastPath;
-		this.broadcast = broadcast;
-		this.timestamp = timestamp;
+		this.recordPath = recordPath;
+		this.record = record;
 	}
 
 
 	@Override
 	public String getCommandArgs() {
 		String action = "norecord";
-		if (broadcast) {
+		if (record)
 			action = "record";
-		}
 
-		String room = getRoom();
-		if (!room.endsWith(DESKSHARE_SUFFIX)) {
-			room = room + DESKSHARE_SUFFIX;
-		}
-
-		return SPACE + room + SPACE + action + SPACE + broadcastPath;
+		System.out.println("\n\n\n\n\n SCREENSHARE RECORD " + record + "\n\n\n\n");
+		return SPACE + getRoom() + SPACE + action + SPACE + recordPath;
 	}
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 		//Test for Known Conference
-		System.out.println("\nDeskShareBroadcastRTMPCommand\n");
+		System.out.println("\n\n\n\n\nLALALALLALA\n\n\n\n");
 	}
 }

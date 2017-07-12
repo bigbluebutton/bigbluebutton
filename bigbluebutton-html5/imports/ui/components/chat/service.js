@@ -131,10 +131,13 @@ const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const currentUser = getUser(Auth.userID);
 
-  const lockSettings = {
+  const lockSettings = false;
+  
+  //FIX ME
+  /*meeting.roomLockSettings || {
     disablePublicChat: false,
     disablePrivateChat: false,
-  };
+  };*/
 
   if (!currentUser.isLocked || currentUser.isPresenter) {
     return false;

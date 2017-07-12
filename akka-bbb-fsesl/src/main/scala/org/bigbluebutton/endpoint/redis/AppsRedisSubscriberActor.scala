@@ -7,7 +7,6 @@ import java.net.InetSocketAddress
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
 import akka.actor.ActorSystem
 import akka.actor.OneForOneStrategy
 import akka.actor.Props
@@ -20,16 +19,16 @@ import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
-  val channels = Seq("time")
+  val channels = Seq(toVoiceConfRedisChannel)
   val patterns = Seq("bigbluebutton:to-voice-conf:*", "bigbluebutton:from-bbb-apps:*")
 
-  def props(system: ActorSystem, msgReceiver: RedisMessageReceiver, inJsonMgBus: InsonMsgBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], system, msgReceiver, inJsonMgBus,
+  def props(system: ActorSystem, inJsonMgBus: InsonMsgBus): Props =
+    Props(classOf[AppsRedisSubscriberActor], system, inJsonMgBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessageReceiver,
+class AppsRedisSubscriberActor(val system: ActorSystem,
   inJsonMgBus: InsonMsgBus, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
@@ -64,7 +63,6 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
   }
 
   def onMessage(message: Message) {
-    log.debug(s"message received: $message")
     if (message.channel == toVoiceConfRedisChannel) {
       val receivedJsonMessage = new ReceivedJsonMsg(message.channel, message.data.utf8String)
       log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
@@ -74,8 +72,6 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
 
   def onPMessage(pmessage: PMessage) {
     //    log.debug(s"pattern message received: $pmessage")
-
-    msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
   }
 
   def handleMessage(msg: String) {

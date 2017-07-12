@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserLeaveReqMsgHdlr {
   this: MeetingActor =>
@@ -19,17 +20,12 @@ trait UserLeaveReqMsgHdlr {
       captionApp2x.handleUserLeavingMsg(msg.body.userId)
       liveMeeting.startCheckingIfWeNeedToEndVoiceConf()
       stopAutoStartedRecording()
-      sendUserLeftMeetingEvtMsg(outGW, props.meetingProp.intId, msg.body.userId)
+
+      // send a user left event for the clients to update
+      val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
+      outGW.send(userLeftMeetingEvent)
+      log.info("User left meetingId=" + liveMeeting.props.meetingProp.intId + " userId=" + msg.body.userId)
     }
   }
 
-  def sendUserLeftMeetingEvtMsg(outGW: OutMessageGateway, meetingId: String, userId: String): Unit = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-    val envelope = BbbCoreEnvelope(UserLeftMeetingEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(UserLeftMeetingEvtMsg.NAME, meetingId, userId)
-    val body = UserLeftMeetingEvtMsgBody(userId)
-    val event = UserLeftMeetingEvtMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-    outGW.send(msgEvent)
-  }
 }

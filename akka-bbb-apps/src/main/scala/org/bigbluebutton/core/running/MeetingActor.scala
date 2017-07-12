@@ -10,7 +10,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
-import org.bigbluebutton.core.apps.deskshare.DeskshareApp2x
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.meeting._
 import org.bigbluebutton.core.apps.users.UsersApp2x
@@ -89,7 +89,7 @@ class MeetingActor(val props: DefaultProps,
   eventBus.subscribe(actorMonitor, props.screenshareProps.screenshareConf)
 
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW = outGW)
-  val deskshareApp2x = new DeskshareApp2x(liveMeeting, outGW = outGW)
+  val screenshareApp2x = new ScreenshareApp2x(liveMeeting, outGW = outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW = outGW)
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW = outGW)
   val chatApp2x = new ChatApp2x(liveMeeting, outGW = outGW)
@@ -122,7 +122,7 @@ class MeetingActor(val props: DefaultProps,
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
 
-    // Deskshare
+    // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
 
     // Guest
@@ -147,6 +147,7 @@ class MeetingActor(val props: DefaultProps,
       case m: SetRecordingStatusCmdMsg => handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg => handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
+      case m: EjectUserFromMeetingCmdMsg => handleEjectUserFromMeetingCmdMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)
@@ -182,6 +183,11 @@ class MeetingActor(val props: DefaultProps,
       case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg => handleUserTalkingInVoiceConfEvtMsg(m)
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
+      case m: MuteUserCmdMsg => handleMuteUserCmdMsg(m)
+      case m: MuteAllExceptPresentersCmdMsg => handleMuteAllExceptPresentersCmdMsg(m)
+      case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
+      case m: IsMeetingMutedReqMsg => handleIsMeetingMutedReqMsg(m)
+      case m: MuteMeetingCmdMsg => handleMuteMeetingCmdMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
@@ -224,11 +230,11 @@ class MeetingActor(val props: DefaultProps,
       case m: SendPrivateMessagePubMsg => chatApp2x.handleSendPrivateMessagePubMsg(m)
       case m: ClearPublicChatHistoryPubMsg => chatApp2x.handleClearPublicChatHistoryPubMsg(m)
 
-      // Deskshare
-      case m: DeskshareStartedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareStartedVoiceConfEvtMsg(m)
-      case m: DeskshareStoppedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareStoppedVoiceConfEvtMsg(m)
-      case m: DeskshareRtmpBroadcastStartedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
-      case m: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg => deskshareApp2x.handleDeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
+      // Screenshare
+      case m: ScreenshareStartedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareStartedVoiceConfEvtMsg(m)
+      case m: ScreenshareStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(m)
+      case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
+      case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
@@ -263,10 +269,10 @@ class MeetingActor(val props: DefaultProps,
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
 
     log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
-      + DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel) + " URL:" +
-      DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel))
+      + ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) + " URL:" +
+      ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
 
-    if (DeskshareModel.isBroadcastingRTMP(liveMeeting.deskshareModel)) {
+    if (ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
       // if the meeting has an ongoing WebRTC Deskshare session, send a notification
       //outGW.send(new DeskShareNotifyASingleViewer(props.meetingProp.intId, msg.requesterID,
       //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
