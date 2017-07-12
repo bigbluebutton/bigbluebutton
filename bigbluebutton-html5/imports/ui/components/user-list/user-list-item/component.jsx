@@ -78,6 +78,10 @@ class UserListItem extends Component {
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
   }
 
+  componentDidUpdate() {
+    this.checkDropdownDirection();
+  }
+
   onActionsShow() {
     const dropdown = findDOMNode(this.dropdown);
     const scrollContainer = dropdown.parentElement.parentElement;
@@ -132,8 +136,13 @@ class UserListItem extends Component {
     ]);
   }
 
-  componentDidUpdate() {
-    this.checkDropdownDirection();
+  onActionsHide() {
+    this.setState({
+      isActionsOpen: false,
+      dropdownVisible: false,
+    });
+
+    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
   }
 
   getDropdownMenuParent() {
@@ -181,7 +190,6 @@ class UserListItem extends Component {
     }
   }
 
-
   /**
   * Check if the dropdown is visible and is opened by the user
   *
@@ -199,7 +207,7 @@ class UserListItem extends Component {
         }
       }
     }
-    
+
     return isActionsOpen && !dropdownVisible;
   }
 
@@ -209,15 +217,7 @@ class UserListItem extends Component {
     });
   }
 
-  onActionsHide() {
-    this.setState({
-      isActionsOpen: false,
-      dropdownVisible: false,
-    });
 
-    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
-  }
-  
   renderUserContents() {
     const {
       user,

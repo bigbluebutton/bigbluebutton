@@ -10,6 +10,7 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -220,7 +221,7 @@ const getOpenChats = (chatID) => {
     id: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
-    unreadCounter: UnreadMessages.count('public_chat_userid'),
+    unreadCounter: UnreadMessages.count(PUBLIC_CHAT_USERID),
   });
 
   return openChats

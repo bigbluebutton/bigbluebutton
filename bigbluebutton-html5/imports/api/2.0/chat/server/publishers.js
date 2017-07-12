@@ -2,7 +2,6 @@ import Chat from '/imports/api/2.0/chat';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-
 import mapToAcl from '/imports/startup/mapToAcl';
 
 function chat(credentials) {
@@ -12,12 +11,15 @@ function chat(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+  const PUBLIC_CHAT_USERNAME = CHAT_CONFIG.public_username;
+
   Logger.info(`Publishing chat for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Chat.find({
     $or: [
       {
-        'message.toUsername': 'public_chat_username',
+        'message.toUsername': PUBLIC_CHAT_USERNAME,
         meetingId,
       }, {
         'message.fromUserId': requesterUserId,

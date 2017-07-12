@@ -6,6 +6,7 @@ import Chats from '/imports/api/2.0/chat';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 
 class UnreadMessagesTracker {
   constructor() {
@@ -38,7 +39,7 @@ class UnreadMessagesTracker {
     };
 
     // Minimongo does not support $eq. See https://github.com/meteor/meteor/issues/4142
-    if (chatID === 'public_chat_userid') {
+    if (chatID === PUBLIC_CHAT_USERID) {
       filter['message.toUserId'] = { $not: { $ne: chatID } };
     } else {
       filter['message.toUserId'] = { $not: { $ne: Auth.userID } };

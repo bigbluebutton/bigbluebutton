@@ -28,7 +28,6 @@ class MessageList extends Component {
     this.shouldScrollBottom = false;
     this.lastKnowScrollPosition = 0;
     this.ticking = false;
-
     this.handleScrollChange = _.debounce(this.handleScrollChange.bind(this), 150);
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
   }
@@ -97,7 +96,6 @@ class MessageList extends Component {
     }
   }
 
-
   componentWillUnmount() {
     const { scrollArea } = this;
 
@@ -108,6 +106,7 @@ class MessageList extends Component {
   handleScrollUpdate(position, target) {
     if (position !== null && position + target.offsetHeight === target.scrollHeight) {
       this.props.handleScrollUpdate(null);
+      return;
     }
 
     this.props.handleScrollUpdate(position);
