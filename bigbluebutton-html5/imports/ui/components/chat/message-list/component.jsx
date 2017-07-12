@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import styles from './styles';
-
 import Button from '/imports/ui/components/button/component';
+import styles from './styles';
 import MessageListItem from './message-list-item/component';
 
 const propTypes = {
@@ -34,71 +33,6 @@ class MessageList extends Component {
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
   }
 
-  scrollTo(position = null) {
-    const { scrollArea } = this;
-
-    if (position === null) {
-      position = scrollArea.scrollHeight - scrollArea.clientHeight;
-    }
-
-    scrollArea.scrollTop = position;
-  }
-
-  handleScrollUpdate(position, target) {
-    if (position !== null && position + target.offsetHeight === target.scrollHeight) {
-      position = null; // update with null so it keeps auto scrolling
-    }
-
-    this.props.handleScrollUpdate(position);
-  }
-
-  handleScrollChange(e) {
-    this.lastKnowScrollPosition = e.target.scrollTop;
-
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        const position = this.lastKnowScrollPosition;
-        this.handleScrollUpdate(position, e.target);
-        this.ticking = false;
-      });
-    }
-
-    this.ticking = true;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.chatId !== nextProps.chatId) {
-      const { scrollArea } = this;
-      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
-    }
-  }
-
-  componentWillUpdate(nextProps) {
-    if (this.props.chatId !== nextProps.chatId) {
-      this.shouldScrollBottom = false;
-      return;
-    }
-
-    const { scrollArea } = this;
-
-    const position = scrollArea.scrollTop + scrollArea.offsetHeight;
-
-    // Compare with <1 to account for the chance scrollArea.scrollTop is a float
-    // value in some browsers.
-    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-                              (scrollArea.scrollHeight - position < 1) ||
-                              nextProps.scrollPosition === null;
-  }
-
-  componentDidUpdate(prevProps) {
-    const { scrollPosition, chatId } = this.props;
-
-    if (this.shouldScrollBottom) {
-      this.scrollTo();
-    } else if (prevProps.chatId !== chatId) {
-      this.scrollTo(scrollPosition);
-    }
-  }
 
   componentDidMount() {
     const { scrollArea } = this;
@@ -107,11 +41,11 @@ class MessageList extends Component {
     scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
-  componentWillUnmount() {
-    const { scrollArea } = this;
-
-    this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
-    scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
+  componentWillReceiveProps(nextProps) {
+    if (this.props.chatId !== nextProps.chatId) {
+      const { scrollArea } = this;
+      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
+    }
   }
 
   shouldComponentUpdate(nextProps) {
@@ -136,6 +70,91 @@ class MessageList extends Component {
     return false;
   }
 
+  componentWillUpdate(nextProps) {
+    if (this.props.chatId !== nextProps.chatId) {
+      this.shouldScrollBottom = false;
+      return;
+    }
+
+    const { scrollArea } = this;
+
+    const position = scrollArea.scrollTop + scrollArea.offsetHeight;
+
+    // Compare with <1 to account for the chance scrollArea.scrollTop is a float
+    // value in some browsers.
+    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
+      (scrollArea.scrollHeight - position < 1) ||
+      nextProps.scrollPosition === null;
+  }
+
+  componentDidUpdate(prevProps) {
+    const { scrollPosition, chatId } = this.props;
+
+    if (this.shouldScrollBottom) {
+      this.scrollTo();
+    } else if (prevProps.chatId !== chatId) {
+      this.scrollTo(scrollPosition);
+    }
+  }
+
+
+  componentWillUnmount() {
+    const { scrollArea } = this;
+
+    this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
+    scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
+  }
+
+  handleScrollUpdate(position, target) {
+    if (position !== null && position + target.offsetHeight === target.scrollHeight) {
+      this.props.handleScrollUpdate(null);
+    }
+
+    this.props.handleScrollUpdate(position);
+  }
+
+  handleScrollChange(e) {
+    this.lastKnowScrollPosition = e.target.scrollTop;
+
+    if (!this.ticking) {
+      window.requestAnimationFrame(() => {
+        const position = this.lastKnowScrollPosition;
+        this.handleScrollUpdate(position, e.target);
+        this.ticking = false;
+      });
+    }
+
+    this.ticking = true;
+  }
+
+  scrollTo(position = null) {
+    const { scrollArea } = this;
+
+    if (position === null) {
+      scrollArea.scrollTop = scrollArea.scrollHeight - scrollArea.clientHeight;
+      return;
+    }
+
+    scrollArea.scrollTop = position;
+  }
+
+  renderUnreadNotification() {
+    const { intl, hasUnreadMessages, scrollPosition } = this.props;
+
+    if (hasUnreadMessages && scrollPosition !== null) {
+      return (
+        <Button
+          className={styles.unreadButton}
+          size={'sm'}
+          label={intl.formatMessage(intlMessages.moreMessages)}
+          onClick={() => this.scrollTo()}
+        />
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { messages, intl } = this.props;
 
@@ -143,7 +162,6 @@ class MessageList extends Component {
       <div className={styles.messageListWrapper}>
         <div
           role="log"
-          tabIndex="0"
           ref={(ref) => { this.scrollArea = ref; }}
           id={this.props.id}
           className={styles.messageList}
@@ -168,23 +186,6 @@ class MessageList extends Component {
         {this.renderUnreadNotification()}
       </div>
     );
-  }
-
-  renderUnreadNotification() {
-    const { intl, hasUnreadMessages, scrollPosition } = this.props;
-
-    if (hasUnreadMessages && scrollPosition !== null) {
-      return (
-        <Button
-          className={styles.unreadButton}
-          size={'sm'}
-          label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={() => this.scrollTo()}
-        />
-      );
-    }
-
-    return null;
   }
 }
 

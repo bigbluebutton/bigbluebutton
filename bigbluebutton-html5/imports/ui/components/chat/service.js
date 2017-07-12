@@ -63,7 +63,7 @@ const mapMessage = (messagePayload) => {
   };
 
   if (message.chat_type !== SYSTEM_CHAT_TYPE) {
-    mappedMessage.sender = getUser(message.fromUserid, message.fromUsername);
+    mappedMessage.sender = getUser(message.fromUserId, message.fromUsername);
   }
 
   return mappedMessage;
@@ -93,7 +93,7 @@ const reduceMessages = (previous, current) => {
   // between the two messages exceeds window and then group current message
   // with the last one
 
-  if (lastPayload.fromUserid === currentPayload.fromUserid
+  if (lastPayload.fromUserId === currentPayload.fromUserId
     && (currentPayload.fromTime - lastPayload.fromTime) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(reducedMessages.content.pop());
     return previous;
