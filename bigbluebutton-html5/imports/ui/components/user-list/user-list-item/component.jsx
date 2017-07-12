@@ -199,7 +199,7 @@ class UserListItem extends Component {
         }
       }
     }
-
+    
     return isActionsOpen && !dropdownVisible;
   }
 
@@ -217,6 +217,7 @@ class UserListItem extends Component {
 
     findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
   }
+  
   renderUserContents() {
     const {
       user,
@@ -300,17 +301,17 @@ class UserListItem extends Component {
 
     userNameSub = userNameSub.join(' ');
 
-    //FIX ME
-    /*const { disablePrivateChat,
+    // FIX ME
+    /* const { disablePrivateChat,
             disableCam,
             disableMic,
             disablePublicChat } = meeting.roomLockSettings;*/
-    
+
     const disablePrivateChat = false;
     const disableCam = false;
     const disableMic = false;
     const disablePublicChat = false; // = meeting.roomLockSettings;
-    
+
     return (
       <div className={styles.userName}>
         <span className={styles.userNameMain}>
