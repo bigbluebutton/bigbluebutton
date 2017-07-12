@@ -6,7 +6,7 @@ Verto = function (
   onFail = null,
   chromeExtension = null) {
 
-  voiceBridge += "-DESKSHARE";
+  voiceBridge += "-SCREENSHARE";
   this.cur_call = null;
   this.share_call = null;
   this.vertoHandle;
