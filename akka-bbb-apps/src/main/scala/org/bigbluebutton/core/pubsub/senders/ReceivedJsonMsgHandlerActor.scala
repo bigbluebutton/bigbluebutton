@@ -267,15 +267,15 @@ class ReceivedJsonMsgHandlerActor(
       case ChangeLockSettingsInMeetingCmdMsg.NAME =>
         routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
 
-      // Deskshare
-      case DeskshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME =>
-        routeVoiceMsg[DeskshareRtmpBroadcastStartedVoiceConfEvtMsg](envelope, jsonNode)
-      case DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME =>
-        routeVoiceMsg[DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg](envelope, jsonNode)
-      case DeskshareStartedVoiceConfEvtMsg.NAME =>
-        routeVoiceMsg[DeskshareStartedVoiceConfEvtMsg](envelope, jsonNode)
-      case DeskshareStoppedVoiceConfEvtMsg.NAME =>
-        routeVoiceMsg[DeskshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      // Screenshare
+      case ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg](envelope, jsonNode)
+      case ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      case ScreenshareStartedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
+      case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

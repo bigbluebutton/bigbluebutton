@@ -1,11 +1,9 @@
 package org.bigbluebutton.client
 
 import akka.actor.{Actor, ActorLogging, Props}
-import org.bigbluebutton.client.bus.{BroadcastMsgToMeeting, DirectMsgToClient, SystemMsgToClient}
+import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.red5.client.messaging.{BroadcastToMeetingMsg, DirectToClientMsg}
-import org.bigbluebutton.red5.client.messaging.{DisconnectAllClientsMessage, DisconnectClientMessage}
-import org.bigbluebutton.common2.msgs.{DisconnectAllClientsSysMsg, DisconnectClientSysMsg}
+import org.bigbluebutton.red5.client.messaging._
 
 
 object MsgToClientJsonActor {
@@ -18,7 +16,8 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   def receive = {
     case msg: BroadcastMsgToMeeting => handleBroadcastMsg(msg)
     case msg: DirectMsgToClient => handleDirectMsg(msg)
-    case msg: SystemMsgToClient => handleSystemMsg(msg)
+    case msg: DisconnectClientMsg => handleDisconnectClientMsg(msg)
+    case msg: DisconnectAllMeetingClientsMsg => handleDisconnectAllMeetingClientsMsg(msg)
   }
 
 
@@ -43,18 +42,18 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
     msgToClientGW.directToClient(direct)
   }
 
-  def handleSystemMsg(msg: SystemMsgToClient): Unit = {
-    println("Received SystemMsgToClient " + msg)
+  def handleDisconnectClientMsg(msg: DisconnectClientMsg): Unit = {
+    println("Received DisconnectClientMsg " + msg)
     val meetingId = msg.meetingId
-    val userId = msg.userId
+    val connId = msg.connId
 
-    msg.data.envelope.name match {
-      case DisconnectAllClientsSysMsg.NAME =>
-        val disconnect = new DisconnectAllClientsMessage(meetingId)
-        msgToClientGW.systemMessage(disconnect)
-      case DisconnectClientSysMsg.NAME =>
-        val disconnect = new DisconnectClientMessage(meetingId, userId)
-        msgToClientGW.systemMessage(disconnect)
-    }
+    msgToClientGW.systemMessage(new CloseConnectionMsg(meetingId, connId))
+  }
+
+  def handleDisconnectAllMeetingClientsMsg(msg: DisconnectAllMeetingClientsMsg): Unit = {
+    println("Received DisconnectAllMeetingClientsMsg " + msg)
+    val meetingId = msg.meetingId
+
+    msgToClientGW.systemMessage(new CloseMeetingAllConnectionsMsg(meetingId))
   }
 }

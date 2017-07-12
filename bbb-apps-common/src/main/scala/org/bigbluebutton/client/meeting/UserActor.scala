@@ -148,10 +148,12 @@ class UserActor(val userId: String,
 
   def handleSystemMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     for {
-      userId <- msg.envelope.routing.get("userId")
+      conn <- Connections.findActiveConnection(conns)
     } yield {
-      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, userId, msg)))
+      msg.envelope.name match {
+        case DisconnectClientSysMsg.NAME =>
+          msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+      }
     }
   }
-
 }

@@ -6,7 +6,7 @@ Verto = function (
   onFail = null,
   chromeExtension = null) {
 
-  voiceBridge += "-DESKSHARE";
+  voiceBridge += "-SCREENSHARE";
   this.cur_call = null;
   this.share_call = null;
   this.vertoHandle;
@@ -346,13 +346,9 @@ Verto.prototype.makeShare = function () {
 
   var screenInfo = null;
   if (!!navigator.mozGetUserMedia) {
-    return this.onFail();
-
-    /*screenInfo = {
-        mozMediaSource: 'window',
-        mediaSource: 'window',
-    };
-    this.doShare(screenInfo);*/
+    // no screen parameters for FF, just screenShare: true down below
+    screenInfo = {};
+    this.doShare(screenInfo);
   } else if (!!window.chrome) {
     var _this = this;
     if (!_this.chromeExtension) {
@@ -396,11 +392,6 @@ Verto.prototype.doShare = function (screenConstraints) {
     videoParams: screenConstraints,
     useVideo: true,
     screenShare: true,
-
-    useCamera: this.useCamera,
-    useMic: this.useMic,
-    useSpeak: 'any',
-
     dedEnc: true,
     mirrorInput: false,
     tag: this.renderTag,

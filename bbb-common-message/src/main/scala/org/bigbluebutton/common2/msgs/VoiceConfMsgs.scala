@@ -7,49 +7,91 @@ trait VoiceStandardMsg extends BbbCoreMsg {
   def header: BbbCoreVoiceConfHeader
 }
 
-  object DeskshareHangUpVoiceConfMsg { val NAME = "DeskshareHangUpVoiceConfMsg" }
-  case class DeskshareHangUpVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
-                                         body: DeskshareHangUpVoiceConfMsgBody) extends BbbCoreMsg
-  case class DeskshareHangUpVoiceConfMsgBody(voiceConf: String, deskshareConf: String, timestamp: String)
+  object ScreenshareHangUpVoiceConfMsg { val NAME = "ScreenshareHangUpVoiceConfMsg" }
+  case class ScreenshareHangUpVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
+                                         body: ScreenshareHangUpVoiceConfMsgBody) extends BbbCoreMsg
+  case class ScreenshareHangUpVoiceConfMsgBody(voiceConf: String, screenshareConf: String, timestamp: String)
 
-  object DeskshareRtmpBroadcastStartedVoiceConfEvtMsg { val NAME = "DeskshareRtmpBroadcastStartedVoiceConfEvtMsg"}
-  case class DeskshareRtmpBroadcastStartedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                                          body: DeskshareRtmpBroadcastStartedVoiceConfEvtMsgBody) extends VoiceStandardMsg
-  case class DeskshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
+/**
+  * Sent from FS that RTMP stream has started.
+  */
+  object ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg { val NAME = "ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg"}
+  case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
+                                                          body: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody)
+    extends VoiceStandardMsg
+  case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String)
 
-  object DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg { val NAME = "DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg"}
-  case class DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                                          body: DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgBody) extends VoiceStandardMsg
-  case class DeskshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
+/**
+  * Sent to clients to notify them of an RTMP stream starting.
+  */
+object ScreenshareRtmpBroadcastStartedEvtMsg { val NAME = "ScreenshareRtmpBroadcastStartedEvtMsg"}
+case class ScreenshareRtmpBroadcastStartedEvtMsg(header: BbbClientMsgHeader,
+                                                        body: ScreenshareRtmpBroadcastStartedEvtMsgBody)
+  extends BbbCoreMsg
+case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String,
+                                                            stream: String, vidWidth: Int, vidHeight: Int,
+                                                            timestamp: String)
+
+/**
+  * Send by FS that RTMP stream has stopped.
+  */
+  object ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg { val NAME = "ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg"}
+  case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
+                                                          body: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody) extends VoiceStandardMsg
+  case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String)
 
-  object DeskshareStartedVoiceConfEvtMsg { val NAME = "DeskshareStartedVoiceConfEvtMsg" }
-  case class DeskshareStartedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                             body: DeskshareStartedVoiceConfEvtMsgBody) extends VoiceStandardMsg
-  case class DeskshareStartedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
+/**
+  * Sent to clients to notify them of an RTMP stream stopping.
+  */
+object ScreenshareRtmpBroadcastStoppedEvtMsg { val NAME = "ScreenshareRtmpBroadcastStoppedEvtMsg"}
+case class ScreenshareRtmpBroadcastStoppedEvtMsg(header: BbbClientMsgHeader,
+                                                 body: ScreenshareRtmpBroadcastStoppedEvtMsgBody)
+  extends BbbCoreMsg
+case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String,
+                                                     stream: String, vidWidth: Int, vidHeight: Int,
+                                                     timestamp: String)
+
+/**
+  * Sent by FS that screenshare has started.
+  */
+  object ScreenshareStartedVoiceConfEvtMsg { val NAME = "ScreenshareStartedVoiceConfEvtMsg" }
+  case class ScreenshareStartedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
+                                             body: ScreenshareStartedVoiceConfEvtMsgBody) extends VoiceStandardMsg
+  case class ScreenshareStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                  callerIdNum: String, callerIdName: String)
 
-  object DeskshareStartRtmpBroadcastVoiceConfMsg { val NAME = "DeskshareStartRtmpBroadcastVoiceConfMsg" }
-  case class DeskshareStartRtmpBroadcastVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
-                                                     body: DeskshareStartRtmpBroadcastVoiceConfMsgBody) extends BbbCoreMsg
-  case class DeskshareStartRtmpBroadcastVoiceConfMsgBody(voiceConf: String, deskshareConf: String, url: String, timestamp: String)
+/**
+  * Sent to FS to broadcast ans RTMP stream to Red5.
+  */
+  object ScreenshareStartRtmpBroadcastVoiceConfMsg { val NAME = "ScreenshareStartRtmpBroadcastVoiceConfMsg" }
+  case class ScreenshareStartRtmpBroadcastVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
+                                                     body: ScreenshareStartRtmpBroadcastVoiceConfMsgBody) extends BbbCoreMsg
+  case class ScreenshareStartRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
 
-
-  object DeskshareStoppedVoiceConfEvtMsg { val NAME = "DeskshareStoppedVoiceConfEvtMsg"}
-  case class DeskshareStoppedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
-                                             body: DeskshareStoppedVoiceConfEvtMsgBody) extends VoiceStandardMsg
-  case class DeskshareStoppedVoiceConfEvtMsgBody(voiceConf: String, deskshareConf: String,
+/**
+  * Sent by FS that screenshare has stopped.
+  */
+  object ScreenshareStoppedVoiceConfEvtMsg { val NAME = "ScreenshareStoppedVoiceConfEvtMsg"}
+  case class ScreenshareStoppedVoiceConfEvtMsg(header: BbbCoreVoiceConfHeader,
+                                             body: ScreenshareStoppedVoiceConfEvtMsgBody) extends VoiceStandardMsg
+  case class ScreenshareStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                  callerIdNum: String, callerIdName: String)
 
-  object DeskshareStopRtmpBroadcastVoiceConfMsg { val NAME = "DeskshareStopRtmpBroadcastVoiceConfMsg" }
-  case class DeskshareStopRtmpBroadcastVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
-                                                    body: DeskshareStopRtmpBroadcastVoiceConfMsgBody) extends BbbCoreMsg
-  case class DeskshareStopRtmpBroadcastVoiceConfMsgBody(voiceConf: String, deskshareConf: String, url: String, timestamp: String)
+/**
+  * Sent to FS to stop broadcasting RTMP stream to Red5.
+  */
+  object ScreenshareStopRtmpBroadcastVoiceConfMsg { val NAME = "ScreenshareStopRtmpBroadcastVoiceConfMsg" }
+  case class ScreenshareStopRtmpBroadcastVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
+                                                    body: ScreenshareStopRtmpBroadcastVoiceConfMsgBody) extends BbbCoreMsg
+  case class ScreenshareStopRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
 
-
+/**
+  * Sent to FS to eject all users from the voice conference.
+  */
   object EjectAllFromVoiceConfMsg { val NAME = "EjectAllFromVoiceConfMsg" }
   case class EjectAllFromVoiceConfMsg(header: BbbCoreHeaderWithMeetingId,
                                       body: EjectAllFromVoiceConfMsgBody) extends BbbCoreMsg
@@ -204,9 +246,9 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
 /**
   * Sent to client that user has been muted in the voice conference.
   */
-  object UserMutedToClientEvtMsg { val NAME = "UserMutedToClientEvtMsg" }
-  case class UserMutedToClientEvtMsg(header: BbbClientMsgHeader, body: UserMutedToClientEvtMsgBody) extends BbbCoreMsg
-  case class UserMutedToClientEvtMsgBody(intId: String, voiceUserId: String, muted: Boolean)
+  object UserMutedVoiceEvtMsg { val NAME = "UserMutedVoiceEvtMsg" }
+  case class UserMutedVoiceEvtMsg(header: BbbClientMsgHeader, body: UserMutedVoiceEvtMsgBody) extends BbbCoreMsg
+  case class UserMutedVoiceEvtMsgBody(intId: String, voiceUserId: String, muted: Boolean)
 
 /**
   * Received from FS that user has been muted in voice conference.
@@ -221,9 +263,9 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   * Sent to client that user is talking in voice conference.
   */
 
-  object UserTalkingToClientEvtMsg { val NAME = "UserTalkingToClientEvtMsg" }
-  case class UserTalkingToClientEvtMsg(header: BbbClientMsgHeader, body: UserTalkingToClientEvtMsgBody) extends BbbCoreMsg
-  case class UserTalkingToClientEvtMsgBody(intId: String, voiceUserId: String, talking: Boolean)
+  object UserTalkingVoiceEvtMsg { val NAME = "UserTalkingVoiceEvtMsg" }
+  case class UserTalkingVoiceEvtMsg(header: BbbClientMsgHeader, body: UserTalkingVoiceEvtMsgBody) extends BbbCoreMsg
+  case class UserTalkingVoiceEvtMsgBody(intId: String, voiceUserId: String, talking: Boolean)
 
 /**
   * Received from FS that user is talking in voice conference.
@@ -233,14 +275,19 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
                                           body: UserTalkingInVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class UserTalkingInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, talking: Boolean)
 
-
+/**
+  * Sent to clients that voice conf is being recorded.
+  */
 object VoiceRecordingStartedEvtMsg { val NAME = "VoiceRecordingStartedEvtMsg" }
-case class VoiceRecordingStartedEvtMsg(header: BbbCoreVoiceConfHeader,
+case class VoiceRecordingStartedEvtMsg(header: BbbClientMsgHeader,
                                         body: VoiceRecordingStartedEvtMsgBody) extends BbbCoreMsg
 case class VoiceRecordingStartedEvtMsgBody(meetingId: String, stream: String, timestamp: String, voiceConf: String)
 
+/**
+  * Sent to clients that voice conf is no longer being recorded.
+  */
 object VoiceRecordingStoppedEvtMsg { val NAME = "VoiceRecordingStoppedEvtMsg" }
-case class VoiceRecordingStoppedEvtMsg(header: BbbCoreVoiceConfHeader,
+case class VoiceRecordingStoppedEvtMsg(header: BbbClientMsgHeader,
                                         body: VoiceRecordingStoppedEvtMsgBody) extends BbbCoreMsg
 case class VoiceRecordingStoppedEvtMsgBody(meetingId: String, stream: String, timestamp: String, voiceConf: String)
 

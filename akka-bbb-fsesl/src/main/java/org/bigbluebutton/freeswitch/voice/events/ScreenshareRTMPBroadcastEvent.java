@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.freeswitch.voice.events;
 
-public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
+public class ScreenshareRTMPBroadcastEvent extends VoiceConferenceEvent {
 
 	private String timestamp;
 	private boolean broadcast;
@@ -26,10 +26,10 @@ public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 	private Integer vw;
 	private Integer vh;
 
-	private final String DESKSHARE_SUFFIX = "-DESKSHARE";
+	private final String SCREENSHARE_SUFFIX = "-SCREENSHARE";
 
 
-	public DeskShareRTMPBroadcastEvent(String room, boolean broadcast) {
+	public ScreenshareRTMPBroadcastEvent(String room, boolean broadcast) {
 		super(room);
 		this.broadcast = broadcast;
 	}
@@ -56,8 +56,8 @@ public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 
 	public String getBroadcastingStreamUrl()
 	{
-		if (streamUrl.endsWith(DESKSHARE_SUFFIX)) {
-			streamUrl = streamUrl.replace(DESKSHARE_SUFFIX, "");
+		if (streamUrl.endsWith(SCREENSHARE_SUFFIX)) {
+			streamUrl = streamUrl.replace(SCREENSHARE_SUFFIX, "");
 		}
 		return streamUrl;
 	}
