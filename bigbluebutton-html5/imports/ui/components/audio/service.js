@@ -11,10 +11,10 @@ const init = () => {
 
   const turns = [];
   const stuns = [];
-  //FIX ME
-  const voiceBridge = "Meeting.voiceConf";
-  //FIX ME
-  const microphoneLockEnforced = "Meeting.roomLockSettings.disableMic";
+  // FIX ME
+  const voiceBridge = 'Meeting.voiceConf';
+  // FIX ME
+  const microphoneLockEnforced = 'Meeting.roomLockSettings.disableMic';
 
   const userData = {
     userId,

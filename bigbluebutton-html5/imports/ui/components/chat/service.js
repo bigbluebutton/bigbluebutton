@@ -44,13 +44,23 @@ const mapUser = user => ({
   isLocked: user.locked,
 });
 
+const getUser = (userID) => {
+  const user = Users.findOne({ userId: userID });
+
+  if (!user) {
+    return null;
+  }
+
+  return mapUser(user.user);
+};
+
 const mapMessage = (messagePayload) => {
   const { message } = messagePayload;
 
   const mappedMessage = {
     id: messagePayload._id,
     content: messagePayload.content,
-    time: message.from_time, // + message.from_tz_offset,
+    time: message.fromTime, // + message.from_tz_offset,
     sender: null,
   };
 
@@ -61,19 +71,22 @@ const mapMessage = (messagePayload) => {
   return mappedMessage;
 };
 
-const reduceMessages = (previous, current, index, array) => {
+const reduceMessages = (previous, current) => {
   const lastMessage = previous[previous.length - 1];
   const currentPayload = current.message;
 
-  current.content = [];
-  current.content.push({
+  const reducedMessages = current;
+
+  reducedMessages.content = [];
+
+  reducedMessages.content.push({
     id: current._id,
     text: currentPayload.message,
     time: currentPayload.fromTime,
   });
 
-  if (!lastMessage || !current.message.chatType === SYSTEM_CHAT_TYPE) {
-    return previous.concat(current);
+  if (!lastMessage || !reducedMessages.message.chatType === SYSTEM_CHAT_TYPE) {
+    return previous.concat(reducedMessages);
   }
 
   const lastPayload = lastMessage.message;
@@ -84,19 +97,10 @@ const reduceMessages = (previous, current, index, array) => {
 
   if (lastPayload.fromUserid === currentPayload.fromUserid
     && (currentPayload.fromTime - lastPayload.fromTime) <= GROUPING_MESSAGES_WINDOW) {
-    lastMessage.content.push(current.content.pop());
+    lastMessage.content.push(reducedMessages.content.pop());
     return previous;
   }
-  return previous.concat(current);
-};
-
-const getUser = (userID, userName) => {
-  const user = Users.findOne({ userId: userID });
-  if (!user) {
-    return null;
-  }
-
-  return mapUser(user.user);
+  return previous.concat(reducedMessages);
 };
 
 const getPublicMessages = () => {
@@ -144,16 +148,16 @@ const isChatLocked = (receiverID) => {
 
 const hasUnreadMessages = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
-  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+  const chatType = isPublic ? PUBLIC_CHAT_USERID : receiverID;
 
-  return UnreadMessages.count(receiverID) > 0;
+  return UnreadMessages.count(chatType) > 0;
 };
 
 const lastReadMessageTime = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
-  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+  const chatType = isPublic ? PUBLIC_CHAT_USERID : receiverID;
 
-  return UnreadMessages.get(receiverID);
+  return UnreadMessages.get(chatType);
 };
 
 const sendMessage = (receiverID, message) => {
@@ -202,8 +206,8 @@ const updateScrollPosition =
 
 const updateUnreadMessage = (receiverID, timestamp) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
-  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
-  return UnreadMessages.update(receiverID, timestamp);
+  const chatType = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+  return UnreadMessages.update(chatType, timestamp);
 };
 
 const closePrivateChat = (chatID) => {

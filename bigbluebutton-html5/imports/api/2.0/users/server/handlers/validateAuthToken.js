@@ -31,7 +31,7 @@ const addWelcomeChatMessage = (meetingId, userId) => {
     fromTime: (new Date()).getTime(),
   };
 
-  return addChat(meetingId, message);
+  addChat(meetingId, message);
 };
 
 export default function handleValidateAuthToken({ body }, meetingId) {
@@ -74,7 +74,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
        }${+' user='}${userId} meeting=${meetingId}`,
       );
     }
+
+    return Logger.info('No auth to validate');
   };
 
-  return Users.update(selector, modifier, cb);
+  Users.update(selector, modifier, cb);
 }

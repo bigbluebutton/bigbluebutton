@@ -3,7 +3,7 @@ import Chat from '/imports/api/2.0/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -179,8 +179,6 @@ const getOpenChats = (chatID) => {
     .fetch()
     .map(mapOpenChats);
 
-  const currentUserId = Auth.userID;
-
   if (chatID) {
     openChats.push(chatID);
   }
@@ -192,8 +190,9 @@ const getOpenChats = (chatID) => {
     .map(u => u.user)
     .map(mapUser)
     .map((op) => {
-      op.unreadCounter = UnreadMessages.count(op.id);
-      return op;
+      const openChat = op;
+      openChat.unreadCounter = UnreadMessages.count(op.id);
+      return openChat;
     });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
@@ -228,7 +227,7 @@ const getOpenChats = (chatID) => {
     .sort(sortChats);
 };
 
-getCurrentUser = () => {
+const getCurrentUser = () => {
   const currentUserId = Auth.userID;
   const currentUser = Users.findOne({ 'user.userid': currentUserId });
 
