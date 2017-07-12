@@ -361,7 +361,7 @@ mx|DataGrid {
 	textSelectedColor     : #3F3F41;
 	alternatingItemColors : #FFFFFF, #FFFFFF;
 	dropShadowEnabled     : false;
-	verticalSeparatorSkin : ClassReference(null);
+	verticalSeparatorSkin : ClassReference("org.bigbluebutton.skins.DataGridVerticalSeparatorSkin");
 }
 
 /*
@@ -400,34 +400,29 @@ flexlib|MDICanvas {
 
 flexlib|MDIWindow {
 	/*None of the following properties are overridden by the MDIWindow class*/
-	backgroundSize            : "100%";
+	backgroundSize       : "100%";
 
-	cornerRadius              : 4;
-	dropShadowEnabled         : false;
-	titleStyleName            : "mdiWindowTitle";
+	headerHeight         : 40;
 
-	cornerResizeImg           : Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-	cornerResizeWidth         : 2;
-	cornerResizeHeight        : 2;
-	cornerResizePaddingRight  : 2;
-	cornerResizePaddingBottom : 2;
+	cornerRadius         : 4;
+	dropShadowEnabled    : false;
+	titleStyleName       : "mdiWindowTitle";
 
-	controlButtonWidth        : 10;
-	controlButtonHeight       : 10;
-	controlButtonGap          : 4;
+	cornerResizeImg      : Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+	roundedBottomCorners : true;
 
-	borderStyle               : solid;
-	borderColor               : #CDD4DB;
-	borderAlpha               : 1;
+	controlButtonWidth   : 10;
+	controlButtonHeight  : 10;
+	controlButtonGap     : 4;
 
-	styleNameFocus            : "mdiWindowFocus";
-	styleNameNoFocus          : "mdiWindowNoFocus";
+	styleNameFocus       : "mdiWindowFocus";
+	styleNameNoFocus     : "mdiWindowNoFocus";
 
-	maximizeBtnStyleName      : "mdiMaximizeButtonStyle";
-	restoreBtnStyleName       : "mdiMaximizeButtonStyle";
-	minimizeBtnStyleName      : "mdiMinimizeButtonStyle";
+	maximizeBtnStyleName : "mdiMaximizeButtonStyle";
+	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
+	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
 
-	showHeaderSeparator       : true;
+	showHeaderSeparator  : true;
 }
 
 .mdiMaximizeButtonStyle {
@@ -449,30 +444,24 @@ flexlib|MDIWindow {
 	fontSize : 12;
 }
 
-.mdiWindowFocus, .presentationWindowStyleFocus, .videoDockStyleFocus, .videoDockStyleFocusChatLayout, .videoViewStyleFocus, .videoPublishStyleFocus, .videoAvatarStyleFocus {
-	headerHeight         : 30;
-	roundedBottomCorners : true;
+.mdiWindowNoFocus {
+	borderStyle     : solid;
+	borderAlpha     : 1;
+	borderThickness : 1;
+	borderColor     : #CDD4DB;
 
-	borderStyle          : solid;
-	borderAlpha          : 1;
-	borderThickness      : 1;
-	borderColor          : #9EAEBA;
-
-	backgroundColor      : #FFFFFF;
-	backgroundAlpha      : 1;
+	backgroundColor : #FFFFFF;
+	backgroundAlpha : 1;
 }
 
-.mdiWindowNoFocus, .presentationWindowStyleNoFocus, .videoDockStyleNoFocus, .videoDockStyleNoFocusChatLayout, .videoViewStyleNoFocus, .videoPublishStyleNoFocus, .videoAvatarStyleNoFocus {
-	headerHeight         : 30;
-	roundedBottomCorners : true;
+.mdiWindowFocus {
+	borderStyle     : solid;
+	borderAlpha     : 1;
+	borderThickness : 1;
+	borderColor     : #9EAEBA;
 
-	borderStyle          : solid;
-	borderAlpha          : 1;
-	borderThickness      : 1;
-	borderColor          : #CDD4DB;
-
-	backgroundColor      : #FFFFFF;
-	backgroundAlpha      : 1;
+	backgroundColor : #FFFFFF;
+	backgroundAlpha : 1;
 }
 
 /*
@@ -575,6 +564,10 @@ mx|ProgressBar {
 //------------------------------
 */
 
+.sharedNotesSettings {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
+}
+
 .sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
 	icon : Embed('assets/images/ic_save_16px.png');
 }
@@ -634,6 +627,68 @@ mx|ToolTip {
 
 .errorTip {
 	borderColor : #FF6666;
+}
+
+/*
+//------------------------------
+//  Users
+//------------------------------
+*/
+
+users|UsersWindow {
+	iconAudioMuted : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
+	iconAudio      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
+	iconLock       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
+	iconMood       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconSettings   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+}
+
+users|StatusItemRenderer {
+	iconPresenter      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Presenter");
+	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Moderator");
+	iconModeratorOnly  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ListenOnly");
+	iconMoodRaiseHand  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
+	iconMood           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
+	iconMoodConfused   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+	iconMoodAway       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
+	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
+	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+}
+
+users|MediaItemRenderer {
+	iconAudioMuted : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
+	iconAudio      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
+	iconSound      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Sound");
+	iconLock       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
+	iconUnlock     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Unlock");
+	iconSettings   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconWebcam     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Webcam");
+	iconDemote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Demote");
+	iconPromote    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
+	iconEject      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
+}
+
+users|NameItemRenderer {
+	fontSize  : 12;
+	textAlign : left;
+}
+
+.nameRenderer {
+	fontWeight : normal;
+	color      : #2A2D33;
+}
+
+.meNameRenderer {
+	fontWeight : bold;
+	color      : #3D97D3;
+}
+
+.usersGridStyle {
+	selectionColor : #F0F2F6;
 }
 
 /*

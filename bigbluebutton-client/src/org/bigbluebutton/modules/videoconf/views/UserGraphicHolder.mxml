@@ -40,7 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <![CDATA[
           import com.asfusion.mate.events.Dispatcher;
           
-          import org.bigbluebutton.common.Images;
           import org.bigbluebutton.common.Role;
           import org.bigbluebutton.core.EventConstants;
           import org.bigbluebutton.core.Options;
@@ -67,7 +66,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             [Bindable]
             private var _me:Boolean = false;
             private var _dispatcher:Dispatcher = new Dispatcher();
-            private var _images:Images = new Images();
             private var _user:User2x = null;
             private var _streamName:String = "";
             private var _userId:String = "";
@@ -255,7 +253,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                             userIconVisibility = false;
                         }
                     }
-                    userIconWrapper.visible = userIconWrapper.includeInLayout = userIconVisibility;
+					userIcon.visible = userIcon.includeInLayout = userIconVisibility;
                 }
             }
 
@@ -326,12 +324,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     id="titleBox"
                     width="100%"
                     verticalAlign="middle"
-                    paddingRight="0"
-                    paddingLeft="0"
+                    paddingRight="5"
+                    paddingLeft="5"
                     styleName="videoToolbarBackgroundNotTalkingStyle" >
-                <mx:Box id="userIconWrapper" visible="false" includeInLayout="false" paddingLeft="5" paddingRight="0" >
-                    <mx:Image id="userIcon" />
-                </mx:Box>
+                    <mx:Image id="userIcon" visible="false" includeInLayout="false" />
                 <mx:Label
                         text="{_username + (_me? ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : '')}"
                         fontWeight="{_me ? 'bold' : 'normal'}"
@@ -340,8 +336,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         minWidth="0"
                         truncateToFit="true"
                         styleName="videoToolbarLabelStyle" />
-                    <mx:Button id="closeBtn" styleName="closeBtnFocus" buttonMode="true" click="shutdown()" paddingRight="5" 
-                               toolTip="{ResourceUtil.getInstance().getString('bbb.video.streamClose.toolTip', [_username])}" />
+                <mx:Button id="closeBtn" styleName="closeBtnFocus" buttonMode="true" click="shutdown()"
+                           toolTip="{ResourceUtil.getInstance().getString('bbb.video.streamClose.toolTip', [_username])}" />
             </mx:HBox>
             <mx:Box
                     width="100%"

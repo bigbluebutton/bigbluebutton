@@ -33,8 +33,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
 	showControls="true" resize="resizeHandler()"
-  	styleNameFocus="presentationWindowStyleFocus"
-  	styleNameNoFocus="presentationWindowStyleNoFocus"
 	implements="org.bigbluebutton.common.IBbbModuleWindow,org.bigbluebutton.modules.whiteboard.views.IWhiteboardReceiver"
 	initialize="init()"
 	creationComplete="onCreationComplete()" 

@@ -361,18 +361,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for each (var button:UIComponent in addedBtns.getChildren()){
 					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
 					
-					/*if (toolbarComponent.getAlignment() == ALIGN_LEFT){ 
-						addedBtns.setChildIndex(button, 0);
-						//(addedBtns.getChildAt(0) as Button).tabIndex = 0;
-					}
-					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT){ 
-						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
-						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
-					}*/
 					button.tabIndex = quickLinksIndexer.startIndex + 5;
-					//for (var i:int = 0; i < addedBtns.numChildren; i++){
-					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
-					//}
 				}
 			}
 						
@@ -389,10 +378,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
 					setStyle("backgroundColor", brandingOptions.toolbarColor);
-				}
-
-				if (ArrayUtils.isNotEmpty(brandingOptions.toolbarColorAlphas)) {
-					setStyle("highlightAlphas", brandingOptions.toolbarColorAlphas);
 				}
 			}
 			
@@ -535,7 +520,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   height="20" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:VRule styleName="toolbarSeparator" height="10" />
-	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
+	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
 	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center"/>
 	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>

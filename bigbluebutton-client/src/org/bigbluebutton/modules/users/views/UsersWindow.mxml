@@ -348,18 +348,17 @@
 			private function openSettings():void {
 				paramsMenuData = [];
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), handler: resetEmojiStatuses});
-				
+
 				if (!roomMuted) {
-					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
-					var presenter: User2x = UsersUtil.getPresenter();
-          if (presenter != null)
-						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + 
-              presenter.name, icon: images.audio_muted, handler: muteAlmostAll});
+					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
+					var presenter:User2x = UsersUtil.getPresenter();
+					if (presenter != null)
+						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
 				} else
-					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler: muteAll});
-								
-				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				if (breakoutOptions.enabled && amIModerator && ! UsersUtil.isBreakout()) {
+					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
+
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: getStyle('iconLock'), handler: lockSettings});
+				if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {
 					if (breakoutRoomsList.length == 0) {
 						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
 					} else {
@@ -378,7 +377,7 @@
 				paramsMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
 				paramsMenu.show();
 			}
-			
+
 			private function menuClickHandler(e:MenuEvent):void {
 				if (paramsMenuData[e.index] != undefined && paramsMenuData[e.index].handler != undefined) {
 					paramsMenuData[e.index].handler();
@@ -683,10 +682,11 @@
 	</fx:Declarations>
 	
 	<views:BBBDataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
-    	dragEnabled="false" width="100%" height="100%" draggableColumns="false"
+    	dragEnabled="false" width="100%" height="100%" draggableColumns="false" styleName="usersGridStyle"
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)"
 		showHeaders="false"
+		rowHeight="35"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<views:columns>
     		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="56" resizable="false"
@@ -731,10 +731,10 @@
 	</mx:VBox>
 
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.mood}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{getStyle('iconMood')}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()" />
-		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
+		<mx:Button id="settingsBtn" icon="{getStyle('iconSettings')}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" />
 		<mx:VBox>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />

@@ -16,25 +16,18 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.main.model.options {
-	import org.bigbluebutton.core.Options;
+package org.bigbluebutton.skins {
+	import mx.skins.Border;
 
-	public class BrandingOptions extends Options {
+	public class DataGridVerticalSeparatorSkin extends Border {
+		override protected function updateDisplayList(w:Number, h:Number):void {
+			super.updateDisplayList(w, h);
 
-		[Bindable]
-		public var logo:String = "";
+			var borderColor:uint = getStyle("borderColor");
 
-		[Bindable]
-		public var copyright:String = "";
+			graphics.clear();
 
-		[Bindable]
-		public var background:String = "";
-
-		[Bindable]
-		public var toolbarColor:String = "";
-
-		public function BrandingOptions() {
-			name = "branding";
+			drawRoundRect(0, 0, w, h, 0, borderColor, 1);
 		}
 	}
 }
