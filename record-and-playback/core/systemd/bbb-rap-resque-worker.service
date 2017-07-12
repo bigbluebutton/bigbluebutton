@@ -1,0 +1,11 @@
+[Unit]
+Description=BigBlueButton resque worker for recordings
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c '/usr/bin/rake -f ../Rakefile resque:work >> /var/log/bigbluebutton/bbb-rap-resque.log'
+WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity
+Environment=COUNT=1
+#Environment=VVERBOSE=1
+User=tomcat7

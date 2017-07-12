@@ -34,7 +34,6 @@ module BigBlueButton
 
             self.remove_status_files
 
-            @logger.info("Running process worker for #{@meeting_id}/#{@format_name}")
             @publisher.put_process_started(@format_name, @meeting_id)
 
             # If the process directory exists, the script does nothing

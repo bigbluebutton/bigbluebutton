@@ -151,6 +151,9 @@ module BigBlueButton
 
         @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
         @logger.level = Logger::INFO
+
+        ::Resque.logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
+        ::Resque.logger.level = Logger::INFO
       end
     end
   end

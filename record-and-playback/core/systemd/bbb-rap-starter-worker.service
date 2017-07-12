@@ -1,0 +1,9 @@
+[Unit]
+Description=BigBlueButton recording processing starter
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bigbluebutton/core/scripts/rap-starter.rb
+WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+User=tomcat7
+Slice=bbb_record_core.slice
