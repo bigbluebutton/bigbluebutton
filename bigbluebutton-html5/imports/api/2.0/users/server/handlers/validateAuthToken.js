@@ -25,9 +25,9 @@ const addWelcomeChatMessage = (meetingId, userId) => {
     chatType: CHAT_CONFIG.type_system,
     message: welcomeMessage,
     fromColor: '0x3399FF',
-    toUserid: userId,
-    fromUserid: CHAT_CONFIG.type_system,
-    from_username: '',
+    toUserId: userId,
+    fromUserId: CHAT_CONFIG.type_system,
+    fromUsername: '',
     fromTime: (new Date()).getTime(),
   };
 
