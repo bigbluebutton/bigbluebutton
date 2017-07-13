@@ -3,9 +3,7 @@ package org.bigbluebutton.core.pubsub.senders
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.messages.breakoutrooms._
-import org.bigbluebutton.common2.messages.voiceconf._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
 import scala.reflect.runtime.universe._
@@ -25,7 +23,7 @@ class ReceivedJsonMsgHandlerActor(
 
   def receive = {
     case msg: ReceivedJsonMessage =>
-      log.debug("handling {} - {}", msg.channel, msg.data)
+      //log.debug("handling {} - {}", msg.channel, msg.data)
       handleReceivedJsonMessage(msg)
     case _ => // do nothing
   }
@@ -45,14 +43,12 @@ class ReceivedJsonMsgHandlerActor(
   }
 
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    log.debug("Route envelope name " + envelope.name)
+    // if (SendCursorPositionPubMsg.NAME != envelope.name)
+    //   log.debug("Route envelope name " + envelope.name)
+
     envelope.name match {
       case CreateMeetingReqMsg.NAME =>
-        // for {
-        //   m <- deserialize[CreateMeetingReqMsg](jsonNode)
-        // } yield {
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
-      // }
       case ValidateAuthTokenReqMsg.NAME =>
         for {
           m <- deserialize[ValidateAuthTokenReqMsg](jsonNode)
@@ -60,13 +56,8 @@ class ReceivedJsonMsgHandlerActor(
           send(m.header.meetingId, envelope, m)
         }
       case RegisterUserReqMsg.NAME =>
-        //for {
-        //  m <- deserialize[RegisterUserReqMsg](jsonNode)
-        //} yield {
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
-        //  send(meetingManagerChannel, envelope, m)
-        //}
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         for {
@@ -74,106 +65,65 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.userId, envelope, m)
         }
+      case GetAllMeetingsReqMsg.NAME =>
+        route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+
+      // Poll
       case StartCustomPollReqMsg.NAME =>
-        for {
-          m <- deserialize[StartCustomPollReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[StartCustomPollReqMsg](envelope, jsonNode)
       case StartPollReqMsg.NAME =>
-        for {
-          m <- deserialize[StartPollReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[StartPollReqMsg](envelope, jsonNode)
       case StopPollReqMsg.NAME =>
-        for {
-          m <- deserialize[StopPollReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[StopPollReqMsg](envelope, jsonNode)
       case ShowPollResultReqMsg.NAME =>
-        for {
-          m <- deserialize[ShowPollResultReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[ShowPollResultReqMsg](envelope, jsonNode)
       case HidePollResultReqMsg.NAME =>
-        for {
-          m <- deserialize[HidePollResultReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[HidePollResultReqMsg](envelope, jsonNode)
       case GetCurrentPollReqMsg.NAME =>
-        for {
-          m <- deserialize[GetCurrentPollReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
-        for {
-          m <- deserialize[RespondToPollReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+
+      // Webcam
       case UserBroadcastCamStartMsg.NAME =>
-        for {
-          m <- deserialize[UserBroadcastCamStartMsg](jsonNode)
-        } yield {
-          val event = BbbMsgEvent(m.header.meetingId, BbbCommonEnvCoreMsg(envelope, m))
-          publish(event)
-        }
+        routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
-        for {
-          m <- deserialize[UserBroadcastCamStopMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[UserBroadcastCamStopMsg](envelope, jsonNode)
+
+      // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
-        for {
-          m <- deserialize[RecordingStartedVoiceConfEvtMsg](jsonNode)
-        } yield {
-          send(m.header.voiceConf, envelope, m)
-        }
+        routeVoiceMsg[RecordingStartedVoiceConfEvtMsg](envelope, jsonNode)
       case UserJoinedVoiceConfEvtMsg.NAME =>
-        for {
-          m <- deserialize[UserJoinedVoiceConfEvtMsg](jsonNode)
-        } yield {
-          send(m.header.voiceConf, envelope, m)
-        }
+        routeVoiceMsg[UserJoinedVoiceConfEvtMsg](envelope, jsonNode)
       case UserLeftVoiceConfEvtMsg.NAME =>
-        for {
-          m <- deserialize[UserLeftVoiceConfEvtMsg](jsonNode)
-        } yield {
-          send(m.header.voiceConf, envelope, m)
-        }
+        routeVoiceMsg[UserLeftVoiceConfEvtMsg](envelope, jsonNode)
       case UserMutedInVoiceConfEvtMsg.NAME =>
-        for {
-          m <- deserialize[UserMutedInVoiceConfEvtMsg](jsonNode)
-        } yield {
-          send(m.header.voiceConf, envelope, m)
-        }
+        routeVoiceMsg[UserMutedInVoiceConfEvtMsg](envelope, jsonNode)
       case UserTalkingInVoiceConfEvtMsg.NAME =>
-        for {
-          m <- deserialize[UserTalkingInVoiceConfEvtMsg](jsonNode)
-        } yield {
-          send(m.header.voiceConf, envelope, m)
-        }
+        routeVoiceMsg[UserTalkingInVoiceConfEvtMsg](envelope, jsonNode)
+      case MuteUserCmdMsg.NAME =>
+        routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
+      case MuteAllExceptPresentersCmdMsg.NAME =>
+        routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
+      case EjectUserFromMeetingCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+
+      // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
         for {
           m <- deserialize[BreakoutRoomsListMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case CreateBreakoutRoomsMsg.NAME =>
+      case CreateBreakoutRoomsCmdMsg.NAME =>
         for {
-          m <- deserialize[CreateBreakoutRoomsMsg](jsonNode)
+          m <- deserialize[CreateBreakoutRoomsCmdMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
-      case RequestBreakoutJoinURLMsg.NAME =>
+      case RequestBreakoutJoinURLReqMsg.NAME =>
         for {
-          m <- deserialize[RequestBreakoutJoinURLMsg](jsonNode)
+          m <- deserialize[RequestBreakoutJoinURLReqMsg](jsonNode)
         } yield {
           send(m.header.meetingId, envelope, m)
         }
@@ -213,6 +163,21 @@ class ReceivedJsonMsgHandlerActor(
         } yield {
           send(m.header.meetingId, envelope, m)
         }
+
+      // Layout
+      case GetCurrentLayoutReqMsg.NAME =>
+        routeGenericMsg[GetCurrentLayoutReqMsg](envelope, jsonNode)
+      case LockLayoutMsg.NAME =>
+        routeGenericMsg[LockLayoutMsg](envelope, jsonNode)
+      case BroadcastLayoutMsg.NAME =>
+        routeGenericMsg[BroadcastLayoutMsg](envelope, jsonNode)
+
+      case UserLeaveReqMsg.NAME =>
+        routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
+      case ChangeUserEmojiCmdMsg.NAME =>
+        routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+
+      // Whiteboard
       case SendCursorPositionPubMsg.NAME =>
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
       case ModifyWhiteboardAccessPubMsg.NAME =>
@@ -227,6 +192,89 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+
+      // Presentation
+      case SetCurrentPresentationPubMsg.NAME =>
+        routeGenericMsg[SetCurrentPresentationPubMsg](envelope, jsonNode)
+      case GetPresentationInfoReqMsg.NAME =>
+        routeGenericMsg[GetPresentationInfoReqMsg](envelope, jsonNode)
+      case SetCurrentPagePubMsg.NAME =>
+        routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
+      case ResizeAndMovePagePubMsg.NAME =>
+        routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
+      case RemovePresentationPubMsg.NAME =>
+        routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
+      case PreuploadedPresentationsSysPubMsg.NAME =>
+        routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
+      case PresentationConversionUpdateSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
+      case PresentationPageCountErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
+      case PresentationPageGeneratedSysPubMsg.NAME =>
+        routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case PresentationConversionCompletedSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
+      case AssignPresenterReqMsg.NAME =>
+        routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
+
+      // Caption
+      case EditCaptionHistoryPubMsg.NAME =>
+        routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
+      case UpdateCaptionOwnerPubMsg.NAME =>
+        routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
+      case SendCaptionHistoryReqMsg.NAME =>
+        routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
+
+      // Shared notes
+      case GetSharedNotesPubMsg.NAME =>
+        routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
+      case SyncSharedNotePubMsg.NAME =>
+        routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
+      case UpdateSharedNoteReqMsg.NAME =>
+        routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
+      case CreateSharedNoteReqMsg.NAME =>
+        routeGenericMsg[CreateSharedNoteReqMsg](envelope, jsonNode)
+      case DestroySharedNoteReqMsg.NAME =>
+        routeGenericMsg[DestroySharedNoteReqMsg](envelope, jsonNode)
+
+      // Chat
+      case GetChatHistoryReqMsg.NAME =>
+        routeGenericMsg[GetChatHistoryReqMsg](envelope, jsonNode)
+      case SendPublicMessagePubMsg.NAME =>
+        routeGenericMsg[SendPublicMessagePubMsg](envelope, jsonNode)
+      case SendPrivateMessagePubMsg.NAME =>
+        routeGenericMsg[SendPrivateMessagePubMsg](envelope, jsonNode)
+      case ClearPublicChatHistoryPubMsg.NAME =>
+        routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
+
+      // Meeting
+      case MeetingActivityResponseCmdMsg.NAME =>
+        routeGenericMsg[MeetingActivityResponseCmdMsg](envelope, jsonNode)
+      case LogoutAndEndMeetingCmdMsg.NAME =>
+        routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
+      case SetRecordingStatusCmdMsg.NAME =>
+        routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
+      case GetRecordingStatusReqMsg.NAME =>
+        routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
+
+      // Lock settings
+      case LockUserInMeetingCmdMsg.NAME =>
+        routeGenericMsg[LockUserInMeetingCmdMsg](envelope, jsonNode)
+      case IsMeetingLockedReqMsg.NAME =>
+        routeGenericMsg[IsMeetingLockedReqMsg](envelope, jsonNode)
+      case ChangeLockSettingsInMeetingCmdMsg.NAME =>
+        routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
+
+      // Screenshare
+      case ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg](envelope, jsonNode)
+      case ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      case ScreenshareStartedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
+      case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

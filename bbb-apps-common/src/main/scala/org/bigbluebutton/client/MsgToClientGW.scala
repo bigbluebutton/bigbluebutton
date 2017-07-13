@@ -1,6 +1,6 @@
 package org.bigbluebutton.client
 
-import org.bigbluebutton.red5.client.messaging.{BroadcastToMeetingMsg, DirectToClientMsg, IConnectionInvokerService}
+import org.bigbluebutton.red5.client.messaging.{BroadcastToMeetingMsg, DirectToClientMsg, ClientMessage, IConnectionInvokerService}
 
 sealed trait SystemMessage
 case class DisconnectConnection(connId: String) extends SystemMessage
@@ -9,16 +9,16 @@ case class DisconnectAllConnections(scope: String) extends SystemMessage
 class MsgToClientGW(val connInvokerService: IConnectionInvokerService) {
 
   def broadcastToMeeting(msg: BroadcastToMeetingMsg): Unit = {
-    println("**** MsgToClientGW broadcastToMeeting " + msg.json)
+    //println("**** MsgToClientGW broadcastToMeeting " + msg.json)
     connInvokerService.sendMessage(msg)
   }
 
   def directToClient(msg: DirectToClientMsg): Unit = {
-    println("**** MsgToClientGW directToClient " + msg.json)
+    //println("**** MsgToClientGW directToClient " + msg.json)
     connInvokerService.sendMessage(msg)
   }
 
-  def handleSystemMessage(msg: SystemMessage): Unit = {
-
+  def systemMessage(msg: ClientMessage): Unit = {
+    connInvokerService.sendMessage(msg)
   }
 }

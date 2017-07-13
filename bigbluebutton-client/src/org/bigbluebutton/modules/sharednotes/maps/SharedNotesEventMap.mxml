@@ -112,9 +112,6 @@
 		<Injectors target="{MessageReceiver}">
 			<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
 		</Injectors>
-	
-		<Injectors target="{MessageSender}">
-			<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-		</Injectors>
+
 	</fx:Declarations>
 </EventMap>

@@ -52,6 +52,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 		<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
 		<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+		<mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleRecievedChatHistoryEvent" />
 		<mate:Listener type="{ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT}" method="handleClearPublicChatBoxMessages"/>
 		<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
 		<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
@@ -67,43 +68,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.TextEvent;
-			
-			import mx.binding.utils.BindingUtils;
-			
-			import org.as3commons.lang.StringUtils;
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.TimerUtil;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.BreakoutRoomEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.UserJoinedEvent;
-			import org.bigbluebutton.main.events.UserLeftEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-			import org.bigbluebutton.modules.chat.ChatConstants;
-			import org.bigbluebutton.modules.chat.ChatUtil;
-			import org.bigbluebutton.modules.chat.events.ChatEvent;
-			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-			import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-			import org.bigbluebutton.modules.chat.model.ChatConversation;
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.TextEvent;
+      
+      import mx.binding.utils.BindingUtils;
+      
+      import org.as3commons.lang.StringUtils;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.TimerUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.modules.chat.ChatConstants;
+      import org.bigbluebutton.modules.chat.ChatUtil;
+      import org.bigbluebutton.modules.chat.events.ChatEvent;
+      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+      import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.model.ChatConversation;
+      import org.bigbluebutton.modules.chat.model.ChatOptions;
+      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+      import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(ChatBox);      
       
@@ -142,9 +141,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable]
 			private var chatListHeight:Number = 100;
-
-			[Bindable]
-			private var chatToolbarHeight:Number = 80;
 
 			[Bindable] public var chatOptions:ChatOptions;
 
@@ -272,7 +268,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function loadChatHistory(event:TimerEvent):void {
         if (publicChat) {
           var disp:Dispatcher  = new Dispatcher();
-          disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
+          disp.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.REQUEST_HISTORY));
         }
       }
       
@@ -303,13 +299,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var SPACE:String = " ";
       private function displayUserHasLeftMessage():void {
         var msg:ChatMessageVO = new ChatMessageVO();
-        msg.chatType = ChatConstants.PUBLIC_CHAT;
-        msg.fromUserID = SPACE;
+        msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserID = SPACE;
+        msg.toUserId = SPACE;
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
@@ -318,13 +313,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function displayUserHasJoinedMessage():void {
         var msg:ChatMessageVO = new ChatMessageVO();
-        msg.chatType = ChatConstants.PUBLIC_CHAT;
-        msg.fromUserID = SPACE;
+        msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserID = SPACE;
+        msg.toUserId = SPACE;
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
@@ -339,9 +333,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
           chatMessages.newChatMessage(event.message);
-          if (!event.history) {
-            scrollToEndOfMessage();
-          }
+          scrollToEndOfMessage();
+        }
+      }
+      
+      private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
+        if (publicChat && event.history != null) {
+          chatMessages.processChatHistory(event.history);
+          scrollToEndOfMessage();
         }
       }
 
@@ -354,8 +353,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var message:ChatMessageVO = event.message;
         
         if (!publicChat && 
-          ( (message.fromUserID == chatWithUserID && UsersUtil.isMe(message.toUserID)) ||
-            (message.toUserID == chatWithUserID && UsersUtil.isMe(message.fromUserID)) )) {
+          ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
+            (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
           chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }        
@@ -370,13 +369,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var keyCombo:String = modifier + String.fromCharCode(int(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate')));
         
         var msg:ChatMessageVO = new ChatMessageVO();
-        msg.chatType = ChatConstants.PUBLIC_CHAT;
-        msg.fromUserID = SPACE;
+        msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserID = SPACE;
+        msg.toUserId = SPACE;
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
         
@@ -485,8 +483,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		} else {
 			var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
 			var cm:ChatMessageVO = new ChatMessageVO();
-			cm.chatType = ChatConstants.PUBLIC_CHAT;
-			cm.fromUserID = UsersUtil.getMyUserID();
+			cm.fromUserId = UsersUtil.getMyUserID();
 			cm.fromUsername = UsersUtil.getMyUsername();
 			// get the color value from ColorPicker
 			cm.fromColor =  cmpColorPicker.selectedColor.toString();
@@ -507,8 +504,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function sendPrivateChatMessage(message:String):void {
         var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
         var cm:ChatMessageVO = new ChatMessageVO();
-        cm.chatType = ChatConstants.PRIVATE_CHAT;
-        cm.fromUserID = UsersUtil.getMyUserID();
+        cm.fromUserId = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
 		// get the color value from ColorPicker
         cm.fromColor = cmpColorPicker.selectedColor.toString();
@@ -521,7 +517,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
         //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
         cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
-        cm.toUserID = chatWithUserID;
+        cm.toUserId = chatWithUserID;
         cm.toUsername = chatWithUsername;
         
         privateEvent.chatMessage = cm;
@@ -605,13 +601,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function applyLockSettings():void {
-			var userManager:UserManager = UserManager.getInstance();
-			var conference:Conference = userManager.getConference();
-			var me:BBBUser = conference.getMyUser();
 			if (publicChat) {
-				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
+				txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
 			} else {
-				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
+				txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat;
 			}
 		}
 		
@@ -650,16 +643,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			const paddingHeight:int = 5;
 			const paddingWidth:int = 5;
 
-			chatToolbar.width = 45;
-			chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 10;
+			chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 20;
 			chatToolbar.y = 10;
 
 			if (!publicChat) {
 				chatToolbar.publicChat = false;
-			}
-
-			if(chatMessagesList.mx_internal::scroll_verticalScrollBar != null && chatMessagesList.mx_internal::scroll_verticalScrollBar.visible){
-				chatToolbar.width -= chatMessagesList.mx_internal::scroll_verticalScrollBar.width;
 			}
 		}
 		]]>

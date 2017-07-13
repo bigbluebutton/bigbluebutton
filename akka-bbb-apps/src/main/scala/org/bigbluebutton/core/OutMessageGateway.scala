@@ -1,7 +1,7 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.{ BbbCommonEnvCoreMsg, BbbCoreMsg }
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreMsg }
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api.IOutMessage
 
@@ -16,7 +16,7 @@ class OutMessageGateway(outgoingEventBus: OutgoingEventBus,
     outBus2: OutEventBus2,
     recordBus: RecordingEventBus) extends SystemConfiguration {
 
-  def send(msg: IOutMessage) {
+  def send1(msg: IOutMessage) {
     outgoingEventBus.publish(BigBlueButtonOutMessage(outMessageChannel, msg))
   }
 

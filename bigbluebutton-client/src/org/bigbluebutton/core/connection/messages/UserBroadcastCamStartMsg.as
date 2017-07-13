@@ -23,7 +23,7 @@ package org.bigbluebutton.core.connection.messages {
 
 		public function UserBroadcastCamStartMsg(body:UserBroadcastCamStartMsgBody):void {
 			super();
-			this.header = header;
+      this.body = body;
 		}
 	}
 }

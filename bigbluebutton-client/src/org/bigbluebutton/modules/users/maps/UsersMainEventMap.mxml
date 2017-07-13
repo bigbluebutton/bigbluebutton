@@ -33,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.LogoutEvent;
 			<!--TODO: Move guest events to user events? -->
 			import org.bigbluebutton.main.events.ResponseModeratorEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+
 			import org.bigbluebutton.main.events.UserServicesEvent;
 			import org.bigbluebutton.main.model.GuestManager;
 			import org.bigbluebutton.main.model.users.UserService;
@@ -44,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+
 		]]>
 	</fx:Script>
 	
@@ -66,9 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    <MethodInvoker generator="{UserService}" method="startService" arguments="{event}" />
 	  </EventHandlers>
 	  
-	  <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
-	    <MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
-	  </EventHandlers>
+
 		
 	  <!-- Breakout Room Stuff -->
 	
@@ -113,11 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
 	    <MethodInvoker generator="{UserService}" method="activityResponse" />
 	  </EventHandlers>
-	
-	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
-	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
-	  </EventHandlers>
-    
+
     <EventHandlers type="{TokenValidEvent.TOKEN_VALID_EVENT}" >
       <MethodInvoker generator="{UserService}" method="tokenValidEventHandler" arguments="{event}" />
     </EventHandlers>

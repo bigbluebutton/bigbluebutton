@@ -102,30 +102,10 @@ public interface IBigBlueButtonInGW {
                   boolean lock, boolean viewersOnly,
                   String layout);
 
-	// Chat
-	void getAllChatHistory(String meetingID, String requesterID, String replyTo);
-	void getChatHistory(String meetingID, String requesterID, String replyTo, String chatId);
-	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
-	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
-	void clearPublicChatHistory(String meetingID, String requesterID);
-
-	// Caption
-	void sendCaptionHistory(String meetingID, String requesterID);
-	void updateCaptionOwner(String meetingID, String locale, String localeCode, String ownerID);
-	void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String localeCode, String text);
-
 	// DeskShare
 	void deskShareStarted(String confId, String callerId, String callerIdName);
 	void deskShareStopped(String conferenceName, String callerId, String callerIdName);
 	void deskShareRTMPBroadcastStarted(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareGetInfoRequest(String meetingId, String requesterId, String replyTo);
-
-	// Shared notes
-	void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation);
-	void getCurrentDocument(String meetingID, String requesterID);
-	void createAdditionalNotes(String meetingID, String requesterID, String noteName);
-	void destroyAdditionalNotes(String meetingID, String requesterID, String noteID);
-	void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize);
-	void sharedNotesSyncNoteRequest(String meetingID, String requesterID, String noteID);
 }

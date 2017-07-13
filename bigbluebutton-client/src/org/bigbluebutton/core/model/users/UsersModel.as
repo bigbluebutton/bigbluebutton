@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.model.users
 {
   import mx.collections.ArrayCollection;
-  
-  import org.bigbluebutton.core.model.Me;
   import org.bigbluebutton.core.vo.UserVO;
   import org.bigbluebutton.core.vo.VoiceUserVO;
   

@@ -1,8 +1,9 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.common2.messages.breakoutrooms._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models._
+import org.bigbluebutton.common2.domain.UserVO
+import org.bigbluebutton.common2.msgs.{ BreakoutRoomInfo, BreakoutUserVO }
 
 case class VoiceRecordingStarted(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
@@ -40,7 +41,7 @@ case class BreakoutRoomEndedOutMessage(parentMeetingId: String, meetingId: Strin
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
-case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
+case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Vector[UserState]) extends IOutMessage
 case class UserLocked(meetingID: String, userId: String, lock: Boolean) extends IOutMessage
 case class GetPermissionsSettingReply(meetingID: String, userId: String) extends IOutMessage
 
@@ -78,15 +79,6 @@ case class StartRecording(meetingID: String, recorded: Boolean, requesterID: Str
 case class StartRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceConfId: String) extends IOutMessage
 case class StopRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceConfId: String, recordedStream: String) extends IOutMessage
 case class StopRecording(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
-
-// Chat
-case class GetChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String,
-  replyTo: String, history: Array[Map[String, String]]) extends IOutMessage
-case class SendPublicMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  message: Map[String, String]) extends IOutMessage
-case class SendPrivateMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  message: Map[String, String]) extends IOutMessage
-case class ClearPublicChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
 
 // Layout
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
@@ -137,10 +129,6 @@ case class GetCurrentPollReplyMessage(meetingID: String, recorded: Boolean, requ
 // No idea what part this is for
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
-// Caption
-case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, Array[String]]) extends IOutMessage
-case class UpdateCaptionOwnerReply(meetingID: String, recorded: Boolean, locale: String, localeCode: String, ownerID: String) extends IOutMessage
-case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) extends IOutMessage
 // DeskShare
 case class DeskShareStartRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage
 case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage
@@ -153,13 +141,5 @@ case class GetGuestPolicyReply(meetingID: String, recorded: Boolean, requesterID
 case class GuestPolicyChanged(meetingID: String, recorded: Boolean, policy: String) extends IOutMessage
 case class GuestAccessDenied(meetingID: String, recorded: Boolean, userId: String) extends IOutMessage
 
-// Shared Notes
-case class PatchDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, patch: String, patchID: Int, undo: Boolean, redo: Boolean) extends IOutMessage
-case class GetCurrentDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, notes: Map[String, NoteReport]) extends IOutMessage
-case class CreateAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, noteName: String) extends IOutMessage
-case class DestroyAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String) extends IOutMessage
-case class SharedNotesSyncNoteReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, note: NoteReport) extends IOutMessage
-
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)
-

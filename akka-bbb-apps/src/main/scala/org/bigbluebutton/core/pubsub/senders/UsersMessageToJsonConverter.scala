@@ -1,9 +1,11 @@
 package org.bigbluebutton.core.pubsub.senders
 
+import scala.collection.JavaConverters._
+
+import org.bigbluebutton.common2.domain.UserVO
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
-import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
-import scala.collection.JavaConverters._
+import org.bigbluebutton.core.models.RegisteredUser
 
 object UsersMessageToJsonConverter {
   private def userToMap(user: UserVO): java.util.Map[String, Any] = {
@@ -143,9 +145,9 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.PERMISSIONS, buildPermissionsHashMap(msg.permissions))
 
     val users = new java.util.ArrayList[java.util.Map[String, Any]]
-    msg.applyTo.foreach(uvo => {
-      users.add(userToMap(uvo))
-    })
+    //msg.applyTo.foreach(uvo => {
+    //  users.add(userToMap(uvo))
+    //})
 
     payload.put("users", users)
 

@@ -42,14 +42,15 @@ import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
+import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
+import org.bigbluebutton.presentation.messages.DocPageCountFailed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
 public class PdfToSwfSlidesGenerationService {
-  private static Logger log = LoggerFactory
-      .getLogger(PdfToSwfSlidesGenerationService.class);
+  private static Logger log = LoggerFactory.getLogger(PdfToSwfSlidesGenerationService.class);
 
   private SwfSlidesGenerationProgressNotifier notifier;
   private PageCounterService counterService;
@@ -94,20 +95,33 @@ public class PdfToSwfSlidesGenerationService {
     return false;
   }
 
-  private void sendFailedToCountPageMessage(CountingPageException e,
-      UploadedPresentation pres) {
+  private void sendFailedToCountPageMessage(CountingPageException e, UploadedPresentation pres) {
     MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 
-    if (e
-        .getExceptionType() == CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION) {
+    if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION) {
       builder.messageKey(ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
-    } else if (e
-        .getExceptionType() == CountingPageException.ExceptionType.PAGE_EXCEEDED_EXCEPTION) {
+
+      DocPageCountFailed progress = new DocPageCountFailed(pres.getMeetingId(),
+        pres.getId(), pres.getId(),
+        pres.getName(), "notUsedYet", "notUsedYet",
+        pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
+
+      notifier.sendDocConversionProgress(progress);
+
+    } else if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_EXCEEDED_EXCEPTION) {
       builder.numberOfPages(e.getPageCount());
       builder.maxNumberPages(e.getMaxNumberOfPages());
       builder.messageKey(ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY);
+
+      DocPageCountExceeded  progress = new DocPageCountExceeded(pres.getMeetingId(),
+        pres.getId(), pres.getId(),
+        pres.getName(), "notUsedYet", "notUsedYet",
+        pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY,
+        e.getPageCount(), e.getMaxNumberOfPages());
+
+      notifier.sendDocConversionProgress(progress);
     }
-    notifier.sendConversionUpdateMessage(builder.build().getMessage());
+
   }
 
   private void createThumbnails(UploadedPresentation pres) {

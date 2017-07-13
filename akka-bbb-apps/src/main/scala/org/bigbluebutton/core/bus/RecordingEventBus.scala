@@ -2,7 +2,7 @@ package org.bigbluebutton.core.bus
 
 import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
-import org.bigbluebutton.common2.messages.{ BbbCoreMsg }
+import org.bigbluebutton.common2.msgs.{ BbbCoreMsg }
 
 case class BbbRecordMessage(val topic: String, val payload: BbbCoreMsg)
 

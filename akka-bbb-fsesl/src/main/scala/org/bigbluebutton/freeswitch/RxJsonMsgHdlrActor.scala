@@ -3,8 +3,7 @@ package org.bigbluebutton.freeswitch
 import akka.actor.{ Actor, ActorLogging, Props }
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.BbbCoreEnvelope
-import org.bigbluebutton.common2.messages.voiceconf._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.freeswitch.bus.ReceivedJsonMsg
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication
 
@@ -31,18 +30,24 @@ class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with Ac
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
     log.debug("Route envelope name " + envelope.name)
     envelope.name match {
+      case GetUsersInVoiceConfSysMsg.NAME =>
+        routeGetUsersInVoiceConfSysMsg(envelope, jsonNode)
       case EjectAllFromVoiceConfMsg.NAME =>
         routeEjectAllFromVoiceConfMsg(envelope, jsonNode)
-      case EjectUserFromVoiceConfMsg.NAME =>
+      case EjectUserFromVoiceConfSysMsg.NAME =>
         routeEjectUserFromVoiceConfMsg(envelope, jsonNode)
-      case MuteUserInVoiceConfMsg.NAME =>
+      case MuteUserInVoiceConfSysMsg.NAME =>
         routeMuteUserInVoiceConfMsg(envelope, jsonNode)
-      case TransferUserToVoiceConfMsg.NAME =>
+      case TransferUserToVoiceConfSysMsg.NAME =>
         routeTransferUserToVoiceConfMsg(envelope, jsonNode)
-      case StartRecordingVoiceConfMsg.NAME =>
+      case StartRecordingVoiceConfSysMsg.NAME =>
         routeStartRecordingVoiceConfMsg(envelope, jsonNode)
-      case StopRecordingVoiceConfMsg.NAME =>
+      case StopRecordingVoiceConfSysMsg.NAME =>
         routeStopRecordingVoiceConfMsg(envelope, jsonNode)
+      case ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME =>
+        routeDeskshareStopRtmpBroadcastVoiceConfMsg(envelope, jsonNode)
+      case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
+        routeDeskshareStartRtmpBroadcastVoiceConfMsg(envelope, jsonNode)
       case _ => // do nothing
     }
   }

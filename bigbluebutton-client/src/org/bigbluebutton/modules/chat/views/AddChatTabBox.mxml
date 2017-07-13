@@ -34,25 +34,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
     <fx:Script>
         <![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.collections.ArrayCollection;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.EventConstants;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.CoreEvent;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
-			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+          import com.asfusion.mate.events.Dispatcher;
+          
+          import mx.collections.ArrayCollection;
+          
+          import org.as3commons.logging.api.ILogger;
+          import org.as3commons.logging.api.getClassLogger;
+          import org.bigbluebutton.core.EventConstants;
+          import org.bigbluebutton.core.Options;
+          import org.bigbluebutton.core.UsersUtil;
+          import org.bigbluebutton.core.events.CoreEvent;
+          import org.bigbluebutton.core.events.LockControlEvent;
+          import org.bigbluebutton.core.model.LiveMeeting;
+          import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+          import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
+          import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+          import org.bigbluebutton.modules.chat.model.ChatOptions;
+          import org.bigbluebutton.util.i18n.ResourceUtil;
             
 			private static const LOGGER:ILogger = getClassLogger(AddChatTabBox);      
 			
@@ -63,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             [Bindable] public var chatOptions:ChatOptions;		
             
             private function onCreationComplete():void{
-                users = UserManager.getInstance().getConference().users;
+                users = UsersUtil.getUsers();
                 chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 
                 if (!chatOptions.privateEnabled) {
@@ -105,15 +103,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
                 if (!usersList.visible || !usersList.enabled) return;
                 
-                var chatWithUserID:String = usersList.selectedItem.userID;
+                var chatWithIntId:String = usersList.selectedItem.intId;
                 
                 // Don't want to be chatting with ourself.
-                if (UsersUtil.isMe(chatWithUserID)) return;
+                if (UsersUtil.isMe(chatWithIntId)) return;
                 
                 usersList.selectedIndex = -1;
                 
                 var e:CoreEvent = new CoreEvent(EventConstants.START_PRIVATE_CHAT);
-                e.message.chatWith = chatWithUserID;
+                e.message.chatWith = chatWithIntId;
                 var gd:Dispatcher = new Dispatcher();
                 gd.dispatchEvent(e);
                 
@@ -143,12 +141,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           private function refreshListStatus():void {
             
             if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-            
-            var userManager:UserManager = UserManager.getInstance();
-            var conference:Conference = userManager.getConference();
-            var me:BBBUser = conference.getMyUser();
-            
-            usersList.enabled = !me.disableMyPrivateChat;
+                      
+            usersList.enabled = ! LiveMeeting.inst().me.disableMyPrivateChat;
           }
             
         ]]>

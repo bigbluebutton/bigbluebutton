@@ -18,10 +18,10 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.external.ExternalInterface;
-	import flash.net.NetConnection;	
-	import mx.collections.ArrayCollection;	
+	import flash.net.NetConnection;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -31,7 +31,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.events.TokenValidEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
@@ -133,7 +132,6 @@ package org.bigbluebutton.main.model.users
 				ExternalInterface.call("setTitle", result.meetingName);
 				
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
-				e.conference = UserManager.getInstance().getConference();
 				dispatcher.dispatchEvent(e);
 				
 				connect();
@@ -182,17 +180,14 @@ package org.bigbluebutton.main.model.users
 		}
 
 		public function userLoggedIn(e:UsersConnectionEvent):void {
-			var waitingForAcceptance:Boolean = true;
-			if (UserManager.getInstance().getConference().hasUser(e.userid)) {
-				LOGGER.debug("userLoggedIn - conference has this user");
-				waitingForAcceptance = UserManager.getInstance().getConference().getUser(e.userid).waitingForAcceptance;
-			}
-
-			if (reconnecting && !waitingForAcceptance) {
+      LOGGER.debug("In userLoggedIn - reconnecting and allowed to join");
+			if (reconnecting && ! LiveMeeting.inst().me.waitingForApproval) {
 				LOGGER.debug("userLoggedIn - reconnecting and allowed to join");
 				onAllowedToJoin();
 				reconnecting = false;
-			}
+			} else {
+        onAllowedToJoin();
+      }
 		}
 
 		public function denyGuest():void {
@@ -209,10 +204,6 @@ package org.bigbluebutton.main.model.users
 
 		public function isModerator():Boolean {
 			return UsersUtil.amIModerator();
-		}
-		
-		public function get participants():ArrayCollection {
-			return UserManager.getInstance().getConference().users;
 		}
 				
 		public function addStream(e:BroadcastStartedEvent):void {
@@ -277,7 +268,7 @@ package org.bigbluebutton.main.model.users
 		public function assignPresenter(e:RoleChangeEvent):void{
 			var assignTo:String = e.userid;
 			var name:String = e.username;
-      sender.assignPresenter(assignTo, name, 1);
+			sender.assignPresenter(assignTo, name, UsersUtil.getMyUserID());
 		}
 
     public function muteUnmuteUser(command:VoiceConfEvent):void {
@@ -297,8 +288,8 @@ package org.bigbluebutton.main.model.users
     }
         
     public function ejectUser(command:VoiceConfEvent):void {
-      sender.ejectUser(command.userid);			
-    }	
+      if (this.isModerator()) sender.ejectUserFromVoice(command.userid);
+    }
     
     //Lock events
     public function lockAllUsers(command:LockControlEvent):void {
@@ -310,8 +301,8 @@ package org.bigbluebutton.main.model.users
     }
     
     public function lockAlmostAllUsers(command:LockControlEvent):void {	
-      var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
-      sender.setAllUsersLock(true, [pres.userID]);
+      var pres:Array = LiveMeeting.inst().users.getPresenters();
+      sender.setAllUsersLock(true, pres);
     }
     
     public function lockUser(command:LockControlEvent):void {	

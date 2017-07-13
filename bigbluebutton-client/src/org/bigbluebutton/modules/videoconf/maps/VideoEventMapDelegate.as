@@ -35,15 +35,15 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.VideoProfile;
+  import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
-  import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
@@ -214,10 +214,10 @@ package org.bigbluebutton.modules.videoconf.maps
     private function openWebcamWindows():void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindows. ready = [{1}]", [me, _ready]);
 
-      var uids:ArrayCollection = UsersUtil.getUserIDs();
+      var uids:Array = UsersUtil.getUserIDs();
 
       for (var i:int = 0; i < uids.length; i++) {
-        var u:String = uids.getItemAt(i) as String;
+        var u:String = uids[i] as String;
         LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindows:: open window for = [{1}]", [me, u]);
         openWebcamWindowFor(u);
       }
@@ -284,14 +284,15 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     private function openViewWindowFor(userID:String):void {
-      var bbbUser:BBBUser = UsersUtil.getUser(userID);
-      if (bbbUser == null || !proxy.connection.connected) {
+      var webUser:User2x = LiveMeeting.inst().users.getUser(userID);
+      if (webUser == null || !proxy.connection.connected) {
        return;
       }
       
       LOGGER.debug("VideoEventMapDelegate:: [{0}] openViewWindowFor:: Opening VIEW window for [{1}] [{2}]", [me, userID, UsersUtil.getUserName(userID)]);
 
-      if (bbbUser.hasStream) {
+      var hasStream: Boolean = LiveMeeting.inst().webcams.getStreamsForUser(userID).length > 0;
+      if (hasStream) {
         closeAllAvatarWindows(userID);
       }
       _graphics.addVideoFor(userID, proxy.connection);

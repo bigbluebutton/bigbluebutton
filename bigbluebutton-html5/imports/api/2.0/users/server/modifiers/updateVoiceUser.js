@@ -1,15 +1,14 @@
 import { check } from 'meteor/check';
-import Users from './../../';
 import Logger from '/imports/startup/server/logger';
+import Users from '/imports/api/2.0/users';
 
-export default function updateVoiceUser(meetingId, userId, voiceUser) {
+export default function updateVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
-  check(userId, String);
   check(voiceUser, Object);
 
   const selector = {
     meetingId,
-    userId,
+    user: voiceUser.intId,
   };
 
   const modifier = {
@@ -23,11 +22,11 @@ export default function updateVoiceUser(meetingId, userId, voiceUser) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Updating voice user=${userId}: ${err}`);
+      return Logger.error(`Updating voice user=${voiceUser.intId}: ${err}`);
     }
 
     if (numChanged) {
-      return Logger.verbose(`Updated voice user=${userId} meeting=${meetingId}`);
+      return Logger.verbose(`Updated voice user=${voiceUser.intId} meeting=${meetingId}`);
     }
   };
 

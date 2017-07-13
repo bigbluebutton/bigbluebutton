@@ -18,6 +18,10 @@ object Users2x {
     users.remove(intId)
   }
 
+  def numUsers(users: Users2x): Int = {
+    users.toVector.length
+  }
+
   def findNotPresenters(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => !u.presenter)
   }
@@ -45,14 +49,55 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUser = u.modify(_.presenter).setTo(true).modify(_.role).setTo(Roles.PRESENTER_ROLE)
+      val newUser = u.modify(_.presenter).setTo(true)
+      users.save(newUser)
       newUser
     }
   }
 
+  def makeNotPresenter(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.presenter).setTo(false)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.emoji).setTo(emoji)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserLocked(users: Users2x, intId: String, locked: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.locked).setTo(locked)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def hasPresenter(users: Users2x): Boolean = {
+    findPresenter(users) match {
+      case Some(p) => true
+      case None => false
+    }
+  }
+
+  def findPresenter(users: Users2x): Option[UserState] = {
+    users.toVector.find(u => u.presenter)
+  }
+
   def findModerator(users: Users2x): Option[UserState] = {
-    val mods = users.toVector.filter(u => u.role == Roles.MODERATOR_ROLE)
-    if (mods.length > 1) Some(mods.head) else None
+    users.toVector.find(u => u.role == Roles.MODERATOR_ROLE)
   }
 }
 
@@ -102,3 +147,17 @@ case class UserState(intId: String, extId: String, name: String, role: String,
   guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
   presenter: Boolean, avatar: String)
 
+case class UserIdAndName(id: String, name: String)
+
+object CallingWith {
+  val WEBRTC = "webrtc"
+  val FLASH = "flash"
+  val PHONE = "phone"
+}
+
+object Roles {
+  val MODERATOR_ROLE = "MODERATOR"
+  val PRESENTER_ROLE = "PRESENTER"
+  val VIEWER_ROLE = "VIEWER"
+  val GUEST_ROLE = "GUEST"
+}

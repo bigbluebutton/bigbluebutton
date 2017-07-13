@@ -2,9 +2,8 @@ package org.bigbluebutton.core2.message.handlers.whiteboard
 
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.common2.messages.MessageBody.{ SendWhiteboardAnnotationEvtMsgBody }
-import org.bigbluebutton.common2.messages._
-import org.bigbluebutton.common2.domain.AnnotationProps
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.domain.AnnotationVO
 
 trait SendWhiteboardAnnotationPubMsgHdlr {
   this: MeetingActor =>
@@ -13,7 +12,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr {
 
   def handleSendWhiteboardAnnotationPubMsg(msg: SendWhiteboardAnnotationPubMsg): Unit = {
 
-    def broadcastEvent(msg: SendWhiteboardAnnotationPubMsg, annotation: AnnotationProps): Unit = {
+    def broadcastEvent(msg: SendWhiteboardAnnotationPubMsg, annotation: AnnotationVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SendWhiteboardAnnotationEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendWhiteboardAnnotationEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)

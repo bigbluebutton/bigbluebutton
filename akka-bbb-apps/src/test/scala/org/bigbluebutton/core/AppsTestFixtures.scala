@@ -1,9 +1,9 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.common2.domain._
-import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait AppsTestFixtures {
@@ -38,18 +38,7 @@ trait AppsTestFixtures {
   val screenshareProps = ScreenshareProps("TODO", "TODO", "TODO")
   val breakoutProps = BreakoutProps(parentMeetingId, sequence, Vector())
 
-  val meetingStatux2x = new MeetingStatus2x
-  val chatModel = new ChatModel()
-  val layoutModel = new LayoutModel()
   val meetingModel = new MeetingModel()
-  val pollModel = new PollModel()
-  val wbModel = new WhiteboardModel()
-  val presModel = new PresentationModel()
-  val breakoutModel = new BreakoutRoomModel()
-  val captionModel = new CaptionModel()
-  val notesModel = new SharedNotesModel()
-  val users = new Users
-  val registeredUsers = new RegisteredUsers
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
@@ -66,5 +55,31 @@ trait AppsTestFixtures {
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
     usersProp, metadataProp, screenshareProps)
+
+  val chatModel = new ChatModel()
+  val layoutModel = new LayoutModel()
+  val layouts = new Layouts()
+  val pollModel = new PollModel()
+  val wbModel = new WhiteboardModel()
+  val presModel = new PresentationModel()
+  val breakoutRooms = new BreakoutRooms()
+  val captionModel = new CaptionModel()
+  val notesModel = new SharedNotesModel()
+  val users = new Users1x
+  val registeredUsers = new RegisteredUsers
+  val meetingStatux2x = new MeetingStatus2x
+  val webcams = new Webcams
+  val voiceUsers = new VoiceUsers
+  val users2x = new Users2x
+  val polls2x = new Polls
+  val guestsWaiting = new GuestsWaiting
+
+  // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
+
+  // We extract the meeting handlers into this class so it is
+  // easy to test.
+  val liveMeeting = new LiveMeeting(defaultProps, meetingStatux2x, chatModel, layoutModel, layouts,
+    users, registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
+    notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 
 }

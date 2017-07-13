@@ -86,11 +86,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>
 
-    <bean id="chat.service" class="org.bigbluebutton.red5.service.ChatService">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-        <property name="maxMessageLength" value="1024"/>
-    </bean>
-
     <bean id="participants.service" class="org.bigbluebutton.red5.service.ParticipantsService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
@@ -107,19 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presentationApplication"> <ref local="presentationApplication"/></property>
     </bean>
 
-    <bean id="sharedNotesApplication" class="org.bigbluebutton.red5.service.SharedNotesApplication">
-        <property name="red5Publisher"><ref bean="red5Publisher"/></property>
-    </bean>
-
-    <bean id="sharednotes.service" class="org.bigbluebutton.red5.service.SharedNotesService">
-        <property name="sharedNotesApplication"> <ref local="sharedNotesApplication"/></property>
-    </bean>
-
     <bean id="poll.service" class="org.bigbluebutton.red5.service.PollingService">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-    </bean>
-    
-    <bean id="caption.service" class="org.bigbluebutton.red5.service.CaptionService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
     

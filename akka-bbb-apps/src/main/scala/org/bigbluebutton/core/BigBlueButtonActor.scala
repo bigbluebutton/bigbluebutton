@@ -13,11 +13,10 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 
-import org.bigbluebutton.common2.messages.MessageBody.MeetingCreatedEvtBody
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core2.RunningMeetings
-import org.bigbluebutton.core2.message.handlers.CreateMeetingReqMsgHdlr
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
@@ -61,10 +60,7 @@ class BigBlueButtonActor(val system: ActorSystem,
 
     // 1x messages
     case msg: DestroyMeeting => handleDestroyMeeting(msg)
-    case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
-    case msg: PubSubPing => handlePubSubPingMessage(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
-    case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
     case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
     case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
     case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
@@ -78,15 +74,18 @@ class BigBlueButtonActor(val system: ActorSystem,
     msg.core match {
       case m: CreateMeetingReqMsg => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case _ => println("***** Cannot handle " + msg.envelope.name)
+      case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
+      case m: PubSubPingSysReqMsg => handlePubSubPingSysReqMsg(m)
+      case _ => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
   def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
-    log.debug("****** RECEIVED RegisterUserReqMsg msg {}", msg)
+    log.debug("RECEIVED RegisterUserReqMsg msg {}", msg)
     for {
       m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
     } yield {
+      log.debug("FORWARDING Registere user message")
       m.actorRef forward (msg)
     }
   }
@@ -111,24 +110,10 @@ class BigBlueButtonActor(val system: ActorSystem,
 
         RunningMeetings.add(meetings, m)
 
-        // Send old message format
-        outGW.send(new MeetingCreated(m.props.meetingProp.intId,
-          m.props.meetingProp.extId, m.props.breakoutProps.parentId,
-          m.props.recordProp.record, m.props.meetingProp.name,
-          m.props.voiceProp.voiceConf, m.props.durationProps.duration,
-          m.props.password.moderatorPass, m.props.password.viewerPass,
-          m.props.durationProps.createdTime, m.props.durationProps.createdDate,
-          m.props.meetingProp.isBreakout))
-
         m.actorRef ! new InitializeMeeting(m.props.meetingProp.intId, m.props.recordProp.record)
 
         // Send new 2x message
-        val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-        val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
-        val header = BbbCoreBaseHeader(MeetingCreatedEvtMsg.NAME)
-        val body = MeetingCreatedEvtBody(msg.body.props)
-        val event = MeetingCreatedEvtMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+        val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(m.props.meetingProp.intId, msg.body.props)
         outGW.send(msgEvent)
       }
       case Some(m) => {
@@ -137,6 +122,12 @@ class BigBlueButtonActor(val system: ActorSystem,
       }
     }
 
+  }
+
+  private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
+    RunningMeetings.meetings(meetings).foreach(m => {
+      m.actorRef ! msg
+    })
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
@@ -206,12 +197,9 @@ class BigBlueButtonActor(val system: ActorSystem,
     //}
   }
 
-  private def handleKeepAliveMessage(msg: KeepAliveMessage): Unit = {
-    outGW.send(new KeepAliveMessageReply(msg.aliveID))
-  }
-
-  private def handlePubSubPingMessage(msg: PubSubPing): Unit = {
-    outGW.send(new PubSubPong(msg.system, msg.timestamp))
+  private def handlePubSubPingSysReqMsg(msg: PubSubPingSysReqMsg): Unit = {
+    val event = MsgBuilder.buildPubSubPongSysRespMsg(msg.body.system, msg.body.timestamp)
+    outGW.send(event)
   }
 
   private def handleDestroyMeeting(msg: DestroyMeeting) {
@@ -230,16 +218,23 @@ class BigBlueButtonActor(val system: ActorSystem,
       }
 
       // Eject all users using the client.
-      outGW.send(new EndAndKickAll(msg.meetingID, m.props.recordProp.record))
+      val endAndKickAllEvt = MsgBuilder.buildEndAndKickAllSysMsg(msg.meetingID, "not-used")
+      outGW.send(endAndKickAllEvt)
+
       // Eject all users from the voice conference
-      outGW.send(new EjectAllVoiceUsers(msg.meetingID, m.props.recordProp.record, m.props.voiceProp.voiceConf))
+      val ejectFromVoiceEvent = MsgBuilder.buildEjectAllFromVoiceConfMsg(msg.meetingID, m.props.voiceProp.voiceConf)
+      outGW.send(ejectFromVoiceEvent)
 
       // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client
       context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
         // Disconnect all clients
-        outGW.send(new DisconnectAllUsers(msg.meetingID))
+
+        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingID)
+        outGW.send(disconnectEvnt)
+
         log.info("Destroyed meetingId={}", msg.meetingID)
-        outGW.send(new MeetingDestroyed(msg.meetingID))
+        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.meetingID)
+        outGW.send(destroyedEvent)
 
         /** Unsubscribe to meeting and voice events. **/
         eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
@@ -285,46 +280,4 @@ class BigBlueButtonActor(val system: ActorSystem,
     }
  */
   }
-
-  private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
-    val len = RunningMeetings.numMeetings(meetings)
-    var currPosition = len - 1
-    val resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
-
-    RunningMeetings.meetings(meetings).foreach(m => {
-      val id = m.props.meetingProp.intId
-      val duration = m.props.durationProps.duration
-      val name = m.props.meetingProp.name
-      val recorded = m.props.recordProp.record
-      val voiceBridge = m.props.voiceProp.voiceConf
-
-      val info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
-      resultArray(currPosition) = info
-      currPosition = currPosition - 1
-
-      val html5clientRequesterID = "nodeJSapp"
-
-      //send the users
-      eventBus.publish(BigBlueButtonEvent(id, new GetUsers(id, html5clientRequesterID)))
-
-      //send the presentation
-      eventBus.publish(BigBlueButtonEvent(id, new GetPresentationInfo(id, html5clientRequesterID, html5clientRequesterID)))
-
-      //send chat history
-      eventBus.publish(BigBlueButtonEvent(id, new GetAllChatHistoryRequest(id, html5clientRequesterID, html5clientRequesterID)))
-
-      //send lock settings
-      eventBus.publish(BigBlueButtonEvent(id, new GetLockSettings(id, html5clientRequesterID)))
-
-      //send desktop sharing info
-      eventBus.publish(BigBlueButtonEvent(id, new DeskShareGetDeskShareInfoRequest(id, html5clientRequesterID, html5clientRequesterID)))
-
-      // send captions
-      eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
-    })
-
-    outGW.send(new GetAllMeetingsReply(resultArray))
-  }
-
 }
-

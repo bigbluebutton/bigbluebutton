@@ -42,6 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 
       private function btnNew_clickHandler(event:MouseEvent):void {
+        btnNew.enabled = false;
         var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT);
         if (textInput.text != ResourceUtil.getInstance().getString('bbb.sharedNotes.title')) {
           e.noteName = textInput.text;

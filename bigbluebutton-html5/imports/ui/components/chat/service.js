@@ -1,5 +1,5 @@
 import Chats from '/imports/api/1.1/chat';
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Meetings from '/imports/api/1.1/meetings';
 
 import Auth from '/imports/ui/services/auth';
@@ -132,10 +132,13 @@ const isChatLocked = (receiverID) => {
   const currentUser = getUser(Auth.userID);
   const meeting = Meetings.findOne({});
 
-  const lockSettings = meeting.roomLockSettings || {
+  const lockSettings = false;
+  
+  //FIX ME
+  /*meeting.roomLockSettings || {
     disablePublicChat: false,
     disablePrivateChat: false,
-  };
+  };*/
 
   if (!currentUser.isLocked || currentUser.isPresenter) {
     return false;

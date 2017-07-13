@@ -4,7 +4,7 @@ import com.softwaremill.quicklens._
 
 object VoiceUsers {
   def findWithVoiceUserId(users: VoiceUsers, voiceUserId: String): Option[VoiceUserState] = {
-    users.toVector find (u => u.intId == voiceUserId)
+    users.toVector find (u => u.voiceUserId == voiceUserId)
   }
 
   def findWIthIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
@@ -23,6 +23,30 @@ object VoiceUsers {
 
   def findWithIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
     users.toVector.find(u => u.intId == intId)
+  }
+
+  def userMuted(users: VoiceUsers, voiceUserId: String, muted: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.muted).setTo(muted)
+        .modify(_.talking).setTo(false)
+        .modify(_.listenOnly).setTo(false)
+      users.save(vu)
+      vu
+    }
+  }
+
+  def userTalking(users: VoiceUsers, voiceUserId: String, talkng: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.muted).setTo(false)
+        .modify(_.talking).setTo(talkng)
+        .modify(_.listenOnly).setTo(false)
+      users.save(vu)
+      vu
+    }
   }
 
   def joinedVoiceListenOnly(users: VoiceUsers, userId: String): Option[VoiceUserState] = {
@@ -96,3 +120,6 @@ case class VoiceUser2x(intId: String, voiceUserId: String)
 case class VoiceUserVO2x(intId: String, voiceUserId: String, callerName: String,
   callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
   talking: Boolean, callingWith: String, listenOnly: Boolean)
+
+case class VoiceUserState(intId: String, voiceUserId: String, callingWith: String, callerName: String,
+  callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)

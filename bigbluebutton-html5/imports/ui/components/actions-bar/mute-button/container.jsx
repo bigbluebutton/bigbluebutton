@@ -2,7 +2,7 @@ import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
-import Users from '/imports/api/1.1/users/index';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth/index';
 import MuteAudio from './component';
 
