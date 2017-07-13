@@ -1,5 +1,6 @@
 import Logger from '/imports/startup/server/logger';
-import removeMeeting from '/imports/api/2.0/meetings/server/modifiers/removeMeeting';
+// FIX ME, ADD THIS METHOD TO THE MEETING 2.0
+import removeMeeting from '/imports/api/1.1/meetings/server/modifiers/removeMeeting';
 import Breakouts from '/imports/api/2.0/breakouts';
 
 export default function clearBreakouts(breakoutMeetingId) {
