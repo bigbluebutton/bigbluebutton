@@ -1,4 +1,4 @@
-import Breakouts from '/imports/api/1.1/breakouts';
+import Breakouts from '/imports/api/2.0/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
@@ -24,15 +24,13 @@ export default function handleBreakoutRoomStarted({ body }) {
     },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`updating breakout: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.info('Updated timeRemaining and externalMeetingId ' +
-                         `for breakout id=${meetingId}`);
-    }
+    return Logger.info('Updated timeRemaining and externalMeetingId ' +
+      `for breakout id=${meetingId}`);
   };
 
   return Breakouts.update(selector, modifier, cb);

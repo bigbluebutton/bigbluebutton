@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Breakouts from './../../';
+import Breakouts from '/imports/api/2.0/breakouts';
 
 export default function addBreakout(breakout) {
   const {

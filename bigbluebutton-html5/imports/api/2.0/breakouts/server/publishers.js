@@ -1,12 +1,15 @@
 import { Meteor } from 'meteor/meteor';
 import mapToAcl from '/imports/startup/mapToAcl';
-import Breakouts from './../';
+import Breakouts from '/imports/api/2.0/breakouts';
+import Logger from '/imports/startup/server/logger';
 
 function breakouts(credentials) {
   const {
     meetingId,
     requesterUserId,
   } = credentials;
+
+  Logger.info(`Publishing Breakouts2x for ${meetingId} ${requesterUserId}`);
 
   return Breakouts.find({
     $or: [
@@ -21,7 +24,6 @@ function breakouts(credentials) {
 }
 
 function publish(...args) {
-  console.err('breakout2x publish');
   const boundBreakouts = breakouts.bind(this);
   return mapToAcl('subscriptions.breakouts', boundBreakouts)(args);
 }

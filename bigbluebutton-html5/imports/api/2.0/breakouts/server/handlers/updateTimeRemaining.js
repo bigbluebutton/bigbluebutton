@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Breakouts from './../../';
+import Breakouts from '/imports/api/2.0/breakouts';
 
 export default function handleUpdateTimeRemaining({ body }) {
   const {
@@ -25,15 +25,13 @@ export default function handleUpdateTimeRemaining({ body }) {
     multi: true,
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Updating breakouts: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.info('Updated breakout time remaining for breakouts ' +
-                         `where parentMeetingId=${meetingId}`);
-    }
+    return Logger.info('Updated breakout time remaining for breakouts ' +
+      `where parentMeetingId=${meetingId}`);
   };
 
   return Breakouts.update(selector, modifier, options, cb);

@@ -2,7 +2,7 @@ import xml2js from 'xml2js';
 import url from 'url';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Breakouts from './../../';
+import Breakouts from '/imports/api/2.0/breakouts';
 
 const xmlParser = new xml2js.Parser();
 
@@ -51,7 +51,7 @@ export default function handleBreakoutJoinURL({ body }) {
     const userExists = users.find(u => user.userId === u.userId);
 
     if (userExists) {
-      return;
+      return null;
     }
 
     const modifier = {
@@ -60,9 +60,9 @@ export default function handleBreakoutJoinURL({ body }) {
       },
     };
 
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Adding breakout to collection: ${err}`);
+    const cb = (cbErr, numChanged) => {
+      if (cbErr) {
+        return Logger.error(`Adding breakout to collection: ${cbErr}`);
       }
 
       const {
