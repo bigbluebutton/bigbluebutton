@@ -15,6 +15,7 @@ sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-sc
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/scala-library-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/scala-reflect-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/jackson-* \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/paranamer-2.8.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/akka-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/config-1.3.1.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-2.5.jar \
