@@ -1,15 +1,16 @@
 import Users from '/imports/api/2.0/users';
-import Chat from '/imports/api/1.1/chat';
+import Chat from '/imports/api/2.0/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -38,9 +39,9 @@ const mapUser = user => ({
 
 const mapOpenChats = (chat) => {
   const currentUserId = Auth.userID;
-  return chat.message.from_userid !== currentUserId
-    ? chat.message.from_userid
-    : chat.message.to_userid;
+  return chat.message.fromUserId !== currentUserId
+    ? chat.message.fromUserId
+    : chat.message.toUserId;
 };
 
 const sortUsersByName = (a, b) => {
@@ -179,8 +180,6 @@ const getOpenChats = (chatID) => {
     .fetch()
     .map(mapOpenChats);
 
-  const currentUserId = Auth.userID;
-
   if (chatID) {
     openChats.push(chatID);
   }
@@ -192,8 +191,9 @@ const getOpenChats = (chatID) => {
     .map(u => u.user)
     .map(mapUser)
     .map((op) => {
-      op.unreadCounter = UnreadMessages.count(op.id);
-      return op;
+      const openChat = op;
+      openChat.unreadCounter = UnreadMessages.count(op.id);
+      return openChat;
     });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
@@ -221,14 +221,14 @@ const getOpenChats = (chatID) => {
     id: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
-    unreadCounter: UnreadMessages.count('public_chat_userid'),
+    unreadCounter: UnreadMessages.count(PUBLIC_CHAT_USERID),
   });
 
   return openChats
     .sort(sortChats);
 };
 
-getCurrentUser = () => {
+const getCurrentUser = () => {
   const currentUserId = Auth.userID;
   const currentUser = Users.findOne({ 'user.userid': currentUserId });
 
