@@ -57,6 +57,10 @@ begin
   logger.level = Logger::INFO
   BigBlueButton.logger = logger
 
+  redis_host = props['redis_workers_host'] || props['redis_host']
+  redis_port = props['redis_workers_port'] || props['redis_port']
+  Resque.redis = "#{redis_host}:#{redis_port}"
+
   BigBlueButton.logger.debug("Running rap-trigger...")
 
   archive_recorded_meetings(recording_dir)
