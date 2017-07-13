@@ -1,3 +1,4 @@
+
 //enablePlugins(JavaServerAppPackaging)
 enablePlugins(JettyPlugin)
 
@@ -5,9 +6,9 @@ name := "bbb-screenshare-akka"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.1"
+version := "0.0.2"
 
-scalaVersion  := "2.11.7"
+scalaVersion  := "2.12.2"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -25,6 +26,8 @@ resolvers ++= Seq(
   "blindside-repos" at "http://blindside.googlecode.com/svn/repository/"
 )
 
+resolvers += Resolver.sonatypeRepo("releases")
+
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
 
 // We want to have our jar files in lib_managed dir.
@@ -32,8 +35,14 @@ publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/d
 // into eclipse.
 retrieveManaged := true
 
+testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
+
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
+
+val akkaVersion  = "2.5.1"
+val scalaTestV  = "2.2.6"
+
 libraryDependencies ++= {
-    val akkaVersion  = "2.4.2"
     val springVersion = "4.3.3.RELEASE"
   Seq(
     "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
@@ -61,7 +70,15 @@ libraryDependencies ++= {
 
   )}
 
+// https://mvnrepository.com/artifact/org.scala-lang/scala-library
+libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.12.2"
+
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
+// https://mvnrepository.com/artifact/com.github.etaty/rediscala_2.12
+libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
 
 //seq(Revolver.settings: _*)
 //
