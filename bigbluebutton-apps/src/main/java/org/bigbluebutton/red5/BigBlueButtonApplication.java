@@ -315,7 +315,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	}
 
 	public void onMessageFromClient(String json) {
-		System.out.println("onMessageFromClient \n" + json);
+		//System.out.println("onMessageFromClient \n" + json);
 		ConnInfo connInfo = getConnInfo();
 		clientInGW.handleMsgFromClient(connInfo, json);
 	}

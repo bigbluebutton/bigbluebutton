@@ -22,7 +22,6 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
 
 
   def handleBroadcastMsg(msg: BroadcastMsgToMeeting): Unit = {
-    println("Received BroadcastMsgToMeeting " + msg)
     val meetingId = msg.meetingId
     val msgName = msg.data.envelope.name
     val json = JsonUtil.toJson(msg.data.core)
@@ -32,7 +31,6 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   }
 
   def handleDirectMsg(msg: DirectMsgToClient): Unit = {
-    println("Received DirectMsgToClient " + msg)
     val meetingId = msg.meetingId
     val connId = msg.connId
     val msgName = msg.data.envelope.name
@@ -43,7 +41,6 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   }
 
   def handleDisconnectClientMsg(msg: DisconnectClientMsg): Unit = {
-    println("Received DisconnectClientMsg " + msg)
     val meetingId = msg.meetingId
     val connId = msg.connId
 
@@ -51,7 +48,6 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   }
 
   def handleDisconnectAllMeetingClientsMsg(msg: DisconnectAllMeetingClientsMsg): Unit = {
-    println("Received DisconnectAllMeetingClientsMsg " + msg)
     val meetingId = msg.meetingId
 
     msgToClientGW.systemMessage(new CloseMeetingAllConnectionsMsg(meetingId))

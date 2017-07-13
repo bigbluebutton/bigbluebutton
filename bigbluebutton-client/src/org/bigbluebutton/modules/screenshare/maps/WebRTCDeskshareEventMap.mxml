@@ -73,9 +73,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStopSharingEvent"/>
 		</EventHandlers>
 
+<!--
 		<EventHandlers type="{ShareStartRequestResponseEvent.SHARE_START_REQUEST_RESPONSE}">
 			<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleShareStartRequestResponseEvent" arguments="{event}"/>
 		</EventHandlers>
+-->
 
 		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
 			<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
