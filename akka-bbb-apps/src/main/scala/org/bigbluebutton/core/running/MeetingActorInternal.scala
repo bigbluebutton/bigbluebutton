@@ -32,6 +32,8 @@ class MeetingActorInternal(val props: DefaultProps,
   val eventBus: IncomingEventBus, val outGW: OutMessageGateway)
     extends Actor with ActorLogging with SystemConfiguration {
 
+  object AuditMonitorInternalMsg
+
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
       val sw: StringWriter = new StringWriter()
@@ -86,10 +88,10 @@ class MeetingActorInternal(val props: DefaultProps,
   // Zero minutes means the meeting has no duration control
   private var meetingDuration: Option[Deadline] = if (ExpireMeetingDuration > (0 minutes)) Some(ExpireMeetingDuration.fromNow) else None
 
-  context.system.scheduler.schedule(5 seconds, MonitorFrequency, self, "Monitor")
+  context.system.scheduler.schedule(5 seconds, MonitorFrequency, self, AuditMonitorInternalMsg)
 
   // Query to get voice conference users
-  def build(meetingId: String): BbbCommonEnvCoreMsg = {
+  def buildGetUsersInVoiceConfSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(GetUsersInVoiceConfSysMsg.NAME, routing)
     val body = GetUsersInVoiceConfSysMsgBody(props.voiceProp.voiceConf)
@@ -99,7 +101,7 @@ class MeetingActorInternal(val props: DefaultProps,
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  val event = build(props.meetingProp.intId)
+  val event = buildGetUsersInVoiceConfSysMsg(props.meetingProp.intId)
   outGW.send(event)
 
   if (props.meetingProp.isBreakout) {
@@ -110,15 +112,15 @@ class MeetingActorInternal(val props: DefaultProps,
   }
 
   def receive = {
-    case "Monitor" => handleMonitor()
+    case AuditMonitorInternalMsg => handleMonitor()
     case msg: UpdateMeetingExpireMonitor => handleUpdateMeetingExpireMonitor(msg)
     case msg: Object => handleMessage(msg)
   }
 
   def handleMonitor() {
-    //  handleMonitorActivity()
+    handleMonitorActivity()
     handleMonitorNumberOfWebUsers()
-    //  handleMonitorExpiration()
+    handleMonitorExpiration()
   }
 
   def handleMessage(msg: Object) {
@@ -264,38 +266,38 @@ class MeetingActorInternal(val props: DefaultProps,
     }
 
     value match {
-      case Some(v) => {
+      case Some(v) =>
         key match {
-          case Metadata.INACTIVITY_DEADLINE => {
+          case Metadata.INACTIVITY_DEADLINE =>
             // Can be defined between 1 minute to 6 hours
             metadataIntegerValueOf(v, 60, 21600) match {
               case Some(r) => Some(r.asInstanceOf[Object])
               case None => None
             }
-          }
-          case Metadata.INACTIVITY_TIMELEFT => {
+
+          case Metadata.INACTIVITY_TIMELEFT =>
             // Can be defined between 30 seconds to 30 minutes
             metadataIntegerValueOf(v, 30, 1800) match {
               case Some(r) => Some(r.asInstanceOf[Object])
               case None => None
             }
-          }
+
           case _ => None
         }
-      }
+
       case None => None
     }
   }
 
   private def metadataIntegerValueOf(value: String, lowerBound: Int, upperBound: Int): Option[Int] = {
     stringToInt(value) match {
-      case Some(r) => {
+      case Some(r) =>
         if (lowerBound <= r && r <= upperBound) {
           Some(r)
         } else {
           None
         }
-      }
+
       case None => None
     }
   }

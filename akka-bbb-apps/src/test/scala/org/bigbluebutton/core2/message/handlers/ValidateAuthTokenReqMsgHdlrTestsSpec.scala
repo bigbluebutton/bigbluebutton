@@ -9,7 +9,7 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
-import org.bigbluebutton.core2.message.handlers.users.ValidateAuthTokenReqMsgHdlr
+import org.bigbluebutton.core2.message.handlers.users.{ FooValidateAuthTokenReqMsgHdlr, ValidateAuthTokenReqMsgHdlr }
 import org.bigbluebutton.core2.testdata.TestDataGen
 import org.scalatest.{ Matchers, WordSpecLike }
 
@@ -26,7 +26,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem("Validate
   val outBus2 = new OutEventBus2
   val recordBus = new RecordingEventBus
 
-  val outGW = OutMessageGateway(outgoingEventBus, outBus2, recordBus)
+  val outGW = OutMessageGatewayImp(outgoingEventBus, outBus2, recordBus)
 
   // Have the build in testActor receive messages coming from class under test
   outBus2.subscribe(testActor, outBbbMsgMsgChannel)
@@ -161,6 +161,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem("Validate
             assert(outMsg.body.waitForApproval == false)
           // Can do more assertions here
         }
+
       }
     }
   }
@@ -187,29 +188,83 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem("Validate
         val chad = TestDataGen.createRegisteredUser(liveMeeting.registeredUsers, "Chad", Roles.VIEWER_ROLE,
           guest = true, authed = false, waitForApproval = true)
 
+        val outGWSeq = new OutMsgGWSeq()
+
         // Create actor under test Actor
-        val meetingActorRef = system.actorOf(ValidateAuthTokenRespMsgTestActor.props(outGW, liveMeeting))
+        val meetingActorRef = system.actorOf(ValidateAuthTokenRespMsgTestActor.props(outGWSeq, liveMeeting))
 
         def build(meetingId: String, userId: String, authToken: String): BbbCommonEnvCoreMsg = {
           val routing = collection.immutable.HashMap("sender" -> "bbb-apps")
-          val envelope = BbbCoreEnvelope(CreateMeetingReqMsg.NAME, routing)
+          val envelope = BbbCoreEnvelope(ValidateAuthTokenReqMsg.NAME, routing)
           val req = ValidateAuthTokenReqMsg(meetingId, userId, authToken)
           BbbCommonEnvCoreMsg(envelope, req)
         }
 
+        println("****** Sending validate msg test")
         // Send our message
         val msg = build(liveMeeting.props.meetingProp.intId, chad.id, chad.authToken)
         meetingActorRef ! msg
 
-        // Handle message expectations
-        expectMsgPF() {
-          case event: BbbCommonEnvCoreMsg =>
-            assert(event.envelope.name == ValidateAuthTokenRespMsg.NAME)
-            val outMsg = event.core.asInstanceOf[ValidateAuthTokenRespMsg]
-            assert(outMsg.body.valid == true)
-            assert(outMsg.body.waitForApproval == false)
-          // Can do more assertions here
+        /**
+         * // Handle message expectations
+         * expectMsgPF() {
+         * case event: BbbCommonEnvCoreMsg =>
+         * assert(event.envelope.name == ValidateAuthTokenRespMsg.NAME)
+         * val outMsg = event.core.asInstanceOf[ValidateAuthTokenRespMsg]
+         * assert(outMsg.body.valid == true)
+         * assert(outMsg.body.waitForApproval == false)
+         * // Can do more assertions here
+         * }
+         */
+        println("******* Asserting message length ")
+        assert(outGWSeq.msgs.length == 6)
+
+      }
+    }
+  }
+
+  "A MeetingActor" should {
+    "Accept a valid authToken for a registered users in the meeting and wait for approval for guests 2" in {
+      within(500 millis) {
+
+        // Set the guest policy to ask moderator
+        GuestsWaiting.setGuestPolicy(liveMeeting.guestsWaiting, GuestPolicy(GuestPolicyType.ASK_MODERATOR, "SYSTEM"))
+
+        // Register a user that is not a guest
+        val richard = TestDataGen.createRegisteredUser(liveMeeting.registeredUsers, "Richard", Roles.MODERATOR_ROLE,
+          guest = false, authed = false, waitForApproval = false)
+        val fred = TestDataGen.createRegisteredUser(liveMeeting.registeredUsers, "Fred", Roles.MODERATOR_ROLE,
+          guest = false, authed = false, waitForApproval = false)
+        val anton = TestDataGen.createRegisteredUser(liveMeeting.registeredUsers, "Anton", Roles.VIEWER_ROLE,
+          guest = false, authed = false, waitForApproval = false)
+
+        val richardUser = TestDataGen.createUserFor(liveMeeting, richard, presenter = false)
+        val fredUser = TestDataGen.createUserFor(liveMeeting, fred, presenter = false)
+        val antonUser = TestDataGen.createUserFor(liveMeeting, anton, presenter = false)
+
+        val chad = TestDataGen.createRegisteredUser(liveMeeting.registeredUsers, "Chad", Roles.VIEWER_ROLE,
+          guest = true, authed = false, waitForApproval = true)
+
+        val outGWSeq = new OutMsgGWSeq()
+
+        // Create actor under test Actor
+        val meetingActorRef = new FooMeeting(outGWSeq, liveMeeting)
+
+        def build(meetingId: String, userId: String, authToken: String): BbbCommonEnvCoreMsg = {
+          val routing = collection.immutable.HashMap("sender" -> "bbb-apps")
+          val envelope = BbbCoreEnvelope(ValidateAuthTokenReqMsg.NAME, routing)
+          val req = ValidateAuthTokenReqMsg(meetingId, userId, authToken)
+          BbbCommonEnvCoreMsg(envelope, req)
         }
+
+        println("****** Sending validate msg test")
+
+        val msg = build(liveMeeting.props.meetingProp.intId, chad.id, chad.authToken)
+        meetingActorRef.handleValidateAuthTokenReqMsg(msg.core.asInstanceOf[ValidateAuthTokenReqMsg])
+
+        println("******* Asserting message length ")
+        assert(outGWSeq.msgs.length == 6)
+
       }
     }
   }
@@ -227,6 +282,11 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem("Validate
 
     liveMeeting
   }
+}
+
+class FooMeeting(val outGW: OutMessageGateway,
+    val liveMeeting: LiveMeeting) extends FooValidateAuthTokenReqMsgHdlr {
+
 }
 
 class ValidateAuthTokenRespMsgTestActor(val outGW: OutMessageGateway,

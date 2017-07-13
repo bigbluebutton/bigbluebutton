@@ -37,3 +37,33 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     }
   }
 }
+
+trait FooValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
+  val liveMeeting: LiveMeeting
+  val outGW: OutMessageGateway
+
+  def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg): Unit = {
+
+    RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
+      case Some(u) =>
+        val guestPolicyType = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting).policy
+        if (guestPolicyType == GuestPolicyType.ALWAYS_ACCEPT) {
+          userValidatedAndNoNeedToWaitForApproval(outGW, liveMeeting, u)
+        } else if (guestPolicyType == GuestPolicyType.ASK_MODERATOR) {
+          if (u.guest && u.waitingForAcceptance) {
+            userValidatedButNeedToWaitForApproval(outGW, liveMeeting, u)
+          } else {
+            userValidatedAndNoNeedToWaitForApproval(outGW, liveMeeting, u)
+          }
+        } else {
+          validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
+            userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false)
+          // TODO: Disconnect user
+        }
+      case None =>
+        validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
+          userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false)
+      // TODO: Disconnect user
+    }
+  }
+}

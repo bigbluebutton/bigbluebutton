@@ -8,7 +8,7 @@ import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
 
 trait HandlerHelpers {
-  this: BaseMeetingActor =>
+  //  this: BaseMeetingActor =>
 
   def validateTokenFailed(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
     valid: Boolean, waitForApproval: Boolean): Unit = {
@@ -42,6 +42,9 @@ trait HandlerHelpers {
 
   def userValidatedAndNoNeedToWaitForApproval(outGW: OutMessageGateway, liveMeeting: LiveMeeting,
     user: RegisteredUser): Unit = {
+
+    println("**************** userValidatedAndNoNeedToWaitForApproval")
+
     val meetingId = liveMeeting.props.meetingProp.intId
     sendValidateAuthTokenRespMsg(outGW, meetingId,
       userId = user.id, authToken = user.authToken, valid = true, waitForApproval = false)

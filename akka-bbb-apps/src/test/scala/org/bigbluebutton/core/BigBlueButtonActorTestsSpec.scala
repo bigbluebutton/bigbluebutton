@@ -25,7 +25,7 @@ class BigBlueButtonActorTestsSpec extends TestKit(ActorSystem("BigBlueButtonActo
   val outBus2 = new OutEventBus2
   val recordBus = new RecordingEventBus
 
-  val outGW = OutMessageGateway(outgoingEventBus, outBus2, recordBus)
+  val outGW = OutMessageGatewayImp(outgoingEventBus, outBus2, recordBus)
 
   // Have the build in testActor receive messages coming from class under test (BigBlueButtonActor)
   outBus2.subscribe(testActor, outBbbMsgMsgChannel)
