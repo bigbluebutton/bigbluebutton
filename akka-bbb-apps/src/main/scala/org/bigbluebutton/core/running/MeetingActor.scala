@@ -112,6 +112,9 @@ class MeetingActor(val props: DefaultProps,
     case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
     case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
 
+    // Meeting
+    case m: DestroyMeetingSysCmdMsg => handleDestroyMeetingSysCmdMsg(m)
+
     //======================================
 
     //=======================================
@@ -238,9 +241,6 @@ class MeetingActor(val props: DefaultProps,
       case m: ScreenshareStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
-
-      // Meeting
-      case m: DestroyMeetingSysCmdMsg => handleDestroyMeetingSysCmdMsg(m)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }

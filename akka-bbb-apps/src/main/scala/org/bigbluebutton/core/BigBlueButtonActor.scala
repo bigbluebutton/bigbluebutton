@@ -86,7 +86,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     for {
       m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
     } yield {
-      log.debug("FORWARDING Registere user message")
+      log.debug("FORWARDING Register user message")
       m.actorRef forward (msg)
     }
   }
@@ -209,6 +209,9 @@ class BigBlueButtonActor(val system: ActorSystem,
       m <- RunningMeetings.findWithId(meetings, msg.body.meetingId)
       m2 <- RunningMeetings.remove(meetings, msg.body.meetingId)
     } yield {
+      // send the message for MeetingActor to handle too
+      m.actorRef ! msg
+
       // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client
       context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
         // Disconnect all clients

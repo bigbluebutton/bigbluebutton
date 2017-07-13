@@ -147,7 +147,7 @@ object MsgBuilder {
   }
 
   def buildDisconnectAllClientsSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(DisconnectAllClientsSysMsg.NAME, routing)
     val body = DisconnectAllClientsSysMsgBody(meetingId)
     val header = BbbCoreHeaderWithMeetingId(DisconnectAllClientsSysMsg.NAME, meetingId)

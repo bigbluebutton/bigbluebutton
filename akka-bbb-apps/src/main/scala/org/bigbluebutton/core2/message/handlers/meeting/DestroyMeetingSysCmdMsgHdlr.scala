@@ -30,6 +30,10 @@ trait DestroyMeetingSysCmdMsgHdlr {
     // Eject all users from the voice conference
     outGW.send(MsgBuilder.buildEjectAllFromVoiceConfMsg(liveMeeting.props.meetingProp.intId,
       liveMeeting.props.voiceProp.voiceConf))
+
+    // send a system message to force disconnection
+    outGW.send(MsgBuilder.buildDisconnectAllClientsSysMsg(liveMeeting.props.meetingProp.intId))
+    log.info("Disconnect all users from meeting (system msg).  meetingId=" + liveMeeting.props.meetingProp.intId)
   }
 
 }
