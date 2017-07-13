@@ -57,7 +57,7 @@ class ReceivedJsonMsgHandlerActor(screenshareManager: ActorRef)
           screenshareManager ! new MeetingEnded(m.body.meetingId)
         }
       case _ =>
-        log.error("Cannot route envelope name " + envelope.name)
+       // log.error("Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }

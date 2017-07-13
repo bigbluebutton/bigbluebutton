@@ -39,10 +39,10 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   implicit val timeout = akka.util.Timeout(3 seconds)
   implicit def executionContext = system.dispatcher
 
-  println(system.settings)
+  //println(system.settings)
 
-  println("*********** meetingManagerChannel = " + meetingManagerChannel)
-  println("*********** meetingManagerChannel = " + meetingManagerChannel)
+  //println("*********** meetingManagerChannel = " + meetingManagerChannel)
+  //println("*********** meetingManagerChannel = " + meetingManagerChannel)
   //logger.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   val incomingJsonMessageBus = new IncomingJsonMessageBus
