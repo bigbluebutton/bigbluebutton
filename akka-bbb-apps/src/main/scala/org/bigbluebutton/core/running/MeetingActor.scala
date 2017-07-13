@@ -55,8 +55,8 @@ class MeetingActor(val props: DefaultProps,
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
-    with UserConnectedToGlobalAudioHdlr
-    with UserDisconnectedFromGlobalAudioHdlr
+    with UserConnectedToGlobalAudioMsgHdlr
+    with UserDisconnectedFromGlobalAudioMsgHdlr
     with MuteAllExceptPresentersCmdMsgHdlr
     with MuteMeetingCmdMsgHdlr
     with IsMeetingMutedReqMsgHdlr
@@ -116,8 +116,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
 
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
-    case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
-    case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
     case msg: InitializeMeeting => handleInitializeMeeting(msg)
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
@@ -188,6 +186,8 @@ class MeetingActor(val props: DefaultProps,
       case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
       case m: IsMeetingMutedReqMsg => handleIsMeetingMutedReqMsg(m)
       case m: MuteMeetingCmdMsg => handleMuteMeetingCmdMsg(m)
+      case m: UserConnectedToGlobalAudioMsg => handleUserConnectedToGlobalAudioMsg(m)
+      case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
