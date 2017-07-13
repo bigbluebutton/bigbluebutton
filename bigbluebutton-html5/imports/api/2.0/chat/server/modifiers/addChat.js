@@ -1,3 +1,4 @@
+import flat from 'flat';
 import Chat from '/imports/api/2.0/chat';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
@@ -17,7 +18,8 @@ const parseMessage = (message) => {
 };
 
 export default function addChat(meetingId, message) {
-  const parsedMessage = parseMessage(message.message);
+  const parsedMessage = message;
+  parsedMessage.message = parseMessage(message.message);
 
   const fromUserId = message.fromUserId;
   const toUserId = message.toUserId;
@@ -27,24 +29,15 @@ export default function addChat(meetingId, message) {
 
   const selector = {
     meetingId,
-    'message.fromTime': message.fromTime,
-    'message.fromUserId': message.fromUserId,
-    'message.toUserId': message.toUserId,
+    'message.fromTime': parsedMessage.fromTime,
+    'message.fromUserId': parsedMessage.fromUserId,
+    'message.toUserId': parsedMessage.toUserId,
   };
 
   const modifier = {
     $set: {
       meetingId,
-      message: {
-        message: parsedMessage,
-        toUsername: message.toUsername,
-        fromTimezoneOffset: message.fromTimezoneOffset,
-        fromColor: message.fromColor,
-        toUserId: message.toUserId,
-        fromUserId: message.fromUserId,
-        fromTime: message.fromTime,
-        fromUsername: message.fromUsername,
-      },
+      message: flat(parsedMessage),
     },
   };
 
