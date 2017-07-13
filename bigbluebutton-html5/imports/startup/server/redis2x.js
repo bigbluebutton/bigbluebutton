@@ -63,11 +63,6 @@ class RedisPubSub2x {
     };
 
     Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> bbb-2x-mconf
     return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);
