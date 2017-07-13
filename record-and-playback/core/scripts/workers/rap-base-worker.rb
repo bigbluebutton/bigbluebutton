@@ -45,6 +45,7 @@ module BigBlueButton
         e.backtrace.each do |traceline|
           @logger.error(traceline)
         end
+        raise e # so that resque knows the job failed
       end
 
       def run_post_scripts(post_scripts_path)
