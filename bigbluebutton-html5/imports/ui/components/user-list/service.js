@@ -20,7 +20,7 @@ const mapUser = user => ({
   id: user.userid,
   name: user.name,
   emoji: {
-    status: user.emoji_status,
+    status: user.emoji,
     changedAt: user.set_emoji_time,
   },
   isPresenter: user.presenter,

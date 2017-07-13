@@ -59,8 +59,8 @@ export default function userLeaving(credentials, userId) {
   }
 
   const payload = {
-    meeting_id: meetingId,
-    userid: userId,
+    meetingId,
+    userId,
   };
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
