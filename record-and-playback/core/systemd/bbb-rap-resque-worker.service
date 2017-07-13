@@ -9,3 +9,8 @@ Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity
 Environment=COUNT=1
 #Environment=VVERBOSE=1
 User=tomcat7
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
