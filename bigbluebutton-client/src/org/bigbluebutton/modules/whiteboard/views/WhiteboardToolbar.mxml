@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
     xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
 	xmlns:common="org.bigbluebutton.common.*"
-    xmlns:mate="http://mate.asfusion.com/" 
+    xmlns:mate="http://mate.asfusion.com/"
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
     includeInLayout="{showWhiteboardToolbar}"
@@ -291,19 +291,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
     <wbBtns:PanZoomButton id="panzoomBtn"/>
-    <mx:Spacer height="10"/>
 	<wbBtns:ScribbleButton id="scribbleBtn"/>
 	<wbBtns:RectangleButton id="rectangleBtn"/>
 	<wbBtns:CircleButton id="circleBtn"/>
 	<wbBtns:TriangleButton id="triangleBtn"/>
 	<wbBtns:LineButton id="lineBtn"/>
 	<wbBtns:TextButton id="textBtn"/>
-		
-	<mx:Spacer height="5"/>
 	<wbBtns:ClearButton id="clearBtn"/>
 	<wbBtns:UndoButton id="undoBtn"/>
-	
-	<mx:Spacer height="5"/>
 	
 	<!--
 	Properties that were removed from original color picker:

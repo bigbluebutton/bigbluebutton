@@ -746,7 +746,7 @@ videoconf|UserGraphicHolder {
 */
 
 whiteboard|WhiteboardToolbar {
-	backgroundColor : #F1F3F7;
+	backgroundColor : #CFD4DB;
 	borderColor     : #CFD4DB;
 	borderStyle     : solid;
 	borderThickness : 1;
@@ -755,6 +755,7 @@ whiteboard|WhiteboardToolbar {
 	paddingTop      : 0;
 	paddingLeft     : 0;
 	paddingRight    : 0;
+	verticalGap     : 1;
 }
 
 .colorPickerStyle {
@@ -773,6 +774,56 @@ whiteboard|WhiteboardToolbar {
 	verticalGap               : 0;
 }
 
+.whiteboardPanZoomButtonStyle, .whiteboardScribbleButtonStyle, .whiteboardRectangleButtonStyle,
+.whiteboardCircleButtonStyle, .whiteboardTriangleButtonStyle, .whiteboardLineButtonStyle,
+.whiteboardTextButtonStyle, .whiteboardClearButtonStyle, .whiteboardUndoButtonStyle {
+	/* Normal state */
+	borderStyle     : none;
+	borderThickness : 0;
+	cornerRadius    : 0;
+}
+
+.whiteboardPanZoomButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Hand");
+}
+
+.whiteboardScribbleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Pencil");
+}
+
+.whiteboardRectangleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Rectangle");
+}
+
+.whiteboardCircleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Circle");
+}
+
+.whiteboardTriangleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Triangle");
+}
+
+.whiteboardLineButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Line");
+}
+
+.whiteboardTextButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Text_Tool");
+}
+
+.whiteboardClearButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Clear");
+}
+
+.whiteboardUndoButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo");
+}
+
+/****************************/
+/*        Old styles        */
+/****************************/
+/*
+
 .multiUserWhiteboardOnButtonStyle {
 	icon : Embed('assets/images/multiuserwhiteboardon.png');
 }
@@ -781,50 +832,9 @@ whiteboard|WhiteboardToolbar {
 	icon : Embed('assets/images/multiuserwhiteboardoff.png');
 }
 
-.whiteboardUndoButtonStyle {
-	icon : Embed('assets/images/undo.png');
-}
-
-.whiteboardCircleButtonStyle {
-	icon : Embed('assets/images/ellipse.png');
-}
-
-.whiteboardClearButtonStyle {
-	icon : Embed('assets/images/delete.png');
-}
-
 .chatClearButtonStyle {
 	icon : Embed('assets/images/delete.png');
 }
-
-.whiteboardScribbleButtonStyle {
-	icon : Embed('assets/images/pencil.png');
-}
-
-.whiteboardLineButtonStyle {
-	icon : Embed('assets/images/line.png');
-}
-
-.whiteboardPanZoomButtonStyle {
-	icon : Embed('assets/images/hand.png');
-}
-
-.whiteboardRectangleButtonStyle {
-	icon : Embed('assets/images/square.png');
-}
-
-.whiteboardTextButtonStyle {
-	icon : Embed('assets/images/text.png');
-}
-
-.whiteboardTriangleButtonStyle {
-	icon : Embed('assets/images/triangle.png');
-}
-
-/****************************/
-/*        Old styles        */
-/****************************/
-/*
 
 .chatToolbarStyle {
 	backgroundColor: #CCCCCC;
@@ -901,28 +911,6 @@ whiteboard|WhiteboardToolbar {
 
 .denyButtonStyle {
 	icon: Embed('assets/images/ic_thumb_down_16px.png');
-}
-
-
-.whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
-.whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
-.chatClearButtonStyle, .multiUserWhiteboardOnButtonStyle, .multiUserWhiteboardOffButtonStyle
-{
-	textIndent: 0;
-	paddingLeft: 0;
-	paddingRight: 0;
-	paddingTop: 5;
-	paddingBottom: 5;
-	highlightAlphas: 0.4, 0;
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;
-	themeColor: haloBlue;
-	fontFamily: Arial;
-	fontSize: 12;
 }
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
