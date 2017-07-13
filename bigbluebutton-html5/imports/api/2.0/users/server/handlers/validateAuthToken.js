@@ -3,8 +3,8 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/2.0/meetings';
 import Users from '/imports/api/2.0/users';
 
-import addChat from '/imports/api/1.1/chat/server/modifiers/addChat';
-import clearUserSystemMessages from '/imports/api/1.1/chat/server/modifiers/clearUserSystemMessages';
+import addChat from '/imports/api/2.0/chat/server/modifiers/addChat';
+import clearUserSystemMessages from '/imports/api/2.0/chat/server/modifiers/clearUserSystemMessages';
 
 const addWelcomeChatMessage = (meetingId, userId) => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -22,16 +22,16 @@ const addWelcomeChatMessage = (meetingId, userId) => {
     .replace(/%%CONFNAME%%/, Meeting.meetingProp.name);
 
   const message = {
-    chat_type: CHAT_CONFIG.type_system,
+    chatType: CHAT_CONFIG.type_system,
     message: welcomeMessage,
-    from_color: '0x3399FF',
-    to_userid: userId,
-    from_userid: CHAT_CONFIG.type_system,
-    from_username: '',
-    from_time: (new Date()).getTime(),
+    fromColor: '0x3399FF',
+    toUserId: userId,
+    fromUserId: CHAT_CONFIG.type_system,
+    fromUsername: '',
+    fromTime: (new Date()).getTime(),
   };
 
-  return addChat(meetingId, message);
+  addChat(meetingId, message);
 };
 
 export default function handleValidateAuthToken({ body }, meetingId) {
@@ -74,7 +74,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
        }${+' user='}${userId} meeting=${meetingId}`,
       );
     }
+
+    return Logger.info('No auth to validate');
   };
 
-  return Users.update(selector, modifier, cb);
+  Users.update(selector, modifier, cb);
 }
