@@ -227,6 +227,12 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem("Validate
     "Accept a valid authToken for a registered users in the meeting and wait for approval for guests 2" in {
       within(500 millis) {
 
+        val registeredUsers = new RegisteredUsers
+        val users2x = new Users2x
+        val liveMeeting = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
+          registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
+          notesModel, webcams, voiceUsers, users2x, guestsWaiting)
+
         // Set the guest policy to ask moderator
         GuestsWaiting.setGuestPolicy(liveMeeting.guestsWaiting, GuestPolicy(GuestPolicyType.ASK_MODERATOR, "SYSTEM"))
 
