@@ -1,8 +1,8 @@
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/users';
+import Users from '/imports/api/2.0/users';
 
-let getUserData = () => {
+const getUserData = () => {
   // Get userId and meetingId
   const credentials = Auth.credentials;
 
@@ -18,7 +18,7 @@ let getUserData = () => {
   }
 
   return {
-    isUserPresenter: isUserPresenter,
+    isUserPresenter,
   };
 };
 

@@ -1,17 +1,17 @@
 import Storage from '/imports/ui/services/storage/session';
-import Users from '/imports/api/users';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 
 const setTextShapeValue = (text) => {
-  let drawSettings = Storage.getItem('drawSettings');
-  if(drawSettings) {
+  const drawSettings = Storage.getItem('drawSettings');
+  if (drawSettings) {
     drawSettings.textShape.textShapeValue = text;
     Storage.setItem('drawSettings', JSON.stringify(drawSettings));
   }
 };
 
 const isPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID, });
+  const currentUser = Users.findOne({ userId: Auth.userID });
 
   if (currentUser && currentUser.user) {
     return currentUser.user.presenter;
@@ -21,12 +21,12 @@ const isPresenter = () => {
 };
 
 const activeTextShapeId = () => {
-  let drawSettings = Storage.getItem('drawSettings');
+  const drawSettings = Storage.getItem('drawSettings');
 
-  if(drawSettings) {
+  if (drawSettings) {
     return drawSettings.textShape.textShapeActiveId;
   }
-}
+};
 
 export default {
   setTextShapeValue,

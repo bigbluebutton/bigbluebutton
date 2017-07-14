@@ -1,11 +1,10 @@
 import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import Presentations from '/imports/api/presentations';
+// import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import Presentations from '/imports/api/1.1/presentations';
 
 export default function publishCursorUpdate(credentials, coordinates) {
-
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.presentation;
   const EVENT_NAME = 'send_cursor_update';
@@ -20,9 +19,9 @@ export default function publishCursorUpdate(credentials, coordinates) {
     yPercent: Number,
   });
 
-  if (!isAllowedTo('moveCursor', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to move the Cursor`);
-  }
+  // if (!isAllowedTo('moveCursor', credentials)) {
+  //   throw new Meteor.Error('not-allowed', `You are not allowed to move the Cursor`);
+  // }
 
   const Presentation = Presentations.findOne({
     meetingId,
@@ -31,10 +30,10 @@ export default function publishCursorUpdate(credentials, coordinates) {
 
   if (!Presentation) {
     throw new Meteor.Error(
-      'presentation-not-found', `You need a presentation to be able to move the cursor`);
+      'presentation-not-found', 'You need a presentation to be able to move the cursor');
   }
 
-  let payload = {
+  const payload = {
     x_percent: coordinates.xPercent,
     meeting_id: meetingId,
     y_percent: coordinates.yPercent,
