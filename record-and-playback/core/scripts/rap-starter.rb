@@ -28,7 +28,8 @@ require 'resque'
 # Number of seconds to delay archiving (red5 race condition workaround)
 ARCHIVE_DELAY_SECONDS = 120
 
-def archive_recorded_meetings(recording_dir)
+def archive_recorded_meetings(props)
+  recording_dir = props['recording_dir']
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/archived")
@@ -51,7 +52,6 @@ end
 begin
   props = BigBlueButton.read_props
   log_dir = props['log_dir']
-  recording_dir = props['recording_dir']
 
   logger = Logger.new("#{log_dir}/bbb-rap-worker.log")
   logger.level = Logger::INFO
@@ -63,7 +63,7 @@ begin
 
   BigBlueButton.logger.debug("Running rap-trigger...")
 
-  archive_recorded_meetings(recording_dir)
+  archive_recorded_meetings(props)
 
   BigBlueButton.logger.debug("rap-trigger done")
 
