@@ -17,7 +17,7 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
     case msg: BroadcastMsgToMeeting => handleBroadcastMsg(msg)
     case msg: DirectMsgToClient => handleDirectMsg(msg)
     case msg: DisconnectClientMsg => handleDisconnectClientMsg(msg)
-    case msg: DisconnectAllMeetingClientsMsg => hsndleDisconnectAllMeetingClientsMsg(msg)
+    case msg: DisconnectAllMeetingClientsMsg => handleDisconnectAllMeetingClientsMsg(msg)
   }
 
 
@@ -47,7 +47,7 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
     msgToClientGW.systemMessage(new CloseConnectionMsg(meetingId, connId))
   }
 
-  def hsndleDisconnectAllMeetingClientsMsg(msg: DisconnectAllMeetingClientsMsg): Unit = {
+  def handleDisconnectAllMeetingClientsMsg(msg: DisconnectAllMeetingClientsMsg): Unit = {
     val meetingId = msg.meetingId
 
     msgToClientGW.systemMessage(new CloseMeetingAllConnectionsMsg(meetingId))

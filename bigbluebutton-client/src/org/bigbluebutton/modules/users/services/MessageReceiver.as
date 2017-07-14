@@ -115,7 +115,7 @@ package org.bigbluebutton.modules.users.services
         case "meetingEnded":
           handleLogout(message);
           break;
-        case "meetingEnding":
+        case "MeetingEndingEvtMsg":
           handleMeetingEnding(message);
           break;
         case "meetingHasEnded":
