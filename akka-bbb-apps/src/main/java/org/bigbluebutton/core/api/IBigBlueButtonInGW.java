@@ -72,29 +72,6 @@ public interface IBigBlueButtonInGW {
 	void voiceRecording(String meetingId, String recordingFile, 
 			            String timestamp, Boolean recording);
 
-	// Presentation
-	void clear(String meetingID);
-	void removePresentation(String meetingID, String presentationID);
-	void getPresentationInfo(String meetingID, String requesterID, String replyTo);
-	void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio);
-	void gotoSlide(String meetingID, String page);
-	void sharePresentation(String meetingID, String presentationID, boolean share);
-	void getSlideInfo(String meetingID, String requesterID, String replyTo);
-
-	void sendConversionUpdate(String messageKey, String meetingId, 
-            String code, String presId, String presName); 
-
-	void sendPageCountError(String messageKey, String meetingId, 
-            String code, String presId, int numberOfPages,
-            int maxNumberPages, String presName);
-
-	void sendSlideGenerated(String messageKey, String meetingId, 
-            String code, String presId, int numberOfPages,
-            int pagesCompleted, String presName);
-
-	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presId, int numPages, String presName, String presBaseUrl, boolean downloadable);
-
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
 	void broadcastLayout(String meetingID, String requesterID, String layout);
