@@ -118,20 +118,6 @@ case class LockLayoutRequest(meetingID: String, setById: String, lock: Boolean, 
   layout: Option[String]) extends InMessage
 case class BroadcastLayoutRequest(meetingID: String, requesterID: String, layout: String) extends InMessage
 
-/////////////////////////////////////////////////////////////////////////////////////  
-// Polling
-////////////////////////////////////////////////////////////////////////////////////
-
-//case class CreatePollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StartCustomPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String, answers: Seq[String]) extends InMessage
-case class StartPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StopPollRequest(meetingID: String, requesterId: String) extends InMessage
-case class ShowPollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
-case class HidePollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
-case class RespondToPollRequest(meetingID: String, requesterId: String, pollId: String, questionId: Int, answerId: Int) extends InMessage
-case class GetPollRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
-case class GetCurrentPollRequest(meetingID: String, requesterId: String) extends InMessage
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Voice
 ///////////////////////////////////////////////////////////////////////////////////

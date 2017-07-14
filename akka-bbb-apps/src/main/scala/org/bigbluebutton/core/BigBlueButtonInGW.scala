@@ -4,15 +4,12 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 
 import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.{ Presentation }
 import akka.actor.ActorSystem
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
-import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import akka.event.Logging
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.models.{ GuestPolicyType, Roles }
 
 import scala.collection.JavaConverters
@@ -32,12 +29,6 @@ class BigBlueButtonInGW(
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
     message match {
-      case msg: StartCustomPollRequestMessage => {
-        eventBus.publish(
-          BigBlueButtonEvent(msg.payload.meetingId,
-            new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId,
-              msg.payload.pollId, msg.payload.pollType, msg.payload.answers)))
-      }
       case msg: PubSubPingMessage => {
         eventBus.publish(
           BigBlueButtonEvent("meeting-manager", new PubSubPing(msg.payload.system, msg.payload.timestamp)))
@@ -417,26 +408,5 @@ class BigBlueButtonInGW(
 
   def deskShareGetInfoRequest(meetingId: String, requesterId: String, replyTo: String): Unit = {
     eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareGetDeskShareInfoRequest(meetingId, requesterId, replyTo)))
-  }
-
-  // Polling
-  def votePoll(meetingId: String, userId: String, pollId: String, questionId: Integer, answerId: Integer) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new RespondToPollRequest(meetingId, userId, pollId, questionId, answerId)))
-  }
-
-  def startPoll(meetingId: String, requesterId: String, pollId: String, pollType: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new StartPollRequest(meetingId, requesterId, pollId, pollType)))
-  }
-
-  def stopPoll(meetingId: String, userId: String, pollId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new StopPollRequest(meetingId, userId)))
-  }
-
-  def showPollResult(meetingId: String, requesterId: String, pollId: String, show: java.lang.Boolean) {
-    if (show) {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new ShowPollResultRequest(meetingId, requesterId, pollId)))
-    } else {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new HidePollResultRequest(meetingId, requesterId, pollId)))
-    }
   }
 }

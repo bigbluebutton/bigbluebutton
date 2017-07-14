@@ -13,31 +13,6 @@ public class MessagePublisher {
 		this.sender = sender;
 	}
 	
-	// Polling 
-	public void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId) {
-		VotePollUserRequestMessage msg = new VotePollUserRequestMessage(meetingId, userId, pollId, questionId, answerId);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-
-	public void sendPollingMessage(String json) {		
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, json);
-	}
-	
-	public void startPoll(String meetingId, String requesterId, String pollId, String pollType) {
-		StartPollRequestMessage msg = new StartPollRequestMessage(meetingId, requesterId, pollId, pollType);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-	
-	public void stopPoll(String meetingId, String userId, String pollId) {
-		StopPollRequestMessage msg = new StopPollRequestMessage(meetingId, userId, pollId);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-	
-	public void showPollResult(String meetingId, String requesterId, String pollId, Boolean show) {
-		ShowPollResultRequestMessage msg = new ShowPollResultRequestMessage(meetingId, requesterId, pollId, show);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-	
 	public void initLockSettings(String meetingID, Map<String, Boolean> permissions) {
 		InitPermissionsSettingMessage msg = new InitPermissionsSettingMessage(meetingID, permissions);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
