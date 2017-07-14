@@ -23,7 +23,7 @@ class ReceivedJsonMsgHandlerActor(
 
   def receive = {
     case msg: ReceivedJsonMessage =>
-      log.debug("handling {} - {}", msg.channel, msg.data)
+      //      log.debug("handling {} - {}", msg.channel, msg.data)
       handleReceivedJsonMessage(msg)
     case _ => // do nothing
   }
