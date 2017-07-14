@@ -80,14 +80,6 @@ case class StartRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceCo
 case class StopRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceConfId: String, recordedStream: String) extends IOutMessage
 case class StopRecording(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
 
-// Layout
-case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
-  locked: Boolean, setByUserID: String) extends IOutMessage
-case class BroadcastLayoutEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  layoutID: String, locked: Boolean, setByUserID: String, applyTo: Array[UserVO]) extends IOutMessage
-case class LockLayoutEvent(meetingID: String, recorded: Boolean, setById: String, locked: Boolean,
-  applyTo: Array[UserVO]) extends IOutMessage
-
 // No idea what part this is for
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 

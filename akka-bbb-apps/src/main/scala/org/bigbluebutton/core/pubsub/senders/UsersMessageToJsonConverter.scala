@@ -237,22 +237,6 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def broadcastLayout(msg: BroadcastLayoutEvent): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-
-    val users = new java.util.ArrayList[String];
-    msg.applyTo.foreach(uvo => {
-      users.add(uvo.id)
-    })
-
-    payload.put(Constants.USERS, users)
-
-    val header = Util.buildHeader(MessageNames.GET_USERS_REPLY, None)
-    Util.buildJson(header, payload)
-  }
-
   def getUsersReplyToJson(msg: GetUsersReply): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
