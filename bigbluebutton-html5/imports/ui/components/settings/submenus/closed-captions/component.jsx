@@ -188,7 +188,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                   </div>
                 </div>
                 <div className={styles.col}>
-                  <div
+                  <label
                     className={cx(styles.formElement, styles.pullContentRight)}
                     aria-label={intl.formatMessage(intlMessages.languageLabel)}
                   >
@@ -209,7 +209,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                         </option>),
                       ) : null }
                     </select>
-                  </div>
+                  </label>
                 </div>
               </div>
 
@@ -222,7 +222,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                   </div>
                 </div>
                 <div className={styles.col}>
-                  <div
+                  <label
                     className={cx(styles.formElement, styles.pullContentRight)}
                     aria-label={intl.formatMessage(intlMessages.fontFamilyLabel)}
                   >
@@ -242,7 +242,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                         )
                       }
                     </select>
-                  </div>
+                  </label>
                 </div>
               </div>
 
@@ -255,7 +255,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                   </div>
                 </div>
                 <div className={styles.col}>
-                  <div
+                  <label
                     className={cx(styles.formElement, styles.pullContentRight)}
                     aria-label={intl.formatMessage(intlMessages.fontSizeLabel)}
                   >
@@ -275,7 +275,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                           )
                         }
                     </select>
-                  </div>
+                  </label>
                 </div>
               </div>
 

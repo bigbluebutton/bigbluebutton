@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-
+import Modal from 'react-modal';
 import _ from 'lodash';
 
 import ModalContainer from '../modal/container';
@@ -55,6 +55,10 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const locale = this.props.locale;
+
+    Modal.setAppElement('#app');
+    document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
