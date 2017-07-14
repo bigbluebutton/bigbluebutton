@@ -101,7 +101,7 @@ object Polls {
   }
 
   def handleRespondToPollReqMsg(requesterId: String, pollId: String, questionId: Int, answerId: Int,
-    lm: LiveMeeting): Option[(String, String, SimplePollResultOutVO)] = {
+                                lm: LiveMeeting): Option[(String, String, SimplePollResultOutVO)] = {
 
     for {
       curPres <- Users2x.findPresenter(lm.users2x)
@@ -114,7 +114,7 @@ object Polls {
   }
 
   def handleStartCustomPollReqMsg(requesterId: String, pollId: String, pollType: String,
-    answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
+                                  answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
       for {
@@ -142,7 +142,7 @@ object Polls {
   // Helper methods:
   //
   private def handleRespondToPoll(poll: SimplePollResultOutVO, requesterId: String, pollId: String, questionId: Int,
-    answerId: Int, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
+                                  answerId: Int, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
     /*
    * Hardcode to zero as we are assuming the poll has only one question.
    * Our data model supports multiple question polls but for this

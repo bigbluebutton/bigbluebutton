@@ -76,10 +76,31 @@ trait AppsTestFixtures {
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
-  // We extract the meeting handlers into this class so it is
-  // easy to test.
-  val liveMeeting = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
-    registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
-    notesModel, webcams, voiceUsers, users2x, guestsWaiting)
+  def newLiveMeeting(): LiveMeeting = {
+    val chatModel = new ChatModel()
+    val layoutModel = new LayoutModel()
+    val layouts = new Layouts()
+    val pollModel = new PollModel()
+    val wbModel = new WhiteboardModel()
+    val presModel = new PresentationModel()
+    val breakoutRooms = new BreakoutRooms()
+    val captionModel = new CaptionModel()
+    val notesModel = new SharedNotesModel()
+    val registeredUsers = new RegisteredUsers
+    val meetingStatux2x = new MeetingStatus2x
+    val webcams = new Webcams
+    val voiceUsers = new VoiceUsers
+    val users2x = new Users2x
+    val polls2x = new Polls
+    val guestsWaiting = new GuestsWaiting
+    val deskshareModel = new ScreenshareModel
 
+    // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
+
+    // We extract the meeting handlers into this class so it is
+    // easy to test.
+    new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
+      registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
+      notesModel, webcams, voiceUsers, users2x, guestsWaiting)
+  }
 }

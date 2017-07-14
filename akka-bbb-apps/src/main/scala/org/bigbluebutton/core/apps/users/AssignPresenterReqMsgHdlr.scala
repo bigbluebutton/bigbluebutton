@@ -10,8 +10,10 @@ trait AssignPresenterReqMsgHdlr {
 
     def broadcastPresenterChange(oldPres: UserState, newPres: UserState): Unit = {
       // unassign old presenter
-      val routingUnassign = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        this.liveMeeting.props.meetingProp.intId, oldPres.intId)
+      val routingUnassign = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        this.liveMeeting.props.meetingProp.intId, oldPres.intId
+      )
       val envelopeUnassign = BbbCoreEnvelope(PresenterUnassignedEvtMsg.NAME, routingUnassign)
       val headerUnassign = BbbClientMsgHeader(PresenterUnassignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
         oldPres.intId)
@@ -22,8 +24,10 @@ trait AssignPresenterReqMsgHdlr {
       outGW.send(msgEventUnassign)
 
       // set new presenter
-      val routingAssign = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        this.liveMeeting.props.meetingProp.intId, newPres.intId)
+      val routingAssign = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        this.liveMeeting.props.meetingProp.intId, newPres.intId
+      )
       val envelopeAssign = BbbCoreEnvelope(PresenterAssignedEvtMsg.NAME, routingAssign)
       val headerAssign = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
         newPres.intId)

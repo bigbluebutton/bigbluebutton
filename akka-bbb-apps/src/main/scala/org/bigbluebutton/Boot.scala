@@ -15,7 +15,8 @@ object Boot extends App with SystemConfiguration {
   implicit val executor = system.dispatcher
   val logger = Logging(system, getClass)
 
-  val eventBus = new IncomingEventBus
+  val eventBus = new InMsgBusGW(new IncomingEventBusImp())
+
   val outgoingEventBus = new OutgoingEventBus
   val outBus2 = new OutEventBus2
   val recordingEventBus = new RecordingEventBus

@@ -7,7 +7,6 @@ trait UsersApp2x
     extends RegisterUserReqMsgHdlr
     with ChangeUserRoleCmdMsgHdlr
     with SyncGetUsersMeetingRespMsgHdlr
-    with ValidateAuthTokenReqMsgHdlr
     with UserLeaveReqMsgHdlr
     with LogoutAndEndMeetingCmdMsgHdlr
     with MeetingActivityResponseCmdMsgHdlr

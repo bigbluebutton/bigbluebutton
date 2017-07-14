@@ -20,7 +20,7 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
 
     def read(json: JsValue): MessageType.MessageType = json match {
       case JsString(str) => MessageType.withName(str)
-      case _ => throw new DeserializationException("Enum string expected")
+      case _             => throw new DeserializationException("Enum string expected")
     }
   }
 

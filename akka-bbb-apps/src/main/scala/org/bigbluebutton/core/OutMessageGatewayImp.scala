@@ -6,15 +6,19 @@ import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.core.bus._
 
 object OutMessageGatewayImp {
-  def apply(outgoingEventBus: OutgoingEventBus,
-    outBus2: OutEventBus2,
-    recordBus: RecordingEventBus) =
+  def apply(
+    outgoingEventBus: OutgoingEventBus,
+    outBus2:          OutEventBus2,
+    recordBus:        RecordingEventBus
+  ) =
     new OutMessageGatewayImp(outgoingEventBus, outBus2, recordBus)
 }
 
-class OutMessageGatewayImp(outgoingEventBus: OutgoingEventBus,
-  outBus2: OutEventBus2,
-  recordBus: RecordingEventBus) extends OutMessageGateway
+class OutMessageGatewayImp(
+  outgoingEventBus: OutgoingEventBus,
+  outBus2:          OutEventBus2,
+  recordBus:        RecordingEventBus
+) extends OutMessageGateway
     with SystemConfiguration {
 
   def send1(msg: IOutMessage) {

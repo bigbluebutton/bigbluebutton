@@ -19,8 +19,10 @@ trait EjectUserFromMeetingCmdMsgHdlr {
       RegisteredUsers.remove(msg.body.userId, liveMeeting.registeredUsers)
 
       // send a message to client
-      val ejectFromMeetingClientEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(liveMeeting.props.meetingProp.intId,
-        user.intId, msg.body.ejectedBy)
+      val ejectFromMeetingClientEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        user.intId, msg.body.ejectedBy
+      )
       outGW.send(ejectFromMeetingClientEvent)
       log.info("Ejecting user from meeting (client msg).  meetingId=" + liveMeeting.props.meetingProp.intId +
         " userId=" + msg.body.userId)
@@ -39,8 +41,10 @@ trait EjectUserFromMeetingCmdMsgHdlr {
       for {
         vu <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
       } yield {
-        val ejectFromVoiceEvent = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId,
-          liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId)
+        val ejectFromVoiceEvent = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(
+          liveMeeting.props.meetingProp.intId,
+          liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
+        )
         outGW.send(ejectFromVoiceEvent)
         log.info("Ejecting user from voice.  meetingId=" + liveMeeting.props.meetingProp.intId + " userId=" + vu.intId)
       }

@@ -25,6 +25,7 @@ resolvers ++= Seq(
 )
 
 resolvers += Resolver.sonatypeRepo("releases")
+resolvers += Resolver.typesafeRepo("releases")
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
 
@@ -90,9 +91,21 @@ libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.3" % "test"
 libraryDependencies += "org.mockito" % "mockito-core" % "2.7.22" % "test"
 
 
-seq(Revolver.settings: _*)
 
-scalariformSettings
+
+import com.typesafe.sbt.SbtScalariform
+
+import scalariform.formatter.preferences._
+import com.typesafe.sbt.SbtScalariform.ScalariformKeys
+
+SbtScalariform.defaultScalariformSettings
+
+ScalariformKeys.preferences := ScalariformKeys.preferences.value
+  .setPreference(AlignSingleLineCaseStatements, true)
+  .setPreference(DoubleIndentClassDeclaration, true)
+  .setPreference(AlignParameters, true)
+
+
 
 
 //-----------

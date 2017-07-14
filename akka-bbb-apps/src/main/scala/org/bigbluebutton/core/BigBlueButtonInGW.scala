@@ -19,9 +19,10 @@ import scala.collection.JavaConverters
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
-    eventBus: IncomingEventBus,
-    bbbMsgBus: BbbMsgRouterEventBus,
-    outGW: OutMessageGateway) extends IBigBlueButtonInGW with SystemConfiguration {
+    eventBus:   IncomingEventBus,
+    bbbMsgBus:  BbbMsgRouterEventBus,
+    outGW:      OutMessageGateway
+) extends IBigBlueButtonInGW with SystemConfiguration {
 
   val log = Logging(system, getClass)
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW), "bigbluebutton-actor")
@@ -34,22 +35,26 @@ class BigBlueButtonInGW(
     message match {
       case msg: StartCustomPollRequestMessage => {
         eventBus.publish(
-          BigBlueButtonEvent(msg.payload.meetingId,
+          BigBlueButtonEvent(
+            msg.payload.meetingId,
             new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId,
-              msg.payload.pollId, msg.payload.pollType, msg.payload.answers)))
+              msg.payload.pollId, msg.payload.pollType, msg.payload.answers)
+          )
+        )
       }
       case msg: PubSubPingMessage => {
         eventBus.publish(
-          BigBlueButtonEvent("meeting-manager", new PubSubPing(msg.payload.system, msg.payload.timestamp)))
+          BigBlueButtonEvent("meeting-manager", new PubSubPing(msg.payload.system, msg.payload.timestamp))
+        )
       }
 
       case msg: CreateMeetingRequest => {
         val policy = msg.payload.guestPolicy.toUpperCase() match {
           case "ALWAYS_ACCEPT" => GuestPolicyType.ALWAYS_ACCEPT
-          case "ALWAYS_DENY" => GuestPolicyType.ALWAYS_DENY
+          case "ALWAYS_DENY"   => GuestPolicyType.ALWAYS_DENY
           case "ASK_MODERATOR" => GuestPolicyType.ASK_MODERATOR
           //default
-          case undef => GuestPolicyType.ASK_MODERATOR
+          case undef           => GuestPolicyType.ASK_MODERATOR
         }
         /*
         val mProps = new MeetingProperties(
@@ -84,18 +89,18 @@ class BigBlueButtonInGW(
   def handleJsonMessage(json: String) {
     JsonMessageDecoder.decode(json) match {
       case Some(validMsg) => forwardMessage(validMsg)
-      case None => log.error("Unhandled json message: {}", json)
+      case None           => log.error("Unhandled json message: {}", json)
     }
   }
 
   def forwardMessage(msg: InMessage) = {
     msg match {
-      case m: BreakoutRoomsListMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: BreakoutRoomsListMessage        => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: CreateBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: TransferUserToMeetingRequest => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: EndAllBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case _ => log.error("Unhandled message: {}", msg)
+      case m: TransferUserToMeetingRequest    => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: EndAllBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case _                                  => log.error("Unhandled message: {}", msg)
     }
   }
 
@@ -105,7 +110,10 @@ class BigBlueButtonInGW(
       BigBlueButtonEvent(
         "meeting-manager",
         new DestroyMeeting(
-          meetingID)))
+          meetingID
+        )
+      )
+    )
   }
 
   def getAllMeetings(meetingID: String) {
@@ -117,7 +125,7 @@ class BigBlueButtonInGW(
   }
 
   def lockSettings(meetingID: String, locked: java.lang.Boolean,
-    lockSettings: java.util.Map[String, java.lang.Boolean]) {
+                   lockSettings: java.util.Map[String, java.lang.Boolean]) {
   }
 
   def statusMeetingAudit(meetingID: String) {
@@ -146,7 +154,7 @@ class BigBlueButtonInGW(
   }
 
   def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String,
-    authToken: String, avatarURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean): Unit = {
+                   authToken: String, avatarURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean): Unit = {
     val userRole = if (role == "MODERATOR") Roles.MODERATOR_ROLE else Roles.VIEWER_ROLE
     eventBus.publish(BigBlueButtonEvent(meetingID, new RegisterUser(meetingID, userID, name, userRole,
       extUserID, authToken, avatarURL, guest, authed)))
@@ -166,13 +174,15 @@ class BigBlueButtonInGW(
     val lockOnJoin = s.getOrElse("lockOnJoin", false)
     val lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
 
-    val permissions = new Permissions(disableCam = disableCam,
+    val permissions = new Permissions(
+      disableCam = disableCam,
       disableMic = disableMic,
       disablePrivChat = disablePrivChat,
       disablePubChat = disablePubChat,
       lockedLayout = lockedLayout,
       lockOnJoin = lockOnJoin,
-      lockOnJoinConfigurable = lockOnJoinConfigurable)
+      lockOnJoinConfigurable = lockOnJoinConfigurable
+    )
 
     eventBus.publish(BigBlueButtonEvent(meetingID, new SetLockSettings(meetingID, userId, permissions)))
   }
@@ -190,13 +200,15 @@ class BigBlueButtonInGW(
     val lockedLayout = s.getOrElse("lockedLayout", false)
     val lockOnJoin = s.getOrElse("lockOnJoin", false)
     val lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
-    val permissions = new Permissions(disableCam = disableCam,
+    val permissions = new Permissions(
+      disableCam = disableCam,
       disableMic = disableMic,
       disablePrivChat = disablePrivChat,
       disablePubChat = disablePubChat,
       lockedLayout = lockedLayout,
       lockOnJoin = lockOnJoin,
-      lockOnJoinConfigurable = lockOnJoinConfigurable)
+      lockOnJoinConfigurable = lockOnJoinConfigurable
+    )
 
     eventBus.publish(BigBlueButtonEvent(meetingID, new InitLockSettings(meetingID, permissions)))
   }
@@ -263,8 +275,10 @@ class BigBlueButtonInGW(
   }
 
   def checkIfAllowedToShareDesktop(meetingID: String, userID: String): Unit = {
-    eventBus.publish(BigBlueButtonEvent(meetingID, AllowUserToShareDesktop(meetingID: String,
-      userID: String)))
+    eventBus.publish(BigBlueButtonEvent(meetingID, AllowUserToShareDesktop(
+      meetingID: String,
+      userID: String
+    )))
   }
 
   def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String): Unit = {
@@ -300,10 +314,10 @@ class BigBlueButtonInGW(
   def setGuestPolicy(meetingId: String, guestPolicy: String, requesterId: String) {
     val policy = guestPolicy.toUpperCase() match {
       case "ALWAYS_ACCEPT" => GuestPolicyType.ALWAYS_ACCEPT
-      case "ALWAYS_DENY" => GuestPolicyType.ALWAYS_DENY
+      case "ALWAYS_DENY"   => GuestPolicyType.ALWAYS_DENY
       case "ASK_MODERATOR" => GuestPolicyType.ASK_MODERATOR
       //default
-      case undef => GuestPolicyType.ASK_MODERATOR
+      case undef           => GuestPolicyType.ASK_MODERATOR
     }
     eventBus.publish(BigBlueButtonEvent(meetingId, new SetGuestPolicy(meetingId, policy, requesterId)))
   }
@@ -442,7 +456,7 @@ class BigBlueButtonInGW(
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-    callerIdNum: String, muted: java.lang.Boolean, avatarURL: String, talking: java.lang.Boolean) {
+                      callerIdNum: String, muted: java.lang.Boolean, avatarURL: String, talking: java.lang.Boolean) {
     eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
       callerIdNum, muted, talking, avatarURL, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )))
   }

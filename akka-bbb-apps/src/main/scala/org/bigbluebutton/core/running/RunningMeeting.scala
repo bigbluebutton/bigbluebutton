@@ -10,12 +10,12 @@ import org.bigbluebutton.core2.MeetingStatus2x
 
 object RunningMeeting {
   def apply(props: DefaultProps, outGW: OutMessageGateway,
-    eventBus: IncomingEventBus)(implicit context: ActorContext) =
+            eventBus: IncomingEventBus)(implicit context: ActorContext) =
     new RunningMeeting(props, outGW, eventBus)(context)
 }
 
 class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
-    val eventBus: IncomingEventBus)(implicit val context: ActorContext) {
+                     val eventBus: IncomingEventBus)(implicit val context: ActorContext) {
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()

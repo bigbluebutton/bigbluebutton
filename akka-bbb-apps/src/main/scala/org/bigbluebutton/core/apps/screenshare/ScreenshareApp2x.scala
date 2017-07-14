@@ -5,8 +5,10 @@ import akka.event.Logging
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.LiveMeeting
 
-class ScreenshareApp2x(val liveMeeting: LiveMeeting,
-  val outGW: OutMessageGateway)(implicit val context: ActorContext)
+class ScreenshareApp2x(
+  val liveMeeting: LiveMeeting,
+  val outGW:       OutMessageGateway
+)(implicit val context: ActorContext)
     extends ScreenshareStartedVoiceConfEvtMsgHdlr
     with ScreenshareStoppedVoiceConfEvtMsgHdlr
     with ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr

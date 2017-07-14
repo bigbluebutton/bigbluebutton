@@ -16,7 +16,9 @@ trait SendBreakoutUsersUpdateMsgHdlr {
 
     val users = Users2x.findAll(liveMeeting.users2x)
     val breakoutUsers = users map { u => new BreakoutUserVO(u.extId, u.name) }
-    eventBus.publish(BigBlueButtonEvent(props.breakoutProps.parentId,
-      new BreakoutRoomUsersUpdate(props.breakoutProps.parentId, props.meetingProp.intId, breakoutUsers)))
+    eventBus.publish(BigBlueButtonEvent(
+      props.breakoutProps.parentId,
+      new BreakoutRoomUsersUpdate(props.breakoutProps.parentId, props.meetingProp.intId, breakoutUsers)
+    ))
   }
 }

@@ -88,7 +88,7 @@ object Users2x {
   def hasPresenter(users: Users2x): Boolean = {
     findPresenter(users) match {
       case Some(p) => true
-      case None => false
+      case None    => false
     }
   }
 
@@ -144,8 +144,8 @@ class Users2x {
 }
 
 case class UserState(intId: String, extId: String, name: String, role: String,
-  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
-  presenter: Boolean, avatar: String)
+                     guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
+                     presenter: Boolean, avatar: String)
 
 case class UserIdAndName(id: String, name: String)
 

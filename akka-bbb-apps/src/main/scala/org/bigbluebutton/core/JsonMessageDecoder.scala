@@ -50,7 +50,7 @@ object JsonMessageDecoder {
   def decode(json: String): Option[InMessage] = {
     unmarshall(json) match {
       case Success(validMsg) => Some(validMsg)
-      case Failure(ex) => None
+      case Failure(ex)       => None
     }
   }
 

@@ -10,7 +10,7 @@ case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recording
 case class RecordingStatusChanged(meetingID: String, recorded: Boolean, userId: String, recording: Boolean) extends IOutMessage
 case class GetRecordingStatusReply(meetingID: String, recorded: Boolean, userId: String, recording: Boolean) extends IOutMessage
 case class MeetingCreated(meetingID: String, externalMeetingID: String, parentMeetingID: String, recorded: Boolean, name: String,
-  voiceBridge: String, duration: Int, moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean) extends IOutMessage
+                          voiceBridge: String, duration: Int, moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean) extends IOutMessage
 case class MeetingMuted(meetingID: String, recorded: Boolean, meetingMuted: Boolean) extends IOutMessage
 case class MeetingEnding(meetingID: String) extends IOutMessage
 case class MeetingEnded(meetingID: String, recorded: Boolean, voiceBridge: String) extends IOutMessage
@@ -30,8 +30,8 @@ case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[Breakout
 case class CreateBreakoutRoom(meetingId: String, room: BreakoutRoomOutPayload) extends IOutMessage
 case class EndBreakoutRoom(breakoutMeetingId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutMeetingId: String, name: String, parentId: String, sequence: Integer,
-  voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
-  sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
+                                  voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
+                                  sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
 case class BreakoutRoomJoinURLOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, userId: String, redirectJoinURL: String, noRedirectJoinURL: String) extends IOutMessage
 case class BreakoutRoomStartedOutMessage(parentMeetingId: String, recorded: Boolean, breakout: BreakoutRoomInfo) extends IOutMessage
 case class UpdateBreakoutUsersOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, users: Vector[BreakoutUserVO]) extends IOutMessage
@@ -64,7 +64,7 @@ case class UserStatusChange(meetingID: String, recorded: Boolean, userID: String
 case class UserRoleChange(meetingID: String, recorded: Boolean, userID: String, role: String) extends IOutMessage
 case class GetUsersInVoiceConference(meetingID: String, recorded: Boolean, voiceConfId: String) extends IOutMessage
 case class MuteVoiceUser(meetingID: String, recorded: Boolean, requesterID: String,
-  userId: String, voiceConfId: String, voiceUserId: String, mute: Boolean) extends IOutMessage
+                         userId: String, voiceConfId: String, voiceUserId: String, mute: Boolean) extends IOutMessage
 case class UserVoiceMuted(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserVoiceTalking(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class EjectVoiceUser(meetingID: String, recorded: Boolean, requesterID: String, userId: String, voiceConfId: String, voiceUserId: String) extends IOutMessage
@@ -82,30 +82,30 @@ case class StopRecording(meetingID: String, recorded: Boolean, requesterID: Stri
 
 // Layout
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
-  locked: Boolean, setByUserID: String) extends IOutMessage
+                                 locked: Boolean, setByUserID: String) extends IOutMessage
 case class BroadcastLayoutEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  layoutID: String, locked: Boolean, setByUserID: String, applyTo: Array[UserVO]) extends IOutMessage
+                                layoutID: String, locked: Boolean, setByUserID: String, applyTo: Array[UserVO]) extends IOutMessage
 case class LockLayoutEvent(meetingID: String, recorded: Boolean, setById: String, locked: Boolean,
-  applyTo: Array[UserVO]) extends IOutMessage
+                           applyTo: Array[UserVO]) extends IOutMessage
 
 // Presentation
 case class ClearPresentationOutMsg(meetingID: String, recorded: Boolean) extends IOutMessage
 case class RemovePresentationOutMsg(meetingID: String, recorded: Boolean, presentationID: String) extends IOutMessage
 case class GetPresentationInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String,
-  info: CurrentPresentationInfo, replyTo: String) extends IOutMessage
+                                     info: CurrentPresentationInfo, replyTo: String) extends IOutMessage
 case class ResizeAndMoveSlideOutMsg(meetingID: String, recorded: Boolean, page: Page) extends IOutMessage
 case class GotoSlideOutMsg(meetingID: String, recorded: Boolean, page: Page) extends IOutMessage
 case class SharePresentationOutMsg(meetingID: String, recorded: Boolean, presentation: Presentation) extends IOutMessage
 case class GetSlideInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, page: Page, replyTo: String) extends IOutMessage
 case class GetPreuploadedPresentationsOutMsg(meetingID: String, recorded: Boolean) extends IOutMessage
 case class PresentationConversionProgress(meetingID: String, messageKey: String, code: String,
-  presentationId: String, presentationName: String) extends IOutMessage
+                                          presentationId: String, presentationName: String) extends IOutMessage
 case class PresentationConversionError(meetingID: String, messageKey: String, code: String,
-  presentationId: String, numberOfPages: Int, maxNumberPages: Int, presentationName: String) extends IOutMessage
+                                       presentationId: String, numberOfPages: Int, maxNumberPages: Int, presentationName: String) extends IOutMessage
 case class PresentationPageGenerated(meetingID: String, messageKey: String, code: String, presentationId: String,
-  numberOfPages: Int, pagesCompleted: Int, presentationName: String) extends IOutMessage
+                                     numberOfPages: Int, pagesCompleted: Int, presentationName: String) extends IOutMessage
 case class PresentationConversionDone(meetingID: String, recorded: Boolean, messageKey: String, code: String,
-  presentation: Presentation) extends IOutMessage
+                                      presentation: Presentation) extends IOutMessage
 case class PresentationChanged(meetingID: String, presentation: Presentation) extends IOutMessage
 case class GetPresentationStatusReply(meetingID: String, presentations: Seq[Presentation], current: Presentation, replyTo: String) extends IOutMessage
 case class PresentationRemoved(meetingID: String, presentationId: String) extends IOutMessage

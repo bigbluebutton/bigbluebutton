@@ -218,16 +218,15 @@ class WhiteboardModel {
   def cleansePointsInAnnotation(ann: AnnotationVO): AnnotationVO = {
     var updatedAnnotationInfo = ann.annotationInfo
     ann.annotationInfo.get("points").foreach(points =>
-      updatedAnnotationInfo = (ann.annotationInfo + ("points" -> convertListNumbersToFloat(points.asInstanceOf[List[_]])))
-    )
+      updatedAnnotationInfo = (ann.annotationInfo + ("points" -> convertListNumbersToFloat(points.asInstanceOf[List[_]]))))
     ann.copy(annotationInfo = updatedAnnotationInfo)
   }
 
   def convertListNumbersToFloat(list: List[_]): List[Float] = {
     list.map {
       case f: Double => f.toFloat
-      case f: Float => f
-      case f: Int => f.toFloat
+      case f: Float  => f
+      case f: Int    => f.toFloat
     }.asInstanceOf[List[Float]]
   }
 }

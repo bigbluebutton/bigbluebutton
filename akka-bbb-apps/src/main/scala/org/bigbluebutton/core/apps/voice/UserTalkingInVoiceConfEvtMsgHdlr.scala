@@ -14,12 +14,16 @@ trait UserTalkingInVoiceConfEvtMsgHdlr {
   def handleUserTalkingInVoiceConfEvtMsg(msg: UserTalkingInVoiceConfEvtMsg): Unit = {
 
     def broadcastEvent(vu: VoiceUserState): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
+      val routing = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId,
-        vu.intId)
+        vu.intId
+      )
       val envelope = BbbCoreEnvelope(UserTalkingVoiceEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UserTalkingVoiceEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, vu.intId)
+      val header = BbbClientMsgHeader(
+        UserTalkingVoiceEvtMsg.NAME,
+        liveMeeting.props.meetingProp.intId, vu.intId
+      )
 
       val body = UserTalkingVoiceEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId, vu.talking)
 

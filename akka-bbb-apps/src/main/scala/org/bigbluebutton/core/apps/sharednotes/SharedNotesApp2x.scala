@@ -5,8 +5,10 @@ import akka.event.Logging
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.LiveMeeting
 
-class SharedNotesApp2x(val liveMeeting: LiveMeeting,
-  val outGW: OutMessageGateway)(implicit val context: ActorContext)
+class SharedNotesApp2x(
+  val liveMeeting: LiveMeeting,
+  val outGW:       OutMessageGateway
+)(implicit val context: ActorContext)
     extends GetSharedNotesPubMsgHdlr
     with SyncSharedNotePubMsgHdlr
     with UpdateSharedNoteReqMsgHdlr

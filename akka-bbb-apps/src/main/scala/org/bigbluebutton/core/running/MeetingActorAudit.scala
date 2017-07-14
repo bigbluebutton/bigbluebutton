@@ -20,17 +20,21 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{ Deadline, FiniteDuration }
 
 object MeetingActorInternal {
-  def props(props: DefaultProps,
+  def props(
+    props:    DefaultProps,
     eventBus: IncomingEventBus,
-    outGW: OutMessageGateway): Props =
+    outGW:    OutMessageGateway
+  ): Props =
     Props(classOf[MeetingActorInternal], props, eventBus, outGW)
 }
 
 // This actor is an internal audit actor for each meeting actor that
 // periodically sends messages to the meeting actor
-class MeetingActorInternal(val props: DefaultProps,
-  val eventBus: IncomingEventBus, val outGW: OutMessageGateway)
-    extends Actor with ActorLogging with SystemConfiguration {
+class MeetingActorInternal(
+  val props:    DefaultProps,
+  val eventBus: IncomingEventBus, val outGW: OutMessageGateway
+)
+    extends Actor with ActorLogging with SystemConfiguration with AuditHelpers {
 
   object AuditMonitorInternalMsg
 
@@ -47,7 +51,7 @@ class MeetingActorInternal(val props: DefaultProps,
   private def getInactivityDeadline(): Int = {
     val time = getMetadata(Metadata.INACTIVITY_DEADLINE, props.metadataProp.metadata) match {
       case Some(result) => result.asInstanceOf[Int]
-      case None => inactivityDeadline
+      case None         => inactivityDeadline
     }
     log.debug("InactivityDeadline: {} seconds", time)
     time
@@ -56,7 +60,7 @@ class MeetingActorInternal(val props: DefaultProps,
   private def getInactivityTimeLeft(): Int = {
     val time = getMetadata(Metadata.INACTIVITY_TIMELEFT, props.metadataProp.metadata) match {
       case Some(result) => result.asInstanceOf[Int]
-      case None => inactivityTimeLeft
+      case None         => inactivityTimeLeft
     }
     log.debug("InactivityTimeLeft: {} seconds", time)
     time
@@ -78,7 +82,7 @@ class MeetingActorInternal(val props: DefaultProps,
 
   private val InactivityDeadline = FiniteDuration(getInactivityDeadline(), "seconds")
   private val InactivityTimeLeft = FiniteDuration(getInactivityTimeLeft(), "seconds")
-  private var inactivity = InactivityDeadline.fromNow
+  private var inactivityDeadlineTime = InactivityDeadline.fromNow
   private var inactivityWarning: Option[Deadline] = None
 
   private val ExpireMeetingDuration = FiniteDuration(props.durationProps.duration, "minutes")
@@ -91,30 +95,17 @@ class MeetingActorInternal(val props: DefaultProps,
   context.system.scheduler.schedule(5 seconds, MonitorFrequency, self, AuditMonitorInternalMsg)
 
   // Query to get voice conference users
-  def buildGetUsersInVoiceConfSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(GetUsersInVoiceConfSysMsg.NAME, routing)
-    val body = GetUsersInVoiceConfSysMsgBody(props.voiceProp.voiceConf)
-    val header = BbbCoreHeaderWithMeetingId(GetUsersInVoiceConfSysMsg.NAME, meetingId)
-    val event = GetUsersInVoiceConfSysMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  val event = buildGetUsersInVoiceConfSysMsg(props.meetingProp.intId)
-  outGW.send(event)
+  getUsersInVoiceConf(props, outGW)
 
   if (props.meetingProp.isBreakout) {
     // This is a breakout room. Inform our parent meeting that we have been successfully created.
-    eventBus.publish(BigBlueButtonEvent(
-      props.breakoutProps.parentId,
-      BreakoutRoomCreated(props.breakoutProps.parentId, props.meetingProp.intId)))
+    sendBreakoutRoomCreatedToParent(props, eventBus)
   }
 
   def receive = {
-    case AuditMonitorInternalMsg => handleMonitor()
+    case AuditMonitorInternalMsg         => handleMonitor()
     case msg: UpdateMeetingExpireMonitor => handleUpdateMeetingExpireMonitor(msg)
-    case msg: Object => handleMessage(msg)
+    case msg: Object                     => handleMessage(msg)
   }
 
   def handleMonitor() {
@@ -146,28 +137,17 @@ class MeetingActorInternal(val props: DefaultProps,
 
     inactivityWarning match {
       case Some(iw) =>
-        if (inactivity.isOverdue() && iw.isOverdue()) {
+        if (inactivityDeadlineTime.isOverdue() && iw.isOverdue()) {
           log.info("Closing meeting {} due to inactivity for {} seconds", props.meetingProp.intId, InactivityDeadline.toSeconds)
-          updateInactivityMonitors()
+          pushInactivityDeadline()
           eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
           // Or else make sure to send only one warning message
         }
       case None =>
-        if (inactivity.isOverdue()) {
+        if (inactivityDeadlineTime.isOverdue()) {
           log.info("Sending inactivity warning to meeting {}", props.meetingProp.intId)
 
-          def build(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {
-            val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
-            val envelope = BbbCoreEnvelope(MeetingInactivityWarningEvtMsg.NAME, routing)
-            val body = MeetingInactivityWarningEvtMsgBody(timeLeftInSec)
-            val header = BbbClientMsgHeader(MeetingInactivityWarningEvtMsg.NAME, meetingId, "not-used")
-            val event = MeetingInactivityWarningEvtMsg(header, body)
-
-            BbbCommonEnvCoreMsg(envelope, event)
-          }
-
-          val event = build(props.meetingProp.intId, InactivityTimeLeft.toSeconds)
-          outGW.send(event)
+          sendMeetingInactivityWarning(props, outGW, InactivityTimeLeft.toSeconds)
 
           // We add 5 seconds so clients will have enough time to process the message
           inactivityWarning = Some((InactivityTimeLeft + (5 seconds)).fromNow)
@@ -198,7 +178,6 @@ class MeetingActorInternal(val props: DefaultProps,
         eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
       }
     }
-
   }
 
   private def handleUpdateMeetingExpireMonitor(msg: UpdateMeetingExpireMonitor) {
@@ -215,8 +194,8 @@ class MeetingActorInternal(val props: DefaultProps,
     }
   }
 
-  private def updateInactivityMonitors() {
-    inactivity = InactivityDeadline.fromNow
+  private def pushInactivityDeadline() {
+    inactivityDeadlineTime = InactivityDeadline.fromNow
     inactivityWarning = None
   }
 
@@ -224,38 +203,26 @@ class MeetingActorInternal(val props: DefaultProps,
     for {
       _ <- inactivityWarning
     } yield {
-      val event = buildMeetingIsActiveEvtMsg(props.meetingProp.intId)
-      outGW.send(event)
+      sendMeetingIsActive(props, outGW)
     }
 
-    updateInactivityMonitors()
-  }
-
-  def buildMeetingIsActiveEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
-    val envelope = BbbCoreEnvelope(MeetingIsActiveEvtMsg.NAME, routing)
-    val body = MeetingIsActiveEvtMsgBody(meetingId)
-    val header = BbbClientMsgHeader(MeetingIsActiveEvtMsg.NAME, meetingId, "not-used")
-    val event = MeetingIsActiveEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
+    pushInactivityDeadline()
   }
 
   private def handleActivityResponse(msg: ActivityResponse) {
     log.info("User endorsed that meeting {} is active", props.meetingProp.intId)
-    updateInactivityMonitors()
-    val event = buildMeetingIsActiveEvtMsg(props.meetingProp.intId)
-    outGW.send(event)
+    pushInactivityDeadline()
+    sendMeetingIsActive(props, outGW)
   }
 
   private def isMeetingActivity(msg: Object): Boolean = {
     // We need to avoid all internal system's messages
     msg match {
-      case msg: MonitorNumberOfUsers => false
+      case msg: MonitorNumberOfUsers    => false
       case msg: SendTimeRemainingUpdate => false
       case msg: SendBreakoutUsersUpdate => false
-      case msg: BreakoutRoomCreated => false
-      case _ => true
+      case msg: BreakoutRoomCreated     => false
+      case _                            => true
     }
   }
 
@@ -272,14 +239,14 @@ class MeetingActorInternal(val props: DefaultProps,
             // Can be defined between 1 minute to 6 hours
             metadataIntegerValueOf(v, 60, 21600) match {
               case Some(r) => Some(r.asInstanceOf[Object])
-              case None => None
+              case None    => None
             }
 
           case Metadata.INACTIVITY_TIMELEFT =>
             // Can be defined between 30 seconds to 30 minutes
             metadataIntegerValueOf(v, 30, 1800) match {
               case Some(r) => Some(r.asInstanceOf[Object])
-              case None => None
+              case None    => None
             }
 
           case _ => None
