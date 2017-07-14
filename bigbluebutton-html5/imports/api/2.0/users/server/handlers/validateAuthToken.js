@@ -68,7 +68,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     }
 
     if (numChanged) {
-      if (valid && !waitForApproval) {
+      if (valid) {
         clearUserSystemMessages(meetingId, userId);
         addWelcomeChatMessage(meetingId, userId);
       }
@@ -78,7 +78,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
       );
     }
 
-    return Logger.info('No auth to validate');
+    Logger.info('No auth to validate');
   };
 
   Users.update(selector, modifier, cb);
