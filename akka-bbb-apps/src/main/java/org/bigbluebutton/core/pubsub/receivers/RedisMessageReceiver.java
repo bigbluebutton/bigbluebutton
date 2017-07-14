@@ -31,9 +31,6 @@ public class RedisMessageReceiver {
 	}
 	
 	private void setupReceivers() {
-		ChatMessageReceiver chatRx = new ChatMessageReceiver(bbbGW);
-		receivers.add(chatRx);
-		
 		LockMessageReceiver lockRx = new LockMessageReceiver(bbbGW);
 		receivers.add(lockRx);
 		
@@ -42,9 +39,6 @@ public class RedisMessageReceiver {
 		
 		UsersMessageReceiver usersRx = new UsersMessageReceiver(bbbGW);
 		receivers.add(usersRx);
-
-		DeskShareMessageReceiver deskShareRx = new DeskShareMessageReceiver(bbbGW);
-		receivers.add(deskShareRx);
 
 		PollingMessageReceiver pollRx = new PollingMessageReceiver(bbbGW);
 		receivers.add(pollRx);

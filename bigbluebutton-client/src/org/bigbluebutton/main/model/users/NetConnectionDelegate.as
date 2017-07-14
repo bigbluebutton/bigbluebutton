@@ -270,8 +270,7 @@ package org.bigbluebutton.main.model.users
             message["userId"] = intUserId;
             message["authToken"] = authToken;
                                 
-            sendMessage(
-                "validateToken",// Remote function name
+            sendMessage("validateToken",// Remote function name
                 // result - On successful result
                 function(result:Object):void { 
               

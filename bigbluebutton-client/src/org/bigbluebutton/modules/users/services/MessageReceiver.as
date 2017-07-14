@@ -88,6 +88,9 @@ package org.bigbluebutton.modules.users.services
         case "PresenterAssignedEvtMsg":
           handleAssignPresenterCallback(message);
           break;
+        case "PresenterUnassignedEvtMsg":
+           handleUnassignPresenterCallback(message);
+          break;
         case "UserBroadcastCamStartedEvtMsg": 
           handleUserBroadcastCamStartedEvtMsg(message);
           break;
@@ -100,10 +103,10 @@ package org.bigbluebutton.modules.users.services
         case "UserLeftVoiceConfToClientEvtMsg":
           handleUserLeftVoiceConfToClientEvtMsg(message);
           break;
-        case "UserTalkingEvtMsg":
+        case "UserTalkingVoiceEvtMsg":
           handleUserTalkingEvtMsg(message);
           break;
-        case "UserMutedEvtMsg":
+        case "UserMutedVoiceEvtMsg":
           handleUserMutedEvtMsg(message);
           break;
         case "GuestsWaitingForApprovalEvtMsg":
@@ -112,7 +115,7 @@ package org.bigbluebutton.modules.users.services
         case "meetingEnded":
           handleLogout(message);
           break;
-        case "meetingEnding":
+        case "MeetingEndingEvtMsg":
           handleMeetingEnding(message);
           break;
         case "meetingHasEnded":
@@ -170,11 +173,14 @@ package org.bigbluebutton.modules.users.services
 		case "BreakoutRoomClosedEvtMsg":
 		  handleBreakoutRoomClosed(message);
 		  break;
-        case "userEjectedFromMeeting":
+        case "UserEjectedFromMeetingEvtMsg":
           handleUserEjectedFromMeeting(message);
           break;
-        case "DeskShareRTMPBroadcastNotification":
-          handleDeskShareRTMPBroadcastNotification(message);
+        case "ScreenshareRtmpBroadcastStartedEvtMsg":
+          handleScreenshareRtmpBroadcastStartedEvtMsg(message);
+          break;
+        case "ScreenshareRtmpBroadcastStoppedEvtMsg":
+          handleScreenshareRtmpBroadcastStoppedEvtMsg(message);
           break;
         case "get_guest_policy_reply":
           handleGetGuestPolicyReply(message);
@@ -409,30 +415,48 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
-    private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
-      var event:WebRTCViewStreamEvent;
-      if (msg.broadcasting) {
-        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
-      } else {
-        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
-      }
 
-      event.videoWidth = msg.width;
-      event.videoHeight = msg.height;
-      event.rtmp = msg.rtmpUrl;
-
+    private function handleScreenshareRtmpBroadcastStartedEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var stream: String = body.stream as String;
+      var vidWidth: Number = body.vidWidth as Number;
+      var vidHeight: Number = body.vidHeight as Number;
+      
+      var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
+      
+      event.videoWidth = vidWidth;
+      event.videoHeight = vidHeight;
+      event.rtmp = stream;
+      
+      dispatcher.dispatchEvent(event);
+    }
+    
+    private function handleScreenshareRtmpBroadcastStoppedEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object
+      var stream: String = body.stream as String;
+      var vidWidth: Number = body.vidWidth as Number;
+      var vidHeight: Number = body.vidHeight as Number;
+      
+      var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
+      
+      event.videoWidth = vidWidth;
+      event.videoHeight = vidHeight;
+      event.rtmp = stream;
+      
       dispatcher.dispatchEvent(event);
     }
 
     private function handleUserEjectedFromMeeting(msg: Object):void {
-        UsersUtil.setUserEjected();
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["users"];
-        logData.status = "user_ejected";
-        logData.message = "User ejected from meeting.";
+      var body: Object = msg.body as Object;
+      var userId:String = body.userId as String;
 
-        LOGGER.info(JSON.stringify(logData));
-      
+      UsersUtil.setUserEjected();
+
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["users"];
+      logData.status = "user_ejected";
+      logData.message = "User ejected from meeting.";
+      LOGGER.info(JSON.stringify(logData));
     }
 
 	private function handleUserLocked(msg:Object):void {
@@ -561,41 +585,44 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     
-      var header:Object = msg.header as Object;
       var body: Object = msg.body as Object;
       
       var newPresenterID:String = body.presenterId as String;
       var newPresenterName:String = body.presenterName as String;
       var assignedBy:String = body.assignedBy as String;
-      
-      if (UsersUtil.isMe(newPresenterID)) {
-        sendSwitchedPresenterEvent(true, newPresenterID);
-        
-        UsersUtil.setMeAsPresenter(true);
-        
-        var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
-        e.userID = newPresenterID;
-        e.presenterName = newPresenterName;
-        e.assignerBy = assignedBy;
-        
-        dispatcher.dispatchEvent(e);	
-        
-      } else {	
-        sendSwitchedPresenterEvent(false, newPresenterID);
-        
-        UsersUtil.setMeAsPresenter(false);
-        var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-        viewerEvent.userID = newPresenterID;
-        viewerEvent.presenterName = newPresenterName;
-        viewerEvent.assignerBy = assignedBy;
-        
-        dispatcher.dispatchEvent(viewerEvent);
-      }
+
+      UsersUtil.setUserAsPresent(newPresenterID, true);
+      sendSwitchedPresenterEvent(true, newPresenterID);
+
+      var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+      e.userID = newPresenterID;
+      e.presenterName = newPresenterName;
+      e.assignedBy = assignedBy;
+      dispatcher.dispatchEvent(e);
       
       dispatcher.dispatchEvent(new UserStatusChangedEvent(newPresenterID));
-      
     }
-    
+
+    public function handleUnassignPresenterCallback(msg:Object):void {
+      var body: Object = msg.body as Object;
+
+      var oldPresenterID:String = body.intId as String;
+      var oldPresenterName:String = body.name as String;
+      var assignedBy:String = body.assignedBy as String;
+
+      UsersUtil.setUserAsPresent(oldPresenterID, false);
+      sendSwitchedPresenterEvent(false, oldPresenterID);
+
+      var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+      e.userID = oldPresenterID;
+      e.presenterName = oldPresenterName;
+      e.assignedBy = assignedBy;
+
+      dispatcher.dispatchEvent(e);
+
+      dispatcher.dispatchEvent(new UserStatusChangedEvent(oldPresenterID));
+    }
+
     private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
       var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
       roleEvent.amIPresenter = amIPresenter;

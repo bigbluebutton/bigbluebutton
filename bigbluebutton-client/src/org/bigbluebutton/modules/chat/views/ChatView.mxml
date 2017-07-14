@@ -167,7 +167,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		  private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 			  notifyUserOfNewMessage(PUBLIC_CHAT_USERID);
-			  if (!UsersUtil.isMe(event.message.fromUserID)) {
+			  if (!UsersUtil.isMe(event.message.fromUserId)) {
           publicNotification();
         }			
       }
@@ -175,17 +175,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 		    // This message is from me. Ignore as a chatbox has already been created for this
 			  // private chat and that chatbox will handle this message.
-			  if (UsersUtil.isMe(event.message.fromUserID)) return;
+			  if (UsersUtil.isMe(event.message.fromUserId)) return;
 			
 			  // I received a new private chat. Open up a new chatbox and forward the message
 			  // to the chatbox. Succeeding messages will be handled by that chatbox.
-			  if (! userHasChatBox(event.message.fromUserID)) {
+			  if (! userHasChatBox(event.message.fromUserId)) {
 			  	// Open a private chat tab.
-			  	openChatBoxFor(event.message.fromUserID, false).handleFirstPrivateMessage(event);         
+			  	openChatBoxFor(event.message.fromUserId, false).handleFirstPrivateMessage(event);         
 			  }
 			
 			  // See if the chatbox is not in focus and notify user about the message.
-			  notifyUserOfNewMessage(event.message.fromUserID);
+			  notifyUserOfNewMessage(event.message.fromUserId);
 			  privateNotification(event);
 	 	  }
       
@@ -344,7 +344,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if (! UsersUtil.isMe(event.message.fromUserID)) {
+				if (! UsersUtil.isMe(event.message.fromUserId)) {
 					playSound();
 				}
 			}

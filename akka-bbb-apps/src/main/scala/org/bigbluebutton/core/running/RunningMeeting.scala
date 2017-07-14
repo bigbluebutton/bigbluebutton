@@ -26,7 +26,6 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val breakoutRooms = new BreakoutRooms()
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
-  val users = new Users1x
   val registeredUsers = new RegisteredUsers
   val meetingStatux2x = new MeetingStatus2x
   val webcams = new Webcams
@@ -34,13 +33,14 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val users2x = new Users2x
   val polls2x = new Polls
   val guestsWaiting = new GuestsWaiting
+  val deskshareModel = new ScreenshareModel
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  val liveMeeting = new LiveMeeting(props, meetingStatux2x, chatModel, layoutModel, layouts,
-    users, registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
+  val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
+    registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
     notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 
   val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outGW, liveMeeting), props.meetingProp.intId)

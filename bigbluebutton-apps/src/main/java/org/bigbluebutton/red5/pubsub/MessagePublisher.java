@@ -233,31 +233,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
-	public void getChatHistory(String meetingID, String requesterID, String replyTo) {
-		GetChatHistoryRequestMessage msg = new GetChatHistoryRequestMessage(meetingID, requesterID, replyTo);
-		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
-	}
-
-	public void clearPublicChatMessages(String meetingID, String requesterID) {
-		ClearPublicChatHistoryRequestMessage msg = new ClearPublicChatHistoryRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
-	}
-
-	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
-		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
-		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
-	}
-
-	public void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message) {
-		SendPrivateChatMessage msg = new SendPrivateChatMessage(meetingID, requesterID, message);
-		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
-	}
-
-	public void requestDeskShareInfo(String meetingID, String requesterID, String replyTo) {
-		DeskShareGetInfoRequestMessage msg = new DeskShareGetInfoRequestMessage(meetingID, requesterID, replyTo);
-		sender.send(MessagingConstants.FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson());
-	}
-
 	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		

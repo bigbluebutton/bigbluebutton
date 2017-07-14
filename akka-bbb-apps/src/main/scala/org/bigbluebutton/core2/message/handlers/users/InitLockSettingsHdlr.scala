@@ -2,7 +2,6 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ InitLockSettings, PermissionsSettingInitialized }
-import org.bigbluebutton.core.models.Users1x
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 

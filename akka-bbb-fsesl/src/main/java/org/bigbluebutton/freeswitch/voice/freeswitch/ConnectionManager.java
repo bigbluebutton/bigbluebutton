@@ -158,7 +158,7 @@ public class ConnectionManager {
 		}
 	}
 
-	public void broadcastRTMP(DeskShareBroadcastRTMPCommand rtmp) {
+	public void broadcastRTMP(ScreenshareBroadcastRTMPCommand rtmp) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
 			System.out.println("ConnectionManager: send to FS: broadcastRTMP "  + rtmp.getCommandArgs());
@@ -167,7 +167,7 @@ public class ConnectionManager {
 		}
 	}
 
-	public void hangUp(DeskShareHangUpCommand huCmd) {
+	public void hangUp(ScreenshareHangUpCommand huCmd) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
 			System.out.println("ConnectionManager: send to FS: hangUp " + huCmd.getCommandArgs());

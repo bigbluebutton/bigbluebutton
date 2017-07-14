@@ -1,16 +1,22 @@
 package org.bigbluebutton.core.apps.users
 
-import akka.actor.ActorContext
-import akka.event.Logging
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.message.handlers.users.{ ChangeUserEmojiCmdMsgHdlr, ValidateAuthTokenReqMsgHdlr }
 
-class UsersApp2x(val liveMeeting: LiveMeeting,
-  val outGW: OutMessageGateway)(implicit val context: ActorContext)
-    extends ChangeUserRoleHdlr
+trait UsersApp2x
+    extends RegisterUserReqMsgHdlr
+    with ChangeUserRoleCmdMsgHdlr
     with SyncGetUsersMeetingRespMsgHdlr
-    with EjectUserFromMeetingHdlr {
+    with ValidateAuthTokenReqMsgHdlr
+    with UserLeaveReqMsgHdlr
+    with LogoutAndEndMeetingCmdMsgHdlr
+    with MeetingActivityResponseCmdMsgHdlr
+    with SetRecordingStatusCmdMsgHdlr
+    with GetRecordingStatusReqMsgHdlr
+    with AssignPresenterReqMsgHdlr
+    with EjectUserFromMeetingCmdMsgHdlr
+    with ChangeUserEmojiCmdMsgHdlr {
 
-  val log = Logging(context.system, getClass)
+  this: MeetingActor =>
 
 }

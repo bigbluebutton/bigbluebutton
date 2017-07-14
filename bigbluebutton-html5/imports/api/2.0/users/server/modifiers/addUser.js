@@ -51,7 +51,7 @@ export default function addUser(meetingId, user) {
       'user.avatarURL': user.avatar,
       'user.set_emoji_time': user.set_emoji_time || (new Date()).getTime(),
       'user.joiningTime': (new Date()).getTime(),
-      'user.emoji_status': user.emoji,
+      'user.emoji': user.emoji,
       'user.presenter': user.presenter,
       'user.locked': user.locked,
       'user.listenOnly': user.listenOnly,

@@ -41,7 +41,7 @@ case class BreakoutRoomEndedOutMessage(parentMeetingId: String, meetingId: Strin
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
-case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
+case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Vector[UserState]) extends IOutMessage
 case class UserLocked(meetingID: String, userId: String, lock: Boolean) extends IOutMessage
 case class GetPermissionsSettingReply(meetingID: String, userId: String) extends IOutMessage
 
@@ -79,15 +79,6 @@ case class StartRecording(meetingID: String, recorded: Boolean, requesterID: Str
 case class StartRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceConfId: String) extends IOutMessage
 case class StopRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceConfId: String, recordedStream: String) extends IOutMessage
 case class StopRecording(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
-
-// Chat
-case class GetChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String,
-  replyTo: String, history: Array[Map[String, String]]) extends IOutMessage
-case class SendPublicMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  message: Map[String, String]) extends IOutMessage
-case class SendPrivateMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  message: Map[String, String]) extends IOutMessage
-case class ClearPublicChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
 
 // Layout
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,

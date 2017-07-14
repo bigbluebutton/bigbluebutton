@@ -38,8 +38,8 @@ class RedisRecorderActor(val system: ActorSystem)
   }
 
   def receive = {
-    case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
-    case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
+    //case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
+    //case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
     case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
     case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
     case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
@@ -71,7 +71,7 @@ class RedisRecorderActor(val system: ActorSystem)
     case _ => // do nothing
   }
 
-  private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
+  /*  private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
     if (msg.recorded) {
       val message = JavaConverters.mapAsJavaMap(msg.message)
       val ev = new PublicChatRecordEvent()
@@ -85,16 +85,16 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
 
     }
-  }
+  }*/
 
-  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
+  /*  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
     if (msg.recorded) {
       val ev = new ClearPublicChatRecordEvent()
       ev.setTimestamp(TimestampGenerator.generateTimestamp())
       ev.setMeetingId(msg.meetingID)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
-  }
+  }*/
 
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
 

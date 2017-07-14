@@ -3,28 +3,29 @@ package org.bigbluebutton.core.apps.voice
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
 
 trait UserMutedInVoiceConfEvtMsgHdlr {
-  this: MeetingActor =>
+  this: BaseMeetingActor =>
 
+  val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: UserMutedInVoiceConfEvtMsg): Unit = {
+  def handleUserMutedInVoiceConfEvtMsg(msg: UserMutedInVoiceConfEvtMsg): Unit = {
 
     def broadcastEvent(vu: VoiceUserState): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
+        liveMeeting.props.meetingProp.intId,
         vu.intId)
-      val envelope = BbbCoreEnvelope(UserMutedEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UserMutedEvtMsg.NAME, props.meetingProp.intId, vu.intId)
+      val envelope = BbbCoreEnvelope(UserMutedVoiceEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(UserMutedVoiceEvtMsg.NAME,
+        liveMeeting.props.meetingProp.intId, vu.intId)
 
-      val body = UserMutedEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId, vu.muted)
+      val body = UserMutedVoiceEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId, vu.muted)
 
-      val event = UserMutedEvtMsg(header, body)
+      val event = UserMutedVoiceEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
-
-      record(event)
     }
 
     for {

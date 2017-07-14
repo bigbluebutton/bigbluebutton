@@ -7,7 +7,6 @@ import org.bigbluebutton.freeswitch.{ RxJsonMsgHdlrActor, VoiceConferenceService
 import org.bigbluebutton.freeswitch.bus.InsonMsgBus
 import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
 import org.bigbluebutton.freeswitch.voice.freeswitch.{ ConnectionManager, ESLEventListener, FreeswitchApplication }
-import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
 import org.freeswitch.esl.client.manager.DefaultManagerConnection
 
 object Boot extends App with SystemConfiguration {
@@ -31,12 +30,10 @@ object Boot extends App with SystemConfiguration {
   val fsApplication = new FreeswitchApplication(connManager, fsProfile)
   fsApplication.start()
 
-  val redisMsgReceiver = new RedisMessageReceiver(fsApplication)
-
   val inJsonMsgBus = new InsonMsgBus
   val redisMessageHandlerActor = system.actorOf(RxJsonMsgHdlrActor.props(fsApplication))
   inJsonMsgBus.subscribe(redisMessageHandlerActor, toFsAppsJsonChannel)
 
-  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(system, redisMsgReceiver, inJsonMsgBus), "redis-subscriber")
+  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(system, inJsonMsgBus), "redis-subscriber")
 
 }

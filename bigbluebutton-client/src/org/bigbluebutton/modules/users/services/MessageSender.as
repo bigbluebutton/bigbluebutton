@@ -39,28 +39,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.managers.ConnectionManager;
 
   public class MessageSender {
-	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
+	private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-    public function kickUser(userID:String):void {
-      var message:Object = new Object();
-      message["userId"] = userID;
-      message["ejectedBy"] = UsersUtil.getMyUserID();
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.ejectUserFromMeeting", 
-        function(result:String):void { // On successful result
-        },	                   
-        function(status:String):void { // status - On error occurred
-            var logData:Object = UsersUtil.initLogData();
-            logData.tags = ["apps"];
-            logData.userId = userID;
-            logData.message = "Error occured ejecting user.";
-            LOGGER.info(JSON.stringify(logData));
-        },
-        message
-      );
-    }
-    
     public function queryForParticipants():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.getParticipants", 
@@ -79,43 +59,38 @@ package org.bigbluebutton.modules.users.services
       // TODO: Send joine meeting message to server.
     }
     
-    public function assignPresenter(userid:String, name:String, assignedBy:Number):void {
-      var message:Object = new Object();
-      message["newPresenterID"] = userid;
-      message["newPresenterName"] = name;
-      message["assignedBy"] = assignedBy.toString();
-      
+    public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:String):void {
+      var message:Object = {
+        header: {name: "AssignPresenterReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), newPresenterId: newPresenterUserId, newPresenterName: newPresenterName, assignedBy: assignedBy}
+      };
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.assignPresenter", 
-        function(result:String):void { // On successful result
-        },	                   
-        function(status:String):void { // status - On error occurred
-            var logData:Object = UsersUtil.initLogData();
-            logData.tags = ["apps"];
-            logData.message = "Error occured assigning presenter.";
-            LOGGER.info(JSON.stringify(logData));
-        },
-        message
-      );
-      
+      _nc.sendMessage2x(function(result:String):void { // On successful result
+      }, function(status:String):void { // status - On error occurred
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["apps"];
+        logData.message = "Error occurred assigning a presenter.";
+        LOGGER.info(JSON.stringify(logData));
+      }, JSON.stringify(message));
     }
 
     public function emojiStatus(userID:String, emoji:String):void {
-        var message:Object = new Object();
-        message["emojiStatus"] = emoji;
-        message["userId"] = userID;
+      var message:Object = {
+        header: {name: "ChangeUserEmojiCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: userID, emoji: emoji}
+      };
         
         var _nc:ConnectionManager = BBB.initConnectionManager();
-        _nc.sendMessage("participants.userEmojiStatus", 
-            function(result:String):void { // On successful result   
-                
+        _nc.sendMessage2x(function(result:String):void {   
+          // On successful result
             }, function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
                 logData.message = "Error occured setting emoji status.";
                 LOGGER.info(JSON.stringify(logData));
             },
-            message
+          JSON.stringify(message)
         );
 		}
 
@@ -212,12 +187,14 @@ package org.bigbluebutton.modules.users.services
 		}
     
     public function logoutEndMeeting(userID:String):void {
-      var message:Object = new Object();
-      message["userId"] = userID;
+      var message:Object = {
+        header: {name: "LogoutAndEndMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {userId: userID}
+      };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.logoutEndMeeting",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },
         function(status:String):void { // status - On error occurred
@@ -226,14 +203,19 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured logout and end meeting.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        message
+        JSON.stringify(message)
       );
     }
 
     public function queryForRecordingStatus():void {
+      var message:Object = {
+        header: {name: "GetRecordingStatusReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requestedBy: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.getRecordingStatus",// Remote function name
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -241,7 +223,8 @@ package org.bigbluebutton.modules.users.services
                 logData.tags = ["apps"];
                 logData.message = "Error occured getting recording status.";
                 LOGGER.info(JSON.stringify(logData));
-        }
+        },
+        JSON.stringify(message)
       ); //_netConnection.call
 	}
 
@@ -260,9 +243,14 @@ package org.bigbluebutton.modules.users.services
 		}
 
     public function activityResponse():void {
+      var message:Object = {
+        header: {name: "GetRecordingStatusReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requestedBy: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.activityResponse", // Remote function name
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },
         function(status:String):void { // status - On error occurred
@@ -270,18 +258,20 @@ package org.bigbluebutton.modules.users.services
                 logData.tags = ["apps"];
                 logData.message = "Error occured activity response.";
                 LOGGER.info(JSON.stringify(logData));
-        }
+        },
+        JSON.stringify(message)
       ); //_netConnection.call
     }
 
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
-      var message:Object = new Object();
-      message["userId"] = userID;
-      message["recording"] = recording;
+      var message:Object = {
+        header: {name: "SetRecordingStatusCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {recording: recording, setBy: userID}
+      };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.setRecordingStatus",// Remote function name
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -290,17 +280,19 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured change recording status.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        message
+        JSON.stringify(message)
       ); //_netConnection.call
     }
 
     public function muteAllUsers(mute:Boolean):void {
-      var message:Object = new Object();
-      message["mute"] = mute;
-    
+      var message:Object = {
+        header: {name: "MuteMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {mutedBy: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.muteAllUsers",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -309,17 +301,19 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured muting all users.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        message
+        JSON.stringify(message)
       ); 
     }
     
     public function muteAllUsersExceptPresenter(mute:Boolean):void {
-      var message:Object = new Object();
-      message["mute"] = mute;
+      var message:Object = {
+        header: {name: "MuteAllExceptPresentersCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {mutedBy: UsersUtil.getMyUserID()}
+      };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.muteAllUsersExceptPresenter",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -328,55 +322,77 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured muting all users except presenter.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        message
+        JSON.stringify(message)
       ); 
     }
     
     public function muteUnmuteUser(userid:String, mute:Boolean):void {
-      var message:Object = new Object();
-      message["userId"] = userid;
-      message["mute"] = mute;
+      var message:Object = {
+        header: {name: "MuteUserCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {userId: userid, mutedBy: UsersUtil.getMyUserID()}
+      };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.muteUnmuteUser",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
-                logData.message = "Error occured muting user.";
+                logData.message = "Error occurred muting user.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        message
-      );          
+        JSON.stringify(message)
+      );
      }
 
-    public function ejectUser(userid:String):void {
-      var message:Object = new Object();
-      message["userId"] = userid;
+    public function ejectUserFromVoice(userid:String):void {
+      var message:Object = {
+        header: {name: "EjectUserFromVoiceCmdMsg", meetingId: UsersUtil.getInternalMeetingID(),
+          userId: UsersUtil.getMyUserID()},
+        body: {userId: userid, ejectedBy: UsersUtil.getMyUserID()}
+      };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.ejectUserFromVoice",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["apps"];
-                logData.message = "Error occured ejecting user.";
+                logData.message = "Error occurred ejecting user from voice.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        message
+        JSON.stringify(message)
       );    
     }
-    
-    public function getRoomMuteState():void{
-      var message:Object = new Object();
+
+    public function kickUser(userID:String):void {
+      var message:Object = {
+        header: {name: "EjectUserFromMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: userID, ejectedBy: UsersUtil.getMyUserID()}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(function(result:String):void { // On successful result
+      }, function(status:String):void { // status - On error occurred
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["apps"];
+        logData.message = "Error occurred kicking a user - ejecting from meeting.";
+        LOGGER.info(JSON.stringify(logData));
+      }, JSON.stringify(message));
+    }
+
+      public function getRoomMuteState():void{
+      var message:Object = {
+        header: {name: "IsMeetingMutedReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
          
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "voice.isRoomMuted",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -384,16 +400,20 @@ package org.bigbluebutton.modules.users.services
                 logData.tags = ["apps"];
                 logData.message = "Error occuredget room mute state.";
                 LOGGER.info(JSON.stringify(logData));
-        }
+        },
+        JSON.stringify(message)
       ); 
     }
     
     public function getRoomLockState():void{
-      var message:Object = new Object();
+      var message:Object = {
+        header: {name: "IsMeetingLockedReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "lock.isRoomLocked",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -401,7 +421,8 @@ package org.bigbluebutton.modules.users.services
                 logData.tags = ["apps"];
                 logData.message = "Error occured getting lock state.";
                 LOGGER.info(JSON.stringify(logData));
-        }
+        },
+        JSON.stringify(message)
       );    
     }    
 
@@ -438,13 +459,14 @@ package org.bigbluebutton.modules.users.services
      * Set lock state of all users in the room, except the users listed in second parameter
      * */
     public function setUserLock(internalUserID:String, lock:Boolean):void {
-		var message:Object = new Object();
-		message["userId"] = internalUserID;
-		message["lock"] = lock;
-		
+      var message:Object = {
+        header: {name: "LockUserInMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {userId: internalUserID, lock: lock, lockedBy: UsersUtil.getMyUserID()}
+      };
+      
 		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage(
-			"lock.setUserLock",
+		_nc.sendMessage2x(
 			function(result:String):void { // On successful result
 			},	                   
 			function(status:String):void { // status - On error occurred
@@ -453,7 +475,7 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured setting user lock status.";
                 LOGGER.info(JSON.stringify(logData));
 			},
-			message
+      JSON.stringify(message)
 		);
 /*      
       var nc:NetConnection = _module.connection;
@@ -499,9 +521,21 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function saveLockSettings(newLockSettings:Object):void{   
+      
+      var message:Object = {
+        header: {name: "ChangeLockSettingsInMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {disableCam: newLockSettings.disableCam, disableMic: newLockSettings.disableMic, 
+          disablePrivChat: newLockSettings.disablePrivateChat,
+          disablePubChat: newLockSettings.disablePublicChat, 
+          lockedLayout: newLockSettings.lockedLayout, lockOnJoin: newLockSettings.lockOnJoin, 
+          lockOnJoinConfigurable: newLockSettings.lockOnJoinConfigurable, 
+          changedBy: UsersUtil.getMyUserID()}
+      };
+      
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "lock.setLockSettings",
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -510,18 +544,19 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured saving lock settings.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        newLockSettings
+        JSON.stringify(message)
       );      
     }
 
     public function changeRole(userID:String, role:String):void {
+      var message:Object = {
+        header: {name: "ChangeUserRoleCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {userId: userID, role: role, changedBy: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      var message:Object = new Object();
-      message["userId"] = userID;
-      message["role"] = role;
-
-      _nc.sendMessage(
-        "participants.setParticipantRole",// Remote function name
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
           LOGGER.debug(result);
         },
@@ -531,15 +566,14 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured change role.";
                 LOGGER.info(JSON.stringify(logData));
         },
-        message
+        JSON.stringify(message)
       );
     }
 
     public function queryForGuestPolicy():void {
       LOGGER.debug("queryForGuestPolicy");
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.getGuestPolicy",
+      _nc.sendMessage("participants.getGuestPolicy",
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
@@ -554,9 +588,14 @@ package org.bigbluebutton.modules.users.services
 
     public function setGuestPolicy(policy:String):void {
       LOGGER.debug("setGuestPolicy - new policy:[" + policy + "]");
+      var message:Object = {
+        header: {name: "SetGuestPolicyMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {policy: policy, setBy: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.setGuestPolicy",
+      _nc.sendMessage2x(
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
@@ -566,7 +605,7 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured set guest policy.";
                 LOGGER.info(JSON.stringify(logData));
          },
-         policy
+         JSON.stringify(message)
        );
     }
 
@@ -578,8 +617,7 @@ package org.bigbluebutton.modules.users.services
       message["response"] = response;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.responseToGuest",
+      _nc.sendMessage("participants.responseToGuest",
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
