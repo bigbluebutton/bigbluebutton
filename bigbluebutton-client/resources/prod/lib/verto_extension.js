@@ -4,7 +4,8 @@ Verto = function (
   conferenceUsername,
   userCallback,
   onFail = null,
-  chromeExtension = null) {
+  chromeExtension = null,
+  stunTurnInfo = null) {
 
   voiceBridge += "-SCREENSHARE";
   this.cur_call = null;
@@ -37,7 +38,7 @@ Verto = function (
 
   this.callWasSuccessful = false;
   this.shouldConnect = true;
-  this.iceServers = null;
+  this.iceServers = stunTurnInfo;
   this.userCallback = userCallback;
 
   if (chromeExtension != null) {
@@ -308,9 +309,14 @@ Verto.prototype.setScreenShare = function (tag) {
 Verto.prototype.create = function (tag) {
   this.setRenderTag(tag);
   this.registerCallbacks();
-  //this.configStuns(this.init);
-  this.iceServers = true;
-  this.init();
+
+  // fetch ice information from server
+  if (this.iceServers == null) {
+    this.configStuns(this.init);
+  } else {
+    // already have it. proceed with init
+    this.init();
+  }
 };
 
 Verto.prototype.docall = function () {
@@ -454,38 +460,55 @@ Verto.prototype.configStuns = function (callback) {
   this.logger('Fetching STUN/TURN server info for Verto initialization');
   var _this = this;
   var stunsConfig = {};
-  $.ajax({
-    dataType: 'json',
-    url: '/bigbluebutton/api/stuns/',
-  }).done(function (data) {
-    _this.logger('ajax request done');
-    _this.logger(data);
-    if (data.response && data.response.returncode == 'FAILED') {
-      _this.logError(data.response.message, { error: true });
-      _this.logError({ status: 'failed', errorcode: data.response.message });
+
+  // flash client has api access. html5 user passes array.
+  // client provided no stuns and cannot make api calls
+  // use defaults in verto and try making a call
+  if (BBB.getSessionToken == undefined) {
+    // uses defaults
+    this.iceServers = true;
+    // run init callback
+    return callback();
+  }
+
+  // TODO: screensharing and audio use this exact same function. Should be
+  // moved to a shared library for retrieving stun/turn and just pass 
+  // success/fail callbacks
+  BBB.getSessionToken(function(sessionToken) {
+    $.ajax({
+      dataType: 'json',
+      url: '/bigbluebutton/api/stuns/',
+      data: {sessionToken},
+    }).done(function (data) {
+      _this.logger('ajax request done');
+      _this.logger(data);
+      if (data.response && data.response.returncode == 'FAILED') {
+        _this.logError(data.response.message, { error: true });
+        _this.logError({ status: 'failed', errorcode: data.response.message });
+        return;
+      }
+
+      stunsConfig.stunServers = (data.stunServers ? data.stunServers.map(function (data) {
+        return { url: data.url };
+      }) : []);
+
+      stunsConfig.turnServers = (data.turnServers ? data.turnServers.map(function (data) {
+        return {
+          urls: data.url,
+          username: data.username,
+          credential: data.password,
+        };
+      }) : []);
+
+      stunsConfig = stunsConfig.stunServers.concat(stunsConfig.turnServers);
+      _this.logger('success got stun data, making verto');
+      _this.iceServers = stunsConfig;
+      callback.apply(_this);
+    }).fail(function (data, textStatus, errorThrown) {
+      _this.logError({ status: 'failed', errorcode: 1009 });
+      _this.onFail();
       return;
-    }
-
-    stunsConfig.stunServers = (data.stunServers ? data.stunServers.map(function (data) {
-      return { url: data.url };
-    }) : []);
-
-    stunsConfig.turnServers = (data.turnServers ? data.turnServers.map(function (data) {
-      return {
-        urls: data.url,
-        username: data.username,
-        credential: data.password,
-      };
-    }) : []);
-
-    stunsConfig = stunsConfig.stunServers.concat(stunsConfig.turnServers);
-    _this.logger('success got stun data, making verto');
-    _this.iceServers = stunsConfig;
-    callback.apply(_this);
-  }).fail(function (data, textStatus, errorThrown) {
-    _this.logError({ status: 'failed', errorcode: 1009 });
-    _this.onFail();
-    return;
+    });
   });
 };
 
