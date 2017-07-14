@@ -40,11 +40,11 @@ class RedisRecorderActor(val system: ActorSystem)
   def receive = {
     //case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
     //case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
-    case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
-    case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
-    case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
-    case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
-    case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
+    //case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
+    //case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
+    //case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
+    //case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
+    //case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
     case msg: EndAndKickAll => handleEndAndKickAll(msg)
     case msg: PresenterAssigned => handleAssignPresenter(msg)
     case msg: UserJoined => handleUserJoined(msg)
@@ -96,6 +96,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
   }*/
 
+  /*
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
 
   }
@@ -173,6 +174,7 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
   }
+  */
 
   private def handleEndAndKickAll(msg: EndAndKickAll): Unit = {
     if (msg.recorded) {
@@ -352,6 +354,7 @@ class RedisRecorderActor(val system: ActorSystem)
 
   }
 
+  /*
   private def getPresentationId(whiteboardId: String): String = {
     // Need to split the whiteboard id into presenation id and page num as the old
     // recording expects them
@@ -374,6 +377,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
     pageNum
   }
+  */
 
   /*
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {

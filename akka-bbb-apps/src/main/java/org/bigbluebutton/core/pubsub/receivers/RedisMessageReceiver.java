@@ -34,9 +34,6 @@ public class RedisMessageReceiver {
 		LockMessageReceiver lockRx = new LockMessageReceiver(bbbGW);
 		receivers.add(lockRx);
 		
-		PresentationMessageListener presRx = new PresentationMessageListener(bbbGW);
-		receivers.add(presRx);
-		
 		UsersMessageReceiver usersRx = new UsersMessageReceiver(bbbGW);
 		receivers.add(usersRx);
 
