@@ -3,10 +3,10 @@ import { check } from 'meteor/check';
 import Users from '/imports/api/2.0/users';
 
 export default function handleEmojiStatus({ body }, meetingId) {
-  const { userId, status } = body;
+  const { userId, emoji } = body;
 
   check(userId, String);
-  check(status, String);
+  check(emoji, String);
 
   const selector = {
     meetingId,
@@ -16,7 +16,7 @@ export default function handleEmojiStatus({ body }, meetingId) {
   const modifier = {
     $set: {
       'user.set_emoji_time': (new Date()).getTime(),
-      'user.emoji_status': status,
+      'user.emoji': emoji,
     },
   };
 
@@ -27,7 +27,7 @@ export default function handleEmojiStatus({ body }, meetingId) {
 
     if (numChanged) {
       return Logger.info(`Assigned user emoji status${
-         status} id=${userId} meeting=${meetingId}`,
+         emoji} id=${userId} meeting=${meetingId}`,
       );
     }
   };
