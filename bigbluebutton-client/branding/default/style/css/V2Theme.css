@@ -491,6 +491,16 @@ mx|Panel {
 //------------------------------
 */
 
+.presentationWindowControlsStyle {
+	paddingBottom     : 5;
+	paddingTop        : 3;
+	paddingLeft       : 3;
+	paddingRight      : 3;
+	bottom            : 5;
+	cornerRadius      : 0;
+	dropShadowEnabled : false;
+}
+
 .presentationUploadDeleteButtonStyle {
 	fillAlphas        : 1, 1, 1, 1;
 	fillColors        : #FEFEFF, #E1E2E5, #FFFFFF, #EEEEEE;
@@ -503,43 +513,34 @@ mx|Panel {
 }
 
 .presentationUploadButtonStyle {
-	icon : Embed('assets/images/ic_file_upload_16px.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload");
 }
 
 .pollStartButtonStyle {
-	icon : Embed('assets/images/poll_icon.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Polling");
 }
 
 .presentationBackButtonStyle {
-	icon : Embed('assets/images/ic_arrow_back_24px.png');
-}
-
-.presentationBackButtonDisabledStyle {
-	icon : Embed('assets/images/ic_arrow_back_grey_24px.png');
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
 }
 
 .presentationForwardButtonStyle {
-	icon : Embed('assets/images/ic_arrow_forward_24px.png');
-}
-
-.presentationForwardButtonDisabledStyle {
-	icon : Embed('assets/images/ic_arrow_forward_grey_24px.png');
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
 }
 
 .presentationFitToWidthButtonStyle {
-	icon : Embed('assets/images/fit-to-width.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fit_To_Width");
 }
 
 .presentationFitToPageButtonStyle {
-	icon : Embed('assets/images/fit-to-screen.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fit_To_Screen");
 }
 
 .presentationDownloadButtonStyle {
-	icon : Embed('assets/images/ic_file_download_16px.png');
-}
-
-.presentationDownloadButtonDisabledStyle {
-	icon : Embed('assets/images/ic_file_download_grey_16px.png');
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download_Disabled");
 }
 
 /*
@@ -756,6 +757,15 @@ whiteboard|WhiteboardToolbar {
 	paddingLeft     : 0;
 	paddingRight    : 0;
 	verticalGap     : 1;
+}
+
+whiteboard|WhiteboardCanvas {
+	iconEllipse   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Ellipse");
+	iconRectangle : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Rectangle");
+	iconTriangle  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Triangle");
+	iconPencil    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Pencil");
+	iconLine      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Line");
+	iconText      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Text");
 }
 
 .colorPickerStyle {
@@ -1158,17 +1168,6 @@ whiteboard|WhiteboardToolbar {
 .presentationSlideViewStyle {
 	backgroundColor: #b9babc;
 }
-
-.presentationWindowControlsStyle {
-	paddingBottom: 5;
-	paddingTop: 3;
-	paddingLeft: 3;
-	paddingRight: 3;
-	bottom: 5;
-	cornerRadius: 0;
-	dropShadowEnabled: false;
-}
-
 
 .defaultShellStyle {
 	backgroundColor: #fefeff;
