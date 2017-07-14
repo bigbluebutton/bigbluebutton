@@ -59,7 +59,6 @@ class BigBlueButtonActor(val system: ActorSystem,
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
 
     // 1x messages
-    case msg: DestroyMeeting => handleDestroyMeeting(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
     case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
@@ -76,6 +75,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
       case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
       case m: PubSubPingSysReqMsg => handlePubSubPingSysReqMsg(m)
+      case m: DestroyMeetingSysCmdMsg => handleDestroyMeeting(m)
       case _ => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
@@ -85,7 +85,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     for {
       m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
     } yield {
-      log.debug("FORWARDING Registere user message")
+      log.debug("FORWARDING Register user message")
       m.actorRef forward (msg)
     }
   }
@@ -202,82 +202,40 @@ class BigBlueButtonActor(val system: ActorSystem,
     outGW.send(event)
   }
 
-  private def handleDestroyMeeting(msg: DestroyMeeting) {
-    log.info("Received DestroyMeeting message for meetingId={}", msg.meetingID)
+  private def handleDestroyMeeting(msg: DestroyMeetingSysCmdMsg): Unit = {
 
     for {
-      m <- RunningMeetings.findWithId(meetings, msg.meetingID)
-      m2 <- RunningMeetings.remove(meetings, msg.meetingID)
+      m <- RunningMeetings.findWithId(meetings, msg.body.meetingId)
+      m2 <- RunningMeetings.remove(meetings, msg.body.meetingId)
     } yield {
-      log.info("Kick everyone out on meetingId={}", msg.meetingID)
-      if (m.props.meetingProp.isBreakout) {
-        log.info("Informing parent meeting {} that a breakout room has been ended {}",
-          m.props.breakoutProps.parentId, m.props.meetingProp.intId)
-        eventBus.publish(BigBlueButtonEvent(m.props.breakoutProps.parentId,
-          BreakoutRoomEnded(m.props.breakoutProps.parentId, m.props.meetingProp.intId)))
-      }
-
-      // Eject all users using the client.
-      val endAndKickAllEvt = MsgBuilder.buildEndAndKickAllSysMsg(msg.meetingID, "not-used")
-      outGW.send(endAndKickAllEvt)
-
-      // Eject all users from the voice conference
-      val ejectFromVoiceEvent = MsgBuilder.buildEjectAllFromVoiceConfMsg(msg.meetingID, m.props.voiceProp.voiceConf)
-      outGW.send(ejectFromVoiceEvent)
+      // send the message for MeetingActor to handle too
+      m.actorRef ! msg
 
       // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client
       context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
         // Disconnect all clients
 
-        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingID)
+        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.body.meetingId)
         outGW.send(disconnectEvnt)
 
-        log.info("Destroyed meetingId={}", msg.meetingID)
-        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.meetingID)
+        log.info("Destroyed meetingId={}", msg.body.meetingId)
+        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.body.meetingId)
         outGW.send(destroyedEvent)
 
         /** Unsubscribe to meeting and voice events. **/
         eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
         eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
+        eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
+
+        bbbMsgBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
+        bbbMsgBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
+        bbbMsgBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         // Stop the meeting actor.
         context.stop(m.actorRef)
       }
     }
 
-    /*
-    meetings.get(msg.meetingID) match {
-      case None => log.info("Could not find meetingId={}", msg.meetingID)
-      case Some(m) => {
-        meetings -= msg.meetingID
-        log.info("Kick everyone out on meetingId={}", msg.meetingID)
-        if (m.mProps.isBreakout) {
-          log.info("Informing parent meeting {} that a breakout room has been ended {}", m.mProps.parentMeetingID, m.mProps.meetingID)
-          eventBus.publish(BigBlueButtonEvent(m.mProps.parentMeetingID,
-            BreakoutRoomEnded(m.mProps.parentMeetingID, m.mProps.meetingID)))
-        }
-
-        // Eject all users using the client.
-        outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
-        // Eject all users from the voice conference
-        outGW.send(new EjectAllVoiceUsers(msg.meetingID, m.mProps.recorded, m.mProps.voiceBridge))
-
-        // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client  
-        context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
-          // Disconnect all clients
-          outGW.send(new DisconnectAllUsers(msg.meetingID))
-          log.info("Destroyed meetingId={}", msg.meetingID)
-          outGW.send(new MeetingDestroyed(msg.meetingID))
-
-          // Unsubscribe to meeting and voice events.
-          eventBus.unsubscribe(m.actorRef, m.mProps.meetingID)
-          eventBus.unsubscribe(m.actorRef, m.mProps.voiceBridge)
-
-          // Stop the meeting actor.
-          context.stop(m.actorRef)
-        }
-      }
-    }
- */
   }
+
 }

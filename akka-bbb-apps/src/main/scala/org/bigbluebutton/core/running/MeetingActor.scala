@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+//import java.util.concurrent.TimeUnit
 
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
@@ -20,6 +21,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.users._
+import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
@@ -55,14 +57,15 @@ class MeetingActor(val props: DefaultProps,
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
-    with UserConnectedToGlobalAudioHdlr
-    with UserDisconnectedFromGlobalAudioHdlr
+    with UserConnectedToGlobalAudioMsgHdlr
+    with UserDisconnectedFromGlobalAudioMsgHdlr
     with MuteAllExceptPresentersCmdMsgHdlr
     with MuteMeetingCmdMsgHdlr
     with IsMeetingMutedReqMsgHdlr
     with MuteUserCmdMsgHdlr
     with EjectUserFromVoiceCmdMsgHdlr
     with EndMeetingSysCmdMsgHdlr
+    with DestroyMeetingSysCmdMsgHdlr
     with SendTimeRemainingUpdateHdlr
     with SyncGetMeetingInfoRespMsgHdlr {
 
@@ -109,6 +112,9 @@ class MeetingActor(val props: DefaultProps,
     case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
     case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
 
+    // Meeting
+    case m: DestroyMeetingSysCmdMsg => handleDestroyMeetingSysCmdMsg(m)
+
     //======================================
 
     //=======================================
@@ -116,8 +122,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
 
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
-    case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
-    case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
     case msg: InitializeMeeting => handleInitializeMeeting(msg)
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
@@ -188,6 +192,8 @@ class MeetingActor(val props: DefaultProps,
       case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
       case m: IsMeetingMutedReqMsg => handleIsMeetingMutedReqMsg(m)
       case m: MuteMeetingCmdMsg => handleMuteMeetingCmdMsg(m)
+      case m: UserConnectedToGlobalAudioMsg => handleUserConnectedToGlobalAudioMsg(m)
+      case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
