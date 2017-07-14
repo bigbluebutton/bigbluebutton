@@ -26,6 +26,7 @@ export default function addShape(meetingId, whiteboardId, shape) {
       'shape.shape.type': shape.shape.type,
       'shape.shape.status': shape.shape.status,
     },
+    $inc: { 'shape.shape.version': 1 },
   };
 
   const shapeType = shape.shape_type;

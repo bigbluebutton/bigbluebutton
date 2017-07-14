@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import WhiteboardShapeModel from '../shape-factory/component';
+import Ellipse from '../shapes/ellipse/component.jsx';
+import Line from '../shapes/line/component.jsx';
+import Poll from '../shapes/poll/component.jsx';
+import Rectangle from '../shapes/rectangle/component.jsx';
+import Text from '../shapes/text/container.jsx';
+import Triangle from '../shapes/triangle/component.jsx';
+import Pencil from '../shapes/pencil/component.jsx';
 
 const propTypes = {
   // initial width and height of the slide are required to calculate the coordinates for each shape
@@ -14,6 +20,27 @@ const propTypes = {
 export default class ShapeGroup extends React.Component {
   constructor(props) {
     super(props);
+    this.renderShape = this.renderShape.bind(this);
+  }
+
+  renderShape(shape, width, height) {
+    let Component = this.props.shapeSelector[shape.shape.type];
+
+    if (Component != null) {
+      return (
+        <Component
+          key={shape.id}
+          shape={shape.shape}
+          slideWidth={width}
+          slideHeight={height}
+        />
+      );
+    } else {
+      console.error('Unexpected shape type received: ' + shape.shape.type);
+      return (
+        <g key={shape.shape.id}></g>
+      );
+    }
   }
 
   render() {
@@ -25,13 +52,8 @@ export default class ShapeGroup extends React.Component {
 
     return (
       <g>
-        {shapes ? shapes.map(shape =>
-          (<WhiteboardShapeModel
-            shape={shape.shape}
-            key={shape.shape.id}
-            slideWidth={width}
-            slideHeight={height}
-          />),
+        {shapes ? shapes.map((shape) =>
+            this.renderShape(shape.shape, width, height)
           )
         : null }
       </g>
@@ -40,3 +62,16 @@ export default class ShapeGroup extends React.Component {
 }
 
 ShapeGroup.propTypes = propTypes;
+
+
+ShapeGroup.defaultProps = {
+  shapeSelector: {
+    ellipse: Ellipse,
+    line: Line,
+    poll_result: Poll,
+    rectangle: Rectangle,
+    text: Text,
+    triangle: Triangle,
+    pencil: Pencil,
+  },
+};

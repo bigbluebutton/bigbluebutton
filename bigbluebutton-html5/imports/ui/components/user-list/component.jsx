@@ -47,18 +47,18 @@ class UserList extends Component {
 
   rovingIndex(event, listType) {
     const { users, openChats } = this.props;
-    
-    let active = document.activeElement;
+
+    const active = document.activeElement;
     let list;
     let items;
     let numberOfItems;
-    
+
     const focusElement = () => {
       active.tabIndex = -1;
       items.childNodes[this.focusedItemIndex].tabIndex = 0;
       items.childNodes[this.focusedItemIndex].focus();
-    }
-    
+    };
+
     switch (listType) {
       case 'users':
         list = this._usersList;
@@ -75,7 +75,7 @@ class UserList extends Component {
     if (event.keyCode === KEY_CODES.ESCAPE
       || this.focusedItemIndex < 0
       || this.focusedItemIndex > numberOfItems) {
-        this.focusList(list);
+      this.focusList(list);
     }
 
     if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.ARROW_SPACE].includes(event.keyCode)) {
@@ -105,11 +105,19 @@ class UserList extends Component {
   componentDidMount() {
     if (!this.state.compact) {
       this._msgsList.addEventListener('keydown',
-        event=>this.rovingIndex(event, "messages"));
+        event => this.rovingIndex(event, 'messages'));
 
       this._usersList.addEventListener('keydown',
-        event=>this.rovingIndex(event, "users"));
+        event => this.rovingIndex(event, 'users'));
     }
+
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
   }
 
   render() {
@@ -167,8 +175,8 @@ class UserList extends Component {
         >
           <CSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
+            transitionAppear
+            transitionEnter
             transitionLeave={false}
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
@@ -252,9 +260,9 @@ class UserList extends Component {
         >
           <CSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
-            transitionLeave={true}
+            transitionAppear
+            transitionEnter
+            transitionLeave
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}

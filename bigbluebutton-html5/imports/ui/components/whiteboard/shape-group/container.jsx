@@ -24,11 +24,7 @@ class ShapeGroupContainer extends React.Component {
 
   render() {
     return (
-      <ShapeGroup
-        shapes={this.props.shapes}
-        width={this.props.width}
-        height={this.props.height}
-      />
+      <ShapeGroup {...this.props} />
     );
   }
 }

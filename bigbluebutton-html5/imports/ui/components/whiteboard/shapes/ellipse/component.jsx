@@ -7,6 +7,10 @@ export default class EllipseDrawComponent extends React.Component {
     super(props);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.shape.version != nextProps.shape.version;
+  }
+
   getCoordinates() {
     // x1 and y1 - coordinates of the ellipse's top left corner
     // x2 and y2 - coordinates of the ellipse's bottom right corner

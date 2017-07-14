@@ -1,10 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ShapeHelpers from '../helpers.js';
+import { findDOMNode } from 'react-dom';
 
 export default class TextDrawComponent extends React.Component {
   constructor(props) {
     super(props);
+
+    this.handleFocus = this.handleFocus.bind(this);
+    this.handleOnBlur = this.handleOnBlur.bind(this);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.shape.version != nextProps.shape.version ||
+      this.props.isActive != nextProps.isActive;
+  }
+
+  componentDidMount() {
+    if(this.props.isActive && this.props.shape.status != "textPublished") {
+      this.handleFocus();
+    }
   }
 
   getCoordinates() {
@@ -29,7 +44,7 @@ export default class TextDrawComponent extends React.Component {
     };
   }
 
-  getStyles(results) {
+  getViewerStyles(results) {
     const styles = {
       WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
       pointerEvents: 'none',
@@ -44,31 +59,48 @@ export default class TextDrawComponent extends React.Component {
       wordBreak: 'normal',
       textAlign: 'left',
       margin: 0,
+
+      // padding to match the border of the text area and the flash client's default 1px padding
+      padding: 1,
       color: results.fontColor,
       fontSize: results.calcedFontSize,
     };
     return styles;
   }
 
-  render() {
-    const results = this.getCoordinates();
-    const styles = this.getStyles(results);
+  getPresenterStyles(results) {
+    const styles = {
+      fontFamily: 'Arial',
+      border: '1px solid black',
+      width: "100%",
+      height: "100%",
+      resize: 'none',
+      overflow: 'hidden',
+      outline: 'none',
+      color: results.fontColor,
+      fontSize: results.calcedFontSize,
+      padding: "0",
+    };
+
+    return styles;
+  }
+
+  renderViewerTextShape(results) {
+    const styles = this.getViewerStyles(results);
 
     return (
       <g>
-        <clipPath id="c1">
+        <clipPath id={this.props.shape.id}>
           <rect
             x={results.x}
             y={results.y}
             width={results.width}
             height={results.height}
-            fill="purple"
-            strokeWidth="2"
           />
         </clipPath>
 
         <foreignObject
-          clipPath="url(#c1)"
+          clipPath={`url(#${this.props.shape.id})`}
           x={results.x}
           y={results.y}
           width={results.width}
@@ -80,6 +112,58 @@ export default class TextDrawComponent extends React.Component {
         </foreignObject>
       </g>
     );
+  }
+
+  renderPresenterTextShape(results) {
+    const styles = this.getPresenterStyles(results);
+
+    return (
+      <g>
+        <foreignObject
+          x={results.x}
+          y={results.y}
+          width={results.width}
+          height={results.height}
+          style={{pointerEvents: 'none'}}
+        >
+          <textarea
+            id={this.props.shape.id}
+            maxLength="1024"
+            ref={(ref) => { this.textArea = ref; }}
+            onChange={this.onChangeHandler.bind(this)}
+            onBlur={this.handleOnBlur}
+            style={styles}
+          />
+        </foreignObject>
+      </g>
+    );
+  }
+
+  onChangeHandler(event) {
+    this.props.setTextShapeValue(event.target.value);
+  }
+
+  handleOnBlur(event) {
+
+    // it'd be better to use ref to focus onBlur (handleFocus), but it doesn't want to work in FF
+    // so we are back to the old way of doing things, getElementById and setTimeout
+    let node = document.getElementById(this.props.shape.id);
+    setTimeout(function() { node.focus(); }, 1);
+  }
+
+  handleFocus() {
+    // Explicitly focus the text input using the raw DOM API
+    this.textArea.focus();
+  }
+
+  render() {
+    let results = this.getCoordinates();
+
+    if(this.props.isActive && this.props.shape.status != "textPublished") {
+      return this.renderPresenterTextShape(results);
+    } else {
+      return this.renderViewerTextShape(results);
+    }
   }
 }
 

@@ -33,7 +33,7 @@ export default class DropdownListItem extends Component {
 
   render() {
     const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, separator, intl, } = this.props;
+      className, style, separator, intl } = this.props;
 
     return (
       <li

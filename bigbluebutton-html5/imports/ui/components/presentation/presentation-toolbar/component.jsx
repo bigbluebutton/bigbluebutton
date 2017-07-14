@@ -24,6 +24,16 @@ class PresentationToolbar extends Component {
     this.handleValuesChange = this.handleValuesChange.bind(this);
   }
 
+  componentDidMount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   handleValuesChange(event) {
     this.setState({ sliderValue: event.target.value });
   }

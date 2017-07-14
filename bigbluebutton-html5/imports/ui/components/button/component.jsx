@@ -65,6 +65,14 @@ const propTypes = {
    * @defaultValue false
    */
   hideLabel: PropTypes.bool,
+
+  /**
+   * Optional SVG / html object can be passed to the button as an icon
+   * Has to be styled before being sent to the Button
+   * (e.g width, height, position and percentage-based object's coordinates)
+   * @defaultvalue undefined
+   */
+  customIcon: PropTypes.node,
 };
 
 const defaultProps = {
@@ -125,6 +133,7 @@ export default class Button extends BaseButton {
 
     const remainingProps = Object.assign({}, otherProps);
     delete remainingProps.icon;
+    delete remainingProps.customIcon;
     delete remainingProps.size;
     delete remainingProps.color;
     delete remainingProps.ghost;
@@ -180,9 +189,12 @@ export default class Button extends BaseButton {
 
   renderIcon() {
     const iconName = this.props.icon;
+    const customIcon = this.props.customIcon;
 
     if (iconName) {
       return (<Icon className={styles.icon} iconName={iconName} />);
+    } else if(customIcon) {
+      return customIcon;
     }
 
     return null;

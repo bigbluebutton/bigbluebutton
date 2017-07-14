@@ -29,6 +29,16 @@ export default class ClosedCaptions extends React.Component {
     );
   }
 
+  componentDidMount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   componentWillUpdate() {
 
     const node = findDOMNode(this.ccScrollArea);
