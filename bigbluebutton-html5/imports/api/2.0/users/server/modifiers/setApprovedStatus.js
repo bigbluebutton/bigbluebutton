@@ -19,15 +19,12 @@ export default function setApprovedStatus(meetingId, userId, approved = false, a
     },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
-      Logger.error(`Updating approved status user=${userId}: ${err}`);
-      return;
+      return Logger.error(`Updating approved status user=${userId}: ${err}`);
     }
 
-    if (numChanged) {
-      Logger.info(`Updated approved status user=${userId} approved=${approved} meeting=${meetingId}`);
-    }
+    return Logger.info(`Updated approved status user=${userId} approved=${approved} meeting=${meetingId}`);
   };
 
   return Users.update(selector, modifier, cb);

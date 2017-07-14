@@ -63,8 +63,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      Logger.error(`Validating auth token: ${err}`);
-      return;
+      return Logger.error(`Validating auth token: ${err}`);
     }
 
     if (numChanged) {
@@ -73,12 +72,12 @@ export default function handleValidateAuthToken({ body }, meetingId) {
         addWelcomeChatMessage(meetingId, userId);
       }
 
-      Logger.info(`Validated auth token as ${valid
+      return Logger.info(`Validated auth token as ${valid
        }${+' user='}${userId} meeting=${meetingId}`,
       );
     }
 
-    Logger.info('No auth to validate');
+    return Logger.info('No auth to validate');
   };
 
   Users.update(selector, modifier, cb);
