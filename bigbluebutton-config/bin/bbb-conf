@@ -292,7 +292,7 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	/etc/init.d/monit stop
 
@@ -337,7 +337,7 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	$FREESWITCH_INIT_D start
 	
@@ -1856,6 +1856,7 @@ if [ $CLEAN ]; then
 	# Clean out the log files for record and playback
 	#
 	rm -f /var/log/bigbluebutton/bbb-rap-worker.log*
+	rm -f /var/log/bigbluebutton/bbb-rap-resque.log*
 	rm -f /var/log/bigbluebutton/archive.log*
 	if [ -d /var/log/bigbluebutton/slides ]; then
 		rm -f /var/log/bigbluebutton/slides/*
