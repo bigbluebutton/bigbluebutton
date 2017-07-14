@@ -18,12 +18,6 @@ public interface IBigBlueButtonInGW {
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
 	void activityResponse(String meetingID);
 
-	// Polling
-	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);
-	void startPoll(String meetingId, String requesterId, String pollId, String pollType);
-	void stopPoll(String meetingId, String userId, String pollId);
-	void showPollResult(String meetingId, String requesterId, String pollId, Boolean show);
-
 	// Lock
 	void initLockSettings(String meetingID, Map<String, Boolean> settings);
 	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);

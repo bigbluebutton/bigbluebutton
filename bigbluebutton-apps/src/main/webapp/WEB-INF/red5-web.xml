@@ -93,10 +93,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="breakoutroom.service" class="org.bigbluebutton.red5.service.BreakoutRoomService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
-
-    <bean id="poll.service" class="org.bigbluebutton.red5.service.PollingService">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-    </bean>
     
     <bean id="voice.service" class="org.bigbluebutton.red5.service.VoiceService">
         <property name="red5Publisher" ref="red5Publisher"/>

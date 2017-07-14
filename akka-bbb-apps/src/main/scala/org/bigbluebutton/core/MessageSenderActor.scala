@@ -14,8 +14,6 @@ import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.common.messages.AllowUserToShareDesktopReply
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.SimplePollResultOutVO
-import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
@@ -67,11 +65,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
     case msg: StartRecordingVoiceConf => handleStartRecordingVoiceConf(msg)
     case msg: StopRecordingVoiceConf => handleStopRecordingVoiceConf(msg)
-    case msg: PollStartedMessage => handlePollStartedMessage(msg)
-    case msg: PollStoppedMessage => handlePollStoppedMessage(msg)
-    case msg: PollShowResultMessage => handlePollShowResultMessage(msg)
-    case msg: PollHideResultMessage => handlePollHideResultMessage(msg)
-    case msg: UserRespondedToPollMessage => handleUserRespondedToPollMessage(msg)
     case msg: MeetingMuted => handleMeetingMuted(msg)
     case msg: MeetingState => handleMeetingState(msg)
     case msg: DisconnectAllUsers => handleDisconnectAllUsers(msg)
@@ -227,96 +220,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleMeetingIsActive(msg: MeetingIsActive) {
     val json = MeetingMessageToJsonConverter.meetingIsActiveToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }
-
-  private def handlePollStartedMessage(msg: PollStartedMessage) {
-    val json = pollStartedMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handlePollStoppedMessage(msg: PollStoppedMessage) {
-    val json = pollStoppedMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handlePollShowResultMessage(msg: PollShowResultMessage) {
-    val json = pollShowResultMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handlePollHideResultMessage(msg: PollHideResultMessage) {
-    val json = pollHideResultMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handleUserRespondedToPollMessage(msg: UserRespondedToPollMessage) {
-    val json = UserRespondedToPollMessageTpJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def pollVOtoMap(msg: SimplePollOutVO): java.util.HashMap[String, Object] = {
-    val pollVO = new java.util.HashMap[String, Object]()
-    pollVO.put("id", msg.id)
-
-    val answers = new java.util.ArrayList[java.util.Map[String, Any]];
-    msg.answers.foreach(ans => {
-      val amap = new java.util.HashMap[String, Any]()
-      amap.put("id", ans.id)
-      amap.put("key", ans.key)
-      answers.add(amap)
-    })
-
-    pollVO.put("answers", answers)
-
-    pollVO
-  }
-
-  private def pollStartedMessageToJson(msg: PollStartedMessage): String = {
-    val pollVO = pollVOtoMap(msg.poll)
-    val psm = new org.bigbluebutton.common.messages.PollStartedMessage(msg.meetingID, msg.requesterId, pollVO)
-    psm.toJson
-  }
-
-  private def pollStoppedMessageToJson(msg: PollStoppedMessage): String = {
-    val psm = new org.bigbluebutton.common.messages.PollStoppedMessage(msg.meetingID, msg.requesterId, msg.pollId)
-    psm.toJson
-  }
-
-  private def pollResultVOtoMap(msg: SimplePollResultOutVO): java.util.HashMap[String, Object] = {
-    val pollVO = new java.util.HashMap[String, Object]()
-    pollVO.put("id", msg.id)
-    pollVO.put("num_respondents", msg.numRespondents: java.lang.Integer)
-    pollVO.put("num_responders", msg.numResponders: java.lang.Integer)
-    val answers = new java.util.ArrayList[java.util.Map[String, Any]];
-    msg.answers.foreach(ans => {
-      val amap = new java.util.HashMap[String, Any]()
-      amap.put("id", ans.id)
-      amap.put("key", ans.key)
-      amap.put("num_votes", ans.numVotes)
-      answers.add(amap)
-    })
-
-    pollVO.put("answers", answers)
-
-    pollVO
-  }
-
-  private def pollShowResultMessageToJson(msg: PollShowResultMessage): String = {
-    val pollResultVO = pollResultVOtoMap(msg.poll)
-
-    val psm = new org.bigbluebutton.common.messages.PollShowResultMessage(msg.meetingID, pollResultVO)
-    psm.toJson
-  }
-
-  private def pollHideResultMessageToJson(msg: PollHideResultMessage): String = {
-    val psm = new org.bigbluebutton.common.messages.PollHideResultMessage(msg.meetingID, msg.pollId)
-    psm.toJson
-  }
-
-  private def UserRespondedToPollMessageTpJson(msg: UserRespondedToPollMessage): String = {
-    val pollResultVO = pollResultVOtoMap(msg.poll)
-    val psm = new org.bigbluebutton.common.messages.UserVotedPollMessage(msg.meetingID, msg.presenterId, pollResultVO)
-    psm.toJson
   }
 
   private def handleLockLayoutEvent(msg: LockLayoutEvent) {
