@@ -23,7 +23,7 @@ class ReceivedJsonMsgHandlerActor(
 
   def receive = {
     case msg: ReceivedJsonMessage =>
-      //log.debug("handling {} - {}", msg.channel, msg.data)
+      //      log.debug("handling {} - {}", msg.channel, msg.data)
       handleReceivedJsonMessage(msg)
     case _ => // do nothing
   }
@@ -67,6 +67,8 @@ class ReceivedJsonMsgHandlerActor(
         }
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+      case DestroyMeetingSysCmdMsg.NAME =>
+        route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -107,6 +109,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
       case EjectUserFromMeetingCmdMsg.NAME =>
         routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+      case UserConnectedToGlobalAudioMsg.NAME =>
+        routeVoiceMsg[UserConnectedToGlobalAudioMsg](envelope, jsonNode)
+      case UserDisconnectedFromGlobalAudioMsg.NAME =>
+        routeVoiceMsg[UserDisconnectedFromGlobalAudioMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>

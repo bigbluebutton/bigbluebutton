@@ -2,17 +2,16 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ UserDisconnectedFromGlobalAudio, UserLeft, UserListeningOnly }
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 
-trait UserDisconnectedFromGlobalAudioHdlr {
+trait UserDisconnectedFromGlobalAudioMsgHdlr {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
-  def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
-    log.info("Handling UserDisconnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.userid)
+  def handleUserDisconnectedFromGlobalAudioMsg(msg: UserDisconnectedFromGlobalAudioMsg) {
+    log.info("Handling UserDisconnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
 
     def broadcastEvent(vu: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,
@@ -30,7 +29,7 @@ trait UserDisconnectedFromGlobalAudioHdlr {
     }
 
     for {
-      user <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.userid)
+      user <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.intId)
       broadcastEvent(user)
