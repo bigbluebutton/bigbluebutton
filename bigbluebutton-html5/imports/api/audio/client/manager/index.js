@@ -69,9 +69,12 @@ class AudioManager {
     this.callStates = CallStates;
     this.currentState = this.callStates.init;
 
-    callbackToAudioBridge = function (audio) {
-      switch (audio.status) {
+
+    callbackToAudioBridge = function (message) {
+      switch (message.status) {
         case 'failed':
+          console.log(message.errorcode);
+          handleFail(message.errorcode);
           let audioFailed = new CustomEvent('bbb.webrtc.failed', {
             status: 'Failed', });
           window.dispatchEvent(audioFailed);
@@ -128,9 +131,57 @@ class AudioManager {
   }
 
   webRTCCallFailed(inEchoTest, errorcode, cause) {
+    console.log("REACHED CALL MANAGER " + errorcode);
     if (this.currentState !== this.CallStates.reconecting) {
       this.currentState = this.CallStates.reconecting;
     }
+  }
+
+  handleFail(errorcode) {
+    var errorMessage = "";
+    switch(errorcode) {
+      case '1001':
+        errorMessage = "WebSocket disconnected";
+        break;
+      case '1002':
+        errorMessage = "Could not make a WebSocket connection";
+        break;
+      case '1003':
+        errorMessage = "Browser version not supported";
+        break;
+      case '1004':
+        errorMessage = "Failure on call";
+        break;
+      case '1005':
+        errorMessage = "Call ended unexpectedly";
+        break;
+      case '1006':
+        errorMessage = "Call timed out";
+        break;
+      case '1007':
+        errorMessage = "ICE negotiation failed";
+        break;
+      case '1008':
+        errorMessage = "Call transfer failed";
+        break;
+      case '1009':
+        errorMessage = "Could not fetch STUN/TURN server information";
+        break;
+      case '1010':
+        errorMessage = "ICE negotiation timeout";
+        break;
+      case '1011':
+        errorMessage = "ICE gathering timeout";
+        break;
+      default:
+        errorMessage = "unknown error code";
+        break;
+    }
+
+    let failedEvent = new CustomEvent('bbb.webrtc.failed', {
+      status: 'Failed', });
+    window.dispatchEvent(failedEvent);
+    exitAudio();
   }
 
   getMicId() {
