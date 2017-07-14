@@ -169,60 +169,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
-	public void removePresentation(String meetingID, String presentationID) {
-		RemovePresentationMessage msg = new RemovePresentationMessage(meetingID, presentationID);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void getPresentationInfo(String meetingID, String requesterID, String replyTo) {
-		GetPresentationInfoMessage msg = new GetPresentationInfoMessage(meetingID, requesterID, replyTo);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-
-	}
-
-	public void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio) {
-		ResizeAndMoveSlideMessage msg = new ResizeAndMoveSlideMessage(meetingID, xOffset, yOffset, widthRatio, heightRatio);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void gotoSlide(String meetingID, String page) {
-		GoToSlideMessage msg = new GoToSlideMessage(meetingID, page);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sharePresentation(String meetingID, String presentationID, boolean share) {
-		SharePresentationMessage msg = new SharePresentationMessage(meetingID, presentationID, share);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void getSlideInfo(String meetingID, String requesterID, String replyTo) {
-		GetSlideInfoMessage msg = new GetSlideInfoMessage(meetingID, requesterID, replyTo);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendConversionUpdate(String messageKey, String meetingId, String code, String presId, String presName) {
-		SendConversionUpdateMessage msg = new SendConversionUpdateMessage(messageKey, meetingId, code, presId, presName);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendPageCountError(String messageKey, String meetingId, String code, String presId, int numberOfPages, int maxNumberPages, String presName) {
-		SendPageCountErrorMessage msg = new SendPageCountErrorMessage(messageKey, meetingId, code, presId, numberOfPages, maxNumberPages, presName);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendSlideGenerated(String messageKey, String meetingId, String code, String presId, int numberOfPages, int pagesCompleted, String presName) {
-		SendSlideGeneratedMessage msg = new SendSlideGeneratedMessage(messageKey, meetingId, code, presId, numberOfPages, pagesCompleted, presName);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendConversionCompleted(String messageKey, String meetingId,
-			String code, String presId, int numPages, String presName,
-			String presBaseUrl, Boolean downloadable) {
-		SendConversionCompletedMessage msg = new SendConversionCompletedMessage(messageKey, meetingId,
-				code, presId, numPages, presName, presBaseUrl, downloadable);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
 	public void getCurrentLayout(String meetingID, String requesterID) {
 		GetCurrentLayoutRequestMessage msg = new GetCurrentLayoutRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());

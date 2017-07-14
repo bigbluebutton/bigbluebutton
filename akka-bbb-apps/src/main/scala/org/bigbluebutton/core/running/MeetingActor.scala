@@ -51,7 +51,6 @@ class MeetingActor(val props: DefaultProps,
     with BreakoutApp2x
     with UsersApp2x
 
-    with PresentationApp
     with WhiteboardApp
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
@@ -122,7 +121,6 @@ class MeetingActor(val props: DefaultProps,
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
 
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
-    case msg: InitializeMeeting => handleInitializeMeeting(msg)
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
 
