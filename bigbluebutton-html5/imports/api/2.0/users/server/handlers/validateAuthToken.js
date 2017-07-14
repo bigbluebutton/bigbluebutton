@@ -31,14 +31,15 @@ const addWelcomeChatMessage = (meetingId, userId) => {
     from_time: (new Date()).getTime(),
   };
 
-  return addChat(meetingId, message);
+  addChat(meetingId, message);
 };
 
 export default function handleValidateAuthToken({ body }, meetingId) {
-  const { userId, valid } = body;
+  const { userId, valid, waitForApproval } = body;
 
   check(userId, String);
   check(valid, Boolean);
+  check(waitForApproval, Boolean);
 
   const selector = {
     meetingId,
@@ -56,25 +57,27 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   const modifier = {
     $set: {
       validated: valid,
+      approved: !waitForApproval,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Validating auth token: ${err}`);
+      Logger.error(`Validating auth token: ${err}`);
+      return;
     }
 
     if (numChanged) {
-      if (valid) {
+      if (valid && !waitForApproval) {
         clearUserSystemMessages(meetingId, userId);
         addWelcomeChatMessage(meetingId, userId);
       }
 
-      return Logger.info(`Validated auth token as ${valid
+      Logger.info(`Validated auth token as ${valid
        }${+' user='}${userId} meeting=${meetingId}`,
       );
     }
   };
 
-  return Users.update(selector, modifier, cb);
+  Users.update(selector, modifier, cb);
 }

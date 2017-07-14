@@ -1,10 +1,11 @@
-@import '../../stylesheets/variables/palette';
+@import '../../stylesheets/variables/_all';
 
 /* Variables
  * ==========
  */
 $loader-bg: $color-gray-dark;
 $loader-bullet: $color-white;
+$loader-message-color: $color-white;
 
 .background {
   position: fixed;
@@ -16,10 +17,17 @@ $loader-bullet: $color-white;
   background-color: $loader-bg;
 }
 
+.message {
+  font-size: $font-size-large;
+  color: $color-white;
+  text-align: center;
+}
+
 .spinner {
   width: 100%;
   text-align: center;
   height: 22px;
+  margin-bottom: $md-padding-x;
 }
 
 .spinner > div {
