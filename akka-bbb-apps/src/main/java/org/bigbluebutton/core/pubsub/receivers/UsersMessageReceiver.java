@@ -69,15 +69,6 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case InitAudioSettingsMessage.INIT_AUDIO_SETTING:
 						  processInitAudioSettingsMessage(message);
 						  break;
-					  case BroadcastLayoutRequestMessage.BROADCAST_LAYOUT_REQUEST:
-						  processBroadcastLayoutRequestMessage(message);
-						  break;
-					  case LockLayoutRequestMessage.LOCK_LAYOUT_REQUEST:
-						  processLockLayoutRequestMessage(message);
-						  break;
-					  case GetCurrentLayoutRequestMessage.GET_CURRENT_LAYOUT_REQUEST:
-						  processGetCurrentLayoutRequestMessage(message);
-						  break;
 					  case MuteAllExceptPresenterRequestMessage.MUTE_ALL_EXCEPT_PRESENTER_REQUEST:
 						  processMuteAllExceptPresenterRequestMessage(message);
 						  break;
@@ -293,27 +284,6 @@ public class UsersMessageReceiver implements MessageHandler{
 		InitAudioSettingsMessage msg = InitAudioSettingsMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.initAudioSettings(msg.meetingId, msg.userId, msg.muted);
-		}
-	}
-	
-	private void processBroadcastLayoutRequestMessage(String message) {
-		BroadcastLayoutRequestMessage msg = BroadcastLayoutRequestMessage.fromJson(message);
-		if (msg != null) {
-			bbbInGW.broadcastLayout(msg.meetingId, msg.userId, msg.layout);
-		}
-	}
-	
-	private void processLockLayoutRequestMessage(String message) {
-		LockLayoutRequestMessage msg = LockLayoutRequestMessage.fromJson(message);
-		if (msg != null) {
-			bbbInGW.lockLayout(msg.meetingId, msg.userId, msg.lock, msg.viewersOnly, msg.layout);
-		}
-	}
-	
-	private void processGetCurrentLayoutRequestMessage(String message) {
-		GetCurrentLayoutRequestMessage msg = GetCurrentLayoutRequestMessage.fromJson(message);
-		if (msg != null) {
-			bbbInGW.getCurrentLayout(msg.meetingId, msg.userId);
 		}
 	}
 	

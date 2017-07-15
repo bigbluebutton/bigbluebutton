@@ -66,13 +66,6 @@ public interface IBigBlueButtonInGW {
 	void voiceRecording(String meetingId, String recordingFile, 
 			            String timestamp, Boolean recording);
 
-	// Layout
-	void getCurrentLayout(String meetingID, String requesterID);
-	void broadcastLayout(String meetingID, String requesterID, String layout);
-	void lockLayout(String meetingID, String setById, 
-                  boolean lock, boolean viewersOnly,
-                  String layout);
-
 	// DeskShare
 	void deskShareStarted(String confId, String callerId, String callerIdName);
 	void deskShareStopped(String conferenceName, String callerId, String callerIdName);

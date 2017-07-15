@@ -304,29 +304,6 @@ class BigBlueButtonInGW(
   }
 
   /**
-   * ***********************************************************************
-   * Message Interface for Layout
-   * *******************************************************************
-   */
-
-  def getCurrentLayout(meetingID: String, requesterID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetCurrentLayoutRequest(meetingID, requesterID)))
-  }
-
-  def broadcastLayout(meetingID: String, requesterID: String, layout: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new BroadcastLayoutRequest(meetingID, requesterID, layout)))
-  }
-
-  def lockLayout(meetingId: String, setById: String, lock: Boolean, viewersOnly: Boolean, layout: String) {
-    if (layout != null) {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new LockLayoutRequest(meetingId, setById, lock, viewersOnly, Some(layout))))
-    } else {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new LockLayoutRequest(meetingId, setById, lock, viewersOnly, None)))
-    }
-
-  }
-
-  /**
    * *******************************************************************
    * Message Interface for Voice
    * *****************************************************************

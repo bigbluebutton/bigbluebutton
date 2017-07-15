@@ -109,15 +109,6 @@ case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMess
 case class SetGuestPolicy(meetingID: String, policy: String, setBy: String) extends InMessage
 case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Layout
-//////////////////////////////////////////////////////////////////////////////////////
-
-case class GetCurrentLayoutRequest(meetingID: String, requesterID: String) extends InMessage
-case class LockLayoutRequest(meetingID: String, setById: String, lock: Boolean, viewersOnly: Boolean,
-  layout: Option[String]) extends InMessage
-case class BroadcastLayoutRequest(meetingID: String, requesterID: String, layout: String) extends InMessage
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Voice
 ///////////////////////////////////////////////////////////////////////////////////

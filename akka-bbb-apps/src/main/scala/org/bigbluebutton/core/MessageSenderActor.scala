@@ -18,10 +18,7 @@ import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage
-import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
-import org.bigbluebutton.common.messages.BroadcastLayoutMessage
 import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage
-import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.common.converters.ToJsonEncoder
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
 import scala.collection.JavaConverters
@@ -97,9 +94,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UserLeftVoice => handleUserLeftVoice(msg)
     case msg: IsMeetingMutedReply => handleIsMeetingMutedReply(msg)
     case msg: UserListeningOnly => handleUserListeningOnly(msg)
-    case msg: GetCurrentLayoutReply => handleGetCurrentLayoutReply(msg)
-    case msg: BroadcastLayoutEvent => handleBroadcastLayoutEvent(msg)
-    case msg: LockLayoutEvent => handleLockLayoutEvent(msg)
     // breakout room cases
     case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
@@ -220,31 +214,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleMeetingIsActive(msg: MeetingIsActive) {
     val json = MeetingMessageToJsonConverter.meetingIsActiveToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }
-
-  private def handleLockLayoutEvent(msg: LockLayoutEvent) {
-    val users = new java.util.ArrayList[String];
-    msg.applyTo.foreach(uvo => {
-      users.add(uvo.id)
-    })
-
-    val evt = new LockLayoutMessage(msg.meetingID, msg.setById, msg.locked, users)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, evt.toJson())
-  }
-
-  private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
-    val users = new java.util.ArrayList[String];
-    msg.applyTo.foreach(uvo => {
-      users.add(uvo.id)
-    })
-
-    val evt = new BroadcastLayoutMessage(msg.meetingID, msg.setByUserID, msg.layoutID, msg.locked, users)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, evt.toJson())
-  }
-
-  private def handleGetCurrentLayoutReply(msg: GetCurrentLayoutReply) {
-    val reply = new GetCurrentLayoutReplyMessage(msg.meetingID, msg.requesterID, msg.setByUserID, msg.layoutID, msg.locked)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, reply.toJson())
   }
 
   private def handleMeetingState(msg: MeetingState) {
