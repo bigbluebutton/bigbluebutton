@@ -6,14 +6,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.bigbluebutton.common.messages.BroadcastLayoutMessage;
-import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage;
 import org.bigbluebutton.common.messages.GuestPolicyChangedMessage;
 import org.bigbluebutton.common.messages.GetGuestPolicyReplyMessage;
 import org.bigbluebutton.common.messages.GetRecordingStatusReplyMessage;
 import org.bigbluebutton.common.messages.GetUsersReplyMessage;
 import org.bigbluebutton.common.messages.GuestAccessDeniedMessage;
-import org.bigbluebutton.common.messages.LockLayoutMessage;
 import org.bigbluebutton.common.messages.PresenterAssignedMessage;
 import org.bigbluebutton.common.messages.RecordingStatusChangedMessage;
 import org.bigbluebutton.common.messages.UserEmojiStatusMessage;
@@ -193,15 +190,6 @@ public class UserClientMessageSender {
               processGuestAccessDeniedMessage(gadm);
             }
             break;
-          case GetCurrentLayoutReplyMessage.GET_CURRENT_LAYOUT_REPLY:
-            processGetCurrentLayoutReplyMessage(message);
-            break;
-          case BroadcastLayoutMessage.BROADCAST_LAYOUT:
-            processBroadcastLayoutMessage(message);
-            break;
-          case LockLayoutMessage.LOCK_LAYOUT:
-            processLockLayoutMessage(message);
-            break;
           case UserEjectedFromMeetingMessage.USER_EJECTED_FROM_MEETING:
             processUserEjectedFromMeetingMessage(message);
             break;
@@ -260,52 +248,6 @@ public class UserClientMessageSender {
       System.out.println("**** User [" + msg.userId + "] was ejected by [" + msg.ejectedBy + "]");  
       DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "userEjectedFromMeeting", args);
       service.sendMessage(m);
-    }
-  }
-  
-  private void processLockLayoutMessage(String message) {
-    LockLayoutMessage msg = LockLayoutMessage.fromJson(message);
-    if (msg != null) {
-      Map<String, Object> args = new HashMap<String, Object>();  
-      args.put("locked", msg.locked);
-      args.put("setById", msg.setByUserid);	    
-      
-      Iterator<String> usersIter = msg.users.iterator();
-      while (usersIter.hasNext()){
-        String user = usersIter.next();
-        DirectClientMessage m = new DirectClientMessage(msg.meetingId, user, "layoutLocked", args);
-        service.sendMessage(m);
-      }
-    }
-  }
-
-  private void processBroadcastLayoutMessage(String message) {
-    BroadcastLayoutMessage msg = BroadcastLayoutMessage.fromJson(message);
-    if (msg != null) {
-      Map<String, Object> args = new HashMap<String, Object>();  
-      args.put("locked", msg.locked);
-      args.put("setByUserID", msg.setByUserid);	    
-      args.put("layout", msg.layout);
-  
-      Iterator<String> usersIter = msg.users.iterator();
-      while (usersIter.hasNext()){
-        String user = usersIter.next();
-        DirectClientMessage m = new DirectClientMessage(msg.meetingId, user, "syncLayout", args);
-        service.sendMessage(m);
-      }
-    }
-  }
-
-  private void processGetCurrentLayoutReplyMessage(String message) {
-    GetCurrentLayoutReplyMessage msg = GetCurrentLayoutReplyMessage.fromJson(message);
-    if (msg != null) {
-      Map<String, Object> args = new HashMap<String, Object>();  
-      args.put("locked", msg.locked);
-      args.put("setById", msg.setByUserid);	    
-      args.put("layout", msg.layout);
- 
-      DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requestedByUserid, "getCurrentLayoutResponse", args);
-      service.sendMessage(m);	
     }
   }
 

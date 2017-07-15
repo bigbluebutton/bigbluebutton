@@ -80,52 +80,6 @@ case class StartRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceCo
 case class StopRecordingVoiceConf(meetingID: String, recorded: Boolean, voiceConfId: String, recordedStream: String) extends IOutMessage
 case class StopRecording(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
 
-// Layout
-case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
-                                 locked: Boolean, setByUserID: String) extends IOutMessage
-case class BroadcastLayoutEvent(meetingID: String, recorded: Boolean, requesterID: String,
-                                layoutID: String, locked: Boolean, setByUserID: String, applyTo: Array[UserVO]) extends IOutMessage
-case class LockLayoutEvent(meetingID: String, recorded: Boolean, setById: String, locked: Boolean,
-                           applyTo: Array[UserVO]) extends IOutMessage
-
-// Presentation
-case class ClearPresentationOutMsg(meetingID: String, recorded: Boolean) extends IOutMessage
-case class RemovePresentationOutMsg(meetingID: String, recorded: Boolean, presentationID: String) extends IOutMessage
-case class GetPresentationInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String,
-                                     info: CurrentPresentationInfo, replyTo: String) extends IOutMessage
-case class ResizeAndMoveSlideOutMsg(meetingID: String, recorded: Boolean, page: Page) extends IOutMessage
-case class GotoSlideOutMsg(meetingID: String, recorded: Boolean, page: Page) extends IOutMessage
-case class SharePresentationOutMsg(meetingID: String, recorded: Boolean, presentation: Presentation) extends IOutMessage
-case class GetSlideInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, page: Page, replyTo: String) extends IOutMessage
-case class GetPreuploadedPresentationsOutMsg(meetingID: String, recorded: Boolean) extends IOutMessage
-case class PresentationConversionProgress(meetingID: String, messageKey: String, code: String,
-                                          presentationId: String, presentationName: String) extends IOutMessage
-case class PresentationConversionError(meetingID: String, messageKey: String, code: String,
-                                       presentationId: String, numberOfPages: Int, maxNumberPages: Int, presentationName: String) extends IOutMessage
-case class PresentationPageGenerated(meetingID: String, messageKey: String, code: String, presentationId: String,
-                                     numberOfPages: Int, pagesCompleted: Int, presentationName: String) extends IOutMessage
-case class PresentationConversionDone(meetingID: String, recorded: Boolean, messageKey: String, code: String,
-                                      presentation: Presentation) extends IOutMessage
-case class PresentationChanged(meetingID: String, presentation: Presentation) extends IOutMessage
-case class GetPresentationStatusReply(meetingID: String, presentations: Seq[Presentation], current: Presentation, replyTo: String) extends IOutMessage
-case class PresentationRemoved(meetingID: String, presentationId: String) extends IOutMessage
-case class PageChanged(meetingID: String, page: Page) extends IOutMessage
-
-// Polling
-//case class PollCreatedMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String, poll: PollVO) extends IOutMessage
-//case class CreatePollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String, pollType: String) extends IOutMessage
-case class PollStartedMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String, poll: SimplePollOutVO) extends IOutMessage
-case class StartPollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
-case class PollStoppedMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String) extends IOutMessage
-case class StopPollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String) extends IOutMessage
-case class PollShowResultMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String, poll: SimplePollResultOutVO) extends IOutMessage
-case class ShowPollResultReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
-case class PollHideResultMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String) extends IOutMessage
-case class HidePollResultReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
-case class UserRespondedToPollMessage(meetingID: String, recorded: Boolean, presenterId: String, pollId: String, poll: SimplePollResultOutVO) extends IOutMessage
-case class RespondToPollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
-case class GetCurrentPollReplyMessage(meetingID: String, recorded: Boolean, requesterId: String, hasPoll: Boolean, poll: Option[PollVO]) extends IOutMessage
-
 // No idea what part this is for
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 

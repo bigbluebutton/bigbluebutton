@@ -59,7 +59,6 @@ class MeetingActor(
     with BreakoutApp2x
     with UsersApp2x
 
-    with PresentationApp
     with WhiteboardApp
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
@@ -103,7 +102,10 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW)
 
-  //var inactivityTracker = new MeetingInactivityTracker()
+  var inactivityTracker = new MeetingInactivityTracker(
+    liveMeeting.props.durationProps.maxInactivityTimeoutMinutes,
+    liveMeeting.props.durationProps.warnMinutesBeforeMax, System.currentTimeMillis(), false, 0L
+  )
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -130,7 +132,6 @@ class MeetingActor(
     case msg: MonitorNumberOfUsers             => handleMonitorNumberOfUsers(msg)
 
     case msg: AllowUserToShareDesktop          => handleAllowUserToShareDesktop(msg)
-    case msg: InitializeMeeting                => handleInitializeMeeting(msg)
     case msg: ExtendMeetingDuration            => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate          => handleSendTimeRemainingUpdate(msg)
 
@@ -156,7 +157,7 @@ class MeetingActor(
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: MeetingActivityResponseCmdMsg => handleMeetingActivityResponseCmdMsg(m)
+      case m: MeetingActivityResponseCmdMsg => inactivityTracker = handleMeetingActivityResponseCmdMsg(m, inactivityTracker)
       case m: LogoutAndEndMeetingCmdMsg => handleLogoutAndEndMeetingCmdMsg(m)
       case m: SetRecordingStatusCmdMsg => handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg => handleGetRecordingStatusReqMsg(m)
@@ -320,6 +321,12 @@ class MeetingActor(
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsers) {
+    inactivityTracker = MeetingInactivityTrackerHelper.processMeetingInactivityAudit(
+      props = liveMeeting.props,
+      outGW,
+      eventBus,
+      inactivityTracker
+    )
     monitorNumberOfWebUsers()
     monitorNumberOfUsers()
   }

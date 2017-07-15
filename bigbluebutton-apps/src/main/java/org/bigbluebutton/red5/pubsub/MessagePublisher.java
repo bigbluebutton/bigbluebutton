@@ -13,31 +13,6 @@ public class MessagePublisher {
 		this.sender = sender;
 	}
 	
-	// Polling 
-	public void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId) {
-		VotePollUserRequestMessage msg = new VotePollUserRequestMessage(meetingId, userId, pollId, questionId, answerId);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-
-	public void sendPollingMessage(String json) {		
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, json);
-	}
-	
-	public void startPoll(String meetingId, String requesterId, String pollId, String pollType) {
-		StartPollRequestMessage msg = new StartPollRequestMessage(meetingId, requesterId, pollId, pollType);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-	
-	public void stopPoll(String meetingId, String userId, String pollId) {
-		StopPollRequestMessage msg = new StopPollRequestMessage(meetingId, userId, pollId);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-	
-	public void showPollResult(String meetingId, String requesterId, String pollId, Boolean show) {
-		ShowPollResultRequestMessage msg = new ShowPollResultRequestMessage(meetingId, requesterId, pollId, show);
-		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
-	}
-	
 	public void initLockSettings(String meetingID, Map<String, Boolean> permissions) {
 		InitPermissionsSettingMessage msg = new InitPermissionsSettingMessage(meetingID, permissions);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
@@ -167,75 +142,6 @@ public class MessagePublisher {
 	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
 		EjectUserFromMeetingRequestMessage msg = new EjectUserFromMeetingRequestMessage(meetingId, userId, ejectedBy);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
-	}
-
-	public void removePresentation(String meetingID, String presentationID) {
-		RemovePresentationMessage msg = new RemovePresentationMessage(meetingID, presentationID);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void getPresentationInfo(String meetingID, String requesterID, String replyTo) {
-		GetPresentationInfoMessage msg = new GetPresentationInfoMessage(meetingID, requesterID, replyTo);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-
-	}
-
-	public void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio) {
-		ResizeAndMoveSlideMessage msg = new ResizeAndMoveSlideMessage(meetingID, xOffset, yOffset, widthRatio, heightRatio);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void gotoSlide(String meetingID, String page) {
-		GoToSlideMessage msg = new GoToSlideMessage(meetingID, page);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sharePresentation(String meetingID, String presentationID, boolean share) {
-		SharePresentationMessage msg = new SharePresentationMessage(meetingID, presentationID, share);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void getSlideInfo(String meetingID, String requesterID, String replyTo) {
-		GetSlideInfoMessage msg = new GetSlideInfoMessage(meetingID, requesterID, replyTo);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendConversionUpdate(String messageKey, String meetingId, String code, String presId, String presName) {
-		SendConversionUpdateMessage msg = new SendConversionUpdateMessage(messageKey, meetingId, code, presId, presName);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendPageCountError(String messageKey, String meetingId, String code, String presId, int numberOfPages, int maxNumberPages, String presName) {
-		SendPageCountErrorMessage msg = new SendPageCountErrorMessage(messageKey, meetingId, code, presId, numberOfPages, maxNumberPages, presName);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendSlideGenerated(String messageKey, String meetingId, String code, String presId, int numberOfPages, int pagesCompleted, String presName) {
-		SendSlideGeneratedMessage msg = new SendSlideGeneratedMessage(messageKey, meetingId, code, presId, numberOfPages, pagesCompleted, presName);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void sendConversionCompleted(String messageKey, String meetingId,
-			String code, String presId, int numPages, String presName,
-			String presBaseUrl, Boolean downloadable) {
-		SendConversionCompletedMessage msg = new SendConversionCompletedMessage(messageKey, meetingId,
-				code, presId, numPages, presName, presBaseUrl, downloadable);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
-	public void getCurrentLayout(String meetingID, String requesterID) {
-		GetCurrentLayoutRequestMessage msg = new GetCurrentLayoutRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
-	}
-
-	public void broadcastLayout(String meetingID, String requesterID, String layout) {
-		BroadcastLayoutRequestMessage msg = new BroadcastLayoutRequestMessage(meetingID, requesterID, layout);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
-	}
-
-	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
-		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
 	// could be improved by doing some factorization

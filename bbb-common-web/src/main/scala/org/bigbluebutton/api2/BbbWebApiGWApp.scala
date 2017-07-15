@@ -85,11 +85,15 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
                     sequence: java.lang.Integer,
                     metadata: java.util.Map[String, String], guestPolicy: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                   dialNumber: String, maxUsers: java.lang.Integer): Unit = {
+                   dialNumber: String, maxUsers: java.lang.Integer, maxInactivityTimeoutMinutes: java.lang.Integer,
+                    warnMinutesBeforeMax: java.lang.Integer): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
-    val durationProps = DurationProps(duration = duration.intValue(), createdTime = createTime.longValue(), createDate)
+    val durationProps = DurationProps(duration = duration.intValue(),
+      createdTime = createTime.longValue(), createDate,
+      maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes.intValue(),
+      warnMinutesBeforeMax = warnMinutesBeforeMax.intValue())
 
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),

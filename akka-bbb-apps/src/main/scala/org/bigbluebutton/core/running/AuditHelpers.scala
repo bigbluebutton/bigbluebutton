@@ -36,20 +36,4 @@ trait AuditHelpers {
     ))
   }
 
-
-
-  def sendMeetingIsActive(props: DefaultProps, outGW: OutMessageGateway): Unit = {
-    def buildMeetingIsActiveEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
-      val envelope = BbbCoreEnvelope(MeetingIsActiveEvtMsg.NAME, routing)
-      val body = MeetingIsActiveEvtMsgBody(meetingId)
-      val header = BbbClientMsgHeader(MeetingIsActiveEvtMsg.NAME, meetingId, "not-used")
-      val event = MeetingIsActiveEvtMsg(header, body)
-
-      BbbCommonEnvCoreMsg(envelope, event)
-    }
-
-    val event = buildMeetingIsActiveEvtMsg(props.meetingProp.intId)
-    outGW.send(event)
-  }
 }

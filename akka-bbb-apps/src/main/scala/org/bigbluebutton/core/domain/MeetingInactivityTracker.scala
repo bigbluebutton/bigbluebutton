@@ -3,9 +3,9 @@ package org.bigbluebutton.core.domain
 case class MeetingInactivityTracker(
   maxInactivityTimeoutMinutes: Int,
   warningMinutesBeforeMax:     Int,
-  lastActivityTime:            Long,
+  lastActivityTimeInMinutes:   Long,
   warningSent:                 Boolean,
-  warningSentOn:               Long
+  warningSentOnTimeInMinutes:  Long
 )
 
 case class MeetingExpiryTracker(lastUserLeftOn: Long)

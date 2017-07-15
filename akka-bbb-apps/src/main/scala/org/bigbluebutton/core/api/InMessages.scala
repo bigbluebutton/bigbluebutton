@@ -29,7 +29,6 @@ case class KeepAliveMessage(aliveID: String) extends InMessage
 case class MonitorNumberOfUsers(meetingID: String) extends InMessage
 case class SendTimeRemainingUpdate(meetingId: String) extends InMessage
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
-case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingId: String) extends InMessage
@@ -109,51 +108,6 @@ case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just
 case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMessage
 case class SetGuestPolicy(meetingID: String, policy: String, setBy: String) extends InMessage
 case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
-
-///////////////////////////////////////////////////////////////////////////////////////
-// Layout
-//////////////////////////////////////////////////////////////////////////////////////
-
-case class GetCurrentLayoutRequest(meetingID: String, requesterID: String) extends InMessage
-case class LockLayoutRequest(meetingID: String, setById: String, lock: Boolean, viewersOnly: Boolean,
-                             layout: Option[String]) extends InMessage
-case class BroadcastLayoutRequest(meetingID: String, requesterID: String, layout: String) extends InMessage
-
-//////////////////////////////////////////////////////////////////////////////////////
-// Presentation
-/////////////////////////////////////////////////////////////////////////////////////
-
-case class ClearPresentation(meetingID: String) extends InMessage
-case class RemovePresentation(meetingID: String, presentationID: String) extends InMessage
-case class GetPresentationInfo(meetingID: String, requesterID: String, replyTo: String) extends InMessage
-case class ResizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double,
-                              widthRatio: Double, heightRatio: Double) extends InMessage
-case class GotoSlide(meetingID: String, page: String) extends InMessage
-case class SharePresentation(meetingID: String, presentationID: String, share: Boolean) extends InMessage
-case class GetSlideInfo(meetingID: String, requesterID: String, replyTo: String) extends InMessage
-case class PreuploadedPresentations(meetingID: String, presentations: Seq[Presentation]) extends InMessage
-case class PresentationConversionUpdate(meetingID: String, messageKey: String, code: String,
-                                        presentationId: String, presName: String) extends InMessage
-case class PresentationPageCountError(meetingID: String, messageKey: String, code: String, presentationId: String,
-                                      numberOfPages: Int, maxNumberPages: Int, presName: String) extends InMessage
-case class PresentationSlideGenerated(meetingID: String, messageKey: String, code: String, presentationId: String,
-                                      numberOfPages: Int, pagesCompleted: Int, presName: String) extends InMessage
-case class PresentationConversionCompleted(meetingID: String, messageKey: String, code: String,
-                                           presentation: Presentation) extends InMessage
-
-/////////////////////////////////////////////////////////////////////////////////////  
-// Polling
-////////////////////////////////////////////////////////////////////////////////////
-
-//case class CreatePollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StartCustomPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String, answers: Seq[String]) extends InMessage
-case class StartPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StopPollRequest(meetingID: String, requesterId: String) extends InMessage
-case class ShowPollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
-case class HidePollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
-case class RespondToPollRequest(meetingID: String, requesterId: String, pollId: String, questionId: Int, answerId: Int) extends InMessage
-case class GetPollRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
-case class GetCurrentPollRequest(meetingID: String, requesterId: String) extends InMessage
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Voice

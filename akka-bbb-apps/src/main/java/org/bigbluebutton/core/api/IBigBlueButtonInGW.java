@@ -18,12 +18,6 @@ public interface IBigBlueButtonInGW {
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
 	void activityResponse(String meetingID);
 
-	// Polling
-	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);
-	void startPoll(String meetingId, String requesterId, String pollId, String pollType);
-	void stopPoll(String meetingId, String userId, String pollId);
-	void showPollResult(String meetingId, String requesterId, String pollId, Boolean show);
-
 	// Lock
 	void initLockSettings(String meetingID, Map<String, Boolean> settings);
 	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);
@@ -71,36 +65,6 @@ public interface IBigBlueButtonInGW {
 	void voiceUserTalking(String meetingId, String userId, Boolean talking);
 	void voiceRecording(String meetingId, String recordingFile, 
 			            String timestamp, Boolean recording);
-
-	// Presentation
-	void clear(String meetingID);
-	void removePresentation(String meetingID, String presentationID);
-	void getPresentationInfo(String meetingID, String requesterID, String replyTo);
-	void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio);
-	void gotoSlide(String meetingID, String page);
-	void sharePresentation(String meetingID, String presentationID, boolean share);
-	void getSlideInfo(String meetingID, String requesterID, String replyTo);
-
-	void sendConversionUpdate(String messageKey, String meetingId, 
-            String code, String presId, String presName); 
-
-	void sendPageCountError(String messageKey, String meetingId, 
-            String code, String presId, int numberOfPages,
-            int maxNumberPages, String presName);
-
-	void sendSlideGenerated(String messageKey, String meetingId, 
-            String code, String presId, int numberOfPages,
-            int pagesCompleted, String presName);
-
-	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presId, int numPages, String presName, String presBaseUrl, boolean downloadable);
-
-	// Layout
-	void getCurrentLayout(String meetingID, String requesterID);
-	void broadcastLayout(String meetingID, String requesterID, String layout);
-	void lockLayout(String meetingID, String setById, 
-                  boolean lock, boolean viewersOnly,
-                  String layout);
 
 	// DeskShare
 	void deskShareStarted(String confId, String callerId, String callerIdName);

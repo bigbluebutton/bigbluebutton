@@ -11,23 +11,14 @@ import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
-import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
-import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
-import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import org.bigbluebutton.common.messages.AllowUserToShareDesktopReply
-import org.bigbluebutton.core.apps.Page
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.SimplePollResultOutVO
-import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage
-import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
-import org.bigbluebutton.common.messages.BroadcastLayoutMessage
 import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage
-import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.common.converters.ToJsonEncoder
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
 import scala.collection.JavaConverters
@@ -71,22 +62,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
     case msg: StartRecordingVoiceConf => handleStartRecordingVoiceConf(msg)
     case msg: StopRecordingVoiceConf => handleStopRecordingVoiceConf(msg)
-    case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
-    case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
-    case msg: GetPresentationInfoOutMsg => handleGetPresentationInfoOutMsg(msg)
-    case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
-    case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
-    case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
-    case msg: GetSlideInfoOutMsg => handleGetSlideInfoOutMsg(msg)
-    case msg: PresentationConversionProgress => handlePresentationConversionProgress(msg)
-    case msg: PresentationConversionError => handlePresentationConversionError(msg)
-    case msg: PresentationPageGenerated => handlePresentationPageGenerated(msg)
-    case msg: PresentationConversionDone => handlePresentationConversionDone(msg)
-    case msg: PollStartedMessage => handlePollStartedMessage(msg)
-    case msg: PollStoppedMessage => handlePollStoppedMessage(msg)
-    case msg: PollShowResultMessage => handlePollShowResultMessage(msg)
-    case msg: PollHideResultMessage => handlePollHideResultMessage(msg)
-    case msg: UserRespondedToPollMessage => handleUserRespondedToPollMessage(msg)
     case msg: MeetingMuted => handleMeetingMuted(msg)
     case msg: MeetingState => handleMeetingState(msg)
     case msg: DisconnectAllUsers => handleDisconnectAllUsers(msg)
@@ -119,9 +94,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UserLeftVoice => handleUserLeftVoice(msg)
     case msg: IsMeetingMutedReply => handleIsMeetingMutedReply(msg)
     case msg: UserListeningOnly => handleUserListeningOnly(msg)
-    case msg: GetCurrentLayoutReply => handleGetCurrentLayoutReply(msg)
-    case msg: BroadcastLayoutEvent => handleBroadcastLayoutEvent(msg)
-    case msg: LockLayoutEvent => handleLockLayoutEvent(msg)
     // breakout room cases
     case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
@@ -242,200 +214,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleMeetingIsActive(msg: MeetingIsActive) {
     val json = MeetingMessageToJsonConverter.meetingIsActiveToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }
-
-  private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
-    val json = PesentationMessageToJsonConverter.clearPresentationOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
-    val m = new PresentationRemovedMessage(msg.meetingID, msg.presentationID)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, m.toJson())
-  }
-
-  private def handleGetPresentationInfoOutMsg(msg: GetPresentationInfoOutMsg) {
-
-  }
-
-  private def handleResizeAndMoveSlideOutMsg(msg: ResizeAndMoveSlideOutMsg) {
-    val json = PesentationMessageToJsonConverter.resizeAndMoveSlideOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
-    val json = PesentationMessageToJsonConverter.gotoSlideOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {
-    val json = PesentationMessageToJsonConverter.sharePresentationOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handleGetSlideInfoOutMsg(msg: GetSlideInfoOutMsg) {
-    val json = PesentationMessageToJsonConverter.getSlideInfoOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handleGetPreuploadedPresentationsOutMsg(msg: GetPreuploadedPresentationsOutMsg) {
-    val json = PesentationMessageToJsonConverter.getPreuploadedPresentationsOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePresentationConversionProgress(msg: PresentationConversionProgress) {
-    val json = PesentationMessageToJsonConverter.presentationConversionProgressToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePresentationConversionError(msg: PresentationConversionError) {
-    val json = PesentationMessageToJsonConverter.presentationConversionErrorToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePresentationPageGenerated(msg: PresentationPageGenerated) {
-    val json = PesentationMessageToJsonConverter.presentationPageGenerated(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePresentationConversionDone(msg: PresentationConversionDone) {
-    val json = PesentationMessageToJsonConverter.presentationConversionDoneToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePresentationChanged(msg: PresentationChanged) {
-    val json = PesentationMessageToJsonConverter.presentationChangedToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handleGetPresentationStatusReply(msg: GetPresentationStatusReply) {
-    val json = PesentationMessageToJsonConverter.getPresentationStatusReplyToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePresentationRemoved(msg: PresentationRemoved) {
-    val json = PesentationMessageToJsonConverter.presentationRemovedToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePageChanged(msg: PageChanged) {
-    val json = PesentationMessageToJsonConverter.pageChangedToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handlePollStartedMessage(msg: PollStartedMessage) {
-    val json = pollStartedMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handlePollStoppedMessage(msg: PollStoppedMessage) {
-    val json = pollStoppedMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handlePollShowResultMessage(msg: PollShowResultMessage) {
-    val json = pollShowResultMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handlePollHideResultMessage(msg: PollHideResultMessage) {
-    val json = pollHideResultMessageToJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def handleUserRespondedToPollMessage(msg: UserRespondedToPollMessage) {
-    val json = UserRespondedToPollMessageTpJson(msg)
-    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
-  }
-
-  private def pollVOtoMap(msg: SimplePollOutVO): java.util.HashMap[String, Object] = {
-    val pollVO = new java.util.HashMap[String, Object]()
-    pollVO.put("id", msg.id)
-
-    val answers = new java.util.ArrayList[java.util.Map[String, Any]];
-    msg.answers.foreach(ans => {
-      val amap = new java.util.HashMap[String, Any]()
-      amap.put("id", ans.id)
-      amap.put("key", ans.key)
-      answers.add(amap)
-    })
-
-    pollVO.put("answers", answers)
-
-    pollVO
-  }
-
-  private def pollStartedMessageToJson(msg: PollStartedMessage): String = {
-    val pollVO = pollVOtoMap(msg.poll)
-    val psm = new org.bigbluebutton.common.messages.PollStartedMessage(msg.meetingID, msg.requesterId, pollVO)
-    psm.toJson
-  }
-
-  private def pollStoppedMessageToJson(msg: PollStoppedMessage): String = {
-    val psm = new org.bigbluebutton.common.messages.PollStoppedMessage(msg.meetingID, msg.requesterId, msg.pollId)
-    psm.toJson
-  }
-
-  private def pollResultVOtoMap(msg: SimplePollResultOutVO): java.util.HashMap[String, Object] = {
-    val pollVO = new java.util.HashMap[String, Object]()
-    pollVO.put("id", msg.id)
-    pollVO.put("num_respondents", msg.numRespondents: java.lang.Integer)
-    pollVO.put("num_responders", msg.numResponders: java.lang.Integer)
-    val answers = new java.util.ArrayList[java.util.Map[String, Any]];
-    msg.answers.foreach(ans => {
-      val amap = new java.util.HashMap[String, Any]()
-      amap.put("id", ans.id)
-      amap.put("key", ans.key)
-      amap.put("num_votes", ans.numVotes)
-      answers.add(amap)
-    })
-
-    pollVO.put("answers", answers)
-
-    pollVO
-  }
-
-  private def pollShowResultMessageToJson(msg: PollShowResultMessage): String = {
-    val pollResultVO = pollResultVOtoMap(msg.poll)
-
-    val psm = new org.bigbluebutton.common.messages.PollShowResultMessage(msg.meetingID, pollResultVO)
-    psm.toJson
-  }
-
-  private def pollHideResultMessageToJson(msg: PollHideResultMessage): String = {
-    val psm = new org.bigbluebutton.common.messages.PollHideResultMessage(msg.meetingID, msg.pollId)
-    psm.toJson
-  }
-
-  private def UserRespondedToPollMessageTpJson(msg: UserRespondedToPollMessage): String = {
-    val pollResultVO = pollResultVOtoMap(msg.poll)
-    val psm = new org.bigbluebutton.common.messages.UserVotedPollMessage(msg.meetingID, msg.presenterId, pollResultVO)
-    psm.toJson
-  }
-
-  private def handleLockLayoutEvent(msg: LockLayoutEvent) {
-    val users = new java.util.ArrayList[String];
-    msg.applyTo.foreach(uvo => {
-      users.add(uvo.id)
-    })
-
-    val evt = new LockLayoutMessage(msg.meetingID, msg.setById, msg.locked, users)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, evt.toJson())
-  }
-
-  private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
-    val users = new java.util.ArrayList[String];
-    msg.applyTo.foreach(uvo => {
-      users.add(uvo.id)
-    })
-
-    val evt = new BroadcastLayoutMessage(msg.meetingID, msg.setByUserID, msg.layoutID, msg.locked, users)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, evt.toJson())
-  }
-
-  private def handleGetCurrentLayoutReply(msg: GetCurrentLayoutReply) {
-    val reply = new GetCurrentLayoutReplyMessage(msg.meetingID, msg.requesterID, msg.setByUserID, msg.layoutID, msg.locked)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, reply.toJson())
   }
 
   private def handleMeetingState(msg: MeetingState) {

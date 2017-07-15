@@ -125,6 +125,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultConfigURL" value="${defaultConfigURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
+        <property name="maxInactivityTimeoutMinutes" value="${maxInactivityTimeoutMinutes}"/>
+        <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

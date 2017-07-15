@@ -35,10 +35,11 @@ const addWelcomeChatMessage = (meetingId, userId) => {
 };
 
 export default function handleValidateAuthToken({ body }, meetingId) {
-  const { userId, valid } = body;
+  const { userId, valid, waitForApproval } = body;
 
   check(userId, String);
   check(valid, Boolean);
+  check(waitForApproval, Boolean);
 
   const selector = {
     meetingId,
@@ -56,6 +57,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   const modifier = {
     $set: {
       validated: valid,
+      approved: !waitForApproval,
     },
   };
 

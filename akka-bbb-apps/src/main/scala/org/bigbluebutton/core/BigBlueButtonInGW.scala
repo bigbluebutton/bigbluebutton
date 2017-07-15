@@ -4,15 +4,12 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 
 import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.{ Presentation }
 import akka.actor.ActorSystem
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
-import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import akka.event.Logging
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.models.{ GuestPolicyType, Roles }
 
 import scala.collection.JavaConverters
@@ -33,15 +30,6 @@ class BigBlueButtonInGW(
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
     message match {
-      case msg: StartCustomPollRequestMessage => {
-        eventBus.publish(
-          BigBlueButtonEvent(
-            msg.payload.meetingId,
-            new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId,
-              msg.payload.pollId, msg.payload.pollType, msg.payload.answers)
-          )
-        )
-      }
       case msg: PubSubPingMessage => {
         eventBus.publish(
           BigBlueButtonEvent("meeting-manager", new PubSubPing(msg.payload.system, msg.payload.timestamp))
@@ -327,105 +315,6 @@ class BigBlueButtonInGW(
   }
 
   /**
-   * ************************************************************************************
-   * Message Interface for Presentation
-   * ************************************************************************************
-   */
-
-  def clear(meetingID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new ClearPresentation(meetingID)))
-  }
-
-  def sendConversionUpdate(messageKey: String, meetingId: String, code: String, presentationId: String, presName: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationConversionUpdate(meetingId, messageKey, code, presentationId, presName)))
-  }
-
-  def sendPageCountError(messageKey: String, meetingId: String, code: String, presentationId: String, numberOfPages: Int, maxNumberPages: Int, presName: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationPageCountError(meetingId, messageKey, code, presentationId, numberOfPages, maxNumberPages, presName)))
-  }
-
-  def sendSlideGenerated(messageKey: String, meetingId: String, code: String, presentationId: String, numberOfPages: Int, pagesCompleted: Int, presName: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationSlideGenerated(meetingId, messageKey, code, presentationId, numberOfPages, pagesCompleted, presName)))
-  }
-
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.Map[String, PageVO] = {
-    var pages = new scala.collection.mutable.HashMap[String, PageVO]
-    for (i <- 1 to numPages) {
-      val id = presId + "/" + i
-      val num = i;
-      val current = if (i == 1) true else false
-      val thumbnail = presBaseUrl + "/thumbnail/" + i
-      val swfUri = presBaseUrl + "/slide/" + i
-
-      val txtUri = presBaseUrl + "/textfiles/" + i
-      val svgUri = presBaseUrl + "/svg/" + i
-
-      val p = new PageVO(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
-        txtUri = txtUri, svgUri = svgUri,
-        current = current)
-      pages += p.id -> p
-    }
-
-    pages.toMap
-  }
-
-  def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String, downloadable: Boolean) {
-
-    val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
-    val presentation = new Presentation(id = presentationId, name = presName, current = true, pages = pages, downloadable = downloadable)
-    eventBus.publish(BigBlueButtonEvent(meetingId, new PresentationConversionCompleted(meetingId, messageKey, code, presentation)))
-
-  }
-
-  def removePresentation(meetingID: String, presentationID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new RemovePresentation(meetingID, presentationID)))
-  }
-
-  def getPresentationInfo(meetingID: String, requesterID: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetPresentationInfo(meetingID, requesterID, replyTo)))
-  }
-
-  def resizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new ResizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio)))
-  }
-
-  def gotoSlide(meetingID: String, pageId: String) {
-    //	  println("**** Forwarding GotoSlide for meeting[" + meetingID + "] ****")
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GotoSlide(meetingID, pageId)))
-  }
-
-  def sharePresentation(meetingID: String, presentationID: String, share: Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SharePresentation(meetingID, presentationID, share)))
-  }
-
-  def getSlideInfo(meetingID: String, requesterID: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetSlideInfo(meetingID, requesterID, replyTo)))
-  }
-
-  /**
-   * ***********************************************************************
-   * Message Interface for Layout
-   * *******************************************************************
-   */
-
-  def getCurrentLayout(meetingID: String, requesterID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetCurrentLayoutRequest(meetingID, requesterID)))
-  }
-
-  def broadcastLayout(meetingID: String, requesterID: String, layout: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new BroadcastLayoutRequest(meetingID, requesterID, layout)))
-  }
-
-  def lockLayout(meetingId: String, setById: String, lock: Boolean, viewersOnly: Boolean, layout: String) {
-    if (layout != null) {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new LockLayoutRequest(meetingId, setById, lock, viewersOnly, Some(layout))))
-    } else {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new LockLayoutRequest(meetingId, setById, lock, viewersOnly, None)))
-    }
-
-  }
-
-  /**
    * *******************************************************************
    * Message Interface for Voice
    * *****************************************************************
@@ -507,26 +396,5 @@ class BigBlueButtonInGW(
 
   def deskShareGetInfoRequest(meetingId: String, requesterId: String, replyTo: String): Unit = {
     eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareGetDeskShareInfoRequest(meetingId, requesterId, replyTo)))
-  }
-
-  // Polling
-  def votePoll(meetingId: String, userId: String, pollId: String, questionId: Integer, answerId: Integer) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new RespondToPollRequest(meetingId, userId, pollId, questionId, answerId)))
-  }
-
-  def startPoll(meetingId: String, requesterId: String, pollId: String, pollType: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new StartPollRequest(meetingId, requesterId, pollId, pollType)))
-  }
-
-  def stopPoll(meetingId: String, userId: String, pollId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new StopPollRequest(meetingId, userId)))
-  }
-
-  def showPollResult(meetingId: String, requesterId: String, pollId: String, show: java.lang.Boolean) {
-    if (show) {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new ShowPollResultRequest(meetingId, requesterId, pollId)))
-    } else {
-      eventBus.publish(BigBlueButtonEvent(meetingId, new HidePollResultRequest(meetingId, requesterId, pollId)))
-    }
   }
 }

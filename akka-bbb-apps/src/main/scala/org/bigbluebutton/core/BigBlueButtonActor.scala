@@ -114,8 +114,6 @@ class BigBlueButtonActor(
 
         RunningMeetings.add(meetings, m)
 
-        m.actorRef ! new InitializeMeeting(m.props.meetingProp.intId, m.props.recordProp.record)
-
         // Send new 2x message
         val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(m.props.meetingProp.intId, msg.body.props)
         outGW.send(msgEvent)

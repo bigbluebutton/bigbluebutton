@@ -155,7 +155,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val registeredUsers = new RegisteredUsers
         val users2x = new Users2x
         val state = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
-          registeredUsers, polls2x, pollModel, wbModel, presModel, breakoutRooms, captionModel,
+          registeredUsers, polls2x, wbModel, presModel, breakoutRooms, captionModel,
           notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 
         // Set the guest policy to ask moderator
