@@ -188,7 +188,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			 attempt to share
 		*/
 		private function webRTCWorksAndConfigured (message:String):void {
-			LOGGER.debug("WebRTC Screenshare works, start sharing: ", message);
+			LOGGER.debug("WebRTC Screenshare works, start sharing: " + message);
 			JSLog.warn("WebRTC Screenshare works, start sharing: ", message);
 			usingWebRTC = true;
 			startWebRTCDeskshare();
