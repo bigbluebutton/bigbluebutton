@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.screenshare.utils
 
       // https is required for verto and for peripheral sharing
       if (!BrowserCheck.isHttps()) {
-        cannotUseWebRTC("Requires Https");
+        cannotUseWebRTC("WebRTC Screensharing requires an HTTPS connection");
         return;
       }
 
@@ -53,13 +53,13 @@ package org.bigbluebutton.modules.screenshare.utils
 
       // fail if you dont want to try webrtc first
       if (!options.tryWebRTCFirst) {
-        cannotUseWebRTC("not supposed to try WebRTC first (config.xml)");
+        cannotUseWebRTC("WebRTC Screensharing is not priority over Java");
         return;
       }
 
       // webrtc isnt even supported
       if (!BrowserCheck.isWebRTCSupported()) {
-        cannotUseWebRTC("Web browser doesn't support WebRTC");
+        cannotUseWebRTC("Web browser does not support WebRTC");
         return;
       }
 
