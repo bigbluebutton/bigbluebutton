@@ -74,10 +74,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService"
                 init-method="start" destroy-method="stop"/>
 
-    <bean id="layout.service" class="org.bigbluebutton.red5.service.LayoutService">
-        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
-    </bean>
-
     <bean id="desktopSharing.service" class="org.bigbluebutton.red5.service.DesktopSharingService">
         <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>

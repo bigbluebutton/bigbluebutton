@@ -144,21 +144,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
-	public void getCurrentLayout(String meetingID, String requesterID) {
-		GetCurrentLayoutRequestMessage msg = new GetCurrentLayoutRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
-	}
-
-	public void broadcastLayout(String meetingID, String requesterID, String layout) {
-		BroadcastLayoutRequestMessage msg = new BroadcastLayoutRequestMessage(meetingID, requesterID, layout);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
-	}
-
-	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
-		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
-	}
-
 	// could be improved by doing some factorization
 	public void getBreakoutRoomsList(String jsonMessage) {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
