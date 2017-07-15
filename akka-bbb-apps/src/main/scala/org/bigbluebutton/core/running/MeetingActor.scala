@@ -16,6 +16,7 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.meeting._
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
+import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -50,8 +51,8 @@ class MeetingActor(val props: DefaultProps,
     with PollApp2x
     with BreakoutApp2x
     with UsersApp2x
+    with WhiteboardApp2x
 
-    with WhiteboardApp
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
