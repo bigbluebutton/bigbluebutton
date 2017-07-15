@@ -38,36 +38,6 @@ public class Util {
 		return null;
 	}
 	
-	public Map<String, Object> extractVoiceUser(JsonObject vu) {
-		if (vu.has(Constants.TALKING) && vu.has(Constants.LOCKED)
-				&& vu.has(Constants.MUTED) && vu.has(Constants.JOINED)
-				&& vu.has(Constants.CALLERNAME) && vu.has(Constants.CALLERNUM)
-				&& vu.has(Constants.WEB_USERID) && vu.has(Constants.USER_ID)){
-				
-			Map<String, Object> vuMap = new HashMap<String, Object>();
-			Boolean talking = vu.get(Constants.TALKING).getAsBoolean();
-			Boolean voiceLocked = vu.get(Constants.LOCKED).getAsBoolean();
-			Boolean muted = vu.get(Constants.MUTED).getAsBoolean();
-			Boolean joined = vu.get(Constants.JOINED).getAsBoolean();
-			String callername = vu.get(Constants.CALLERNAME).getAsString();
-			String callernum = vu.get(Constants.CALLERNUM).getAsString();
-			String webUserId = vu.get(Constants.WEB_USERID).getAsString();
-			String voiceUserId = vu.get(Constants.USER_ID).getAsString();
-
-			vuMap.put("talking", talking);
-			vuMap.put("locked", voiceLocked);
-			vuMap.put("muted", muted);
-			vuMap.put("joined", joined);
-			vuMap.put("callerName", callername);
-			vuMap.put("callerNum", callernum);
-			vuMap.put("webUserId", webUserId);
-			vuMap.put("userId", voiceUserId);
-			
-			return vuMap;
-		}
-		return null;
-	}
-	
 	public Map<String, Object> extractUser(JsonObject user) {
 		if (user.has(Constants.USER_ID) && user.has(Constants.NAME)
 				&& user.has(Constants.HAS_STREAM) && user.has(Constants.LISTENONLY)
@@ -113,11 +83,6 @@ public class Util {
 			
 			JsonObject vu = (JsonObject) user.get(Constants.VOICEUSER);
 			
-			Map<String, Object> vuMap = extractVoiceUser(vu);
-			if (vuMap != null) {
-				userMap.put("voiceUser", vuMap);
-				return userMap;
-			}
 		}
 		
 		return null;

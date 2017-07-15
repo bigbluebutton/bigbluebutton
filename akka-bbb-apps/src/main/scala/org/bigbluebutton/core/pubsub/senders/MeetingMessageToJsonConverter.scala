@@ -56,30 +56,6 @@ object MeetingMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def voiceRecordingStartedToJson(msg: VoiceRecordingStarted): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
-    payload.put(Constants.VOICE_CONF, msg.confNum)
-    payload.put(Constants.TIMESTAMP, msg.timestamp)
-
-    val header = Util.buildHeader(MessageNames.VOICE_RECORDING_STARTED, None)
-    Util.buildJson(header, payload)
-  }
-
-  def voiceRecordingStoppedToJson(msg: VoiceRecordingStopped): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
-    payload.put(Constants.VOICE_CONF, msg.confNum)
-    payload.put(Constants.TIMESTAMP, msg.timestamp)
-
-    val header = Util.buildHeader(MessageNames.VOICE_RECORDING_STOPPED, None)
-    Util.buildJson(header, payload)
-  }
-
   def recordingStatusChangedToJson(msg: RecordingStatusChanged): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -108,26 +84,6 @@ object MeetingMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userId)
 
     val header = Util.buildHeader(MessageNames.MEETING_ENDED, None)
-    Util.buildJson(header, payload)
-  }
-
-  def startRecordingToJson(msg: StartRecording): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-
-    val header = Util.buildHeader(MessageNames.START_RECORDING, None)
-    Util.buildJson(header, payload)
-  }
-
-  def stopRecordingToJson(msg: StopRecording): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-
-    val header = Util.buildHeader(MessageNames.STOP_RECORDING, None)
     Util.buildJson(header, payload)
   }
 

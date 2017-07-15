@@ -90,10 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
     
-    <bean id="voice.service" class="org.bigbluebutton.red5.service.VoiceService">
-        <property name="red5Publisher" ref="red5Publisher"/>
-    </bean>
-    
     <bean id="red5Publisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
         <property name="messageSender" ref="clientInGW"/>
     </bean>

@@ -15,16 +15,11 @@ import org.bigbluebutton.common.messages.PresenterAssignedMessage;
 import org.bigbluebutton.common.messages.RecordingStatusChangedMessage;
 import org.bigbluebutton.common.messages.UserEmojiStatusMessage;
 import org.bigbluebutton.common.messages.UserJoinedMessage;
-import org.bigbluebutton.common.messages.UserJoinedVoiceMessage;
 import org.bigbluebutton.common.messages.UserLeftMessage;
-import org.bigbluebutton.common.messages.UserLeftVoiceMessage;
-import org.bigbluebutton.common.messages.UserListeningOnlyMessage;
 import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
 import org.bigbluebutton.common.messages.UserStatusChangedMessage;
 import org.bigbluebutton.common.messages.UserRoleChangeMessage;
 import org.bigbluebutton.common.messages.UserUnsharedWebcamMessage;
-import org.bigbluebutton.common.messages.UserVoiceMutedMessage;
-import org.bigbluebutton.common.messages.UserVoiceTalkingMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenTimeoutMessage;
 import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage;
@@ -112,12 +107,6 @@ public class UserClientMessageSender {
               processUserEmojiStatusMessage(urhm);
             }
             break;
-          case UserListeningOnlyMessage.USER_LISTENING_ONLY:
-            UserListeningOnlyMessage ulom = UserListeningOnlyMessage.fromJson(message);
-            if (ulom != null) {
-              processUserListeningOnlyMessage(ulom);
-            }
-            break;
           case UserSharedWebcamMessage.USER_SHARED_WEBCAM:
             UserSharedWebcamMessage uswm = UserSharedWebcamMessage.fromJson(message);
             if (uswm != null) {
@@ -128,30 +117,6 @@ public class UserClientMessageSender {
             UserUnsharedWebcamMessage uuwm = UserUnsharedWebcamMessage.fromJson(message);
             if (uuwm != null) {
               processUserUnsharedWebcamMessage(uuwm);
-            }
-            break;
-          case UserJoinedVoiceMessage.USER_JOINED_VOICE:
-            UserJoinedVoiceMessage ujvm = UserJoinedVoiceMessage.fromJson(message);
-            if (ujvm != null) {
-              processUserJoinedVoiceMessage(ujvm);
-            }
-            break;
-          case UserLeftVoiceMessage.USER_LEFT_VOICE:
-            UserLeftVoiceMessage ulvm = UserLeftVoiceMessage.fromJson(message);
-            if (ulvm != null) {
-              processUserLeftVoiceMessage(ulvm);
-            }
-            break;
-          case UserVoiceMutedMessage.USER_VOICE_MUTED:
-            UserVoiceMutedMessage uvmm = UserVoiceMutedMessage.fromJson(message);
-            if (uvmm != null) {
-              processUserVoiceMutedMessage(uvmm);
-            }
-            break;
-          case UserVoiceTalkingMessage.USER_VOICE_TALKING:
-            UserVoiceTalkingMessage uvtm = UserVoiceTalkingMessage.fromJson(message);
-            if (uvtm != null) {
-              processUserVoiceTalkingMessage(uvtm);
             }
             break;
           case RecordingStatusChangedMessage.RECORDING_STATUS_CHANGED:
@@ -333,19 +298,6 @@ public class UserClientMessageSender {
     service.sendMessage(m);	
   }
 
-  private void processUserListeningOnlyMessage(UserListeningOnlyMessage msg) {	  			
-    Map<String, Object> args = new HashMap<String, Object>();	
-    args.put("userId", msg.userId);
-    args.put("listenOnly", msg.listenOnly);
- 
-    Map<String, Object> message = new HashMap<String, Object>();
-    Gson gson = new Gson();
-    message.put("msg", gson.toJson(args));
-
-    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "user_listening_only", message);
-    service.sendMessage(m);	
-  }
-
   private void processUserStatusChangedMessage(UserStatusChangedMessage msg) {	  	
     Map<String, Object> args = new HashMap<String, Object>();	
     args.put("userID", msg.userId);
@@ -400,68 +352,6 @@ public class UserClientMessageSender {
 
     BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userUnsharedWebcam", message);
     service.sendMessage(m);
-  }
-  
-  private void processUserJoinedVoiceMessage(UserJoinedVoiceMessage msg) {	  	
-    Map<String, Object> args = new HashMap<String, Object>();	
-    args.put("meetingID", msg.meetingId);
-    args.put("user", msg.user);
-
-    Map<String, Object> message = new HashMap<String, Object>();
-    Gson gson = new Gson();
-    message.put("msg", gson.toJson(args));
-
-    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userJoinedVoice", message);
-    service.sendMessage(m);	
-  }
-
-  private void processUserLeftVoiceMessage(UserLeftVoiceMessage msg) {	  	
-    Map<String, Object> args = new HashMap<String, Object>();	
-    args.put("meetingID", msg.meetingId);
-    args.put("user", msg.user);
-
-    Map<String, Object> message = new HashMap<String, Object>();
-    Gson gson = new Gson();
-    message.put("msg", gson.toJson(args));
-
-    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLeftVoice", message);
-    service.sendMessage(m);	
-  }
-
-  private void processUserVoiceMutedMessage(UserVoiceMutedMessage msg) {	  	
-    Map<String, Object> args = new HashMap<String, Object>();	
-    args.put("meetingID", msg.meetingId);
-    args.put("userId", msg.user.get("userId"));
-
-    Map<String, Object> vuMap = (Map<String, Object>) msg.user.get("voiceUser");
-
-    args.put("voiceUserId", (String) vuMap.get("userId"));
-    args.put("muted", (Boolean) vuMap.get("muted"));
-  
-    Map<String, Object> message = new HashMap<String, Object>();
-    Gson gson = new Gson();
-    message.put("msg", gson.toJson(args));
-
-    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserMuted", message);
-    service.sendMessage(m);		
-  }
-
-  private void processUserVoiceTalkingMessage(UserVoiceTalkingMessage msg) {	  	
-    Map<String, Object> args = new HashMap<String, Object>();	
-    args.put("meetingID", msg.meetingId);
-    args.put("userId", msg.user.get("userId"));
-
-    Map<String, Object> vuMap = (Map<String, Object>) msg.user.get("voiceUser");
-    
-    args.put("voiceUserId", (String) vuMap.get("userId"));
-    args.put("talking", (Boolean) vuMap.get("talking"));
-
-    Map<String, Object> message = new HashMap<String, Object>();
-    Gson gson = new Gson();
-    message.put("msg", gson.toJson(args));
-
-    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserTalking", message);
-    service.sendMessage(m);		
   }
 
   private void processRecordingStatusChangedMessage(RecordingStatusChangedMessage msg) {	  	

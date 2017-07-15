@@ -103,39 +103,8 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
-	public void initAudioSettings(String meetingID, String requesterID, Boolean muted) {
-		InitAudioSettingsMessage msg = new InitAudioSettingsMessage(meetingID, requesterID, muted);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute) {
-		MuteAllExceptPresenterRequestMessage msg = new MuteAllExceptPresenterRequestMessage(meetingID, requesterID, mute);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void muteAllUsers(String meetingID, String requesterID, Boolean mute) {
-		MuteAllRequestMessage msg = new MuteAllRequestMessage(meetingID, requesterID, mute);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void isMeetingMuted(String meetingID, String requesterID) {
-		IsMeetingMutedRequestMessage msg = new IsMeetingMutedRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void muteUser(String meetingID, String requesterID, String userID, Boolean mute) {
-		MuteUserRequestMessage msg = new MuteUserRequestMessage(meetingID, requesterID, userID, mute);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-
-	}
-
 	public void lockMuteUser(String meetingID, String requesterID, String userID, Boolean lock) {
 		LockMuteUserRequestMessage msg = new LockMuteUserRequestMessage(meetingID, requesterID, userID, lock);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void ejectUserFromVoice(String meetingID, String userId, String ejectedBy) {
-		EjectUserFromVoiceRequestMessage msg = new EjectUserFromVoiceRequestMessage(meetingID, ejectedBy, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 

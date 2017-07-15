@@ -92,15 +92,6 @@ case class AllowUserToShareDesktop(meetingID: String, userID: String) extends In
 case class ActivityResponse(meetingID: String) extends InMessage
 case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
 
-//////////////////////////////////////////////////////////////////////////////////
-// Global Audio
-/////////////////////////////////////////////////////////////////////////////////
-
-case class UserConnectedToGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
-  userid: String, name: String) extends InMessage
-case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
-  userid: String, name: String) extends InMessage
-
 ///////////////////////////////////////////////////////////////////////////////////////
 // Guest support
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -108,28 +99,6 @@ case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just
 case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMessage
 case class SetGuestPolicy(meetingID: String, policy: String, setBy: String) extends InMessage
 case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
-
-///////////////////////////////////////////////////////////////////////////////////
-// Voice
-///////////////////////////////////////////////////////////////////////////////////
-
-case class InitAudioSettings(meetingID: String, requesterID: String, muted: Boolean) extends InMessage
-case class SendVoiceUsersRequest(meetingID: String, requesterID: String) extends InMessage
-case class MuteAllExceptPresenterRequest(meetingID: String, requesterID: String, mute: Boolean) extends InMessage
-case class MuteMeetingRequest(meetingID: String, requesterID: String, mute: Boolean) extends InMessage
-case class IsMeetingMutedRequest(meetingID: String, requesterID: String) extends InMessage
-case class MuteUserRequest(meetingID: String, requesterID: String, userID: String, mute: Boolean) extends InMessage
-case class LockUserRequest(meetingID: String, requesterID: String, userID: String, lock: Boolean) extends InMessage
-case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedBy: String) extends InMessage
-case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
-  callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
-case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
-  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, avatarURL: String, listenOnly: Boolean) extends InMessage
-case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String) extends InMessage
-case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean) extends InMessage
-case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean) extends InMessage
-case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean) extends InMessage
-case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String) extends InMessage
 
 // No idea what part this is for
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
