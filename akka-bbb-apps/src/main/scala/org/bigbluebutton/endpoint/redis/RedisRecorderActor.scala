@@ -50,16 +50,16 @@ class RedisRecorderActor(val system: ActorSystem)
     case msg: UserJoined => handleUserJoined(msg)
     case msg: UserLeft => handleUserLeft(msg)
     case msg: UserStatusChange => handleUserStatusChange(msg)
-    case msg: UserVoiceMuted => handleUserVoiceMuted(msg)
-    case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
-    case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
-    case msg: UserLeftVoice => handleUserLeftVoice(msg)
+    //case msg: UserVoiceMuted => handleUserVoiceMuted(msg)
+    //case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
+    //case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
+    //case msg: UserLeftVoice => handleUserLeftVoice(msg)
     case msg: RecordingStatusChanged => handleRecordingStatusChanged(msg)
     case msg: UserChangedEmojiStatus => handleChangedUserEmojiStatus(msg)
     case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
     case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
-    case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
-    case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
+    //case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
+    //case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
     //    case msg: SendWhiteboardAnnotationEvtMsg => handleSendWhiteboardAnnotationEvent(msg)
     //    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
     //    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
@@ -199,6 +199,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
   }
 
+  /*
   def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
     if (msg.recorded) {
       val evt = new StartRecordingVoiceRecordEvent(true)
@@ -275,6 +276,7 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
+  */
 
   def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
     if (msg.recorded) {
