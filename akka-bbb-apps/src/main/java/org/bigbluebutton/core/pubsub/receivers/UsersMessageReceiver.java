@@ -63,21 +63,6 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case InitPermissionsSettingMessage.INIT_PERMISSIONS_SETTING:
 						  processInitPermissionsSettingMessage(message);
 						  break;
-					  case GetBreakoutRoomsList.NAME:
-						  bbbInGW.handleJsonMessage(message);
-						  break;
-					  case CreateBreakoutRoomsRequest.NAME:
-						  bbbInGW.handleJsonMessage(message);
-						  break;
-					  case ListenInOnBreakout.NAME:
-						  bbbInGW.handleJsonMessage(message);
-						  break;
-					  case RequestBreakoutJoinURL.NAME:
-						  bbbInGW.handleJsonMessage(message);
-						  break;
-					  case EndAllBreakoutRoomsRequest.NAME:
-						  bbbInGW.handleJsonMessage(message);
-						  break;
 					  case ChangeUserRoleMessage.CHANGE_USER_ROLE:
 						  processChangeUserRoleMessage(message);
 						  break;

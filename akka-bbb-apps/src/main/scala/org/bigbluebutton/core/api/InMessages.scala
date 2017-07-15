@@ -9,11 +9,6 @@ case class MessageProcessException(message: String) extends Exception(message)
 
 trait InMessage
 
-//////////////////////////////////////////////
-//
-//////////////////////////////////////////////
-case class SendDirectChatMsgCmd() extends InMessage
-
 //////////////////////////////////////////////////////////////////////////////
 // System
 /////////////////////////////////////////////////////////////////////////////
@@ -34,30 +29,6 @@ case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingId: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
 case class UpdateMeetingExpireMonitor(meetingID: String, hasUser: Boolean) extends InMessage
-
-////////////////////////////////////////////////////////////////////////////////////// 
-// Breakout room
-/////////////////////////////////////////////////////////////////////////////////////
-
-// Sent by user to request the breakout rooms list of a room
-case class BreakoutRoomsListMessage(meetingId: String) extends InMessage
-// Sent by user to request creation of breakout rooms
-case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, record: Boolean, rooms: Vector[BreakoutRoomInPayload]) extends InMessage
-case class BreakoutRoomInPayload(name: String, sequence: Int, users: Vector[String])
-// Sent by user to request for a join URL in order to be able to join a breakout room
-case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutMeetingId: String, userId: String) extends InMessage
-// Sent by breakout actor to tell meeting actor that breakout room has been created.
-case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
-// Sent by breakout actor to tell meeting actor the list of users in the breakout room.    
-case class BreakoutRoomUsersUpdate(meetingId: String, breakoutMeetingId: String, users: Vector[BreakoutUserVO]) extends InMessage
-// Send by internal actor to tell the breakout actor to send it's list of users to the main meeting actor.    
-case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
-// Sent by user to request ending all the breakout rooms
-case class EndAllBreakoutRooms(meetingId: String) extends InMessage
-// Sent by breakout actor to tell meeting actor that breakout room has been ended
-case class BreakoutRoomEnded(meetingId: String, breakoutRoomId: String) extends InMessage
-// Sent by user actor to ask for voice conference transfer 
-case class TransferUserToMeetingRequest(meetingId: String, targetMeetingId: String, userId: String) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Lock

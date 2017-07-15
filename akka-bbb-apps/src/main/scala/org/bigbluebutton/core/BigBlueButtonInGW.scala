@@ -72,26 +72,7 @@ class BigBlueButtonInGW(
     }
   }
 
-  def handleJsonMessage(json: String) {
-    JsonMessageDecoder.decode(json) match {
-      case Some(validMsg) => forwardMessage(validMsg)
-      case None => log.error("Unhandled json message: {}", json)
-    }
-  }
-
-  def forwardMessage(msg: InMessage) = {
-    msg match {
-      case m: BreakoutRoomsListMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: TransferUserToMeetingRequest => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: EndAllBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case _ => log.error("Unhandled message: {}", msg)
-    }
-  }
-
   def destroyMeeting(meetingID: String) {
-    forwardMessage(new EndAllBreakoutRooms(meetingID))
     eventBus.publish(
       BigBlueButtonEvent(
         "meeting-manager",

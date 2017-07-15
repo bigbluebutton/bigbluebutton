@@ -113,27 +113,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
-	// could be improved by doing some factorization
-	public void getBreakoutRoomsList(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void createBreakoutRooms(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void requestBreakoutJoinURL(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void listenInOnBreakout(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void endAllBreakoutRooms(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
 	public void logoutEndMeeting(String meetingId, String userId) {
 		LogoutEndMeetingRequestMessage msg = new LogoutEndMeetingRequestMessage(meetingId, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());

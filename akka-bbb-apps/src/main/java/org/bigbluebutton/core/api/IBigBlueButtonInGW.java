@@ -5,7 +5,6 @@ import org.bigbluebutton.common.messages.*;
 
 public interface IBigBlueButtonInGW {
 
-	void handleJsonMessage(String json);
 	void handleBigBlueButtonMessage(IBigBlueButtonMessage message);
 
 	void isAliveAudit(String aliveID);
