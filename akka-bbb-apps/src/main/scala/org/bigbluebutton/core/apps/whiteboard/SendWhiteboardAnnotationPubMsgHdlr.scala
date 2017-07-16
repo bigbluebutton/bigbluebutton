@@ -1,9 +1,9 @@
-package org.bigbluebutton.core2.message.handlers.whiteboard
+package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.common2.domain.AnnotationVO
+import org.bigbluebutton.core.running.MeetingActor
 
 trait SendWhiteboardAnnotationPubMsgHdlr {
   this: MeetingActor =>

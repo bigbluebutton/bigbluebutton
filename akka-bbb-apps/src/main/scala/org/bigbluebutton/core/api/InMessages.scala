@@ -9,11 +9,6 @@ case class MessageProcessException(message: String) extends Exception(message)
 
 trait InMessage
 
-//////////////////////////////////////////////
-//
-//////////////////////////////////////////////
-case class SendDirectChatMsgCmd() extends InMessage
-
 //////////////////////////////////////////////////////////////////////////////
 // System
 /////////////////////////////////////////////////////////////////////////////
@@ -34,30 +29,6 @@ case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingId: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
 case class UpdateMeetingExpireMonitor(meetingID: String, hasUser: Boolean) extends InMessage
-
-////////////////////////////////////////////////////////////////////////////////////// 
-// Breakout room
-/////////////////////////////////////////////////////////////////////////////////////
-
-// Sent by user to request the breakout rooms list of a room
-case class BreakoutRoomsListMessage(meetingId: String) extends InMessage
-// Sent by user to request creation of breakout rooms
-case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, record: Boolean, rooms: Vector[BreakoutRoomInPayload]) extends InMessage
-case class BreakoutRoomInPayload(name: String, sequence: Int, users: Vector[String])
-// Sent by user to request for a join URL in order to be able to join a breakout room
-case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutMeetingId: String, userId: String) extends InMessage
-// Sent by breakout actor to tell meeting actor that breakout room has been created.
-case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
-// Sent by breakout actor to tell meeting actor the list of users in the breakout room.    
-case class BreakoutRoomUsersUpdate(meetingId: String, breakoutMeetingId: String, users: Vector[BreakoutUserVO]) extends InMessage
-// Send by internal actor to tell the breakout actor to send it's list of users to the main meeting actor.    
-case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
-// Sent by user to request ending all the breakout rooms
-case class EndAllBreakoutRooms(meetingId: String) extends InMessage
-// Sent by breakout actor to tell meeting actor that breakout room has been ended
-case class BreakoutRoomEnded(meetingId: String, breakoutRoomId: String) extends InMessage
-// Sent by user actor to ask for voice conference transfer 
-case class TransferUserToMeetingRequest(meetingId: String, targetMeetingId: String, userId: String) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Lock
@@ -92,15 +63,6 @@ case class AllowUserToShareDesktop(meetingID: String, userID: String) extends In
 case class ActivityResponse(meetingID: String) extends InMessage
 case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
 
-//////////////////////////////////////////////////////////////////////////////////
-// Global Audio
-/////////////////////////////////////////////////////////////////////////////////
-
-case class UserConnectedToGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
-  userid: String, name: String) extends InMessage
-case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
-  userid: String, name: String) extends InMessage
-
 ///////////////////////////////////////////////////////////////////////////////////////
 // Guest support
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -108,28 +70,6 @@ case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just
 case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMessage
 case class SetGuestPolicy(meetingID: String, policy: String, setBy: String) extends InMessage
 case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
-
-///////////////////////////////////////////////////////////////////////////////////
-// Voice
-///////////////////////////////////////////////////////////////////////////////////
-
-case class InitAudioSettings(meetingID: String, requesterID: String, muted: Boolean) extends InMessage
-case class SendVoiceUsersRequest(meetingID: String, requesterID: String) extends InMessage
-case class MuteAllExceptPresenterRequest(meetingID: String, requesterID: String, mute: Boolean) extends InMessage
-case class MuteMeetingRequest(meetingID: String, requesterID: String, mute: Boolean) extends InMessage
-case class IsMeetingMutedRequest(meetingID: String, requesterID: String) extends InMessage
-case class MuteUserRequest(meetingID: String, requesterID: String, userID: String, mute: Boolean) extends InMessage
-case class LockUserRequest(meetingID: String, requesterID: String, userID: String, lock: Boolean) extends InMessage
-case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedBy: String) extends InMessage
-case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
-  callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
-case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
-  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, avatarURL: String, listenOnly: Boolean) extends InMessage
-case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String) extends InMessage
-case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean) extends InMessage
-case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean) extends InMessage
-case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean) extends InMessage
-case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String) extends InMessage
 
 // No idea what part this is for
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage

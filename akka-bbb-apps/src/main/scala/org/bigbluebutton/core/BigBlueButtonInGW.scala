@@ -72,26 +72,7 @@ class BigBlueButtonInGW(
     }
   }
 
-  def handleJsonMessage(json: String) {
-    JsonMessageDecoder.decode(json) match {
-      case Some(validMsg) => forwardMessage(validMsg)
-      case None => log.error("Unhandled json message: {}", json)
-    }
-  }
-
-  def forwardMessage(msg: InMessage) = {
-    msg match {
-      case m: BreakoutRoomsListMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: TransferUserToMeetingRequest => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: EndAllBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case _ => log.error("Unhandled message: {}", msg)
-    }
-  }
-
   def destroyMeeting(meetingID: String) {
-    forwardMessage(new EndAllBreakoutRooms(meetingID))
     eventBus.publish(
       BigBlueButtonEvent(
         "meeting-manager",
@@ -192,16 +173,8 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingID, new InitLockSettings(meetingID, permissions)))
   }
 
-  def initAudioSettings(meetingID: String, requesterID: String, muted: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new InitAudioSettings(meetingID, requesterID, muted.booleanValue())))
-  }
-
   def getLockSettings(meetingId: String, userId: String) {
     eventBus.publish(BigBlueButtonEvent(meetingId, new GetLockSettings(meetingId, userId)))
-  }
-
-  def lockUser(meetingId: String, requesterID: String, lock: Boolean, userId: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new LockUserRequest(meetingId, requesterID, userId, lock)))
   }
 
   def setRecordingStatus(meetingId: String, userId: String, recording: java.lang.Boolean) {
@@ -266,18 +239,6 @@ class BigBlueButtonInGW(
     // do nothing
   }
 
-  def userConnectedToGlobalAudio(voiceConf: String, userid: String, name: String) {
-    // we are required to pass the meeting_id as first parameter (just to satisfy trait)
-    // but it's not used anywhere. That's why we pass voiceConf twice instead
-    eventBus.publish(BigBlueButtonEvent(voiceConf, new UserConnectedToGlobalAudio(voiceConf, voiceConf, userid, name)))
-  }
-
-  def userDisconnectedFromGlobalAudio(voiceConf: String, userid: String, name: String) {
-    // we are required to pass the meeting_id as first parameter (just to satisfy trait)
-    // but it's not used anywhere. That's why we pass voiceConf twice instead
-    eventBus.publish(BigBlueButtonEvent(voiceConf, new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name)))
-  }
-
   /**
    * ***********************************************************************
    * Message Interface for Guest
@@ -301,62 +262,6 @@ class BigBlueButtonInGW(
 
   def responseToGuest(meetingId: String, userId: String, response: java.lang.Boolean, requesterId: String) {
     eventBus.publish(BigBlueButtonEvent(meetingId, new RespondToGuest(meetingId, userId, response, requesterId)))
-  }
-
-  /**
-   * *******************************************************************
-   * Message Interface for Voice
-   * *****************************************************************
-   */
-
-  def muteAllExceptPresenter(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new MuteAllExceptPresenterRequest(meetingID, requesterID, mute)))
-  }
-
-  def muteAllUsers(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new MuteMeetingRequest(meetingID, requesterID, mute)))
-  }
-
-  def isMeetingMuted(meetingID: String, requesterID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new IsMeetingMutedRequest(meetingID, requesterID)))
-  }
-
-  def muteUser(meetingID: String, requesterID: String, userID: String, mute: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new MuteUserRequest(meetingID, requesterID, userID, mute)))
-  }
-
-  def lockMuteUser(meetingID: String, requesterID: String, userID: String, lock: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new LockUserRequest(meetingID, requesterID, userID, lock)))
-  }
-
-  def ejectUserFromVoice(meetingId: String, userId: String, ejectedBy: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new EjectUserFromVoiceRequest(meetingId, userId, ejectedBy)))
-  }
-
-  def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-    callerIdNum: String, muted: java.lang.Boolean, avatarURL: String, talking: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
-      callerIdNum, muted, talking, avatarURL, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )))
-  }
-
-  def voiceUserLeft(voiceConfId: String, voiceUserId: String) {
-    eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserLeftVoiceConfMessage(voiceConfId, voiceUserId)))
-  }
-
-  def voiceUserLocked(voiceConfId: String, voiceUserId: String, locked: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserLockedInVoiceConfMessage(voiceConfId, voiceUserId, locked)))
-  }
-
-  def voiceUserMuted(voiceConfId: String, voiceUserId: String, muted: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserMutedInVoiceConfMessage(voiceConfId, voiceUserId, muted)))
-  }
-
-  def voiceUserTalking(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserTalkingInVoiceConfMessage(voiceConfId, voiceUserId, talking)))
-  }
-
-  def voiceRecording(voiceConfId: String, recordingFile: String, timestamp: String, recording: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(voiceConfId, new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp)))
   }
 
   /**

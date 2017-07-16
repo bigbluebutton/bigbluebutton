@@ -31,10 +31,6 @@ public class MessageFromJsonConverter {
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
 					  return processValidateAuthTokenMessage(header, payload);
 					  // return ValidateAuthTokenMessage.fromJson(message);
-				  case UserConnectedToGlobalAudio.USER_CONNECTED_TO_GLOBAL_AUDIO:
-					return UserConnectedToGlobalAudio.fromJson(message);
-				  case UserDisconnectedFromGlobalAudio.USER_DISCONNECTED_FROM_GLOBAL_AUDIO:
-					return UserDisconnectedFromGlobalAudio.fromJson(message);
 				  case GetAllMeetingsRequest.GET_ALL_MEETINGS_REQUEST_EVENT:
 					return new GetAllMeetingsRequest("the_string_is_not_used_anywhere");
 				}

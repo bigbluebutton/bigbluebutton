@@ -104,9 +104,12 @@ class MeetingActorInternal(val props: DefaultProps,
 
   if (props.meetingProp.isBreakout) {
     // This is a breakout room. Inform our parent meeting that we have been successfully created.
-    eventBus.publish(BigBlueButtonEvent(
+    /**TODO Need to add a 2.0 notification somehow */
+    log.error("****** MeetingActorInternal still needs to be fixed with 2.0 breakout messages ******")
+    /*eventBus.publish(BigBlueButtonEvent(
       props.breakoutProps.parentId,
       BreakoutRoomCreated(props.breakoutProps.parentId, props.meetingProp.intId)))
+     */
   }
 
   def receive = {
@@ -134,8 +137,10 @@ class MeetingActorInternal(val props: DefaultProps,
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendTimeRemainingUpdate(props.meetingProp.intId)))
 
     if (props.meetingProp.isBreakout) {
+      /**TODO Need to add a 2.0 notification somehow */
+      log.error("******* MeetingActorInternal still needs to be fixed with 2.0 breakout messages *******")
       // This is a breakout room. Update the main meeting with list of users in this breakout room.
-      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendBreakoutUsersUpdate(props.meetingProp.intId)))
+      //eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendBreakoutUsersUpdate(props.meetingProp.intId)))
     }
 
   }
@@ -251,8 +256,6 @@ class MeetingActorInternal(val props: DefaultProps,
     msg match {
       case msg: MonitorNumberOfUsers => false
       case msg: SendTimeRemainingUpdate => false
-      case msg: SendBreakoutUsersUpdate => false
-      case msg: BreakoutRoomCreated => false
       case _ => true
     }
   }

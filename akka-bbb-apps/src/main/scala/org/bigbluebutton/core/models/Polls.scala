@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain._
+import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
 import scala.collection.mutable.ArrayBuffer
@@ -45,19 +46,18 @@ object Polls {
   }
 
   def handleShowPollResultReqMsg(requesterId: String, pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO, AnnotationVO)] = {
-    def sendWhiteboardAnnotation(annotation: AnnotationVO): Unit = {
+    def updateWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
       lm.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
-      annotation
     }
 
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
       for {
         page <- lm.presModel.getCurrentPage()
-        pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
-        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId, requesterId, -1)
       } yield {
-        sendWhiteboardAnnotation(annotation)
-        annotation
+        val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
+        val updatedShape = shape + ("whiteboardId" -> pageId)
+        val annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, updatedShape, pageId, requesterId, -1)
+        updateWhiteboardAnnotation(annotation)
       }
     }
 

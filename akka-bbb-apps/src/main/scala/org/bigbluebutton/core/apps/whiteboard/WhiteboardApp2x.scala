@@ -1,20 +1,14 @@
-package org.bigbluebutton.core.apps
+package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.{ MeetingActor }
-import org.bigbluebutton.core2.message.handlers.whiteboard.SendCursorPositionPubMsgHdlr
-import org.bigbluebutton.core2.message.handlers.whiteboard.ClearWhiteboardPubMsgHdlr
-import org.bigbluebutton.core2.message.handlers.whiteboard.UndoWhiteboardPubMsgHdlr
-import org.bigbluebutton.core2.message.handlers.whiteboard.ModifyWhiteboardAccessPubMsgHdlr
-import org.bigbluebutton.core2.message.handlers.whiteboard.GetWhiteboardAccessReqMsgHdlr
-import org.bigbluebutton.core2.message.handlers.whiteboard.SendWhiteboardAnnotationPubMsgHdlr
-import org.bigbluebutton.common2.domain.AnnotationVO
-import org.bigbluebutton.core2.message.handlers.whiteboard.GetWhiteboardAnnotationsReqMsgHdlr
+import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
 case class Whiteboard(id: String, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
 
-trait WhiteboardApp
+trait WhiteboardApp2x
     extends SendCursorPositionPubMsgHdlr
     with ClearWhiteboardPubMsgHdlr
     with UndoWhiteboardPubMsgHdlr
