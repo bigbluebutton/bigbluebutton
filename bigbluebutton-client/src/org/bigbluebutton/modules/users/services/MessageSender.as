@@ -42,8 +42,13 @@ package org.bigbluebutton.modules.users.services
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
     public function queryForParticipants():void {
+      var message:Object = {
+        header: {name: "GetUsersMeetingReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.getParticipants", 
+      _nc.sendMessage2x( 
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -51,7 +56,7 @@ package org.bigbluebutton.modules.users.services
             logData.tags = ["apps"];
             logData.message = "Error occured querying users.";
             LOGGER.info(JSON.stringify(logData));
-        }
+        }, JSON.stringify(message)
       );
     }
     

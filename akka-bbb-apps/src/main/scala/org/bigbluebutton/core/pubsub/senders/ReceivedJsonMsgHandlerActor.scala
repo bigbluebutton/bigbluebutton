@@ -71,6 +71,9 @@ class ReceivedJsonMsgHandlerActor(
       case DestroyMeetingSysCmdMsg.NAME =>
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
 
+      // Users
+      case GetUsersMeetingReqMsg.NAME =>
+        routeGenericMsg[GetUsersMeetingReqMsg](envelope, jsonNode)
       // Poll
       case StartCustomPollReqMsg.NAME =>
         routeGenericMsg[StartCustomPollReqMsg](envelope, jsonNode)
