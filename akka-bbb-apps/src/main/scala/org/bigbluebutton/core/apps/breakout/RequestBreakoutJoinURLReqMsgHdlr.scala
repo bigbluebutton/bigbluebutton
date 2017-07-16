@@ -38,8 +38,10 @@ trait RequestBreakoutJoinURLReqMsgHdlr {
         val envelope = BbbCoreEnvelope(RequestBreakoutJoinURLRespMsg.NAME, routing)
         val header = BbbClientMsgHeader(RequestBreakoutJoinURLRespMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-        val body = RequestBreakoutJoinURLRespMsgBody(props.meetingProp.intId,
-          externalMeetingId, userId, redirectJoinURL, noRedirectJoinURL)
+        val body = RequestBreakoutJoinURLRespMsgBody(
+          props.meetingProp.intId,
+          externalMeetingId, userId, redirectJoinURL, noRedirectJoinURL
+        )
         val event = RequestBreakoutJoinURLRespMsg(header, body)
         val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

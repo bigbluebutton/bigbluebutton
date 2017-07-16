@@ -33,7 +33,7 @@ trait FakeTestData {
   }
 
   def createUserVoiceAndCam(liveMeeting: LiveMeeting, role: String, guest: Boolean, authed: Boolean, callingWith: String,
-    muted: Boolean, talking: Boolean, listenOnly: Boolean): Unit = {
+                            muted: Boolean, talking: Boolean, listenOnly: Boolean): Unit = {
 
     val ruser1 = FakeUserGenerator.createFakeRegisteredUser(liveMeeting.registeredUsers, Roles.MODERATOR_ROLE, true, false)
 

@@ -46,8 +46,10 @@ trait UserLeftVoiceConfEvtMsgHdlr {
       log.info("Send STOP RECORDING voice conf. meetingId=" + liveMeeting.props.meetingProp.intId
         + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
 
-      val event = buildStopRecordingVoiceConfSysMsg(liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf, MeetingStatus2x.getVoiceRecordingFilename(liveMeeting.status))
+      val event = buildStopRecordingVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf, MeetingStatus2x.getVoiceRecordingFilename(liveMeeting.status)
+      )
       outGW.send(event)
     }
   }

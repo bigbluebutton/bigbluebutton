@@ -51,13 +51,14 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutMeetingId: String,
-    password: String): (mutable.Map[String, String], mutable.Map[String, String]) = {
+                 password: String): (mutable.Map[String, String], mutable.Map[String, String]) = {
     val params = collection.mutable.HashMap(
       "fullName" -> urlEncode(username),
       "userID" -> urlEncode(userId),
       "isBreakout" -> urlEncode(isBreakout.toString()),
       "meetingID" -> urlEncode(breakoutMeetingId),
-      "password" -> urlEncode(password))
+      "password" -> urlEncode(password)
+    )
 
     (params += "redirect" -> urlEncode("true"), mutable.Map[String, String]() ++= params += "redirect" -> urlEncode("false"))
   }

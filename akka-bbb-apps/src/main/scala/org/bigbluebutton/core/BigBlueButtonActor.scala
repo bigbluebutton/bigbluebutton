@@ -19,16 +19,20 @@ import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object BigBlueButtonActor extends SystemConfiguration {
-  def props(system: ActorSystem,
-    eventBus: IncomingEventBus,
+  def props(
+    system:    ActorSystem,
+    eventBus:  IncomingEventBus,
     bbbMsgBus: BbbMsgRouterEventBus,
-    outGW: OutMessageGateway): Props =
+    outGW:     OutMessageGateway
+  ): Props =
     Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW)
 }
 
-class BigBlueButtonActor(val system: ActorSystem,
+class BigBlueButtonActor(
+  val system:   ActorSystem,
   val eventBus: IncomingEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
-  val outGW: OutMessageGateway) extends Actor
+  val outGW: OutMessageGateway
+) extends Actor
     with ActorLogging with SystemConfiguration {
 
   implicit def executionContext = system.dispatcher
@@ -58,19 +62,18 @@ class BigBlueButtonActor(val system: ActorSystem,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
 
-    // 1x messages
-    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
-    case _ => // do nothing
+    case msg: ValidateAuthToken   => handleValidateAuthToken(msg)
+    case _                        => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: CreateMeetingReqMsg => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
-      case m: PubSubPingSysReqMsg => handlePubSubPingSysReqMsg(m)
+      case m: CreateMeetingReqMsg     => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg      => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg    => handleGetAllMeetingsReqMsg(m)
+      case m: PubSubPingSysReqMsg     => handlePubSubPingSysReqMsg(m)
       case m: DestroyMeetingSysCmdMsg => handleDestroyMeeting(m)
-      case _ => log.warning("Cannot handle " + msg.envelope.name)
+      case _                          => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -88,7 +91,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     log.debug("****** RECEIVED CreateMeetingReqMsg msg {}", msg)
 
     RunningMeetings.findWithId(meetings, msg.body.props.meetingProp.intId) match {
-      case None => {
+      case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
 
         val m = RunningMeeting(msg.body.props, outGW, eventBus)
@@ -107,11 +110,11 @@ class BigBlueButtonActor(val system: ActorSystem,
         // Send new 2x message
         val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(m.props.meetingProp.intId, msg.body.props)
         outGW.send(msgEvent)
-      }
-      case Some(m) => {
+
+      case Some(m) =>
         log.info("Meeting already created. meetingID={}", msg.body.props.meetingProp.intId)
-        // do nothing
-      }
+      // do nothing
+
     }
 
   }

@@ -23,7 +23,7 @@ trait SyncSharedNotePubMsgHdlr {
 
     liveMeeting.notesModel.getNoteReport(msg.body.noteId) match {
       case Some(noteReport) => broadcastEvent(msg, noteReport)
-      case None => log.warning("Could not find note " + msg.body.noteId)
+      case None             => log.warning("Could not find note " + msg.body.noteId)
     }
   }
 }

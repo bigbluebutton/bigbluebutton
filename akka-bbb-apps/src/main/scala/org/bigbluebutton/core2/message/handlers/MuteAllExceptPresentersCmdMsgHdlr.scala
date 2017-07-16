@@ -29,7 +29,7 @@ trait MuteAllExceptPresentersCmdMsgHdlr {
       if (!vu.listenOnly) {
         Users2x.findWithIntId(liveMeeting.users2x, vu.intId) match {
           case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu)
-          case None => muteUserInVoiceConf(vu)
+          case None    => muteUserInVoiceConf(vu)
         }
       }
     }

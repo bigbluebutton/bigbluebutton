@@ -16,7 +16,7 @@ trait RecordingStartedVoiceConfEvtMsgHdlr {
       MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, msg.body.stream)
 
       def buildVoiceRecordingStartedEvtMsg(meetingId: String, stream: String, timestamp: String,
-        voiceConf: String): BbbCommonEnvCoreMsg = {
+                                           voiceConf: String): BbbCommonEnvCoreMsg = {
         val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
         val envelope = BbbCoreEnvelope(VoiceRecordingStartedEvtMsg.NAME, routing)
 
@@ -34,7 +34,7 @@ trait RecordingStartedVoiceConfEvtMsgHdlr {
       MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, "")
 
       def buildVoiceRecordingStoppedEvtMsg(meetingId: String, stream: String, timestamp: String,
-        voiceConf: String): BbbCommonEnvCoreMsg = {
+                                           voiceConf: String): BbbCommonEnvCoreMsg = {
         val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
         val envelope = BbbCoreEnvelope(VoiceRecordingStoppedEvtMsg.NAME, routing)
 

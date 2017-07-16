@@ -16,11 +16,15 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
     log.warning("Received user joined voice conference " + msg)
 
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, voiceUserState.intId)
+      val routing = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        liveMeeting.props.meetingProp.intId, voiceUserState.intId
+      )
       val envelope = BbbCoreEnvelope(UserJoinedVoiceConfToClientEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UserJoinedVoiceConfToClientEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, voiceUserState.intId)
+      val header = BbbClientMsgHeader(
+        UserJoinedVoiceConfToClientEvtMsg.NAME,
+        liveMeeting.props.meetingProp.intId, voiceUserState.intId
+      )
 
       val body = UserJoinedVoiceConfToClientEvtMsgBody(intId = voiceUserState.intId, voiceUserId = voiceUserState.voiceUserId,
         callerName = voiceUserState.callerName, callerNum = voiceUserState.callerNum, muted = voiceUserState.muted,

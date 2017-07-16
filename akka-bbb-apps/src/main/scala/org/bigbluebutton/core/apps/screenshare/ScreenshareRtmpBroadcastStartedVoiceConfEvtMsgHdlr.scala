@@ -11,13 +11,17 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
 
   def handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(msg: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg): Unit = {
     def broadcastEvent(voiceConf: String, screenshareConf: String, stream: String, vidWidth: Int, vidHeight: Int,
-      timestamp: String): BbbCommonEnvCoreMsg = {
+                       timestamp: String): BbbCommonEnvCoreMsg = {
 
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, "not-used")
+      val routing = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        liveMeeting.props.meetingProp.intId, "not-used"
+      )
       val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStartedEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(ScreenshareRtmpBroadcastStartedEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, "not-used")
+      val header = BbbClientMsgHeader(
+        ScreenshareRtmpBroadcastStartedEvtMsg.NAME,
+        liveMeeting.props.meetingProp.intId, "not-used"
+      )
 
       val body = ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf, screenshareConf,
         stream, vidWidth, vidHeight, timestamp)
