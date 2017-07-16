@@ -30,6 +30,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
   		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" /> 
+    <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
 	</fx:Declarations>
   
     <fx:Script>
@@ -46,6 +48,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           import org.bigbluebutton.core.events.CoreEvent;
           import org.bigbluebutton.core.events.LockControlEvent;
           import org.bigbluebutton.core.model.LiveMeeting;
+          import org.bigbluebutton.main.events.UserJoinedEvent;
+          import org.bigbluebutton.main.events.UserLeftEvent;
           import org.bigbluebutton.main.model.users.events.ChangeMyRole;
           import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
           import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
@@ -60,8 +64,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
             [Bindable] public var chatOptions:ChatOptions;		
             
+          private var handler: ChatWindowEventHandler = new ChatWindowEventHandler();
+          
+          private function handleUserLeftEvent(event: UserLeftEvent): void {
+            handler.handleUserLeftEvent(event.userID);  
+          }
+          
+          
+          private function handleUserJoinedEvent(event: UserJoinedEvent):void {
+            handler.handleUserJoinedEvent(event);
+          }
+          
             private function onCreationComplete():void{
-                users = UsersUtil.getUsers();
+              handler.populateAllUsers()
+                users = handler.users;
                 chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 
                 if (!chatOptions.privateEnabled) {
@@ -103,7 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
                 if (!usersList.visible || !usersList.enabled) return;
                 
-                var chatWithIntId:String = usersList.selectedItem.intId;
+                var chatWithIntId:String = usersList.selectedItem.userId;
                 
                 // Don't want to be chatting with ourself.
                 if (UsersUtil.isMe(chatWithIntId)) return;
