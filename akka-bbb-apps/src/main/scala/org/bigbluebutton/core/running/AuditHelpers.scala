@@ -3,7 +3,7 @@ package org.bigbluebutton.core.running
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.BreakoutRoomCreated
+//import org.bigbluebutton.core.api.BreakoutRoomCreated
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 
 trait AuditHelpers {
@@ -30,10 +30,10 @@ trait AuditHelpers {
     props:    DefaultProps,
     eventBus: IncomingEventBus
   ): Unit = {
-    eventBus.publish(BigBlueButtonEvent(
-      props.breakoutProps.parentId,
-      BreakoutRoomCreated(props.breakoutProps.parentId, props.meetingProp.intId)
-    ))
+    //    eventBus.publish(BigBlueButtonEvent(
+    //      props.breakoutProps.parentId,
+    //      BreakoutRoomCreated(props.breakoutProps.parentId, props.meetingProp.intId)
+    //    ))
   }
 
 }

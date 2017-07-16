@@ -2,7 +2,6 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ MeetingMuted, MuteVoiceUser }
 import org.bigbluebutton.core.models.{ UserState, Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x

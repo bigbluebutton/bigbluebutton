@@ -38,36 +38,6 @@ public class Util {
 		return null;
 	}
 	
-	public Map<String, Object> extractVoiceUser(JsonObject vu) {
-		if (vu.has(Constants.TALKING) && vu.has(Constants.LOCKED)
-				&& vu.has(Constants.MUTED) && vu.has(Constants.JOINED)
-				&& vu.has(Constants.CALLERNAME) && vu.has(Constants.CALLERNUM)
-				&& vu.has(Constants.WEB_USERID) && vu.has(Constants.USER_ID)){
-				
-			Map<String, Object> vuMap = new HashMap<String, Object>();
-			Boolean talking = vu.get(Constants.TALKING).getAsBoolean();
-			Boolean voiceLocked = vu.get(Constants.LOCKED).getAsBoolean();
-			Boolean muted = vu.get(Constants.MUTED).getAsBoolean();
-			Boolean joined = vu.get(Constants.JOINED).getAsBoolean();
-			String callername = vu.get(Constants.CALLERNAME).getAsString();
-			String callernum = vu.get(Constants.CALLERNUM).getAsString();
-			String webUserId = vu.get(Constants.WEB_USERID).getAsString();
-			String voiceUserId = vu.get(Constants.USER_ID).getAsString();
-
-			vuMap.put("talking", talking);
-			vuMap.put("locked", voiceLocked);
-			vuMap.put("muted", muted);
-			vuMap.put("joined", joined);
-			vuMap.put("callerName", callername);
-			vuMap.put("callerNum", callernum);
-			vuMap.put("webUserId", webUserId);
-			vuMap.put("userId", voiceUserId);
-			
-			return vuMap;
-		}
-		return null;
-	}
-	
 	public Map<String, Object> extractUser(JsonObject user) {
 		if (user.has(Constants.USER_ID) && user.has(Constants.NAME)
 				&& user.has(Constants.HAS_STREAM) && user.has(Constants.LISTENONLY)
@@ -113,11 +83,6 @@ public class Util {
 			
 			JsonObject vu = (JsonObject) user.get(Constants.VOICEUSER);
 			
-			Map<String, Object> vuMap = extractVoiceUser(vu);
-			if (vuMap != null) {
-				userMap.put("voiceUser", vuMap);
-				return userMap;
-			}
 		}
 		
 		return null;
@@ -212,119 +177,6 @@ public class Util {
 
 	}
 
-
-
-	public Map<String, Object> extractAnnotation(JsonObject annotationElement) {
-		//NON-TEXT SHAPE
-		if (annotationElement.has(Constants.ID)
-				&& annotationElement.has("transparency")
-				&& annotationElement.has("color")
-				&& annotationElement.has("status")
-				&& annotationElement.has("whiteboardId")
-				&& annotationElement.has("type")
-				&& annotationElement.has("thickness")
-				&& annotationElement.has("points")){
-
-			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
-
-			boolean transparency = annotationElement.get("transparency").getAsBoolean();
-			String id = annotationElement.get(Constants.ID).getAsString();
-			int color = annotationElement.get("color").getAsInt();
-			String status = annotationElement.get(Constants.STATUS).getAsString();
-			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
-			Float thickness = annotationElement.get("thickness").getAsFloat();
-			String type = annotationElement.get("type").getAsString();
-
-			JsonArray pointsJsonArray = annotationElement.get("points").getAsJsonArray();
-
-			ArrayList<Float> pointsArray = new ArrayList<Float>();
-			Iterator<JsonElement> pointIter = pointsJsonArray.iterator();
-			while (pointIter.hasNext()){
-				JsonElement p = pointIter.next();
-				Float pf = p.getAsFloat();
-				if (pf != null) {
-					pointsArray.add(pf);
-				}
-			}
-      
-			//the final pencil annotation has a commands property
-			if (annotationElement.has("commands")) {
-				JsonArray commandsJsonArray = annotationElement.get("commands").getAsJsonArray();
-				ArrayList<Integer> commandsArray = new ArrayList<Integer>();
-				Iterator<JsonElement> commandIter = commandsJsonArray.iterator();
-				while (commandIter.hasNext()){
-					JsonElement p = commandIter.next();
-					Integer ci = p.getAsInt();
-					if (ci != null) {
-						commandsArray.add(ci);
-					}
-				}
-				finalAnnotation.put("commands", commandsArray);
-			}
-
-			finalAnnotation.put("transparency", transparency);
-			finalAnnotation.put(Constants.ID, id);
-			finalAnnotation.put("color", color);
-			finalAnnotation.put("status", status);
-			finalAnnotation.put("whiteboardId", whiteboardId);
-			finalAnnotation.put("thickness", thickness);
-			finalAnnotation.put("points", pointsArray);
-			finalAnnotation.put("type", type);
-
-			return finalAnnotation;
-		}
-
-		// TEXT SHAPE
-		else if (annotationElement.has(Constants.ID)
-				&& annotationElement.has("text")
-				&& annotationElement.has("fontColor")
-				&& annotationElement.has("status")
-				&& annotationElement.has("textBoxWidth")
-				&& annotationElement.has("fontSize")
-				&& annotationElement.has("type")
-				&& annotationElement.has("calcedFontSize")
-				&& annotationElement.has("textBoxHeight")
-				&& annotationElement.has("calcedFontSize")
-				&& annotationElement.has("whiteboardId")
-				&& annotationElement.has("dataPoints")
-				&& annotationElement.has("x")
-				&& annotationElement.has("y")){
-
-			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
-
-			String text = annotationElement.get("text").getAsString();
-			int fontColor = annotationElement.get("fontColor").getAsInt();
-			String status = annotationElement.get(Constants.STATUS).getAsString();
-			Float textBoxWidth = annotationElement.get("textBoxWidth").getAsFloat();
-			int fontSize = annotationElement.get("fontSize").getAsInt();
-			String type = annotationElement.get("type").getAsString();
-			Float calcedFontSize = annotationElement.get("calcedFontSize").getAsFloat();
-			Float textBoxHeight = annotationElement.get("textBoxHeight").getAsFloat();
-			String id = annotationElement.get(Constants.ID).getAsString();
-			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
-			Float x = annotationElement.get("x").getAsFloat();
-			Float y = annotationElement.get("y").getAsFloat();
-			String dataPoints = annotationElement.get("dataPoints").getAsString();
-
-			finalAnnotation.put("text", text);
-			finalAnnotation.put("fontColor", fontColor);
-			finalAnnotation.put(Constants.STATUS, status);
-			finalAnnotation.put("textBoxWidth", textBoxWidth);
-			finalAnnotation.put("fontSize", fontSize);
-			finalAnnotation.put("type", type);
-			finalAnnotation.put("calcedFontSize", calcedFontSize);
-			finalAnnotation.put("textBoxHeight", textBoxHeight);
-			finalAnnotation.put(Constants.ID, id);
-			finalAnnotation.put("whiteboardId", whiteboardId);
-			finalAnnotation.put("x", x);
-			finalAnnotation.put("y", y);
-			finalAnnotation.put("dataPoints", dataPoints);
-
-			return finalAnnotation;
-		}
-		return null;
-	}
-
 	public Map<String, Object> extractCurrentPresenter(JsonObject vu) {
 		if (vu.has(Constants.USER_ID) && vu.has(Constants.NAME)
 				&& vu.has(Constants.ASSIGNED_BY)){
@@ -341,79 +193,6 @@ public class Util {
 			return vuMap;
 		}
 		return null;
-	}
-
-	public ArrayList<Map<String, Object>> extractShapes(JsonArray shapes) {
-		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
-
-		Iterator<JsonElement> shapesIter = shapes.iterator();
-		while (shapesIter.hasNext()){
-			JsonElement shape = shapesIter.next();
-
-			Map<String, Object> shapeMap = extractOuterAnnotation((JsonObject)shape);
-
-			if (shapeMap != null) {
-				collection.add(shapeMap);
-			}
-		}
-		return collection;
-	}
-
-	public Map<String, Object> extractOuterAnnotation(JsonObject annotationElement) {
-
-		if (annotationElement.has(Constants.ID)
-				&& annotationElement.has("shape")
-				&& annotationElement.has("status")
-				&& annotationElement.has("shape_type")
-				&& annotationElement.has("user_id")){
-
-			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
-
-			String id = annotationElement.get(Constants.ID).getAsString();
-			String status = annotationElement.get("status").getAsString();
-			String type = annotationElement.get("shape_type").getAsString();
-			String userId = annotationElement.get("user_id").getAsString();
-
-			finalAnnotation.put(Constants.ID, id);
-			finalAnnotation.put("type", type);
-			finalAnnotation.put("status", status);
-			finalAnnotation.put("userId", userId);
-
-			JsonElement shape = annotationElement.get("shape");
-			Map<String, Object> shapesMap;
-
-			shapesMap = extractAnnotation((JsonObject)shape);
-
-			if (shapesMap != null) {
-				finalAnnotation.put("shapes", shapesMap);
-			}
-
-			return finalAnnotation;
-		}
-
-		return null;
-	}
-	
-	public Map<String, String[]> extractCaptionHistory(JsonObject history) {
-		Map<String, String[]> collection = new HashMap<String, String[]>();
-		
-		for (Map.Entry<String,JsonElement> entry : history.entrySet()) {
-			String locale = entry.getKey();
-			JsonArray values = entry.getValue().getAsJsonArray();
-			String[] localeValueArray = new String[3];
-			
-            int i = 0;
-			Iterator<JsonElement> valuesIter = values.iterator();
-			while (valuesIter.hasNext()){
-				String element = valuesIter.next().getAsString();
-                
-                localeValueArray[i++] = element;
-			}
-            
-			collection.put(locale, localeValueArray);
-		}
-		
-		return collection;
 	}
 	
 	class Note {

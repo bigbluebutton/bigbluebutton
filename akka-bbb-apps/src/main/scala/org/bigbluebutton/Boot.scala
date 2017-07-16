@@ -29,12 +29,10 @@ object Boot extends App with SystemConfiguration {
   val redisRecorderActor = system.actorOf(RedisRecorderActor.props(system), "redisRecorderActor")
 
   val messageSenderActor = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
-  val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
 
   outgoingEventBus.subscribe(messageSenderActor, outMessageChannel)
 
   outgoingEventBus.subscribe(redisRecorderActor, outMessageChannel)
-  outgoingEventBus.subscribe(newMessageSenderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 
   val bbbMsgBus = new BbbMsgRouterEventBus

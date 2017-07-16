@@ -5,7 +5,8 @@ import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
 import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
 import scala.collection.JavaConverters._
-import org.bigbluebutton.common2.domain.AnnotationVO
+import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 
 class WhiteboardModel {
   private var _whiteboards = new HashMap[String, Whiteboard]()

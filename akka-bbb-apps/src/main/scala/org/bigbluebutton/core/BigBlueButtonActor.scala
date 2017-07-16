@@ -60,17 +60,10 @@ class BigBlueButtonActor(
 
   def receive = {
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg              => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
 
-    // 1x messages
-    case msg: ValidateAuthToken                => handleValidateAuthToken(msg)
-    case msg: UserJoinedVoiceConfMessage       => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage         => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserLockedInVoiceConfMessage     => handleUserLockedInVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage      => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage    => handleUserTalkingInVoiceConfMessage(msg)
-    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case _                                     => // do nothing
+    case msg: ValidateAuthToken   => handleValidateAuthToken(msg)
+    case _                        => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -130,45 +123,6 @@ class BigBlueButtonActor(
     RunningMeetings.meetings(meetings).foreach(m => {
       m.actorRef ! msg
     })
-  }
-
-  private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    RunningMeetings.findMeetingWithVoiceConfId(meetings, voiceConfId)
-  }
-
-  private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
-  }
-
-  private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-  }
-
-  private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-  }
-
-  private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-  }
-
-  private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-
-  }
-
-  private def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {

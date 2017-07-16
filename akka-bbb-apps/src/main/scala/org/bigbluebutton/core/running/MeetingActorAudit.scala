@@ -17,18 +17,18 @@ import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{ Deadline, FiniteDuration }
 
-object MeetingActorInternal {
+object MeetingActorAudit {
   def props(
     props:    DefaultProps,
     eventBus: IncomingEventBus,
     outGW:    OutMessageGateway
   ): Props =
-    Props(classOf[MeetingActorInternal], props, eventBus, outGW)
+    Props(classOf[MeetingActorAudit], props, eventBus, outGW)
 }
 
 // This actor is an internal audit actor for each meeting actor that
 // periodically sends messages to the meeting actor
-class MeetingActorInternal(
+class MeetingActorAudit(
   val props:    DefaultProps,
   val eventBus: IncomingEventBus, val outGW: OutMessageGateway
 )
@@ -74,7 +74,12 @@ class MeetingActorInternal(
 
   if (props.meetingProp.isBreakout) {
     // This is a breakout room. Inform our parent meeting that we have been successfully created.
-    sendBreakoutRoomCreatedToParent(props, eventBus)
+    /**TODO Need to add a 2.0 notification somehow */
+    log.error("****** MeetingActorInternal still needs to be fixed with 2.0 breakout messages ******")
+    /*eventBus.publish(BigBlueButtonEvent(
+      props.breakoutProps.parentId,
+      BreakoutRoomCreated(props.breakoutProps.parentId, props.meetingProp.intId)))
+     */
   }
 
   def receive = {
@@ -99,8 +104,10 @@ class MeetingActorInternal(
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendTimeRemainingUpdate(props.meetingProp.intId)))
 
     if (props.meetingProp.isBreakout) {
+      /**TODO Need to add a 2.0 notification somehow */
+      log.error("******* MeetingActorInternal still needs to be fixed with 2.0 breakout messages *******")
       // This is a breakout room. Update the main meeting with list of users in this breakout room.
-      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendBreakoutUsersUpdate(props.meetingProp.intId)))
+      //eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendBreakoutUsersUpdate(props.meetingProp.intId)))
     }
 
   }

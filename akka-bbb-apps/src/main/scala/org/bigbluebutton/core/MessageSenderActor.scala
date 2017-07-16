@@ -8,19 +8,13 @@ import akka.actor.SupervisorStrategy.Resume
 import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants
-import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
-import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.common.messages.AllowUserToShareDesktopReply
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
-import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage
-import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
-import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage
 import org.bigbluebutton.common.converters.ToJsonEncoder
-import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
 import scala.collection.JavaConverters
 
 object MessageSenderActor {
@@ -43,85 +37,51 @@ class MessageSenderActor(val service: MessageSender)
 
   val encoder = new ToJsonEncoder()
   def receive = {
-    case msg: UserEjectedFromMeeting => handleUserEjectedFromMeeting(msg)
-    case msg: MeetingCreated => handleMeetingCreated(msg)
-    case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
-    case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
-    case msg: RecordingStatusChanged => handleRecordingStatusChanged(msg)
-    case msg: GetRecordingStatusReply => handleGetRecordingStatusReply(msg)
-    case msg: MeetingEnding => handleMeetingEnding(msg)
-    case msg: MeetingEnded => handleMeetingEnded(msg)
-    case msg: MeetingHasEnded => handleMeetingHasEnded(msg)
-    case msg: MeetingDestroyed => handleMeetingDestroyed(msg)
-    case msg: KeepAliveMessageReply => handleKeepAliveMessageReply(msg)
-    case msg: PubSubPong => handlePubSubPong(msg)
-    case msg: InactivityWarning => handleInactivityWarning(msg)
-    case msg: MeetingIsActive => handleMeetingIsActive(msg)
-    case msg: StartRecording => handleStartRecording(msg)
-    case msg: StopRecording => handleStopRecording(msg)
-    case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
-    case msg: StartRecordingVoiceConf => handleStartRecordingVoiceConf(msg)
-    case msg: StopRecordingVoiceConf => handleStopRecordingVoiceConf(msg)
-    case msg: MeetingMuted => handleMeetingMuted(msg)
-    case msg: MeetingState => handleMeetingState(msg)
-    case msg: DisconnectAllUsers => handleDisconnectAllUsers(msg)
-    case msg: AllowUserToShareDesktopOut => handleAllowUserToShareDesktopOut(msg)
-    case msg: DisconnectUser => handleDisconnectUser(msg)
+    case msg: UserEjectedFromMeeting        => handleUserEjectedFromMeeting(msg)
+    case msg: MeetingCreated                => handleMeetingCreated(msg)
+    case msg: RecordingStatusChanged        => handleRecordingStatusChanged(msg)
+    case msg: GetRecordingStatusReply       => handleGetRecordingStatusReply(msg)
+    case msg: MeetingEnding                 => handleMeetingEnding(msg)
+    case msg: MeetingEnded                  => handleMeetingEnded(msg)
+    case msg: MeetingHasEnded               => handleMeetingHasEnded(msg)
+    case msg: MeetingDestroyed              => handleMeetingDestroyed(msg)
+    case msg: KeepAliveMessageReply         => handleKeepAliveMessageReply(msg)
+    case msg: PubSubPong                    => handlePubSubPong(msg)
+    case msg: InactivityWarning             => handleInactivityWarning(msg)
+    case msg: MeetingIsActive               => handleMeetingIsActive(msg)
+    case msg: GetAllMeetingsReply           => handleGetAllMeetingsReply(msg)
+    case msg: MeetingMuted                  => handleMeetingMuted(msg)
+    case msg: MeetingState                  => handleMeetingState(msg)
+    case msg: DisconnectAllUsers            => handleDisconnectAllUsers(msg)
+    case msg: AllowUserToShareDesktopOut    => handleAllowUserToShareDesktopOut(msg)
+    case msg: DisconnectUser                => handleDisconnectUser(msg)
     case msg: PermissionsSettingInitialized => handlePermissionsSettingInitialized(msg)
-    case msg: NewPermissionsSetting => handleNewPermissionsSetting(msg)
-    case msg: UserLocked => handleUserLocked(msg)
-    case msg: GetPermissionsSettingReply => handleGetPermissionsSettingReply(msg)
-    case msg: UserRegistered => handleUserRegistered(msg)
-    case msg: UserLeft => handleUserLeft(msg)
-    case msg: PresenterAssigned => handlePresenterAssigned(msg)
-    case msg: EndAndKickAll => handleEndAndKickAll(msg)
-    case msg: GetUsersReply => handleGetUsersReply(msg)
-    case msg: ValidateAuthTokenReply => handleValidateAuthTokenReply(msg)
-    case msg: ValidateAuthTokenTimedOut => handleValidateAuthTokenTimedOut(msg)
-    case msg: UserJoined => handleUserJoined(msg)
-    case msg: UserChangedEmojiStatus => handleChangedUserEmojiStatus(msg)
-    case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
-    case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
-    case msg: UserStatusChange => handleUserStatusChange(msg)
-    case msg: UserRoleChange => handleUserRoleChange(msg)
-    case msg: UserVoiceMuted => handleUserVoiceMuted(msg)
-    case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
-    case msg: MuteVoiceUser => handleMuteVoiceUser(msg)
-    case msg: EjectVoiceUser => handleEjectVoiceUser(msg)
-    case msg: TransferUserToMeeting => handleTransferUserToMeeting(msg)
-    case msg: GetUsersInVoiceConference => handleGetUsersFromVoiceConference(msg)
-    case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
-    case msg: UserLeftVoice => handleUserLeftVoice(msg)
-    case msg: IsMeetingMutedReply => handleIsMeetingMutedReply(msg)
-    case msg: UserListeningOnly => handleUserListeningOnly(msg)
-    // breakout room cases
-    case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
-    case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
-    case msg: BreakoutRoomEndedOutMessage => handleBreakoutRoomEndedOutMessage(msg)
-    case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURLOutMessage(msg)
-    case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsersOutMessage(msg)
-    case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
-    case msg: BreakoutRoomsTimeRemainingUpdateOutMessage => handleBreakoutRoomsTimeRemainingUpdate(msg)
+    case msg: NewPermissionsSetting         => handleNewPermissionsSetting(msg)
+    case msg: UserLocked                    => handleUserLocked(msg)
+    case msg: GetPermissionsSettingReply    => handleGetPermissionsSettingReply(msg)
+    case msg: UserRegistered                => handleUserRegistered(msg)
+    case msg: UserLeft                      => handleUserLeft(msg)
+    case msg: PresenterAssigned             => handlePresenterAssigned(msg)
+    case msg: EndAndKickAll                 => handleEndAndKickAll(msg)
+    case msg: GetUsersReply                 => handleGetUsersReply(msg)
+    case msg: ValidateAuthTokenReply        => handleValidateAuthTokenReply(msg)
+    case msg: ValidateAuthTokenTimedOut     => handleValidateAuthTokenTimedOut(msg)
+    case msg: UserJoined                    => handleUserJoined(msg)
+    case msg: UserChangedEmojiStatus        => handleChangedUserEmojiStatus(msg)
+    case msg: UserSharedWebcam              => handleUserSharedWebcam(msg)
+    case msg: UserUnsharedWebcam            => handleUserUnsharedWebcam(msg)
+    case msg: UserStatusChange              => handleUserStatusChange(msg)
+    case msg: UserRoleChange                => handleUserRoleChange(msg)
 
-    case msg: GetGuestPolicyReply => handleGetGuestPolicyReply(msg)
-    case msg: GuestPolicyChanged => handleGuestPolicyChanged(msg)
-    case msg: GuestAccessDenied => handleGuestAccessDenied(msg)
-    case _ => // do nothing
+    case msg: GetGuestPolicyReply           => handleGetGuestPolicyReply(msg)
+    case msg: GuestPolicyChanged            => handleGuestPolicyChanged(msg)
+    case msg: GuestAccessDenied             => handleGuestAccessDenied(msg)
+    case _                                  => // do nothing
   }
 
   private def handleUserEjectedFromMeeting(msg: UserEjectedFromMeeting) {
     val m = new UserEjectedFromMeetingMessage(msg.meetingID, msg.userId, msg.ejectedBy)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, m.toJson)
-  }
-
-  private def handleStartRecordingVoiceConf(msg: StartRecordingVoiceConf) {
-    val m = new StartRecordingVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId)
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
-  }
-
-  private def handleStopRecordingVoiceConf(msg: StopRecordingVoiceConf) {
-    val m = new StopRecordingVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.recordedStream)
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
   }
 
   private def handleMeetingDestroyed(msg: MeetingDestroyed) {
@@ -154,26 +114,6 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleMeetingEnding(msg: MeetingEnding) {
     val json = MeetingMessageToJsonConverter.meetingEndingToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }
-
-  private def handleStartRecording(msg: StartRecording) {
-    val json = MeetingMessageToJsonConverter.startRecordingToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }
-
-  private def handleStopRecording(msg: StopRecording) {
-    val json = MeetingMessageToJsonConverter.stopRecordingToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }
-
-  private def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
-    val json = MeetingMessageToJsonConverter.voiceRecordingStartedToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }
-
-  private def handleVoiceRecordingStopped(msg: VoiceRecordingStopped) {
-    val json = MeetingMessageToJsonConverter.voiceRecordingStoppedToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 
@@ -299,51 +239,6 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
-  private def handleUserJoinedVoice(msg: UserJoinedVoice) {
-    val json = UsersMessageToJsonConverter.userJoinedVoice(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleUserVoiceMuted(msg: UserVoiceMuted) {
-    val json = UsersMessageToJsonConverter.userVoiceMuted(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleUserVoiceTalking(msg: UserVoiceTalking) {
-    val json = UsersMessageToJsonConverter.userVoiceTalking(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleMuteVoiceUser(msg: MuteVoiceUser) {
-    val m = new MuteUserInVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.voiceUserId, msg.mute)
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
-  }
-
-  private def handleGetUsersFromVoiceConference(msg: GetUsersInVoiceConference) {
-    val m = new GetUsersFromVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId)
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
-  }
-
-  private def handleEjectVoiceUser(msg: EjectVoiceUser) {
-    val m = new EjectUserFromVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.voiceUserId)
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
-  }
-
-  private def handleTransferUserToMeeting(msg: TransferUserToMeeting) {
-    val m = new TransferUserToVoiceConfRequestMessage(msg.voiceConfId, msg.targetVoiceConfId, msg.userId);
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
-  }
-
-  private def handleUserLeftVoice(msg: UserLeftVoice) {
-    val json = UsersMessageToJsonConverter.userLeftVoiceToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleIsMeetingMutedReply(msg: IsMeetingMutedReply) {
-    val json = UsersMessageToJsonConverter.isMeetingMutedReplyToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
   private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
     println("**** handleValidateAuthTokenReply *****")
     val json = UsersMessageToJsonConverter.validateAuthTokenReplyToJson(msg)
@@ -381,46 +276,6 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleEndAndKickAll(msg: EndAndKickAll) {
     val json = UsersMessageToJsonConverter.endAndKickAllToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleUserListeningOnly(msg: UserListeningOnly) {
-    val json = UsersMessageToJsonConverter.userListeningOnlyToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleBreakoutRoomsListOutMessage(msg: BreakoutRoomsListOutMessage) {
-    val json = MeetingMessageToJsonConverter.breakoutRoomsListOutMessageToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleBreakoutRoomStartedOutMessage(msg: BreakoutRoomStartedOutMessage) {
-    val json = MeetingMessageToJsonConverter.breakoutRoomStartedOutMessageToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleBreakoutRoomEndedOutMessage(msg: BreakoutRoomEndedOutMessage) {
-    val json = MeetingMessageToJsonConverter.breakoutRoomEndedOutMessageToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleBreakoutRoomJoinURLOutMessage(msg: BreakoutRoomJoinURLOutMessage) {
-    val json = MeetingMessageToJsonConverter.breakoutRoomJoinURLOutMessageToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleUpdateBreakoutUsersOutMessage(msg: UpdateBreakoutUsersOutMessage) {
-    val json = MeetingMessageToJsonConverter.updateBreakoutUsersOutMessageToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleMeetingTimeRemainingUpdate(msg: MeetingTimeRemainingUpdate) {
-    val json = MeetingMessageToJsonConverter.meetingTimeRemainingUpdateToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleBreakoutRoomsTimeRemainingUpdate(msg: BreakoutRoomsTimeRemainingUpdateOutMessage) {
-    val json = MeetingMessageToJsonConverter.breakoutRoomsTimeRemainingUpdateToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 

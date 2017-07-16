@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.StartRecordingVoiceConf
 import org.bigbluebutton.core.models.{ VoiceUser2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
 import org.bigbluebutton.core2.MeetingStatus2x

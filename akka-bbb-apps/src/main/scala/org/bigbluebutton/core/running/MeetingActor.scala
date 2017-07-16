@@ -20,6 +20,7 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.meeting._
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
+import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -59,8 +60,8 @@ class MeetingActor(
     with PollApp2x
     with BreakoutApp2x
     with UsersApp2x
+    with WhiteboardApp2x
 
-    with WhiteboardApp
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
@@ -92,7 +93,7 @@ class MeetingActor(
    * actor is easy to test.
    */
   var actorMonitor = context.actorOf(
-    MeetingActorInternal.props(props, eventBus, outGW),
+    MeetingActorAudit.props(props, eventBus, outGW),
     "actorMonitor-" + props.meetingProp.intId
   )
 

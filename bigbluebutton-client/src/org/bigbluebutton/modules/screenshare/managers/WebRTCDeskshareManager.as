@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
@@ -166,7 +167,8 @@ package org.bigbluebutton.modules.screenshare.managers
 			 sends out fall back to java command
 		*/
 		private function cannotUseWebRTC (message:String):void {
-			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent - falling back to java");
+			LOGGER.debug("Cannot use WebRTC Screensharing: " + message);
+			JSLog.warn("Cannot use WebRTC Screensharing: ", message);
 			usingWebRTC = false;
 			// send out event to fallback to Java
 			globalDispatcher.dispatchEvent(new UseJavaModeCommand());
@@ -176,6 +178,8 @@ package org.bigbluebutton.modules.screenshare.managers
 			 but not configured properly (no extension for example)
 		*/
 		private function webRTCWorksButNotConfigured (message:String):void {
+			LOGGER.debug("WebRTC Screenshare needs to be configured clientside: " + message);
+			JSLog.warn("WebRTC Screenshare needs to be configured clientside: ", message);
 			publishWindowManager.openWindow();
 			globalDispatcher.dispatchEvent(new WebRTCPublishWindowChangeState(WebRTCPublishWindowChangeState.DISPLAY_INSTALL));
 		}
@@ -184,7 +188,8 @@ package org.bigbluebutton.modules.screenshare.managers
 			 attempt to share
 		*/
 		private function webRTCWorksAndConfigured (message:String):void {
-			LOGGER.debug("WebRTCDeskshareManager::webRTCWorksAndConfigured");
+			LOGGER.debug("WebRTC Screenshare works, start sharing: " + message);
+			JSLog.warn("WebRTC Screenshare works, start sharing: ", message);
 			usingWebRTC = true;
 			startWebRTCDeskshare();
 		}
