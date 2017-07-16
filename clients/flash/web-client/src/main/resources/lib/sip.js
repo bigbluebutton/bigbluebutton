@@ -1,13 +1,13 @@
 /*
  * SIP version 0.6.3
- * Copyright (c) 2014-2015 Junction Networks, Inc <http://www.onsip.com>
+ * Copyright Copyright 2014-2015 Junction Networks, Inc <http://www.onsip.com>
  * Homepage: http://sipjs.com
  * License: http://sipjs.com/license/
  *
  *
  * ~~~SIP.js contains substantial portions of JsSIP under the following license~~~
  * Homepage: http://jssip.net
- * Copyright (c) 2012-2013 José Luis Millán - Versatica <http://www.versatica.com> 
+ * Copyright Copyright 2012-2013 José Luis Millán - Versatica <http://www.versatica.com> 
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the

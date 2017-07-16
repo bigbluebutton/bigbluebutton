@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Samuel Audet
+ * Copyright Copyright 2016 Samuel Audet
  *
  * Licensed either under the Apache License, Version 2.0, or (at your option)
  * under the terms of the GNU General Public License as published by

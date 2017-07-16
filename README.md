@@ -14,4 +14,4 @@ BigBlueButton runs on a Ubuntu 16.04 64-bit server.  If you follow the [installa
 
 For full technical documentation BigBlueButton -- including architecture, features, API, and GreenLight (the default front-end) -- see [http://docs.bigbluebutton.org/](http://docs.bigbluebutton.org/).
 
-BigBlueButton and the BigBlueButton Logo are trademarks of [BigBlueButton Inc](http://bigbluebutton.org) .
+BigBlueButton and the BigBlueButton Logo are trademarks of [The N-Line Project](http://bigbluebutton.org) .

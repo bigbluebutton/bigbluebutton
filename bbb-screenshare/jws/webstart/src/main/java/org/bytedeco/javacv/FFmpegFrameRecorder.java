@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2015 Samuel Audet
+ * Copyright Copyright 2009-2015 Samuel Audet
  *
  * Licensed either under the Apache License, Version 2.0, or (at your option)
  * under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
  * Libavformat API example: Output a media file in any supported
  * libavformat format. The default codecs are used.
  *
- * Copyright (c) 2001,2003 Fabrice Bellard
+ * Copyright Copyright 2001,2003 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
