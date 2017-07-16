@@ -171,6 +171,7 @@ class MeetingActor(
       case m: GetRecordingStatusReqMsg => handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
       case m: EjectUserFromMeetingCmdMsg => handleEjectUserFromMeetingCmdMsg(m)
+      case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)

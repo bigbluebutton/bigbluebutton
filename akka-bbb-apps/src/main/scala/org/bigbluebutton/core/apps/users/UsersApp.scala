@@ -11,7 +11,8 @@ class UsersApp(
   val outGW:       OutMessageGateway
 )(implicit val context: ActorContext)
 
-    extends ValidateAuthTokenReqMsgHdlr {
+    extends ValidateAuthTokenReqMsgHdlr
+    with GetUsersMeetingReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }
