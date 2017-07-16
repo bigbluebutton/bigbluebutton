@@ -3,7 +3,8 @@ package org.bigbluebutton.core.running
 import java.io.{ PrintWriter, StringWriter }
 
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.domain.MeetingInactivityTracker
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker }
+import org.bigbluebutton.core.util.TimeUtil
 //import java.util.concurrent.TimeUnit
 
 import akka.actor._
@@ -104,7 +105,13 @@ class MeetingActor(
 
   var inactivityTracker = new MeetingInactivityTracker(
     liveMeeting.props.durationProps.maxInactivityTimeoutMinutes,
-    liveMeeting.props.durationProps.warnMinutesBeforeMax, System.currentTimeMillis(), false, 0L
+    liveMeeting.props.durationProps.warnMinutesBeforeMax,
+    TimeUtil.millisToMinutes(System.currentTimeMillis()), false, 0L
+  )
+
+  var expiryTracker = new MeetingExpiryTracker(
+    TimeUtil.millisToMinutes(System.currentTimeMillis()),
+    false, 0L
   )
 
   /*******************************************************************/
@@ -327,6 +334,9 @@ class MeetingActor(
       eventBus,
       inactivityTracker
     )
+
+    expiryTracker = MeetingExpiryTracker.processMeetingExpiryAudit(liveMeeting.props, expiryTracker, eventBus)
+
     monitorNumberOfWebUsers()
     monitorNumberOfUsers()
   }

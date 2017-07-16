@@ -65,6 +65,7 @@ public class Meeting {
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
+	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -364,10 +365,21 @@ public class Meeting {
 	}
 
 
+	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
+		meetingExpireIfNoUserJoinedInMinutes = value;
+	}
+
+	public Integer getMeetingExpireIfNoUserJoinedInMinutes() {
+		return meetingExpireIfNoUserJoinedInMinutes;
+	}
+
+
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
-	
+
+
+
 	/***
 	 * Meeting Builder
 	 *

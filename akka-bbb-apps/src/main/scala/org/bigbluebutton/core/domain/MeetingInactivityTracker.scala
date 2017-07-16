@@ -8,4 +8,4 @@ case class MeetingInactivityTracker(
   warningSentOnTimeInMinutes:  Long
 )
 
-case class MeetingExpiryTracker(lastUserLeftOn: Long)
+case class MeetingExpiryTracker(startedOnInMinutes: Long, meetingJoined: Boolean, lastUserLeftOn: Long)
