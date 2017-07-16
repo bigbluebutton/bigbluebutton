@@ -103,66 +103,14 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
-	public void initAudioSettings(String meetingID, String requesterID, Boolean muted) {
-		InitAudioSettingsMessage msg = new InitAudioSettingsMessage(meetingID, requesterID, muted);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute) {
-		MuteAllExceptPresenterRequestMessage msg = new MuteAllExceptPresenterRequestMessage(meetingID, requesterID, mute);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void muteAllUsers(String meetingID, String requesterID, Boolean mute) {
-		MuteAllRequestMessage msg = new MuteAllRequestMessage(meetingID, requesterID, mute);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void isMeetingMuted(String meetingID, String requesterID) {
-		IsMeetingMutedRequestMessage msg = new IsMeetingMutedRequestMessage(meetingID, requesterID);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void muteUser(String meetingID, String requesterID, String userID, Boolean mute) {
-		MuteUserRequestMessage msg = new MuteUserRequestMessage(meetingID, requesterID, userID, mute);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-
-	}
-
 	public void lockMuteUser(String meetingID, String requesterID, String userID, Boolean lock) {
 		LockMuteUserRequestMessage msg = new LockMuteUserRequestMessage(meetingID, requesterID, userID, lock);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-	}
-
-	public void ejectUserFromVoice(String meetingID, String userId, String ejectedBy) {
-		EjectUserFromVoiceRequestMessage msg = new EjectUserFromVoiceRequestMessage(meetingID, ejectedBy, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
 		EjectUserFromMeetingRequestMessage msg = new EjectUserFromMeetingRequestMessage(meetingId, userId, ejectedBy);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
-	}
-
-	// could be improved by doing some factorization
-	public void getBreakoutRoomsList(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void createBreakoutRooms(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void requestBreakoutJoinURL(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void listenInOnBreakout(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
-	}
-
-	public void endAllBreakoutRooms(String jsonMessage) {
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
 
 	public void logoutEndMeeting(String meetingId, String userId) {

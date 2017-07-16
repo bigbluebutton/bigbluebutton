@@ -2,7 +2,6 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ MuteUserRequest, MuteVoiceUser }
 import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.message.senders.MsgBuilder

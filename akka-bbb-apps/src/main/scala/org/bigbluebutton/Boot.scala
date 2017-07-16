@@ -9,7 +9,6 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.MessageSenderActor
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.JsonMessageSenderActor
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
 import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
 
@@ -31,12 +30,10 @@ object Boot extends App with SystemConfiguration {
   val redisRecorderActor = system.actorOf(RedisRecorderActor.props(system), "redisRecorderActor")
 
   val messageSenderActor = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
-  val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
 
   outgoingEventBus.subscribe(messageSenderActor, outMessageChannel)
 
   outgoingEventBus.subscribe(redisRecorderActor, outMessageChannel)
-  outgoingEventBus.subscribe(newMessageSenderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 
   val bbbMsgBus = new BbbMsgRouterEventBus
