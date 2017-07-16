@@ -2,7 +2,7 @@
  * $URL: https://source.sakaiproject.org/svn/basiclti/trunk/basiclti-util/src/java/org/imsglobal/basiclti/BasicLTIUtil.java $
  * $Id: BasicLTIUtil.java 98512 2011-09-22 17:59:08Z csev@umich.edu $
  *
- * Copyright (c) 2008 IMS GLobal Learning Consortium
+ * Copyright Copyright 2008 IMS GLobal Learning Consortium
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

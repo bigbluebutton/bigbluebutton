@@ -585,7 +585,7 @@ module.exports = SDPUtils;
 
 },{}],2:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -686,7 +686,7 @@ module.exports = SDPUtils;
 },{"./chrome/chrome_shim":3,"./edge/edge_shim":5,"./firefox/firefox_shim":7,"./safari/safari_shim":9,"./utils":10}],3:[function(require,module,exports){
 
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -1031,7 +1031,7 @@ module.exports = {
 
 },{"../utils.js":10,"./getusermedia":4}],4:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -1246,7 +1246,7 @@ module.exports = function() {
 
 },{"../utils.js":10}],5:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -2570,7 +2570,7 @@ module.exports = {
 
 },{"../utils":10,"./getusermedia":6,"sdp":1}],6:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -2604,7 +2604,7 @@ module.exports = function() {
 
 },{}],7:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -2796,7 +2796,7 @@ module.exports = {
 
 },{"../utils":10,"./getusermedia":8}],8:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -2960,7 +2960,7 @@ module.exports = function() {
 
 },{"../utils":10}],9:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -3030,7 +3030,7 @@ module.exports = {
 
 },{}],10:[function(require,module,exports){
 /*
- *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+ *  Copyright Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source

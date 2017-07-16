@@ -1,29 +1,9 @@
-<!--
 
-BigBlueButton - http://www.bigbluebutton.org
-
-Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
-
-BigBlueButton is free software; you can redistribute it and/or modify it under the 
-terms of the GNU Lesser General Public License as published by the Free Software 
-Foundation; either version 3 of the License, or (at your option) any later 
-version. 
-
-BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along 
-with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
-
-Author: Fred Dixon <ffdixon@bigbluebutton.org>
-
--->
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<% 
-	request.setCharacterEncoding("UTF-8"); 
-	response.setCharacterEncoding("UTF-8"); 
+<%
+	request.setCharacterEncoding("UTF-8");
+	response.setCharacterEncoding("UTF-8");
 %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -36,10 +16,10 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%@ include file="bbb_api.jsp"%>
 
-<% 
+<%
 
 //
-// We're going to define some sample courses (meetings) below.  This API exampe shows how you can create a login page for a course. 
+// We're going to define some sample courses (meetings) below.  This API exampe shows how you can create a login page for a course.
 // The password below are not available to users as they are compiled on the server.
 //
 
@@ -144,7 +124,7 @@ if (request.getParameterMap().isEmpty()) {
 		//
 		// Assume we want to join a course
 		//
-	%> 
+	%>
 <%@ include file="demo_header.jsp"%>
 
 <h2>Join a Session (password required)</h2>
@@ -163,9 +143,9 @@ if (request.getParameterMap().isEmpty()) {
 			<td style="text-align: left ">
 				<input type="text" autofocus required name="username" /></td>
 		</tr>
-		
-	
-		
+
+
+
 		<tr>
 			<td>
 				&nbsp;</td>
@@ -179,12 +159,12 @@ if (request.getParameterMap().isEmpty()) {
 			<%
 				String key;
 				while (meetingIterator.hasNext()) {
-					key = meetingIterator.next(); 
+					key = meetingIterator.next();
 					out.println("<option value=\"" + key + "\">" + key + "</option>");
 				}
 			%>
 			</select>
-				
+
 			</td>
 		</tr>
 		<tr>
@@ -206,13 +186,13 @@ if (request.getParameterMap().isEmpty()) {
 				&nbsp;</td>
 			<td>
 				<input type="submit" value="Join" /></td>
-		</tr>	
+		</tr>
 	</tbody>
 </table>
 <INPUT TYPE=hidden NAME=action VALUE="create">
 </FORM>
 
-Passwords:  
+Passwords:
 <ul>
    <li>prof123 - login as professor (moderator privlidges)</li>
    <li>student123 - login as student (viewer privlidges)</li>
@@ -228,16 +208,16 @@ Passwords:
 		String username = request.getParameter("username");
 		String meetingID = request.getParameter("meetingID");
 		String password = request.getParameter("password");
-		
+
 		meeting = allMeetings.get( meetingID );
-		
+
 		String welcomeMsg = meeting.get( "welcomeMsg" );
 		String logoutURL = meeting.get( "logoutURL" );
 		Integer voiceBridge = Integer.parseInt( meeting.get( "voiceBridge" ).trim() );
 
 		String viewerPW = meeting.get( "viewerPW" );
 		String moderatorPW = meeting.get( "moderatorPW" );
-		
+
 		//
 		// Check if we have a valid password
 		//
@@ -249,12 +229,12 @@ Invalid Password, please <a href="javascript:history.go(-1)">try again</a>.
 <%
 			return;
 		}
-		
+
 		//
 		// Looks good, let's create the meeting
 		//
 		String meeting_ID = createMeeting( meetingID, welcomeMsg, moderatorPW, "Welcome moderator! (moderator only message)", viewerPW, voiceBridge, logoutURL );
-		
+
 		//
 		// Check if we have an error.
 		//
@@ -262,17 +242,17 @@ Invalid Password, please <a href="javascript:history.go(-1)">try again</a>.
 %>
 
 Error: createMeeting() failed
-<p /><%=meeting_ID%> 
+<p /><%=meeting_ID%>
 
 
 <%
 			return;
 		}
-		
+
 		//
 		// We've got a valid meeting_ID and passoword -- let's join!
 		//
-		
+
 		String joinURL = getJoinMeetingURL(username, meeting_ID, password, null);
 %>
 
@@ -281,12 +261,10 @@ Error: createMeeting() failed
 </script>
 
 <%
-	} 
+	}
 %>
- 
+
 <%@ include file="demo_footer.jsp"%>
 
 </body>
 </html>
-
-

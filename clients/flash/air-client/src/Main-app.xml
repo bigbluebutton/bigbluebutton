@@ -6,10 +6,10 @@
 	Specifies parameters for identifying, installing, and launching AIR applications.
 
 	xmlns - The Adobe AIR namespace: http://ns.adobe.com/air/application/3.5
-			The last segment of the namespace specifies the version 
+			The last segment of the namespace specifies the version
 			of the AIR runtime required for this application to run.
-			
-	minimumPatchLevel - The minimum patch level of the AIR runtime required to run 
+
+	minimumPatchLevel - The minimum patch level of the AIR runtime required to run
 			the application. Optional.
 -->
 
@@ -20,19 +20,19 @@
 	<!-- Used as the filename for the application. Required. -->
 	<filename>BigBlueButton</filename>
 
-	<!-- The name that is displayed in the AIR application installer. 
+	<!-- The name that is displayed in the AIR application installer.
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
-	<name>BigBlueButton</name>
-	
-	<!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade. 
+	<name>WebShule</name>
+
+	<!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade.
 	Values can also be 1-part or 2-part. It is not necessary to have a 3-part value.
 	An updated version of application must have a versionNumber value higher than the previous version. Required for namespace >= 2.5 .
     For iOS Apps, this represents build number. -->
 	<versionNumber>0.1.0</versionNumber>
-		         
-	<!-- A string value (such as "v1", "2.5", or "Alpha 1") that represents the version of the application, as it should be shown to users. 
+
+	<!-- A string value (such as "v1", "2.5", or "Alpha 1") that represents the version of the application, as it should be shown to users.
      For iOS Apps, this represents application version number and format should be (<0-999>.<0-999>.<0-999>).
-     If this tag is not specified or the value is not according to the format, then this tag will be ignored 
+     If this tag is not specified or the value is not according to the format, then this tag will be ignored
      and <versionNumber> will be used for application version number. Optional. -->
 	<!-- <versionLabel></versionLabel> -->
 
@@ -51,9 +51,9 @@
 		<!-- The main SWF or HTML file of the application. Required. -->
 		<!-- Note: In Flash Builder, the SWF reference is set automatically. -->
 		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
-		
+
 		<!-- The title of the main window. Optional. -->
-		<!-- <title></title> -->
+		<title>WebShule</title>
 
 		<!-- The type of system chrome to use (either "standard" or "none"). Optional. Default standard. -->
 		<!-- <systemChrome></systemChrome> -->
@@ -176,7 +176,7 @@
 	of the AIR file (true), or the default AIR application installer handles the update (false).
 	Optional. Default false. -->
 	<!-- <customUpdateUI></customUpdateUI> -->
-	
+
 	<!-- Whether the application can be launched when the user clicks a link in a web browser.
 	Optional. Default false. -->
 	<allowBrowserInvocation>true</allowBrowserInvocation>
@@ -192,13 +192,13 @@
 
 			<!-- The extension to register. Required. -->
 			<!-- <extension></extension> -->
-			
+
 			<!-- The description of the file type. Optional. -->
 			<!-- <description></description> -->
-			
+
 			<!-- The MIME content type. -->
 			<!-- <contentType></contentType> -->
-			
+
 			<!-- The icon to display for the file type. Optional. -->
 			<!-- <icon>
 				<image16x16></image16x16>
@@ -206,7 +206,7 @@
 				<image48x48></image48x48>
 				<image128x128></image128x128>
 			</icon> -->
-			
+
 		<!-- </fileType> -->
 	<!-- </fileTypes> -->
 
@@ -240,8 +240,8 @@
 	<!-- <requestedDisplayResolution></requestedDisplayResolution> -->
 	<!-- Forcing Render Mode CPU for the devices mentioned. Optional  -->
 	<!-- <forceCPURenderModeForDevices></forceCPURenderModeForDevices> -->
-	<!-- File containing line separated list of external swf paths. These swfs won't be 
-	packaged inside the application and corresponding stripped swfs will be output in 
+	<!-- File containing line separated list of external swf paths. These swfs won't be
+	packaged inside the application and corresponding stripped swfs will be output in
 	externalStrippedSwfs folder. -->
 	<!-- <externalSwfs></externalSwfs> -->
 	<!-- </iPhone> -->
@@ -298,17 +298,17 @@
 		together in order to use AIR's NetworkInfo APIs-->
 			    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 			    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-			    
+
 			    <uses-feature android:name="android.hardware.camera" android:required="false"/>
-			    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>			    
-			    
+			    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+
 			    <application android:enabled="true">
 					<activity android:exported="true">
 					    <intent-filter>
 					        <action android:name="android.intent.action.MAIN" />
 					        <category android:name="android.intent.category.LAUNCHER" />
 					    </intent-filter>
-					
+
 					    <!-- Test for URL scheme -->
 					    <intent-filter>
 					        <action android:name="android.intent.action.VIEW" />
@@ -328,7 +328,7 @@
                     </receiver>
 				</application>
 			</manifest>
-			
+
 		]]>
 		</manifestAdditions>
 	</android>
@@ -340,7 +340,7 @@
 				<string>1</string>
 				<string>2</string>
 			</array>
-	 
+
 			<key>CFBundleURLTypes</key>
 			<array>
 				<dict>
@@ -352,14 +352,14 @@
 					<string>org.bigbluebutton</string>
 				</dict>
 			</array>
-			
-			<key>UIPrerenderedIcon</key> 
+
+			<key>UIPrerenderedIcon</key>
             <true/>
 		]]>
 		</InfoAdditions>
 		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</iPhone>
-	
+
 	<extensions>
         <extensionID>com.freshplanet.AirCapabilities</extensionID>
         <extensionID>com.juankpro.ane.LocalNotification</extensionID>

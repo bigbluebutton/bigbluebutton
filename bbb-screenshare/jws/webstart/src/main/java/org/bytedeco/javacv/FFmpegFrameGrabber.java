@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2015 Samuel Audet
+ * Copyright Copyright 2009-2015 Samuel Audet
  *
  * Licensed either under the Apache License, Version 2.0, or (at your option)
  * under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  * as well as on the decoding_encoding.c file included in FFmpeg 0.11.1,
  * which is covered by the following copyright notice:
  *
- * Copyright (c) 2001 Fabrice Bellard
+ * Copyright Copyright 2001 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

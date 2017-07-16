@@ -1,7 +1,7 @@
 
 /*
  * Verto HTML5/Javascript Telephony Signaling and Control Protocol Stack for FreeSWITCH
- * Copyright (C) 2005-2014, Anthony Minessale II <anthm@freeswitch.org>
+ * Copyright Copyright 2005-2014, Anthony Minessale II <anthm@freeswitch.org>
  *
  * Version: MPL 1.1
  *
