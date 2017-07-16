@@ -84,6 +84,7 @@ public class ParamsProcessorUtil {
     private Integer maxInactivityTimeoutMinutes = 120;
 		private Integer warnMinutesBeforeMax = 5;
 		private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
+		private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -464,6 +465,7 @@ public class ParamsProcessorUtil {
         meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
         meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
+				meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -850,6 +852,15 @@ public class ParamsProcessorUtil {
 
 	public Integer getWarnMinutesBeforeMax() {
 		return warnMinutesBeforeMax;
+	}
+
+
+	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
+		meetingExpireWhenLastUserLeftInMinutes = value;
+	}
+
+	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
+		return meetingExpireWhenLastUserLeftInMinutes;
 	}
 
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {

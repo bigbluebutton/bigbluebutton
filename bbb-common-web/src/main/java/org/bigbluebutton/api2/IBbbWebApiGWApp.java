@@ -18,7 +18,9 @@ public interface IBbbWebApiGWApp {
                      String guestPolicy, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers,
                      Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,
-                     Integer meetingExpireIfNoUserJoinedInMinutes);
+                     Integer meetingExpireIfNoUserJoinedInMinutes,
+                     Integer meetingExpireWhenLastUserLeftInMinutes);
+
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed);
 

@@ -66,6 +66,7 @@ public class Meeting {
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
+	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -362,6 +363,14 @@ public class Meeting {
 
 	public Integer getWarnMinutesBeforeMax() {
 		return warnMinutesBeforeMax;
+	}
+
+	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
+		meetingExpireWhenLastUserLeftInMinutes = value;
+	}
+
+	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
+		return meetingExpireWhenLastUserLeftInMinutes;
 	}
 
 

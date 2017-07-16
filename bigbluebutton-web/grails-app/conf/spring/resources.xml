@@ -128,6 +128,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxInactivityTimeoutMinutes" value="${maxInactivityTimeoutMinutes}"/>
         <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
+        <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

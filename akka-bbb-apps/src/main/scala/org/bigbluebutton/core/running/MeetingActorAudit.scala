@@ -46,26 +46,7 @@ class MeetingActorAudit(
     }
   }
 
-  private def getExpireNeverJoined(): Int = {
-    val time = expireNeverJoined
-    log.debug("ExpireNeverJoined: {} seconds", time)
-    time
-  }
-
-  private def getExpireLastUserLeft(): Int = {
-    val time = expireLastUserLeft
-    log.debug("ExpireLastUserLeft: {} seconds", time)
-    time
-  }
-
   private val MonitorFrequency = 10 seconds
-
-  private val ExpireMeetingDuration = FiniteDuration(props.durationProps.duration, "minutes")
-  private val ExpireMeetingNeverJoined = FiniteDuration(getExpireNeverJoined(), "seconds")
-  private val ExpireMeetingLastUserLeft = FiniteDuration(getExpireLastUserLeft(), "seconds")
-  private var meetingExpire: Option[Deadline] = Some(ExpireMeetingNeverJoined.fromNow)
-  // Zero minutes means the meeting has no duration control
-  private var meetingDuration: Option[Deadline] = if (ExpireMeetingDuration > (0 minutes)) Some(ExpireMeetingDuration.fromNow) else None
 
   context.system.scheduler.schedule(5 seconds, MonitorFrequency, self, AuditMonitorInternalMsg)
 
@@ -83,18 +64,11 @@ class MeetingActorAudit(
   }
 
   def receive = {
-    case AuditMonitorInternalMsg         => handleMonitor()
-    case msg: UpdateMeetingExpireMonitor => handleUpdateMeetingExpireMonitor(msg)
-    case msg: Object                     => handleMessage(msg)
+    case AuditMonitorInternalMsg => handleMonitor()
   }
 
   def handleMonitor() {
     handleMonitorNumberOfWebUsers()
-    handleMonitorExpiration()
-  }
-
-  def handleMessage(msg: Object) {
-
   }
 
   def handleMonitorNumberOfWebUsers() {
@@ -110,44 +84,6 @@ class MeetingActorAudit(
       //eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendBreakoutUsersUpdate(props.meetingProp.intId)))
     }
 
-  }
-
-  private def handleMonitorExpiration() {
-    for {
-      mExpire <- meetingExpire
-    } yield {
-      if (mExpire.isOverdue()) {
-        // User related meeting expiration methods
-        log.debug("Meeting {} expired. No users", props.meetingProp.intId)
-        meetingExpire = None
-        eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
-      }
-    }
-
-    for {
-      mDuration <- meetingDuration
-    } yield {
-      if (mDuration.isOverdue()) {
-        // Default meeting duration
-        meetingDuration = None
-        log.debug("Meeting {} expired. Reached it's fixed duration of {}", props.meetingProp.intId, ExpireMeetingDuration.toString())
-        eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
-      }
-    }
-  }
-
-  private def handleUpdateMeetingExpireMonitor(msg: UpdateMeetingExpireMonitor) {
-    if (msg.hasUser) {
-      meetingExpire match {
-        case Some(mExpire) =>
-          log.debug("Meeting has users. Stopping expiration for meeting {}", props.meetingProp.intId)
-          meetingExpire = None
-        case None =>
-          // User list is empty. Start this meeting expiration method
-          log.debug("Meeting has no users. Starting {} expiration for meeting {}", ExpireMeetingLastUserLeft.toString(), props.meetingProp.intId)
-          meetingExpire = Some(ExpireMeetingLastUserLeft.fromNow)
-      }
-    }
   }
 
 }
