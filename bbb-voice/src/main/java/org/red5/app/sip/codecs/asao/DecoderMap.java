@@ -2,7 +2,7 @@ package org.red5.app.sip.codecs.asao;
 
 
 /*
- * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
+ * Copyright Copyright 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
  *                    520e17cd55896441042b14df2566a6eb610ed444
  *

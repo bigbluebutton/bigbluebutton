@@ -1,81 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--
 
-BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
-
-This program is free software; you can redistribute it and/or modify it under the
-terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 3.0 of the License, or (at your option) any later
-version.
-
-BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-
--->
-
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="onCreationComplete()" 
-		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
-		   xmlns:maps="org.bigbluebutton.modules.dynamicinfo.maps.*" 
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+		   creationComplete="onCreationComplete()"
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule"
+		   xmlns:maps="org.bigbluebutton.modules.dynamicinfo.maps.*"
 		   xmlns:views="org.bigbluebutton.modules.dynamicinfo.views.*">
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
+
 			import mx.controls.Button;
 			import mx.controls.ComboBox;
 			import mx.controls.Label;
 			import mx.core.UIComponent;
-			
+
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoButton;
 			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoComboBox;
 			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoLabel;
-			
-			private var _moduleName:String = "Dynamic Info Module";			
+
+			private var _moduleName:String = "Dynamic Info Module";
 			private var _attributes:Object;
-			
+
 			private var globalDispatcher:Dispatcher;
-			
+
 			private function onCreationComplete():void {
-				LogUtil.debug("DynamicInfoModule Initialized");	
+				LogUtil.debug("DynamicInfoModule Initialized");
 				globalDispatcher = new Dispatcher();
 			}
-			
+
 			public function get moduleName():String {
 				return _moduleName;
 			}
-		
+
 			public function get uri():String {
-				if (_attributes.mode == "PLAYBACK") {										
+				if (_attributes.mode == "PLAYBACK") {
 					return _attributes.uri + "/" + _attributes.playbackRoom;
-				} 
-				
+				}
+
 				return _attributes.uri + "/" + _attributes.room;
 			}
-			
+
 			public function get username():String {
 				return _attributes.username;
 			}
-						
+
 			public function get userid():Number {
 				return _attributes.userid as Number;
 			}
-			
+
 			public function get role():String {
 				return _attributes.userrole as String;
 			}
-			
-			public function start(attributes:Object):void {	
+
+			public function start(attributes:Object):void {
 				_attributes = attributes;
 
 				// debugging code:
@@ -101,15 +83,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				var request:URLRequest = new URLRequest();
 				var vars:URLVariables = new URLVariables();
-		
+
 				var urlLoader:URLLoader;
 
 				request = new URLRequest(url);
-				request.method = URLRequestMethod.GET;		
+				request.method = URLRequestMethod.GET;
 
 				urlLoader = new URLLoader();
-				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
-				urlLoader.load(request);	
+				urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+				urlLoader.load(request);
 			}
 
 			private function handleComplete(e:Event):void{
@@ -182,8 +164,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function createUrlNavigatingClickHandler(url:String):Function {
-				return function():void { 
-					LogUtil.debug("navigate to url: " + url); 
+				return function():void {
+					LogUtil.debug("navigate to url: " + url);
 					navigateToURL(new URLRequest(url), '_blank');
 				};
 			}

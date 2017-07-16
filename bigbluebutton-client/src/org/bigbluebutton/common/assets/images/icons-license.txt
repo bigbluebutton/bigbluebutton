@@ -24,7 +24,7 @@ contact mjames@gmail.com
 ==================================================
 Diagona Icons
 
-Copyright (C) 2007 Yusuke Kamiyamane. All rights reserved.
+Copyright Copyright 2007 Yusuke Kamiyamane. All rights reserved.
 The icons are licensed under a Creative Commons Attribution
 3.0 license. <http://creativecommons.org/licenses/by/3.0/>
 

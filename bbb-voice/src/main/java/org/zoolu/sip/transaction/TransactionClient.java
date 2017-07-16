@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Luca Veltri - University of Parma - Italy
+ * Copyright Copyright 2005 Luca Veltri - University of Parma - Italy
  *
  * This file is part of MjSip (http://www.mjsip.org)
  *

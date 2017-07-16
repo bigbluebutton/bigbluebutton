@@ -1,7 +1,7 @@
 /*
  * Acorn Media Player - jQuery plugin 1.6
  *
- * Copyright (C) 2012 Ionut Cristian Colceriu
+ * Copyright Copyright 2012 Ionut Cristian Colceriu
  *
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -1104,7 +1104,7 @@
  *  http://www.mozilla.org/MPL/
  *
  * The Initial Developer of the Original Code is Mozilla Corporation.
- * Portions created by the Initial Developer are Copyright (C) 2009
+ * Portions created by the Initial Developer are Copyright Copyright 2009
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
