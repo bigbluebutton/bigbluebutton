@@ -13,16 +13,17 @@ const unassignCurrentPresenter = (meetingId, presenterId) => {
     $set: {
       'user.presenter': false,
     },
+    $pop: {
+      'user.roles': 'presenter',
+    },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Unassigning current presenter from collection: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Unassign current presenter meeting=${meetingId}`);
-    }
+    return Logger.info(`Unassign current presenter meeting=${meetingId}`);
   };
 
   return Users.update(selector, modifier, cb);
@@ -42,17 +43,18 @@ export default function handlePresenterAssigned({ body }, meetingId) {
     $set: {
       'user.presenter': true,
     },
+    $push: {
+      'user.roles': 'presenter',
+    },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Assigning user as presenter: ${err}`);
     }
 
-    if (numChanged) {
-      unassignCurrentPresenter(meetingId, presenterId);
-      return Logger.info(`Assigned user as presenter id=${presenterId} meeting=${meetingId}`);
-    }
+    unassignCurrentPresenter(meetingId, presenterId);
+    return Logger.info(`Assigned user as presenter id=${presenterId} meeting=${meetingId}`);
   };
 
   return Users.update(selector, modifier, cb);
