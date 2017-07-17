@@ -9,7 +9,8 @@ Kurento = function (
     conferenceUsername,
     internalMeetingId,
     onFail = null,
-    chromeExtension = null) {
+    chromeExtension = null
+    ) {
 
   this.ws = null;
   this.video;
@@ -23,6 +24,7 @@ Kurento = function (
   this.vid_width = window.screen.width;
   this.vid_height = window.screen.height;
 
+  // TODO properly generate a uuid
   this.sessid = Math.random().toString();
 
   this.renderTag = 'remote-media';
@@ -43,7 +45,7 @@ Kurento = function (
   }
 
   if (onFail != null) {
-    this.onFail = onFail;
+    this.onFail = Kurento.normalizeCallback(onFail);
   } else {
     var _this = this;
     this.onFail = function () {
@@ -58,7 +60,6 @@ this.KurentoManager= function () {
 };
 
 KurentoManager.prototype.exitScreenShare = function () {
-  console.log("exitScreenShare");
   if (this.kurentoScreenShare != null) {
     if(kurentoHandler.pingInterval) {
       clearInterval(kurentoHandler.pingInterval);
@@ -67,7 +68,6 @@ KurentoManager.prototype.exitScreenShare = function () {
       kurentoHandler.ws.onclose = function(){};
       kurentoHandler.ws.close();
     }
-    console.log('Hanging up kurentoScreenShare');
     kurentoHandler.disposeScreenShare();
     this.kurentoScreenShare = null;
     kurentoHandler = null;
@@ -75,17 +75,15 @@ KurentoManager.prototype.exitScreenShare = function () {
 };
 
 KurentoManager.prototype.shareScreen = function (tag) {
-  console.log("shareScreen");
   this.exitScreenShare();
   var obj = Object.create(Kurento.prototype);
   Kurento.apply(obj, arguments);
-  console.log(JSON.stringify(obj, null, 2));
   this.kurentoScreenShare = obj;
   kurentoHandler = obj;
   this.kurentoScreenShare.setScreenShare(tag);
 };
 
-// Still unused, part of the HTMl5 implementation
+// Still unused, part of the HTML5 implementation
 KurentoManager.prototype.joinWatchVideo = function (tag) {
   this.exitVideo();
   var obj = Object.create(Kurento.prototype);
@@ -97,7 +95,6 @@ KurentoManager.prototype.joinWatchVideo = function (tag) {
 
 
 Kurento.prototype.setScreenShare = function (tag) {
-  console.log('setScreenShare  ' + tag);
   this.mediaCallback = this.makeShare;
   this.create(tag);
 };
@@ -113,16 +110,15 @@ Kurento.prototype.init = function () {
   if("WebSocket" in window) {
     console.log("this browser supports websockets");
     this.ws = new WebSocket(this.socketUrl);
-    console.log(JSON.stringify(this, null, 2));
 
     this.ws.onmessage = this.onWSMessage;
     this.ws.onclose = function (close) {
       kurentoManager.exitScreenShare();
-      console.log("TODO WS onclose");
+      self.onFail("Websocket connection closed");
     };
     this.ws.onerror = function (error) {
       kurentoManager.exitScreenShare();
-      console.log("TODO WS error");
+      self.onFail("Websocket connection error");
     };
     this.ws.onopen = function() {
       self.pingInterval = setInterval(self.ping, 3000);
@@ -131,14 +127,6 @@ Kurento.prototype.init = function () {
   }
   else
     console.log("this browser does not support websockets");
-};
-
-
-
-Kurento.prototype.doShare = function (screenConstraints) {
-  console.log("doShare");
-  var _this = this;
-  this.webRtcPeer.generateOffer(this.onOfferPresenter);
 };
 
 Kurento.prototype.onWSMessage = function (message) {
@@ -165,12 +153,12 @@ Kurento.prototype.setRenderTag = function (tag) {
   this.renderTag = tag;
 };
 
-
 Kurento.prototype.presenterResponse = function (message) {
   if (message.response != 'accepted') {
     var errorMsg = message.message ? message.message : 'Unknow error';
     console.warn('Call not accepted for the following reason: ' + errorMsg);
     kurentoManager.exitScreenShare();
+    kurentoHandler.onFail(errorMessage);
   } else {
     console.log("Presenter call was accepted with SDP => " + message.sdpAnswer);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
@@ -206,9 +194,10 @@ Kurento.prototype.makeShare = function() {
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   if(error)  {
     console.log("Kurento.prototype.onOfferPresenter Error " + error);
-    //return onError(error);
+    kurentoHandler.onFail(error);
     return;
   }
+
   var message = {
     id : 'presenter',
     presenterId : kurentoHandler.sessid,
@@ -223,7 +212,6 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
 }
 
 Kurento.prototype.startScreenStreamFrom = function () {
-  console.log("Kurento.startScreenStreamFrom");
   var screenInfo = null;
   var _this = this;
   if (!!window.chrome) {
@@ -251,11 +239,12 @@ Kurento.prototype.startScreenStreamFrom = function () {
   _this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, function(error) {
     if(error)  {
       console.log("WebRtcPeerSendonly constructor error " + JSON.stringify(error, null, 2));
-      //return onError(error);
+      kurentoHandler.onFail(error);
       return kurentoManager.exitScreenShare();
     }
+
+    _this.webRtcPeer.generateOffer(_this.onOfferPresenter);
     console.log("Generated peer offer w/ options "  + JSON.stringify(options));
-    _this.doShare(constraints);
   });
 }
 
@@ -289,7 +278,9 @@ Kurento.prototype.viewer = function () {
     }
 
     webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
-      if(error) return onError(error);
+      if(error) {
+        return kurentoHandler.onFail(error);
+      }
 
       this.generateOffer(onOfferViewer);
     });
@@ -299,8 +290,7 @@ Kurento.prototype.viewer = function () {
 Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   if(error)  {
     console.log("Kurento.prototype.onOfferViewer Error " + error);
-    //return onError(error);
-    return;
+    return kurentoHandler.onFail();
   }
   var message = {
     id : 'viewer',
@@ -378,6 +368,16 @@ Kurento.prototype.getChromeScreenConstraints = function(callback, extensionId) {
     });
 };
 
+Kurento.normalizeCallback = function (callback) {
+  if (typeof callback == 'function') {
+    return callback;
+  } else {
+    console.log(document.getElementById('BigBlueButton')[callback]);
+    return function (args) {
+      document.getElementById('BigBlueButton')[callback](args);
+    };
+  }
+};
 
 /* Global methods */
 
