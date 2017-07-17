@@ -8,9 +8,7 @@
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
 	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale" />
 	<property name="BASE_DIR" value="${basedir}" />
-	<property name="themeFile" value="BBBDefault.css" />
-	<property name="blackTheme" value="BBBBlack.css" />
-	<property name="v2Theme" value="V2Theme.css" />
+	<property name="V2_THEME" value="V2Theme.css" />
 	<property name="LOCALE" value="en_US" />
 	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />
@@ -79,29 +77,9 @@
 		</foreach>
 	</target>
 
-	<target name="branding" depends="init-ant-contrib">
-		<sequential>
-			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="${DEBUG}" show-unused-type-selector-warnings="false" incremental="true" swf-version="13" default-background-color="0xFFFFFF" optimize="true">
-				<compiler.library-path dir="." append="true">
-					<include name="libs" />
-				</compiler.library-path>
-			</mxmlc>
-		</sequential>
-	</target>
-
-	<target name="branding-black" depends="init-ant-contrib">
-		<sequential>
-			<mxmlc file="${BASE_DIR}/branding/default/style/css/${blackTheme}" output="${OUTPUT_DIR}/branding/css/${blackTheme}.swf" debug="${DEBUG}" show-unused-type-selector-warnings="false" incremental="true" swf-version="13" optimize="true">
-				<compiler.library-path dir="." append="true">
-					<include name="libs" />
-				</compiler.library-path>
-			</mxmlc>
-		</sequential>
-	</target>
-	
 	<target name="branding-v2" depends="init-ant-contrib">
 			<sequential>
-				<mxmlc file="${BASE_DIR}/branding/default/style/css/${v2Theme}" output="${OUTPUT_DIR}/branding/css/${v2Theme}.swf" debug="${DEBUG}" show-unused-type-selector-warnings="false" incremental="true" swf-version="13" optimize="true">
+				<mxmlc file="${BASE_DIR}/branding/default/style/css/${V2_THEME}" output="${OUTPUT_DIR}/branding/css/${V2_THEME}.swf" debug="${DEBUG}" show-unused-type-selector-warnings="false" incremental="true" swf-version="13" optimize="true">
 					<compiler.library-path dir="." append="true">
 						<include name="libs" />
 					</compiler.library-path>
@@ -192,11 +170,6 @@
 
 	<target name="build-bbb-main" description="Compile BigBlueButton Main">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
-
-		<echo message="Copying common assets for BBB Main" />
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images">
-			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/common/assets/images/" />
-		</copy>
 	</target>
 
 	<target name="build-broadcast" description="Compile Broadcast Module">
@@ -261,11 +234,6 @@
 
 	<target name="build-phone" description="Compile Phone Module">
 		<build-module src="${SRC_DIR}" target="${PHONE}" />
-
-		<echo message="Copying assets for Phone Module" />
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/">
-			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/phone/views/assets/images/" />
-		</copy>
 	</target>
 
 	<target name="build-video" description="Compile Video Module">
@@ -532,7 +500,7 @@
 	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper,
 		                                     compile-screenshare-standalone, build-mic-check,
 	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone, 
-	                                         compile-bbb, branding, branding-black, branding-v2" description="Build BBB client including locales" />
+	                                         compile-bbb, branding-v2" description="Build BBB client including locales" />
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-screenshare-standalone,
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" description="Build BBB client without locales" />
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales" />

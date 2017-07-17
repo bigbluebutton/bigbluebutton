@@ -36,7 +36,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.collections.ArrayList;
 		import mx.events.CloseEvent;
 		
-		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.common.Media;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.PopUpUtil;
@@ -46,8 +45,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		static public var PADDING_HORIZONTAL:Number = 6;
 		static public var PADDING_VERTICAL:Number = 29;
-		
-		private var images:Images = new Images();
 		
 		[Bindable]
 		public var _videoProfiles:ArrayCollection = new ArrayCollection();

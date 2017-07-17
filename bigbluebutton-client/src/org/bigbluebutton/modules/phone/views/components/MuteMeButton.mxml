@@ -57,15 +57,14 @@ $Id: $
 	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
-
+			
 			import mx.core.mx_internal;
-
+			
 			import spark.filters.GlowFilter;
-
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbToolbarComponent;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.UsersUtil;
@@ -85,9 +84,6 @@ $Id: $
 			private var muteMeRolled:Boolean = false;
 
 			use namespace mx_internal;
-
-			[Bindable]
-			private var images:Images = new Images();
 
 			public function getAlignment():String {
 				return MainToolbar.ALIGN_LEFT;

@@ -7,6 +7,7 @@
 @namespace views "org.bigbluebutton.main.views.*";
 @namespace layout "org.bigbluebutton.modules.layout.views.*";
 @namespace presentation "org.bigbluebutton.modules.present.ui.views.*";
+@namespace sharednotes "org.bigbluebutton.modules.sharednotes.views.components.*";
 
 /*
 //------------------------------
@@ -228,8 +229,9 @@ mx|ApplicationControlBar {
 }
 
 .recordButtonStyleNormal {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_Disabled");
+	icon               : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record");
+	disabledIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_Disabled");
+	iconRecordReminder : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_Reminder");
 }
 
 .recordButtonStyleStart {
@@ -369,11 +371,11 @@ mx|Button {
 */
 
 users|RoomActionsRenderer {
-	paddingLeft  : 5;
-	paddingRight : 5;
-	iconTransfer : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transfer");
+	paddingLeft     : 5;
+	paddingRight    : 5;
+	iconTransfer    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transfer");
 	iconTransferred : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transferred");
-	iconJoin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join");
+	iconJoin        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join");
 }
 
 .breakoutRoomUserWindowHeadingStyle {
@@ -651,6 +653,28 @@ layout|BroadcastButton {
 
 /*
 //------------------------------
+//  MainApplicationShell
+//------------------------------
+*/
+
+views|MainApplicationShell {
+	verticalGap : 0;
+}
+
+.logsButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logs");
+}
+
+.fullScreenButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fullscreen");
+}
+
+.exitFullScreenButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Exit_Fullscreen");
+}
+
+/*
+//------------------------------
 //  MDICanvas & MDIWindow
 //------------------------------
 */
@@ -769,6 +793,16 @@ flexlib|MDIWindow {
 	textRollOverColor : #FFFFFF;
 	textSelectedColor : #FFFFFF;
 	fontWeight        : bold;
+}
+
+/*
+//------------------------------
+//  Network Stats
+//------------------------------
+*/
+
+views|NetworkStatsWindow {
+	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refresh");
 }
 
 /*
@@ -900,7 +934,7 @@ presentation|UploadedPresentationRenderer {
 }
 
 presentation|FileUploadWindow {
-	iconGo : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
+	iconGo         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
 	titleStyleName : "presentationFileUploadWindowTitleStyle";
 }
 
@@ -980,7 +1014,7 @@ mx|ProgressBar {
 */
 
 views|ReconnectionPopup {
-	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refresh");
+	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refreshing");
 }
 
 /*
@@ -988,6 +1022,17 @@ views|ReconnectionPopup {
 //  SharedNotes
 //------------------------------
 */
+
+sharednotes|SharedNotesRichTextEditor {
+	iconBold         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bold");
+	iconItalic       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Italic");
+	iconUnderline    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Underline");
+	iconBullet       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bullet");
+	iconAlignLeft    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Left");
+	iconAlignCenter  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Center");
+	iconAlignRight   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Right");
+	iconAlignJustify : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Justify");
+}
 
 .sharedNotesSettings {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
@@ -1128,6 +1173,24 @@ users|EmojiGrid {
 	horizontalGap : 6;
 }
 
+users|MoodMenu {
+	iconMoodRaiseHand   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
+	iconMoodApplause    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	iconMoodAgree       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
+	iconMoodDisagree    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
+	/* FIXME - start*/
+	iconMoodSpeakFaster : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodSpeakSlower : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodSpeakLouder : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodSpeakSofter : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	/* FIXME - end */
+	iconMoodBeRightBack : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodHappy       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconMoodClear       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Clear");
+	iconMoodNeutral     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodConfused    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+}
+
 /*
 //------------------------------
 //  VideoDock
@@ -1235,18 +1298,18 @@ views|WarningButton {
 */
 
 whiteboard|WhiteboardToolbar {
-	iconWhiteboardThin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Thin");
+	iconWhiteboardThin  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Thin");
 	iconWhiteboardThick : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Thick");
-	backgroundColor : #CFD4DB;
-	borderColor     : #CFD4DB;
-	borderStyle     : solid;
-	borderThickness : 1;
-	cornerRadius    : 4;
-	paddingBottom   : 0;
-	paddingTop      : 0;
-	paddingLeft     : 0;
-	paddingRight    : 0;
-	verticalGap     : 1;
+	backgroundColor     : #CFD4DB;
+	borderColor         : #CFD4DB;
+	borderStyle         : solid;
+	borderThickness     : 1;
+	cornerRadius        : 4;
+	paddingBottom       : 0;
+	paddingTop          : 0;
+	paddingLeft         : 0;
+	paddingRight        : 0;
+	verticalGap         : 1;
 }
 
 whiteboard|WhiteboardCanvas {

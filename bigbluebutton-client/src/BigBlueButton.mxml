@@ -28,6 +28,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 
 	<fx:Style source="assets/halo.css" />
+	
+	<!-- Shared Stylesheet containing common assets and styles -->
+	<fx:Style source="assets/shared.css" />
 
 	<fx:Style source="../branding/default/style/css/V2Theme.css" />
 

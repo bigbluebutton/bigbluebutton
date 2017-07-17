@@ -49,7 +49,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.common.events.LocaleChangeEvent;
 		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
@@ -76,8 +75,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public static const SCALE:Number = 5;
       private static const VID_HEIGHT_PAD:Number = 73;
       private static const VID_WIDTH_PAD:Number = 6;
-      
-      private var images:Images = new Images();
       
       private var connection:Connection;
       private var uri:String;

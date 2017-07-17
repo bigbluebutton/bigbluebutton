@@ -42,7 +42,6 @@
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
@@ -63,7 +62,6 @@
 			private var screenHeight:Number = Capabilities.screenResolutionY;
 			private var screenWidth:Number = Capabilities.screenResolutionX;
 						
-			private var images:Images = new Images();
 			//[Bindable] public var fitToWidthIcon:Class = images.magnifier;
 			//[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 					

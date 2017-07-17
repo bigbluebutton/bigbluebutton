@@ -32,7 +32,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:common="org.bigbluebutton.common.*"
 		width="100%" height="{parentApplication.height - 1}"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		styleName="mainVBox" verticalGap="0"
 		creationComplete="initializeShell()" >
 
 	<!--
@@ -107,7 +106,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -152,7 +150,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
-			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;
@@ -166,9 +163,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
 			
-			[Bindable] private var fullscreen_icon:Class = images.full_screen;
-			[Bindable] private var logs_icon:Class = images.table;
-
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			
@@ -447,11 +441,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					LOGGER.debug("Switching to full screen");
-					fullscreen_icon = images.exit_full_screen;
+					fullScreenBtn.styleName = "exitFullScreenButton"
 					hideToolbars();
 				} else {
 					LOGGER.debug("Switching to normal screen");
-					fullscreen_icon = images.full_screen;
+					fullScreenBtn.styleName = "fullScreenButton"
 					showToolbars();
 				}
 			}			
@@ -1037,9 +1031,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				includeInLayout="{layoutOptions.showLogButton}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
 				id="logBtn"
-				icon="{logs_icon}"
+				styleName="logsButton"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
-		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
 	</mx:ControlBar>
 </mx:VBox>
