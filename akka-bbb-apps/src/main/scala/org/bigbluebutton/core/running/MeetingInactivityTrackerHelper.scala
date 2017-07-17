@@ -2,74 +2,50 @@ package org.bigbluebutton.core.running
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.core.domain.MeetingInactivityTracker
+import org.bigbluebutton.core.domain.{ MeetingInactivityTracker, MeetingState2x }
 import com.softwaremill.quicklens._
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.bus.{ IncomingEventBus }
+import org.bigbluebutton.core.bus.IncomingEventBus
 import org.bigbluebutton.core.util.TimeUtil
 
 class MeetingInactivityTrackerHelper(
-  val liveMeeting: LiveMeeting,
-  val outGW:       OutMessageGateway
+    val liveMeeting: LiveMeeting,
+    val outGW:       OutMessageGateway
 )(implicit val context: ActorContext) extends HandlerHelpers {
 
   val log = Logging(context.system, getClass)
-
-  def isMeetingActive(
-    nowInMinutes:                Long,
-    lastActivityTimeInMinutes:   Long,
-    maxInactivityTimeoutMinutes: Long
-  ): Boolean = {
-    nowInMinutes - lastActivityTimeInMinutes < maxInactivityTimeoutMinutes
-  }
-
-  def isMeetingInactive(
-    warningSent:                 Boolean,
-    nowInMinutes:                Long,
-    lastActivityTimeInMinutes:   Long,
-    maxInactivityTimeoutMinutes: Long
-  ): Boolean = {
-    warningSent && (nowInMinutes - lastActivityTimeInMinutes) > maxInactivityTimeoutMinutes
-  }
 
   def processMeetingInactivityAudit(
     props:    DefaultProps,
     outGW:    OutMessageGateway,
     eventBus: IncomingEventBus,
-    tracker:  MeetingInactivityTracker
-  ): MeetingInactivityTracker = {
+    state:    MeetingState2x
+  ): MeetingState2x = {
 
-    val nowInMinutes = TimeUtil.millisToMinutes(System.currentTimeMillis())
-    if (isMeetingActive(nowInMinutes, tracker.lastActivityTimeInMinutes, tracker.maxInactivityTimeoutMinutes)) {
-      tracker
-    } else {
-      if (isMeetingInactive(tracker.warningSent, nowInMinutes,
-        tracker.lastActivityTimeInMinutes,
-        tracker.maxInactivityTimeoutMinutes)) {
+    val nowInSeconds = TimeUtil.timeNowInSeconds()
+    if (!MeetingInactivityTracker.hasRecentActivity(state, nowInSeconds)) {
+      if (MeetingInactivityTracker.isMeetingInactive(state, nowInSeconds)) {
         sendEndMeetingDueToInactivity(props, eventBus)
-        tracker
+        state
       } else {
-        if (tracker.warningSent) {
-          tracker
+        if (!MeetingInactivityTracker.warningHasBeenSent(state)) {
+          warnOfMeetingInactivity(props, outGW, nowInSeconds, state)
+          MeetingInactivityTracker.setWarningSentAndTimestamp(state, nowInSeconds)
         } else {
-          warnOfMeetingInactivity(props, outGW, nowInMinutes, tracker)
-          tracker.modify(_.warningSent).setTo(true).modify(_.warningSentOnTimeInMinutes).setTo(nowInMinutes)
+          state
         }
       }
+    } else {
+      state
     }
   }
 
-  def timeLeftInMinutes(nowInMinutes: Long, tracker: MeetingInactivityTracker): Long = {
-    tracker.lastActivityTimeInMinutes + tracker.maxInactivityTimeoutMinutes - nowInMinutes
-  }
-
   def warnOfMeetingInactivity(props: DefaultProps, outGW: OutMessageGateway,
-                              nowInMinutes: Long, tracker: MeetingInactivityTracker): MeetingInactivityTracker = {
-    val timeLeftSeconds = TimeUtil.minutesToSeconds(timeLeftInMinutes(nowInMinutes, tracker))
+                              nowInSeconds: Long, state: MeetingState2x): Unit = {
+    val timeLeftSeconds = MeetingInactivityTracker.timeLeftInSeconds(state, nowInSeconds)
     sendMeetingInactivityWarning(props, outGW, timeLeftSeconds)
-    tracker
   }
 
   def sendEndMeetingDueToInactivity(props: DefaultProps, eventBus: IncomingEventBus): Unit = {
@@ -102,11 +78,10 @@ class MeetingInactivityTrackerHelper(
   }
 
   def processMeetingActivityResponse(
-    props:   DefaultProps,
-    outGW:   OutMessageGateway,
-    msg:     MeetingActivityResponseCmdMsg,
-    tracker: MeetingInactivityTracker
-  ): MeetingInactivityTracker = {
+    props: DefaultProps,
+    outGW: OutMessageGateway,
+    msg:   MeetingActivityResponseCmdMsg
+  ): Unit = {
 
     def buildMeetingIsActiveEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
@@ -121,8 +96,5 @@ class MeetingInactivityTrackerHelper(
     val event = buildMeetingIsActiveEvtMsg(props.meetingProp.intId)
     outGW.send(event)
 
-    tracker.modify(_.warningSent).setTo(false)
-      .modify(_.warningSentOnTimeInMinutes).setTo(0L)
-      .modify(_.lastActivityTimeInMinutes).setTo(System.currentTimeMillis())
   }
 }

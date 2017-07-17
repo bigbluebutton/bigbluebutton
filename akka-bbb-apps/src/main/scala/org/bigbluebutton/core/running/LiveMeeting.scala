@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.domain.Meeting3x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -31,28 +30,6 @@ class LiveMeeting(
 
   def hasMeetingEnded(): Boolean = {
     MeetingStatus2x.hasMeetingEnded(status)
-  }
-
-  def startCheckingIfWeNeedToEndVoiceConf() {
-    if (Users2x.numUsers(users2x) == 0 && !props.meetingProp.isBreakout) {
-      MeetingStatus2x.lastWebUserLeft(status)
-    }
-  }
-
-  def sendTimeRemainingNotice() {
-    val now = timeNowInSeconds
-
-    if (props.durationProps.duration > 0 && (((MeetingStatus2x.startedOn(status) + props.durationProps.duration) - now) < 15)) {
-      //  log.warning("MEETING WILL END IN 15 MINUTES!!!!")
-    }
-  }
-
-  def timeNowInMinutes(): Long = {
-    TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
-  }
-
-  def timeNowInSeconds(): Long = {
-    TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
   }
 
   def lockLayout(lock: Boolean) {

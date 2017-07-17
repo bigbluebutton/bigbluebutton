@@ -4,6 +4,7 @@ import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, RecordingStatusChanged }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
 import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -48,10 +49,9 @@ trait HandlerHelpers extends SystemConfiguration {
   def userValidatedAndNoNeedToWaitForApproval(
     outGW:       OutMessageGateway,
     liveMeeting: LiveMeeting,
-    user:        RegisteredUser
-  ): Unit = {
-
-    println("**************** userValidatedAndNoNeedToWaitForApproval")
+    user:        RegisteredUser,
+    state:       MeetingState2x
+  ): MeetingState2x = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
     sendValidateAuthTokenRespMsg(outGW, meetingId,
@@ -62,10 +62,11 @@ trait HandlerHelpers extends SystemConfiguration {
     sendAllUsersInMeeting(outGW, user.id, liveMeeting)
     sendAllVoiceUsersInMeeting(outGW, user.id, liveMeeting.voiceUsers, meetingId)
     sendAllWebcamStreams(outGW, user.id, liveMeeting.webcams, meetingId)
-    userJoinMeeting(outGW, user.authToken, liveMeeting)
+    val newState = userJoinMeeting(outGW, user.authToken, liveMeeting, state)
     if (!Users2x.hasPresenter(liveMeeting.users2x)) {
       automaticallyAssignPresenter(outGW, liveMeeting)
     }
+    newState
   }
 
   def notifyModeratorsOfGuestWaiting(outGW: OutMessageGateway, guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
@@ -115,11 +116,12 @@ trait HandlerHelpers extends SystemConfiguration {
     Sender.send(outGW, event)
   }
 
-  def userJoinMeeting(outGW: OutMessageGateway, authToken: String, liveMeeting: LiveMeeting): Unit = {
-    for {
+  def userJoinMeeting(outGW: OutMessageGateway, authToken: String,
+                      liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+    val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
-      val userState = UserState(
+      UserState(
         intId = regUser.id,
         extId = regUser.externId,
         name = regUser.name,
@@ -132,13 +134,24 @@ trait HandlerHelpers extends SystemConfiguration {
         locked = false,
         avatar = regUser.avatarURL
       )
+    }
 
-      Users2x.add(liveMeeting.users2x, userState)
+    nu match {
+      case Some(newUser) =>
+        Users2x.add(liveMeeting.users2x, newUser)
 
-      val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, userState)
-      Sender.send(outGW, event)
+        val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
+        Sender.send(outGW, event)
+        startRecordingIfAutoStart2x(liveMeeting)
 
-      startRecordingIfAutoStart2x(liveMeeting)
+        if (!state.expiryTracker.userHasJoined) {
+          MeetingExpiryTracker.setUserHasJoined(state)
+        } else {
+          state
+        }
+
+      case None =>
+        state
     }
   }
 

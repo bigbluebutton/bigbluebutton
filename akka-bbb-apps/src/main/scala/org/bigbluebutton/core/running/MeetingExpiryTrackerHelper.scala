@@ -4,8 +4,8 @@ import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.bus.{ IncomingEventBus }
-import org.bigbluebutton.core.domain.MeetingExpiryTracker
+import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 
 class MeetingExpiryTrackerHelper(
@@ -15,37 +15,29 @@ class MeetingExpiryTrackerHelper(
 
   val log = Logging(context.system, getClass)
 
-  def hasMeetingExpiredNeverBeenJoined(nowInMinutes: Long, startedOnInMinutes: Long, meetingExpireIfNoUserJoinedInMinutes: Long): Boolean = {
-    nowInMinutes - startedOnInMinutes > meetingExpireIfNoUserJoinedInMinutes
-  }
-
-  def meetingOverDuration(nowInMinutes: Long, startedOnInMinutes: Long, durationInMinutes: Long): Boolean = {
-    nowInMinutes > startedOnInMinutes + durationInMinutes
-  }
-
-  def processNeverBeenJoinedExpiry(nowInMinutes: Long, props: DefaultProps, tracker: MeetingExpiryTracker, eventBus: IncomingEventBus): MeetingExpiryTracker = {
-    if (hasMeetingExpiredNeverBeenJoined(nowInMinutes, tracker.startedOnInMinutes,
-      props.durationProps.meetingExpireIfNoUserJoinedInMinutes)) {
+  def processNeverBeenJoinedExpiry(nowInSeconds: Long, props: DefaultProps, state: MeetingState2x,
+                                   eventBus: IncomingEventBus): MeetingState2x = {
+    if (MeetingExpiryTracker.hasMeetingExpiredNeverBeenJoined(state, nowInSeconds)) {
       log.info("Ending meeting as it has never been joined.")
       sendEndMeetingDueToExpiry(props, eventBus)
-      tracker
+      state
     } else {
-      tracker
+      state
     }
   }
 
-  def processMeetingExpiryAudit(props: DefaultProps, tracker: MeetingExpiryTracker, eventBus: IncomingEventBus): MeetingExpiryTracker = {
-    val nowInMinutes = TimeUtil.millisToMinutes(System.currentTimeMillis())
+  def processMeetingExpiryAudit(props: DefaultProps, state: MeetingState2x, eventBus: IncomingEventBus): MeetingState2x = {
+    val nowInSeconds = TimeUtil.timeNowInSeconds()
 
-    if (!tracker.meetingJoined) {
-      processNeverBeenJoinedExpiry(nowInMinutes, props, tracker, eventBus)
+    if (!state.expiryTracker.userHasJoined) {
+      processNeverBeenJoinedExpiry(nowInSeconds, props, state, eventBus)
     } else {
-      if (props.durationProps.duration != 0 && meetingOverDuration(nowInMinutes, tracker.startedOnInMinutes, props.durationProps.duration)) {
+      if (props.durationProps.duration != 0 && MeetingExpiryTracker.meetingOverDuration(state, nowInSeconds)) {
         log.info("Ending meeting as it has passed duration.")
         sendEndMeetingDueToExpiry(props, eventBus)
-        tracker
+        state
       } else {
-        tracker
+        state
       }
     }
   }
