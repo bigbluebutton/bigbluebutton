@@ -5,7 +5,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/2.0/users';
-import Breakouts from '/imports/api/1.1/breakouts';
+import Breakouts from '/imports/api/2.0/breakouts';
+import Meetings from '/imports/api/2.0/meetings';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
@@ -16,14 +17,6 @@ import {
 
 import { withModalMounter } from '../modal/service';
 
-<<<<<<< HEAD
-=======
-import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
-import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
-
->>>>>>> upstream/master
 import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
@@ -68,9 +61,9 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
-  
+
   // Displayed error messages according to the mode (kicked, end meeting)
-  let sendToError = (code, message) => {
+  const sendToError = (code, message) => {
     Auth.clearCredentials()
         .then(() => {
           router.push(`/error/${code}`);
@@ -89,7 +82,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
 
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
-    removed(old) {
+    removed() {
       sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
     },
   });
