@@ -58,13 +58,13 @@ object MeetingExpiryTracker {
   }
 
   def setUserHasJoined(state: MeetingState2x): MeetingState2x = {
-    state.expiryTracker.modify(_.userHasJoined).setTo(true)
-    state
+    val tracker = state.expiryTracker.modify(_.userHasJoined).setTo(true)
+    state.modify(_.expiryTracker).setTo(tracker)
   }
 
   def setLastUserLeftOn(state: MeetingState2x, timestampInSeconds: Long): MeetingState2x = {
-    state.expiryTracker.modify(_.lastUserLeftOn).setTo(timestampInSeconds)
-    state
+    val tracker = state.expiryTracker.modify(_.lastUserLeftOn).setTo(timestampInSeconds)
+    state.modify(_.expiryTracker).setTo(tracker)
   }
 
   def hasMeetingExpiredNeverBeenJoined(state: MeetingState2x, nowInSeconds: Long): Boolean = {

@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, RecordingStatusChanged }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
-import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
+import org.bigbluebutton.core.{ OutMessageGateway }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
@@ -13,33 +13,31 @@ import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedM
 trait HandlerHelpers extends SystemConfiguration {
 
   def validateTokenFailed(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
-                          valid: Boolean, waitForApproval: Boolean): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(
-      meetingId,
-      userId, authToken, valid, waitForApproval
-    )
+                          valid: Boolean, waitForApproval: Boolean, state: MeetingState2x): MeetingState2x = {
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval)
     Sender.send(outGW, event)
 
     // TODO: Should disconnect user here.
+
+    state
   }
 
   def sendValidateAuthTokenRespMsg(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
                                    valid: Boolean, waitForApproval: Boolean): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(
-      meetingId,
-      userId, authToken, valid, waitForApproval
-    )
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval)
     Sender.send(outGW, event)
   }
 
   def userValidatedButNeedToWaitForApproval(outGW: OutMessageGateway, liveMeeting: LiveMeeting,
-                                            user: RegisteredUser): Unit = {
+                                            user: RegisteredUser, state: MeetingState2x): MeetingState2x = {
     val meetingId = liveMeeting.props.meetingProp.intId
     sendValidateAuthTokenRespMsg(outGW, meetingId, user.id, user.authToken, valid = true, waitForApproval = false)
 
     val guest = GuestWaiting(user.id, user.name, user.role)
     addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
     notifyModeratorsOfGuestWaiting(outGW, Vector(guest), liveMeeting.users2x, meetingId)
+
+    state
   }
 
   def addGuestToWaitingForApproval(guest: GuestWaiting, guestsWaitingList: GuestsWaiting): Unit = {

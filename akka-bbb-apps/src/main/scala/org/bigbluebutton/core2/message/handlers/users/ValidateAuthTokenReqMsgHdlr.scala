@@ -23,22 +23,17 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
           userValidatedAndNoNeedToWaitForApproval(outGW, liveMeeting, u, state)
         } else if (guestPolicyType == GuestPolicyType.ASK_MODERATOR) {
           if (u.guest && u.waitingForAcceptance) {
-            userValidatedButNeedToWaitForApproval(outGW, liveMeeting, u)
-            state
+            userValidatedButNeedToWaitForApproval(outGW, liveMeeting, u, state)
           } else {
             userValidatedAndNoNeedToWaitForApproval(outGW, liveMeeting, u, state)
           }
         } else {
           validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
-            userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false)
-          // TODO: Disconnect user
-          state
+            userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false, state)
         }
       case None =>
         validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
-          userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false)
-        // TODO: Disconnect user
-        state
+          userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false, state)
     }
   }
 }
