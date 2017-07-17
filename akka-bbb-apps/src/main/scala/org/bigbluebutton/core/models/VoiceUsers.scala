@@ -118,8 +118,8 @@ class VoiceUsers {
 
 case class VoiceUser2x(intId: String, voiceUserId: String)
 case class VoiceUserVO2x(intId: String, voiceUserId: String, callerName: String,
-  callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
-  talking: Boolean, callingWith: String, listenOnly: Boolean)
+                         callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
+                         talking: Boolean, callingWith: String, listenOnly: Boolean)
 
 case class VoiceUserState(intId: String, voiceUserId: String, callingWith: String, callerName: String,
-  callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
+                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)

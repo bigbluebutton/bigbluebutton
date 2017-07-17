@@ -16,8 +16,11 @@ import '/imports/api/2.0/meetings/server';
 import '/imports/api/2.0/users/server';
 import '/imports/api/2.0/shapes/server';
 import '/imports/api/2.0/cursor/server';
+import '/imports/api/2.0/polls/server';
+import '/imports/api/2.0/captions/server';
 import '/imports/api/2.0/presentations/server';
 import '/imports/api/2.0/slides/server';
+import '/imports/api/2.0/breakouts/server';
 import '/imports/api/2.0/chat/server';
 
 // Commons

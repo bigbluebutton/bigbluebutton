@@ -1,17 +1,24 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait AssignPresenterReqMsgHdlr {
-  this: UsersApp2x =>
+  this: UsersApp =>
+
+  val liveMeeting: LiveMeeting
+  val outGW: OutMessageGateway
 
   def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg) {
 
     def broadcastPresenterChange(oldPres: UserState, newPres: UserState): Unit = {
       // unassign old presenter
-      val routingUnassign = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        this.liveMeeting.props.meetingProp.intId, oldPres.intId)
+      val routingUnassign = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        this.liveMeeting.props.meetingProp.intId, oldPres.intId
+      )
       val envelopeUnassign = BbbCoreEnvelope(PresenterUnassignedEvtMsg.NAME, routingUnassign)
       val headerUnassign = BbbClientMsgHeader(PresenterUnassignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
         oldPres.intId)
@@ -22,8 +29,10 @@ trait AssignPresenterReqMsgHdlr {
       outGW.send(msgEventUnassign)
 
       // set new presenter
-      val routingAssign = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        this.liveMeeting.props.meetingProp.intId, newPres.intId)
+      val routingAssign = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        this.liveMeeting.props.meetingProp.intId, newPres.intId
+      )
       val envelopeAssign = BbbCoreEnvelope(PresenterAssignedEvtMsg.NAME, routingAssign)
       val headerAssign = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
         newPres.intId)

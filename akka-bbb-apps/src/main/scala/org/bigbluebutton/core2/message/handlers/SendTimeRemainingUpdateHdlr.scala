@@ -2,7 +2,7 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ BreakoutRoomsTimeRemainingUpdateOutMessage, MeetingTimeRemainingUpdate, SendTimeRemainingUpdate }
+import org.bigbluebutton.core.api.{ SendTimeRemainingUpdate }
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
 import org.bigbluebutton.core2.MeetingStatus2x

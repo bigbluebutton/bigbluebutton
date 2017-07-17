@@ -11,13 +11,15 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr {
   val outGW: OutMessageGateway
 
   def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg) {
-    val settings = Permissions(disableCam = msg.body.disableCam,
+    val settings = Permissions(
+      disableCam = msg.body.disableCam,
       disableMic = msg.body.disableMic,
       disablePrivChat = msg.body.disablePrivChat,
       disablePubChat = msg.body.disablePubChat,
       lockedLayout = msg.body.lockedLayout,
       lockOnJoin = msg.body.lockOnJoin,
-      lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable)
+      lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable
+    )
 
     if (!liveMeeting.permissionsEqual(settings)) {
       liveMeeting.newPermissions(settings)
@@ -25,11 +27,13 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr {
       def build(meetingId: String, userId: String, settings: Permissions, setBy: String): BbbCommonEnvCoreMsg = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
         val envelope = BbbCoreEnvelope(LockSettingsInMeetingChangedEvtMsg.NAME, routing)
-        val body = LockSettingsInMeetingChangedEvtMsgBody(disableCam = settings.disableCam,
+        val body = LockSettingsInMeetingChangedEvtMsgBody(
+          disableCam = settings.disableCam,
           disableMic = settings.disableMic, disablePrivChat = settings.disablePrivChat,
           disablePubChat = settings.disablePubChat, lockedLayout = settings.lockedLayout,
           lockOnJoin = settings.lockOnJoin, lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
-          setBy)
+          setBy
+        )
         val header = BbbClientMsgHeader(LockSettingsInMeetingChangedEvtMsg.NAME, meetingId, userId)
         val event = LockSettingsInMeetingChangedEvtMsg(header, body)
 

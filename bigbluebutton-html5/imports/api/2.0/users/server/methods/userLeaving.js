@@ -10,7 +10,7 @@ const OFFLINE_CONNECTION_STATUS = 'offline';
 
 export default function userLeaving(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UserLeaveReqMsg';
 
   const { meetingId, requesterUserId } = credentials;
@@ -31,7 +31,7 @@ export default function userLeaving(credentials, userId) {
   }
 
   if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
-    return;
+    return null;
   }
 
   if (User.user.listenOnly) {
@@ -45,24 +45,29 @@ export default function userLeaving(credentials, userId) {
       },
     };
 
-    const cb = (err, numChanged) => {
+    const cb = (err) => {
       if (err) {
         return Logger.error(`Invalidating user: ${err}`);
       }
 
-      if (numChanged) {
-        return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
-      }
+      return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
     };
 
     Users.update(selector, modifier, cb);
   }
 
+  const header = {
+    name: EVENT_NAME,
+    meetingId,
+    userId: requesterUserId,
+  };
+
   const payload = {
-    meeting_id: meetingId,
-    userid: userId,
+    userId,
+    sessionId: meetingId,
   };
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

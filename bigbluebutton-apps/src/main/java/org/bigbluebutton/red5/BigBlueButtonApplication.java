@@ -216,8 +216,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         
 		red5InGW.initLockSettings(room, lsMap);
 		
-		red5InGW.initAudioSettings(room, internalUserID, muted);
-
 	    String meetingId = bbbSession.getRoom();
 
 	    String userFullname = bbbSession.getUsername();

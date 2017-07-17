@@ -6,7 +6,7 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object TestDataGen {
   def createRegisteredUser(users: RegisteredUsers, name: String, role: String,
-    guest: Boolean, authed: Boolean, waitForApproval: Boolean): RegisteredUser = {
+                           guest: Boolean, authed: Boolean, waitForApproval: Boolean): RegisteredUser = {
     val id = "w_" + RandomStringGenerator.randomAlphanumericString(16)
     val extId = RandomStringGenerator.randomAlphanumericString(16)
     val authToken = RandomStringGenerator.randomAlphanumericString(16)
@@ -18,14 +18,14 @@ object TestDataGen {
   }
 
   def createVoiceUserForUser(user: RegisteredUser, callingWith: String, muted: Boolean, talking: Boolean,
-    listenOnly: Boolean): VoiceUserState = {
+                             listenOnly: Boolean): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     VoiceUserState(intId = user.id, voiceUserId = voiceUserId, callingWith, callerName = user.name,
       callerNum = user.name, muted, talking, listenOnly)
   }
 
   def createFakeVoiceOnlyUser(callingWith: String, muted: Boolean, talking: Boolean,
-    listenOnly: Boolean, name: String): VoiceUserState = {
+                              listenOnly: Boolean, name: String): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
     VoiceUserState(intId, voiceUserId = voiceUserId, callingWith, callerName = name,

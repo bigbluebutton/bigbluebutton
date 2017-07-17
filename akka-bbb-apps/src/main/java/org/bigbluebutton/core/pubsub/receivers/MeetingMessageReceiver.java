@@ -13,8 +13,6 @@ import org.bigbluebutton.common.messages.MessageFromJsonConverter;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.PubSubPingMessage;
 
-import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
-import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.messages.CreateMeetingRequest;
@@ -72,40 +70,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 					ValidateAuthTokenMessage vam = (ValidateAuthTokenMessage) msg;
 					String sessionId = "tobeimplemented";
 					bbbGW.validateAuthToken(vam.meetingId, vam.userId, vam.token, vam.replyTo, sessionId);
-				} else if (msg instanceof UserConnectedToGlobalAudio) {
-					UserConnectedToGlobalAudio ustga = (UserConnectedToGlobalAudio) msg;
-					
-					Map<String, Object> logData = new HashMap<String, Object>();
-					logData.put("voiceConf", ustga.voiceConf);
-					logData.put("userId", ustga.userid);
-					logData.put("username", ustga.name);
-					logData.put("event", "user_connected_to_global_audio");
-					logData.put("description", "User connected to global audio.");
-					
-					/*
-					Gson gson = new Gson();
-					String logStr =  gson.toJson(logData);
-					System.out.println("User connected to global audio: data={}", logStr);
-					 */
-					bbbGW.userConnectedToGlobalAudio(ustga.voiceConf, ustga.userid, ustga.name);
-				} else if (msg instanceof UserDisconnectedFromGlobalAudio) {
-					UserDisconnectedFromGlobalAudio udfga = (UserDisconnectedFromGlobalAudio) msg;
-					
-					Map<String, Object> logData = new HashMap<String, Object>();
-					logData.put("voiceConf", udfga.voiceConf);
-					logData.put("userId", udfga.userid);
-					logData.put("username", udfga.name);
-					logData.put("event", "user_disconnected_from_global_audio");
-					logData.put("description", "User disconnected from global audio.");
-					
-					/*
-					Gson gson = new Gson();
-					String logStr =  gson.toJson(logData);
-					System.out.println("User disconnected from global audio: data={}", logStr);
-					*/
-					bbbGW.userDisconnectedFromGlobalAudio(udfga.voiceConf, udfga.userid, udfga.name);
-				}
-				else if (msg instanceof GetAllMeetingsRequest) {
+				} else if (msg instanceof GetAllMeetingsRequest) {
 					GetAllMeetingsRequest gamr = (GetAllMeetingsRequest) msg;
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
 				} else if (msg instanceof ActivityResponseMessage) {

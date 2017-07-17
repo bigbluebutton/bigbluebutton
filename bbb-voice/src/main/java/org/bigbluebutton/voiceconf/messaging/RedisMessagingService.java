@@ -22,11 +22,11 @@ public class RedisMessagingService implements IMessagingService {
 	    String userid = matcher.group(1).trim();
 	    String name = matcher.group(2).trim();
 			String json = new UserConnectedToGlobalAudio(voiceConf, userid, name).toJson();
-			sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);
+			sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
     } else {
     	log.warn("Invalid calleridname [{}] in userConnectedToGlobalAudio as it does not match pattern (.*)-bbbID-(.*)");
 			String json = new UserConnectedToGlobalAudio(voiceConf, callerIdName, callerIdName).toJson();
-			sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
+			sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
     }
 	}
 
@@ -37,11 +37,11 @@ public class RedisMessagingService implements IMessagingService {
 		    String userid = matcher.group(1).trim();
 		    String name = matcher.group(2).trim();
 				String json = new UserDisconnectedFromGlobalAudio(voiceConf, userid, name).toJson();
-				sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);
+				sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
 	    } else {
 	    	log.warn("Invalid calleridname [{}] in userDisconnectedFromGlobalAudio as it does not match pattern (.*)-bbbID-(.*)");
 				String json = new UserDisconnectedFromGlobalAudio(voiceConf, callerIdName, callerIdName).toJson();
-				sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
+				sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
 	    }
 	}
 

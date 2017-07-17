@@ -81,6 +81,11 @@ public class ParamsProcessorUtil {
 
     private String defaultConfigXML = null;
 
+    private Integer maxInactivityTimeoutMinutes = 120;
+		private Integer warnMinutesBeforeMax = 5;
+		private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
+		private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
@@ -446,7 +451,7 @@ public class ParamsProcessorUtil {
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
-				.withGuestPolicy(guestPolicy)
+								.withGuestPolicy(guestPolicy)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -456,6 +461,11 @@ public class ParamsProcessorUtil {
             String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
+
+        meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
+        meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
+        meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
+				meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -826,6 +836,35 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultGuestPolicy(String guestPolicy) {
 		this.defaultGuestPolicy =  guestPolicy;
+	}
+
+	public void setMaxInactivityTimeoutMinutes(Integer value) {
+		maxInactivityTimeoutMinutes = value;
+	}
+
+	public void setWarnMinutesBeforeMax(Integer value) {
+		warnMinutesBeforeMax = value;
+	}
+
+	public Integer getMaxInactivityTimeoutMinutes() {
+		return maxInactivityTimeoutMinutes;
+	}
+
+	public Integer getWarnMinutesBeforeMax() {
+		return warnMinutesBeforeMax;
+	}
+
+
+	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
+		meetingExpireWhenLastUserLeftInMinutes = value;
+	}
+
+	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
+		return meetingExpireWhenLastUserLeftInMinutes;
+	}
+
+	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
+		meetingExpireIfNoUserJoinedInMinutes = value;
 	}
 
 	public ArrayList<String> decodeIds(String encodeid) {
