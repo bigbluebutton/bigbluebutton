@@ -28,6 +28,7 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
       'shape.shape.type': shape.annotationInfo.type,
       'shape.shape.status': shape.annotationInfo.status,
     },
+    $inc: { 'shape.shape.version': 1 },
   };
 
   const shapeType = shape.annotationType;
