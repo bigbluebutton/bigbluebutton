@@ -30,8 +30,10 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
         RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, false)
         // send message to user that he has been approved
       }
-      val event = MsgBuilder.buildGuestApprovedEvtMsg(liveMeeting.props.meetingProp.intId,
-        g.intId, guest.approved, approvedBy)
+      val event = MsgBuilder.buildGuestApprovedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        g.intId, guest.approved, approvedBy
+      )
 
       Sender.send(outGW, event)
 
@@ -41,8 +43,10 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   def notifyModeratorsOfGuestsApproval(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {
     val mods = Users2x.findAll(liveMeeting.users2x).filter(p => p.role == Roles.MODERATOR_ROLE)
     mods foreach { m =>
-      val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(liveMeeting.props.meetingProp.intId,
-        m.intId, guests, approvedBy)
+      val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        m.intId, guests, approvedBy
+      )
       Sender.send(outGW, event)
     }
   }

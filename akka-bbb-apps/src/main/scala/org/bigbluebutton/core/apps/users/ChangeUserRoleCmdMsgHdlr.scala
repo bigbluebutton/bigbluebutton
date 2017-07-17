@@ -1,10 +1,15 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ Roles, Users2x }
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait ChangeUserRoleCmdMsgHdlr {
-  this: UsersApp2x =>
+  this: UsersApp =>
+
+  val liveMeeting: LiveMeeting
+  val outGW: OutMessageGateway
 
   def handleChangeUserRoleCmdMsg(msg: ChangeUserRoleCmdMsg) {
     for {

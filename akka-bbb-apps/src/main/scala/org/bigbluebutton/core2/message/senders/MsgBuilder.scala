@@ -28,7 +28,7 @@ object MsgBuilder {
   }
 
   def buildGuestsWaitingApprovedEvtMsg(meetingId: String, userId: String,
-    guests: Vector[GuestApprovedVO], approvedBy: String): BbbCommonEnvCoreMsg = {
+                                       guests: Vector[GuestApprovedVO], approvedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(GuestsWaitingApprovedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GuestsWaitingApprovedEvtMsg.NAME, meetingId, userId)
@@ -64,7 +64,7 @@ object MsgBuilder {
   }
 
   def buildValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-    valid: Boolean, waitForApproval: Boolean): BbbCommonEnvCoreMsg = {
+                                    valid: Boolean, waitForApproval: Boolean): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, meetingId, userId)

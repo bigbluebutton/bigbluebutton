@@ -8,8 +8,10 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.apps.Presentation
 
-class PresentationApp2x(val liveMeeting: LiveMeeting,
-  val outGW: OutMessageGateway)(implicit val context: ActorContext)
+class PresentationApp2x(
+  val liveMeeting: LiveMeeting,
+  val outGW:       OutMessageGateway
+)(implicit val context: ActorContext)
     extends NewPresentationMsgHdlr
     with SetCurrentPresentationPubMsgHdlr
     with GetPresentationInfoReqMsgHdlr
@@ -54,8 +56,8 @@ class PresentationApp2x(val liveMeeting: LiveMeeting,
   }
 
   def resizeAndMovePage(presentationId: String, pageId: String,
-    xOffset: Double, yOffset: Double, widthRatio: Double,
-    heightRatio: Double): Option[PageVO] = {
+                        xOffset: Double, yOffset: Double, widthRatio: Double,
+                        heightRatio: Double): Option[PageVO] = {
     // Force coordinate that are out-of-bounds inside valid values
     // 0.25D is 400% zoom
     // 100D-checkedWidth is the maximum the page can be moved over

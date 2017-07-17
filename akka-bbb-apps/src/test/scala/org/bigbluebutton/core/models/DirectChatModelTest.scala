@@ -26,7 +26,7 @@ class DirectChatModelTest extends UnitSpec {
     val dc2 = DirectChats.find(between, directChats)
     dc2 match {
       case Some(directChat) => assert(directChat.messages.length == 2)
-      case None => fail("No direct chat found!")
+      case None             => fail("No direct chat found!")
     }
 
     // Append a third message and make sure there are three messages
@@ -37,7 +37,7 @@ class DirectChatModelTest extends UnitSpec {
     val dc3 = DirectChats.find(between, directChats)
     dc3 match {
       case Some(directChat) => assert(directChat.messages.length == 3)
-      case None => fail("No direct chat found!")
+      case None             => fail("No direct chat found!")
     }
 
   }

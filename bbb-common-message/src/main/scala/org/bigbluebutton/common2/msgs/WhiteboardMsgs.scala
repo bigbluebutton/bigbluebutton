@@ -1,7 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.AnnotationVO
-
+case class AnnotationVO(id: String, status: String, annotationType: String, annotationInfo: scala.collection.immutable.Map[String, Object], wbId: String, userId: String, position: Int)
 
   object ClearWhiteboardEvtMsg {
     val NAME = "ClearWhiteboardEvtMsg"

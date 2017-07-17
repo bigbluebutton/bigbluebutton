@@ -8,26 +8,29 @@ import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
 
 trait HandlerHelpers {
-  this: BaseMeetingActor =>
 
   def validateTokenFailed(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
-    valid: Boolean, waitForApproval: Boolean): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId,
-      userId, authToken, valid, waitForApproval)
+                          valid: Boolean, waitForApproval: Boolean): Unit = {
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(
+      meetingId,
+      userId, authToken, valid, waitForApproval
+    )
     Sender.send(outGW, event)
 
     // TODO: Should disconnect user here.
   }
 
   def sendValidateAuthTokenRespMsg(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
-    valid: Boolean, waitForApproval: Boolean): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId,
-      userId, authToken, valid, waitForApproval)
+                                   valid: Boolean, waitForApproval: Boolean): Unit = {
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(
+      meetingId,
+      userId, authToken, valid, waitForApproval
+    )
     Sender.send(outGW, event)
   }
 
   def userValidatedButNeedToWaitForApproval(outGW: OutMessageGateway, liveMeeting: LiveMeeting,
-    user: RegisteredUser): Unit = {
+                                            user: RegisteredUser): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
     sendValidateAuthTokenRespMsg(outGW, meetingId, user.id, user.authToken, valid = true, waitForApproval = false)
 
@@ -40,8 +43,14 @@ trait HandlerHelpers {
     GuestsWaiting.add(guestsWaitingList, guest)
   }
 
-  def userValidatedAndNoNeedToWaitForApproval(outGW: OutMessageGateway, liveMeeting: LiveMeeting,
-    user: RegisteredUser): Unit = {
+  def userValidatedAndNoNeedToWaitForApproval(
+    outGW:       OutMessageGateway,
+    liveMeeting: LiveMeeting,
+    user:        RegisteredUser
+  ): Unit = {
+
+    println("**************** userValidatedAndNoNeedToWaitForApproval")
+
     val meetingId = liveMeeting.props.meetingProp.intId
     sendValidateAuthTokenRespMsg(outGW, meetingId,
       userId = user.id, authToken = user.authToken, valid = true, waitForApproval = false)
@@ -92,8 +101,8 @@ trait HandlerHelpers {
   }
 
   def sendAllVoiceUsersInMeeting(outGW: OutMessageGateway, requesterId: String,
-    voiceUsers: VoiceUsers,
-    meetingId: String): Unit = {
+                                 voiceUsers: VoiceUsers,
+                                 meetingId:  String): Unit = {
 
     val vu = VoiceUsers.findAll(voiceUsers).map { u =>
       VoiceConfUser(intId = u.intId, voiceUserId = u.voiceUserId, callingWith = u.callingWith, callerName = u.callerName,
@@ -108,7 +117,8 @@ trait HandlerHelpers {
     for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
-      val userState = UserState(intId = regUser.id,
+      val userState = UserState(
+        intId = regUser.id,
         extId = regUser.externId,
         name = regUser.name,
         role = regUser.role,
@@ -118,7 +128,8 @@ trait HandlerHelpers {
         emoji = "none",
         presenter = false,
         locked = false,
-        avatar = regUser.avatarURL)
+        avatar = regUser.avatarURL
+      )
 
       Users2x.add(liveMeeting.users2x, userState)
 

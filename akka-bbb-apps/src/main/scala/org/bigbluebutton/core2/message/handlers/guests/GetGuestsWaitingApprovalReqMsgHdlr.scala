@@ -17,7 +17,8 @@ trait GetGuestsWaitingApprovalReqMsgHdlr extends HandlerHelpers {
     val event = MsgBuilder.buildGetGuestsWaitingApprovalRespMsg(
       liveMeeting.props.meetingProp.intId,
       msg.body.requesterId,
-      guests)
+      guests
+    )
 
     Sender.send(outGW, event)
 

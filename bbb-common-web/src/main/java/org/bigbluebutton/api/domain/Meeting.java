@@ -43,7 +43,7 @@ public class Meeting {
 	private String viewerPass;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String modOnlyMessage = "bbb-None";
+	private String modOnlyMessage = "";
 	private String logoutUrl;
 	private int maxUsers;
 	private boolean record;
@@ -62,7 +62,12 @@ public class Meeting {
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<String>();
-	
+
+	private Integer maxInactivityTimeoutMinutes = 120;
+	private Integer warnMinutesBeforeMax = 5;
+	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
+	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
@@ -343,11 +348,47 @@ public class Meeting {
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
 	}
-	
+
+	public void setMaxInactivityTimeoutMinutes(Integer value) {
+		maxInactivityTimeoutMinutes = value;
+	}
+
+	public void setWarnMinutesBeforeMax(Integer value) {
+		warnMinutesBeforeMax = value;
+	}
+
+	public Integer getMaxInactivityTimeoutMinutes() {
+		return maxInactivityTimeoutMinutes;
+	}
+
+	public Integer getWarnMinutesBeforeMax() {
+		return warnMinutesBeforeMax;
+	}
+
+	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
+		meetingExpireWhenLastUserLeftInMinutes = value;
+	}
+
+	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
+		return meetingExpireWhenLastUserLeftInMinutes;
+	}
+
+
+	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
+		meetingExpireIfNoUserJoinedInMinutes = value;
+	}
+
+	public Integer getMeetingExpireIfNoUserJoinedInMinutes() {
+		return meetingExpireIfNoUserJoinedInMinutes;
+	}
+
+
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
-	
+
+
+
 	/***
 	 * Meeting Builder
 	 *

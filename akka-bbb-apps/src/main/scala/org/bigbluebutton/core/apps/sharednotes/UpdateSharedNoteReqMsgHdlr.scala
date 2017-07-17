@@ -23,9 +23,9 @@ trait UpdateSharedNoteReqMsgHdlr {
 
     val userId = msg.body.operation match {
       case "PATCH" => msg.header.userId
-      case "UNDO" => liveMeeting.notesModel.SYSTEM_ID
-      case "REDO" => liveMeeting.notesModel.SYSTEM_ID
-      case _ => return
+      case "UNDO"  => liveMeeting.notesModel.SYSTEM_ID
+      case "REDO"  => liveMeeting.notesModel.SYSTEM_ID
+      case _       => return
     }
 
     val (patchId, patch, undo, redo) = liveMeeting.notesModel.patchNote(msg.body.noteId, msg.body.patch, msg.body.operation)

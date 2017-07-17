@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.UnitSpec
+import org.bigbluebutton.core.apps.breakout.BreakoutRoomsUtil
 
 class BreakoutRoomsUtilSpec extends UnitSpec {
 
