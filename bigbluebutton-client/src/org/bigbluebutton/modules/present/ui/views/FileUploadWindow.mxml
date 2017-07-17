@@ -57,7 +57,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.as3commons.lang.StringUtils;
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
@@ -86,11 +85,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
       [Bindable] private var presentationNamesAC:ArrayCollection;
 	    [BIndable] public var maxFileSize:Number;
-
-      private var images:Images = new Images();
-      [Bindable] private var addIcon : Class = images.add;
-      [Bindable] private var bulletGoIcon : Class = images.bulletGo;
-      [Bindable] private var deleteIcon : Class = images.cancel;
 
       private var thumbnailTimer:Timer = new Timer(5000);
       private var genThumbText:String = ResourceUtil.getInstance().getString('bbb.fileupload.genThumbText');
@@ -334,7 +328,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
       <mx:Button id="uploadBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn')}" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
-                 enabled="false" icon="{bulletGoIcon}"/>
+                 enabled="false" icon="{getStyle('iconGo')}"/>
     </mx:HBox>
     <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
       <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="{presentOptions.enableDownload}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>

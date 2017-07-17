@@ -71,7 +71,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.screenshare.services.red5.Connection;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
       
       public static const SCALE:Number = 5;
@@ -79,7 +78,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private static const VID_WIDTH_PAD:Number = 6;
       
       private var images:Images = new Images();
-      [Bindable] public var bbbLogo:Class = images.bbb_logo;
       
       private var connection:Connection;
       private var uri:String;
