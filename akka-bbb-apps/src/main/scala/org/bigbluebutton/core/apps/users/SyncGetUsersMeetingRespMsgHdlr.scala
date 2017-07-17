@@ -6,7 +6,7 @@ import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
 
 trait SyncGetUsersMeetingRespMsgHdlr {
-  this: BaseMeetingActor =>
+  this: UsersApp =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway

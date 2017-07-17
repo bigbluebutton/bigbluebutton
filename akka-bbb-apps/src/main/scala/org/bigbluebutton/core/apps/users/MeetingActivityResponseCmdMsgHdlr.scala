@@ -6,7 +6,7 @@ import org.bigbluebutton.core.domain.MeetingInactivityTracker
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingInactivityTrackerHelper }
 
 trait MeetingActivityResponseCmdMsgHdlr {
-  this: BaseMeetingActor =>
+  this: UsersApp =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway

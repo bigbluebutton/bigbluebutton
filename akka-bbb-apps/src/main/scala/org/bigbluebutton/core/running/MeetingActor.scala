@@ -127,7 +127,7 @@ class MeetingActor(
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                 => handleRegisterUserReqMsg(m)
+    case m: RegisterUserReqMsg                 => usersApp.handleRegisterUserReqMsg(m)
     case m: GetAllMeetingsReqMsg               => handleGetAllMeetingsReqMsg(m)
 
     // Meeting
@@ -165,12 +165,12 @@ class MeetingActor(
       case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: MeetingActivityResponseCmdMsg => inactivityTracker = handleMeetingActivityResponseCmdMsg(m, inactivityTracker)
-      case m: LogoutAndEndMeetingCmdMsg => handleLogoutAndEndMeetingCmdMsg(m)
-      case m: SetRecordingStatusCmdMsg => handleSetRecordingStatusCmdMsg(m)
-      case m: GetRecordingStatusReqMsg => handleGetRecordingStatusReqMsg(m)
+      case m: MeetingActivityResponseCmdMsg => inactivityTracker = usersApp.handleMeetingActivityResponseCmdMsg(m, inactivityTracker)
+      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
+      case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
-      case m: EjectUserFromMeetingCmdMsg => handleEjectUserFromMeetingCmdMsg(m)
+      case m: EjectUserFromMeetingCmdMsg => usersApp.handleEjectUserFromMeetingCmdMsg(m)
       case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
 
       // Whiteboard
@@ -271,7 +271,7 @@ class MeetingActor(
     handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
 
     // sync all users
-    handleSyncGetUsersMeetingRespMsg()
+    usersApp.handleSyncGetUsersMeetingRespMsg()
 
     // sync all presentations
     presentationApp2x.handleSyncGetPresentationInfoRespMsg()
@@ -286,7 +286,7 @@ class MeetingActor(
     handleStopPollReqMsg(msg.header.userId)
 
     // switch user presenter status for old and new presenter
-    handleAssignPresenterReqMsg(msg)
+    usersApp.handleAssignPresenterReqMsg(msg)
 
     // TODO stop current screen sharing session (initiated by the old presenter)
 
