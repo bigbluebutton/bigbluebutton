@@ -29,21 +29,7 @@ const colourToHex = (value) => {
   return `#${hex}`;
 };
 
-const getStrokeWidth = ((thickness, widthRatio, heightRatio) =>
-  zoomStroke(formatThickness(thickness), widthRatio, heightRatio)
-);
-
-const formatThickness = (thickness) => {
-  if (thickness == null) {
-    thickness = '1'; // default value
-  }
-
-  if (!thickness.toString().match(/.*px$/)) {
-    `#${thickness}px`; // leading "#" - to be compatible with Firefox
-  }
-
-  return thickness;
-};
+const getStrokeWidth = (thickness, slideWidth) => thickness * slideWidth / 100;
 
 export default {
   formatColor,

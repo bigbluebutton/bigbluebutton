@@ -56,7 +56,7 @@ export default class RectangleDrawComponent extends React.Component {
         ry="1"
         fill="none"
         stroke={ShapeHelpers.formatColor(this.props.shape.color)}
-        strokeWidth={this.props.shape.thickness}
+        strokeWidth={ShapeHelpers.getStrokeWidth(this.props.shape.thickness, this.props.slideWidth)}
         style={this.props.style}
       />
     );

@@ -36,7 +36,7 @@ export default class LineDrawComponent extends React.Component {
         stroke={ShapeHelpers.formatColor(this.props.shape.color)}
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth={this.props.shape.thickness}
+        strokeWidth={ShapeHelpers.getStrokeWidth(this.props.shape.thickness, this.props.slideWidth)}
         style={this.props.style}
       />
     );

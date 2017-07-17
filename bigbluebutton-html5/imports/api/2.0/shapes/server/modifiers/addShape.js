@@ -58,7 +58,7 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
         'shape.shape.id': shape.annotationInfo.id,
         'shape.shape.square': shape.annotationInfo.square,
         'shape.shape.transparency': shape.annotationInfo.transparency,
-        'shape.shape.thickness': shape.annotationInfo.thickness * 10,
+        'shape.shape.thickness': shape.annotationInfo.thickness,
         'shape.shape.color': shape.annotationInfo.color,
         'shape.shape.result': shape.annotationInfo.result,
         'shape.shape.num_respondents': shape.annotationInfo.numRespondents,

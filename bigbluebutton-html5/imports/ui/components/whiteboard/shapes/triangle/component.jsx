@@ -42,7 +42,7 @@ export default class TriangleDrawComponent extends React.Component {
         fill="none"
         stroke={ShapeHelpers.formatColor(this.props.shape.color)}
         d={path}
-        strokeWidth={this.props.shape.thickness}
+        strokeWidth={ShapeHelpers.getStrokeWidth(this.props.shape.thickness, this.props.slideWidth)}
         strokeLinejoin="round"
       />
     );
