@@ -157,6 +157,8 @@ class MessageList extends Component {
   render() {
     const { messages, intl } = this.props;
 
+    const isEmpty = messages.length == 0;
+
     return (
       <div className={styles.messageListWrapper}>
         <div
@@ -167,7 +169,7 @@ class MessageList extends Component {
           aria-live="polite"
           aria-atomic="false"
           aria-relevant="additions"
-          aria-label={intl.formatMessage(intlMessages.emptyLogLabel)}
+          aria-label={isEmpty ? intl.formatMessage(intlMessages.emptyLogLabel) : ''}
         >
           {messages.map(message => (
             <MessageListItem
