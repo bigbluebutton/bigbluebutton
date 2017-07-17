@@ -1,10 +1,15 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait AssignPresenterReqMsgHdlr {
-  this: UsersApp2x =>
+  this: UsersApp =>
+
+  val liveMeeting: LiveMeeting
+  val outGW: OutMessageGateway
 
   def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg) {
 

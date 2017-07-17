@@ -12,7 +12,16 @@ class UsersApp(
 )(implicit val context: ActorContext)
 
     extends ValidateAuthTokenReqMsgHdlr
-    with GetUsersMeetingReqMsgHdlr {
+    with GetUsersMeetingReqMsgHdlr
+    with RegisterUserReqMsgHdlr
+    with ChangeUserRoleCmdMsgHdlr
+    with SyncGetUsersMeetingRespMsgHdlr
+    with LogoutAndEndMeetingCmdMsgHdlr
+    with MeetingActivityResponseCmdMsgHdlr
+    with SetRecordingStatusCmdMsgHdlr
+    with GetRecordingStatusReqMsgHdlr
+    with AssignPresenterReqMsgHdlr
+    with EjectUserFromMeetingCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }
