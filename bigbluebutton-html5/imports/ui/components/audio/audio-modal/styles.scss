@@ -1,5 +1,5 @@
-@import "../../../stylesheets/variables/_all";
-@import "../../modal/simple/styles";
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
 
 .overlay {
   @extend .overlay;
