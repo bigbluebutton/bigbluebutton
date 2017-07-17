@@ -35,58 +35,65 @@ object ErrorCodes {
 case class RequestResult(status: StatusCode, errors: Option[Array[ErrorCode]])
 
 case class Presenter(
-  presenterID: String,
+  presenterID:   String,
   presenterName: String,
-  assignedBy: String)
+  assignedBy:    String
+)
 
 case class User(
-  id: String,
-  externId: String,
-  name: String,
-  moderator: Boolean,
-  avatarUrl: String,
-  logoutUrl: String,
-  presenter: Boolean,
-  callerId: CallerId,
+  id:          String,
+  externId:    String,
+  name:        String,
+  moderator:   Boolean,
+  avatarUrl:   String,
+  logoutUrl:   String,
+  presenter:   Boolean,
+  callerId:    CallerId,
   phoneCaller: Boolean,
   emojiStatus: String,
-  muted: Boolean,
-  talking: Boolean)
+  muted:       Boolean,
+  talking:     Boolean
+)
 
 case class CallerId(
-  name: String,
-  number: String)
+  name:   String,
+  number: String
+)
 
 case class Permissions(
-  disableCam: Boolean = false,
-  disableMic: Boolean = false,
-  disablePrivChat: Boolean = false,
-  disablePubChat: Boolean = false,
-  lockedLayout: Boolean = false,
-  lockOnJoin: Boolean = false,
-  lockOnJoinConfigurable: Boolean = false)
+  disableCam:             Boolean = false,
+  disableMic:             Boolean = false,
+  disablePrivChat:        Boolean = false,
+  disablePubChat:         Boolean = false,
+  lockedLayout:           Boolean = false,
+  lockOnJoin:             Boolean = false,
+  lockOnJoinConfigurable: Boolean = false
+)
 
 case class Voice(
-  id: String,
-  webId: String,
-  callId: CallerId,
+  id:        String,
+  webId:     String,
+  callId:    CallerId,
   phoningIn: Boolean,
-  joined: Boolean,
-  locked: Boolean,
-  muted: Boolean,
-  talking: Boolean)
+  joined:    Boolean,
+  locked:    Boolean,
+  muted:     Boolean,
+  talking:   Boolean
+)
 
-case class MeetingConfig(name: String,
-  id: MeetingID,
-  passwords: MeetingPasswords,
-  welcomeMsg: String,
-  logoutUrl: String,
-  maxUsers: Int,
-  record: Boolean = false,
-  duration: MeetingDuration,
-  defaultAvatarURL: String,
+case class MeetingConfig(
+  name:               String,
+  id:                 MeetingID,
+  passwords:          MeetingPasswords,
+  welcomeMsg:         String,
+  logoutUrl:          String,
+  maxUsers:           Int,
+  record:             Boolean          = false,
+  duration:           MeetingDuration,
+  defaultAvatarURL:   String,
   defaultConfigToken: String,
-  guestPolicy: String = GuestPolicyType.ASK_MODERATOR)
+  guestPolicy:        String           = GuestPolicyType.ASK_MODERATOR
+)
 
 case class MeetingName(name: String)
 
@@ -97,11 +104,12 @@ case class VoiceConfig(telVoice: String, webVoice: String, dialNumber: String)
 case class MeetingPasswords(moderatorPass: String, viewerPass: String)
 
 case class MeetingDuration(duration: Int = 0, createdTime: Long = 0,
-  startTime: Long = 0, endTime: Long = 0)
+                           startTime: Long = 0, endTime: Long = 0)
 
 case class MeetingInfo(
-  meetingID: String,
+  meetingID:   String,
   meetingName: String,
-  recorded: Boolean,
+  recorded:    Boolean,
   voiceBridge: String,
-  duration: Long)
+  duration:    Long
+)

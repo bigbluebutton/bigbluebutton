@@ -6,44 +6,6 @@ import org.bigbluebutton.core.MeetingExtensionProp
 import org.bigbluebutton.core.api.{ Permissions, Presenter }
 
 object MeetingStatus2x {
-  def setCurrentPresenterInfo(status: MeetingStatus2x, pres: Presenter) {
-    status.currentPresenter = pres
-  }
-
-  def getCurrentPresenterInfo(status: MeetingStatus2x): Presenter = {
-    status.currentPresenter
-  }
-
-  def addGlobalAudioConnection(status: MeetingStatus2x, userID: String): Boolean = {
-    status.globalAudioConnectionCounter.get(userID) match {
-      case Some(vc) => {
-        status.globalAudioConnectionCounter += userID -> (vc + 1)
-        false
-      }
-      case None => {
-        status.globalAudioConnectionCounter += userID -> 1
-        true
-      }
-    }
-  }
-
-  def removeGlobalAudioConnection(status: MeetingStatus2x, userID: String): Boolean = {
-    status.globalAudioConnectionCounter.get(userID) match {
-      case Some(vc) => {
-        if (vc == 1) {
-          status.globalAudioConnectionCounter -= userID
-          true
-        } else {
-          status.globalAudioConnectionCounter += userID -> (vc - 1)
-          false
-        }
-      }
-      case None => {
-        false
-      }
-    }
-  }
-
   def startRecordingVoice(status: MeetingStatus2x): Boolean = {
     status.recordingVoice = true
     status.recordingVoice
@@ -56,58 +18,6 @@ object MeetingStatus2x {
 
   def isVoiceRecording(status: MeetingStatus2x): Boolean = {
     status.recordingVoice
-  }
-
-  def resetDesktopSharingParams(status: MeetingStatus2x) = {
-    status.broadcastingRTMP = false
-    status.deskShareStarted = false
-    status.rtmpBroadcastingUrl = ""
-    status.desktopShareVideoWidth = 0
-    status.desktopShareVideoHeight = 0
-  }
-
-  def getDeskShareStarted(status: MeetingStatus2x): Boolean = {
-    return status.deskShareStarted
-  }
-
-  def setDeskShareStarted(status: MeetingStatus2x, b: Boolean) {
-    status.deskShareStarted = b
-  }
-
-  def setDesktopShareVideoWidth(status: MeetingStatus2x, videoWidth: Int) {
-    status.desktopShareVideoWidth = videoWidth
-  }
-
-  def setDesktopShareVideoHeight(status: MeetingStatus2x, videoHeight: Int) {
-    status.desktopShareVideoHeight = videoHeight
-  }
-
-  def getDesktopShareVideoWidth(status: MeetingStatus2x): Int = {
-    status.desktopShareVideoWidth
-  }
-
-  def getDesktopShareVideoHeight(status: MeetingStatus2x): Int = {
-    status.desktopShareVideoHeight
-  }
-
-  def broadcastingRTMPStarted(status: MeetingStatus2x) {
-    status.broadcastingRTMP = true
-  }
-
-  def isBroadcastingRTMP(status: MeetingStatus2x): Boolean = {
-    status.broadcastingRTMP
-  }
-
-  def broadcastingRTMPStopped(status: MeetingStatus2x) {
-    status.broadcastingRTMP = false
-  }
-
-  def setRTMPBroadcastingUrl(status: MeetingStatus2x, path: String) {
-    status.rtmpBroadcastingUrl = path
-  }
-
-  def getRTMPBroadcastingUrl(status: MeetingStatus2x): String = {
-    status.rtmpBroadcastingUrl
   }
 
   def isExtensionAllowed(status: MeetingStatus2x): Boolean = status.extension.numExtensions < status.extension.maxExtensions
@@ -149,27 +59,18 @@ object MeetingStatus2x {
 
   def startedOn(status: MeetingStatus2x): Long = status.startedOn
 
-  def breakoutRoomsStartedOn(status: MeetingStatus2x) = status.breakoutRoomsStartedOn
-  def breakoutRoomsStartedOn(status: MeetingStatus2x, startedOn: Long) = status.breakoutRoomsStartedOn = startedOn
-
-  def breakoutRoomsdurationInMinutes(status: MeetingStatus2x) = status.breakoutRoomsdurationInMinutes
-  def breakoutRoomsdurationInMinutes(status: MeetingStatus2x, duration: Int) = status.breakoutRoomsdurationInMinutes = duration
-
   def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
 }
 
 class MeetingStatus2x {
-  private var globalAudioConnectionCounter = new collection.immutable.HashMap[String, Integer]
 
   private var recordingVoice = false
-
-  private var currentPresenter = new Presenter("system", "system", "system")
   private var audioSettingsInited = false
   private var permissionsInited = false
   private var permissions = new Permissions()
   private var recording = false
-  private var broadcastingRTMP = false
+
   private var muted = false
   private var meetingEnded = false
   private var meetingMuted = false
@@ -178,54 +79,10 @@ class MeetingStatus2x {
   private var lastWebUserLeftOnTimestamp: Long = 0
 
   private var voiceRecordingFilename: String = ""
-  private var rtmpBroadcastingUrl: String = ""
-  private var deskShareStarted = false
-  private var desktopShareVideoWidth = 0
-  private var desktopShareVideoHeight = 0
 
   private var extension = new MeetingExtensionProp
 
   private val startedOn = MeetingStatus2x.timeNowInSeconds;
-  private var breakoutRoomsStartedOn: Long = 0
-  private var breakoutRoomsdurationInMinutes: Int = 0
-
-  private def setCurrentPresenterInfo(pres: Presenter) {
-    currentPresenter = pres
-  }
-
-  private def getCurrentPresenterInfo(): Presenter = {
-    currentPresenter
-  }
-
-  private def addGlobalAudioConnection(userID: String): Boolean = {
-    globalAudioConnectionCounter.get(userID) match {
-      case Some(vc) => {
-        globalAudioConnectionCounter += userID -> (vc + 1)
-        false
-      }
-      case None => {
-        globalAudioConnectionCounter += userID -> 1
-        true
-      }
-    }
-  }
-
-  private def removeGlobalAudioConnection(userID: String): Boolean = {
-    globalAudioConnectionCounter.get(userID) match {
-      case Some(vc) => {
-        if (vc == 1) {
-          globalAudioConnectionCounter -= userID
-          true
-        } else {
-          globalAudioConnectionCounter += userID -> (vc - 1)
-          false
-        }
-      }
-      case None => {
-        false
-      }
-    }
-  }
 
   private def startRecordingVoice() {
     recordingVoice = true
@@ -237,58 +94,6 @@ class MeetingStatus2x {
 
   private def isVoiceRecording: Boolean = {
     recordingVoice
-  }
-
-  private def resetDesktopSharingParams() = {
-    broadcastingRTMP = false
-    deskShareStarted = false
-    rtmpBroadcastingUrl = ""
-    desktopShareVideoWidth = 0
-    desktopShareVideoHeight = 0
-  }
-
-  private def getDeskShareStarted(): Boolean = {
-    return deskShareStarted
-  }
-
-  private def setDeskShareStarted(b: Boolean) {
-    deskShareStarted = b
-  }
-
-  private def setDesktopShareVideoWidth(videoWidth: Int) {
-    desktopShareVideoWidth = videoWidth
-  }
-
-  private def setDesktopShareVideoHeight(videoHeight: Int) {
-    desktopShareVideoHeight = videoHeight
-  }
-
-  private def getDesktopShareVideoWidth(): Int = {
-    desktopShareVideoWidth
-  }
-
-  private def getDesktopShareVideoHeight(): Int = {
-    desktopShareVideoHeight
-  }
-
-  private def broadcastingRTMPStarted() {
-    broadcastingRTMP = true
-  }
-
-  private def isBroadcastingRTMP(): Boolean = {
-    broadcastingRTMP
-  }
-
-  private def broadcastingRTMPStopped() {
-    broadcastingRTMP = false
-  }
-
-  private def setRTMPBroadcastingUrl(path: String) {
-    rtmpBroadcastingUrl = path
-  }
-
-  private def getRTMPBroadcastingUrl(): String = {
-    rtmpBroadcastingUrl
   }
 
   private def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions

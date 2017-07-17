@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{ BreakoutRooms, Users1x }
+import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x, VoiceUser2x, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 
 trait TransferUserToMeetingRequestHdlr {
@@ -27,22 +27,20 @@ trait TransferUserToMeetingRequestHdlr {
         targetVoiceBridge = props.voiceProp.voiceConf.dropRight(1)
       }
       // We check the user from the mode
-      Users1x.findWithId(msg.body.userId, liveMeeting.users) match {
-        case Some(u) => {
-          if (u.voiceUser.joined) {
-            log.info("Transferring user userId=" + u.id + " from voiceBridge=" + props.voiceProp.voiceConf + " to targetVoiceConf=" + targetVoiceBridge)
+      VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId) match {
+        case Some(u) =>
+          log.info("Transferring user userId=" + u.intId + " from voiceBridge=" + props.voiceProp.voiceConf + " to targetVoiceConf=" + targetVoiceBridge)
 
-            val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
-            val envelope = BbbCoreEnvelope(TransferUserToMeetingEvtMsg.NAME, routing)
-            val header = BbbClientMsgHeader(TransferUserToMeetingEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
+          val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
+          val envelope = BbbCoreEnvelope(TransferUserToMeetingEvtMsg.NAME, routing)
+          val header = BbbClientMsgHeader(TransferUserToMeetingEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-            val body = TransferUserToMeetingEvtMsgBody(props.voiceProp.voiceConf, targetVoiceBridge, u.voiceUser.userId)
-            val event = TransferUserToMeetingEvtMsg(header, body)
-            val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+          val body = TransferUserToMeetingEvtMsgBody(props.voiceProp.voiceConf, targetVoiceBridge, u.voiceUserId)
+          val event = TransferUserToMeetingEvtMsg(header, body)
+          val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
-            outGW.send(msgEvent)
-          }
-        }
+          outGW.send(msgEvent)
+
         case None => // do nothing
       }
     }

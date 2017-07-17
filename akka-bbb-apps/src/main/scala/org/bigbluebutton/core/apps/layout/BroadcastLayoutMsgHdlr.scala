@@ -24,7 +24,8 @@ trait BroadcastLayoutMsgHdlr {
     val body = BroadcastLayoutEvtMsgBody(
       Layouts.getCurrentLayout(),
       MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
-      Layouts.getLayoutSetter(), affectedUsers)
+      Layouts.getLayoutSetter(), affectedUsers
+    )
     val event = BroadcastLayoutEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

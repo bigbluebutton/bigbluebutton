@@ -28,10 +28,12 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 }
 
 class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
-  redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
+                               redisPort: Int,
+                               channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
+    extends RedisSubscriberActor(
+      new InetSocketAddress(redisHost, redisPort),
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }
+    ) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -51,7 +53,7 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: In
     //log.error(s"SHOULD NOT BE RECEIVING: $message")
     if (message.channel == toAkkaAppsRedisChannel || message.channel == fromVoiceConfRedisChannel) {
       val receivedJsonMessage = new ReceivedJsonMessage(message.channel, message.data.utf8String)
-      log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
+      //log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
       jsonMsgBus.publish(IncomingJsonMessage(toAkkaAppsJsonChannel, receivedJsonMessage))
     }
   }

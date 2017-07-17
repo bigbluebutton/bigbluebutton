@@ -84,19 +84,17 @@ package org.bigbluebutton.modules.polling.service
         }
 
         var pollResultMessage:ChatMessageVO = new ChatMessageVO();
-        pollResultMessage.chatType = ChatConstants.PUBLIC_CHAT;
-        pollResultMessage.fromUserID = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
+        pollResultMessage.fromUserId = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.fromUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.fromColor = "86187";
         pollResultMessage.fromTime = new Date().getTime();
         pollResultMessage.fromTimezoneOffset = new Date().getTimezoneOffset();
-        pollResultMessage.toUserID = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
+        pollResultMessage.toUserId = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.toUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.message = accessibleAnswers;
 
         var pollResultMessageEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
         pollResultMessageEvent.message = pollResultMessage;
-        pollResultMessageEvent.history = false;
         dispatcher.dispatchEvent(pollResultMessageEvent);
       }
     }

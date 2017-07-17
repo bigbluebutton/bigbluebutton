@@ -12,13 +12,14 @@ trait SetGuestPolicyMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: SetGuestPolicyMsg): Unit = {
+  def handleSetGuestPolicyMsg(msg: SetGuestPolicyMsg): Unit = {
     val newPolicy = msg.body.policy.toUpperCase()
     if (GuestPolicyType.policyTypes.contains(newPolicy)) {
       val policy = GuestPolicy(newPolicy, msg.body.setBy)
       GuestsWaiting.setGuestPolicy(liveMeeting.guestsWaiting, policy)
       val event = MsgBuilder.buildGuestPolicyChangedEvtMsg(
-        liveMeeting.props.meetingProp.intId, msg.header.userId, newPolicy, msg.body.setBy)
+        liveMeeting.props.meetingProp.intId, msg.header.userId, newPolicy, msg.body.setBy
+      )
       Sender.send(outGW, event)
     }
   }

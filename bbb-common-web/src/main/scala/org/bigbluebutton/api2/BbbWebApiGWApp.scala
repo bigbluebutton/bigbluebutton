@@ -13,7 +13,10 @@ import org.bigbluebutton.presentation.messages._
 
 import scala.concurrent.duration._
 
-class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBbbWebApiGWApp with SystemConfiguration{
+class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
+                    val screenshareRtmpServer: String,
+                    val screenshareRtmpBroadcastApp: String,
+                    val screenshareConfSuffix: String) extends IBbbWebApiGWApp with SystemConfiguration{
 
   implicit val system = ActorSystem("bbb-web-common")
 
@@ -82,11 +85,19 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
                     sequence: java.lang.Integer,
                     metadata: java.util.Map[String, String], guestPolicy: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                   dialNumber: String, maxUsers: java.lang.Integer): Unit = {
+                   dialNumber: String, maxUsers: java.lang.Integer, maxInactivityTimeoutMinutes: java.lang.Integer,
+                    warnMinutesBeforeMax: java.lang.Integer,
+                    meetingExpireIfNoUserJoinedInMinutes: java.lang.Integer,
+                    meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
-    val durationProps = DurationProps(duration = duration.intValue(), createdTime = createTime.longValue(), createDate)
+    val durationProps = DurationProps(duration = duration.intValue(),
+      createdTime = createTime.longValue(), createDate,
+      maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes.intValue(),
+      warnMinutesBeforeMax = warnMinutesBeforeMax.intValue(),
+      meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes.intValue(),
+      meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue())
 
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
@@ -98,8 +109,9 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       guestPolicy = guestPolicy)
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
-    val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
-      red5ScreenshareApp = "fixMe!")
+    val screenshareProps = ScreenshareProps(screenshareConf = voiceBridge + screenshareConfSuffix,
+      red5ScreenshareIp = screenshareRtmpServer,
+      red5ScreenshareApp = screenshareRtmpBroadcastApp)
 
     val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
       usersProp, metadataProp, screenshareProps)

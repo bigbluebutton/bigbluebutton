@@ -5,8 +5,8 @@ import org.bigbluebutton.core.api.Permissions
 case object StopMeetingActor
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
-  sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
-  sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
+                                sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
+                                sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
 
 class MeetingModel {
   private var audioSettingsInited = false

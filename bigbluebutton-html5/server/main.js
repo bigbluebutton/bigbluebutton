@@ -19,6 +19,8 @@ import '/imports/api/2.0/cursor/server';
 import '/imports/api/2.0/captions/server';
 import '/imports/api/2.0/presentations/server';
 import '/imports/api/2.0/slides/server';
+import '/imports/api/2.0/breakouts/server';
+import '/imports/api/2.0/chat/server';
 
 // Commons
 import '/imports/api/log-client/server';

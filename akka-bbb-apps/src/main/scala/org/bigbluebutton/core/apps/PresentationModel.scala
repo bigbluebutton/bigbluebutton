@@ -6,11 +6,11 @@ import org.bigbluebutton.common2.domain.PageVO
 case class CurrentPresenter(userId: String, name: String, assignedBy: String)
 case class CurrentPresentationInfo(presenter: CurrentPresenter, presentations: Seq[Presentation])
 case class Presentation(id: String, name: String, current: Boolean = false,
-  pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean)
+                        pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean)
 
 case class Page(id: String, num: Int, thumbUri: String = "", swfUri: String,
-  txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0, yOffset: Double = 0,
-  widthRatio: Double = 100D, heightRatio: Double = 100D)
+                txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0, yOffset: Double = 0,
+                widthRatio: Double = 100D, heightRatio: Double = 100D)
 
 class PresentationModel {
   private var presentations = new scala.collection.immutable.HashMap[String, Presentation]
@@ -70,8 +70,8 @@ class PresentationModel {
   }
 
   def resizePage(presentationId: String, pageId: String,
-    xOffset: Double, yOffset: Double, widthRatio: Double,
-    heightRatio: Double): Option[PageVO] = {
+                 xOffset: Double, yOffset: Double, widthRatio: Double,
+                 heightRatio: Double): Option[PageVO] = {
     for {
       pres <- presentations.get(presentationId)
       page <- pres.pages.get(pageId)

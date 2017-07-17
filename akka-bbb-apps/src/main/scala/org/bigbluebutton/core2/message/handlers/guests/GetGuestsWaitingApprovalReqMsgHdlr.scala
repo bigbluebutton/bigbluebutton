@@ -12,12 +12,13 @@ trait GetGuestsWaitingApprovalReqMsgHdlr extends HandlerHelpers {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: GetGuestsWaitingApprovalReqMsg): Unit = {
+  def handleGetGuestsWaitingApprovalReqMsg(msg: GetGuestsWaitingApprovalReqMsg): Unit = {
     val guests = GuestsWaiting.findAll(liveMeeting.guestsWaiting)
     val event = MsgBuilder.buildGetGuestsWaitingApprovalRespMsg(
       liveMeeting.props.meetingProp.intId,
       msg.body.requesterId,
-      guests)
+      guests
+    )
 
     Sender.send(outGW, event)
 
