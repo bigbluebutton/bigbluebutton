@@ -24,6 +24,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                styleName="chatControlBarTextMsgStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
   <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                   selectedColor="0x000000" dataProvider="{chatView.colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
-  <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" styleName="chatSendButtonStyle"
+  <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
              toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="chatView.sendMessages()"/>   
 </mx:ControlBar>

@@ -56,9 +56,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         paddingBottom="10"
         paddingTop="10"
         paddingLeft="10"
-        paddingRight="0"
-    >
-      <mx:Image id="typeImg" source="{typeImg.getStyle('refreshImage')}" width="34" height="34" styleName="statusImageStyle" />
+        paddingRight="0">
+      <mx:Image id="typeImg" source="{getStyle('iconRefresh')}" width="34" height="34" />
     </mx:Box>
     <mx:Text
         selectable="false"

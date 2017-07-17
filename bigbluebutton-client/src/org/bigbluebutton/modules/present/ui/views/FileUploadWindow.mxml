@@ -28,7 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 height="410"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
-                styleName="presentationFileUploadWindowStyle"
+				showCloseButton="true"
                 initialize="initData();">
 
 	<fx:Declarations>
@@ -277,6 +277,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		if (!StringUtils.isEmpty(message)) {
 		  progressBar.label += message;	
 		}
+		// FIXME : to be localised
         okCancelBtn.label = "Ok";
       }
 

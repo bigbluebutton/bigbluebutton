@@ -4,6 +4,8 @@
 @namespace poll "org.bigbluebutton.modules.polling.views.*";
 @namespace whiteboard "org.bigbluebutton.modules.whiteboard.views.*";
 @namespace videoconf "org.bigbluebutton.modules.videoconf.views.*";
+@namespace views "org.bigbluebutton.main.views.*";
+@namespace layout "org.bigbluebutton.modules.layout.views.*";
 
 /*
 //------------------------------
@@ -38,6 +40,14 @@ global {
 	focusColor     : #3B97D3;
 }
 
+.defaultShellStyle {
+	backgroundColor : #F1F3F7;
+}
+
+.darkShellStyle {
+	backgroundColor : #42444C;
+}
+
 /*
 //------------------------------
 //  Application
@@ -59,6 +69,13 @@ mx|Application {
 	horizontalGap : 60;
 	paddingLeft   : 30;
 	paddingRight  : 30;
+}
+
+.audioBroswerHintBoxStyle {
+	paddingLeft   : 5;
+	paddingRight  : 5;
+	paddingBottom : 8;
+	paddingTop    : 8;
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
@@ -139,7 +156,7 @@ mx|ApplicationControlBar {
 }
 
 .bandwidthButtonStyle {
-	icon : Embed('assets/images/ic_swap_vert_16px.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bandwidth");
 }
 
 .logoutButtonStyle {
@@ -210,15 +227,16 @@ mx|ApplicationControlBar {
 }
 
 .recordButtonStyleNormal {
-	icon : Embed('assets/images/control-record.png');
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_Disabled");
 }
 
 .recordButtonStyleStart {
-	icon : Embed('assets/images/control-record-start.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .recordButtonStyleStop {
-	icon : Embed('assets/images/control-record-stop.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .muteMeDefaultButtonStyle {
@@ -232,6 +250,33 @@ mx|ApplicationControlBar {
 
 .muteMeOffButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+}
+
+.quickWindowLinkStyle {
+	/* FIXME */
+	paddingLeft       : 0;
+	paddingRight      : 0;
+	textDecoration    : underline;
+	rollOverColor     : #CCCCCC;
+	selectionColor    : #999999;
+	color             : #FFFFFF;
+	textRollOverColor : #504F3D;
+	textSelectedColor : #504F3D;
+}
+
+.helpLinkButtonStyle {
+	/* FIXME */
+	paddingLeft       : 4;
+	paddingRight      : 4;
+	paddingTop        : 2;
+	paddingBottom     : 2;
+	fontSize          : 16;
+	rollOverColor     : #CCCCCC;
+	selectionColor    : #999999;
+	color             : #FFFFFF;
+	textRollOverColor : #504F3D;
+	textSelectedColor : #504F3D;
+	fontWeight        : bold;
 }
 
 /*
@@ -276,8 +321,7 @@ mx|AlertForm {
 //------------------------------
 */
 
-mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle */
-{
+mx|Button {
 	paddingLeft                 : 12;
 	paddingRight                : 12;
 	paddingTop                  : 8;
@@ -315,6 +359,137 @@ mx|Button /*, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .c
 	borderColorSelectedOver     : #CDD4DB;
 	borderColorSelectedDown     : #ACB2B7;
 	borderColorSelectedDisabled : #CDD4DB;
+}
+
+/*
+//------------------------------
+//  Breakout Rooms (FIXME)
+//------------------------------
+*/
+
+users|RoomActionsRenderer {
+	paddingLeft  : 5;
+	paddingRight : 5;
+}
+
+.breakoutRoomUserWindowHeadingStyle {
+	fontWeight : bold;
+}
+
+.breakoutRoomSettingTitleStyle {
+	fontSize   : 20;
+	fontWeight : bold;
+}
+
+.roomsContainer {
+	horizontalAlign : center;
+	verticalGap     : 10;
+	horizontalGap   : 10;
+	paddingTop      : 20;
+	paddingBottom   : 20;
+}
+
+.breakoutTipBox {
+	horizontalAlign : center;
+}
+
+.breakoutRoomsBox {
+	paddingTop      : 12;
+	horizontalAlign : center;
+}
+
+.breakoutRoomTimerBox {
+	backgroundColor : #CCCCCC;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
+/*
+//------------------------------
+//  Client Status
+//------------------------------
+*/
+
+views|ClientStatusItemRenderer {
+	iconSuccess : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Success");
+	iconWarning : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning");
+	iconFail    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fail");
+}
+
+.statusTitleStyle {
+	fontWeight    : bold;
+	fontSize      : 12;
+	paddingBottom : 0;
+}
+
+.statusMessageStyle {
+	fontSize   : 12;
+	paddingTop : 0;
+}
+
+.statusTimeStyle {
+	fontSize   : 10;
+	paddingTop : 0;
+}
+
+/*
+//------------------------------
+//  Chat
+//------------------------------
+*/
+
+.chatControlBarSendButtonStyle {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
+	cornerRadius      : 20;
+	borderStyle       : none;
+	borderThickness   : 0;
+	fillColorUp       : #3B97D3;
+	fillColorOver     : #2E8BB8;
+	fillColorDown     : #3B97D3;
+	fillColorDisabled : #F0F2F6;
+}
+
+.chatControlBarTextMsgStyle {
+	borderStyle     : solid;
+	borderThickness : 1;
+	borderColor     : #CDD4DB;
+	cornerRadius    : 2;
+}
+
+.chatSaveButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
+}
+
+.chatCopyButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Copy");
+}
+
+.chatClearButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Delete");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Delete_Disabled");
+}
+
+.chatToolbarStyle {
+	backgroundColor : #F1F3F7;
+	cornerRadius    : 5;
+	borderStyle     : none;
+	paddingBottom   : 4;
+	paddingTop      : 4;
+	paddingLeft     : 4;
+	paddingRight    : 4;
+}
+
+.chatOptionsLabel {
+	fontSize          : 12;
+	color             : #000000;
+	textRollOverColor : #000000;
+	textSelectedColor : #000000;
+}
+
+.chatMessageListStyle {
+	rollOverColor  : #FFFFFF;
+	selectionColor : #CED4DB;
 }
 
 /*
@@ -366,26 +541,108 @@ mx|DataGrid {
 
 /*
 //------------------------------
-//  PopUpButton
+//  Desktop Sharing
 //------------------------------
 */
 
-mx|PopUpButton {
-	/* Normal state */
-	fillColorUp         : #F0F2F6;
-	fillColorOver       : #CDD4DB;
-	fillColorDown       : #ACB2B7;
-	fillColorDisabled   : #F0F2F6;
-	borderColorUp       : #CDD4DB;
-	borderColorOver     : #CDD4DB;
-	borderColorDown     : #ACB2B7;
-	borderColorDisabled : #CDD4DB;
+.deskshareControlButtonStyle {
+	cornerRadius : 18;
+}
 
-	borderThikness      : 1;
+.deskshareWarningLabelStyle {
+	fontWeight : bold;
+	fontSize   : 18;
+	color      : #3B97D3;
+}
 
-	iconColor           : #5E6C73;
+.deskshareWarningBackgroundStyle {
+	backgroundAlpha : 0.6;
+	backgroundColor : #5E6C72;
+}
 
-	skin                : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
+.desktopShareViewStyle {
+	backgroundColor : #FFFFFF;
+	paddingTop      : 15;
+	paddingLeft     : 15;
+	paddingBottom   : 15;
+	paddingRight    : 15;
+}
+
+.desksharePublishPauseBox {
+	horizontalAlign : center;
+	verticalAlign   : middle;
+	borderColor     : #CDD4DB;
+	borderThickness : 2;
+	borderStyle     : solid;
+}
+
+.desktopShareTextStyle {
+	color      : #2A2D33;
+	fontSize   : 11;
+	fontWeight : bold;
+}
+
+/*
+//------------------------------
+//  Guest
+//------------------------------
+*/
+
+.allowButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Allow");
+}
+
+.denyButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deny");
+}
+
+/*
+//------------------------------
+//  Layout
+//------------------------------
+*/
+
+layout|AddButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Circle_Add");
+}
+
+layout|SaveButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download_Template");
+}
+
+layout|LoadButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload_Template");
+}
+
+layout|BroadcastButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout");
+}
+
+/*
+//------------------------------
+//  Logout Window
+//------------------------------
+*/
+
+.logoutWindowStyle {
+	headerHeight              : 32;
+	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially  */
+	modalTransparencyDuration : 250;
+}
+
+/*
+//------------------------------
+//  Lock Settings
+//------------------------------
+*/
+
+.lockSettingsDefaultLabelStyle {
+	fontSize : 14;
+}
+
+.lockSettingsWindowTitleStyle {
+	fontSize   : 18;
+	fontWeight : bold;
 }
 
 /*
@@ -466,6 +723,76 @@ flexlib|MDIWindow {
 
 /*
 //------------------------------
+//  MicSettings
+//------------------------------
+*/
+
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
+	fontSize : 14;
+}
+
+.micSettingsWindowOpenDialogLabelStyle {
+	fontSize   : 14;
+	fontWeight : bold;
+	color      : #CDD4DB;
+}
+
+.micSettingsWindowShareMicrophoneLabelStyle {
+	fontSize : 14;
+	color    : #5E6C72;
+}
+
+.micSettingsWindowPlaySoundButtonStyle {
+	color             : #2A2D33;
+	textRollOverColor : #CDD4DB;
+	textSelectedColor : #CDD4DB;
+}
+
+.micSettingsWindowCancelButtonStyle, .inactivityWarningWindowCancelButtonStyle {
+	color             : #CDD4DB;
+	textRollOverColor : #CDD4DB;
+	textSelectedColor : #CDD4DB;
+}
+
+.micSettingsWindowHelpButtonStyle {
+	paddingLeft       : 4;
+	paddingRight      : 4;
+	paddingTop        : 2;
+	paddingBottom     : 2;
+	fontSize          : 16;
+	rollOverColor     : #CDD4DB;
+	selectionColor    : #5E6C73;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	fontWeight        : bold;
+}
+
+/*
+//------------------------------
+//  PopUpButton
+//------------------------------
+*/
+
+mx|PopUpButton {
+	/* Normal state */
+	fillColorUp         : #F0F2F6;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #CDD4DB;
+	borderColorDown     : #ACB2B7;
+	borderColorDisabled : #CDD4DB;
+
+	borderThikness      : 1;
+
+	iconColor           : #5E6C73;
+
+	skin                : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
+}
+
+/*
+//------------------------------
 //  Panel
 //------------------------------
 */
@@ -509,7 +836,7 @@ mx|Panel {
 	textSelectedColor : #3F3F41;
 	borderColor       : #B9BABC;
 	cornerRadius      : 5;
-	icon              : Embed('assets/images/trash.png');
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
 }
 
 .presentationUploadButtonStyle {
@@ -543,6 +870,81 @@ mx|Panel {
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download_Disabled");
 }
 
+.presentationZoomSliderStyle {
+	labelOffset          : 0;
+	thumbOffset          : 3;
+	dataTipOffset        : -1;
+	tickOffset           : 2;
+	tickLength           : 5;
+	tickThickness        : 2;
+	tickColor            : #3B97D3;
+	showTrackHighlight   : true;
+	invertThumbDirection : false;
+	borderColor          : #CDD4DB;
+	trackColors          : #5E6C72, #5E6C72;
+	fillAlphas           : 1, 1, 1, 1;
+	fillColors           : #F1F3F7, #F1F3F7, #F1F3F7, #F1F3F7;
+	labelStyleName       : "presentationZoomSliderLabelStyle";
+}
+
+.presentationZoomSliderLabelStyle {
+	color : #2A2D33;
+}
+
+.presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
+	fontSize   : 18;
+	fontWeight : bold;
+}
+
+.presentationNamesLabelStyle {
+	fontSize   : 14;
+	fontWeight : bold;
+}
+
+.presentationUploadChooseFileButtonStyle {
+	color : #2A2D33;
+}
+
+.presentationUploadCancelButtonStyle {
+	color : #2A2D33;
+}
+
+.presentationUploadShowButtonStyle {
+	color : #2A2D33;
+}
+
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
+	backgroundColor   : #CDD4DB;
+	dropShadowEnabled : false;
+	paddingLeft       : 10;
+	paddingRight      : 10;
+}
+
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
+	fontWeight : bold;
+}
+
+.presentationSlideViewStyle {
+	backgroundColor : #8A9AA7;
+}
+
+/*
+//------------------------------
+//  Poll
+//------------------------------
+*/
+
+poll|PollChoicesModal {
+	fontSize     : 14;
+	paddingLeft  : 16;
+	paddingRight : 16;
+}
+
+.pollResondersLabelStyle {
+	color    : #5E6C72;
+	fontSize : 14;
+}
+
 /*
 //------------------------------
 //  ProgressBar
@@ -551,12 +953,21 @@ mx|Panel {
 
 mx|ProgressBar {
 	color       : #8A9AA7;
-	themeColor  : #8F53A1;
 	barColor    : #3697D3;
 	trackColors : #FFFFFF, #FFFFFF;
 	borderColor : #CDD4DB;
 	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
 	trackSkin   : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+}
+
+/*
+//------------------------------
+//  ReconnectionPopup
+//------------------------------
+*/
+
+views|ReconnectionPopup {
+	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refresh");
 }
 
 /*
@@ -569,32 +980,26 @@ mx|ProgressBar {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
-.sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
-	icon : Embed('assets/images/ic_save_16px.png');
+.sharedNotesSaveButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
 }
 
 .sharedNotesNewButtonStyle {
-	icon : Embed('assets/images/ic_note_add_16px.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Add_File");
 }
 
-.sharedNotesEnabledUndoButtonStyle {
-	icon : Embed('assets/images/arrows_undo_icon.png');
+.sharedNotesUndoButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo_Disabled");
 }
 
-.sharedNotesDisabledUndoButtonStyle {
-	icon : Embed('assets/images/arrows_undo_icon_grey.png');
-}
-
-.sharedNotesEnabledRedoButtonStyle {
-	icon : Embed('assets/images/arrows_redo_icon.png');
-}
-
-.sharedNotesDisabledRedoButtonStyle {
-	icon : Embed('assets/images/arrows_redo_icon_grey.png');
+.sharedNotesRedoButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo_Disabled");
 }
 
 .sharedNotesFormatButtonStyle {
-	icon : Embed('assets/images/ic_note_format_16px.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Format_Text");
 }
 
 /*
@@ -692,6 +1097,24 @@ users|NameItemRenderer {
 	selectionColor : #F0F2F6;
 }
 
+users|EmojiGrid {
+	backgroundColor : #FFFFFF;
+	horizontalAlign : center;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingBottom   : 0;
+	paddingTop      : 0;
+}
+
+.emojiGridTile {
+	paddingBottom : 10;
+	paddingLeft   : 10;
+	paddingRight  : 10;
+	paddingTop    : 10;
+	verticalGap   : 6;
+	horizontalGap : 6;
+}
+
 /*
 //------------------------------
 //  VideoDock
@@ -738,6 +1161,58 @@ videoconf|UserGraphicHolder {
 	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
 	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
 	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
+}
+
+/*
+//------------------------------
+//  Webcam Shraring
+//------------------------------
+*/
+
+.videoMessageWarningLabelStyle {
+	fontWeight : bold;
+	fontSize   : 14;
+	color      : #FFFF26;
+}
+
+.videoMessageErrorLabelStyle {
+	fontWeight : bold;
+	fontSize   : 14;
+	color      : #EF4339;
+}
+
+.videoMessageBackgroundStyle {
+	backgroundAlpha : 0.6;
+	backgroundColor : #5E6C72;
+}
+
+.cameraDisplaySettingsWindowStartBtn {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
+}
+
+/*
+//------------------------------
+//  WebRTCAudioStatus
+//------------------------------
+*/
+
+views|WebRTCAudioStatus {
+	color                 : #E1E2E5;
+	iconStrongAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Strong_Audio");
+	iconAlmostStrongAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Almost_Strong_Audio");
+	iconAlmostWeakAudio   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Almost_Weak_Audio");
+	iconWeakAudio         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Weak_Audio");
+}
+
+/*
+//------------------------------
+//  WarningButton
+//------------------------------
+*/
+
+views|WarningButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning_Small");
 }
 
 /*
@@ -822,557 +1297,17 @@ whiteboard|WhiteboardCanvas {
 }
 
 .whiteboardClearButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Clear");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Clear");
 }
 
 .whiteboardUndoButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Undo");
 }
 
-/****************************/
-/*        Old styles        */
-/****************************/
-/*
-
 .multiUserWhiteboardOnButtonStyle {
-	icon : Embed('assets/images/multiuserwhiteboardon.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard");
 }
 
 .multiUserWhiteboardOffButtonStyle {
-	icon : Embed('assets/images/multiuserwhiteboardoff.png');
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Multi_Whiteboard");
 }
-
-.chatClearButtonStyle {
-	icon : Embed('assets/images/delete.png');
-}
-
-.chatToolbarStyle {
-	backgroundColor: #CCCCCC;
-	cornerRadius: 5;
-	borderStyle: solid;
-	borderThickness: 1;
-	paddingBottom: 2;
-	paddingTop: 2;
-	paddingLeft: 2;
-	paddingRight: 2;
-}
-
-.recordingLabelStyle {
-	fontWeight: bold;
-	fontSize: 15;
-	fontFamily: Arial;
-	color: #e1e2e5;
-}
-
-.videoMessageWarningLabelStyle {
-	fontWeight: bold;
-	fontSize: 18;
-	fontFamily: Arial;
-	color: #ffff26;
-}
-
-.videoMessageErrorLabelStyle {
-	fontWeight: bold;
-	fontSize: 18;
-	fontFamily: Arial;
-	color: #ff2727;
-}
-
-.videoMessageBackgroundStyle {
-	backgroundAlpha: 0.6;
-	backgroundColor: #b9babc;
-}
-
-.pollResondersLabelStyle {
-	color: #444444;
-	fontFamily: Arial;
-	fontSize: 16;
-	fontWeight: bold;
-}
-
-.quickWindowLinkStyle {
-	paddingLeft: 0;
-	paddingRight: 0;
-	textDecoration: underline;
-	rollOverColor: #cccccc;
-	selectionColor: #999999;
-	color: #ffffff;
-	textRollOverColor: #504f3d;
-	textSelectedColor: #504f3d;
-}
-
-.helpLinkButtonStyle {
-	paddingLeft: 4;
-	paddingRight: 4;
-	paddingTop: 2;
-	paddingBottom: 2;
-	fontSize: 16;
-	rollOverColor: #cccccc;
-	selectionColor: #999999;
-	color: #ffffff;
-	textRollOverColor: #504f3d;
-	textSelectedColor: #504f3d;
-	fontWeight: bold;
-}
-
-.acceptButtonStyle {
-	icon: Embed('assets/images/ic_thumb_up_16px.png');
-}
-
-.denyButtonStyle {
-	icon: Embed('assets/images/ic_thumb_down_16px.png');
-}
-
-.presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle,
-.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesEnabledUndoButtonStyle, .sharedNotesDisabledUndoButtonStyle, .sharedNotesEnabledRedoButtonStyle, .sharedNotesDisabledRedoButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
-{
-	textIndent: 0;
-	paddingLeft: 10;
-	paddingRight: 10;
-	paddingTop: 5;
-	paddingBottom: 5;
-	highlightAlphas: 0.4, 0;
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;
-	themeColor: haloBlue;
-	fontFamily: Arial;
-	fontSize: 12;
-}
-
-.presentationZoomSliderStyle{
-	labelOffset: 0;
-	thumbOffset: 3;
-	dataTipOffset: -1;
-	tickOffset: 2;
-	tickLength: 5;
-	tickThickness: 2;
-	tickColor: #6cccff;
-	showTrackHighlight: true;
-	invertThumbDirection: false;
-	borderColor: #b9babc;
-	trackColors: #aaaaaa, #aaaaaa;
-	themeColor: haloBlue;
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	labelStyleName: "presentationZoomSliderLabelStyle";
-}
-
-.presentationZoomSliderLabelStyle {
-	color: #3f3f41;
-	fontFamily: Arial;
-}
-
-.deskshareControlButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 17;
-}
-
-.deskshareWarningLabelStyle {
-	fontWeight: bold;
-	fontSize: 18;
-	fontFamily: Arial;
-	color: #003399;
-}
-
-.deskshareWarningBackgroundStyle {
-	backgroundAlpha: 0.6;
-	backgroundColor: #78797e;
-}
-
-.videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 17;
-}
-
-.videoMutedButtonStyle {
-	/* Need to duplicate info here as the styleName is programatically changed. Extracting it out doesn't have any effect.
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #ffffff;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 17;
-	icon:   Embed('assets/images/webcam-muted.png');
-}
-
-.presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
-	fontFamily: Arial;
-	fontSize: 20;  
-	fontWeight: bold;
-}
-
-.presentationNamesLabelStyle {
-	fontFamily: Arial;
-	fontSize: 14;  
-	fontWeight: bold;
-}
-
-.presentationUploadChooseFileButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5;  
-}
-
-.presentationUploadCancelButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5;    
-}
-
-.presentationUploadShowButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5;  
-}
-
-.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
-	backgroundColor: #D4D4D4;
-	dropShadowEnabled: false;
-	paddingLeft: 10;
-	paddingRight: 10;
-}
-
-.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
-	fontWeight: bold;
-}
-
-.audioBroswerHintBoxStyle {
-	paddingLeft: 5;
-	paddingRight: 5;
-	paddingBottom : 8;
-	paddingTop : 8;
-}
-
-.desktopShareViewStyle {
-	backgroundColor: #FFFFFF;
-	paddingTop: 15;
-	paddingLeft: 15;
-	paddingBottom: 15;
-	paddingRight: 15;
-}
-
-.desksharePublishPauseBox {
-	horizontalAlign: center;
-	verticalAlign: middle;
-	borderColor: #C0C0C0;
-	borderThickness: 2;
-	borderStyle: solid
-}
-
-.desktopShareTextStyle {
-	color: #3f3f3f;
-	fontSize:	11;
-	fontWeight:	bold;	
-}
-
-.micSettingsWindowTestSpeakersLabelStyle, .micSettingsWindowTestMicrophoneLabelStyle {
-	fontFamily: Arial;
-	fontSize: 14;  
-	fontWeight: bold;    
-}
-
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
-	fontFamily: Arial;
-	fontSize: 14;    
-}
-
-.micSettingsWindowOpenDialogLabelStyle {
-	fontFamily: Arial;
-	fontSize: 14;
-	fontWeight: bold;
-	color: #e1e2e5;
-}
-
-.micSettingsWindowShareMicrophoneLabelStyle {
-	fontFamily: Arial;
-	fontSize: 14;
-	color: #5e5f63;
-}
-
-.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	rollOverColor: #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5;      
-}
-
-.micSettingsWindowJoinButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-	rollOverColor: #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5; 
-	icon:   Embed('assets/images/headset.png');
-}
-
-.micSettingsWindowCancelButtonStyle, .inactivityWarningWindowCancelButtonStyle {
-	fillAlphas: 1, 1, 1, 1;
-	fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
-	rollOverColor: #eeeeee;
-	color: #3f3f41;
-	textRollOverColor: #3f3f41;
-	textSelectedColor: #3f3f41;
-	borderColor: #b9babc;  
-	cornerRadius: 5;    
-}
-
-.micSettingsWindowHelpButtonStyle {
-	paddingLeft: 4;
-	paddingRight: 4;
-	paddingTop: 2;
-	paddingBottom: 2;
-	fontSize: 16;
-	rollOverColor: #cccccc;
-	selectionColor: #999999;
-	color: #504f3d;
-	textRollOverColor: #ffffff;
-	textSelectedColor: #ffffff;
-	fontWeight: bold;
-}
-
-.presentationSlideViewStyle {
-	backgroundColor: #b9babc;
-}
-
-.defaultShellStyle {
-	backgroundColor: #fefeff;
-}
-
-.darkShellStyle {
-	backgroundColor: #42444c;
-}
-
-.increaseBtnFocus, .increaseBtnNoFocus
-{
-	upSkin:        Embed('assets/images/3_increaseButton.png');
-	overSkin:      Embed('assets/images/3_increaseButton.png');
-	downSkin:      Embed('assets/images/3_increaseButton.png');
-	disabledSkin:  Embed('assets/images/3_increaseButton.png');
-}
-
-.decreaseBtnFocus, .decreaseBtnNoFocus  
-{
-	upSkin:        Embed('assets/images/3_decreaseButton.png');
-	overSkin:      Embed('assets/images/3_decreaseButton.png');
-	downSkin:      Embed('assets/images/3_decreaseButton.png');
-	disabledSkin:  Embed('assets/images/3_decreaseButton.png');
-}
-
-.minimizeBtnFocus 
-{
-	upSkin:        Embed('assets/images/3_minimizeButton.png');
-	overSkin:      Embed('assets/images/3_minimizeButton.png');
-	downSkin:      Embed('assets/images/3_minimizeButton.png');
-	disabledSkin:  Embed('assets/images/3_minimizeButton.png');
-}
-
-.resizeHndlr 
-{
-	upSkin:        Embed('assets/images/resizeHandler.png');
-	overSkin:      Embed('assets/images/resizeHandler.png');
-	downSkin:      Embed('assets/images/resizeHandler.png');
-	disabledSkin:  Embed('assets/images/resizeHandler.png');
-}
-
-.cameraDisplaySettingsWindowStartBtn
-{
-	icon:   Embed('assets/images/webcam.png');
-}
-
-.cameraDisplaySettingsWindowStartBtnDisabled
-{
-	icon: Embed('assets/images/webcam.png');
-	color: #AAB3B3;
-	textSelectedColor: #AAB3B3;
-	fillAlphas: 0.45, 0.25;  
-}
-
-.logoutWindowStyle {
-	borderColor: #DFDFDF;
-	backgroundColor: #EFEFEF;
-	borderAlpha: 1;
-	shadowDistance: 1;
-	dropShadowColor: #FFFFFF;
-	color: #000000;
-	headerHeight: 32;
-	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially 
-	modalTransparencyDuration: 250;
-}
-
-.lockSettingsDefaultLabelStyle {
-	fontFamily: Arial;
-	fontSize: 14;
-}
-
-.lockSettingsWindowTitleStyle {
-	fontFamily: Arial;
-	fontSize: 20;  
-	fontWeight: bold;
-}
-
-.statusImageStyle {
-	successImage:   Embed(source='assets/images/status_success.png');
-	warningImage:   Embed(source='assets/images/status_warning.png');
-	failImage:      Embed(source='assets/images/status_fail.png');
-	refreshImage:   Embed(source='assets/images/status_refresh.png');
-}
-
-.webRTCAudioStatusStyle {
-	strongAudioStatus:        Embed(source='assets/images/strong_audio_status.png');
-	almostStrongAudioStatus:  Embed(source='assets/images/almost_strong_audio_status.png');
-	almostWeakAudioStatus:    Embed(source='assets/images/almost_weak_audio_status.png');
-	weakAudioStatus:          Embed(source='assets/images/weak_audio_status.png');
-	color: #e1e2e5;
-}
-
-.warningButtonStyle {
-	icon:   Embed('assets/images/status_warning_20.png');
-}
-
-.statusTitleStyle {
-	fontWeight: bold;
-	fontSize: 12;
-	paddingBottom: 0;
-}
-
-.statusMessageStyle {
-	fontSize: 12;
-	paddingTop: 0;
-}
-
-.statusTimeStyle {
-	fontSize: 10;
-	paddingTop: 0;
-}
-
-.addLayoutButtonStyle {
-	icon:   Embed('assets/images/ic_add_circle_outline_16px.png');
-}
-
-.saveLayoutButtonStyle {
-	icon:   Embed('assets/images/ic_file_download_16px.png');
-}
-
-.loadLayoutButtonStyle {
-	icon:   Embed('assets/images/ic_file_upload_16px.png');
-}
-
-.broadcastLayoutButtonStyle {
-	icon:   Embed('assets/images/ic_send_16px.png');
-}
-
-poll|PollChoicesModal {
-	fontSize: 14;
-	paddingLeft: 16;
-	paddingRight: 16;
-}
-
-.chatOptionsLabel {
-	fontSize: 12;
-	color: #000000;
-	textRollOverColor: #000000;
-	textSelectedColor: #000000;
-	fontFamily: Arial;
-}
-
-.chatMessageListStyle {
-	rollOverColor: #ffffff;
-	selectionColor: #f3f3f3;
-}
-
-users|EmojiGrid {
-	backgroundColor: #ffffff;
-	horizontalAlign: center;
-	paddingLeft: 0;
-	paddingRight: 0;
-	paddingBottom: 0;
-	paddingTop: 0;
-}
-
-.emojiGridTile {
-	paddingBottom: 10;
-	paddingLeft: 10;
-	paddingRight: 10;
-	paddingTop: 10;
-	verticalGap: 6;
-	horizontalGap: 6;
-}
-
-users|RoomActionsRenderer {
-	paddingLeft  : 5;
-	paddingRight : 5;
-}
-
-.breakoutRoomUserWindowHeadingStyle {
-	fontWeight: bold;
-}
-
-.breakoutRoomSettingTitleStyle {
-	fontFamily: Arial;
-	fontSize: 20;  
-	fontWeight: bold;
-}
-
-.roomsContainer {
-	horizontalAlign : center;
-	verticalGap: 10;
-	horizontalGap: 10;
-	paddingTop: 20;
-	paddingBottom: 20;
-}
-
-.breakoutTipBox {
-	horizontalAlign: center;
-}
-
-.breakoutRoomsBox {
-	paddingTop: 12;
-	horizontalAlign: center;
-}
-
-.breakoutRoomTimerBox {
-	backgroundColor: #CCCCCC;
-	verticalAlign: middle;
-	horizontalAlign: center;
-}
-
-.chatCopyButtonStyle{
-	icon:   Embed('assets/images/ic_content_copy_black_16px.png');
-}
-
-*/

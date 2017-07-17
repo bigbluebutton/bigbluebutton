@@ -696,11 +696,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:VBox>
 		<mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
 			<mx:HBox horizontalGap="0">
-				<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
+				<mx:Button id="sendBtn"
 					   styleName="chatControlBarSendButtonStyle"
+					   width="40" height="40"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
 					   click="sendMessages()"
-					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}" height="100%"/>
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>
 			</mx:HBox>
 			<mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}"
 							includeInLayout="{chatOptions.colorPickerIsVisible}" 

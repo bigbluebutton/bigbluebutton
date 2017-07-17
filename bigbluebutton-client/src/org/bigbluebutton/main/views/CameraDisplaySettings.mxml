@@ -130,6 +130,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		private function updateCamera():void {
 			btnStartPublish.mouseEnabled = false;
+			btnStartPublish.enabled = false;
 			
 			selectedVideoProfile = cmbVideoProfile.selectedItem.profile as VideoProfile;
 			if (camerasAvailable.length > cmbCameraSelector.selectedIndex) {
@@ -146,8 +147,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		private function videoSuccess():void {
 			btnStartPublish.mouseEnabled = true;
+			btnStartPublish.enabled = true;
 			btnStartPublish.accessibilityName = ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip');
-			btnStartPublish.styleName = "cameraDisplaySettingsWindowStartBtn";
 		}
 		
 		private function videoFailure(reason:String):void {
@@ -231,9 +232,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:Box>
         
 		<mx:HBox width="100%" height="10%" horizontalAlign="center" horizontalGap="13" paddingRight="5"> 	
-			<mx:ComboBox id="cmbCameraSelector" styleName="cameraDisplaySettingsWindowCameraSelector" dataProvider="{camerasAvailable}" width="150" visible="true" labelField="label" change="updateCamera()" height="30"/>
-			<mx:ComboBox id="cmbVideoProfile" styleName="cameraDisplaySettingsWindowProfileComboStyle" 
-						 dataProvider="{_videoProfiles}" visible="false" change="updateCamera()"
+			<mx:ComboBox id="cmbCameraSelector" dataProvider="{camerasAvailable}" width="150" visible="true" labelField="label" change="updateCamera()" height="30"/>
+			<mx:ComboBox id="cmbVideoProfile" dataProvider="{_videoProfiles}" visible="false" change="updateCamera()"
                          toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.cmbResolution.tooltip')}" height="30" />
     </mx:HBox>
     
@@ -241,7 +241,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
     <mx:HBox width="100%" height="10%" horizontalAlign="right" horizontalGap="13" paddingRight="5" paddingBottom="5" paddingTop="1">
       <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
-                 click="startPublishing()" mouseEnabled="false" styleName="cameraDisplaySettingsWindowStartBtnDisabled" 
+                 click="startPublishing()" mouseEnabled="false" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" 
                  label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}"/>
       <mx:Button id="btnClosePublish"   
                  click="onCancelClicked()" 

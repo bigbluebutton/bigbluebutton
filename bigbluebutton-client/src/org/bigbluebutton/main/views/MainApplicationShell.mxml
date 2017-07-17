@@ -1029,8 +1029,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				visible="false" 
 				height="20"
 				width="180"
-				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle"/>
+				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 		<mx:Button
 				width="20"
 				height="20"
