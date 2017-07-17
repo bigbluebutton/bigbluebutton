@@ -1,15 +1,21 @@
 package org.bigbluebutton.core.running
 
+import akka.actor.ActorContext
+import akka.event.Logging
 import org.bigbluebutton.core.domain.MeetingInactivityTracker
 import com.softwaremill.quicklens._
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.EndMeeting
-import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
+import org.bigbluebutton.core.bus.{ IncomingEventBus }
 import org.bigbluebutton.core.util.TimeUtil
 
-object MeetingInactivityTrackerHelper {
+class MeetingInactivityTrackerHelper(
+  val liveMeeting: LiveMeeting,
+  val outGW:       OutMessageGateway
+)(implicit val context: ActorContext) extends HandlerHelpers {
+
+  val log = Logging(context.system, getClass)
 
   def isMeetingActive(
     nowInMinutes:                Long,
@@ -67,7 +73,17 @@ object MeetingInactivityTrackerHelper {
   }
 
   def sendEndMeetingDueToInactivity(props: DefaultProps, eventBus: IncomingEventBus): Unit = {
-    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
+    endMeeting(outGW, liveMeeting)
+
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      log.info(
+        "Informing parent meeting {} that a breakout room has been ended {}",
+        liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId
+      )
+      notifyParentThatBreakoutEnded(eventBus, liveMeeting)
+    }
+
+    destroyMeeting(eventBus, liveMeeting.props.meetingProp.intId)
   }
 
   def sendMeetingInactivityWarning(props: DefaultProps, outGW: OutMessageGateway, timeLeftSeconds: Long): Unit = {

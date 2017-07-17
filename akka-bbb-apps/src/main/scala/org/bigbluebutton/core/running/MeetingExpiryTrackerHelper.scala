@@ -1,12 +1,19 @@
 package org.bigbluebutton.core.running
 
+import akka.actor.ActorContext
+import akka.event.Logging
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.core.api.EndMeeting
-import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
+import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.bus.{ IncomingEventBus }
 import org.bigbluebutton.core.domain.MeetingExpiryTracker
 import org.bigbluebutton.core.util.TimeUtil
 
-object MeetingExpiryTracker {
+class MeetingExpiryTrackerHelper(
+    val liveMeeting: LiveMeeting,
+    val outGW:       OutMessageGateway
+)(implicit val context: ActorContext) extends HandlerHelpers {
+
+  val log = Logging(context.system, getClass)
 
   def hasMeetingExpiredNeverBeenJoined(nowInMinutes: Long, startedOnInMinutes: Long, meetingExpireIfNoUserJoinedInMinutes: Long): Boolean = {
     nowInMinutes - startedOnInMinutes > meetingExpireIfNoUserJoinedInMinutes
@@ -19,6 +26,7 @@ object MeetingExpiryTracker {
   def processNeverBeenJoinedExpiry(nowInMinutes: Long, props: DefaultProps, tracker: MeetingExpiryTracker, eventBus: IncomingEventBus): MeetingExpiryTracker = {
     if (hasMeetingExpiredNeverBeenJoined(nowInMinutes, tracker.startedOnInMinutes,
       props.durationProps.meetingExpireIfNoUserJoinedInMinutes)) {
+      log.info("Ending meeting as it has never been joined.")
       sendEndMeetingDueToExpiry(props, eventBus)
       tracker
     } else {
@@ -32,7 +40,8 @@ object MeetingExpiryTracker {
     if (!tracker.meetingJoined) {
       processNeverBeenJoinedExpiry(nowInMinutes, props, tracker, eventBus)
     } else {
-      if (meetingOverDuration(nowInMinutes, tracker.startedOnInMinutes, props.durationProps.duration)) {
+      if (props.durationProps.duration != 0 && meetingOverDuration(nowInMinutes, tracker.startedOnInMinutes, props.durationProps.duration)) {
+        log.info("Ending meeting as it has passed duration.")
         sendEndMeetingDueToExpiry(props, eventBus)
         tracker
       } else {
@@ -42,6 +51,17 @@ object MeetingExpiryTracker {
   }
 
   def sendEndMeetingDueToExpiry(props: DefaultProps, eventBus: IncomingEventBus): Unit = {
-    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, EndMeeting(props.meetingProp.intId)))
+
+    endMeeting(outGW, liveMeeting)
+
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      log.info(
+        "Informing parent meeting {} that a breakout room has been ended {}",
+        liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId
+      )
+      notifyParentThatBreakoutEnded(eventBus, liveMeeting)
+    }
+
+    destroyMeeting(eventBus, liveMeeting.props.meetingProp.intId)
   }
 }

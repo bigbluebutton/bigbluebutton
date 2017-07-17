@@ -13,9 +13,10 @@ trait MeetingActivityResponseCmdMsgHdlr {
 
   def handleMeetingActivityResponseCmdMsg(
     msg:     MeetingActivityResponseCmdMsg,
-    tracker: MeetingInactivityTracker
+    tracker: MeetingInactivityTracker,
+    helper:  MeetingInactivityTrackerHelper
   ): MeetingInactivityTracker = {
-    MeetingInactivityTrackerHelper.processMeetingActivityResponse(
+    helper.processMeetingActivityResponse(
       props = liveMeeting.props,
       outGW,
       msg,

@@ -1,13 +1,15 @@
 package org.bigbluebutton.core.running
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.RecordingStatusChanged
+import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, RecordingStatusChanged }
+import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
 
-trait HandlerHelpers {
+trait HandlerHelpers extends SystemConfiguration {
 
   def validateTokenFailed(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
                           valid: Boolean, waitForApproval: Boolean): Unit = {
@@ -136,7 +138,6 @@ trait HandlerHelpers {
       val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, userState)
       Sender.send(outGW, event)
 
-      MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
       startRecordingIfAutoStart2x(liveMeeting)
     }
   }
@@ -164,5 +165,48 @@ trait HandlerHelpers {
   def sendPresenterAssigned(outGW: OutMessageGateway, meetingId: String, intId: String, name: String, assignedBy: String): Unit = {
     def event = MsgBuilder.buildPresenterAssignedEvtMsg(meetingId, intId, name, assignedBy)
     outGW.send(event)
+  }
+
+  def endMeeting(outGW: OutMessageGateway, liveMeeting: LiveMeeting): Unit = {
+    def buildMeetingEndingEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+      val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
+      val body = MeetingEndingEvtMsgBody(meetingId)
+      val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
+      val event = MeetingEndingEvtMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    val endingEvent = buildMeetingEndingEvtMsg(liveMeeting.props.meetingProp.intId)
+
+    // Broadcast users the meeting will end
+    outGW.send(endingEvent)
+
+    MeetingStatus2x.meetingHasEnded(liveMeeting.status)
+
+    def buildMeetingEndedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+      val envelope = BbbCoreEnvelope(MeetingEndedEvtMsg.NAME, routing)
+      val body = MeetingEndedEvtMsgBody(meetingId)
+      val header = BbbCoreBaseHeader(MeetingEndedEvtMsg.NAME)
+      val event = MeetingEndedEvtMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    val endedEvnt = buildMeetingEndedEvtMsg(liveMeeting.props.meetingProp.intId)
+    outGW.send(endedEvnt)
+  }
+
+  def destroyMeeting(eventBus: IncomingEventBus, meetingId: String): Unit = {
+    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, new DestroyMeetingInternalMsg(meetingId)))
+  }
+
+  def notifyParentThatBreakoutEnded(eventBus: IncomingEventBus, liveMeeting: LiveMeeting): Unit = {
+    eventBus.publish(BigBlueButtonEvent(
+      liveMeeting.props.breakoutProps.parentId,
+      new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)
+    ))
   }
 }

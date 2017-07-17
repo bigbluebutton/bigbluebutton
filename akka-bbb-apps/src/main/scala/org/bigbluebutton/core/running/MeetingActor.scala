@@ -102,7 +102,7 @@ class MeetingActor(
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW)
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW)
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
-  val usersApp = new UsersApp(liveMeeting, outGW)
+  val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
 
   var inactivityTracker = new MeetingInactivityTracker(
     liveMeeting.props.durationProps.maxInactivityTimeoutMinutes,
@@ -110,10 +110,14 @@ class MeetingActor(
     TimeUtil.millisToMinutes(System.currentTimeMillis()), false, 0L
   )
 
+  val inactivityTrackerHelper = new MeetingInactivityTrackerHelper(liveMeeting, outGW)
+
   var expiryTracker = new MeetingExpiryTracker(
     TimeUtil.millisToMinutes(System.currentTimeMillis()),
     false, 0L
   )
+
+  val expiryTrackerHelper = new MeetingExpiryTrackerHelper(liveMeeting, outGW)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -137,7 +141,7 @@ class MeetingActor(
 
     //=======================================
     // old messages
-    case msg: MonitorNumberOfUsers             => handleMonitorNumberOfUsers(msg)
+    case msg: MonitorNumberOfUsersInternalMsg  => handleMonitorNumberOfUsers(msg)
 
     case msg: AllowUserToShareDesktop          => handleAllowUserToShareDesktop(msg)
     case msg: ExtendMeetingDuration            => handleExtendMeetingDuration(msg)
@@ -159,13 +163,14 @@ class MeetingActor(
 
     msg.core match {
       // Users
-      case m: ValidateAuthTokenReqMsg => usersApp.handleValidateAuthTokenReqMsg(m)
-      case m: UserJoinMeetingReqMsg => handleUserJoinMeetingReqMsg(m)
-      case m: UserLeaveReqMsg => handleUserLeaveReqMsg(m)
-      case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
+      case m: ValidateAuthTokenReqMsg   => usersApp.handleValidateAuthTokenReqMsg(m)
+      case m: UserJoinMeetingReqMsg     => handleUserJoinMeetingReqMsg(m)
+      case m: UserLeaveReqMsg           => handleUserLeaveReqMsg(m)
+      case m: UserBroadcastCamStartMsg  => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg   => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: MeetingActivityResponseCmdMsg => inactivityTracker = usersApp.handleMeetingActivityResponseCmdMsg(m, inactivityTracker)
+      case m: MeetingActivityResponseCmdMsg =>
+        inactivityTracker = usersApp.handleMeetingActivityResponseCmdMsg(m, inactivityTracker, inactivityTrackerHelper)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
       case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
@@ -329,15 +334,15 @@ class MeetingActor(
     }
   }
 
-  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsers) {
-    inactivityTracker = MeetingInactivityTrackerHelper.processMeetingInactivityAudit(
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
+    inactivityTracker = inactivityTrackerHelper.processMeetingInactivityAudit(
       props = liveMeeting.props,
       outGW,
       eventBus,
       inactivityTracker
     )
 
-    expiryTracker = MeetingExpiryTracker.processMeetingExpiryAudit(liveMeeting.props, expiryTracker, eventBus)
+    expiryTracker = expiryTrackerHelper.processMeetingExpiryAudit(liveMeeting.props, expiryTracker, eventBus)
 
     monitorNumberOfWebUsers()
     monitorNumberOfUsers()
