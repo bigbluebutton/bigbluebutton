@@ -59,7 +59,7 @@ module.exports = class Screenshare {
 
   _startPresenter(id, ws, sdpOffer, callback) {
     let self = this;
-    let theCallback = callback;
+    let _callback = callback;
 
     // Force H264 on Firefox and Chrome
     sdpOffer = h264_sdp.transform(sdpOffer);
@@ -67,12 +67,12 @@ module.exports = class Screenshare {
     MediaController.createMediaElement(self._voiceBridge, C.WebRTC, function(error, webRtcEndpoint) {
       if (error) {
         console.log("Media elements error" + error);
-        return theCallback(error);
+        return _callback(error);
       }
       MediaController.createMediaElement(self._voiceBridge, C.RTP, function(error, rtpEndpoint) {
         if (error) {
           console.log("Media elements error" + error);
-          return theCallback(error);
+          return _callback(error);
         }
 
 
@@ -85,7 +85,7 @@ module.exports = class Screenshare {
           if (error) {
             console.log("Media elements CONNECT error " + error);
             //pipeline.release();
-            return theCallback(error);
+            return _callback(error);
           }
 
           // It's a user sharing a Screen
@@ -105,7 +105,7 @@ module.exports = class Screenshare {
             if (error) {
               console.log("  [webrtc] processOffer error => " + error + " for SDP " + sdpOffer);
               //pipeline.release();
-              return theCallback(error);
+              return _callback(error);
             }
 
             let sendVideoPort = MediaHandler.getVideoPort();
@@ -115,21 +115,20 @@ module.exports = class Screenshare {
 
             MediaController.gatherCandidates(webRtcEndpoint.id, function(error) {
               if (error) {
-                return theCallback(error);
+                return _callback(error);
               }
 
               MediaController.processOffer(rtpEndpoint.id, rtpSdpOffer, function(error, rtpSdpAnswer) {
                 if (error) {
                   console.log("  [rtpendpoint] processOffer error => " + error + " for SDP " + rtpSdpOffer);
                   //pipeline.release();
-                  return theCallback(error);
+                  return _callback(error);
                 }
 
                 console.log("  [rtpendpoint] KMS answer SDP => " + rtpSdpAnswer);
                 let recvVideoPort = rtpSdpAnswer.match(/m=video\s(\d*)/)[1];
                 let rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
                     sendVideoPort, recvVideoPort, self._voiceBridge, "stream_type_video", C.RTP_TO_RTMP, "copy", "caller");
-                console.log(" RTP PARAMS => " + JSON.stringify(rtpParams, null, 2));
 
                 self._rtpEndpoint.on('MediaFlowInStateChange', function(event) {
                   if (event.state === 'NOT_FLOWING') {
@@ -139,7 +138,7 @@ module.exports = class Screenshare {
                     self._onRtpMediaFlowing(self._voiceBridge, rtpParams);
                   }
                 });
-                return theCallback(null, webRtcSdpAnswer);
+                return _callback(null, webRtcSdpAnswer);
               });
             });
           });
@@ -178,16 +177,18 @@ module.exports = class Screenshare {
   _stopScreensharing() {
     let self = this;
     let strm = Messaging.generateStopTranscoderRequestMessage(this._voiceBridge, this._voiceBridge);
+
     self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
-    self._BigBlueButtonGW.on(C.STOP_TRANSCODER_REPLY, function(payload) {
+    self._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY, function(payload) {
       let meetingId = payload[C.MEETING_ID];
       let transcoderId = payload[C.TRANSCODER_ID];
+
       if(self._voiceBridge === meetingId) {
         // TODO correctly assemble this timestamp
         let timestamp = now.format('hhmmss');
-        let dsrstom = Messaging.generateDeskShareRTMPBroadcastStoppedEvent(self._voiceBridge,
-            self._streamUrl, self._vw, self._vh, timestamp);
+        let dsrstom = Messaging.generateDeskShareRTMPBroadcastStoppedEvent2x(self._voiceBridge,
+            self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
         self._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
       }
     });
@@ -196,19 +197,23 @@ module.exports = class Screenshare {
   _onRtpMediaFlowing(voiceBridge, rtpParams) {
     let self = this;
     let strm = Messaging.generateStartTranscoderRequestMessage(voiceBridge, voiceBridge, rtpParams);
-    self._BigBlueButtonGW.on(C.START_TRANSCODER_REPLY, function(payload) {
+
+    self._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, function(payload) {
       let meetingId = payload[C.MEETING_ID];
       let transcoderId = payload[C.TRANSCODER_ID];
+
       if(voiceBridge === meetingId) {
         let output = payload["params"].output;
-        self._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, voiceBridge, output);
-        console.log("  [screenshare] STREAM URL " + self._streamUrl);
         // TODO correctly assemble this timestamp
         let timestamp = now.format('hhmmss');
-        let dsrbstam = Messaging.generateDeskShareRTMPBroadcastStartedEvent(voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
+        self._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, voiceBridge, output);
+        let dsrbstam = Messaging.generateDeskShareRTMPBroadcastStartedEvent2x(self._voiceBridge,
+            self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
+
         self._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
       }
     });
+
     self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
   };
 

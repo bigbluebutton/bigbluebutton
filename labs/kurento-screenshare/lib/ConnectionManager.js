@@ -22,8 +22,8 @@ var C = require('./bbb/messages/Constants');
 module.exports = class ConnectionManager {
 
   constructor (settings, logger) {
-    this._logger = logger
-      this._clientId = 0;
+    this._logger = logger;
+    this._clientId = 0;
     this._app = express();
     this._sessions = {};
 

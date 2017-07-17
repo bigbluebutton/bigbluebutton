@@ -15,13 +15,13 @@
 
         // Redis channels
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
-        FROM_VOICE_CONF_SYSTEM_CHAN: "bigbluebutton:from-voice-conf:system",
+        FROM_VOICE_CONF_SYSTEM_CHAN: "from-voice-conf-redis-channel",
         TO_BBB_TRANSCODE_SYSTEM_CHAN: "bigbluebutton:to-bbb-transcode:system",
 
         // RedisWrapper events
         REDIS_MESSAGE : "redis_message",
 
-        // Message identifiers
+        // Message identifiers 1x
         START_TRANSCODER_REQUEST: "start_transcoder_request_message",
         START_TRANSCODER_REPLY: "start_transcoder_reply_message",
         STOP_TRANSCODER_REQUEST: "stop_transcoder_request_message",
@@ -29,16 +29,24 @@
         DESKSHARE_RTMP_BROADCAST_STARTED: "deskshare_rtmp_broadcast_started_message",
         DESKSHARE_RTMP_BROADCAST_STOPPED: "deskshare_rtmp_broadcast_stopped_message",
 
-        // Redis messages fields 
+        //Message identifiers 2x
+        DESKSHARE_RTMP_BROADCAST_STARTED_2x: "DeskshareRtmpBroadcastStartedVoiceConfEvtMsg",
+        DESKSHARE_RTMP_BROADCAST_STOPPED_2x: "DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg",
+
+        // Redis messages fields
+        //  Transcoder
         USER_ID : "user_id",
         OPTIONS: "options",
         VOICE_CONF_ID : "voice_conf_id",
         TRANSCODER_ID : "transcoder_id",
-        CONFERENCE_NAME: "conference_name",
-        STREAM_URL: "streamname",
+
+        //  Screenshare
+        CONFERENCE_NAME: "voiceConf",
+        SCREENSHARE_CONF: "deskshareConf",
+        STREAM_URL: "stream",
         TIMESTAMP: "timestamp",
-        VIDEO_WIDTH: "vw",
-        VIDEO_HEIGHT: "vh",
+        VIDEO_WIDTH: "vidWidth",
+        VIDEO_HEIGHT: "vidHeight",
 
         // RTP params
         MEETING_ID : "meeting_id",
