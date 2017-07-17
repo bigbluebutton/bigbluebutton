@@ -19,16 +19,20 @@ import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object BigBlueButtonActor extends SystemConfiguration {
-  def props(system: ActorSystem,
-    eventBus: IncomingEventBus,
+  def props(
+    system:    ActorSystem,
+    eventBus:  IncomingEventBus,
     bbbMsgBus: BbbMsgRouterEventBus,
-    outGW: OutMessageGateway): Props =
+    outGW:     OutMessageGateway
+  ): Props =
     Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW)
 }
 
-class BigBlueButtonActor(val system: ActorSystem,
+class BigBlueButtonActor(
+  val system:   ActorSystem,
   val eventBus: IncomingEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
-  val outGW: OutMessageGateway) extends Actor
+  val outGW: OutMessageGateway
+) extends Actor
     with ActorLogging with SystemConfiguration {
 
   implicit def executionContext = system.dispatcher
@@ -58,25 +62,18 @@ class BigBlueButtonActor(val system: ActorSystem,
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
 
-    // 1x messages
-    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
-    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
-    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case _ => // do nothing
+    case msg: ValidateAuthToken   => handleValidateAuthToken(msg)
+    case _                        => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: CreateMeetingReqMsg => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
-      case m: PubSubPingSysReqMsg => handlePubSubPingSysReqMsg(m)
+      case m: CreateMeetingReqMsg     => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg      => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg    => handleGetAllMeetingsReqMsg(m)
+      case m: PubSubPingSysReqMsg     => handlePubSubPingSysReqMsg(m)
       case m: DestroyMeetingSysCmdMsg => handleDestroyMeeting(m)
-      case _ => log.warning("Cannot handle " + msg.envelope.name)
+      case _                          => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -94,7 +91,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     log.debug("****** RECEIVED CreateMeetingReqMsg msg {}", msg)
 
     RunningMeetings.findWithId(meetings, msg.body.props.meetingProp.intId) match {
-      case None => {
+      case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
 
         val m = RunningMeeting(msg.body.props, outGW, eventBus)
@@ -110,16 +107,14 @@ class BigBlueButtonActor(val system: ActorSystem,
 
         RunningMeetings.add(meetings, m)
 
-        m.actorRef ! new InitializeMeeting(m.props.meetingProp.intId, m.props.recordProp.record)
-
         // Send new 2x message
         val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(m.props.meetingProp.intId, msg.body.props)
         outGW.send(msgEvent)
-      }
-      case Some(m) => {
+
+      case Some(m) =>
         log.info("Meeting already created. meetingID={}", msg.body.props.meetingProp.intId)
-        // do nothing
-      }
+      // do nothing
+
     }
 
   }
@@ -128,45 +123,6 @@ class BigBlueButtonActor(val system: ActorSystem,
     RunningMeetings.meetings(meetings).foreach(m => {
       m.actorRef ! msg
     })
-  }
-
-  private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    RunningMeetings.findMeetingWithVoiceConfId(meetings, voiceConfId)
-  }
-
-  private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
-  }
-
-  private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-  }
-
-  private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-  }
-
-  private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-  }
-
-  private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
-
-  }
-
-  private def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {

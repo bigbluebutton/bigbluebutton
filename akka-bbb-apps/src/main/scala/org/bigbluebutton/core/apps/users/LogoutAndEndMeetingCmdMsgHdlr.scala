@@ -8,7 +8,7 @@ import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait LogoutAndEndMeetingCmdMsgHdlr {
-  this: BaseMeetingActor =>
+  this: UsersApp =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway

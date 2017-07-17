@@ -12,14 +12,18 @@ trait ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
   def handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(msg: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg): Unit = {
 
     def broadcastEvent(voiceConf: String, screenshareConf: String,
-      stream: String, vidWidth: Int, vidHeight: Int,
-      timestamp: String): BbbCommonEnvCoreMsg = {
+                       stream: String, vidWidth: Int, vidHeight: Int,
+                       timestamp: String): BbbCommonEnvCoreMsg = {
 
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, "not-used")
+      val routing = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        liveMeeting.props.meetingProp.intId, "not-used"
+      )
       val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, "not-used")
+      val header = BbbClientMsgHeader(
+        ScreenshareRtmpBroadcastStoppedEvtMsg.NAME,
+        liveMeeting.props.meetingProp.intId, "not-used"
+      )
 
       val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, screenshareConf,
         stream, vidWidth, vidHeight, timestamp)

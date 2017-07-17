@@ -316,8 +316,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
           localizedKey = ar.key;
         } 
-        var rs:Object = {a: localizedKey, v: ar.num_votes as Number};
-        LOGGER.debug("poll result a=[{0}] v=[{1}]", [ar.key, ar.num_votes]);
+        var rs:Object = {a: localizedKey, v: ar.numVotes};
+        LOGGER.debug("poll result a=[{0}] v=[{1}]", [ar.key, ar.numVotes]);
         ans.push(rs);
       }
       

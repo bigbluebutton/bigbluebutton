@@ -3,8 +3,7 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/1.1/users';
-
-import setConnectionStatus from '../modifiers/setConnectionStatus';
+import Meetings from '/imports/api/1.1/meetings';
 import listenOnlyToggle from './listenOnlyToggle';
 
 const OFFLINE_CONNECTION_STATUS = 'offline';
@@ -26,13 +25,19 @@ export default function userLeaving(credentials, userId) {
   };
 
   const User = Users.findOne(selector);
+  const Meeting = Meetings.findOne({ meetingId });
+
+  if (!Meeting) {
+    return null;
+  }
+
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
   }
 
   if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
-    return;
+    return null;
   }
 
   if (User.user.listenOnly) {
@@ -46,14 +51,12 @@ export default function userLeaving(credentials, userId) {
       },
     };
 
-    const cb = (err, numChanged) => {
+    const cb = (err) => {
       if (err) {
         return Logger.error(`Invalidating user: ${err}`);
       }
 
-      if (numChanged) {
-        return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
-      }
+      return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
     };
 
     Users.update(selector, modifier, cb);

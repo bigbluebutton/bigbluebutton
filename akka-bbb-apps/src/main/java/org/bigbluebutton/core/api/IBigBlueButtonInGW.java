@@ -5,7 +5,6 @@ import org.bigbluebutton.common.messages.*;
 
 public interface IBigBlueButtonInGW {
 
-	void handleJsonMessage(String json);
 	void handleBigBlueButtonMessage(IBigBlueButtonMessage message);
 
 	void isAliveAudit(String aliveID);
@@ -18,17 +17,10 @@ public interface IBigBlueButtonInGW {
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
 	void activityResponse(String meetingID);
 
-	// Polling
-	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);
-	void startPoll(String meetingId, String requesterId, String pollId, String pollType);
-	void stopPoll(String meetingId, String userId, String pollId);
-	void showPollResult(String meetingId, String requesterId, String pollId, Boolean show);
-
 	// Lock
 	void initLockSettings(String meetingID, Map<String, Boolean> settings);
 	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);
 	void getLockSettings(String meetingId, String userId);
-	void lockUser(String meetingId, String requesterID, boolean lock, String internalUserID);
 
 	// Users
 	void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId);
@@ -47,60 +39,10 @@ public interface IBigBlueButtonInGW {
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
 	void setRecordingStatus(String meetingId, String userId, Boolean recording);
 	void getRecordingStatus(String meetingId, String userId);
-	void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
-	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
 	void getGuestPolicy(String meetingID, String userID);
 	void setGuestPolicy(String meetingID, String guestPolicy, String setBy);
 	void responseToGuest(String meetingID, String userID, Boolean response, String requesterID);
 	void logoutEndMeeting(String meetingID, String userID);
-
-	// Voice
-	void initAudioSettings(String meetingID, String requesterID, Boolean muted);
-	void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute);
-	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
-	void isMeetingMuted(String meetingID, String requesterID);
-	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
-	void lockMuteUser(String meetingID, String requesterID, String userID, Boolean lock);
-	void ejectUserFromVoice(String meetingID, String userId, String ejectedBy);
-	void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy);
-	void voiceUserJoined(String voiceConfId, String voiceUserId, String userId, String callerIdName, 
-								String callerIdNum, Boolean muted, String avatarURL, Boolean talking);
-	void voiceUserLeft(String meetingId, String userId);
-	void voiceUserLocked(String meetingId, String userId, Boolean locked);
-	void voiceUserMuted(String meetingId, String userId, Boolean muted);
-	void voiceUserTalking(String meetingId, String userId, Boolean talking);
-	void voiceRecording(String meetingId, String recordingFile, 
-			            String timestamp, Boolean recording);
-
-	// Presentation
-	void clear(String meetingID);
-	void removePresentation(String meetingID, String presentationID);
-	void getPresentationInfo(String meetingID, String requesterID, String replyTo);
-	void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio);
-	void gotoSlide(String meetingID, String page);
-	void sharePresentation(String meetingID, String presentationID, boolean share);
-	void getSlideInfo(String meetingID, String requesterID, String replyTo);
-
-	void sendConversionUpdate(String messageKey, String meetingId, 
-            String code, String presId, String presName); 
-
-	void sendPageCountError(String messageKey, String meetingId, 
-            String code, String presId, int numberOfPages,
-            int maxNumberPages, String presName);
-
-	void sendSlideGenerated(String messageKey, String meetingId, 
-            String code, String presId, int numberOfPages,
-            int pagesCompleted, String presName);
-
-	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presId, int numPages, String presName, String presBaseUrl, boolean downloadable);
-
-	// Layout
-	void getCurrentLayout(String meetingID, String requesterID);
-	void broadcastLayout(String meetingID, String requesterID, String layout);
-	void lockLayout(String meetingID, String setById, 
-                  boolean lock, boolean viewersOnly,
-                  String layout);
 
 	// DeskShare
 	void deskShareStarted(String confId, String callerId, String callerIdName);
