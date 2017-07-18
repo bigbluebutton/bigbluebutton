@@ -29,8 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OfficeToPdfConversionService {
-  private static Logger log = LoggerFactory
-      .getLogger(OfficeToPdfConversionService.class);
+  private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
 
   private OfficeDocumentValidator officeDocumentValidator;
 

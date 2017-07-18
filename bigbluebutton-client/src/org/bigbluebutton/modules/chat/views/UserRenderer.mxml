@@ -26,7 +26,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.util.i18n.ResourceUtil;
     ]]>
   </fx:Script>
+  <!-- No 'me' property on the User2x class -->
+  <!--
   <mx:Label id="nameLabel" textAlign="left" text="{data.name} {data.me ? '(' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : ''}" 
             fontWeight="{data.me ? 'bold' : 'normal'}"
             color="{data.me ? 0x003399 : 0x000000}"/>
+  -->
+  <mx:Label id="nameLabel" textAlign="left" text="{data.name}"
+            fontWeight="{'normal'}"
+            color="{0x000000}"/>
 </mx:HBox>

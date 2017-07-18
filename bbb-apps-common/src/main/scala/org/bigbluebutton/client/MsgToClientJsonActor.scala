@@ -1,9 +1,9 @@
 package org.bigbluebutton.client
 
 import akka.actor.{Actor, ActorLogging, Props}
-import org.bigbluebutton.client.bus.{BroadcastMsgToMeeting, DirectMsgToClient}
+import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.red5.client.messaging.{BroadcastToMeetingMsg, DirectToClientMsg}
+import org.bigbluebutton.red5.client.messaging._
 
 
 object MsgToClientJsonActor {
@@ -16,11 +16,12 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   def receive = {
     case msg: BroadcastMsgToMeeting => handleBroadcastMsg(msg)
     case msg: DirectMsgToClient => handleDirectMsg(msg)
+    case msg: DisconnectClientMsg => handleDisconnectClientMsg(msg)
+    case msg: DisconnectAllMeetingClientsMsg => handleDisconnectAllMeetingClientsMsg(msg)
   }
 
 
   def handleBroadcastMsg(msg: BroadcastMsgToMeeting): Unit = {
-    println("Received BroadcastMsgToMeeting " + msg)
     val meetingId = msg.meetingId
     val msgName = msg.data.envelope.name
     val json = JsonUtil.toJson(msg.data.core)
@@ -30,7 +31,6 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   }
 
   def handleDirectMsg(msg: DirectMsgToClient): Unit = {
-    println("Received DirectMsgToClient " + msg)
     val meetingId = msg.meetingId
     val connId = msg.connId
     val msgName = msg.data.envelope.name
@@ -38,5 +38,18 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
 
     val direct = new DirectToClientMsg(meetingId, connId, msgName, json)
     msgToClientGW.directToClient(direct)
+  }
+
+  def handleDisconnectClientMsg(msg: DisconnectClientMsg): Unit = {
+    val meetingId = msg.meetingId
+    val connId = msg.connId
+
+    msgToClientGW.systemMessage(new CloseConnectionMsg(meetingId, connId))
+  }
+
+  def handleDisconnectAllMeetingClientsMsg(msg: DisconnectAllMeetingClientsMsg): Unit = {
+    val meetingId = msg.meetingId
+
+    msgToClientGW.systemMessage(new CloseMeetingAllConnectionsMsg(meetingId))
   }
 }

@@ -10,7 +10,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handle(msg: UserJoinMeetingReqMsg): Unit = {
+  def handleUserJoinMeetingReqMsg(msg: UserJoinMeetingReqMsg): Unit = {
     userJoinMeeting(outGW, msg.body.authToken, liveMeeting)
   }
 

@@ -42,6 +42,5 @@ public class DesktopSharingService {
 		String replyTo = meetingID + "/" + requesterID;
 
 		System.out.println("\nDESKTOP SHARING SERVICE _ on the way to bbb-core\n");
-		red5BBBInGw.requestDeskShareInfo(meetingID, requesterID, replyTo);
 	}
 }

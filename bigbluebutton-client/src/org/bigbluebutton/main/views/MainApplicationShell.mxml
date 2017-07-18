@@ -30,9 +30,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		xmlns:common="org.bigbluebutton.common.*"
-		width="100%" height="{parentApplication.height - 1}"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		creationComplete="initializeShell()" >
+		creationComplete="initializeShell()"
+		addedToStage="onAddedToStage()"
+		verticalGap="0">
 
 	<!--
 	height="{parentApplication.height - 1}" : The container height is set to fix height because the percentHeight
@@ -93,14 +94,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.geom.Point;
 			import flash.net.navigateToURL;
 			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
+			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
-			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -194,6 +196,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var confirmingLogout:Boolean = false;
 			
+			private var widthWatch:ChangeWatcher;
+			private var heightWatch:ChangeWatcher;
+			private var resizeExecuting:Boolean = false;
+			
 			private const THRESHOLD_AREA_SHOW_TOOLBARS:int = 5;
 			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
 			private const HIDE_TOOLBARS_DELAY:int = 1000;
@@ -253,14 +259,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					initFullScreen();
 				}
 
-				systemManager.addEventListener(Event.RESIZE, handleApplicationResizeEvent);
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
-				handleApplicationResizeEvent();
 			}
-
-			private function handleApplicationResizeEvent(e:Event = null):void {
-				calculateCanvasHeight();
-				updateCopyrightLabelDimensions();
+			
+			// See this stackoverflow post for an explanation on why the size watching is done this way, https://stackoverflow.com/a/2141223
+			protected function onAddedToStage():void {
+				stopWatching();
+				
+				widthWatch = ChangeWatcher.watch(parentApplication,'width', onSizeChange);
+				heightWatch = ChangeWatcher.watch(parentApplication,'height', onSizeChange);
+				
+				onSizeChange();
+			}
+			
+			private function onSizeChange(event:Event = null):void {
+				if(!resizeExecuting)
+					callLater(handleResize);
+				resizeExecuting = true;
+			}
+			
+			private function handleResize():void {
+				var appWidth:Number = parentApplication.width;
+				var appHeight:Number = parentApplication.height;
+				
+				resizeExecuting = false;
+				
+				if (appWidth > 0 && appHeight > 0) {
+					calculateCanvasHeight();
+					updateCopyrightLabelDimensions();
+				}
+			}
+			
+			private function stopWatching():void {
+				//invoke this to stop watching the properties and prevent the handleResize method from executing
+				if (widthWatch != null)	widthWatch.unwatch();
+				if (heightWatch != null) heightWatch.unwatch();
 			}
 			
 			private function setGuestPolicy(event:BBBEvent):void {
@@ -364,10 +397,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function updateCopyrightLabelDimensions(e:Event = null):void {
-				var screenRect:Rectangle = systemManager.screen;
-
+				var appWidth:Number = parentApplication.width;
+				
 				if (spacer.width == 0) {
-					copyrightLabel2.width += (screenRect.width - controlBar.width);
+					copyrightLabel2.width += (appWidth - controlBar.width);
 				} else {
 					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
 				}
@@ -385,8 +418,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// See issue #2437 for why you shouldn't set height to 100% 
 			//             https://github.com/bigbluebutton/bigbluebutton/issues/2437
 			private function calculateCanvasHeight():void {
-				var screenRect:Rectangle = systemManager.screen;
-				mdiCanvas.height = screenRect.height - (_showFooter? footerHeight: 0) - (_showToolbar? toolbarHeight: 0);
+				var appWidth:Number = parentApplication.width;
+				var appHeight:Number = parentApplication.height;
+				
+				mdiCanvas.width = appWidth;
+				mdiCanvas.height = appHeight - (_showFooter? footerHeight: 0) - (_showToolbar? toolbarHeight: 0);
 				updateCanvasBackgroundDimensions();
 			}
 			
@@ -884,7 +920,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function updateCanvasBackgroundDimensions():void {
 				if (canvasBackground == null) {
 					return;
-			}
+				}
 			
 				var canvasAspectRatio:Number = mdiCanvas.width / mdiCanvas.height;
 

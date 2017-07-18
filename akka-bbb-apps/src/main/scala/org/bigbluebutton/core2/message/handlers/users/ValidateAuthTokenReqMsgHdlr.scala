@@ -2,11 +2,12 @@ package org.bigbluebutton.core2.message.handlers.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, BaseMeetingActor }
+import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 
 trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
-  this: BaseMeetingActor =>
+  this: UsersApp =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway

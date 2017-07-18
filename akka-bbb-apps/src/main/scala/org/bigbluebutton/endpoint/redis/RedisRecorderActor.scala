@@ -38,40 +38,40 @@ class RedisRecorderActor(val system: ActorSystem)
   }
 
   def receive = {
-    case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
-    case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
-    case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
-    case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
-    case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
-    case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
-    case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
-    case msg: EndAndKickAll => handleEndAndKickAll(msg)
-    case msg: PresenterAssigned => handleAssignPresenter(msg)
-    case msg: UserJoined => handleUserJoined(msg)
-    case msg: UserLeft => handleUserLeft(msg)
-    case msg: UserStatusChange => handleUserStatusChange(msg)
-    case msg: UserVoiceMuted => handleUserVoiceMuted(msg)
-    case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
-    case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
-    case msg: UserLeftVoice => handleUserLeftVoice(msg)
-    case msg: RecordingStatusChanged => handleRecordingStatusChanged(msg)
-    case msg: UserChangedEmojiStatus => handleChangedUserEmojiStatus(msg)
-    case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
-    case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
-    case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
-    case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
+    //case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
+    //case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
+    case msg: EndAndKickAll               => handleEndAndKickAll(msg)
+    case msg: PresenterAssigned           => handleAssignPresenter(msg)
+    case msg: UserJoined                  => handleUserJoined(msg)
+    case msg: UserLeft                    => handleUserLeft(msg)
+    case msg: UserStatusChange            => handleUserStatusChange(msg)
+    //    case msg: UserVoiceMuted              => handleUserVoiceMuted(msg)
+    //    case msg: UserVoiceTalking            => handleUserVoiceTalking(msg)
+    //    case msg: UserJoinedVoice             => handleUserJoinedVoice(msg)
+    //    case msg: UserLeftVoice               => handleUserLeftVoice(msg)
+    case msg: RecordingStatusChanged      => handleRecordingStatusChanged(msg)
+    case msg: UserChangedEmojiStatus      => handleChangedUserEmojiStatus(msg)
+    case msg: UserSharedWebcam            => handleUserSharedWebcam(msg)
+    case msg: UserUnsharedWebcam          => handleUserUnsharedWebcam(msg)
+    //    case msg: VoiceRecordingStarted       => handleVoiceRecordingStarted(msg)
+    //    case msg: VoiceRecordingStopped       => handleVoiceRecordingStopped(msg)
+    //case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
+    //case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
+    //case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
+    //case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
+    //case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
     //    case msg: SendWhiteboardAnnotationEvtMsg => handleSendWhiteboardAnnotationEvent(msg)
     //    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
     //    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     //    case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     //    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
-    case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
-    case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
-    case _ => // do nothing
+    case msg: DeskShareStopRTMPBroadcast  => handleDeskShareStopRTMPBroadcast(msg)
+    case msg: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(msg)
+    case _                                => // do nothing
   }
 
-  private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
+  /*  private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
     if (msg.recorded) {
       val message = JavaConverters.mapAsJavaMap(msg.message)
       val ev = new PublicChatRecordEvent()
@@ -85,17 +85,18 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
 
     }
-  }
+  }*/
 
-  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
+  /*  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
     if (msg.recorded) {
       val ev = new ClearPublicChatRecordEvent()
       ev.setTimestamp(TimestampGenerator.generateTimestamp())
       ev.setMeetingId(msg.meetingID)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
-  }
+  }*/
 
+  /*
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
 
   }
@@ -173,6 +174,7 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
   }
+  */
 
   private def handleEndAndKickAll(msg: EndAndKickAll): Unit = {
     if (msg.recorded) {
@@ -197,6 +199,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
   }
 
+  /*
   def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
     if (msg.recorded) {
       val evt = new StartRecordingVoiceRecordEvent(true)
@@ -273,6 +276,7 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
     }
   }
+  */
 
   def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
     if (msg.recorded) {
@@ -352,6 +356,7 @@ class RedisRecorderActor(val system: ActorSystem)
 
   }
 
+  /*
   private def getPresentationId(whiteboardId: String): String = {
     // Need to split the whiteboard id into presenation id and page num as the old
     // recording expects them
@@ -374,6 +379,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
     pageNum
   }
+  */
 
   /*
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {

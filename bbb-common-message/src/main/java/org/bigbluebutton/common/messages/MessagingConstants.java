@@ -27,10 +27,8 @@ public class MessagingConstants {
 	public static final String FROM_PRESENTATION_CHANNEL = FROM_BBB_APPS_CHANNEL + ":presentation";
 	public static final String FROM_POLLING_CHANNEL = FROM_BBB_APPS_CHANNEL + ":polling";
 	public static final String FROM_USERS_CHANNEL = FROM_BBB_APPS_CHANNEL + ":users";
-	public static final String FROM_CHAT_CHANNEL = FROM_BBB_APPS_CHANNEL + ":chat"; 
 	public static final String FROM_WHITEBOARD_CHANNEL = FROM_BBB_APPS_CHANNEL + ":whiteboard";
 	public static final String FROM_DESK_SHARE_CHANNEL = FROM_BBB_APPS_CHANNEL + ":deskshare";
-	public static final String FROM_SHAREDNOTES_CHANNEL = FROM_BBB_APPS_CHANNEL + ":sharednotes";
 
 	public static final String TO_BBB_APPS_CHANNEL = "bigbluebutton:to-bbb-apps";	
 	public static final String TO_BBB_APPS_PATTERN = TO_BBB_APPS_CHANNEL + ":*";
@@ -39,10 +37,8 @@ public class MessagingConstants {
 	public static final String TO_PRESENTATION_CHANNEL = TO_BBB_APPS_CHANNEL + ":presentation";
 	public static final String TO_POLLING_CHANNEL = TO_BBB_APPS_CHANNEL + ":polling";
 	public static final String TO_USERS_CHANNEL = TO_BBB_APPS_CHANNEL + ":users";
-	public static final String TO_CHAT_CHANNEL = TO_BBB_APPS_CHANNEL + ":chat";
 	public static final String TO_VOICE_CHANNEL = TO_BBB_APPS_CHANNEL + ":voice";
 	public static final String TO_WHITEBOARD_CHANNEL = TO_BBB_APPS_CHANNEL + ":whiteboard";
-	public static final String TO_SHAREDNOTES_CHANNEL = TO_BBB_APPS_CHANNEL + ":sharednotes";
 
 	public static final String BBB_APPS_KEEP_ALIVE_CHANNEL = "bigbluebutton:from-bbb-apps:keepalive";
 
@@ -56,6 +52,14 @@ public class MessagingConstants {
 	public static final String FROM_VOICE_CONF_SYSTEM_CHAN = FROM_VOICE_CONF_CHANNEL + ":system";
 
 	public static final String FROM_BBB_RECORDING_CHANNEL  = "bigbluebutton:from-rap";
+
+	public static final String TO_BBB_TRANSCODE_CHANNEL = "bigbluebutton:to-bbb-transcode";
+	public static final String TO_BBB_TRANSCODE_PATTERN = TO_BBB_TRANSCODE_CHANNEL + ":*";
+	public static final String TO_BBB_TRANSCODE_SYSTEM_CHAN = TO_BBB_TRANSCODE_CHANNEL + ":system";
+	public static final String FROM_BBB_TRANSCODE_CHANNEL = "bigbluebutton:from-bbb-transcode";
+	public static final String FROM_BBB_TRANSCODE_PATTERN = FROM_BBB_TRANSCODE_CHANNEL + ":*";
+	public static final String FROM_BBB_TRANSCODE_SYSTEM_CHAN = FROM_BBB_TRANSCODE_CHANNEL + ":system";
+
 	
 	public static final String DESTROY_MEETING_REQUEST_EVENT = "DestroyMeetingRequestEvent";
 	public static final String CREATE_MEETING_REQUEST_EVENT = "CreateMeetingRequestEvent";	

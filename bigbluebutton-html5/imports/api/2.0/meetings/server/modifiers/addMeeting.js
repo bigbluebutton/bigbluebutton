@@ -1,3 +1,4 @@
+import flat from 'flat';
 import { check } from 'meteor/check';
 import Meetings from '/imports/api/2.0/meetings';
 import Logger from '/imports/startup/server/logger';
@@ -10,51 +11,31 @@ export default function addMeeting(meeting) {
   check(meetingId, String);
 
   const selector = {
-    'meetingProp.intId': meetingId,
+    meetingId,
   };
 
-  const {
-    meetingProp,
-    breakoutProps,
-    durationProps,
-    password,
-    recordProp,
-    welcomeProp,
-    voiceProp,
-    usersProp,
-    metadataProp,
-    screenshareProps,
-  } = meeting;
-
   const modifier = {
-    $set: {
-      meetingProp,
-      breakoutProps,
-      durationProps,
-      password,
-      recordProp,
-      welcomeProp,
-      voiceProp,
-      usersProp,
-      metadataProp,
-      screenshareProps,
-    },
+    $set: Object.assign(
+      { meetingId },
+      flat(meeting),
+    ),
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding meeting to collection: ${err}`);
+      Logger.error(`Adding meeting to collection: ${err}`);
+      return;
     }
 
     initializeCursor(meetingId);
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added meeting2x id=${meetingId}`);
+      Logger.info(`Added meeting2x id=${meetingId}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Upserted meeting2x id=${meetingId}`);
+      Logger.info(`Upserted meeting2x id=${meetingId}`);
     }
   };
 

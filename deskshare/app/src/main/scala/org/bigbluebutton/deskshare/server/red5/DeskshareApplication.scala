@@ -27,6 +27,7 @@ import org.bigbluebutton.deskshare.server.RtmpClientAdapter
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import org.bigbluebutton.deskshare.server.socket.DeskShareServer
 import org.bigbluebutton.deskshare.server.MultiThreadedAppAdapter
+import org.bigbluebutton.deskshare.server.red5.pubsub.MessagePublisher
 import scala.actors.Actor
 import scala.actors.Actor._
 import net.lag.configgy.Configgy
@@ -37,7 +38,7 @@ import org.red5.server.api.scope.{IScope}
 import org.red5.server.util.ScopeUtils
 import com.google.gson.Gson
 
-class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer) extends MultiThreadedAppAdapter {
+class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer, messagePublisher: MessagePublisher) extends MultiThreadedAppAdapter {
 	private val deathSwitch = new CountDownLatch(1)
 
 	// load our config file and configure logfiles.

@@ -4,71 +4,80 @@ import com.softwaremill.quicklens._
 import org.bigbluebutton.core.api.Permissions
 
 case class MeetingProperties(
-  id: String,
-  extId: String,
-  name: String,
-  recorded: Boolean,
-  voiceConf: String,
-  duration: Int,
-  autoStartRecording: Boolean,
+  id:                      String,
+  extId:                   String,
+  name:                    String,
+  recorded:                Boolean,
+  voiceConf:               String,
+  duration:                Int,
+  autoStartRecording:      Boolean,
   allowStartStopRecording: Boolean,
-  moderatorPass: String,
-  viewerPass: String,
-  createTime: Long,
-  createDate: String,
-  isBreakout: Boolean)
+  moderatorPass:           String,
+  viewerPass:              String,
+  createTime:              Long,
+  createDate:              String,
+  isBreakout:              Boolean
+)
 
 case class MeetingProperties2x(
-  id: String,
-  extId: String,
-  name: String,
-  voiceConf: String,
-  duration: Int,
-  maxUsers: Int,
+  id:             String,
+  extId:          String,
+  name:           String,
+  voiceConf:      String,
+  duration:       Int,
+  maxUsers:       Int,
   allowVoiceOnly: Boolean,
-  isBreakout: Boolean,
-  extensionProp: MeetingExtensionProp,
-  recordingProp: MeetingRecordingProp)
+  isBreakout:     Boolean,
+  extensionProp:  MeetingExtensionProp,
+  recordingProp:  MeetingRecordingProp
+)
 
 case class MeetingRecordingProp(
-  recorded: Boolean = false,
-  autoStartRecording: Boolean = false,
-  allowStartStopRecording: Boolean = true)
+  recorded:                Boolean = false,
+  autoStartRecording:      Boolean = false,
+  allowStartStopRecording: Boolean = true
+)
 
 case class MeetingExtensionProp(
-  maxExtensions: Int = 0,
-  extendByMinutes: Int = 20,
-  sendNotice: Boolean = true)
+  maxExtensions:   Int     = 0,
+  extendByMinutes: Int     = 20,
+  sendNotice:      Boolean = true
+)
 
 case class MeetingRecordingStatus(
-  recording: Boolean = false,
-  voiceRecordingFilename: String = "")
+  recording:              Boolean = false,
+  voiceRecordingFilename: String  = ""
+)
 
 case class MeetingExtensionStatus(
-  numExtensions: Int = 0,
+  numExtensions:   Int     = 0,
   sent15MinNotice: Boolean = false,
   sent10MinNotice: Boolean = false,
-  sent5MinNotice: Boolean = false)
+  sent5MinNotice:  Boolean = false
+)
 
-case class Meeting3x(permissions: Permissions,
-  isRecording: Boolean = false,
-  muted: Boolean = false,
-  ended: Boolean = false,
-  hasLastWebUserLeft: Boolean = false,
-  lastWebUserLeftOnTimestamp: Long = 0L,
-  voiceRecordingFilename: String = "",
-  startedOn: Long = 0L,
-  pinNumbers: Set[String] = Set.empty,
-  lastGeneratedPin: Int = 0,
-  breakoutRoomsStartedOn: Long = 0L,
-  breakoutRoomsDurationInMinutes: Int = 120,
-  extensionStatus: MeetingExtensionStatus = new MeetingExtensionStatus,
-  recordingStatus: MeetingRecordingStatus = new MeetingRecordingStatus)
+case class Meeting3x(
+  permissions:                    Permissions,
+  isRecording:                    Boolean                = false,
+  muted:                          Boolean                = false,
+  ended:                          Boolean                = false,
+  hasLastWebUserLeft:             Boolean                = false,
+  lastWebUserLeftOnTimestamp:     Long                   = 0L,
+  voiceRecordingFilename:         String                 = "",
+  startedOn:                      Long                   = 0L,
+  pinNumbers:                     Set[String]            = Set.empty,
+  lastGeneratedPin:               Int                    = 0,
+  breakoutRoomsStartedOn:         Long                   = 0L,
+  breakoutRoomsDurationInMinutes: Int                    = 120,
+  extensionStatus:                MeetingExtensionStatus = new MeetingExtensionStatus,
+  recordingStatus:                MeetingRecordingStatus = new MeetingRecordingStatus
+)
 
 object Meeting3x {
   def isExtensionAllowed(
     extension: MeetingExtensionProp,
-    status: MeetingExtensionStatus): Boolean = status.numExtensions < extension.maxExtensions
+    status:    MeetingExtensionStatus
+  ): Boolean = status.numExtensions < extension.maxExtensions
 
   def incNumExtension(extension: MeetingExtensionProp, status: MeetingExtensionStatus): MeetingExtensionStatus = {
     if (status.numExtensions < extension.maxExtensions) {

@@ -1198,8 +1198,11 @@ users|MoodMenu {
 */
 
 videoconf|UserGraphicHolder {
-	presenterIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Presenter");
-	moderatorIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Moderator");
+	iconPresenter      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Presenter");
+	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Moderator");
+	iconClose          : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Moderator");
+	iconFullScreen     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fullscreen_White");
+	iconExitFullScreen : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Exit_Fullscreen_White");
 }
 
 .videoToolbarBackgroundTalkingStyle {
@@ -1230,13 +1233,6 @@ videoconf|UserGraphicHolder {
 	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
 	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
 	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
-}
-
-.closeBtnFocus, .closeBtnNoFocus {
-	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
-	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
-	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
-	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
 }
 
 /*

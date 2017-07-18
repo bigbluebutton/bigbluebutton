@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.polls
 
-import org.bigbluebutton.common2.domain.{ AnnotationVO, SimplePollResultOutVO }
+import org.bigbluebutton.common2.domain.SimplePollResultOutVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls

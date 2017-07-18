@@ -10,11 +10,33 @@ import org.bigbluebutton.common2.domain.DefaultProps
   case class CreateMeetingReqMsgBody(props: DefaultProps)
 
 
+/**
+* Sent by bbb-web
+*/
+object DestroyMeetingSysCmdMsg { val NAME = "DestroyMeetingSysCmdMsg" }
+case class DestroyMeetingSysCmdMsg(header: BbbCoreBaseHeader,
+                               body: DestroyMeetingSysCmdMsgBody) extends BbbCoreMsg
+case class DestroyMeetingSysCmdMsgBody(meetingId: String)
+
+
+/**
+* Sent by bbb-web
+*/
+object EndMeetingSysCmdMsg { val NAME = "EndMeetingSysCmdMsg" }
+case class EndMeetingSysCmdMsg(header: BbbCoreBaseHeader,
+                                body: EndMeetingSysCmdMsgBody) extends BbbCoreMsg
+case class EndMeetingSysCmdMsgBody(meetingId: String)
+
+
   object GetAllMeetingsReqMsg { val NAME = "GetAllMeetingsReqMsg" }
   case class GetAllMeetingsReqMsg(header: BbbCoreBaseHeader,
                                   body: GetAllMeetingsReqMsgBody) extends BbbCoreMsg
   case class GetAllMeetingsReqMsgBody(requesterId: String)
 
+  object PubSubPingSysReqMsg { val NAME = "PubSubPingSysReqMsg" }
+  case class PubSubPingSysReqMsg(header: BbbCoreBaseHeader,
+                                  body: PubSubPingSysReqMsgBody) extends BbbCoreMsg
+  case class PubSubPingSysReqMsgBody(system: String, timestamp: Long)
 
   /** Response Messages **/
   object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
@@ -22,14 +44,76 @@ import org.bigbluebutton.common2.domain.DefaultProps
                                   body: MeetingCreatedEvtBody) extends BbbCoreMsg
   case class MeetingCreatedEvtBody(props: DefaultProps)
 
+/**
+  * Sent from akka-apps to bbb-web to inform about end of meeting
+  */
+object MeetingEndedEvtMsg { val NAME = "MeetingEndedEvtMsg"}
+case class MeetingEndedEvtMsg(header: BbbCoreBaseHeader,
+                                body: MeetingEndedEvtMsgBody) extends BbbCoreMsg
+case class MeetingEndedEvtMsgBody(meetingId: String)
 
-  object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg"}
+
+/**
+  * Sent from akka-apps to clients to inform them of end of meeting
+  */
+object MeetingEndingEvtMsg { val NAME = "MeetingEndingEvtMsg"}
+case class MeetingEndingEvtMsg(header: BbbClientMsgHeader,
+                              body: MeetingEndingEvtMsgBody) extends BbbCoreMsg
+case class MeetingEndingEvtMsgBody(meetingId: String)
+
+
+/**
+  * Sent to bbb-web
+  */
+object MeetingDestroyedEvtMsg { val NAME = "MeetingDestroyedEvtMsg"}
+case class MeetingDestroyedEvtMsg(header: BbbCoreBaseHeader,
+                                body: MeetingDestroyedEvtMsgBody) extends BbbCoreMsg
+case class MeetingDestroyedEvtMsgBody(meetingId: String)
+
+
+object DisconnectAllClientsSysMsg { val NAME = "DisconnectAllClientsSysMsg"}
+case class DisconnectAllClientsSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                  body: DisconnectAllClientsSysMsgBody) extends BbbCoreMsg
+case class DisconnectAllClientsSysMsgBody(meetingId: String)
+
+object DisconnectClientSysMsg { val NAME = "DisconnectClientSysMsg"}
+case class DisconnectClientSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                  body: DisconnectClientSysMsgBody) extends BbbCoreMsg
+case class DisconnectClientSysMsgBody(meetingId: String, userId: String)
+
+object EndAndKickAllSysMsg { val NAME = "EndAndKickAllSysMsg"}
+case class EndAndKickAllSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                      body: EndAndKickAllSysMsgBody) extends BbbCoreMsg
+case class EndAndKickAllSysMsgBody(meetingId: String)
+
+
+object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg"}
   case class SyncGetMeetingInfoRespMsg(header: BbbCoreBaseHeader,
                                   body: SyncGetMeetingInfoRespMsgBody) extends BbbCoreMsg
   case class SyncGetMeetingInfoRespMsgBody(props: DefaultProps)
 
+  object PubSubPongSysRespMsg { val NAME = "PubSubPongSysRespMsg" }
+  case class PubSubPongSysRespMsg(header: BbbCoreBaseHeader,
+                               body: PubSubPongSysRespMsgBody) extends BbbCoreMsg
+  case class PubSubPongSysRespMsgBody(system: String, timestamp: Long)
 
-  /** System Messages **/
+
+object MeetingTimeRemainingUpdateEvtMsg { val NAME = "MeetingTimeRemainingUpdateEvtMsg" }
+case class MeetingTimeRemainingUpdateEvtMsg(header: BbbClientMsgHeader,
+                                          body: MeetingTimeRemainingUpdateEvtMsgBody) extends BbbCoreMsg
+case class MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec: Long)
+
+object MeetingInactivityWarningEvtMsg { val NAME = "MeetingInactivityWarningEvtMsg" }
+case class MeetingInactivityWarningEvtMsg(header: BbbClientMsgHeader,
+                                body: MeetingInactivityWarningEvtMsgBody) extends BbbCoreMsg
+case class MeetingInactivityWarningEvtMsgBody(timeLeftInSec: Long)
+
+object MeetingIsActiveEvtMsg { val NAME = "MeetingIsActiveEvtMsg" }
+case class MeetingIsActiveEvtMsg(header: BbbClientMsgHeader,
+                                          body: MeetingIsActiveEvtMsgBody) extends BbbCoreMsg
+case class MeetingIsActiveEvtMsgBody(meetingId: String)
+
+
   case class AkkaAppsCheckAliveReqBody(timestamp: Long)
   case class AkkaAppsCheckAliveReqMsg(header: BbbCoreHeader, body: AkkaAppsCheckAliveReqBody)
   case class AkkaAppsCheckAliveReq(envelope: BbbCoreEnvelope, msg: AkkaAppsCheckAliveReqMsg) extends BbbCoreMsg

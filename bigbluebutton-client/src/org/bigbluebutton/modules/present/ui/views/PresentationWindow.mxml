@@ -38,7 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{ResourceUtil.getInstance().getString('bbb.presentation.title')}">
+	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}">
 	
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatcher" />
@@ -61,11 +61,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
 		<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
 		<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
-		<mate:Listener type="{ShareEvent.CREATE_SCREENSHARE_PUBLISH_TAB}" method="createScreensharePublishTab" />
-		<mate:Listener type="{ShareEvent.CLEAN_SCREENSHARE_PUBLISH_TAB}" method="cleanScreensharePublishTab" />
-		<mate:Listener type="{ShareEvent.OPEN_SCREENSHARE_VIEW_TAB}" method="openScreenshareViewTab" />
-		<mate:Listener type="{ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB}" method="closeScreenshareViewTab" />
-		<mate:Listener type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}" method="handleRefreshScreenshareTab" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -108,11 +103,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PresentOptions;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
-			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
-			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
-			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
 			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
@@ -122,17 +112,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
       		public static const TITLE:String = "Presentation";
-			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
-
-			private static const TAB_MAX_WIDTH:Number = 200;
-			private static const NO_TAB_INDEX:Number = -1;
-			private static const PRESENTATION_TAB_INDEX:Number = 0;
-			private static const SCREENSHARE_PUBLISH_TAB_INDEX:Number = 1;
-			private static const SCREENSHARE_VIEW_TAB_INDEX:Number = 2;
-			private var currentTabIndex:Number = PRESENTATION_TAB_INDEX;
-
-			private var sharing:Boolean = false;
-			private var paused:Boolean = false;
 			
 			[Bindable] 
       		private var thumbY:Number;
@@ -171,8 +150,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
 			private var whiteboardOverlay:WhiteboardCanvas = null;
-			private var delayedWhiteboardOverlayAdd:String;
-			private var screenshareView:ScreenshareViewWindow = null;
 			
 			private function init():void{
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
@@ -199,8 +176,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
         t.start();
         
-        presenterTabs.addEventListener(Event.CHANGE, onSelectTabEvent, true);
-
         if (UsersUtil.amIPresenter()) {
           becomePresenter();
         } else {
@@ -304,11 +279,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
 			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
-				if (currentTabIndex == PRESENTATION_TAB_INDEX && slideView != null) {
-					slideView.onParentResized(parentWidth, parentHeight);
-				} else if (currentTabIndex == SCREENSHARE_VIEW_TAB_INDEX && screenshareView != null) {
-					screenshareView.onParentResized(parentWidth, parentHeight);
-				}
+				slideView.onParentResized(parentWidth, parentHeight);
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {		
@@ -338,7 +309,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function becomePresenter():void{
-				startDeskshareTabCreation();
 				setupPresenter(true);
 				addContextMenuItems();
 			}
@@ -364,15 +334,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				displaySlideNavigationControls(isPresenter, !!page);
 				
 				setControlBarState("presenter");
-				currentTabIndex = NO_TAB_INDEX;
-				selectPresentationTab();
 			}
+			
             private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
 				currentPresentation = PresentationModel.getInstance().getCurrentPresentationName();
-
-				if (currentPresentation.length > PRESENTATION_NAME_MAX_LENGTH) {
-					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).width = TAB_MAX_WIDTH;
-				}
 
                 slideView.setSlides();
                 slideView.visible = true;
@@ -405,13 +370,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnFitToPage.visible = showButtons;
 				
 				fitSlideToWindowMaintainingAspectRatio();
-			}
-			
-			private function startDeskshareTabCreation():void {
-				if(screenshareTab.numElements == 0) {
-					LOGGER.debug("DISPATCHING startDeskshareTabCreation");
-					dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
-				}
 			}
 
 			private function addContextMenuItems():void{
@@ -489,36 +447,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if(whiteboardOverlay != null) {
           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
           slideView.acceptOverlayCanvas(whiteboardOverlay);
-          if (screenshareView) {
-            screenshareView.removeOverlayCanvas();
-          }
-        } else {
-          LOGGER.debug("addWhiteboardCanvasToSlideView: NOT adding whiteboard canvas to Slide View.");
-          delayedWhiteboardOverlayAdd = "slide";
-        }
+		}
       }
-      
-      private function addWhiteboardCanvasToScreenshareView():void {
-        if(whiteboardOverlay != null) {
-          LOGGER.debug("addWhiteboardCanvasToScreenshareView: Adding whiteboard canvas to Screenshare View");
-          slideView.removeOverlayCanvas();
-          if (screenshareView) {
-            screenshareView.acceptOverlayCanvas(whiteboardOverlay);
-          }
-        } else {
-          LOGGER.debug("addWhiteboardCanvasToScreenshareView: NOT adding whiteboard canvas to Screenshare View.");
-          delayedWhiteboardOverlayAdd = "screenshare";
-        }
-      }
-					
+			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				if (slideView != null && !slideView.visible) {
-					presentationTab.label = currentPresentation;
-					if (currentPresentation.length > PRESENTATION_NAME_MAX_LENGTH) {
-						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).width = TAB_MAX_WIDTH;
-					}
-				}
 				
 				if (titleBarOverlay != null) {
 					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.titleBar');
@@ -556,11 +489,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			
 			override protected function hideAllChildren():void {
-				presentationTab.includeInLayout = false;
+				slideView.includeInLayout = false;
 			}
 			
 			override protected function showAllChildren():void {
-				presentationTab.includeInLayout = true;
+				slideView.includeInLayout = true;
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
@@ -781,41 +714,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function setControlBarState(state:String):void {
 				if (state == "vote") {
-					btnActualSize.visible = false;
 					presenterControls.visible = false;
 					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = true;
 					pollVoteBox.includeInLayout = true;
 					downloadPres.visible = false;
-				} else if (state == "presenter" && UsersUtil.amIPresenter() && currentTabIndex == PRESENTATION_TAB_INDEX) {
+				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
 					downloadPres.visible = true;
 					pollStartBtn.visible = true;
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
-					btnClosePublish.visible = false;
-					btnPauseScreenshare.visible = false;
-					btnActualSize.visible = false;
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = true;
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = true;
 				} else {
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
-					if (currentTabIndex == PRESENTATION_TAB_INDEX) {
-						pollStartBtn.visible = false;
-						downloadPres.visible = true;
-						presenterControls.visible = false;
-						presenterControls.includeInLayout = false;
-						btnActualSize.visible = false;
-						btnClosePublish.visible = false;
-						btnPauseScreenshare.visible = false;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
-					} else if (currentTabIndex == SCREENSHARE_VIEW_TAB_INDEX) {
-						btnActualSize.visible = true;
-						downloadPres.visible = true;
-					}
+					pollStartBtn.visible = false;
+					downloadPres.visible = true;
+					presenterControls.visible = false;
+					presenterControls.includeInLayout = false;
 				}
 				
 				// Need to call the function later because the heights haven't been validated yet
@@ -840,7 +757,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 
-				if (currentTabIndex == SCREENSHARE_PUBLISH_TAB_INDEX || pollVoteBox.visible) {
+				if (pollVoteBox.visible) {
 					downloadPres.visible = false;
 					return;
 				}
@@ -865,199 +782,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				const res:String = downloadPres.enabled? "bbb.presentation.downloadPresBtn.toolTip": "bbb.presentation.downloadPresBtn.disabledToolTip";
 				downloadPres.toolTip = ResourceUtil.getInstance().getString(res);
 			}
-
-			private function selectPresentationTab():void {
-				presenterTabs.selectedIndex = PRESENTATION_TAB_INDEX;
-				onSelectTab();
-			}
-
-			private function selectDesksharePublishTab():void {
-				presenterTabs.selectedIndex = SCREENSHARE_PUBLISH_TAB_INDEX;
-				onSelectTab();
-			}
-
-			private function selectDeskshareViewTab():void {
-				presenterTabs.selectedIndex = SCREENSHARE_VIEW_TAB_INDEX;
-				onSelectTab();
-			}
-
-			private function onSelectTabEvent(event:Event):void {
-				onSelectTab();
-			}
-
-			private function onSelectTab():void {
-				if (presenterTabs.selectedIndex != currentTabIndex) {
-					if(presenterTabs.selectedIndex == PRESENTATION_TAB_INDEX) {
-						handlePresentationTabSelected();
-					} else if (presenterTabs.selectedIndex == SCREENSHARE_PUBLISH_TAB_INDEX) {
-						handleDesktopPublishTabSelected();
-					} else {
-						handleDesktopViewTabSelected();
-					}
-					updateDownloadBtn();
-				}
-				callLater(fitSlideToWindowMaintainingAspectRatio);
-			}
-
-			private function handlePresentationTabSelected():void {
-				LOGGER.debug("Handling Presentation Tab selected");
-				currentTabIndex = PRESENTATION_TAB_INDEX;
-
-				if (sharing) {
-					stopSharing();
-				}
-				
-				addWhiteboardCanvasToSlideView();
-
-				if(!presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible) {
-					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = true;
-					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = true;
-				}
-
-				btnActualSize.visible = false;
-				btnClosePublish.visible = false;
-				btnPauseScreenshare.visible = false;
-				if (UsersUtil.amIPresenter()) {
-					setControlBarState("presenter");
-				} else if(presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible) {
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
-					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
-				}
-			}
-
-			private function handleDesktopPublishTabSelected():void {
-				LOGGER.debug("Handling Desktop Publish Tab selected");
-				currentTabIndex = SCREENSHARE_PUBLISH_TAB_INDEX;
-
-				if (paused) {
-					paused = false;
-					screenshareTab.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.title');
-					dispatchEvent(new RequestToRestartSharing());
-				} else {
-					startDeskshareTabCreation();
-					dispatchEvent(new RequestToStartSharing());
-				}
-				presenterControls.visible = false;
-				presenterControls.includeInLayout = false;
-				pollStartBtn.visible = false;
-			}
-
-			private function handleDesktopViewTabSelected():void {
-				LOGGER.debug("Handling Desktop View Tab selected");
-				currentTabIndex = SCREENSHARE_VIEW_TAB_INDEX;
-
-				addWhiteboardCanvasToScreenshareView();
-
-				if (!pollVoteBox.visible) {
-					btnActualSize.visible = true;
-				}
-				if (UsersUtil.amIPresenter()) {
-					pollStartBtn.visible = true;
-					btnClosePublish.visible = true;
-					btnPauseScreenshare.visible = true;
-				}
-			}
-
-			private function stopSharing():void {
-				LOGGER.debug("Stopping desktop publish");
-				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).visible = false;
-				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).includeInLayout = false;
-				if (!paused) dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
-				sharing = false;
-				PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = false;
-			}
-
-			private function createScreensharePublishTab(e:ShareEvent):void {
-				if (e.publishTabContent != null && screenshareTab.numElements == 0) {
-
-					LOGGER.debug("Setting the content of dekstop share PUBLISHING tab");
-					e.publishTabContent.percentHeight = 100;
-					e.publishTabContent.percentWidth = 100;
-					screenshareTab.addChild(e.publishTabContent);
-				} else {
-					LOGGER.debug("publishTabContent is NULL.");
-				}
-			}
-
-			private function cleanScreensharePublishTab(e:ShareEvent):void {
-				if (screenshareTab.numElements != 0) {
-					LOGGER.debug("Removing content of dekstop share PUBLISHING tab");
-					screenshareTab.removeAllElements();
-				}
-			}
-
-			private function openScreenshareViewTab(e:ShareEvent):void {
-				if (e.viewTabContent != null && presenterTabs.numElements == 2) {
-					screenshareView = e.viewTabContent;
-
-					LOGGER.debug("Opening a new tab for dekstop share VIEWING");
-					e.viewTabContent.percentHeight = 100;
-					e.viewTabContent.percentWidth = 100;
-					e.viewTabContent.setStyle("horizontalAlign","center");
-					e.viewTabContent.label = ResourceUtil.getInstance().getString('bbb.screenshareView.title');
-
-					presenterTabs.addChild(e.viewTabContent);
-					selectDeskshareViewTab();
-
-					if (UsersUtil.amIPresenter()) {
-						sharing = true;
-						PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = true;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
-						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
-					}
-					else {
-						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = false;
-						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = false;
-					}
-				} else {
-					LOGGER.debug("viewTabContent is NULL.");
-				}
-			}
-
-			private function handleRefreshScreenshareTab(e:ShareEvent):void {
-				selectPresentationTab();
-			}
-
-			private function closeScreenshareViewTab(e:ShareEvent):void {
-				LOGGER.debug("Closing the dekstop share VIEWING tab");
-				selectPresentationTab();
-				if (screenshareViewTabExists()) {
-					btnActualSize.selected = false;
-					presenterTabs.removeChildAt(SCREENSHARE_VIEW_TAB_INDEX);
-					screenshareView = null;
-				}
-			}
-
-			private function screenshareViewTabExists():Boolean {
-				return presenterTabs.numElements == 3;
-			}
-
-			private function changeVideoDisplayMode():void {
-				var e:ShareEvent = new ShareEvent(ShareEvent.CHANGE_VIDEO_DISPLAY_MODE);
-				e.fullScreen = btnActualSize.selected;
-				LOGGER.debug("Dispatching event for change desktop video display mode. Full screen = " + e.fullScreen);
-				dispatchEvent(e);
-			}
-
-			private function startDeskshare(event:TimerEvent):void {
-				if (UsersUtil.amIPresenter()) {
-					LOGGER.debug("Handling deskshare auto start");
-					selectDesksharePublishTab();
-					sendShareScreenEvent(true);
-				}
-			}
-
-			private function sendShareScreenEvent(fullScreen:Boolean):void {
-				var e:ShareEvent = new ShareEvent(ShareEvent.SHARE_SCREEN);
-				e.fullScreen = fullScreen;
-				dispatchEvent(e);
-			}
-
-			private function pauseScreenshare():void {
-				paused = true;
-				screenshareTab.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label');
-				dispatchEvent(new RequestToPauseSharing());
-			}
 			
 			public function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void {
 				var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
@@ -1074,32 +798,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function receiveCanvas(wc:WhiteboardCanvas):void {
 				whiteboardOverlay = wc;
 				
-				switch (delayedWhiteboardOverlayAdd) {
-					case "slide":
-						addWhiteboardCanvasToSlideView();
-						break;
-					case "screenshare":
-						addWhiteboardCanvasToScreenshareView();
-						break;
-				}
+				addWhiteboardCanvasToSlideView();
 			}
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
 		<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
-				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage, btnClosePublish, btnPauseScreenshare, btnActualSize]}"/>
+				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
 	  	 
 		<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 		<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	</fx:Declarations>
-	
-	<mx:TabNavigator id="presenterTabs" borderStyle="none" width="100%" height="100%" creationPolicy="all" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" backgroundAlpha="0.0">
-		<mx:VBox id="presentationTab" label="{currentPresentation}" width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" verticalAlign="middle" horizontalAlign="center" backgroundAlpha="0.0" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-			<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
-		</mx:VBox>
-		<mx:VBox id="screenshareTab" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.title')}" width="100%" height="100%" paddingTop="7" paddingBottom="0" paddingLeft="0" paddingRight="0" verticalAlign="middle" horizontalAlign="center" backgroundAlpha="0.0"/>
-	</mx:TabNavigator>
+
+	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
 
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="2" paddingBottom="2">
 		<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
@@ -1138,28 +850,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
 			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>
-
-		<mx:Button id="btnClosePublish"
-				label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}"
-				visible="false"
-				includeInLayout="{btnClosePublish.visible}"
-				click="selectPresentationTab()"/>
-
-		<mx:Button id="btnPauseScreenshare"
-				label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}"
-				visible="false"
-				includeInLayout="{btnPauseScreenshare.visible}"
-				click="pauseScreenshare()"/>
-
-		<mx:Button id="btnActualSize"
-				visible="false"
-				includeInLayout="{btnActualSize.visible}"
-				toggle="true"
-				click="changeVideoDisplayMode()"
-				selected="false"
-				label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')}"/>
-
 		<mx:HBox id="pollVoteBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" />
     </mx:ControlBar>
 </pres:CustomMdiWindow>

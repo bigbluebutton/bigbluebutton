@@ -42,5 +42,11 @@ package org.bigbluebutton.modules.screenshare.utils
 			var browser:Array = ExternalInterface.call("determineBrowser");
 			return browser[0] == "Firefox";
 		}
+
+		public static function isHttps():Boolean {
+                        var url:String = ExternalInterface.call("window.location.href.toString");
+                        var httpsPattern:RegExp = /^https/;
+                        return httpsPattern.test(url);
+                }
 	}
 }
