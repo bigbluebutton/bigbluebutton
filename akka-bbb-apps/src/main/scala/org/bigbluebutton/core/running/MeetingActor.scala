@@ -104,7 +104,6 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
 
-  val inactivityTrackerHelper = new MeetingInactivityTrackerHelper(liveMeeting, outGW)
   val expiryTrackerHelper = new MeetingExpiryTrackerHelper(liveMeeting, outGW)
 
   val inactivityTracker = new MeetingInactivityTracker(
@@ -118,7 +117,7 @@ class MeetingActor(
   val expiryTracker = new MeetingExpiryTracker(
     startedOn = TimeUtil.timeNowInSeconds(),
     userHasJoined = false,
-    lastUserLeftOn = 0L,
+    lastUserLeftOn = None,
     durationInMinutes = props.durationProps.duration,
     meetingExpireIfNoUserJoinedInMinutes = props.durationProps.meetingExpireIfNoUserJoinedInMinutes,
     meetingExpireWhenLastUserLeftInMinutes = props.durationProps.meetingExpireWhenLastUserLeftInMinutes
@@ -161,19 +160,21 @@ class MeetingActor(
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
-    // TODO: Update meeting activity status here
-    // updateActivityStatus(msg)
+    state = MeetingInactivityTracker.updateLastActivityTimestamp(state, TimeUtil.timeNowInSeconds())
 
     msg.core match {
       // Users
-      case m: ValidateAuthTokenReqMsg   => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
-      case m: UserJoinMeetingReqMsg     => state = handleUserJoinMeetingReqMsg(m, state)
-      case m: UserLeaveReqMsg           => state = handleUserLeaveReqMsg(m, state)
+      case m: ValidateAuthTokenReqMsg =>
+        state = usersApp.handleValidateAuthTokenReqMsg(m, state)
+      case m: UserJoinMeetingReqMsg =>
+        state = handleUserJoinMeetingReqMsg(m, state)
+      case m: UserLeaveReqMsg =>
+        state = handleUserLeaveReqMsg(m, state)
       case m: UserBroadcastCamStartMsg  => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg   => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
-        state = usersApp.handleMeetingActivityResponseCmdMsg(m, state, inactivityTrackerHelper)
+        state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
       case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
@@ -326,45 +327,8 @@ class MeetingActor(
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
-    state = inactivityTrackerHelper.processMeetingInactivityAudit(
-      props = liveMeeting.props,
-      outGW,
-      eventBus,
-      state
-    )
-
+    state = expiryTrackerHelper.processMeetingInactivityAudit(liveMeeting.props, outGW, eventBus, state)
     state = expiryTrackerHelper.processMeetingExpiryAudit(liveMeeting.props, state, eventBus)
-
-    monitorNumberOfWebUsers()
-    monitorNumberOfUsers()
-  }
-
-  def monitorNumberOfWebUsers() {
-
-    def buildEjectAllFromVoiceConfMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
-      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-      val envelope = BbbCoreEnvelope(EjectAllFromVoiceConfMsg.NAME, routing)
-      val body = EjectAllFromVoiceConfMsgBody(voiceConf)
-      val header = BbbCoreHeaderWithMeetingId(EjectAllFromVoiceConfMsg.NAME, meetingId)
-      val event = EjectAllFromVoiceConfMsg(header, body)
-
-      BbbCommonEnvCoreMsg(envelope, event)
-    }
-
-    if (Users2x.numUsers(liveMeeting.users2x) == 0 &&
-      state.expiryTracker.lastUserLeftOn > 0) {
-      if (TimeUtil.timeNowInMinutes - state.expiryTracker.lastUserLeftOn > 2) {
-        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", props.meetingProp.intId)
-        val event = buildEjectAllFromVoiceConfMsg(props.meetingProp.intId, props.voiceProp.voiceConf)
-        outGW.send(event)
-      }
-    }
-  }
-
-  def monitorNumberOfUsers() {
-    val hasUsers = Users2x.numUsers(liveMeeting.users2x) != 0
-    // TODO: We could use a better control over this message to send it just when it really matters :)
-    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, UpdateMeetingExpireMonitor(props.meetingProp.intId, hasUsers)))
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {

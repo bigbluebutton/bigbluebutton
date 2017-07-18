@@ -36,4 +36,5 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
           userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false, state)
     }
   }
+
 }

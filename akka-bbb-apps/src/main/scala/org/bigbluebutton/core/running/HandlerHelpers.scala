@@ -1,12 +1,14 @@
 package org.bigbluebutton.core.running
 
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, RecordingStatusChanged }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
-import org.bigbluebutton.core.{ OutMessageGateway }
+import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
 
@@ -178,11 +180,11 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(event)
   }
 
-  def endMeeting(outGW: OutMessageGateway, liveMeeting: LiveMeeting): Unit = {
+  def endMeeting(outGW: OutMessageGateway, liveMeeting: LiveMeeting, reason: String): Unit = {
     def buildMeetingEndingEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
       val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
-      val body = MeetingEndingEvtMsgBody(meetingId)
+      val body = MeetingEndingEvtMsgBody(meetingId, reason)
       val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
       val event = MeetingEndingEvtMsg(header, body)
 
@@ -215,9 +217,23 @@ trait HandlerHelpers extends SystemConfiguration {
   }
 
   def notifyParentThatBreakoutEnded(eventBus: IncomingEventBus, liveMeeting: LiveMeeting): Unit = {
-    eventBus.publish(BigBlueButtonEvent(
-      liveMeeting.props.breakoutProps.parentId,
-      new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)
-    ))
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      eventBus.publish(BigBlueButtonEvent(
+        liveMeeting.props.breakoutProps.parentId,
+        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)
+      ))
+    }
+  }
+
+  def ejectAllUsersFromVoiceConf(outGW: OutMessageGateway, liveMeeting: LiveMeeting): Unit = {
+    val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf)
+    outGW.send(event)
+  }
+
+  def sendEndMeetingDueToExpiry(reason: String, eventBus: IncomingEventBus, outGW: OutMessageGateway, liveMeeting: LiveMeeting): Unit = {
+    endMeeting(outGW, liveMeeting, reason)
+    notifyParentThatBreakoutEnded(eventBus, liveMeeting)
+    ejectAllUsersFromVoiceConf(outGW, liveMeeting)
+    destroyMeeting(eventBus, liveMeeting.props.meetingProp.intId)
   }
 }
