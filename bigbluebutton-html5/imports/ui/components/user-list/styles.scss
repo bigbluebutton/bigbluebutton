@@ -4,10 +4,11 @@
 /* Variables
  * ==========
  */
+
 $unread-messages-bg: $color-danger;
 
-$user-list-bg: $color-white;
-$user-list-text: $color-gray-dark;
+$user-list-bg: #F3F6F9;
+$user-list-text: $color-gray;
 
 $list-item-bg-hover: darken($user-list-bg, 7%);
 
