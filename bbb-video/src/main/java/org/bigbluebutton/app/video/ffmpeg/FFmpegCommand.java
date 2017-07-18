@@ -12,7 +12,7 @@ public class FFmpegCommand {
     /**
      * Indicate the direction to rotate the video
      */
-    public enum ROTATE { LEFT, RIGHT };
+    public enum ROTATE { LEFT, RIGHT, UPSIDE_DOWN };
 
     private HashMap args;
     private HashMap x264Params;
@@ -163,6 +163,9 @@ public class FFmpegCommand {
                 break;
             case RIGHT:
                 this.args.put("-vf", "transpose=1");
+                break;
+            case UPSIDE_DOWN:
+                this.args.put("-vf", "transpose=2,transpose=2");
                 break;
         }
     }

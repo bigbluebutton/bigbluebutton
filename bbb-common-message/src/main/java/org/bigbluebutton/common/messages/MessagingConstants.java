@@ -52,6 +52,14 @@ public class MessagingConstants {
 	public static final String FROM_VOICE_CONF_SYSTEM_CHAN = FROM_VOICE_CONF_CHANNEL + ":system";
 
 	public static final String FROM_BBB_RECORDING_CHANNEL  = "bigbluebutton:from-rap";
+
+	public static final String TO_BBB_TRANSCODE_CHANNEL = "bigbluebutton:to-bbb-transcode";
+	public static final String TO_BBB_TRANSCODE_PATTERN = TO_BBB_TRANSCODE_CHANNEL + ":*";
+	public static final String TO_BBB_TRANSCODE_SYSTEM_CHAN = TO_BBB_TRANSCODE_CHANNEL + ":system";
+	public static final String FROM_BBB_TRANSCODE_CHANNEL = "bigbluebutton:from-bbb-transcode";
+	public static final String FROM_BBB_TRANSCODE_PATTERN = FROM_BBB_TRANSCODE_CHANNEL + ":*";
+	public static final String FROM_BBB_TRANSCODE_SYSTEM_CHAN = FROM_BBB_TRANSCODE_CHANNEL + ":system";
+
 	
 	public static final String DESTROY_MEETING_REQUEST_EVENT = "DestroyMeetingRequestEvent";
 	public static final String CREATE_MEETING_REQUEST_EVENT = "CreateMeetingRequestEvent";	

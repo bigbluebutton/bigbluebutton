@@ -19,7 +19,7 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 
   val TO_AKKA_APPS = "bbb:to-akka-apps"
   val channels = Seq(toAkkaAppsRedisChannel, fromVoiceConfRedisChannel)
-  val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
+  val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*", "bigbluebutton:from-bbb-transcode:*")
 
   def props(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus): Props =
     Props(classOf[AppsRedisSubscriberActor], msgReceiver, jsonMsgBus,
