@@ -11,8 +11,6 @@ const addWelcomeChatMessage = (meetingId, userId) => {
 
   const Meeting = Meetings.findOne({ meetingId });
 
-  if (!Meeting) return;
-
   const message = {
     chatType: CHAT_CONFIG.type_system,
     message: Meeting.welcomeProp.welcomeMsg,
