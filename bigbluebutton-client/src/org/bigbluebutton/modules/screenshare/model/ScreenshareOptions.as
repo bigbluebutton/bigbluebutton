@@ -31,6 +31,9 @@ package org.bigbluebutton.modules.screenshare.model {
 		public var tryWebRTCFirst:Boolean = false;
 
 		[Bindable]
+		public var tryKurentoWebRTC:Boolean = false;
+
+		[Bindable]
 		public var chromeExtensionLink:String = "";
 
 		[Bindable]

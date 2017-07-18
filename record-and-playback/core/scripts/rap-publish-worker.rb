@@ -27,7 +27,7 @@ def publish_processed_meetings(recording_dir)
   processed_done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/published")
-  processed_done_files.each do |processed_done|
+  processed_done_files.sort{ |a,b| BigBlueButton.done_to_timestamp(a) <=> BigBlueButton.done_to_timestamp(b) }.each do |processed_done|
     match = /([^\/]*)-([^\/-]*).done$/.match(processed_done)
     meeting_id = match[1]
     publish_type = match[2]
