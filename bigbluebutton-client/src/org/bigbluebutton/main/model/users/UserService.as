@@ -76,7 +76,6 @@ package org.bigbluebutton.main.model.users
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();
-			sender.queryForScreenshare();
 
 			if (!LiveMeeting.inst().meeting.isBreakout) {
 				sender.queryForBreakoutRooms(LiveMeeting.inst().meeting.internalId);

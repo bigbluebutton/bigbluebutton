@@ -247,28 +247,6 @@ package org.bigbluebutton.modules.users.services
 			}, JSON.stringify(message));
 		}
 
-    public function queryForScreenshare():void {
-      var message:Object = {
-        header: {name: "GetScreenshareStatusReqMsg", meetingId: UsersUtil.getInternalMeetingID(),
-          userId: UsersUtil.getMyUserID()},
-        body: {requestedBy: UsersUtil.getMyUserID()}
-      };
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage2x(
-              function(result:String):void { // On successful result
-              },
-              function(status:String):void { // status - On error occurred
-                  var logData:Object = UsersUtil.initLogData();
-                  logData.tags = ["apps"];
-                  logData.message = "Error occurred getting screenshare status.";
-                  LOGGER.info(JSON.stringify(logData));
-              },
-              JSON.stringify(message)
-      ); //_netConnection.call
-    }
-
-
     public function activityResponse():void {
       var message:Object = {
         header: {name: "GetRecordingStatusReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
