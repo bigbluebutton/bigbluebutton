@@ -105,6 +105,32 @@ function getViewboxAtTime(time) {
 	}
 }
 
+function setSlideAspect(time, imageWidth, imageHeight) {
+  var isDeskshare = mustShowDesktopVideo(time);
+  var aspectAtTime = getAspectAtTime(time);
+  if (aspectAtTime != undefined && aspectAtTime != 0 && !isDeskshare) {
+    currentSlideAspect = aspectAtTime;
+  } else {
+    currentSlideAspect = parseFloat((imageWidth/imageHeight));
+  }
+}
+
+function getAspectAtTime(time) {
+  var curr_t = parseFloat(time);
+  var key;
+  for (key in slideAspectValues) {
+    if(slideAspectValues.hasOwnProperty(key)) {
+      var arry = key.split(",");
+      if(arry[1] == "end") {
+        return slideAspectValues[key];
+      }
+      else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+        return slideAspectValues[key];
+      }
+    }
+  }
+}
+
 function getCursorAtTime(time) {
 	var coords = cursorValues[time];
 	if(coords) return coords.split(' ');
@@ -162,16 +188,7 @@ function isThereDeskshareVideo() {
   }
 }
 
-function resyncVideos() {
-  if (!isThereDeskshareVideo()) return;
-  var currentTime = Popcorn('#video').currentTime();
-  var currentDeskshareVideoTime = Popcorn("#deskshare-video").currentTime();
-  if (Math.abs(currentTime - currentDeskshareVideoTime) >= 0.1)
-    Popcorn("#deskshare-video").currentTime(currentTime);
-}
-
 function handlePresentationAreaContent(time) {
-  var meetingDuration = parseFloat(new Popcorn("#video").duration().toFixed(1));
   if(time >= meetingDuration)
      return;
 
@@ -188,7 +205,6 @@ function handlePresentationAreaContent(time) {
     sharingDesktop = false;
   }
 
-  resyncVideos();
   resizeDeshareVideo();
 }
 
@@ -234,15 +250,15 @@ function runPopcorn() {
   var shapeelements = xmlDoc.getElementsByTagName("svg");
 
   //get the array of values for the first shape (getDataPoints(0) is the first shape).
-  var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file
+  var shapesArray = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file
     return $(this).attr('class') == 'shape';
   });
 
   //create a map from timestamp to id list
   var timestampToId = {};
-  for (var j = 0; j < array.length; j++) {
-    shapeTime = array[j].getAttribute("timestamp");
-    shapeId = array[j].getAttribute("id");
+  for (var j = 0; j < shapesArray.length; j++) {
+    shapeTime = shapesArray[j].getAttribute("timestamp");
+    shapeId = shapesArray[j].getAttribute("id");
 
     if (timestampToId[shapeTime] == undefined) {
       timestampToId[shapeTime] = new Array(0);
@@ -251,13 +267,12 @@ function runPopcorn() {
   }
 
   //fill the times array with the times of the svg images.
-  for (var j = 0; j < array.length; j++) {
-    times[j] = array[j].getAttribute("timestamp");
+  for (var j = 0; j < shapesArray.length; j++) {
+    times[j] = shapesArray[j].getAttribute("timestamp");
   }
 
   var times_length = times.length; //get the length of the times array.
 
-  getPresentationText();
 
   // PROCESS PANZOOMS.XML
   console.log("** Getting panzooms.xml");
@@ -281,6 +296,7 @@ function runPopcorn() {
   	vboxValues[[panZoomArray[k].getAttribute("timestamp"), second_val]] = viewBoxes[k].childNodes[0].data;
   }
 
+  getPresentationText();
 
   // PROCESS CURSOR.XML
   console.log("** Getting cursor.xml");
@@ -327,17 +343,17 @@ function runPopcorn() {
   svgobj.style.top = "0px";
   var next_shape;
   var shape;
-  for (var j = 0; j < array.length - 1; j++) { //iterate through all the shapes and pick out the main ones
-    var time = array[j].getAttribute("timestamp");
-    shape = array[j].getAttribute("shape");
-    next_shape = array[j+1].getAttribute("shape");
+  for (var j = 0; j < shapesArray.length - 1; j++) { //iterate through all the shapes and pick out the main ones
+    var time = shapesArray[j].getAttribute("timestamp");
+    shape = shapesArray[j].getAttribute("shape");
+    next_shape = shapesArray[j+1].getAttribute("shape");
 
-  	if(shape !== next_shape) {
-  		main_shapes_ids.push(array[j].getAttribute("id"));
-  	}
+    if(shape !== next_shape) {
+      main_shapes_ids.push(shapesArray[j].getAttribute("id"));
+    }
   }
-  if (array.length !== 0) {
-    main_shapes_ids.push(array[array.length-1].getAttribute("id")); //put last value into this array always!
+  if (shapesArray.length !== 0) {
+    main_shapes_ids.push(shapesArray[shapesArray.length-1].getAttribute("id")); //put last value into this array always!
   }
 
   var get_shapes_in_time = function(t) {
@@ -366,19 +382,20 @@ function runPopcorn() {
       start: 1, // start time
       end: p.duration(),
       onFrame: function(options) {
-        //console.log("**Popcorn video onframe");
-        if(!((p.paused() === true) && (p.seeking() === false))) {
-          var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
+        var currentTime = p.currentTime();
+        if ( (!p.paused() || p.seeking()) && (Math.abs(currentTime - lastFrameTime) >= 0.1) ) {
+          lastFrameTime = currentTime;
+          var t = currentTime.toFixed(1); //get the time and round to 1 decimal place
 
           current_shapes = get_shapes_in_time(t);
 
           //redraw everything (only way to make everything elegant)
-          for (var i = 0; i < array.length; i++) {
-            var time_s = array[i].getAttribute("timestamp");
+          for (var i = 0; i < shapesArray.length; i++) {
+            var time_s = shapesArray[i].getAttribute("timestamp");
             var time_f = parseFloat(time_s);
 
-            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(array[i].getAttribute("id"));
-            else shape = svgobj.getSVGDocument('svgfile').getElementById(array[i].getAttribute("id"));
+            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(shapesArray[i].getAttribute("id"));
+            else shape = svgobj.getSVGDocument('svgfile').getElementById(shapesArray[i].getAttribute("id"));
 
             if(shape != null) {
                 var shape_i = shape.getAttribute("shape");
@@ -393,6 +410,8 @@ function runPopcorn() {
                     } else {
                       shape.style.visibility = "hidden";
                     }
+                  } else {
+                    shape.style.visibility = "hidden";
                   }
                 } else if(time_s === t) { //for the shapes with the time specific to the current time
                   // only makes visible the last drawing of a given shape
@@ -416,8 +435,6 @@ function runPopcorn() {
           }
 
           var next_image = getImageAtTime(t); //fetch the name of the image at this time.
-          var imageXOffset = 0;
-          var imageYOffset = 0;
 
           if(current_image && (current_image !== next_image) && (next_image !== undefined)){	//changing slide image
             if(svgobj.contentDocument) {
@@ -464,10 +481,11 @@ function runPopcorn() {
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
 
           if (thisimg) {
-            var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
-            var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
+            var imageWidth = parseFloat(thisimg.getAttribute("width"));
+            var imageHeight = parseFloat(thisimg.getAttribute("height"));
 
             setViewBox(t);
+            setSlideAspect(t,imageWidth,imageHeight);
 
             if (getCursorAtTime(t) != null && getCursorAtTime(t) != undefined && !$('#slide').hasClass('no-background')) {
               currentCursorVal = getCursorAtTime(t);
@@ -598,11 +616,15 @@ function defineStartTime() {
   return temp_start_time;
 }
 
+var lastFrameTime = 0.0;
+
+var shape;
+var current_shapes = [];
+
 var deskshare_image = null;
 var current_image = "image0";
 var previous_image = null;
 var current_canvas;
-var shape;
 var next_canvas;
 var next_image;
 var next_pgid;
@@ -611,7 +633,7 @@ var svgfile;
 //current time
 var t;
 var len;
-var current_shapes = [];
+var meetingDuration;
 //coordinates for x and y for each second
 var panAndZoomTimes = [];
 var viewBoxes = [];
@@ -623,6 +645,8 @@ var shapeId;
 var clearTimes = [];
 var main_shapes_ids = [];
 var vboxValues = {};
+var slideAspectValues = {};
+var currentSlideAspect = 0;
 var cursorValues = {};
 var currentCursorVal;
 var imageAtTime = {};
@@ -685,8 +709,18 @@ function initPopcorn() {
   firstLoad = false;
   generateThumbnails();
 
-  var p = Popcorn("#video");
-  p.currentTime(defineStartTime());
+  var startTime = defineStartTime();
+  console.log("** startTime = " + startTime);
+
+  Popcorn("#video").currentTime(startTime);
+  if(isThereDeskshareVideo())
+    Popcorn("#deskshare-video").currentTime(startTime);
+
+  //Popcorn documentation suggests this way to get the duration, since this information does not come with 'loadedmetadata' event.
+  Popcorn("#video").cue(2, function() {
+    meetingDuration = parseFloat(Popcorn("#video").duration().toFixed(1));
+    console.log("** Meeting duration (seconds): " + meetingDuration);
+  });
 }
 
 svgobj.addEventListener('load', function() {
@@ -812,6 +846,75 @@ function processPresentationText(response) {
   } else {
     setPresentationTextFromTxt(images);
   }
+
+  //at this point, we're sure that the array 'imageAtTime' is ready. Now, we need to set the aspects times to resize the slide div during the playback.
+  processSlideAspectTimes();
+}
+
+function processSlideAspectTimes() {
+  var key;
+  var lastAspectValue = 0;
+  for (key in vboxValues) {
+    if (vboxValues.hasOwnProperty(key)) {
+      var start_timestamp = key.split(",")[0];
+      var stop_timestamp = key.split(",")[1];
+      var vboxWidth = parseFloat(vboxValues[key].split(" ")[2]);
+      var vboxHeight = parseFloat(vboxValues[key].split(" ")[3]);
+      var aspectValue = processAspectValue(vboxWidth,vboxHeight,start_timestamp,lastAspectValue);
+      slideAspectValues[[start_timestamp, stop_timestamp]] = aspectValue;
+      lastAspectValue = aspectValue;
+    }
+  }
+}
+
+function processAspectValue(vboxWidth, vboxHeight, time, lastAspectValue) {
+  var imageId;
+  if (time == "0.0") {
+    //a little hack 'cause function getImageAtTime with time = 0.0 returns the background image...
+    //we need the first slide instead
+    imageId = "image1";
+  }
+  else {
+    imageId = getImageAtTime(time);
+  }
+
+  if (imageId !== undefined) {
+    var image;
+    if (svgobj.contentDocument) {
+      image = svgobj.contentDocument.getElementById(imageId);
+    }
+    else {
+      image = svgobj.getSVGDocument('svgfile').getElementById(imageId);
+    }
+
+    if (image) {
+      if(mustShowDesktopVideo(parseFloat(time))) {
+        return lastAspectValue;
+      }
+
+      var imageWidth = parseFloat(image.getAttribute("width"));
+      var imageHeight = parseFloat(image.getAttribute("height"));
+
+      //fit-to-width: returning vbox aspect
+      if(vboxWidth == imageWidth && vboxHeight < imageHeight) {
+        return parseFloat(vboxWidth/vboxHeight);
+      }
+      //fit-to-page: returning image aspect
+      else if(vboxWidth == imageWidth && vboxHeight == imageHeight) {
+        return parseFloat(imageWidth/imageHeight);
+      }
+      //if it's not fit-to-width neither fit-to-page we return the previous aspect
+      else {
+        return lastAspectValue;
+      }
+    } else {
+      console.log("processAspectValue: there is no image for the id = " + imageId);
+      return lastAspectValue;
+    }
+  } else {
+    console.log("processAspectValue: imageId undefined");
+    return lastAspectValue;
+  }
 }
 
 function getPresentationText() {
@@ -869,16 +972,10 @@ window.onresize = function(event) {
 var resizeSlides = function() {
   if (currentImage) {
     var $slide = $("#slide");
-
-    var imageWidth = parseInt(currentImage.getAttribute("width"), 10);
-    var imageHeight = parseInt(currentImage.getAttribute("height"), 10);
-    var imgRect = currentImage.getBoundingClientRect();
-    var aspectRatio = imageWidth/imageHeight;
-    var max = aspectRatio * $slide.parent().outerHeight();
-    $slide.css("max-width", max);
-
-    var height = $slide.parent().width() / aspectRatio;
-    $slide.css("max-height", height);
+    var maxWidth = currentSlideAspect * $slide.parent().outerHeight();
+    $slide.css("max-width", maxWidth);
+    var maxHeight = $slide.parent().width() / currentSlideAspect;
+    $slide.css("max-height", maxHeight);
   }
 };
 

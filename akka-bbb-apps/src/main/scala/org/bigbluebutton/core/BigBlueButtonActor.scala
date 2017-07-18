@@ -161,7 +161,6 @@ class BigBlueButtonActor(
         context.stop(m.actorRef)
       }
     }
-
   }
 
 }

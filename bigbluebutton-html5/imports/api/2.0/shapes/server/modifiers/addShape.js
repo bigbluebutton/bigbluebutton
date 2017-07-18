@@ -3,7 +3,6 @@ import Logger from '/imports/startup/server/logger';
 import Shapes from '/imports/api/2.0/shapes';
 
 const SHAPE_TYPE_TEXT = 'text';
-const SHAPE_TYPE_POLL_RESULT = 'poll_result';
 const SHAPE_TYPE_PENCIL = 'pencil';
 
 export default function addShape(meetingId, whiteboardId, userId, shape) {
@@ -49,13 +48,6 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
         'shape.shape.dataPoints': shape.annotationInfo.dataPoints,
       });
       break;
-
-    case SHAPE_TYPE_POLL_RESULT:
-      /**
-       * TODO
-       * shape.annotationInfo.result = JSON.parse(shape.annotationInfo.result);
-       */
-      break;
     case SHAPE_TYPE_PENCIL:
       modifier.$push = { 'shape.shape.points': { $each: shape.annotationInfo.points } };
       break;
@@ -66,7 +58,7 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
         'shape.shape.id': shape.annotationInfo.id,
         'shape.shape.square': shape.annotationInfo.square,
         'shape.shape.transparency': shape.annotationInfo.transparency,
-        'shape.shape.thickness': shape.annotationInfo.thickness,
+        'shape.shape.thickness': shape.annotationInfo.thickness * 10,
         'shape.shape.color': shape.annotationInfo.color,
         'shape.shape.result': shape.annotationInfo.result,
         'shape.shape.num_respondents': shape.annotationInfo.numRespondents,
@@ -85,9 +77,7 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
       return Logger.info(`Added shape id=${shape.id} whiteboard=${whiteboardId}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Upserted shape id=${shape.id} whiteboard=${whiteboardId}`);
-    }
+    return Logger.info(`Upserted shape id=${shape.id} whiteboard=${whiteboardId}`);
   };
 
   return Shapes.upsert(selector, modifier, cb);

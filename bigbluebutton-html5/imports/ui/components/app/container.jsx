@@ -5,7 +5,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/2.0/users';
-import Breakouts from '/imports/api/1.1/breakouts';
+import Breakouts from '/imports/api/2.0/breakouts';
+import Meetings from '/imports/api/2.0/meetings';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
@@ -36,6 +37,10 @@ const intlMessages = defineMessages({
     id: 'app.guest.waiting',
     description: 'Message while a guest is waiting to be approved',
   },
+  endMeetingMessage: {
+    id: 'app.error.meeting.ended',
+    description: 'You have logged out of the conference',
+  },
 });
 
 const AppContainer = (props) => {
@@ -57,22 +62,32 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
+  // Displayed error messages according to the mode (kicked, end meeting)
+  const sendToError = (code, message) => {
+    Auth.clearCredentials()
+        .then(() => {
+          router.push(`/error/${code}`);
+          baseControls.updateErrorState(message);
+        });
+  };
+
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
       if (fields.user && fields.user.kicked) {
-        Auth.clearCredentials()
-          .then(() => {
-            router.push('/error/403');
-            baseControls.updateErrorState(
-              intl.formatMessage(intlMessages.kickedMessage),
-            );
-          });
+        sendToError(403, intl.formatMessage(intlMessages.kickedMessage));
       }
     },
   });
 
-    // Close the widow when the current breakout room ends
+  // forcelly logged out when the meeting is ended
+  Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
+    removed() {
+      sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
+    },
+  });
+
+  // Close the widow when the current breakout room ends
   Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
     removed() {
       Auth.clearCredentials().then(window.close);

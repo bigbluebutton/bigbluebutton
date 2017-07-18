@@ -1,5 +1,5 @@
 import { makeCall } from '/imports/ui/services/api';
-import Polls from '/imports/api/1.1/polls';
+import Polls from '/imports/api/2.0/polls';
 
 const mapPolls = function () {
   const poll = Polls.findOne({});
