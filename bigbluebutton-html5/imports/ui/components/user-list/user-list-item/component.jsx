@@ -217,7 +217,6 @@ class UserListItem extends Component {
     });
   }
 
-
   renderUserContents() {
     const {
       user,

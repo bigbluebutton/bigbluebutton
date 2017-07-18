@@ -63,5 +63,8 @@ case class GetGuestPolicyReply(meetingID: String, recorded: Boolean, requesterID
 case class GuestPolicyChanged(meetingID: String, recorded: Boolean, policy: String) extends IOutMessage
 case class GuestAccessDenied(meetingID: String, recorded: Boolean, userId: String) extends IOutMessage
 
+//Transcode
+case class StopMeetingTranscoders(meetingID: String) extends IOutMessage
+
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

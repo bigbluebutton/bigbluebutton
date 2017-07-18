@@ -156,7 +156,8 @@ class Dropdown extends Component {
         className={cx(styles.dropdown, className)}
         aria-live={otherProps['aria-live']}
         aria-relevant={otherProps['aria-relevant']}
-        aria-haspopup={otherProps['aria-haspopup']}>
+        aria-haspopup={otherProps['aria-haspopup']}
+        aria-label={otherProps['aria-label']}>
         {trigger}
         {content}
         { this.state.isOpen ?

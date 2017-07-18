@@ -44,8 +44,6 @@ class PresentationToolbar extends Component {
         <option
           value={i}
           key={i}
-          role="option"
-          aria-controls="slideComponent"
         >
         Slide {i}
         </option>,
@@ -72,7 +70,6 @@ class PresentationToolbar extends Component {
           role="button"
           aria-labelledby="prevSlideLabel"
           aria-describedby="prevSlideDescrip"
-          aria-controls="skipSlide slideComponent"
           disabled={!(currentSlideNum > 1)}
           color={'default'}
           icon={'left_arrow'}
@@ -88,7 +85,6 @@ class PresentationToolbar extends Component {
           role="listbox"
           aria-labelledby="skipSlideLabel"
           aria-describedby="skipSlideDescrip"
-          aria-controls="slideComponent"
           aria-live="polite"
           aria-relevant="all"
           value={currentSlideNum}
@@ -102,7 +98,6 @@ class PresentationToolbar extends Component {
           role="button"
           aria-labelledby="nextSlideLabel"
           aria-describedby="nextSlideDescrip"
-          aria-controls="skipSlide slideComponent"
           disabled={!(currentSlideNum < numberOfSlides)}
           color={'default'}
           icon={'right_arrow'}
