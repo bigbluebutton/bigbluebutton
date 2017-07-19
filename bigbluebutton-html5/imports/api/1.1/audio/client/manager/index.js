@@ -28,7 +28,7 @@ export default class AudioManager {
     AudioManager.fetchServers().then(({ error, stunServers, turnServers }) => {
       if (error) {
         //We need to alert the user about this problem by some gui message.
-        console.err("Couldn't fetch the stuns/turns servers!");
+        console.error("Couldn't fetch the stuns/turns servers!");
         return;
       }
 
@@ -43,9 +43,9 @@ export default class AudioManager {
 
   // We use on the SIP an String Array, while in the server, it comes as
   // an Array of objects, we need to map from Array<Object> to Array<String>
-  static mapToArray({ returnCode, stunServers, turnServers }) {
+  static mapToArray({ response, stunServers, turnServers }) {
     const promise = new Promise((resolve) => {
-      if (returnCode === 'FAILED') {
+      if (response) {
         resolve({ error: 404, stunServers: [], turnServers: [] });
       }
       resolve({
@@ -61,6 +61,6 @@ export default class AudioManager {
 
     return fetch(url)
       .then(response => response.json())
-      .then(response => AudioManager.mapToArray(response));
+      .then(json => AudioManager.mapToArray(json));
   }
 }
