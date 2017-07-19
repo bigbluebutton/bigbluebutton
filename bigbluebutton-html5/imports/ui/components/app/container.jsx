@@ -61,14 +61,14 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
-  
+
   // Displayed error messages according to the mode (kicked, end meeting)
   const sendToError = (code, message) => {
     Auth.clearCredentials()
-      .then(() => {
-        router.push(`/error/${code}`);
-        baseControls.updateErrorState(message);
-      });
+        .then(() => {
+          router.push(`/error/${code}`);
+          baseControls.updateErrorState(message);
+        });
   };
 
   // Check if user is kicked out of the session
