@@ -594,7 +594,7 @@ package org.bigbluebutton.modules.users.services
     public function setGuestPolicy(policy:String):void {
       LOGGER.debug("setGuestPolicy - new policy:[" + policy + "]");
       var message:Object = {
-        header: {name: "SetGuestPolicyMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+        header: {name: "SetGuestPolicyCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
         body: {policy: policy, setBy: UsersUtil.getMyUserID()}
       };

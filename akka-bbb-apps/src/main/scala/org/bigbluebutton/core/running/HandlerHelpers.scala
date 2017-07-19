@@ -1,31 +1,16 @@
 package org.bigbluebutton.core.running
 
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, RecordingStatusChanged }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
 
 trait HandlerHelpers extends SystemConfiguration {
-
-  def sendAllUsersInMeeting(outGW: OutMessageGateway, requesterId: String, liveMeeting: LiveMeeting): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
-    val users = Users2x.findAll(liveMeeting.users2x)
-    val webUsers = users.map { u =>
-      WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
-        guest = u.guest, authed = u.authed, waitingForAcceptance = u.waitingForAcceptance, emoji = u.emoji,
-        locked = u.locked, presenter = u.presenter, avatar = u.avatar)
-    }
-
-    val event = MsgBuilder.buildGetUsersMeetingRespMsg(meetingId, requesterId, webUsers)
-    Sender.send(outGW, event)
-  }
 
   def sendAllWebcamStreams(outGW: OutMessageGateway, requesterId: String, webcams: Webcams, meetingId: String): Unit = {
     val streams = org.bigbluebutton.core.models.Webcams.findAll(webcams)
@@ -37,19 +22,6 @@ trait HandlerHelpers extends SystemConfiguration {
     }
 
     val event = MsgBuilder.buildGetWebcamStreamsMeetingRespMsg(meetingId, requesterId, webcamStreams)
-    Sender.send(outGW, event)
-  }
-
-  def sendAllVoiceUsersInMeeting(outGW: OutMessageGateway, requesterId: String,
-                                 voiceUsers: VoiceUsers,
-                                 meetingId:  String): Unit = {
-
-    val vu = VoiceUsers.findAll(voiceUsers).map { u =>
-      VoiceConfUser(intId = u.intId, voiceUserId = u.voiceUserId, callingWith = u.callingWith, callerName = u.callerName,
-        callerNum = u.callerNum, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
-    }
-
-    val event = MsgBuilder.buildGetVoiceUsersMeetingRespMsg(meetingId, requesterId, vu)
     Sender.send(outGW, event)
   }
 

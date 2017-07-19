@@ -112,14 +112,8 @@ package org.bigbluebutton.modules.users.services
         case "GuestsWaitingForApprovalEvtMsg":
           handleGuestsWaitingForApprovalEvtMsg(message);
           break;
-        case "meetingEnded":
-          handleLogout(message);
-          break;
         case "MeetingEndingEvtMsg":
           handleMeetingEnding(message);
-          break;
-        case "meetingHasEnded":
-          handleMeetingHasEnded(message);
           break;
         case "meetingMuted":
           handleMeetingMuted(message);
@@ -274,6 +268,7 @@ package org.bigbluebutton.modules.users.services
       var guestWaiting: GuestWaiting = new GuestWaiting(guest.intId, guest.name, guest.role);
       LiveMeeting.inst().guestsWaiting.add(guestWaiting);
     }
+	
     private function handleGuestsWaitingForApprovalEvtMsg(msg: Object): void {
       var body: Object = msg.body as Object;
       var guests: Array = body.guests as Array;
@@ -473,10 +468,6 @@ package org.bigbluebutton.modules.users.services
 			
 		return;
 	}
-	
-    private function handleMeetingHasEnded(msg: Object):void {
-      LOGGER.debug("*** handleMeetingHasEnded {0} **** \n", [msg.msg]); 
-    }
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
       //LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.msg]);
@@ -565,23 +556,16 @@ package org.bigbluebutton.modules.users.services
       
     }
     
-
-    
-    /**
-     * Called by the server to tell the client that the meeting has ended.
-     */
-    public function handleLogout(msg:Object):void {     
-      var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
-      dispatcher.dispatchEvent(endMeetingEvent);
-    }
     
     /**
      * This meeting is in the process of ending by the server
      */
     public function handleMeetingEnding(msg:Object):void {
       // Avoid trying to reconnect
-      var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
-      dispatcher.dispatchEvent(endMeetingEvent);
+      var cancelReconnectEvent:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
+      dispatcher.dispatchEvent(cancelReconnectEvent);
+	  var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
+	  dispatcher.dispatchEvent(endMeetingEvent);
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     

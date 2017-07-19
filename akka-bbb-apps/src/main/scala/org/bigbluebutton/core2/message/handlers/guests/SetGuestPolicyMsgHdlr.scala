@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
-import org.bigbluebutton.common2.msgs.SetGuestPolicyMsg
+import org.bigbluebutton.common2.msgs.{ SetGuestPolicyCmdMsg }
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ GuestPolicy, GuestPolicyType, GuestWaiting, GuestsWaiting }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting }
@@ -12,7 +12,7 @@ trait SetGuestPolicyMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handleSetGuestPolicyMsg(msg: SetGuestPolicyMsg): Unit = {
+  def handleSetGuestPolicyMsg(msg: SetGuestPolicyCmdMsg): Unit = {
     val newPolicy = msg.body.policy.toUpperCase()
     if (GuestPolicyType.policyTypes.contains(newPolicy)) {
       val policy = GuestPolicy(newPolicy, msg.body.setBy)

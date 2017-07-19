@@ -256,9 +256,9 @@ class MeetingActor(
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg => handleGetGuestsWaitingApprovalReqMsg(m)
-      case m: SetGuestPolicyMsg => handleSetGuestPolicyMsg(m)
+      case m: SetGuestPolicyCmdMsg => handleSetGuestPolicyMsg(m)
       case m: GuestsWaitingApprovedMsg => handleGuestsWaitingApprovedMsg(m)
-
+      case m: GetGuestPolicyReqMsg => handleGetGuestPolicyReqMsg(m)
       // Chat
       case m: GetChatHistoryReqMsg => chatApp2x.handleGetChatHistoryReqMsg(m)
       case m: SendPublicMessagePubMsg => chatApp2x.handleSendPublicMessagePubMsg(m)

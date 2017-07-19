@@ -18,25 +18,37 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg, state: MeetingState2x): MeetingState2x = {
     log.debug("RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
 
-    RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
+    val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers)
+
+    regUser match {
       case Some(u) =>
-        val guestPolicyType = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting).policy
-        if (guestPolicyType == GuestPolicyType.ALWAYS_ACCEPT) {
-          userValidatedAndNoNeedToWaitForApproval(outGW, liveMeeting, u, state)
-        } else if (guestPolicyType == GuestPolicyType.ASK_MODERATOR) {
-          if (u.guest && u.waitingForAcceptance) {
-            userValidatedButNeedToWaitForApproval(u, state)
-          } else {
-            userValidatedAndNoNeedToWaitForApproval(outGW, liveMeeting, u, state)
-          }
+        if (noNeedForApproval(u)) {
+          userValidatedAndNoNeedToWaitForApproval(u, state)
         } else {
-          validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
-            userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false, state)
+          goThroughGuestPolicy(liveMeeting.guestsWaiting, u, state)
         }
       case None =>
         validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
           userId = msg.body.userId, authToken = msg.body.authToken, valid = false, waitForApproval = false, state)
     }
+  }
+
+  def noNeedForApproval(user: RegisteredUser): Boolean = {
+    !user.guest || (user.guest && !user.waitingForAcceptance)
+  }
+
+  def goThroughGuestPolicy(guestsWaiting: GuestsWaiting, user: RegisteredUser, state: MeetingState2x): MeetingState2x = {
+    if (doesNotHaveToWaitForApproval(guestsWaiting, user)) {
+      userValidatedAndNoNeedToWaitForApproval(user, state)
+    } else {
+      userValidatedButNeedToWaitForApproval(user, state)
+    }
+  }
+
+  def doesNotHaveToWaitForApproval(guestsWaiting: GuestsWaiting, user: RegisteredUser): Boolean = {
+    val guestPolicyType = GuestsWaiting.getGuestPolicy(guestsWaiting).policy
+    (guestPolicyType == GuestPolicyType.ALWAYS_ACCEPT) ||
+      (guestPolicyType == GuestPolicyType.ASK_MODERATOR && user.guest && !user.waitingForAcceptance)
   }
 
   def validateTokenFailed(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
@@ -61,7 +73,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
 
     val guest = GuestWaiting(user.id, user.name, user.role)
     addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
-    notifyModeratorsOfGuestWaiting(outGW, Vector(guest), liveMeeting.users2x, meetingId)
+    notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, meetingId)
 
     state
   }
@@ -70,12 +82,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     GuestsWaiting.add(guestsWaitingList, guest)
   }
 
-  def userValidatedAndNoNeedToWaitForApproval(
-    outGW:       OutMessageGateway,
-    liveMeeting: LiveMeeting,
-    user:        RegisteredUser,
-    state:       MeetingState2x
-  ): MeetingState2x = {
+  def userValidatedAndNoNeedToWaitForApproval(user: RegisteredUser, state: MeetingState2x): MeetingState2x = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
     sendValidateAuthTokenRespMsg(
@@ -85,8 +92,8 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
 
     // TODO: REMOVE Temp only so we can implement user handling in client. (ralam june 21, 2017)
 
-    sendAllUsersInMeeting(outGW, user.id, liveMeeting)
-    sendAllVoiceUsersInMeeting(outGW, user.id, liveMeeting.voiceUsers, meetingId)
+    sendAllUsersInMeeting(user.id)
+    sendAllVoiceUsersInMeeting(user.id, liveMeeting.voiceUsers, meetingId)
     sendAllWebcamStreams(outGW, user.id, liveMeeting.webcams, meetingId)
     val newState = userJoinMeeting(outGW, user.authToken, liveMeeting, state)
     if (!Users2x.hasPresenter(liveMeeting.users2x)) {
@@ -95,7 +102,30 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     newState
   }
 
-  def notifyModeratorsOfGuestWaiting(outGW: OutMessageGateway, guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
+  def sendAllUsersInMeeting(requesterId: String): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val users = Users2x.findAll(liveMeeting.users2x)
+    val webUsers = users.map { u =>
+      WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
+        guest = u.guest, authed = u.authed, waitingForAcceptance = u.waitingForAcceptance, emoji = u.emoji,
+        locked = u.locked, presenter = u.presenter, avatar = u.avatar)
+    }
+
+    val event = MsgBuilder.buildGetUsersMeetingRespMsg(meetingId, requesterId, webUsers)
+    Sender.send(outGW, event)
+  }
+
+  def sendAllVoiceUsersInMeeting(requesterId: String, voiceUsers: VoiceUsers, meetingId: String): Unit = {
+    val vu = VoiceUsers.findAll(voiceUsers).map { u =>
+      VoiceConfUser(intId = u.intId, voiceUserId = u.voiceUserId, callingWith = u.callingWith, callerName = u.callerName,
+        callerNum = u.callerNum, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
+    }
+
+    val event = MsgBuilder.buildGetVoiceUsersMeetingRespMsg(meetingId, requesterId, vu)
+    Sender.send(outGW, event)
+  }
+
+  def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
     val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
     mods foreach { m =>
       val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)

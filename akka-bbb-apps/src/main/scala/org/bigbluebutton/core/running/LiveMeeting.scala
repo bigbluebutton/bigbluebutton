@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.running
 
-import java.util.concurrent.TimeUnit
-
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
