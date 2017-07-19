@@ -85,14 +85,11 @@ class AudioManager {
     this.callStates = CallStates;
     this.currentState = this.callStates.init;
 
-
     callbackToAudioBridge = function (message) {
       switch (message.status) {
         case 'failed':
           this.currentState = this.callStates.init;
           let audioFailed = new CustomEvent('bbb.webrtc.failed', {
-            // status: 'Failed',
-            // errorCode: message.errorcode,
             detail: {
               status: 'Failed',
               errorCode: message.errorcode,
@@ -102,13 +99,19 @@ class AudioManager {
           break;
         case 'mediafail':
           let mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
-            status: 'MediaFailed', });
+            detail: {
+              status: 'MediaFailed',
+            }
+          });
           window.dispatchEvent(mediaFailed);
           break;
         case 'mediasuccess':
         case 'started':
           let connected = new CustomEvent('bbb.webrtc.connected', {
-            status: 'started', });
+            detail: {
+              status: 'started',
+            }
+          });
           window.dispatchEvent(connected);
           break;
       }
@@ -152,7 +155,6 @@ class AudioManager {
   }
 
   webRTCCallFailed(inEchoTest, errorcode, cause) {
-    console.log("REACHED CALL MANAGER " + errorcode);
     if (this.currentState !== this.CallStates.reconecting) {
       this.currentState = this.CallStates.reconecting;
     }
