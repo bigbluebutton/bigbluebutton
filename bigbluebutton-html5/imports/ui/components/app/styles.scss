@@ -54,9 +54,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 .content {
   @extend %full-page;
 
-  background-color: $color-background;
   padding: 0 .25%;
-  // position: relative;
 
   &:before,
   &:after {

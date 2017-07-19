@@ -34,7 +34,7 @@
 }
 
 .label {
-  color: $color-gray-light;
+  color: $color-gray-label;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
@@ -56,7 +56,7 @@
   background-color: #fff;
   border: 0;
   border-bottom: 0.1rem solid $color-gray-lighter;
-  color: $color-gray-light;
+  color: $color-gray-label;
   width: 100%;
   // appearance: none;
   height: 1.75rem;
