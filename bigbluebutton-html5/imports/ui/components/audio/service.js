@@ -10,18 +10,15 @@ const init = () => {
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
   const username = User.user.name;
-  const turns = [];
-  const stuns = ['stun:stun.freeswitch.org'];
   const Meeting = Meetings.findOne({ meetingId: User.meetingId });
   const voiceBridge = Meeting.voiceProp.voiceConf;
+  
   // FIX ME
   const microphoneLockEnforced = false;
 
   const userData = {
     userId,
     username,
-    turns,
-    stuns,
     voiceBridge,
     microphoneLockEnforced,
   };

@@ -13,18 +13,18 @@ export default class SIPBridge extends BaseAudioBridge {
     this.userData = userData;
   }
 
-  joinListenOnly() {
+  joinListenOnly(stunServers, turnServers) {
     makeCall('listenOnlyToggle', true);
-    this._joinVoiceCallSIP({ isListenOnly: true });
+    this._joinVoiceCallSIP({ isListenOnly: true, stunServers, turnServers });
   }
 
-  joinMicrophone() {
-    this._joinVoiceCallSIP({ isListenOnly: false });
+  joinMicrophone(stunServers, turnServers) {
+    this._joinVoiceCallSIP({ isListenOnly: false, stunServers, turnServers });
   }
 
   // Periodically check the status of the WebRTC call, when a call has been established attempt to
   // hangup, retry if a call is in progress, send the leave voice conference message to BBB
-  exitAudio(isListenOnly, afterExitCall = () => {}) {
+  exitAudio(isListenOnly, afterExitCall = () => { }) {
     // To be called when the hangup is confirmed
     const hangupCallback = function () {
       console.log(`Exited Voice Conference, listenOnly=${isListenOnly}`);
@@ -40,7 +40,7 @@ export default class SIPBridge extends BaseAudioBridge {
     triedHangup = false;
 
     // function to initiate call
-    const checkToHangupCall = ((context, afterExitCall = () => {}) => {
+    const checkToHangupCall = ((context, afterExitCall = () => { }) => {
       // if an attempt to hang up the call is made when the current session is not yet finished,
       // the request has no effect keep track in the session if we haven't tried a hangup
       if (window.getCallStatus() != null && !triedHangup) {
@@ -96,8 +96,8 @@ export default class SIPBridge extends BaseAudioBridge {
     };
 
     const stunsAndTurns = {
-      stun: this.userData.stuns,
-      turn: this.userData.turns,
+      stun: options.stunServers,
+      turn: options.turnServers,
     };
 
     callIntoConference(extension, (audio) => {

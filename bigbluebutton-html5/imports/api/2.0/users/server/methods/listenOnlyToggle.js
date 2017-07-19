@@ -27,7 +27,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
     userId: requesterUserId,
   });
 
-  const Meeting = Meetings.findOne({ 'meetingProp.intId': meetingId });
+  const Meeting = Meetings.findOne({ meetingId });
 
   if (!User) {
     throw new Meteor.Error(
