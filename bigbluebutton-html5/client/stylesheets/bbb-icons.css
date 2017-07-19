@@ -1,29 +1,33 @@
 @font-face {
     font-family: 'bbb-icons';
-    src: url('/fonts/BbbIcons/bbb-icons.eot?73sr34');
-    src: url('/fonts/BbbIcons/bbb-icons.eot?73sr34#iefix') format('embedded-opentype'),
-         url('/fonts/BbbIcons/bbb-icons.ttf?73sr34') format('truetype'),
-         url('/fonts/BbbIcons/bbb-icons.woff?73sr34') format('woff'),
-         url('/fonts/BbbIcons/bbb-icons.svg?73sr34#bbb-icons') format('svg');
+    src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
+    src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
+         url('/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
+         url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
+         url('/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
-[class^="icon-"], [class*=" icon-"] {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'bbb-icons' !important;
-  speak: none;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
+[class^="icon-bbb-"], [class*=" icon-bbb-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'bbb-icons' !important;
+    speak: none;
+    position: relative;
+    /*top: 1px;*/
+    display: inline-block;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    width: 1.28571429em;
+    text-align: center;
+    vertical-align: middle;
 
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
-
 
 .icon-bbb-mute:before {
   content: "\e932";
