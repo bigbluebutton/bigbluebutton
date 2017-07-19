@@ -44,6 +44,22 @@ class CallStates {
   }
 };
 
+const ErrorCodes = {
+  CODE_1001: "1001",
+  CODE_1002: "1002",
+  CODE_1003: "1003",
+  CODE_1004: "1004",
+  CODE_1005: "1005",
+  CODE_1006: "1006",
+  CODE_1007: "1007",
+  CODE_1008: "1008",
+  CODE_1009: "1009",
+  CODE_1010: "1010",
+  CODE_1011: "1011"
+};
+
+const AudioErrorCodes = Object.freeze(ErrorCodes);
+
 // manages audio calls and audio bridges
 class AudioManager {
   constructor() {
@@ -73,10 +89,15 @@ class AudioManager {
     callbackToAudioBridge = function (message) {
       switch (message.status) {
         case 'failed':
-          console.log(message.errorcode);
-          handleFail(message.errorcode);
+          this.currentState = this.callStates.init;
           let audioFailed = new CustomEvent('bbb.webrtc.failed', {
-            status: 'Failed', });
+            // status: 'Failed',
+            // errorCode: message.errorcode,
+            detail: {
+              status: 'Failed',
+              errorCode: message.errorcode,
+            }
+          });
           window.dispatchEvent(audioFailed);
           break;
         case 'mediafail':
@@ -106,12 +127,12 @@ class AudioManager {
   joinAudio(listenOnly) {
     if (listenOnly || this.microphoneLockEnforced) {
       this.isListenOnly = true;
-      this.bridge.joinListenOnly(callbackToAudioBridge);
+      this.bridge.joinListenOnly(callbackToAudioBridge.bind(this));
       // TODO: remove line below after echo test implemented
       this.currentState = this.callStates.inListenOnly;
     } else {
       this.isListenOnly = false;
-      this.bridge.joinMicrophone(callbackToAudioBridge);
+      this.bridge.joinMicrophone(callbackToAudioBridge.bind(this));
       // TODO: remove line below after echo test implemented
       this.currentState = this.callStates.inConference;
     }
@@ -135,53 +156,6 @@ class AudioManager {
     if (this.currentState !== this.CallStates.reconecting) {
       this.currentState = this.CallStates.reconecting;
     }
-  }
-
-  handleFail(errorcode) {
-    var errorMessage = "";
-    switch(errorcode) {
-      case '1001':
-        errorMessage = "WebSocket disconnected";
-        break;
-      case '1002':
-        errorMessage = "Could not make a WebSocket connection";
-        break;
-      case '1003':
-        errorMessage = "Browser version not supported";
-        break;
-      case '1004':
-        errorMessage = "Failure on call";
-        break;
-      case '1005':
-        errorMessage = "Call ended unexpectedly";
-        break;
-      case '1006':
-        errorMessage = "Call timed out";
-        break;
-      case '1007':
-        errorMessage = "ICE negotiation failed";
-        break;
-      case '1008':
-        errorMessage = "Call transfer failed";
-        break;
-      case '1009':
-        errorMessage = "Could not fetch STUN/TURN server information";
-        break;
-      case '1010':
-        errorMessage = "ICE negotiation timeout";
-        break;
-      case '1011':
-        errorMessage = "ICE gathering timeout";
-        break;
-      default:
-        errorMessage = "unknown error code";
-        break;
-    }
-
-    let failedEvent = new CustomEvent('bbb.webrtc.failed', {
-      status: 'Failed', });
-    window.dispatchEvent(failedEvent);
-    exitAudio();
   }
 
   getMicId() {
@@ -213,3 +187,4 @@ class AudioManager {
 
 const AudioManagerSingleton = new AudioManager();
 export default AudioManagerSingleton;
+export { AudioErrorCodes };
