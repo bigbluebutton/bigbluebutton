@@ -28,10 +28,6 @@ class LiveMeeting(
     val guestsWaiting:    GuestsWaiting
 ) {
 
-  def hasMeetingEnded(): Boolean = {
-    MeetingStatus2x.hasMeetingEnded(status)
-  }
-
   def lockLayout(lock: Boolean) {
     MeetingStatus2x.lockLayout(status, lock)
   }

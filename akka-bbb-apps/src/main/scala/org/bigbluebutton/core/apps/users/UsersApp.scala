@@ -5,7 +5,6 @@ import akka.event.Logging
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.bus.IncomingEventBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core2.message.handlers.users.ValidateAuthTokenReqMsgHdlr
 
 class UsersApp(
   val liveMeeting: LiveMeeting,

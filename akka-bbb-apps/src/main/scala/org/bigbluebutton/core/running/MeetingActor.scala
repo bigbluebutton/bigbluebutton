@@ -2,7 +2,7 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
-import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 //import java.util.concurrent.TimeUnit
@@ -104,7 +104,7 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
 
-  val expiryTrackerHelper = new MeetingExpiryTrackerHelper(liveMeeting, outGW)
+  val expiryTrackerHelper = new MeetingExpiryTrackerHelper(liveMeeting, outGW, eventBus)
 
   val inactivityTracker = new MeetingInactivityTracker(
     props.durationProps.maxInactivityTimeoutMinutes,
@@ -327,8 +327,8 @@ class MeetingActor(
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
-    state = expiryTrackerHelper.processMeetingInactivityAudit(liveMeeting.props, outGW, eventBus, state)
-    state = expiryTrackerHelper.processMeetingExpiryAudit(liveMeeting.props, state, eventBus)
+    state = expiryTrackerHelper.processMeetingInactivityAudit(state)
+    state = expiryTrackerHelper.processMeetingExpiryAudit(state)
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {

@@ -89,6 +89,18 @@ object MeetingExpiryTracker {
     state.modify(_.expiryTracker).setTo(tracker)
   }
 
+  def hasMeetingExpired(state: MeetingState2x, timestampInSeconds: Long): (Boolean, Option[String]) = {
+    if (MeetingExpiryTracker.hasMeetingExpiredNeverBeenJoined(state, timestampInSeconds)) {
+      (true, Some(MeetingEndReason.ENDED_WHEN_NOT_JOINED))
+    } else if (MeetingExpiryTracker.meetingOverDuration(state, timestampInSeconds)) {
+      (true, Some(MeetingEndReason.ENDED_AFTER_EXCEEDING_DURATION))
+    } else if (MeetingExpiryTracker.hasMeetingExpiredAfterLastUserLeft(state, timestampInSeconds)) {
+      (true, Some(MeetingEndReason.ENDED_WHEN_LAST_USER_LEFT))
+    } else {
+      (false, None)
+    }
+  }
+
   def hasMeetingExpiredNeverBeenJoined(state: MeetingState2x, nowInSeconds: Long): Boolean = {
     !state.expiryTracker.userHasJoined &&
       (nowInSeconds - state.expiryTracker.startedOn >
