@@ -30,8 +30,8 @@
         DESKSHARE_RTMP_BROADCAST_STOPPED: "deskshare_rtmp_broadcast_stopped_message",
 
         //Message identifiers 2x
-        DESKSHARE_RTMP_BROADCAST_STARTED_2x: "DeskshareRtmpBroadcastStartedVoiceConfEvtMsg",
-        DESKSHARE_RTMP_BROADCAST_STOPPED_2x: "DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg",
+        SCREENSHARE_RTMP_BROADCAST_STARTED_2x: "ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg",
+        SCREENSHARE_RTMP_BROADCAST_STOPPED_2x: "ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg",
 
         // Redis messages fields
         //  Transcoder
@@ -42,7 +42,7 @@
 
         //  Screenshare
         CONFERENCE_NAME: "voiceConf",
-        SCREENSHARE_CONF: "deskshareConf",
+        SCREENSHARE_CONF: "screenshareConf",
         STREAM_URL: "stream",
         TIMESTAMP: "timestamp",
         VIDEO_WIDTH: "vidWidth",
