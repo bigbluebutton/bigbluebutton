@@ -19,15 +19,17 @@
 package org.bigbluebutton.modules.users.views.model
 {
   import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.Event;
+  
   import org.as3commons.lang.ArrayUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Role;
-  import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-  import org.bigbluebutton.util.i18n.ResourceUtil;
   import org.bigbluebutton.main.model.users.Status;
   import org.bigbluebutton.main.model.users.StatusCollection;
+  import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class BBBUser2x {
     private static const LOGGER:ILogger = getClassLogger(BBBUser2x);
@@ -56,47 +58,22 @@ package org.bigbluebutton.modules.users.views.model
     
     [Bindable] private var _viewingStream:Array = new Array();
     
-    [Bindable]
-    public function get viewingStream():Array {
-      return _viewingStream;
-    }
-    public function set viewingStream(v:Array):void {
-      throw new Error("Please use the helpers addViewingStream or removeViewingStream to handle viewingStream");
-    }
-    public function addViewingStream(streamName:String):Boolean {
-      if (isViewingStream(streamName)) {
-        return false;
-      }
-      
-      _viewingStream.push(streamName);
-      return true;
-    }
-    public function removeViewingStream(streamName:String):Boolean {
-      if (!isViewingStream(streamName)) {
-        return false;
-      }
-      
-      _viewingStream = _viewingStream.filter(function(item:*, index:int, array:Array):Boolean { return item != streamName; });
-      return true;
-    }
-    private function isViewingStream(streamName:String):Boolean {
-      return _viewingStream.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
-    }
+
     public function isViewingAllStreams():Boolean {
       return _viewingStream.length == _streamNames.length;
+    }
+    
+    public function set viewedStream(streamIds: Array): void {
+        if (streamIds != null) {
+            _viewingStream = streamIds;
+        }
     }
     
     private var _streamNames:Array = new Array();
     
     [Bindable]
     public function get streams():Array {
-      var streams:String = "";
-      for each(var stream:String in _streamNames) {
-        streams = streams + stream + "|";
-      }
-      //Remove last |
-      streams = streams.slice(0, streams.length-1);
-      return streams;
+      return _streamNames;
     }
     
     private function hasThisStream(streamName:String):Boolean {
@@ -109,9 +86,9 @@ package org.bigbluebutton.modules.users.views.model
     public function set streams(streamIds:Array):void {
       if (streamIds != null) {
           _streamNames = streamIds;
-        for each(var streamId:String in _streamNames) {
-          sharedWebcam(streamId);
-        }
+//        for each(var streamId:String in _streamNames) {
+//          sharedWebcam(streamId);
+//        }
       }
     }
     
@@ -245,15 +222,8 @@ package org.bigbluebutton.modules.users.views.model
     
     public function sharedWebcam(stream: String):void {
       if(stream && stream != "" && !hasThisStream(stream)) {
-        streamNames.push(stream);
         sendStreamStartedEvent(stream);
       }
-      buildStatus();
-      verifyMedia();
-    }
-    
-    public function unsharedWebcam(stream: String):void {
-      streamNames = streamNames.filter(function(item:*, index:int, array:Array):Boolean { return item != stream });
       buildStatus();
       verifyMedia();
     }
@@ -272,18 +242,6 @@ package org.bigbluebutton.modules.users.views.model
       switch (status.name) {
         case "presenter":
           presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
-          break;
-        case "hasStream":
-          var streamInfo:Array=String(status.value).split(/,/);
-          /**
-           * Cannot use this statement as new Boolean(expression)
-           * return true if the expression is a non-empty string not
-           * when the string equals "true". See Boolean class def.
-           *
-           * hasStream = new Boolean(String(streamInfo[0]));
-           */
-          var streamNameInfo:Array=String(streamInfo[1]).split(/=/);
-          streamName=streamNameInfo[1];
           break;
         // @FIXME : check the coming status from the server
         case "emojiStatus":

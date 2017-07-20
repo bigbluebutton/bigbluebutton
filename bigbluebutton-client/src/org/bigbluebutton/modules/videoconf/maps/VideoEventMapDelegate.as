@@ -114,11 +114,10 @@ package org.bigbluebutton.modules.videoconf.maps
       _graphics.addStaticComponent(component);
     }
 
-    public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
+    public function viewCamera(userID:String):void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] viewCamera. ready = [{1}]", [me, _ready]);
 
       if (!_ready) return;
-      LOGGER.debug("VideoEventMapDelegate:: [{0}] Viewing [{1} stream [{2}]", [me, userID, stream]);
       if (! UsersUtil.isMe(userID)) {
         openViewWindowFor(userID);
       }

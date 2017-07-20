@@ -654,7 +654,6 @@ package org.bigbluebutton.modules.users.services
         
         var webUser: User2x = UsersUtil.getUser(userId);
         if (webUser != null) {
-          webUser.streamNames.push(streamId);
           sendStreamStartedEvent(userId, webUser.name, streamId);
         }
         
@@ -675,6 +674,8 @@ package org.bigbluebutton.modules.users.services
         logData.user.webcamStream = stream;
         LOGGER.info(JSON.stringify(logData));
 	  
+        LiveMeeting.inst().webcams.remove(stream);
+        
         sendStreamStoppedEvent(userId, stream);
     }
 	
@@ -683,9 +684,6 @@ package org.bigbluebutton.modules.users.services
 		dispatcher.dispatchEvent(new StreamStoppedEvent(userId, streamId));
 	}
     
-
-    
-
 	
 	private function handleBreakoutRoomsList(msg:Object):void{
 		for each(var room : Object in msg.body.rooms)
