@@ -23,6 +23,7 @@ acl:
       - 'kickUser'
       - 'muteUser'
       - 'unmuteUser'
+      - 'clearPublicChatHistory'
   presenter:
     methods:
       - 'assignPresenter'
