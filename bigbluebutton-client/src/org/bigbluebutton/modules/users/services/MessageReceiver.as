@@ -578,11 +578,13 @@ package org.bigbluebutton.modules.users.services
       UsersUtil.setUserAsPresent(newPresenterID, true);
       sendSwitchedPresenterEvent(true, newPresenterID);
 
-      var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
-      e.userID = newPresenterID;
-      e.presenterName = newPresenterName;
-      e.assignedBy = assignedBy;
-      dispatcher.dispatchEvent(e);
+      if (UsersUtil.getMyUserID() == newPresenterID) {
+        var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+        e.userID = newPresenterID;
+        e.presenterName = newPresenterName;
+        e.assignedBy = assignedBy;
+        dispatcher.dispatchEvent(e);
+      }
       
       dispatcher.dispatchEvent(new UserStatusChangedEvent(newPresenterID));
     }
@@ -597,12 +599,13 @@ package org.bigbluebutton.modules.users.services
       UsersUtil.setUserAsPresent(oldPresenterID, false);
       sendSwitchedPresenterEvent(false, oldPresenterID);
 
-      var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-      e.userID = oldPresenterID;
-      e.presenterName = oldPresenterName;
-      e.assignedBy = assignedBy;
-
-      dispatcher.dispatchEvent(e);
+      if (UsersUtil.getMyUserID() == oldPresenterID) {
+        var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+        e.userID = oldPresenterID;
+        e.presenterName = oldPresenterName;
+        e.assignedBy = assignedBy;
+        dispatcher.dispatchEvent(e);
+      }
 
       dispatcher.dispatchEvent(new UserStatusChangedEvent(oldPresenterID));
     }
