@@ -220,6 +220,18 @@ const closePrivateChat = (chatID) => {
   }
 };
 
+// Export the chat as [Hour:Min] user : message
+const exportChat = messageList => (
+  messageList.map(({ message }) => {
+    const date = new Date(message.fromTime);
+    const hourMin = `${date.getHours()}:${date.getMinutes()}`;
+    if (message.fromUserId === 'SYSTEM_MESSAGE') {
+      return `[${hourMin}] ${message.message}`;
+    }
+    return `[${hourMin}] ${message.fromUsername}: ${message.message}`;
+  })
+);
+
 export default {
   getPublicMessages,
   getPrivateMessages,
@@ -232,4 +244,5 @@ export default {
   updateUnreadMessage,
   sendMessage,
   closePrivateChat,
+  exportChat,
 };
