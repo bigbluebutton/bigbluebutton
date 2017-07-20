@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:mate="http://mate.asfusion.com/"
            styleName="deskshareDefaultButtonStyle"
-           height="24"
+           height="30"
            toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
            click="requestToStarSharing()"
            mouseOver = "mouseOverHandler(event)"

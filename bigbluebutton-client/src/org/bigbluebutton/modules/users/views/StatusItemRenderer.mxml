@@ -38,20 +38,20 @@
 	
 	<fx:Script>
 		<![CDATA[
-      import mx.binding.utils.BindingUtils;
-      import mx.binding.utils.ChangeWatcher;
-      import mx.events.FlexEvent;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.Role;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
-      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-      import org.bigbluebutton.modules.users.events.UsersRollEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.FlexEvent;
 			
-			private var images:Images = new Images();
+			import org.as3commons.lang.StringUtils;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+			import org.bigbluebutton.modules.users.events.UsersRollEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
   			private var rolledOver:Boolean = false;
   			private var moderator:Boolean = false;
   			
@@ -102,25 +102,25 @@
 			
 			private function updateRoleComponents() : void {
 				if (rolledOver && !data.presenter && !data.voiceOnlyUser) {
-					roleBtn.setStyle("icon", images.presenter_new);
+					roleBtn.setStyle("icon", getStyle("iconPresenter"));
 					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
 					roleImg.visible = false;
 					roleBtn.visible = true;
 					roleBtn.enabled = true;
 				} else if (data.presenter) {
-					roleImg.source = images.presenter_new;
+					roleImg.source = getStyle("iconPresenter");
 					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
 					roleImg.visible = true;
 					roleBtn.visible = false;
 					roleBtn.enabled = false;
 				} else if (data.role == Role.MODERATOR) {
-					roleImg.source = images.moderator;
+					roleImg.source = getStyle("iconModerator");
 					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
 					roleImg.visible = true;
 					roleBtn.visible = false;
 					roleBtn.enabled = false;
         } else if (data.role == Role.VOICE_ONLY) {
-          roleImg.source = images.sound;
+          roleImg.source = getStyle("iconModeratorOnly");
           roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.voiceOnlyUser');
           roleImg.visible = true;
           roleBtn.visible = false;
@@ -136,13 +136,13 @@
 			
 			private function updateEmojiComponents() : void {
 				if (rolledOver && data.hasEmojiStatus) {
-					emojiBtn.setStyle("icon", images["mood_" + data.emojiStatus]);
+					emojiBtn.setStyle("icon", getStyle("iconMood" + StringUtils.capitalize(data.emojiStatus)));
 					emojiBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = false;
 					emojiBtn.visible = true;
 					emojiBtn.enabled = true;
 				} else if (data.hasEmojiStatus) {
-					emojiImg.source = images["mood_" + data.emojiStatus];
+					emojiImg.source = getStyle("iconMood" + StringUtils.capitalize(data.emojiStatus));
 					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = true;
 					emojiBtn.visible = false;
@@ -203,7 +203,7 @@
 			}
 		]]>
 	</fx:Script>
-	<mx:Image id="emojiImg" visible="true" width="20" height="20" includeInLayout="{emojiImg.visible}" />
+	<mx:Image id="emojiImg" visible="true" includeInLayout="{emojiImg.visible}" />
 	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
 	
 	<mx:Image id="roleImg" visible="true" width="20" height="20" includeInLayout="{roleImg.visible}" />

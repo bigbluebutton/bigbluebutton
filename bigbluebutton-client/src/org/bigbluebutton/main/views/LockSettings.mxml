@@ -32,16 +32,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import mx.events.CloseEvent;
 			
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private var images:Images = new Images();
-			
-			[Bindable] private var cancelIcon:Class = images.cancel;
-			
 			[Bindable] public var disableCam:Boolean = false;
 			[Bindable] public var disableMic:Boolean = false;
 			[Bindable] public var disablePubChat:Boolean = false;

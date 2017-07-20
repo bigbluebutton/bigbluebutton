@@ -31,7 +31,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:api="org.bigbluebutton.main.api.*"
 		xmlns:common="org.bigbluebutton.common.*"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		backgroundColor="white" styleName="mainVBox"
 		creationComplete="initializeShell()"
 		addedToStage="onAddedToStage()"
 		verticalGap="0">
@@ -86,76 +85,73 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.Event;
-      import flash.events.FullScreenEvent;
-      import flash.events.IOErrorEvent;
-      import flash.events.TextEvent;
-      import flash.geom.Point;
-      import flash.net.navigateToURL;
-      
-      import mx.binding.utils.ChangeWatcher;
-      import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
-      import mx.core.FlexGlobals;
-      import mx.core.IFlexDisplayObject;
-      import mx.core.UIComponent;
-      import mx.events.FlexEvent;
-      
-      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-      
-      import org.as3commons.lang.StringUtils;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.IBbbModuleWindow;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.OpenWindowEvent;
-      import org.bigbluebutton.common.events.ToolbarButtonEvent;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.PopUpUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.events.NewGuestWaitingEvent;
-      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-      import org.bigbluebutton.core.vo.LockSettingsVO;
-      import org.bigbluebutton.main.events.AppVersionEvent;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.BreakoutRoomEvent;
-      import org.bigbluebutton.main.events.ClientStatusEvent;
-      import org.bigbluebutton.main.events.ConfigLoadedEvent;
-      import org.bigbluebutton.main.events.ExitApplicationEvent;
-      import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-      import org.bigbluebutton.main.events.MeetingNotFoundEvent;
-      import org.bigbluebutton.main.events.ModuleLoadEvent;
-      import org.bigbluebutton.main.events.NetworkStatsEvent;
-      import org.bigbluebutton.main.events.RefreshGuestEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.Guest;
-      import org.bigbluebutton.main.model.ImageLoader;
-      import org.bigbluebutton.main.model.options.BrandingOptions;
-      import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
-      import org.bigbluebutton.main.model.options.LanguageOptions;
-      import org.bigbluebutton.main.model.options.LayoutOptions;
-      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-      import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
-      import org.bigbluebutton.modules.phone.models.PhoneOptions;
-      import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
-      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import flash.events.Event;
+            import flash.events.FullScreenEvent;
+            import flash.events.IOErrorEvent;
+            import flash.events.TextEvent;
+            import flash.geom.Point;
+            import flash.net.navigateToURL;
+            
+            import mx.binding.utils.ChangeWatcher;
+            import mx.collections.ArrayCollection;
+            import mx.controls.Alert;
+            import mx.core.FlexGlobals;
+            import mx.core.IFlexDisplayObject;
+            import mx.core.UIComponent;
+            import mx.events.FlexEvent;
+            
+            import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+            
+            import org.as3commons.lang.StringUtils;
+            import org.as3commons.logging.api.ILogger;
+            import org.as3commons.logging.api.getClassLogger;
+            import org.bigbluebutton.common.IBbbModuleWindow;
+            import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+            import org.bigbluebutton.common.events.CloseWindowEvent;
+            import org.bigbluebutton.common.events.OpenWindowEvent;
+            import org.bigbluebutton.common.events.ToolbarButtonEvent;
+            import org.bigbluebutton.core.BBB;
+            import org.bigbluebutton.core.Options;
+            import org.bigbluebutton.core.PopUpUtil;
+            import org.bigbluebutton.core.UsersUtil;
+            import org.bigbluebutton.core.events.LockControlEvent;
+            import org.bigbluebutton.core.events.NewGuestWaitingEvent;
+            import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+            import org.bigbluebutton.core.vo.LockSettingsVO;
+            import org.bigbluebutton.main.events.AppVersionEvent;
+            import org.bigbluebutton.main.events.BBBEvent;
+            import org.bigbluebutton.main.events.BreakoutRoomEvent;
+            import org.bigbluebutton.main.events.ClientStatusEvent;
+            import org.bigbluebutton.main.events.ConfigLoadedEvent;
+            import org.bigbluebutton.main.events.ExitApplicationEvent;
+            import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+            import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+            import org.bigbluebutton.main.events.ModuleLoadEvent;
+            import org.bigbluebutton.main.events.NetworkStatsEvent;
+            import org.bigbluebutton.main.events.ShortcutEvent;
+            import org.bigbluebutton.main.model.Guest;
+            import org.bigbluebutton.main.model.ImageLoader;
+            import org.bigbluebutton.main.model.options.BrandingOptions;
+            import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
+            import org.bigbluebutton.main.model.options.LanguageOptions;
+            import org.bigbluebutton.main.model.options.LayoutOptions;
+            import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+            import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+            import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
+            import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+            import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+            import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+            import org.bigbluebutton.modules.phone.models.PhoneOptions;
+            import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
+            import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+            import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
-			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;
@@ -169,9 +165,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
 			
-			[Bindable] private var fullscreen_icon:Class = images.full_screen;
-			[Bindable] private var logs_icon:Class = images.table;
-
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			
@@ -188,12 +181,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
 			[Bindable] private var _showToolbar:Boolean = true;
-			private const DEFAULT_TOOLBAR_HEIGHT:Number = 32;
+			private const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
 			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
 			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
-			[Bindable] private var footerHeight:Number = 24;
+			[Bindable] private var footerHeight:Number = 60;
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
@@ -429,7 +422,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var appHeight:Number = parentApplication.height;
 				
 				mdiCanvas.width = appWidth;
-				mdiCanvas.height = appHeight - (_showFooter? footerHeight: 0) - (_showToolbar? toolbarHeight: 0);
+				mdiCanvas.height = appHeight - (_showFooter ? footerHeight: 0) - (_showToolbar ? toolbarHeight: 0);
 				updateCanvasBackgroundDimensions();
 			}
 			
@@ -484,11 +477,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					LOGGER.debug("Switching to full screen");
-					fullscreen_icon = images.exit_full_screen;
+					fullScreenBtn.styleName = "exitFullScreenButton"
 					hideToolbars();
 				} else {
 					LOGGER.debug("Switching to normal screen");
-					fullscreen_icon = images.full_screen;
+					fullScreenBtn.styleName = "fullScreenButton"
 					showToolbars();
 				}
 			}			
@@ -1030,14 +1023,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   paddingTop="{toolbarPaddingTop}"
 					   updateComplete="updateToolbarHeight()"
 					   paddingBottom="0" />
-					   
-	<views:MainCanvas id="mdiCanvas" 
-					  horizontalScrollPolicy="off" 
-					  verticalScrollPolicy="off" 
-					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
-					  width="100%" >
+				
+	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
+	<views:MainCanvas id="mdiCanvas"
+					  horizontalScrollPolicy="off"
+					  verticalScrollPolicy="off"
+					  styleName="mdiCanvasStyle"
+					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
+					  height="150"
+					  width="100%">
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
-		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
@@ -1065,8 +1061,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				visible="false" 
 				height="20"
 				width="180"
-				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle"/>
+				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 		<mx:Button
 				width="20"
 				height="20"
@@ -1074,9 +1069,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				includeInLayout="{layoutOptions.showLogButton}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
 				id="logBtn"
-				icon="{logs_icon}"
+				styleName="logsButton"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
-		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
 	</mx:ControlBar>
 </mx:VBox>

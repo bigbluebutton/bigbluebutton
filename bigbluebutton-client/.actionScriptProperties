@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties analytics="false" mainApplicationPath="BigBlueButton.mxml" projectUUID="36eb58ba-e647-4fa5-b3c9-6b5c5395c811" version="11">
-  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="false" verifyDigests="true" warn="true">
-    <compilerSourcePath/>
+<actionScriptProperties analytics="false" mainApplicationPath="BigBlueButton.mxml" projectUUID="d0ee1158-6eb2-478c-9e78-b5aa55d7b59c" version="11">
+  <compiler additionalCompilerArguments="-locale en_US&#13;&#10;-show-unused-type-selector-warnings=false" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="true" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="false" verifyDigests="true" warn="true">
+    <compilerSourcePath>
+      <compilerSourcePathEntry kind="1" linkType="1" path="branding/default/style/css"/>
+    </compilerSourcePath>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">
         <excludedEntries>
@@ -13,10 +15,23 @@
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
+  <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/frameworks/themes/Halo"/>
   <applications>
     <application path="BigBlueButton.mxml"/>
   </applications>
-  <modules/>
+  <modules>
+    <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="UsersModule.swf" optimize="true" sourcePath="src/UsersModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="VideoconfModule.swf" optimize="true" sourcePath="src/VideoconfModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="PresentModule.swf" optimize="true" sourcePath="src/PresentModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="LayoutModule.swf" optimize="true" sourcePath="src/LayoutModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="WhiteboardModule.swf" optimize="true" sourcePath="src/WhiteboardModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="PollingModule.swf" optimize="true" sourcePath="src/PollingModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="CaptionModule.swf" optimize="true" sourcePath="src/CaptionModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="SharedNotesModule.swf" optimize="true" sourcePath="src/SharedNotesModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ScreenshareModule.swf" optimize="true" sourcePath="src/ScreenshareModule.mxml"/>
+  </modules>
   <workers/>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
