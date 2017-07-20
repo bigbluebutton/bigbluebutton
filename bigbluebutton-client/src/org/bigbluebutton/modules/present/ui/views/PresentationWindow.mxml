@@ -120,7 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
 			
-			private static const TOP_WINDOW_BORDER:Number = 54;
+			private static const TOP_WINDOW_BORDER:Number = 30;
 			private static const WIDTH_PADDING:Number = 8;
 
 			[Bindable] private var DEFAULT_WINDOW_WIDTH:Number = 510;
