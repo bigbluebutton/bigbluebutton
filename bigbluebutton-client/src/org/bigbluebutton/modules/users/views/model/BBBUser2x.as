@@ -48,7 +48,7 @@ package org.bigbluebutton.modules.users.views.model
     
     [Bindable]
     public function get hasStream():Boolean {
-      return streamNames.length > 0;
+      return _streamNames.length > 0;
     }
     public function set hasStream(s:Boolean):void {
       throw new Error("hasStream cannot be set. It is derived directly from streamName");
@@ -83,15 +83,15 @@ package org.bigbluebutton.modules.users.views.model
       return _viewingStream.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
     }
     public function isViewingAllStreams():Boolean {
-      return _viewingStream.length == streamNames.length;
+      return _viewingStream.length == _streamNames.length;
     }
     
-    [Bindable] public var streamNames:Array = new Array();
+    private var _streamNames:Array = new Array();
     
     [Bindable]
-    public function get streamName():String {
+    public function get streams():Array {
       var streams:String = "";
-      for each(var stream:String in streamNames) {
+      for each(var stream:String in _streamNames) {
         streams = streams + stream + "|";
       }
       //Remove last |
@@ -100,14 +100,17 @@ package org.bigbluebutton.modules.users.views.model
     }
     
     private function hasThisStream(streamName:String):Boolean {
-      return streamNames.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
+        for each(var streamId:String in _streamNames) {
+            if (streamId == streamName) return true;
+        }
+      return false; 
     }
     
-    public function set streamName(streamNames:String):void {
-      if(streamNames) {
-        var streamNamesList:Array = streamNames.split("|");
-        for each(var streamName:String in streamNamesList) {
-          sharedWebcam(streamName);
+    public function set streams(streamIds:Array):void {
+      if (streamIds != null) {
+          _streamNames = streamIds;
+        for each(var streamId:String in _streamNames) {
+          sharedWebcam(streamId);
         }
       }
     }

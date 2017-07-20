@@ -126,8 +126,8 @@ class MeetingActor(
   var state = new MeetingState2x(inactivityTracker, expiryTracker)
 
   /*******************************************************************/
-  object FakeTestData extends FakeTestData
-  FakeTestData.createFakeUsers(liveMeeting)
+  //object FakeTestData extends FakeTestData
+  //FakeTestData.createFakeUsers(liveMeeting)
   /*******************************************************************/
 
   def receive = {

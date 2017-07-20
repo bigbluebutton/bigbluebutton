@@ -86,15 +86,10 @@ package org.bigbluebutton.modules.users.views
       users.refresh();
     }
     
-    private function getWebcamStreamsForUser(userId: String): String {
+    private function getWebcamStreamsForUser(userId: String): Array {
       var streamIds: Array = LiveMeeting.inst().webcams.getStreamIdsForUser(userId);
-      var streams:String = "";
-      for each(var stream:String in streamIds) {
-        streams = streams + stream + "|";
-      }
-      //Remove last |
-      streams = streams.slice(0, streams.length-1);
-      return streams;
+
+      return streamIds;
     }
     
     private function addUser(users: ArrayCollection, user: User2x):void {
