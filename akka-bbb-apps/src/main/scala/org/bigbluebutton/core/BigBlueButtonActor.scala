@@ -62,7 +62,6 @@ class BigBlueButtonActor(
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
 
-    case msg: ValidateAuthToken   => handleValidateAuthToken(msg)
     case _                        => // do nothing
   }
 
@@ -123,34 +122,6 @@ class BigBlueButtonActor(
     RunningMeetings.meetings(meetings).foreach(m => {
       m.actorRef ! msg
     })
-  }
-
-  private def handleValidateAuthToken(msg: ValidateAuthToken) {
-    for {
-      m <- RunningMeetings.findWithId(meetings, msg.meetingID)
-    } yield {
-      m.actorRef forward (msg)
-    }
-
-    //meetings.get(msg.meetingID) foreach { m =>
-    //  m.actorRef ! msg
-
-    //      val future = m.actorRef.ask(msg)(5 seconds)
-    //      future onComplete {
-    //        case Success(result) => {
-    //          log.info("Validate auth token response. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-    //          /**
-    //           * Received a reply from MeetingActor which means hasn't hung!
-    //           * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
-    //           * audit to check whether the actor is still alive. (ralam feb 25, 2015)
-    //           */
-    //        }
-    //        case Failure(failure) => {
-    //          log.warning("Validate auth token timeout. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-    //          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
-    //        }
-    //      }
-    //}
   }
 
   private def handlePubSubPingSysReqMsg(msg: PubSubPingSysReqMsg): Unit = {

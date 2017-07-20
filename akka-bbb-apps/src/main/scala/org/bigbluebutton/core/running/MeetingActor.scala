@@ -139,16 +139,11 @@ class MeetingActor(
     // old messages
     case msg: MonitorNumberOfUsers             => handleMonitorNumberOfUsers(msg)
 
-    case msg: AllowUserToShareDesktop          => handleAllowUserToShareDesktop(msg)
     case msg: ExtendMeetingDuration            => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate          => handleSendTimeRemainingUpdate(msg)
 
     // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
-
-    // Guest
-    case msg: GetGuestPolicy                   => handleGetGuestPolicy(msg)
-    case msg: SetGuestPolicy                   => handleSetGuestPolicy(msg)
 
     case _                                     => // do nothing
   }
@@ -304,28 +299,6 @@ class MeetingActor(
       //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
       //  DeskshareModel.getDesktopShareVideoWidth(liveMeeting.deskshareModel),
       //  DeskshareModel.getDesktopShareVideoHeight(liveMeeting.deskshareModel), true))
-    }
-  }
-
-  def handleGetGuestPolicy(msg: GetGuestPolicy) {
-    //   outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
-    //     msg.requesterID, MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
-  }
-
-  def handleSetGuestPolicy(msg: SetGuestPolicy) {
-    //    MeetingStatus2x.setGuestPolicy(liveMeeting.status, msg.policy)
-    //    MeetingStatus2x.setGuestPolicySetBy(liveMeeting.status, msg.setBy)
-    //    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record,
-    //      MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
-  }
-
-  def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    Users2x.findPresenter(liveMeeting.users2x) match {
-      case Some(curPres) => {
-        val allowed = msg.userID equals (curPres.intId)
-        //   outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
-      }
-      case None => // do nothing
     }
   }
 
