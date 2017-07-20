@@ -5,8 +5,8 @@ import com.softwaremill.quicklens._
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
-    token: String, avatar: String, guest: Boolean, authenticated: Boolean,
-    waitingForAcceptance: Boolean, users: RegisteredUsers): RegisteredUser = {
+             token: String, avatar: String, guest: Boolean, authenticated: Boolean,
+             waitingForAcceptance: Boolean, users: RegisteredUsers): RegisteredUser = {
     val ru = new RegisteredUser(userId, extId, name, roles, token, avatar, guest, authenticated, waitingForAcceptance)
     users.save(ru)
     ru
@@ -48,7 +48,7 @@ object RegisteredUsers {
   }
 
   def setWaitingForApproval(users: RegisteredUsers, user: RegisteredUser,
-    waitingForApproval: Boolean): RegisteredUser = {
+                            waitingForApproval: Boolean): RegisteredUser = {
     val u = user.modify(_.waitingForAcceptance).setTo(waitingForApproval)
     users.save(u)
     u
@@ -74,6 +74,6 @@ class RegisteredUsers {
 }
 
 case class RegisteredUser(id: String, externId: String, name: String, role: String,
-  authToken: String, avatarURL: String, guest: Boolean,
-  authed: Boolean, waitingForAcceptance: Boolean)
+                          authToken: String, avatarURL: String, guest: Boolean,
+                          authed: Boolean, waitingForAcceptance: Boolean)
 

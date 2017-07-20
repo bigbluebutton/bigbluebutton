@@ -1,20 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-// import kickUser from './methods/kickUser';
-import listenOnlyToggle from './methods/listenOnlyToggle';
+import mapToAcl from '/imports/startup/mapToAcl';
 import userLogout from './methods/userLogout';
 import validateAuthToken from './methods/validateAuthToken';
-import mapToAcl from '/imports/startup/mapToAcl';
+import setEmojiStatus from './methods/setEmojiStatus';
 
-Meteor.methods(mapToAcl(['methods.kickUser', 'methods.listenOnlyToggle', 'methods.userLogout',
-  'methods.assignPresenter', 'methods.setEmojiStatus', 'methods.muteUser', 'methods.unmuteUser',
-  ], {
-    // kickUser,
-    // listenOnlyToggle,
-    // userLogout,
-    // assignPresenter,
-    // setEmojiStatus,
-    // muteUser: (...args) => muteToggle(...args, true),
-    // unmuteUser: (...args) => muteToggle(...args, false),
-  }));
+Meteor.methods(mapToAcl(['methods.userLogout', 'methods.setEmojiStatus',
+], {
+  userLogout,
+  setEmojiStatus,
+}));
 
 Meteor.methods({ validateAuthToken2x: validateAuthToken });

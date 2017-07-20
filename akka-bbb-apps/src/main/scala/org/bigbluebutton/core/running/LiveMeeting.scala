@@ -9,24 +9,25 @@ import org.bigbluebutton.core.domain.Meeting3x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 
-class LiveMeeting(val props: DefaultProps,
-    val status: MeetingStatus2x,
-    val deskshareModel: DeskshareModel,
-    val chatModel: ChatModel,
-    val layoutModel: LayoutModel,
-    val layouts: Layouts,
-    val registeredUsers: RegisteredUsers,
-    val polls: Polls, // 2x
-    val pollModel: PollModel, // 1.1x
-    val wbModel: WhiteboardModel,
-    val presModel: PresentationModel,
-    val breakoutRooms: BreakoutRooms,
-    val captionModel: CaptionModel,
-    val notesModel: SharedNotesModel,
-    val webcams: Webcams,
-    val voiceUsers: VoiceUsers,
-    val users2x: Users2x,
-    val guestsWaiting: GuestsWaiting) {
+class LiveMeeting(
+    val props:            DefaultProps,
+    val status:           MeetingStatus2x,
+    val screenshareModel: ScreenshareModel,
+    val chatModel:        ChatModel,
+    val layoutModel:      LayoutModel,
+    val layouts:          Layouts,
+    val registeredUsers:  RegisteredUsers,
+    val polls:            Polls, // 2x
+    val wbModel:          WhiteboardModel,
+    val presModel:        PresentationModel,
+    val breakoutRooms:    BreakoutRooms,
+    val captionModel:     CaptionModel,
+    val notesModel:       SharedNotesModel,
+    val webcams:          Webcams,
+    val voiceUsers:       VoiceUsers,
+    val users2x:          Users2x,
+    val guestsWaiting:    GuestsWaiting
+) {
 
   def hasMeetingEnded(): Boolean = {
     MeetingStatus2x.hasMeetingEnded(status)

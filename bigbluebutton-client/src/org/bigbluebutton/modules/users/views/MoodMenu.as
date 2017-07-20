@@ -28,7 +28,8 @@ package org.bigbluebutton.modules.users.views {
 	import mx.events.FlexMouseEvent;
 	import mx.events.MenuEvent;
 	import mx.managers.PopUpManager;
-	import org.bigbluebutton.common.Images;
+	
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.views.WellPositionedMenu;
@@ -47,11 +48,11 @@ package org.bigbluebutton.modules.users.views {
 				"beRightBack",
 				"happy",
 				"sad",
+				"confused",
+				"neutral",
 				"clear"];
 
 		private var dispatcher:Dispatcher;
-
-		private var images:Images;
 
 		private var menu:Menu;
 
@@ -64,7 +65,6 @@ package org.bigbluebutton.modules.users.views {
 
 		public function MoodMenu() {
 			dispatcher = new Dispatcher();
-			images = new Images();
 			addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler, false, 0, true);
 			this.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
@@ -85,7 +85,7 @@ package org.bigbluebutton.modules.users.views {
 
 				var item:Object = {
 					label: ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + mood),
-					icon: images["mood_" + mood]
+					icon: getStyle("iconMood" + StringUtils.capitalize(mood))
 				};
 
 				moods.addItem(item);

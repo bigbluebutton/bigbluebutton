@@ -3,13 +3,9 @@ package org.bigbluebutton
 import akka.event.Logging
 import akka.actor.ActorSystem
 import org.bigbluebutton.endpoint.redis.{ AppsRedisSubscriberActor, KeepAliveRedisPublisher, RedisPublisher, RedisRecorderActor }
-import org.bigbluebutton.core.BigBlueButtonInGW
-import org.bigbluebutton.core.MessageSender
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.MessageSenderActor
+import org.bigbluebutton.core._
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.JsonMessageSenderActor
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
 import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
 
@@ -19,11 +15,13 @@ object Boot extends App with SystemConfiguration {
   implicit val executor = system.dispatcher
   val logger = Logging(system, getClass)
 
-  val eventBus = new IncomingEventBus
+  val eventBus = new InMsgBusGW(new IncomingEventBusImp())
+
   val outgoingEventBus = new OutgoingEventBus
   val outBus2 = new OutEventBus2
   val recordingEventBus = new RecordingEventBus
-  val outGW = new OutMessageGateway(outgoingEventBus, outBus2, recordingEventBus)
+
+  val outGW = new OutMessageGatewayImp(outgoingEventBus, outBus2, recordingEventBus)
 
   val redisPublisher = new RedisPublisher(system)
   val msgSender = new MessageSender(redisPublisher)
@@ -31,12 +29,10 @@ object Boot extends App with SystemConfiguration {
   val redisRecorderActor = system.actorOf(RedisRecorderActor.props(system), "redisRecorderActor")
 
   val messageSenderActor = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
-  val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
 
   outgoingEventBus.subscribe(messageSenderActor, outMessageChannel)
 
   outgoingEventBus.subscribe(redisRecorderActor, outMessageChannel)
-  outgoingEventBus.subscribe(newMessageSenderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 
   val bbbMsgBus = new BbbMsgRouterEventBus

@@ -3,7 +3,8 @@ package org.bigbluebutton.modules.videoconf.views
     import flash.display.DisplayObject;
     
     import mx.containers.Canvas;
-    import mx.core.UIComponent;    
+    import mx.core.UIComponent;
+    
     import org.bigbluebutton.core.model.users.User2x;
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 

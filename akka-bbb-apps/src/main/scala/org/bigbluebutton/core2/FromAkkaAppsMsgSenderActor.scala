@@ -15,7 +15,7 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
   def receive = {
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-    case _ => log.warning("Cannot handle message ")
+    case _                        => log.warning("Cannot handle message ")
   }
 
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -23,13 +23,13 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
     msg.envelope.name match {
       case SyncGetPresentationInfoRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetMeetingInfoRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetUsersMeetingRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetMeetingInfoRespMsg.NAME      => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
 
       // Sent to FreeSWITCH
-      case DeskshareStartRtmpBroadcastVoiceConfMsg.NAME =>
+      case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
-      case DeskshareStopRtmpBroadcastVoiceConfMsg.NAME =>
+      case ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
       case EjectAllFromVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)

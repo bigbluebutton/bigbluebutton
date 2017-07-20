@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()"
 		   initialize="init()"
-           height="24"
+           height="30"
 		   toolTip="{_currentState == ON_STATE ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="false"
 		   enabled="true"

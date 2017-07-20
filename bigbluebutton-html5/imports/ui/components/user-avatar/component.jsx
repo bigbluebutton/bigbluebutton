@@ -49,7 +49,7 @@ export default class UserAvatar extends Component {
   renderAvatarContent() {
     const user = this.props.user;
 
-    let content = <span aria-hidden="true">{user.name.slice(0, 2)}</span>;
+    let content = <span aria-hidden="true" className={styles.avatarText}>{user.name.slice(0, 2)}</span>;
 
     if (user.emoji.status !== 'none') {
       let iconEmoji;

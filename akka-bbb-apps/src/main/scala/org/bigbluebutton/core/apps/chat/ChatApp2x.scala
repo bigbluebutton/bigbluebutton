@@ -6,8 +6,10 @@ import org.bigbluebutton.common2.msgs.TranscriptVO
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.LiveMeeting
 
-class ChatApp2x(val liveMeeting: LiveMeeting,
-  val outGW: OutMessageGateway)(implicit val context: ActorContext)
+class ChatApp2x(
+  val liveMeeting: LiveMeeting,
+  val outGW:       OutMessageGateway
+)(implicit val context: ActorContext)
     extends GetChatHistoryReqMsgHdlr
     with SendPublicMessagePubMsgHdlr
     with SendPrivateMessagePubMsgHdlr

@@ -1,4 +1,4 @@
-@import "../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/_all";
 
 $btn-default-color: $color-gray;
 $btn-default-bg: $color-white;
@@ -104,7 +104,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     display: block;
     margin-top: $btn-spacing;
     font-size: 90%;
-    color: $color-white;
+    color: #fff;
     font-weight: normal;
     line-height: 1.5;
     text-align: center;
@@ -137,7 +137,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 .icon {
   width: 1.28571429em;
   text-align: center;
-  color: $color-white;
+  color: #fff;
 
   .buttonWrapper & {
     font-size: 125%;

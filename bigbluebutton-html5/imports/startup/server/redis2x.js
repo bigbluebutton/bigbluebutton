@@ -63,7 +63,6 @@ class RedisPubSub2x {
     };
 
     Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
-
     return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);
@@ -105,7 +104,7 @@ class RedisPubSub2x {
     Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName} | CHANNEL ${channel}`);
 
     // We should only handle messages from this two channels, else, we simple ignore them.
-    if (channel !== fromAkkaApps || channel !== toHTML5) {
+    if (channel !== fromAkkaApps && channel !== toHTML5) {
       Logger.warn(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
       return;
     }
@@ -164,4 +163,3 @@ Meteor.startup(() => {
 });
 
 export default RedisPubSubSingleton;
-

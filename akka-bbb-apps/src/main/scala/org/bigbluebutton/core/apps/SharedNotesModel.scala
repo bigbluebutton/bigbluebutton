@@ -103,7 +103,7 @@ class SharedNotesModel {
   def getNoteReport(noteId: String): Option[NoteReport] = {
     notes.get(noteId) match {
       case Some(note) => Some(noteToReport(note))
-      case None => None
+      case None       => None
     }
   }
 

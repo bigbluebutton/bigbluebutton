@@ -2,7 +2,6 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ MeetingMuted, MuteVoiceUser }
 import org.bigbluebutton.core.models.{ UserState, Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -30,7 +29,7 @@ trait MuteAllExceptPresentersCmdMsgHdlr {
       if (!vu.listenOnly) {
         Users2x.findWithIntId(liveMeeting.users2x, vu.intId) match {
           case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu)
-          case None => muteUserInVoiceConf(vu)
+          case None    => muteUserInVoiceConf(vu)
         }
       }
     }
