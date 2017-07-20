@@ -1,7 +1,7 @@
 /*
  @(#)Log4jDirectConfigurer.java  $Revision: 1.1 $ $Date: 2008/11/13 13:50:20EST $
  *
- * Copyright (c) 2008 N-III Project - Royal Canadian Mounted Police
+ * Copyright Copyright 2008 N-III Project - Royal Canadian Mounted Police
  * All rights reserved.
  *
  * This software is the confidential and proprietary information of Royal

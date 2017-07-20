@@ -1,7 +1,7 @@
 /*
  * Acorn Media Player - jQuery plugin 1.6
  *
- * Copyright (C) 2012 Ionut Cristian Colceriu
+ * Copyright Copyright 2012 Ionut Cristian Colceriu
  *
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007 FlexLib Contributors.  See:
+* Copyright Copyright 2007 FlexLib Contributors.  See:
 * http://code.google.com/p/flexlib/wiki/ProjectContributors
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of

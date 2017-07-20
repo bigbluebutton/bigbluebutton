@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 # encoding: UTF-8
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright ⓒ 2017 The N-Line Project. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #

@@ -38,7 +38,7 @@
 	<property name="LAYOUT" value="LayoutModule" />
 	<property name="USERS" value="UsersModule" />
 	<property name="CAPTION" value="CaptionModule" />
-	
+
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 
 	<target name="init-ant-contrib">
@@ -138,7 +138,7 @@
         	</if>
        </sequential>
 	</target>
-	
+
 	<target name="localize">
 	 <compileLocale locale="${LOCALE}" />
 	</target>
@@ -213,12 +213,12 @@
     <echo message="Compiling screenshare standalone without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${SCREENSHARE_SA}" />
   </target>
-  
+
   <target name="build-screenshare-no-linker" description="Compile Screenshare Module without the linker">
     <echo message="Compiling screenshare without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${SCREENSHARE}" />
-  </target>  
-    	
+  </target>
+
   <target name="build-webcam-preview-standalone" description="Compile Webcam Preview Standalone Application">
     <echo message="Compiling webcam preview standalone without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${CAM_PREVIEW_SA}" />
@@ -243,12 +243,12 @@
     <echo message="Compiling Connection Check Application." />
     <build-module-no-link src="${SRC_DIR}" target="${CONNECTION_CHECK}" />
   </target>
-	
+
   <target name="build-screenshare" description="Compile Screenshare Module">
     <build-module src="${SRC_DIR}" target="${SCREENSHARE}" />
     <echo message="Copying deskshare applet for Screenshare Module" />
   </target>
-    	
+
 	<target name="build-phone" description="Compile Phone Module">
 		<build-module src="${SRC_DIR}" target="${PHONE}" />
 
@@ -273,19 +273,19 @@
 	<target name="build-users" description="Compile Users Module">
 			<build-module src="${SRC_DIR}" target="${USERS}" />
 	</target>
-	
-	<target name="build-caption" description="Compile Caption Module">
+
+	<!--<target name="build-caption" description="Compile Caption Module">
 			<build-module src="${SRC_DIR}" target="${CAPTION}" />
-	</target>
-	
+	</target>-->
+
 	<!-- just a grouping of modules to compile -->
-	<target name="build-main-chat-present" 
-			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users, build-caption"
+	<target name="build-main-chat-present"
+			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users"
 			description="Compile main, chat, present modules">
 	</target>
 
 	<!-- just a grouping of modules to compile -->
-	<target name="build-screenshare-phone-video-whiteboard-dyn" 
+	<target name="build-screenshare-phone-video-whiteboard-dyn"
 			depends="build-screenshare, build-phone, build-video, build-whiteboard, build-notes, build-polling"
 			description="Compile screenshare, phone, video, whiteboard modules">
 	</target>
@@ -384,10 +384,10 @@
 	</macrodef>
 
   <target name="compile-screenshare-standalone" depends="build-screenshare-standalone"
-      description="Compiling standalone screen sharing"> 
+      description="Compiling standalone screen sharing">
       <echo message="Screenshare standalone built without optimization." />
   </target>
-      	
+
 	<target name="compile-bbb" depends="build-main-chat-present, build-screenshare-phone-video-whiteboard-dyn, copy-resource-files"
 			description="Compiling the BBB without copying config.xml">
 	</target>
@@ -449,7 +449,7 @@
 
 	<target name="generate-html-wrapper">
 		<html-wrapper
-			title="BigBlueButton"
+			title="WebShule"
 			file="BigBlueButton.html"
 			height="100%"
 			width="100%"
@@ -513,12 +513,12 @@
 	<!-- NOTE: compile-screenshare-standalone MUST come first before compile-bbb as we need the screenshare-standalone
 				to be compiled without being optimized by using the linker -->
 	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-screenshare-standalone,
-	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
-			description="Build BBB client skipping compiling of locales"/>	
+	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"
+			description="Build BBB client skipping compiling of locales"/>
 	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper,
 		                                       compile-screenshare-standalone, build-mic-check,
-	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone, 
-	                                         compile-bbb, branding, branding-black" 
+	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone,
+	                                         compile-bbb, branding, branding-black"
 			description="Build BBB client including locales"/>
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-screenshare-standalone,
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"

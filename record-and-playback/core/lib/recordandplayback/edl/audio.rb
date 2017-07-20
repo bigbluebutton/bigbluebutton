@@ -2,7 +2,7 @@
 
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
-# Copyright (c) 2013 BigBlueButton Inc. and by respective authors.
+# Copyright Copyright 2013 The N-Line Project. and by respective authors.
 #
 # BigBlueButton is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by the

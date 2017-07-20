@@ -1,7 +1,7 @@
 /*
  * NellyMoser ASAO codec
- * Copyright (C) 2007-2008  UAB "DKD"
- * Copyright (C) 2007-2008  Joseph Artsimovich <jart@users.sourceforge.net>
+ * Copyright Copyright 2007-2008  UAB "DKD"
+ * Copyright Copyright 2007-2008  Joseph Artsimovich <jart@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
