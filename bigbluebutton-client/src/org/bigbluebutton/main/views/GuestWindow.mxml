@@ -34,15 +34,19 @@
 
 	<fx:Script>
 		<![CDATA[
-			import mx.managers.PopUpManager;
-			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.main.events.RemoveGuestEvent;
-			import org.bigbluebutton.main.events.ResponseModeratorEvent;
-			import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import mx.controls.Button;
-			import mx.events.CloseEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.controls.Button;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.core.model.users.GuestWaiting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.RemoveGuestEvent;
+      import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
+      import org.bigbluebutton.main.events.ResponseModeratorEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var guestButtons:Object = new Object();
 			[Bindable] private var numberOfGuests:Number = 0;
@@ -53,13 +57,15 @@
 				//this.isPopUp = false;
 			}
 
-			public function refreshGuestView(listOfGuests:Object):void {
-				for (var userid:String in listOfGuests) {
-					if(guestButtons[userid] == null) {
+			public function refreshGuestView():void {
+        var _guests: Array = LiveMeeting.inst().guestsWaiting.getGuests();
+        for (var i:int = 0; i < _guests.length; i++) {
+          var _guest: GuestWaiting = _guests[i] as GuestWaiting;
+					if(guestButtons[_guest.intId] == null) {
 						var guestItem:GuestItem = new GuestItem();
-						guestItem.setUser(listOfGuests[userid], userid);
+						guestItem.setUser(_guest.name, _guest.intId);
 						guestListBox.addChild(guestItem);
-						guestButtons[userid] = guestItem;
+						guestButtons[_guest.intId] = guestItem;
 						numberOfGuests++;
 					}
 				}

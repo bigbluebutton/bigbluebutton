@@ -97,11 +97,15 @@ case class GuestPolicyChangedEvtMsgBody(policy: String, setBy: String)
 /**
   * Message from user to get the guest policy.
   */
-object GetGuestPolicyReqMsg {
-  val NAME = "GetGuestPolicyReqMsg"
-}
+object GetGuestPolicyReqMsg { val NAME = "GetGuestPolicyReqMsg" }
 case class GetGuestPolicyReqMsg(header: BbbClientMsgHeader,
                              body: GetGuestPolicyReqMsgBody) extends StandardMsg
-case class GetGuestPolicyReqMsgBody(reqeustedBy: String)
+case class GetGuestPolicyReqMsgBody(requestedBy: String)
 
-
+/**
+  * Sent to client as response to query for guest policy.
+  */
+object GetGuestPolicyRespMsg { val NAME = "GetGuestPolicyRespMsg" }
+case class GetGuestPolicyRespMsg(header: BbbClientMsgHeader,
+                                body: GetGuestPolicyRespMsgBody) extends StandardMsg
+case class GetGuestPolicyRespMsgBody(policy: String)

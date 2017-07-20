@@ -176,10 +176,10 @@ package org.bigbluebutton.modules.users.services
         case "ScreenshareRtmpBroadcastStoppedEvtMsg":
           handleScreenshareRtmpBroadcastStoppedEvtMsg(message);
           break;
-        case "get_guest_policy_reply":
+        case "GetGuestPolicyRespMsg":
           handleGetGuestPolicyReply(message);
           break;
-        case "guest_policy_changed":
+        case "GuestPolicyChangedEvtMsg":
           handleGuestPolicyChanged(message);
           break;
         case "guest_access_denied":
@@ -755,24 +755,26 @@ package org.bigbluebutton.modules.users.services
     }
   }
 
-
-
     public function handleGuestPolicyChanged(msg:Object):void {
-      LOGGER.debug("*** handleGuestPolicyChanged " + msg.msg + " **** \n");
-      var map:Object = JSON.parse(msg.msg);
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var policy: String = body.policy as String;
 
-      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
-      policy.payload['guestPolicy'] = map.guestPolicy;
-      dispatcher.dispatchEvent(policy);
+      var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policyEvent.payload['guestPolicy'] = policy;
+      dispatcher.dispatchEvent(policyEvent);
     }
 
     public function handleGetGuestPolicyReply(msg:Object):void {
-      LOGGER.debug("*** handleGetGuestPolicyReply " + msg.msg + " **** \n");
-      var map:Object = JSON.parse(msg.msg);
-
-      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
-      policy.payload['guestPolicy'] = map.guestPolicy;
-      dispatcher.dispatchEvent(policy);
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var policy: String = body.policy as String;
+      
+      LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
+      
+      var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policyEvent.payload['guestPolicy'] = policyEvent;
+      dispatcher.dispatchEvent(policyEvent);
     }
 
     public function handleGuestAccessDenied(msg:Object):void {

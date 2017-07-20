@@ -577,8 +577,15 @@ package org.bigbluebutton.modules.users.services
 
     public function queryForGuestPolicy():void {
       LOGGER.debug("queryForGuestPolicy");
+      
+      var message:Object = {
+        header: {name: "GetGuestPolicyReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requestedBy: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.getGuestPolicy",
+      _nc.sendMessage2x(
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
@@ -587,7 +594,8 @@ package org.bigbluebutton.modules.users.services
                 logData.tags = ["apps"];
                 logData.message = "Error occured query guest policy.";
                 LOGGER.info(JSON.stringify(logData));
-         }
+         },
+         JSON.stringify(message)
        );
     }
 
