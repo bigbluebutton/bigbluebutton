@@ -94,8 +94,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.geom.Point;
 			import flash.net.navigateToURL;
 			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -103,6 +101,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
+			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -181,8 +181,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
 			[Bindable] private var _showToolbar:Boolean = true;
-			private const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
-			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
+			[Bindable] private var toolbarHeight:Number = 50;
 			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
@@ -422,7 +421,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var appHeight:Number = parentApplication.height;
 				
 				mdiCanvas.width = appWidth;
-				mdiCanvas.height = appHeight - (_showFooter? footerHeight: 0) - (_showToolbar? toolbarHeight: 0);
+				mdiCanvas.height = appHeight - (_showFooter ? footerHeight: 0) - (_showToolbar ? toolbarHeight: 0);
 				updateCanvasBackgroundDimensions();
 			}
 			
@@ -912,7 +911,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateToolbarHeight():void {
 				if (toolbarHeight != 0) {
-					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + 10);
+					toolbarHeight = Math.max(toolbarHeight, toolbar.logo.height + 10);
 				}
 				calculateCanvasHeight();
 			}
@@ -1023,13 +1022,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   paddingTop="{toolbarPaddingTop}"
 					   updateComplete="updateToolbarHeight()"
 					   paddingBottom="0" />
-					   
+				
+	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
 	<views:MainCanvas id="mdiCanvas"
 					  horizontalScrollPolicy="off"
 					  verticalScrollPolicy="off"
 					  styleName="mdiCanvasStyle"
-					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
-					  width="100%" >
+					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
+					  height="150"
+					  width="100%">
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
 		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
