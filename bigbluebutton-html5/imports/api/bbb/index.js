@@ -44,4 +44,6 @@ class BBB {
 
 }
 
-window.BBB = new BBB();
+if (window.BBB == undefined) {
+  window.BBB = new BBB();
+}

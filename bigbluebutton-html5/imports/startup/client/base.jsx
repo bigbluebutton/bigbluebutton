@@ -7,6 +7,7 @@ import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import IntlStartup from './intl';
+import BBB from '/imports/api/bbb';
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
 
