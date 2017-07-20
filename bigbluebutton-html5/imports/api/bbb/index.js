@@ -3,7 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 
-class htmlBBB {
+class BBB {
 
   getUserId() {
     let userID = Auth.userID;
@@ -44,4 +44,4 @@ class htmlBBB {
 
 }
 
-window.BBB = new htmlBBB();
+window.BBB = new BBB();
