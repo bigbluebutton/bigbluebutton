@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
+import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -10,7 +11,9 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { makeCall } from '/imports/ui/services/api';
+import Auth from '/imports/ui/services/auth';
 import Chats from '/imports/api/2.0/chat';
+import Acl from '/imports/startup/acl';
 import ChatService from './../service';
 import styles from './styles';
 
@@ -82,8 +85,41 @@ class ChatDropdown extends Component {
     });
   }
 
+  getAvailableActions() {
+    const { intl } = this.props;
+
+    return _.compact([
+      (Acl.can('clearPublicChatHistory', Auth.credentials) ?
+        <DropdownListItem
+          label={intl.formatMessage(intlMessages.clear)}
+          key={_.uniqueId('action-item-')}
+          onClick={() => makeCall('clearPublicChatHistory')}
+        />
+        : null),
+      (<DropdownListItem
+        label={intl.formatMessage(intlMessages.save)}
+        key={_.uniqueId('action-item-')}
+        onClick={() => {
+          const link = document.createElement('a');
+          const mimeType = 'text/plain';
+
+          link.setAttribute('download', 'chat.txt');
+          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8, ${encodeURIComponent(ChatDropdown.getPublicMessages())}`);
+          link.click();
+        }}
+      />),
+      (<DropdownListItem
+        id="clipboardButton"
+        label={intl.formatMessage(intlMessages.copy)}
+        key={_.uniqueId('action-item-')}
+      />),
+    ]);
+  }
+
   render() {
     const { intl } = this.props;
+
+    const availableActions = this.getAvailableActions();
 
     return (
       <Dropdown
@@ -105,25 +141,7 @@ class ChatDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>
-            <DropdownListItem
-              label={intl.formatMessage(intlMessages.clear)}
-              onClick={() => makeCall('clearPublicChatHistory')}
-            />
-            <DropdownListItem
-              label={intl.formatMessage(intlMessages.save)}
-              onClick={() => {
-                const link = document.createElement('a');
-                const mimeType = 'text/plain';
-
-                link.setAttribute('download', 'chat.txt');
-                link.setAttribute('href', `data: ${mimeType} ;charset=utf-8, ${encodeURIComponent(ChatDropdown.getPublicMessages())}`);
-                link.click();
-              }}
-            />
-            <DropdownListItem
-              id="clipboardButton"
-              label={intl.formatMessage(intlMessages.copy)}
-            />
+            {availableActions}
           </DropdownList>
         </DropdownContent>
       </Dropdown>
