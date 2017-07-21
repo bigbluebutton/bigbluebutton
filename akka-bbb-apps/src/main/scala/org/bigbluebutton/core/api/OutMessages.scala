@@ -31,5 +31,8 @@ case class DeskShareNotifyViewersRTMP(meetingID: String, streamPath: String, vid
 case class DeskShareNotifyASingleViewer(meetingID: String, userID: String, streamPath: String, videoWidth: Int, videoHeight: Int, broadcasting: Boolean) extends IOutMessage
 case class DeskShareHangUp(meetingID: String, fsConferenceName: String) extends IOutMessage
 
+//Transcode
+case class StopMeetingTranscoders(meetingID: String) extends IOutMessage
+
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

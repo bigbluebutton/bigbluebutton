@@ -1,5 +1,5 @@
-@import "../../../stylesheets/variables/_all";
-@import "../../../stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
 
 .modal {
   @include scrollbox-vertical();

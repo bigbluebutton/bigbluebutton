@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:views="org.bigbluebutton.main.views.*"
 	styleName="recordButtonStyleNormal"
 	click="confirmChangeRecordingStatus()"
-	height="24"
+	height="30"
 	enabled="false"
 	creationComplete="onCreationComplete()"
 	visible="true"
@@ -70,9 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var layoutOptions:LayoutOptions = null;
 			private var _confirmationAlert:Alert = null;
 			
-			[Embed(source="/org/bigbluebutton/common/assets/images/record.png")]
-			private var recordReminderIcon:Class;
-
 			private function onCreationComplete():void {
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
 			}
@@ -182,7 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
 					// we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially
 					alert.setStyle("modalTransparencyDuration", 250);
-					alert.titleIcon = recordReminderIcon;
+					alert.titleIcon = getStyle('iconRecordReminder');
 					
 					var newX:Number = this.x;
 					var newY:Number = this.y + this.height + 5;

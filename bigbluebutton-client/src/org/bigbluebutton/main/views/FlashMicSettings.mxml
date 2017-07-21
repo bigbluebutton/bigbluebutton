@@ -49,7 +49,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Media;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
@@ -85,9 +84,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var mic:Microphone;
 			private var audioMicLevelDetected:int = 0;
 			private var playingAudio:Boolean = false;
-			private var images:Images = new Images();
-
-			[Bindable] private var cancelIcon:Class = images.cancel;
 
 			[Bindable] private var microphoneList:Array;      
       private var doingEchoTest:Boolean = false;

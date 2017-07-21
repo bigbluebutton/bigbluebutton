@@ -19,19 +19,22 @@
 package org.bigbluebutton.modules.users.views {
 
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.MouseEvent;
+	
 	import mx.containers.HBox;
 	import mx.containers.VBox;
 	import mx.controls.Button;
 	import mx.controls.Label;
 	import mx.core.ScrollPolicy;
 	import mx.events.FlexMouseEvent;
-	import org.bigbluebutton.common.Images;
+	
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
+	// This class is likely to be removed for V2, We need to move the tooltips to MoodeMenu
 	public class EmojiGrid extends VBox {
 		private const EMOJIS:Array = ["raiseHand", "happy", "neutral", "sad", "confused", "away", "thumbsUp", "thumbsDown", "applause"];
 

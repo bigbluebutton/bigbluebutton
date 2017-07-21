@@ -11,13 +11,13 @@
 				
 				switch (value.type) {
 					case "success":
-						typeImg.source = typeImg.getStyle("successImage");
+						typeImg.source = getStyle("iconSuccess");
 						break;
 					case "warning":
-						typeImg.source = typeImg.getStyle("warningImage");
+						typeImg.source = getStyle("iconWarning");
 						break;
 					case "fail":
-						typeImg.source = typeImg.getStyle("failImage");
+						typeImg.source = getStyle("iconFail");
 						break
 				}
 				titleLbl.text = value.title;
@@ -31,7 +31,7 @@
 			}
 		]]>
 	</fx:Script>
-	<mx:Image id="typeImg" width="34" height="34" styleName="statusImageStyle" />
+	<mx:Image id="typeImg" width="34" height="34" />
 	<mx:VBox width="100%" verticalGap="0">
 		<mx:Label id="titleLbl" width="100%" styleName="statusTitleStyle"/>
 		<mx:Text id="messageTxt" width="100%" styleName="statusMessageStyle"/>
