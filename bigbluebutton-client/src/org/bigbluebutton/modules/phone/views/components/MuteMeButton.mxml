@@ -57,10 +57,9 @@ $Id: $
 	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
+			import flash.filters.GlowFilter;
 			
 			import mx.core.mx_internal;
-			
-			import spark.filters.GlowFilter;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
