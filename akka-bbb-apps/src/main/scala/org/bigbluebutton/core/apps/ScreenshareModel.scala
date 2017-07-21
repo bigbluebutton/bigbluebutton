@@ -7,6 +7,9 @@ object ScreenshareModel {
     status.rtmpBroadcastingUrl = ""
     status.screenshareVideoWidth = 0
     status.screenshareVideoHeight = 0
+    status.voiceConf = ""
+    status.screenshareConf = ""
+    status.timestamp = ""
   }
 
   def getScreenshareStarted(status: ScreenshareModel): Boolean = {
@@ -52,6 +55,30 @@ object ScreenshareModel {
   def getRTMPBroadcastingUrl(status: ScreenshareModel): String = {
     status.rtmpBroadcastingUrl
   }
+
+  def setVoiceConf(status: ScreenshareModel, voiceConf: String): Unit = {
+    status.voiceConf = voiceConf
+  }
+
+  def getVoiceConf(status: ScreenshareModel): String = {
+    status.voiceConf
+  }
+
+  def setScreenshareConf(status: ScreenshareModel, screenshareConf: String): Unit = {
+    status.screenshareConf = screenshareConf
+  }
+
+  def getScreenshareConf(status: ScreenshareModel): String = {
+    status.screenshareConf
+  }
+
+  def setTimestamp(status: ScreenshareModel, timestamp: String): Unit = {
+    status.timestamp = timestamp
+  }
+
+  def getTimestamp(status: ScreenshareModel): String = {
+    status.timestamp
+  }
 }
 
 class ScreenshareModel {
@@ -60,56 +87,7 @@ class ScreenshareModel {
   private var screenshareVideoWidth = 0
   private var screenshareVideoHeight = 0
   private var broadcastingRTMP = false
-
-  private def resetDesktopSharingParams() = {
-    broadcastingRTMP = false
-    screenshareStarted = false
-    rtmpBroadcastingUrl = ""
-    screenshareVideoWidth = 0
-    screenshareVideoHeight = 0
-  }
-
-  private def getScreenshareStarted(): Boolean = {
-    return screenshareStarted
-  }
-
-  private def setScreenshareStarted(b: Boolean) {
-    screenshareStarted = b
-  }
-
-  private def setScreenshareVideoWidth(videoWidth: Int) {
-    screenshareVideoWidth = videoWidth
-  }
-
-  private def setScreenshareVideoHeight(videoHeight: Int) {
-    screenshareVideoHeight = videoHeight
-  }
-
-  private def getScreenshareVideoWidth(): Int = {
-    screenshareVideoWidth
-  }
-
-  private def getScreenshareVideoHeight(): Int = {
-    screenshareVideoHeight
-  }
-
-  private def broadcastingRTMPStarted() {
-    broadcastingRTMP = true
-  }
-
-  private def isBroadcastingRTMP(): Boolean = {
-    broadcastingRTMP
-  }
-
-  private def broadcastingRTMPStopped() {
-    broadcastingRTMP = false
-  }
-
-  private def setRTMPBroadcastingUrl(path: String) {
-    rtmpBroadcastingUrl = path
-  }
-
-  private def getRTMPBroadcastingUrl(): String = {
-    rtmpBroadcastingUrl
-  }
+  private var voiceConf: String = ""
+  private var screenshareConf: String = ""
+  private var timestamp: String = ""
 }
