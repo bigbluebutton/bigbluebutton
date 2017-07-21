@@ -11,6 +11,7 @@ class ScreenshareApp2x(
 )(implicit val context: ActorContext)
     extends ScreenshareStartedVoiceConfEvtMsgHdlr
     with ScreenshareStoppedVoiceConfEvtMsgHdlr
+    with GetScreenshareStatusReqMsgHdlr
     with ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr
     with ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
 
