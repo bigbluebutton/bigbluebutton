@@ -19,6 +19,7 @@
   "dependencies": {
     "babel-runtime": "^6.23.0",
     "classnames": "^2.2.5",
+    "clipboard": "^1.7.1",
     "eventemitter2": "^2.1.3",
     "flat": "^2.0.1",
     "hiredis": "^0.5.0",

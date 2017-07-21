@@ -1,0 +1,134 @@
+import React, { Component } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import Clipboard from 'clipboard';
+import Button from '/imports/ui/components/button/component';
+import Dropdown from '/imports/ui/components/dropdown/component';
+import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
+import DropdownContent from '/imports/ui/components/dropdown/content/component';
+import DropdownList from '/imports/ui/components/dropdown/list/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import { makeCall } from '/imports/ui/services/api';
+import Chats from '/imports/api/2.0/chat';
+import ChatService from './../service';
+import styles from './styles';
+
+const intlMessages = defineMessages({
+  clear: {
+    id: 'app.chat.dropdown.clear',
+    description: 'Clear button label',
+  },
+  save: {
+    id: 'app.chat.dropdown.save',
+    description: 'Clear button label',
+  },
+  copy: {
+    id: 'app.chat.dropdown.copy',
+    description: 'Copy button label',
+  },
+  options: {
+    id: 'app.chat.dropdown.options',
+    description: 'Chat Options',
+  },
+});
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_USERNAME = CHAT_CONFIG.public_username;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+
+class ChatDropdown extends Component {
+
+  static getPublicMessages() {
+    const publicMessages = Chats.find({
+      'message.toUsername': { $in: [PUBLIC_CHAT_USERNAME, SYSTEM_CHAT_TYPE] },
+    }, {
+      sort: ['message.fromTime'],
+    }).fetch();
+
+    return ChatService.exportChat(publicMessages).join('\n');
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isSettingOpen: false,
+    };
+
+    this.onActionsShow = this.onActionsShow.bind(this);
+    this.onActionsHide = this.onActionsHide.bind(this);
+  }
+
+  componentDidMount() {
+    this.clipboard = new Clipboard('#clipboardButton', {
+      text: () => ChatDropdown.getPublicMessages(),
+    });
+  }
+
+  componentWillUnmount() {
+    this.clipboard.destroy();
+  }
+
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
+  }
+
+  render() {
+    const { intl } = this.props;
+
+    return (
+      <Dropdown
+        isOpen={this.state.isSettingOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+      >
+        <DropdownTrigger tabIndex={0}>
+          <Button
+            label={intl.formatMessage(intlMessages.options)}
+            icon="more"
+            circle
+            hideLabel
+            className={cx(styles.btn, styles.btnSettings)}
+            // FIXME: Without onClick react proptypes keep warning
+            // even after the DropdownTrigger inject an onClick handler
+            onClick={() => null}
+          />
+        </DropdownTrigger>
+        <DropdownContent placement="bottom right">
+          <DropdownList>
+            <DropdownListItem
+              label={intl.formatMessage(intlMessages.clear)}
+              onClick={() => makeCall('clearPublicChatHistory')}
+            />
+            <DropdownListItem
+              label={intl.formatMessage(intlMessages.save)}
+              onClick={() => {
+                const link = document.createElement('a');
+                const mimeType = 'text/plain';
+
+                link.setAttribute('download', 'chat.txt');
+                link.setAttribute('href', `data: ${mimeType} ;charset=utf-8, ${encodeURIComponent(ChatDropdown.getPublicMessages())}`);
+                link.click();
+              }}
+            />
+            <DropdownListItem
+              id="clipboardButton"
+              label={intl.formatMessage(intlMessages.copy)}
+            />
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
+    );
+  }
+}
+
+export default withModalMounter(injectIntl(ChatDropdown));

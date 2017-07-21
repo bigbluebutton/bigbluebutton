@@ -220,15 +220,26 @@ const closePrivateChat = (chatID) => {
   }
 };
 
+// We decode to prevent HTML5 escaped characters.
+const htmlDecode = (input) => {
+  const e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes[0].nodeValue;
+};
+
+const formatTime = time => (time <= 9 ? `0${time}` : time);
+
 // Export the chat as [Hour:Min] user : message
 const exportChat = messageList => (
   messageList.map(({ message }) => {
     const date = new Date(message.fromTime);
-    const hourMin = `${date.getHours()}:${date.getMinutes()}`;
-    if (message.fromUserId === 'SYSTEM_MESSAGE') {
+    const hour = formatTime(date.getHours());
+    const min = formatTime(date.getMinutes());
+    const hourMin = `${hour}:${min}`;
+    if (message.fromUserId === SYSTEM_CHAT_TYPE) {
       return `[${hourMin}] ${message.message}`;
     }
-    return `[${hourMin}] ${message.fromUsername}: ${message.message}`;
+    return `[${hourMin}] ${message.fromUsername}: ${htmlDecode(message.message)}`;
   })
 );
 

@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 
-export default function sendChat(credentials, message) {
+export default function clearPublicChatHistory(credentials) {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -10,7 +10,6 @@ export default function sendChat(credentials, message) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
-  check(message, Object);
 
   const eventName = 'ClearPublicChatHistoryPubMsg';
 
