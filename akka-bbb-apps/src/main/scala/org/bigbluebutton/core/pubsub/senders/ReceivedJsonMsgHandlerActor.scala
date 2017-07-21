@@ -71,6 +71,16 @@ class ReceivedJsonMsgHandlerActor(
       case DestroyMeetingSysCmdMsg.NAME =>
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
 
+      // Guests
+      case GetGuestsWaitingApprovalReqMsg.NAME =>
+        routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
+      case GuestsWaitingApprovedMsg.NAME =>
+        routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
+      case SetGuestPolicyCmdMsg.NAME =>
+        routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
+      case GetGuestPolicyReqMsg.NAME =>
+        routeGenericMsg[GetGuestPolicyReqMsg](envelope, jsonNode)
+
       // Users
       case GetUsersMeetingReqMsg.NAME =>
         routeGenericMsg[GetUsersMeetingReqMsg](envelope, jsonNode)

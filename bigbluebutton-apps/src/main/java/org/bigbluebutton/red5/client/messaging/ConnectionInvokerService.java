@@ -150,14 +150,14 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
   }
 
   private void handleCloseMeetingAllConnectionsMsg(CloseMeetingAllConnectionsMsg msg) {
+    log.info("Disconnecting all clients for meeting {}", msg.meetingId);
+
     IScope meetingScope = getScope(msg.meetingId);
     if (meetingScope != null) {
       Set<IConnection> conns = meetingScope.getClientConnections();
 
       for (IConnection conn : conns) {
         if (conn.isConnected()) {
-          String connId = (String) conn.getAttribute("INTERNAL_USER_ID");
-          log.info("Disconnecting client=[{}] from meeting=[{}]", connId, msg.meetingId);
           conn.close();
         }
       }

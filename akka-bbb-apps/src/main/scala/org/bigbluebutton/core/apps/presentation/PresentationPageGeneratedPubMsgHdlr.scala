@@ -9,7 +9,6 @@ trait PresentationPageGeneratedPubMsgHdlr {
   val outGW: OutMessageGateway
 
   def handlePresentationPageGeneratedPubMsg(msg: PresentationPageGeneratedSysPubMsg): Unit = {
-    log.debug("**************** !!!!!PresentationPageGeneratedSysPubMsg " + msg.body.messageKey)
 
     def broadcastEvent(msg: PresentationPageGeneratedSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)

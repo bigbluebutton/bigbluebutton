@@ -1,9 +1,9 @@
-package org.bigbluebutton.core2.message.handlers.users
+package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
 
 trait ChangeUserEmojiCmdMsgHdlr {
   this: BaseMeetingActor =>

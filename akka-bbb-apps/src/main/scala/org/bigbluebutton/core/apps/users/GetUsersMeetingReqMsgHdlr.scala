@@ -11,8 +11,8 @@ trait GetUsersMeetingReqMsgHdlr extends HandlerHelpers {
   val outGW: OutMessageGateway
 
   def handleGetUsersMeetingReqMsg(msg: GetUsersMeetingReqMsg): Unit = {
-    sendAllUsersInMeeting(outGW, msg.body.userId, liveMeeting)
-    sendAllVoiceUsersInMeeting(outGW, msg.body.userId, liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId)
+    sendAllUsersInMeeting(msg.body.userId)
+    sendAllVoiceUsersInMeeting(msg.body.userId, liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId)
     sendAllWebcamStreams(outGW, msg.body.userId, liveMeeting.webcams, liveMeeting.props.meetingProp.intId)
   }
 }

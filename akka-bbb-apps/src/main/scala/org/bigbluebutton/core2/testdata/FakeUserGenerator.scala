@@ -53,8 +53,10 @@ object FakeUserGenerator {
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
-    RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, waitingForAcceptance = true, users)
+    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+      authToken, avatarURL, guest, authed, waitingForAcceptance = true)
+    RegisteredUsers.add(users, ru)
+    ru
   }
 
   def createFakeVoiceUser(user: RegisteredUser, callingWith: String, muted: Boolean, talking: Boolean,
