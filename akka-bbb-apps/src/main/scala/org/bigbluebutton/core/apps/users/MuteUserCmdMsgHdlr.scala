@@ -1,4 +1,4 @@
-package org.bigbluebutton.core2.message.handlers.users
+package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
 import org.bigbluebutton.core.OutMessageGateway

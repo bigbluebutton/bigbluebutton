@@ -112,14 +112,8 @@ package org.bigbluebutton.modules.users.services
         case "GuestsWaitingForApprovalEvtMsg":
           handleGuestsWaitingForApprovalEvtMsg(message);
           break;
-        case "meetingEnded":
-          handleLogout(message);
-          break;
         case "MeetingEndingEvtMsg":
           handleMeetingEnding(message);
-          break;
-        case "meetingHasEnded":
-          handleMeetingHasEnded(message);
           break;
         case "meetingMuted":
           handleMeetingMuted(message);
@@ -182,10 +176,10 @@ package org.bigbluebutton.modules.users.services
         case "ScreenshareRtmpBroadcastStoppedEvtMsg":
           handleScreenshareRtmpBroadcastStoppedEvtMsg(message);
           break;
-        case "get_guest_policy_reply":
+        case "GetGuestPolicyRespMsg":
           handleGetGuestPolicyReply(message);
           break;
-        case "guest_policy_changed":
+        case "GuestPolicyChangedEvtMsg":
           handleGuestPolicyChanged(message);
           break;
         case "guest_access_denied":
@@ -274,6 +268,7 @@ package org.bigbluebutton.modules.users.services
       var guestWaiting: GuestWaiting = new GuestWaiting(guest.intId, guest.name, guest.role);
       LiveMeeting.inst().guestsWaiting.add(guestWaiting);
     }
+	
     private function handleGuestsWaitingForApprovalEvtMsg(msg: Object): void {
       var body: Object = msg.body as Object;
       var guests: Array = body.guests as Array;
@@ -473,10 +468,6 @@ package org.bigbluebutton.modules.users.services
 			
 		return;
 	}
-	
-    private function handleMeetingHasEnded(msg: Object):void {
-      LOGGER.debug("*** handleMeetingHasEnded {0} **** \n", [msg.msg]); 
-    }
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
       //LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.msg]);
@@ -565,23 +556,16 @@ package org.bigbluebutton.modules.users.services
       
     }
     
-
-    
-    /**
-     * Called by the server to tell the client that the meeting has ended.
-     */
-    public function handleLogout(msg:Object):void {     
-      var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
-      dispatcher.dispatchEvent(endMeetingEvent);
-    }
     
     /**
      * This meeting is in the process of ending by the server
      */
     public function handleMeetingEnding(msg:Object):void {
       // Avoid trying to reconnect
-      var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
-      dispatcher.dispatchEvent(endMeetingEvent);
+      var cancelReconnectEvent:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
+      dispatcher.dispatchEvent(cancelReconnectEvent);
+	  var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
+	  dispatcher.dispatchEvent(endMeetingEvent);
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     
@@ -670,7 +654,6 @@ package org.bigbluebutton.modules.users.services
         
         var webUser: User2x = UsersUtil.getUser(userId);
         if (webUser != null) {
-          webUser.streamNames.push(streamId);
           sendStreamStartedEvent(userId, webUser.name, streamId);
         }
         
@@ -691,6 +674,8 @@ package org.bigbluebutton.modules.users.services
         logData.user.webcamStream = stream;
         LOGGER.info(JSON.stringify(logData));
 	  
+        LiveMeeting.inst().webcams.remove(stream);
+        
         sendStreamStoppedEvent(userId, stream);
     }
 	
@@ -699,9 +684,6 @@ package org.bigbluebutton.modules.users.services
 		dispatcher.dispatchEvent(new StreamStoppedEvent(userId, streamId));
 	}
     
-
-    
-
 	
 	private function handleBreakoutRoomsList(msg:Object):void{
 		for each(var room : Object in msg.body.rooms)
@@ -774,24 +756,26 @@ package org.bigbluebutton.modules.users.services
     }
   }
 
-
-
     public function handleGuestPolicyChanged(msg:Object):void {
-      LOGGER.debug("*** handleGuestPolicyChanged " + msg.msg + " **** \n");
-      var map:Object = JSON.parse(msg.msg);
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var policy: String = body.policy as String;
 
-      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
-      policy.payload['guestPolicy'] = map.guestPolicy;
-      dispatcher.dispatchEvent(policy);
+      var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policyEvent.payload['guestPolicy'] = policy;
+      dispatcher.dispatchEvent(policyEvent);
     }
 
     public function handleGetGuestPolicyReply(msg:Object):void {
-      LOGGER.debug("*** handleGetGuestPolicyReply " + msg.msg + " **** \n");
-      var map:Object = JSON.parse(msg.msg);
-
-      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
-      policy.payload['guestPolicy'] = map.guestPolicy;
-      dispatcher.dispatchEvent(policy);
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var policy: String = body.policy as String;
+      
+      LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
+      
+      var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policyEvent.payload['guestPolicy'] = policyEvent;
+      dispatcher.dispatchEvent(policyEvent);
     }
 
     public function handleGuestAccessDenied(msg:Object):void {

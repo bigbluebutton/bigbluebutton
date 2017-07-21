@@ -142,7 +142,7 @@
 			}
 			
 			private function viewCamera():void {
-				dispatchEvent(new ViewCameraEvent(data.userId, data.streamName, data.name));
+				dispatchEvent(new ViewCameraEvent(data.userId));
    			}	
 			
 			private function kickUser():void{

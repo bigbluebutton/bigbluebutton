@@ -11,8 +11,6 @@ trait PresentationConversionCompletedPubMsgHdlr {
   val outGW: OutMessageGateway
 
   def handlePresentationConversionCompletedPubMsg(msg: PresentationConversionCompletedSysPubMsg): Unit = {
-    log.debug("**************** !!!!!PresentationConversionCompletedPubMsg ")
-
     def broadcastEvent(msg: PresentationConversionCompletedSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PresentationConversionCompletedEvtMsg.NAME, routing)
