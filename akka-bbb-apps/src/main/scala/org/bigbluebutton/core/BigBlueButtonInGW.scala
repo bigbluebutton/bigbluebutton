@@ -77,7 +77,7 @@ class BigBlueButtonInGW(
     eventBus.publish(
       BigBlueButtonEvent(
         "meeting-manager",
-        new DestroyMeeting(
+        new DestroyMeetingInternalMsg(
           meetingID
         )
       )

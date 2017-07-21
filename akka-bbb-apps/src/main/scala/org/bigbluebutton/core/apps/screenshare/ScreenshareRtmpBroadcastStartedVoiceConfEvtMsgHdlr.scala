@@ -39,6 +39,10 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       ScreenshareModel.broadcastingRTMPStarted(liveMeeting.screenshareModel)
       ScreenshareModel.setScreenshareVideoWidth(liveMeeting.screenshareModel, msg.body.vidWidth)
       ScreenshareModel.setScreenshareVideoHeight(liveMeeting.screenshareModel, msg.body.vidHeight)
+      ScreenshareModel.setVoiceConf(liveMeeting.screenshareModel, msg.body.voiceConf)
+      ScreenshareModel.setScreenshareConf(liveMeeting.screenshareModel, msg.body.screenshareConf)
+      ScreenshareModel.setTimestamp(liveMeeting.screenshareModel, msg.body.timestamp)
+
       log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
       // Notify viewers in the meeting that there's an rtmp stream to view

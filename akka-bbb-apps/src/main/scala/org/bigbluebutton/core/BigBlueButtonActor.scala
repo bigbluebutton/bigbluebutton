@@ -59,20 +59,21 @@ class BigBlueButtonActor(
   }
 
   def receive = {
-    // 2x messages
-    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
+    // Internal messages
+    case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
 
-    case _                        => // do nothing
+    // 2x messages
+    case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
+    case _                              => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: CreateMeetingReqMsg     => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg      => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg    => handleGetAllMeetingsReqMsg(m)
-      case m: PubSubPingSysReqMsg     => handlePubSubPingSysReqMsg(m)
-      case m: DestroyMeetingSysCmdMsg => handleDestroyMeeting(m)
-      case _                          => log.warning("Cannot handle " + msg.envelope.name)
+      case m: CreateMeetingReqMsg  => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg   => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
+      case m: PubSubPingSysReqMsg  => handlePubSubPingSysReqMsg(m)
+      case _                       => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -129,34 +130,32 @@ class BigBlueButtonActor(
     outGW.send(event)
   }
 
-  private def handleDestroyMeeting(msg: DestroyMeetingSysCmdMsg): Unit = {
+  private def handleDestroyMeeting(msg: DestroyMeetingInternalMsg): Unit = {
 
     for {
-      m <- RunningMeetings.findWithId(meetings, msg.body.meetingId)
-      m2 <- RunningMeetings.remove(meetings, msg.body.meetingId)
+      m <- RunningMeetings.findWithId(meetings, msg.meetingId)
+      m2 <- RunningMeetings.remove(meetings, msg.meetingId)
     } yield {
-      // send the message for MeetingActor to handle too
-      m.actorRef ! msg
+      /** Unsubscribe to meeting and voice events. **/
+      eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
+      eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
+      eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
-      // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client
+      bbbMsgBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
+      bbbMsgBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
+      bbbMsgBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
+
+      // Delay sending DisconnectAllUsers to allow messages to reach the client
+      // before the connections are closed.
       context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
         // Disconnect all clients
 
-        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.body.meetingId)
+        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingId)
         outGW.send(disconnectEvnt)
 
-        log.info("Destroyed meetingId={}", msg.body.meetingId)
-        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.body.meetingId)
+        log.info("Destroyed meetingId={}", msg.meetingId)
+        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.meetingId)
         outGW.send(destroyedEvent)
-
-        /** Unsubscribe to meeting and voice events. **/
-        eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
-        eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
-
-        bbbMsgBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
-        bbbMsgBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        bbbMsgBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         // Stop the meeting actor.
         context.stop(m.actorRef)

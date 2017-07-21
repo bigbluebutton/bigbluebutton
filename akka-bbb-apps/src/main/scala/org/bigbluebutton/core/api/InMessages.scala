@@ -16,13 +16,18 @@ case class IsMeetingActorAliveMessage(meetingId: String) extends InMessage
 case class KeepAliveMessage(aliveID: String) extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////
-// Meeting
+// Internal Messages
 /////////////////////////////////////////////////////////////////////////////
 
-case class MonitorNumberOfUsers(meetingID: String) extends InMessage
+case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
 case class SendTimeRemainingUpdate(meetingId: String) extends InMessage
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
-case class DestroyMeeting(meetingID: String) extends InMessage
+case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
+case class BreakoutRoomEndedInternalMsg(meetingId: String) extends InMessage
+
+//////////////////////////////////////////////////////////////////////////////
+// Meeting
+/////////////////////////////////////////////////////////////////////////////
 case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingId: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
