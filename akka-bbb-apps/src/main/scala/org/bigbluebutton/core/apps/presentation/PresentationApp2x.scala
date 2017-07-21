@@ -63,8 +63,8 @@ class PresentationApp2x(
     // 100D-checkedWidth is the maximum the page can be moved over
     val checkedWidth = Math.min(Math.max(widthRatio, 25D), 100D) //if (widthRatio <= 100D) widthRatio else 100D
     val checkedHeight = Math.min(Math.max(heightRatio, 25D), 100D)
-    val checkedXOffset = Math.min(Math.max(xOffset, 0D), 100D - checkedWidth)
-    val checkedYOffset = Math.min(Math.max(yOffset, 0D), 100D - checkedHeight)
+    val checkedXOffset = Math.min(xOffset, 0D)
+    val checkedYOffset = Math.min(yOffset, 0D)
 
     liveMeeting.presModel.resizePage(presentationId, pageId, checkedXOffset, checkedYOffset, checkedWidth, checkedHeight);
   }

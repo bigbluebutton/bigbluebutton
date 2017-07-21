@@ -40,19 +40,19 @@ class RedisRecorderActor(val system: ActorSystem)
   def receive = {
     //case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
     //case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
-    case msg: EndAndKickAll               => handleEndAndKickAll(msg)
-    case msg: PresenterAssigned           => handleAssignPresenter(msg)
-    case msg: UserJoined                  => handleUserJoined(msg)
-    case msg: UserLeft                    => handleUserLeft(msg)
-    case msg: UserStatusChange            => handleUserStatusChange(msg)
+    //case msg: EndAndKickAll               => handleEndAndKickAll(msg)
+    //case msg: PresenterAssigned           => handleAssignPresenter(msg)
+    //case msg: UserJoined                  => handleUserJoined(msg)
+    //case msg: UserLeft                    => handleUserLeft(msg)
+    //case msg: UserStatusChange            => handleUserStatusChange(msg)
     //    case msg: UserVoiceMuted              => handleUserVoiceMuted(msg)
     //    case msg: UserVoiceTalking            => handleUserVoiceTalking(msg)
     //    case msg: UserJoinedVoice             => handleUserJoinedVoice(msg)
     //    case msg: UserLeftVoice               => handleUserLeftVoice(msg)
-    case msg: RecordingStatusChanged      => handleRecordingStatusChanged(msg)
-    case msg: UserChangedEmojiStatus      => handleChangedUserEmojiStatus(msg)
-    case msg: UserSharedWebcam            => handleUserSharedWebcam(msg)
-    case msg: UserUnsharedWebcam          => handleUserUnsharedWebcam(msg)
+    //case msg: RecordingStatusChanged      => handleRecordingStatusChanged(msg)
+    //case msg: UserChangedEmojiStatus      => handleChangedUserEmojiStatus(msg)
+    //case msg: UserSharedWebcam            => handleUserSharedWebcam(msg)
+    //case msg: UserUnsharedWebcam          => handleUserUnsharedWebcam(msg)
     //    case msg: VoiceRecordingStarted       => handleVoiceRecordingStarted(msg)
     //    case msg: VoiceRecordingStopped       => handleVoiceRecordingStopped(msg)
     //case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
@@ -65,10 +65,10 @@ class RedisRecorderActor(val system: ActorSystem)
     //    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     //    case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     //    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
-    case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
-    case msg: DeskShareStopRTMPBroadcast  => handleDeskShareStopRTMPBroadcast(msg)
-    case msg: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(msg)
-    case _                                => // do nothing
+    //case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
+    //case msg: DeskShareStopRTMPBroadcast  => handleDeskShareStopRTMPBroadcast(msg)
+    //case msg: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(msg)
+    case _ => // do nothing
   }
 
   /*  private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
@@ -175,7 +175,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
   }
   */
-
+  /*
   private def handleEndAndKickAll(msg: EndAndKickAll): Unit = {
     if (msg.recorded) {
       val ev = new ParticipantEndAndKickAllRecordEvent()
@@ -198,7 +198,7 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
     }
   }
-
+*/
   /*
   def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
     if (msg.recorded) {
@@ -277,7 +277,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
   }
   */
-
+  /*
   def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
     if (msg.recorded) {
       val evt = new RecordStatusRecordEvent()
@@ -354,7 +354,7 @@ class RedisRecorderActor(val system: ActorSystem)
       record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
     }
 
-  }
+  }*/
 
   /*
   private def getPresentationId(whiteboardId: String): String = {
@@ -473,7 +473,7 @@ class RedisRecorderActor(val system: ActorSystem)
     }
   }
   */
-
+  /*
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
     val event = new DeskShareStartRTMPRecordEvent()
     event.setMeetingId(msg.conferenceName)
@@ -500,5 +500,5 @@ class RedisRecorderActor(val system: ActorSystem)
     event.setTimestamp(TimestampGenerator.generateTimestamp())
 
     record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-  }
+  }*/
 }

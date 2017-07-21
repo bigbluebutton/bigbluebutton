@@ -25,7 +25,6 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
-import org.bigbluebutton.core2.message.handlers.users._
 import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
@@ -149,7 +148,6 @@ class MeetingActor(
     // old messages
     case msg: MonitorNumberOfUsersInternalMsg  => handleMonitorNumberOfUsers(msg)
 
-    case msg: AllowUserToShareDesktop          => handleAllowUserToShareDesktop(msg)
     case msg: ExtendMeetingDuration            => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate          => state = handleSendTimeRemainingUpdate(msg, state)
 
@@ -314,16 +312,6 @@ class MeetingActor(
       //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
       //  DeskshareModel.getDesktopShareVideoWidth(liveMeeting.deskshareModel),
       //  DeskshareModel.getDesktopShareVideoHeight(liveMeeting.deskshareModel), true))
-    }
-  }
-
-  def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    Users2x.findPresenter(liveMeeting.users2x) match {
-      case Some(curPres) => {
-        val allowed = msg.userID equals (curPres.intId)
-        //   outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
-      }
-      case None => // do nothing
     }
   }
 

@@ -21,99 +21,19 @@ package org.bigbluebutton.red5.service;
 
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
-import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-
-import com.google.gson.Gson;
 
 public class ParticipantsService {
 
 	private MessagePublisher red5InGW;
 	
-	public void assignPresenter(Map<String, String> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String newPresenterID = (String) msg.get("newPresenterID");
-		String newPresenterName = (String) msg.get("newPresenterName");
-		String assignedBy = (String) msg.get("assignedBy");
-
-		red5InGW.assignPresenter(meetingId, newPresenterID, newPresenterName, assignedBy);
-	}
-	
-	public void getParticipants() {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = getBbbSession().getInternalUserID();
-		red5InGW.getUsers(meetingId, userId);
-	}
-	
 	public void activityResponse() {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();
 		red5InGW.activityResponse(meetingId);
-	}
-
-	public void userEmojiStatus(Map<String, String> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = (String) msg.get("userId");
-		String emojiStatus = (String) msg.get("emojiStatus");
-		
-		if (StringUtils.isEmpty(emojiStatus)) {
-	    //log.warn("Invalid EmojiStatus from client: meetingId=" + meetingId + ", userId=" + userId + ",emoji=" + emojiStatus);
-			// Set emojiStatus=none if passed is null.
-			emojiStatus = "none";
-		}
-		red5InGW.userEmojiStatus(meetingId, userId, emojiStatus);
-	}
-	
-	public void ejectUserFromMeeting(Map<String, String> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = (String) msg.get("userId");
-		String ejectedBy = (String) msg.get("ejectedBy");
-
-		red5InGW.ejectUserFromMeeting(meetingId, userId, ejectedBy);
-	}
-	
-	public void shareWebcam(String stream) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = getBbbSession().getInternalUserID();
-
-		red5InGW.shareWebcam(meetingId, userId, stream);	
-	}
-	
-	public void unshareWebcam(String stream) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = getBbbSession().getInternalUserID();
-
-		Map<String, Object> logData = new HashMap<String, Object>();
-		logData.put("meetingId", scope.getName());
-		logData.put("userId", userId);
-		logData.put("stream", stream);
-		
-		Gson gson = new Gson();
-		String logStr =  gson.toJson(logData);
-		
-       // log.warn("User unshared webcam. data={}", logStr );
-        
-		red5InGW.unshareWebcam(meetingId, userId, stream);
-	}
-	
-	public void setParticipantStatus(Map<String, Object> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = (String) msg.get("userID");
-		String status = (String) msg.get("status");
-		Object value = (Object) msg.get("value");
-		
-		red5InGW.setUserStatus(meetingId, userId, status, value);
 	}
 	
 	public void setRecordingStatus(Map<String, Object> msg) {
@@ -136,43 +56,6 @@ public class ParticipantsService {
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;
 		return bbbSession.getInternalUserID();
-	}
-	
-	private BigBlueButtonSession getBbbSession() {
-        return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-    }
-
-	public void getGuestPolicy() {
-		String requesterId = getBbbSession().getInternalUserID();
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		red5InGW.getGuestPolicy(roomName, requesterId);
-	}
-
-	public void setGuestPolicy(String guestPolicy) {
-		String requesterId = getBbbSession().getInternalUserID();
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		red5InGW.newGuestPolicy(roomName, guestPolicy, requesterId);
-	}
-
-	public void responseToGuest(Map<String, Object> msg) {
-		String requesterId = getBbbSession().getInternalUserID();
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		red5InGW.responseToGuest(roomName, (String) msg.get("userId"), (Boolean) msg.get("response"), requesterId);
-	}
-
-	public void setParticipantRole(Map<String, String> msg) {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		String userId = (String) msg.get("userId");
-		String role = (String) msg.get("role");
-		//log.debug("Setting participant role " + roomName + " " + userId + " " + role);
-		red5InGW.setParticipantRole(roomName, userId, role);
-	}
-
-	public void logoutEndMeeting(Map<String, Object> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = (String) msg.get("userId");
-		red5InGW.logoutEndMeeting(meetingId, userId);
 	}
 
 	public void setRed5Publisher(MessagePublisher red5InGW) {
