@@ -8,14 +8,15 @@ import scala.collection.mutable
 import org.apache.commons.codec.digest.DigestUtils
 
 trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
-    with BreakoutRoomEndedMsgHdlr
     with BreakoutRoomsListMsgHdlr
     with BreakoutRoomUsersUpdateMsgHdlr
     with CreateBreakoutRoomsCmdMsgHdlr
     with EndAllBreakoutRoomsMsgHdlr
     with RequestBreakoutJoinURLReqMsgHdlr
     with SendBreakoutUsersUpdateMsgHdlr
-    with TransferUserToMeetingRequestHdlr {
+    with TransferUserToMeetingRequestHdlr
+    with EndBreakoutRoomInternalMsgHdlr
+    with BreakoutRoomEndedInternalMsgHdlr {
 
   this: MeetingActor =>
 

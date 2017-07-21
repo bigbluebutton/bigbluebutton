@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.api.BreakoutRoomCreatedInternalMsg
 import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
 
@@ -12,10 +13,10 @@ trait BreakoutRoomCreatedMsgHdlr extends SystemConfiguration {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handleBreakoutRoomCreatedMsg(msg: BreakoutRoomCreatedMsg): Unit = {
+  def handleBreakoutRoomCreatedInternalMsg(msg: BreakoutRoomCreatedInternalMsg): Unit = {
 
     liveMeeting.breakoutRooms.pendingRoomsNumber -= 1
-    val room = BreakoutRooms.getBreakoutRoom(liveMeeting.breakoutRooms, msg.body.breakoutRoomId)
+    val room = BreakoutRooms.getBreakoutRoom(liveMeeting.breakoutRooms, msg.breakoutId)
     room foreach { room =>
       sendBreakoutRoomStarted(room.parentRoomId, room.name, room.externalMeetingId, room.id, room.sequence, room.voiceConfId)
     }

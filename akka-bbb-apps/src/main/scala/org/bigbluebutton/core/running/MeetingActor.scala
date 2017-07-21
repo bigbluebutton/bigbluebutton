@@ -133,30 +133,35 @@ class MeetingActor(
   def receive = {
     //=============================
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg              => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg                => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                 => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg               => handleGetAllMeetingsReqMsg(m)
+    case m: RegisterUserReqMsg                   => usersApp.handleRegisterUserReqMsg(m)
+    case m: GetAllMeetingsReqMsg                 => handleGetAllMeetingsReqMsg(m)
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg            => handleDestroyMeetingSysCmdMsg(m)
+    case m: DestroyMeetingSysCmdMsg              => handleDestroyMeetingSysCmdMsg(m)
 
     //======================================
 
     //=======================================
-    // old messages
-    case msg: MonitorNumberOfUsersInternalMsg  => handleMonitorNumberOfUsers(msg)
+    // internal messages
+    case msg: MonitorNumberOfUsersInternalMsg    => handleMonitorNumberOfUsers(msg)
 
-    case msg: AllowUserToShareDesktop          => handleAllowUserToShareDesktop(msg)
-    case msg: ExtendMeetingDuration            => handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingUpdate          => state = handleSendTimeRemainingUpdate(msg, state)
+    case msg: AllowUserToShareDesktop            => handleAllowUserToShareDesktop(msg)
+    case msg: ExtendMeetingDuration              => handleExtendMeetingDuration(msg)
+    case msg: SendTimeRemainingAuditInternalMsg  => state = handleSendTimeRemainingUpdate(msg, state)
+    case msg: BreakoutRoomCreatedInternalMsg     => handleBreakoutRoomCreatedInternalMsg(msg)
+    case msg: SendBreakoutUsersAuditInternalMsg  => handleSendBreakoutUsersUpdateInternalMsg(msg)
+    case msg: BreakoutRoomUsersUpdateInternalMsg => handleBreakoutRoomUsersUpdateInternalMsg(msg)
+    case msg: EndBreakoutRoomInternalMsg         => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: BreakoutRoomEndedInternalMsg       => handleBreakoutRoomEndedInternalMsg(msg)
 
     // Screenshare
-    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest   => handleDeskShareGetDeskShareInfoRequest(msg)
 
-    case _                                     => // do nothing
+    case _                                       => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -205,10 +210,7 @@ class MeetingActor(
       case m: CreateBreakoutRoomsCmdMsg => handleCreateBreakoutRoomsCmdMsg(m)
       case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
       case m: RequestBreakoutJoinURLReqMsg => handleRequestBreakoutJoinURLReqMsg(m)
-      case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m)
-      case m: BreakoutRoomEndedMsg => handleBreakoutRoomEndedMsg(m)
-      case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
-      case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
+
       case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
 
       // Voice

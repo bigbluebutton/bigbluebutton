@@ -33,7 +33,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStartedEvtMsg => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
-      case m: EndBreakoutRoomEvtMsg => handleEndBreakoutRoomEvtMsg(m)
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -65,10 +64,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
        msg.body.room.record
      ))
 
-  }
-
-  def handleEndBreakoutRoomEvtMsg(msg: EndBreakoutRoomEvtMsg): Unit = {
-    olgMsgGW.handle(new EndBreakoutRoom(msg.body.breakoutMeetingId))
   }
 
   def handlePubSubPongSysRespMsg(msg: PubSubPongSysRespMsg): Unit = {

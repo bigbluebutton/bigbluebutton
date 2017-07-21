@@ -2,7 +2,7 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.SendTimeRemainingUpdate
+import org.bigbluebutton.core.api.SendTimeRemainingAuditInternalMsg
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
 import org.bigbluebutton.core.models.BreakoutRooms
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
@@ -14,7 +14,7 @@ trait SendTimeRemainingUpdateHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
-  def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate, state: MeetingState2x): MeetingState2x = {
+  def handleSendTimeRemainingUpdate(msg: SendTimeRemainingAuditInternalMsg, state: MeetingState2x): MeetingState2x = {
 
     if (liveMeeting.props.durationProps.duration > 0) {
       val endMeetingTime = MeetingExpiryTracker.endMeetingTime(state)

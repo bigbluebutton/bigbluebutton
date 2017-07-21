@@ -22,10 +22,50 @@ case class KeepAliveMessage(aliveID: String) extends InMessage
 /////////////////////////////////////////////////////////////////////////////
 
 case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
-case class SendTimeRemainingUpdate(meetingId: String) extends InMessage
+
+/**
+ * Audit message sent to meeting to trigger updating clients of meeting time remaining.
+ * @param meetingId
+ */
+case class SendTimeRemainingAuditInternalMsg(meetingId: String) extends InMessage
+
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
 case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
+
+/**
+ * Sent by breakout room to parent meeting the breakout had ended.
+ * @param meetingId
+ */
 case class BreakoutRoomEndedInternalMsg(meetingId: String) extends InMessage
+
+/**
+ * Sent by breakout room to parent meeting that breakout room has been created.
+ * @param parentId
+ * @param breakoutId
+ */
+case class BreakoutRoomCreatedInternalMsg(parentId: String, breakoutId: String) extends InMessage
+
+/**
+ * Audit message to trigger breakout room to update parent meeting of list of users.
+ * @param parentId
+ * @param breakoutId
+ */
+case class SendBreakoutUsersAuditInternalMsg(parentId: String, breakoutId: String) extends InMessage
+
+/**
+ * Send by breakout room to parent meeting with list of users in breakout room.
+ * @param parentId
+ * @param breakoutId
+ * @param users
+ */
+case class BreakoutRoomUsersUpdateInternalMsg(parentId: String, breakoutId: String, users: Vector[BreakoutUserVO]) extends InMessage
+
+/**
+ * Sent by parent meeting to breakout room to end breakout room.
+ * @param parentId
+ * @param breakoutId
+ */
+case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String) extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////
 // Meeting
