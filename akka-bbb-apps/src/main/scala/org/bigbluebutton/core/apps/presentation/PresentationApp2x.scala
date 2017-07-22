@@ -2,15 +2,13 @@ package org.bigbluebutton.core.apps.presentation
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.common2.domain.PresentationVO
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.apps.Presentation
 
 class PresentationApp2x(
   val liveMeeting: LiveMeeting,
-  val outGW:       OutMessageGateway
+  val outGW:       OutMsgRouter
 )(implicit val context: ActorContext)
     extends NewPresentationMsgHdlr
     with SetCurrentPresentationPubMsgHdlr

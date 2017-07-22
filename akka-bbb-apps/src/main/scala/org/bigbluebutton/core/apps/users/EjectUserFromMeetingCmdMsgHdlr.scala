@@ -1,16 +1,15 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait EjectUserFromMeetingCmdMsgHdlr {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleEjectUserFromMeetingCmdMsg(msg: EjectUserFromMeetingCmdMsg) {
     for {

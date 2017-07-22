@@ -2,14 +2,13 @@ package org.bigbluebutton.core.apps.users
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.bus.IncomingEventBus
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.bus.InternalEventBus
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 class UsersApp(
   val liveMeeting: LiveMeeting,
-  val outGW:       OutMessageGateway,
-  val eventBus:    IncomingEventBus
+  val outGW:       OutMsgRouter,
+  val eventBus:    InternalEventBus
 )(implicit val context: ActorContext)
 
     extends ValidateAuthTokenReqMsgHdlr

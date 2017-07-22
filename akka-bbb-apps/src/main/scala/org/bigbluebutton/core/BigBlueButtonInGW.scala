@@ -15,7 +15,7 @@ import scala.collection.JavaConverters
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
-    eventBus:   IncomingEventBus,
+    eventBus:   InternalEventBus,
     bbbMsgBus:  BbbMsgRouterEventBus,
     outGW:      OutMessageGateway
 ) extends IBigBlueButtonInGW with SystemConfiguration {
