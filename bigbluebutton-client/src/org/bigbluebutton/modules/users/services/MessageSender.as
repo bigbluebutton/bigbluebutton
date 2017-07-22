@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.connection.messages.UserBroadcastCamStopMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.BreakoutRoomsListMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.BreakoutRoomsListMsgBody;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsCmdMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsgBody;
@@ -103,7 +103,7 @@ package org.bigbluebutton.modules.users.services
 
 		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
 			var body:CreateBreakoutRoomsMsgBody = new CreateBreakoutRoomsMsgBody(meetingId, durationInMinutes, record, rooms);
-			var message:CreateBreakoutRoomsMsg = new CreateBreakoutRoomsMsg(body);
+			var message:CreateBreakoutRoomsCmdMsg = new CreateBreakoutRoomsCmdMsg(body);
 
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage2x(function(result:String):void { // On successful result

@@ -111,6 +111,8 @@ trait BreakoutRoomCreatedMsgHdlr extends SystemConfiguration {
         BbbCommonEnvCoreMsg(envelope, event)
       }
 
+      log.debug("redirectJoinURL = " + redirectJoinURL)
+
       val msgEvent = build(liveMeeting.props.meetingProp.intId, externalMeetingId, userId,
         redirectJoinURL, noRedirectJoinURL)
       outGW.send(msgEvent)

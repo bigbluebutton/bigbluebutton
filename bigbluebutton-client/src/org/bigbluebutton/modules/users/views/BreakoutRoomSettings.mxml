@@ -80,7 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					room.sequence = i + 1;
 					room.name = parentMeetingName + " (" + roomResource + " - " + room.sequence.toString() + ")";
 					for (var j:int = 0; j < users.length; j++) {
-						room.users.push(users[j].userID);
+						room.users.push((User2x)(users[j]).intId);
 					}
 					event.rooms.push(room);
 				}
