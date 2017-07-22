@@ -102,7 +102,7 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
 
-  val expiryTrackerHelper = new MeetingExpiryTrackerHelper(liveMeeting, outGW, eventBus)
+  object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
   val inactivityTracker = new MeetingInactivityTracker(
     props.durationProps.maxInactivityTimeoutMinutes,
@@ -162,7 +162,8 @@ class MeetingActor(
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
-    state = MeetingInactivityTracker.updateLastActivityTimestamp(state, TimeUtil.timeNowInSeconds())
+    val tracker = state.inactivityTracker.updateLastActivityTimestamp(TimeUtil.timeNowInSeconds())
+    state = state.update(tracker)
 
     msg.core match {
       // Users
@@ -317,8 +318,8 @@ class MeetingActor(
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
-    state = expiryTrackerHelper.processMeetingInactivityAudit(state)
-    state = expiryTrackerHelper.processMeetingExpiryAudit(state)
+    state = ExpiryTrackerHelper.processMeetingInactivityAudit(outGW, eventBus, liveMeeting, state)
+    state = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {

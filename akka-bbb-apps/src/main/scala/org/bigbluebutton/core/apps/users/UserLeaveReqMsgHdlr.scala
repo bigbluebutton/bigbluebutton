@@ -29,7 +29,8 @@ trait UserLeaveReqMsgHdlr {
     }
 
     if (Users2x.numUsers(liveMeeting.users2x) == 0) {
-      MeetingExpiryTracker.setLastUserLeftOn(state, TimeUtil.timeNowInSeconds())
+      val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInSeconds())
+      state.update(tracker)
     } else {
       state
     }

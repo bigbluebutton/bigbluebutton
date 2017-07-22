@@ -48,7 +48,9 @@ trait AppsTestFixtures {
     duration = durationInMinutes,
     createdTime = createTime, createdDate = createDate,
     maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes,
-    warnMinutesBeforeMax = warnMinutesBeforeMax
+    warnMinutesBeforeMax = warnMinutesBeforeMax,
+    meetingExpireIfNoUserJoinedInMinutes = 5,
+    meetingExpireWhenLastUserLeftInMinutes = 1
   )
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,

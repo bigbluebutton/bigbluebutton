@@ -5,9 +5,18 @@ object MeetingState2x {
 }
 
 case class MeetingState2x(
-  inactivityTracker: MeetingInactivityTracker,
-  expiryTracker:     MeetingExpiryTracker
-)
+    inactivityTracker: MeetingInactivityTracker,
+    expiryTracker:     MeetingExpiryTracker
+) {
+  def update(expiry: MeetingExpiryTracker): MeetingState2x = {
+    copy(expiryTracker = expiry)
+  }
+
+  def update(inactivityTracker: MeetingInactivityTracker): MeetingState2x = {
+    copy(inactivityTracker = inactivityTracker)
+  }
+
+}
 
 object MeetingEndReason {
   val ENDED_FROM_API = "ENDED_FROM_API"
