@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.presentation
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait PresentationPageGeneratedPubMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handlePresentationPageGeneratedPubMsg(msg: PresentationPageGeneratedSysPubMsg): Unit = {
 

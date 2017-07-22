@@ -2,13 +2,13 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait IsMeetingMutedReqMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleIsMeetingMutedReqMsg(msg: IsMeetingMutedReqMsg) {
 

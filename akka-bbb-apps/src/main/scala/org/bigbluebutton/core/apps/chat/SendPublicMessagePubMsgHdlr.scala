@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.chat
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ChatModel
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait SendPublicMessagePubMsgHdlr {
   this: ChatApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSendPublicMessagePubMsg(msg: SendPublicMessagePubMsg): Unit = {
     def broadcastEvent(msg: SendPublicMessagePubMsg, message: ChatMessageVO): Unit = {

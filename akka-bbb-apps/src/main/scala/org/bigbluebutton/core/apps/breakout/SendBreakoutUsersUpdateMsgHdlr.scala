@@ -1,16 +1,15 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.common2.msgs.BreakoutUserVO
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.{ BreakoutRoomUsersUpdateInternalMsg, SendBreakoutUsersAuditInternalMsg }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
+import org.bigbluebutton.common2.msgs.{ BreakoutUserVO }
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait SendBreakoutUsersUpdateMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSendBreakoutUsersUpdateInternalMsg(msg: SendBreakoutUsersAuditInternalMsg): Unit = {
 

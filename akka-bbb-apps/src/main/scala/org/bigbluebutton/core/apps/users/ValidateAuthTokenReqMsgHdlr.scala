@@ -1,19 +1,18 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
-  val eventBus: IncomingEventBus
+  val outGW: OutMsgRouter
+  val eventBus: InternalEventBus
 
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg, state: MeetingState2x): MeetingState2x = {
     log.debug("RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
@@ -51,10 +50,10 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       (guestPolicyType == GuestPolicyType.ASK_MODERATOR && user.guest && !user.waitingForAcceptance)
   }
 
-  def validateTokenFailed(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
+  def validateTokenFailed(outGW: OutMsgRouter, meetingId: String, userId: String, authToken: String,
                           valid: Boolean, waitForApproval: Boolean, state: MeetingState2x): MeetingState2x = {
     val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval)
-    Sender.send(outGW, event)
+    outGW.send(event)
 
     // TODO: Should disconnect user here.
 
@@ -64,7 +63,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   def sendValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
                                    valid: Boolean, waitForApproval: Boolean): Unit = {
     val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval)
-    Sender.send(outGW, event)
+    outGW.send(event)
   }
 
   def userValidatedButNeedToWaitForApproval(user: RegisteredUser, state: MeetingState2x): MeetingState2x = {
@@ -112,7 +111,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     }
 
     val event = MsgBuilder.buildGetUsersMeetingRespMsg(meetingId, requesterId, webUsers)
-    Sender.send(outGW, event)
+    outGW.send(event)
   }
 
   def sendAllVoiceUsersInMeeting(requesterId: String, voiceUsers: VoiceUsers, meetingId: String): Unit = {
@@ -122,14 +121,14 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     }
 
     val event = MsgBuilder.buildGetVoiceUsersMeetingRespMsg(meetingId, requesterId, vu)
-    Sender.send(outGW, event)
+    outGW.send(event)
   }
 
   def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
     val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
     mods foreach { m =>
       val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
-      Sender.send(outGW, event)
+      outGW.send(event)
     }
   }
 }

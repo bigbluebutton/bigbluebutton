@@ -5,14 +5,14 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.SendTimeRemainingAuditInternalMsg
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.util.TimeUtil
 
 trait SendTimeRemainingUpdateHdlr {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSendTimeRemainingUpdate(msg: SendTimeRemainingAuditInternalMsg, state: MeetingState2x): MeetingState2x = {
 

@@ -1,15 +1,14 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 
 trait ChangeUserEmojiCmdMsgHdlr {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleChangeUserEmojiCmdMsg(msg: ChangeUserEmojiCmdMsg) {
     log.debug("handling " + msg)
@@ -20,7 +19,7 @@ trait ChangeUserEmojiCmdMsgHdlr {
     }
   }
 
-  def sendUserEmojiChangedEvtMsg(outGW: OutMessageGateway, meetingId: String, userId: String, emoji: String): Unit = {
+  def sendUserEmojiChangedEvtMsg(outGW: OutMsgRouter, meetingId: String, userId: String, emoji: String): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserEmojiChangedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(UserEmojiChangedEvtMsg.NAME, meetingId, userId)

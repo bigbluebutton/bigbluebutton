@@ -1,12 +1,11 @@
 package org.bigbluebutton.core.apps.caption
 
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ OutMsgRouter }
 
 trait UserLeavingHdlr {
   this: CaptionApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleUserLeavingMsg(userId: String): Unit = {
     for {

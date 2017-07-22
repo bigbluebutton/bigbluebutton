@@ -25,13 +25,11 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
-import org.bigbluebutton.core2.message.handlers.users._
 import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
-import com.softwaremill.quicklens._
 import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
@@ -40,8 +38,8 @@ import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 object MeetingActor {
   def props(
     props:       DefaultProps,
-    eventBus:    IncomingEventBus,
-    outGW:       OutMessageGateway,
+    eventBus:    InternalEventBus,
+    outGW:       OutMsgRouter,
     liveMeeting: LiveMeeting
   ): Props =
     Props(classOf[MeetingActor], props, eventBus, outGW, liveMeeting)
@@ -49,8 +47,8 @@ object MeetingActor {
 
 class MeetingActor(
   val props:       DefaultProps,
-  val eventBus:    IncomingEventBus,
-  val outGW:       OutMessageGateway,
+  val eventBus:    InternalEventBus,
+  val outGW:       OutMsgRouter,
   val liveMeeting: LiveMeeting
 )
     extends BaseMeetingActor
@@ -149,7 +147,6 @@ class MeetingActor(
     // internal messages
     case msg: MonitorNumberOfUsersInternalMsg    => handleMonitorNumberOfUsers(msg)
 
-    case msg: AllowUserToShareDesktop            => handleAllowUserToShareDesktop(msg)
     case msg: ExtendMeetingDuration              => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg  => state = handleSendTimeRemainingUpdate(msg, state)
     case msg: BreakoutRoomCreatedInternalMsg     => handleBreakoutRoomCreatedInternalMsg(msg)
@@ -319,16 +316,6 @@ class MeetingActor(
     }
   }
 
-  def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    Users2x.findPresenter(liveMeeting.users2x) match {
-      case Some(curPres) => {
-        val allowed = msg.userID equals (curPres.intId)
-        //   outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
-      }
-      case None => // do nothing
-    }
-  }
-
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
     state = expiryTrackerHelper.processMeetingInactivityAudit(state)
     state = expiryTrackerHelper.processMeetingExpiryAudit(state)
@@ -385,12 +372,6 @@ class MeetingActor(
       )
       outGW.send(event)
 
-    }
-  }
-
-  def record(msg: BbbCoreMsg): Unit = {
-    if (liveMeeting.props.recordProp.record) {
-      outGW.record(msg)
     }
   }
 }

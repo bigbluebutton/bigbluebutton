@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.screenshare
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
   this: ScreenshareApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(msg: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg): Unit = {
     def broadcastEvent(voiceConf: String, screenshareConf: String, stream: String, vidWidth: Int, vidHeight: Int,

@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.chat
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ChatModel
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait GetChatHistoryReqMsgHdlr {
   this: ChatApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleGetChatHistoryReqMsg(msg: GetChatHistoryReqMsg): Unit = {
     def broadcastEvent(msg: GetChatHistoryReqMsg, history: Array[ChatMessageVO]): Unit = {

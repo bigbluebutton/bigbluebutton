@@ -1,16 +1,13 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{ GuestWaiting, GuestsWaiting, Roles, Users2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 
 trait GetGuestPolicyReqMsgHdlr {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleGetGuestPolicyReqMsg(msg: GetGuestPolicyReqMsg): Unit = {
     val event = buildGetGuestPolicyRespMsg(liveMeeting.props.meetingProp.intId, msg.body.requestedBy,

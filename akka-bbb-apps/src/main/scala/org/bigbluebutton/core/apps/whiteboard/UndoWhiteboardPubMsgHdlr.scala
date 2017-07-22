@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.running.{ OutMsgRouter }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.MeetingActor
 
 trait UndoWhiteboardPubMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleUndoWhiteboardPubMsg(msg: UndoWhiteboardPubMsg): Unit = {
 
