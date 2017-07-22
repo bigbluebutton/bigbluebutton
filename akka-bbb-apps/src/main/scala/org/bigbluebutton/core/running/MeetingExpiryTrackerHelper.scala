@@ -2,17 +2,15 @@ package org.bigbluebutton.core.running
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 
 class MeetingExpiryTrackerHelper(
     val liveMeeting: LiveMeeting,
-    val outGW:       OutMessageGateway,
-    val eventBus:    IncomingEventBus
+    val outGW:       OutMsgRouter,
+    val eventBus:    InternalEventBus
 )(implicit val context: ActorContext) extends HandlerHelpers {
 
   val log = Logging(context.system, getClass)

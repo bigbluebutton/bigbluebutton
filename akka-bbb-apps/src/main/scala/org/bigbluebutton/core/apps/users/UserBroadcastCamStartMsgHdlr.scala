@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ MediaStream, WebcamStream, Webcams }
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait UserBroadcastCamStartMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleUserBroadcastCamStartMsg(msg: UserBroadcastCamStartMsg): Unit = {
 
@@ -21,8 +20,6 @@ trait UserBroadcastCamStartMsgHdlr {
       val event = UserBroadcastCamStartedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
-
-      record(event)
     }
 
     val stream = new MediaStream(msg.body.stream, msg.body.stream, msg.header.userId, Map.empty, Set.empty)

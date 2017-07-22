@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Webcams
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait UserBroadcastCamStopMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleUserBroadcastCamStopMsg(msg: UserBroadcastCamStopMsg): Unit = {
 
@@ -21,8 +20,6 @@ trait UserBroadcastCamStopMsgHdlr {
       val event = UserBroadcastCamStoppedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
-
-      record(event)
     }
 
     for {

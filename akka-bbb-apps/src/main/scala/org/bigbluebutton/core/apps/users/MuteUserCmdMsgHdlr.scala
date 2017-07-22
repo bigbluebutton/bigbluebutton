@@ -1,15 +1,14 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.VoiceUsers
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait MuteUserCmdMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleMuteUserCmdMsg(msg: MuteUserCmdMsg) {
     log.info("Received mute user request. meetingId=" + props.meetingProp.intId + " userId="

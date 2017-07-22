@@ -2,15 +2,14 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.domain.{ MeetingInactivityTracker, MeetingState2x }
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait MeetingActivityResponseCmdMsgHdlr {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleMeetingActivityResponseCmdMsg(
     msg:   MeetingActivityResponseCmdMsg,
@@ -22,7 +21,7 @@ trait MeetingActivityResponseCmdMsgHdlr {
 
   def processMeetingActivityResponse(
     props: DefaultProps,
-    outGW: OutMessageGateway,
+    outGW: OutMsgRouter,
     msg:   MeetingActivityResponseCmdMsg
   ): Unit = {
 

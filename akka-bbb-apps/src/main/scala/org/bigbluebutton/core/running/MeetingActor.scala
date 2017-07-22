@@ -30,7 +30,6 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
-import com.softwaremill.quicklens._
 import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
@@ -39,8 +38,8 @@ import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 object MeetingActor {
   def props(
     props:       DefaultProps,
-    eventBus:    IncomingEventBus,
-    outGW:       OutMessageGateway,
+    eventBus:    InternalEventBus,
+    outGW:       OutMsgRouter,
     liveMeeting: LiveMeeting
   ): Props =
     Props(classOf[MeetingActor], props, eventBus, outGW, liveMeeting)
@@ -48,8 +47,8 @@ object MeetingActor {
 
 class MeetingActor(
   val props:       DefaultProps,
-  val eventBus:    IncomingEventBus,
-  val outGW:       OutMessageGateway,
+  val eventBus:    InternalEventBus,
+  val outGW:       OutMsgRouter,
   val liveMeeting: LiveMeeting
 )
     extends BaseMeetingActor
@@ -371,12 +370,6 @@ class MeetingActor(
       )
       outGW.send(event)
 
-    }
-  }
-
-  def record(msg: BbbCoreMsg): Unit = {
-    if (liveMeeting.props.recordProp.record) {
-      outGW.record(msg)
     }
   }
 }
