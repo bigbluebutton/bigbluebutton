@@ -12,10 +12,10 @@ const addWelcomeChatMessage = (meetingId, userId) => {
   const Meeting = Meetings.findOne({ meetingId });
 
   const message = {
-    chatType: CHAT_CONFIG.type_system,
     message: Meeting.welcomeProp.welcomeMsg,
     fromColor: '0x3399FF',
     toUserId: userId,
+    toUsername: CHAT_CONFIG.type_system,
     fromUserId: CHAT_CONFIG.type_system,
     fromUsername: '',
     fromTime: (new Date()).getTime(),

@@ -130,10 +130,10 @@ package org.bigbluebutton.modules.users.services
         case "UserEmojiChangedEvtMsg":
           handleEmojiStatusHand(message);
           break;
-        case "getRecordingStatusReply":
+        case "GetRecordingStatusRespMsg":
           handleGetRecordingStatusReply(message);
           break;
-        case "recordingStatusChanged":
+        case "RecordingStatusChangedEvtMsg":
           handleRecordingStatusChanged(message);
           break;
         case "user_listening_only":
@@ -528,13 +528,16 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleGetRecordingStatusReply(msg: Object):void {     
-      var map:Object = JSON.parse(msg.msg);
-      sendRecordingStatusUpdate(map.recording);      
+      var body:Object = msg.body as Object;
+      var recording: Boolean = body.recording as Boolean;
+      
+      sendRecordingStatusUpdate(recording);      
     }
     
     private function handleRecordingStatusChanged(msg: Object):void {    
-      var map:Object = JSON.parse(msg.msg);
-      sendRecordingStatusUpdate(map.recording);
+        var body:Object = msg.body as Object;
+        var recording: Boolean = body.recording as Boolean;
+      sendRecordingStatusUpdate(recording);
     }
     
     private function handleUserListeningOnly(msg: Object):void {  
