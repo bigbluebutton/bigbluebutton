@@ -49,7 +49,7 @@ input {
     margin-bottom: 40px;
 }
 
-.join-metting {
+.join-meeting {
     background: #EDF4FB;
     padding: 60px;
     text-align: center;
@@ -59,7 +59,7 @@ input {
     border-radius: 5px;
 }
 
-.join-metting .button { 
+.join-meeting .button { 
 	margin-bottom:20px;
 }
 
