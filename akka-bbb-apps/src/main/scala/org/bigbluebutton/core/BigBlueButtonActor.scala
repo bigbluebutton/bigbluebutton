@@ -174,6 +174,9 @@ class BigBlueButtonActor(
         val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.body.meetingId)
         outGW.send(disconnectEvnt)
 
+        val stopTranscodersCmd = MsgBuilder.buildStopMeetingTranscodersSysCmdMsg(msg.body.meetingId)
+        outGW.send(stopTranscodersCmd)
+
         log.info("Destroyed meetingId={}", msg.body.meetingId)
         val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.body.meetingId)
         outGW.send(destroyedEvent)

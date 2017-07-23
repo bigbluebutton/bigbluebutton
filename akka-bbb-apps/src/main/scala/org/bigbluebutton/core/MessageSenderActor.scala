@@ -15,7 +15,6 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage
 import org.bigbluebutton.common.converters.ToJsonEncoder
-import org.bigbluebutton.common.messages.StopMeetingTranscodersMessage
 import scala.collection.JavaConverters
 
 object MessageSenderActor {
@@ -278,11 +277,6 @@ class MessageSenderActor(val service: MessageSender)
   private def handleEndAndKickAll(msg: EndAndKickAll) {
     val json = UsersMessageToJsonConverter.endAndKickAllToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleStopMeetingTranscoders(msg: StopMeetingTranscoders) {
-    val smt = new StopMeetingTranscodersMessage(msg.meetingID)
-    service.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, smt.toJson())
   }
 
   private def handleGetGuestPolicyReply(msg: GetGuestPolicyReply) {

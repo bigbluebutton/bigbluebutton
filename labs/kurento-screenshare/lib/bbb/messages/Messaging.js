@@ -8,6 +8,10 @@ var StartTranscoderRequestMessage =
     require('./transcode/StartTranscoderRequestMessage.js')(Constants);
 var StopTranscoderRequestMessage =
     require('./transcode/StopTranscoderRequestMessage.js')(Constants);
+var StartTranscoderSysReqMsg =
+    require('./transcode/StartTranscoderSysReqMsg.js')();
+var StopTranscoderSysReqMsg =
+    require('./transcode/StopTranscoderSysReqMsg.js')();
 var DeskShareRTMPBroadcastStartedEventMessage =
     require('./screenshare/DeskShareRTMPBroadcastStartedEventMessage.js')(Constants);
 var DeskShareRTMPBroadcastStoppedEventMessage =
@@ -27,13 +31,13 @@ function Messaging() {}
 
 Messaging.prototype.generateStartTranscoderRequestMessage =
   function(meetingId, transcoderId, params) {
-  var statrm = new StartTranscoderRequestMessage(meetingId, transcoderId, params);
+  var statrm = new StartTranscoderSysReqMsg(meetingId, transcoderId, params);
   return statrm.toJson();
 }
 
 Messaging.prototype.generateStopTranscoderRequestMessage =
   function(meetingId, transcoderId) {
-  var stotrm = new StopTranscoderRequestMessage(meetingId, transcoderId);
+  var stotrm = new StopTranscoderSysReqMsg(meetingId, transcoderId);
   return stotrm.toJson();
 }
 
