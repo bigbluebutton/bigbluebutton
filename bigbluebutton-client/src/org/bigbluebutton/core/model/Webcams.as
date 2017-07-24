@@ -85,7 +85,21 @@ package org.bigbluebutton.core.model
       return tempArray;
     }
     
-    public function getStreamIdsViewingForUser(userId: String): Array {
+    public function startedViewingStream(userId: String, streamId: String): void {
+        var _stream: MediaStream = getStream(streamId);
+        if (_stream != null) {
+            _stream.addViewer(userId);
+        }
+    }
+    
+    public function stoppedViewingStream(userId: String, streamId: String): void {
+        var _stream: MediaStream = getStream(streamId);
+        if (_stream != null) {
+            _stream.removeViewer(userId);
+        }
+    }
+    
+    public function getStreamIdsIAmViewingForUser(userId: String): Array {
       var tempArray: Array = new Array();
       
       for (var i:int = 0; i < _webcams.length; i++) {

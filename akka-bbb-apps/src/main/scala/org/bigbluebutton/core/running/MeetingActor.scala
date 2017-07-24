@@ -2,8 +2,8 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
-import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker }
+import org.bigbluebutton.core.apps.users._
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 //import java.util.concurrent.TimeUnit
 
@@ -25,13 +25,11 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.handlers._
-import org.bigbluebutton.core2.message.handlers.users._
 import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
-
 import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
@@ -40,8 +38,8 @@ import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 object MeetingActor {
   def props(
     props:       DefaultProps,
-    eventBus:    IncomingEventBus,
-    outGW:       OutMessageGateway,
+    eventBus:    InternalEventBus,
+    outGW:       OutMsgRouter,
     liveMeeting: LiveMeeting
   ): Props =
     Props(classOf[MeetingActor], props, eventBus, outGW, liveMeeting)
@@ -49,8 +47,8 @@ object MeetingActor {
 
 class MeetingActor(
   val props:       DefaultProps,
-  val eventBus:    IncomingEventBus,
-  val outGW:       OutMessageGateway,
+  val eventBus:    InternalEventBus,
+  val outGW:       OutMsgRouter,
   val liveMeeting: LiveMeeting
 )
     extends BaseMeetingActor
@@ -102,18 +100,28 @@ class MeetingActor(
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW)
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW)
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
-  val usersApp = new UsersApp(liveMeeting, outGW)
+  val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
 
-  var inactivityTracker = new MeetingInactivityTracker(
-    liveMeeting.props.durationProps.maxInactivityTimeoutMinutes,
-    liveMeeting.props.durationProps.warnMinutesBeforeMax,
-    TimeUtil.millisToMinutes(System.currentTimeMillis()), false, 0L
+  val expiryTrackerHelper = new MeetingExpiryTrackerHelper(liveMeeting, outGW, eventBus)
+
+  val inactivityTracker = new MeetingInactivityTracker(
+    props.durationProps.maxInactivityTimeoutMinutes,
+    props.durationProps.warnMinutesBeforeMax,
+    lastActivityTimestamp = TimeUtil.timeNowInSeconds(),
+    warningSent = false,
+    warningSentOnTimestamp = 0L
   )
 
-  var expiryTracker = new MeetingExpiryTracker(
-    TimeUtil.millisToMinutes(System.currentTimeMillis()),
-    false, 0L
+  val expiryTracker = new MeetingExpiryTracker(
+    startedOn = TimeUtil.timeNowInSeconds(),
+    userHasJoined = false,
+    lastUserLeftOn = None,
+    durationInMinutes = props.durationProps.duration,
+    meetingExpireIfNoUserJoinedInMinutes = props.durationProps.meetingExpireIfNoUserJoinedInMinutes,
+    meetingExpireWhenLastUserLeftInMinutes = props.durationProps.meetingExpireWhenLastUserLeftInMinutes
   )
+
+  var state = new MeetingState2x(inactivityTracker, expiryTracker)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -137,35 +145,33 @@ class MeetingActor(
 
     //=======================================
     // old messages
-    case msg: MonitorNumberOfUsers             => handleMonitorNumberOfUsers(msg)
+    case msg: MonitorNumberOfUsersInternalMsg  => handleMonitorNumberOfUsers(msg)
 
-    case msg: AllowUserToShareDesktop          => handleAllowUserToShareDesktop(msg)
     case msg: ExtendMeetingDuration            => handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingUpdate          => handleSendTimeRemainingUpdate(msg)
+    case msg: SendTimeRemainingUpdate          => state = handleSendTimeRemainingUpdate(msg, state)
 
     // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
-
-    // Guest
-    case msg: GetGuestPolicy                   => handleGetGuestPolicy(msg)
-    case msg: SetGuestPolicy                   => handleSetGuestPolicy(msg)
 
     case _                                     => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
-    // TODO: Update meeting activity status here
-    // updateActivityStatus(msg)
+    state = MeetingInactivityTracker.updateLastActivityTimestamp(state, TimeUtil.timeNowInSeconds())
 
     msg.core match {
       // Users
-      case m: ValidateAuthTokenReqMsg => usersApp.handleValidateAuthTokenReqMsg(m)
-      case m: UserJoinMeetingReqMsg => handleUserJoinMeetingReqMsg(m)
-      case m: UserLeaveReqMsg => handleUserLeaveReqMsg(m)
-      case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
+      case m: ValidateAuthTokenReqMsg =>
+        state = usersApp.handleValidateAuthTokenReqMsg(m, state)
+      case m: UserJoinMeetingReqMsg =>
+        state = handleUserJoinMeetingReqMsg(m, state)
+      case m: UserLeaveReqMsg =>
+        state = handleUserLeaveReqMsg(m, state)
+      case m: UserBroadcastCamStartMsg  => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg   => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: MeetingActivityResponseCmdMsg => inactivityTracker = usersApp.handleMeetingActivityResponseCmdMsg(m, inactivityTracker)
+      case m: MeetingActivityResponseCmdMsg =>
+        state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
       case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
@@ -247,9 +253,9 @@ class MeetingActor(
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg => handleGetGuestsWaitingApprovalReqMsg(m)
-      case m: SetGuestPolicyMsg => handleSetGuestPolicyMsg(m)
+      case m: SetGuestPolicyCmdMsg => handleSetGuestPolicyMsg(m)
       case m: GuestsWaitingApprovedMsg => handleGuestsWaitingApprovedMsg(m)
-
+      case m: GetGuestPolicyReqMsg => handleGetGuestPolicyReqMsg(m)
       // Chat
       case m: GetChatHistoryReqMsg => chatApp2x.handleGetChatHistoryReqMsg(m)
       case m: SendPublicMessagePubMsg => chatApp2x.handleSendPublicMessagePubMsg(m)
@@ -308,68 +314,9 @@ class MeetingActor(
     }
   }
 
-  def handleGetGuestPolicy(msg: GetGuestPolicy) {
-    //   outGW.send(new GetGuestPolicyReply(msg.meetingID, props.recordProp.record,
-    //     msg.requesterID, MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
-  }
-
-  def handleSetGuestPolicy(msg: SetGuestPolicy) {
-    //    MeetingStatus2x.setGuestPolicy(liveMeeting.status, msg.policy)
-    //    MeetingStatus2x.setGuestPolicySetBy(liveMeeting.status, msg.setBy)
-    //    outGW.send(new GuestPolicyChanged(msg.meetingID, props.recordProp.record,
-    //      MeetingStatus2x.getGuestPolicy(liveMeeting.status).toString()))
-  }
-
-  def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    Users2x.findPresenter(liveMeeting.users2x) match {
-      case Some(curPres) => {
-        val allowed = msg.userID equals (curPres.intId)
-        //   outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
-      }
-      case None => // do nothing
-    }
-  }
-
-  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsers) {
-    inactivityTracker = MeetingInactivityTrackerHelper.processMeetingInactivityAudit(
-      props = liveMeeting.props,
-      outGW,
-      eventBus,
-      inactivityTracker
-    )
-
-    expiryTracker = MeetingExpiryTracker.processMeetingExpiryAudit(liveMeeting.props, expiryTracker, eventBus)
-
-    monitorNumberOfWebUsers()
-    monitorNumberOfUsers()
-  }
-
-  def monitorNumberOfWebUsers() {
-
-    def buildEjectAllFromVoiceConfMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
-      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-      val envelope = BbbCoreEnvelope(EjectAllFromVoiceConfMsg.NAME, routing)
-      val body = EjectAllFromVoiceConfMsgBody(voiceConf)
-      val header = BbbCoreHeaderWithMeetingId(EjectAllFromVoiceConfMsg.NAME, meetingId)
-      val event = EjectAllFromVoiceConfMsg(header, body)
-
-      BbbCommonEnvCoreMsg(envelope, event)
-    }
-
-    if (Users2x.numUsers(liveMeeting.users2x) == 0 &&
-      MeetingStatus2x.lastWebUserLeftOn(liveMeeting.status) > 0) {
-      if (liveMeeting.timeNowInMinutes - MeetingStatus2x.lastWebUserLeftOn(liveMeeting.status) > 2) {
-        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", props.meetingProp.intId)
-        val event = buildEjectAllFromVoiceConfMsg(props.meetingProp.intId, props.voiceProp.voiceConf)
-        outGW.send(event)
-      }
-    }
-  }
-
-  def monitorNumberOfUsers() {
-    val hasUsers = Users2x.numUsers(liveMeeting.users2x) != 0
-    // TODO: We could use a better control over this message to send it just when it really matters :)
-    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, UpdateMeetingExpireMonitor(props.meetingProp.intId, hasUsers)))
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
+    state = expiryTrackerHelper.processMeetingInactivityAudit(state)
+    state = expiryTrackerHelper.processMeetingExpiryAudit(state)
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
@@ -423,12 +370,6 @@ class MeetingActor(
       )
       outGW.send(event)
 
-    }
-  }
-
-  def record(msg: BbbCoreMsg): Unit = {
-    if (liveMeeting.props.recordProp.record) {
-      outGW.record(msg)
     }
   }
 }

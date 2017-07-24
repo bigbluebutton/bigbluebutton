@@ -39,9 +39,6 @@ object MeetingStatus2x {
   def recordingStarted(status: MeetingStatus2x) = status.recording = true
   def recordingStopped(status: MeetingStatus2x) = status.recording = false
   def isRecording(status: MeetingStatus2x): Boolean = status.recording
-  def lastWebUserLeft(status: MeetingStatus2x) = status.lastWebUserLeftOnTimestamp = MeetingStatus2x.timeNowInMinutes
-  def lastWebUserLeftOn(status: MeetingStatus2x): Long = status.lastWebUserLeftOnTimestamp
-  def resetLastWebUserLeftOn(status: MeetingStatus2x) = status.lastWebUserLeftOnTimestamp = 0
   def setVoiceRecordingFilename(status: MeetingStatus2x, path: String) = status.voiceRecordingFilename = path
   def getVoiceRecordingFilename(status: MeetingStatus2x): String = status.voiceRecordingFilename
   def permisionsInitialized(status: MeetingStatus2x): Boolean = status.permissionsInited
@@ -57,10 +54,6 @@ object MeetingStatus2x {
   def timeNowInMinutes(status: MeetingStatus2x): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   def timeNowInSeconds(status: MeetingStatus2x): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
 
-  def startedOn(status: MeetingStatus2x): Long = status.startedOn
-
-  def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
-  def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
 }
 
 class MeetingStatus2x {
@@ -75,14 +68,9 @@ class MeetingStatus2x {
   private var meetingEnded = false
   private var meetingMuted = false
 
-  private var hasLastWebUserLeft = false
-  private var lastWebUserLeftOnTimestamp: Long = 0
-
   private var voiceRecordingFilename: String = ""
 
   private var extension = new MeetingExtensionProp
-
-  private val startedOn = MeetingStatus2x.timeNowInSeconds;
 
   private def startRecordingVoice() {
     recordingVoice = true
@@ -115,9 +103,7 @@ class MeetingStatus2x {
   private def recordingStarted() = recording = true
   private def recordingStopped() = recording = false
   private def isRecording(): Boolean = recording
-  private def lastWebUserLeft() = lastWebUserLeftOnTimestamp = MeetingStatus2x.timeNowInMinutes
-  private def lastWebUserLeftOn(): Long = lastWebUserLeftOnTimestamp
-  private def resetLastWebUserLeftOn() = lastWebUserLeftOnTimestamp = 0
+
   private def setVoiceRecordingFilename(path: String) = voiceRecordingFilename = path
   private def getVoiceRecordingFilename(): String = voiceRecordingFilename
   private def permisionsInitialized(): Boolean = permissionsInited

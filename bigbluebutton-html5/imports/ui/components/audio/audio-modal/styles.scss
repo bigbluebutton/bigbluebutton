@@ -1,5 +1,5 @@
-@import "../../../stylesheets/variables/_all";
-@import "../../modal/simple/styles";
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
 
 .overlay {
   @extend .overlay;
@@ -16,13 +16,24 @@
   padding: 2rem 0;
 }
 
+.closeBtnWrapper {
+   display: flex;
+   justify-content: flex-end;
+}
+
 .closeBtn {
-  background-color: #FFFFFF;
+  background-color: $color-white;
   border: none;
-  display: flex;
-  justify-content: flex-end;
   i {
     color: $color-gray-light;
+  }
+
+  &:focus,
+  &:hover{
+    background-color: #0a5eac;
+    i{
+      color: $color-white;
+    }
   }
 }
 
@@ -41,7 +52,8 @@ Button.audioBtn span:first-child {
 }
 
 // When hovering over a button of class audioBtn, change the border colour of first span-child
-Button.audioBtn:hover span:first-child {
+Button.audioBtn:hover span:first-child, 
+Button.audioBtn:focus span:first-child {
   border: 5px solid $color-primary;
   background-color: #f1f8ff;
 }
@@ -64,7 +76,7 @@ Button.audioBtn:last-of-type {
 .backBtn {
   border: none;
   i {
-    color: $color-primary;
+    color: $color-link;
   }
 }
 
@@ -132,8 +144,8 @@ Button.audioBtn:last-of-type {
 .select {
   background-color: #fff;
   border: 0;
-  border-bottom: 0.1rem solid $color-gray-lighter;
-  color: $color-gray-light;
+  border-bottom: 0.1rem solid $color-text;
+  color: $color-text;
   width: 100%;
   // appearance: none;
   height: 1.75rem;

@@ -33,9 +33,6 @@ package org.bigbluebutton.main.model.options {
 		[Bindable]
 		public var toolbarColor:String = "";
 
-		[Bindable]
-		public var toolbarColorAlphas:Array = [];
-
 		public function BrandingOptions() {
 			name = "branding";
 		}

@@ -34,27 +34,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    <mate:Listener type="{PresenterStatusEvent.PRESENTER_NAME_CHANGE}" method="handlePresenterChangedEvent" />
 	    <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserVoiceChangedEvent" />
 	    <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceChangedEvent" />
+	    <mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="handleStoppedViewingWebcamEvent" />
+	    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />
 	</fx:Declarations>
 
     <fx:Script>
         <![CDATA[
-          import com.asfusion.mate.events.Dispatcher;
-          
-          import org.bigbluebutton.common.Images;
-          import org.bigbluebutton.common.Role;
-          import org.bigbluebutton.core.EventConstants;
-          import org.bigbluebutton.core.Options;
-          import org.bigbluebutton.core.UsersUtil;
-          import org.bigbluebutton.core.events.CoreEvent;
-          import org.bigbluebutton.core.events.VoiceConfEvent;
-          import org.bigbluebutton.core.model.LiveMeeting;
-          import org.bigbluebutton.core.model.VideoProfile;
-          import org.bigbluebutton.core.model.users.User2x;
-          import org.bigbluebutton.core.model.users.VoiceUser2x;
-          import org.bigbluebutton.main.events.BBBEvent;
-          import org.bigbluebutton.main.events.PresenterStatusEvent;
-          import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-          import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.core.UIComponent;
+			
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.core.model.VideoProfile;
+			import org.bigbluebutton.core.model.users.User2x;
+			import org.bigbluebutton.core.model.users.VoiceUser2x;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.PresenterStatusEvent;
+			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.modules.videoconf.events.AddStaticComponent;
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
             private var videoOptions:VideoConfOptions;
             
@@ -67,12 +73,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             [Bindable]
             private var _me:Boolean = false;
             private var _dispatcher:Dispatcher = new Dispatcher();
-            private var _images:Images = new Images();
             private var _user:User2x = null;
             private var _streamName:String = "";
             private var _userId:String = "";
 
             private var _hideMuteBtnTimer:Timer;
+
+            private var _newParent:DisplayObjectContainer;
+            private var _oldParent:DisplayObjectContainer = null;
+            private var _oldW:Number = 100;
+            private var _oldH:Number = 100;
 
             protected function init():void {
                 _hideMuteBtnTimer = new Timer(500, 1);
@@ -81,7 +91,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             protected function onCreationComplete():void {
-                closeBtn.tabIndex = videoOptions.baseTabIndex + 10;
+                // There must be a better way!
+                _newParent = parent.parent.parent.parent.parent;
+                fullScreenIcon.source = getStyle("iconFullScreen");
+				closeIcon.source = getStyle("iconClose");
+            }
+
+            private function handleUserJoinedEvent(event:UserJoinedEvent):void {
+                // this is just to enforce the update of the BBBUser reference when the user reconnect
+                if (user && event.userID == user.intId) {
+                    userId = event.userID;
+                    setUserProperties();
+                }
             }
 
             public function set userId(value:String):void {
@@ -160,6 +181,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             public function shutdown():void {
+                if (isFullscreen()) onFullscreen();
                 video.shutdown();
             }
 
@@ -245,26 +267,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
                     var userIconVisibility:Boolean;
                     if (user.presenter) {
-                        userIcon.source = _images.presenter_white;
+                        userIcon.source = getStyle("iconPresenter");
                         userIconVisibility = true;
                     } else {
                         if (user.role == Role.MODERATOR) {
-                            userIcon.source = _images.moderator_white;
+                            userIcon.source = getStyle("iconModerator");
                             userIconVisibility = true;
                         } else {
                             userIconVisibility = false;
                         }
                     }
-                    userIconWrapper.visible = userIconWrapper.includeInLayout = userIconVisibility;
+					userIcon.visible = userIcon.includeInLayout = userIconVisibility;
                 }
             }
 
             private function updateTalkingStatus():void {
               var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(user.intId);
                 if (voiceUser != null && voiceUser.talking) {
-                    titleBox.setStyle("styleName", "videoToolbarBackgroundTalkingStyle");
+                    titleBox.styleName = "videoToolbarBackgroundTalkingStyle";
                 } else {
-                    titleBox.setStyle("styleName", "videoToolbarBackgroundNotTalkingStyle");
+                    titleBox.styleName = "videoToolbarBackgroundNotTalkingStyle";
                 }
             }
 
@@ -289,7 +311,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function onHideMuteBtnTimerComplete(event:TimerEvent):void {
-                muteBtnWrapper.visible = false;
+				muteBtn.visible = false;
             }
 
             private function setMuteBtnVisibility(visible:Boolean):void {
@@ -307,7 +329,69 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             private function showMuteBtn():void {
                 _hideMuteBtnTimer.reset();
-                muteBtnWrapper.visible = true;
+				muteBtn.visible = true;
+            }
+
+            // Fullscreen video isn't a child of this module's wrapper so it must listen to it's close event
+            private function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
+                if (user) {
+                    if (user.intId == event.webcamUserID && video.streamName == event.streamName) {
+                        handleCloseFullscreenStream();
+                    }
+                }
+            }
+
+            private function handleCloseFullscreenStream():void {
+                if (isFullscreen()) {
+                    shutdown();
+                }
+            }
+
+            private function isFullscreen():Boolean {
+                return _oldParent != null;
+            }
+
+            protected function onFullscreen(event:MouseEvent = null):void {
+                if (isFullscreen()) {
+                    fullScreenIcon.source = getStyle("iconFullScreen");
+                    var evt:AddStaticComponent = new AddStaticComponent(this);
+                    _dispatcher.dispatchEvent(evt);
+
+                    _oldParent = null;
+                    this.visible = true;
+                    this.includeInLayout = true;
+                    this.width = _oldW;
+                    this.height = _oldH;
+
+                    for(var i2:uint = 0; i2 < _newParent.numChildren; i2++) {
+                        if(_newParent.getChildAt(i2) != this) {
+                            _newParent.getChildAt(i2).visible = true;
+                            (_newParent.getChildAt(i2) as UIComponent).includeInLayout = true;
+                        }
+                    }
+                } else {
+                    fullScreenIcon.source = getStyle("iconExitFullScreen");
+                    _oldParent = this.parent;
+                    _oldW = this.width;
+                    _oldH = this.height;
+
+                    _newParent.addChildAt(this, 0);
+
+                    this.percentHeight = 100;
+                    this.percentWidth = 100;
+
+                    for(var i1:uint = 0; i1< _newParent.numChildren; i1++) {
+                        if(_newParent.getChildAt(i1) != this) {
+                            _newParent.getChildAt(i1).visible = false;
+                            (_newParent.getChildAt(i1) as UIComponent).includeInLayout = false;
+                        }
+                    }
+                }
+
+                if (event != null) {
+                    event.stopImmediatePropagation();
+                    event.stopPropagation();
+                }
             }
 
         ]]>
@@ -321,48 +405,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Canvas id="canvas" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
         <views:UserAvatar id="avatar" width="100%" height="100%" visible="false" includeInLayout="false" />
         <views:UserVideo id="video" width="100%" height="100%" visible="false" includeInLayout="false" />
-        <mx:VBox id="overlay" width="100%" height="100%" >
-            <mx:HBox
-                    id="titleBox"
+        <mx:HBox
+                id="titleBox"
+                width="100%"
+				height="20"
+                verticalAlign="middle"
+                paddingRight="5"
+                paddingLeft="5"
+                styleName="videoToolbarBackgroundNotTalkingStyle" >
+            <mx:Image id="userIcon" visible="false" includeInLayout="false" />
+            <mx:Label
+                    text="{_username + (_me? ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : '')}"
+                    fontWeight="{_me ? 'bold' : 'normal'}"
                     width="100%"
-                    verticalAlign="middle"
-                    paddingRight="0"
                     paddingLeft="0"
-                    styleName="videoToolbarBackgroundNotTalkingStyle" >
-                <mx:Box id="userIconWrapper" visible="false" includeInLayout="false" paddingLeft="3" paddingRight="0" >
-                    <mx:Image id="userIcon" />
-                </mx:Box>
-                <mx:Label
-                        text="{_username + (_me? ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : '')}"
-                        fontWeight="{_me ? 'bold' : 'normal'}"
-                        width="100%"
-                        paddingLeft="0"
-                        minWidth="0"
-                        truncateToFit="true"
-                        styleName="videoToolbarLabelStyle" />
-                <mx:Box paddingRight="5">
-                    <mx:Button id="closeBtn" styleName="closeBtnFocus" buttonMode="true" click="shutdown()" 
-                               toolTip="{ResourceUtil.getInstance().getString('bbb.video.streamClose.toolTip', [_username])}" />
-                </mx:Box>
-            </mx:HBox>
-            <mx:Box
-                    width="100%"
-                    paddingTop="15"
-                    paddingRight="15"
-                    horizontalAlign="right" >
-                <mx:Box
-                        id="muteBtnWrapper"
-                        visible="false"
-                        hideEffect="{fadeOut}" showEffect="{fadeIn}" >
-                    <mx:Button 
-                            id="muteBtn"
-                            styleName="talkingOverlayBtn"
-                            buttonMode="true"
-                            click="onMuteBtnClick(event)"
-                            mouseOver="onMuteBtnMouseOver()"
-                            mouseOut="onMuteBtnMouseOut()" />
-                </mx:Box>
-            </mx:Box>
-        </mx:VBox>
+                    minWidth="0"
+                    truncateToFit="true"
+                    styleName="videoToolbarLabelStyle" />
+            <mx:Image id="fullScreenIcon" buttonMode="true" click="onFullscreen(event)" />
+			<mx:Image id="closeIcon" buttonMode="true" click="shutdown()"
+					  toolTip="{ResourceUtil.getInstance().getString('bbb.video.streamClose.toolTip', [_username])}"/>
+        </mx:HBox>
+		<mx:Button 
+			id="muteBtn"
+			hideEffect="{fadeOut}" showEffect="{fadeIn}"
+			visible="false"
+			buttonMode="true"
+			click="onMuteBtnClick(event)"
+			mouseOver="onMuteBtnMouseOver()"
+			mouseOut="onMuteBtnMouseOut()" 
+			right="8"
+			bottom="8"/>
     </mx:Canvas>
 </mx:VBox>

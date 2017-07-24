@@ -24,7 +24,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   creationComplete="init()"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.saveButton.toolTip')}"
-		   styleName="saveLayoutButtonStyle"
 		   click="onClick(event)"
 		   enabled="{UsersUtil.amIModerator()}">
 	

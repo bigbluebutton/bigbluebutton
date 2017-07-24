@@ -45,7 +45,6 @@
 			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
 			
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
@@ -60,9 +59,6 @@
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			[Bindable]
-			private var images:Images = new Images();
-   			
 			private var moderator:Boolean = false;
 			[Bindable]
 			private var rolledOver:Boolean = false;
@@ -146,7 +142,7 @@
 			}
 			
 			private function viewCamera():void {
-				dispatchEvent(new ViewCameraEvent(data.userId, data.streamName, data.name));
+				dispatchEvent(new ViewCameraEvent(data.userId));
    			}	
 			
 			private function kickUser():void{
@@ -189,7 +185,7 @@
 							muteBtn.includeInLayout = true;
 					} else {
             if (data.listenOnly) {
-              muteImg.source = images.sound;
+              muteImg.source = getStyle("iconSound");
               muteImg.visible = true;
               muteImg.includeInLayout = true;
               muteBtn.visible = false;
@@ -255,31 +251,31 @@
 					if (!rolledOver) {
 						if (data.inVoiceConf) {
               if (data.listenOnly) {
-                muteImg.source = images.sound;
+                muteImg.source = getStyle("iconSound");
               } else if (data.muted) {
-                muteImg.source = images.audio_muted_20;
+                muteImg.source = getStyle("iconAudioMuted");
               } else {
-                muteImg.source = images.audio_20;
+                muteImg.source = getStyle("iconAudio");
               }
 						}
 						
 						
 						if ( data.locked && !data.presenter && ls.isAnythingLocked() ) {
-							lockImg.source = images.locked_20;
+							lockImg.source = getStyle("iconLock");
 						}
 						else {
 							lockImg.source = null;
 						}
 					} else {
 						if (data.muted == rolledOverMute)
-							muteBtn.setStyle("icon", images.audio);
+							muteBtn.setStyle("icon", getStyle("iconAudio"));
 						else
-							muteBtn.setStyle("icon", images.audio_muted);
+							muteBtn.setStyle("icon", getStyle("iconAudioMuted"));
 						
 						if (data.locked == rolledOverLock)
-							lockBtn.setStyle("icon", images.unlocked_20);
+							lockBtn.setStyle("icon", getStyle("iconUnlock"));
 						else
-							lockBtn.setStyle("icon", images.locked_20);
+							lockBtn.setStyle("icon", getStyle("iconLock"));
 					}
 				}
 			}
@@ -304,13 +300,13 @@
 					if (data.role == Role.MODERATOR) {
 						myMenuData.push({
 							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
-							icon: images.user_delete,
+							icon: getStyle('iconDemote'),
 							callback: demoteUser
 						});
 					} else {
 						myMenuData.push({
 							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
-							icon: images.user_add,
+							icon: getStyle('iconPromote'),
 							callback: promoteUser
 						});
 					}
@@ -318,7 +314,7 @@
 					if (options.allowKickUser) {
 						myMenuData.push({
 							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
-							icon: images.eject_user_new,
+							icon: getStyle('iconEject'),
 							callback: kickUser
 						});
 					}
@@ -349,16 +345,14 @@
 		]]>
 	</fx:Script>
 	
-	<!--mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
-				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" /-->
-	<mx:Image id="webcamImg" visible="false" source="{images.webcam_new_20}"
+	<mx:Image id="webcamImg" visible="false" source="{getStyle('iconWebcam')}"
 				width="20" height="20"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
-    <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{images.webcam_new_20}"
+    <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{getStyle('iconWebcam')}"
               width="20" height="20" enabled="true" click="viewCamera()"
               toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
 	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="20" height="20" />
-	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
+	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{getStyle('iconAudio')}"
 				width="20" height="20" click="toggleMuteState()"
 				mouseOver="muteMouseOverHandler()"
 				mouseOut="muteMouseOutHandler()"
@@ -374,7 +368,7 @@
 			width="20"
 			height="20"
 			click="openSettings()"
-			icon="{images.users_settings}"
+			icon="{getStyle('iconSettings')}"
 			toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}"/>
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.muted}" />

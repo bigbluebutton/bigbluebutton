@@ -25,8 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/"
 	visible="false"
 	includeInLayout="false"
-	creationComplete="onCreationComplete()"
-	styleName="webRTCAudioStatusStyle">
+	creationComplete="onCreationComplete()">
 
 	<fx:Declarations>
 		<mate:Listener type="{BBBEvent.WEBRTC_MONITOR_UPDATE_EVENT}" method="handleWebRTCMonitor" />
@@ -87,21 +86,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					switch (true) {
 						case rate > 0.50:
-							audioStatus.source = getStyle("weakAudioStatus");
+							audioStatus.source = getStyle("iconWeakAudio");
 							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.weakStatus');
 							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
 							break;
 						case rate > 0.25:
-							audioStatus.source = getStyle("almostWeakAudioStatus");
+							audioStatus.source = getStyle("iconAlmostWeakAudio");
 							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.almostWeakStatus');
 							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
 							break;
 						case rate > 0.1:
-							audioStatus.source = getStyle("almostStrongAudioStatus");
+							audioStatus.source = getStyle("iconAlmostStrongAudio");
 							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.almostStrongStatus');
 							break;
 						default:
-							audioStatus.source = getStyle("strongAudioStatus");
+							audioStatus.source = getStyle("iconStrongAudio");
 							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.strongStatus');
 							break;
 					}

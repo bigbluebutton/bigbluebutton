@@ -154,15 +154,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		if (params.length >= 7 && ((Boolean) params[7])) {
 			muted = true;
 		}
-    	
-		Map<String, Boolean> lsMap = null;
-		if (params.length >= 8) {
-			try {
-				lsMap = (Map<String, Boolean> ) params[8];
-			} catch(Exception e){
-				lsMap = new HashMap<String, Boolean>();
-			}
-		}
 
 		Boolean guest  = false;
 		if (params.length >= 9 && ((Boolean) params[9])) {
@@ -214,8 +205,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		connection.setAttribute("USER_SESSION_ID", sessionId);
 		connection.setAttribute("TIMESTAMP", System.currentTimeMillis());
         
-		red5InGW.initLockSettings(room, lsMap);
-		
 	    String meetingId = bbbSession.getRoom();
 
 	    String userFullname = bbbSession.getUsername();
@@ -301,7 +290,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		if (removeUser) {
 		//	log.info("User leaving bbb-apps: data={}", logStr);
 			System.out.println("User leaving bbb-apps: data=" + logStr);
-			red5InGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
+			//red5InGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
 		} else {
 			log.info("User not leaving bbb-apps but just disconnected: data={}", logStr);
 		}
@@ -328,37 +317,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		String token = bbbSession.getAuthToken();
 		return new ConnInfo(meetingId, userId, token, connId, sessionId);
 	}
-
-	public void validateToken(Map<String, String> msg) {
-	   String token = (String) msg.get("authToken");
-	        
-		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-		assert bbbSession != null;
-		String userId = bbbSession.getInternalUserID();
-		String meetingId = Red5.getConnectionLocal().getScope().getName();
-        String connId = Red5.getConnectionLocal().getSessionId();    
-        String sessionId =  CONN + connId + "-" + userId;
-        
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData.put("meetingId", meetingId);
-        logData.put("connId", connId);
-        logData.put("sessionId", sessionId);
-        logData.put("userId", userId);
-        logData.put("token", token);
-        logData.put("event", "user_validate_token_bbb_apps");
-        logData.put("description", "User validate token BBB Apps.");
-        
-        Gson gson = new Gson();
-        String logStr =  gson.toJson(logData);
-            
-       // log.info("User validate token bbb-apps: data={}", logStr);
-		System.out.println("User validate token bbb-apps: data=" + logStr);
-				System.out.println("User validate token bbb-apps: data=" + logStr);
-        red5InGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
-	}
-		
 	
-		
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}

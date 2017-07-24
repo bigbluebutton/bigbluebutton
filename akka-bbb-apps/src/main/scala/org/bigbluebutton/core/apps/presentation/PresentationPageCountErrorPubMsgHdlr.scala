@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.presentation
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait PresentationPageCountErrorPubMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handlePresentationPageCountErrorPubMsg(msg: PresentationPageCountErrorSysPubMsg): Unit = {
 
