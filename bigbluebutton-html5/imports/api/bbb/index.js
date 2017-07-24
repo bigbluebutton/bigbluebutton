@@ -4,7 +4,6 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 
 class BBB {
-
   getUserId() {
     let userID = Auth.userID;
     return userID;
@@ -40,10 +39,10 @@ class BBB {
   webRTCCallStarted(inEchoTest) {
     AudioManager.webRTCCallStarted(inEchoTest);
   }
-
-
 }
 
-if (window.BBB == undefined) {
-  window.BBB = new BBB();
-}
+export const initBBB = () => {
+  if (window.BBB == undefined) {
+    window.BBB = new BBB();
+  }
+};

@@ -7,7 +7,7 @@ import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import IntlStartup from './intl';
-import BBB from '/imports/api/bbb';
+import { initBBB } from '/imports/api/bbb';
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
 
@@ -35,6 +35,8 @@ class Base extends Component {
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.updateErrorState = this.updateErrorState.bind(this);
+
+    initBBB();
   }
 
   updateLoadingState(loading = false) {
