@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.chat.model
     }
     
     public function newChatMessage(msg:ChatMessageVO):void {
-      var convId:String = getConvId(msg.fromUserID, msg.toUserID);
+      var convId:String = getConvId(msg.fromUserId, msg.toUserId);
       
       if (convs.hasOwnProperty(convId)) {
         var cm:ChatConversation = convs[convId] as ChatConversation;

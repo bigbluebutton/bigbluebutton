@@ -20,15 +20,19 @@
   $Id: $
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   layout="absolute" 
 	implements="org.bigbluebutton.common.IBigBlueButtonModule" 
 	xmlns:polling="org.bigbluebutton.modules.polling.*"
 	xmlns:maps="org.bigbluebutton.modules.polling.maps.*"
 	creationComplete="onCreationComplete()">
-	  
-    <maps:PollEventMap id="pollEventMap"/>
+	
+	<fx:Declarations>
+	    <maps:PollEventMap id="pollEventMap"/>
+	</fx:Declarations>
   
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -94,8 +98,6 @@
 			}
 			
 		]]>
-	</mx:Script>
-	
-	
+	</fx:Script>
 	
 </mx:Module>

@@ -33,10 +33,13 @@ require 'recordandplayback/generators/audio'
 require 'recordandplayback/generators/video'
 require 'recordandplayback/generators/audio_processor'
 require 'recordandplayback/generators/presentation'
+require 'custom_hash'
 require 'open4'
 require 'pp'
 require 'absolute_time'
 require 'logger'
+require 'find'
+require 'rubygems'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -154,5 +157,54 @@ module BigBlueButton
 
   def self.monotonic_clock()
     return (AbsoluteTime.now * 1000).to_i
+  end
+
+  def self.get_dir_size(dir_name)
+    size = 0
+    if FileTest.directory?(dir_name)
+      Find.find(dir_name) { |f| size += File.size(f) }
+    end
+    size.to_s
+  end
+
+  def self.add_tag_to_xml(xml_filename, parent_xpath, tag, content)
+    if File.exist? xml_filename
+      doc = Nokogiri::XML(File.open(xml_filename)) { |x| x.noblanks }
+
+      node = doc.at_xpath("#{parent_xpath}/#{tag}")
+      node.remove if not node.nil?
+
+      node = Nokogiri::XML::Node.new tag, doc
+      node.content = content
+
+      doc.at(parent_xpath) << node
+
+      xml_file = File.new(xml_filename, "w")
+      xml_file.write(doc.to_xml(:indent => 2))
+      xml_file.close
+    end
+  end
+
+  def self.add_raw_size_to_metadata(dir_name, raw_dir_name)
+    size = BigBlueButton.get_dir_size(raw_dir_name)
+    BigBlueButton.add_tag_to_xml("#{dir_name}/metadata.xml", "//recording", "raw_size", size)
+  end
+
+  def self.add_playback_size_to_metadata(dir_name)
+    size = BigBlueButton.get_dir_size(dir_name)
+    BigBlueButton.add_tag_to_xml("#{dir_name}/metadata.xml", "//recording/playback", "size", size)
+  end
+
+  def self.add_download_size_to_metadata(dir_name)
+    size = BigBlueButton.get_dir_size(dir_name)
+    BigBlueButton.add_tag_to_xml("#{dir_name}/metadata.xml", "//recording/download", "size", size)
+  end
+
+  def self.record_id_to_timestamp(r)
+    r.split("-")[1].to_i / 1000
+  end
+
+  def self.done_to_timestamp(r)
+    BigBlueButton.record_id_to_timestamp(File.basename(r, ".done"))
   end
 end

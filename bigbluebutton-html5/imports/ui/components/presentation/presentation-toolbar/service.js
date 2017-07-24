@@ -1,7 +1,7 @@
-import AuthSingleton from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/users';
-import Slides from '/imports/api/slides';
-import { makeCall } from '/imports/ui/services/api/index.js';
+import AuthSingleton from '/imports/ui/services/auth';
+import Users from '/imports/api/2.0/users';
+import Slides from '/imports/api/2.0/slides';
+import { makeCall } from '/imports/ui/services/api';
 
 const getSlideData = (params) => {
   const { currentSlideNum, presentationId } = params;

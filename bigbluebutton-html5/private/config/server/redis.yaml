@@ -6,6 +6,9 @@ redis:
   channels:
     fromBBBApps: 'bigbluebutton:from-bbb-apps:*'
     fromBBBUsers: 'bigbluebutton:from-bbb-apps:users'
+    fromAkkaApps: 'from-akka-apps-redis-channel'
+    toAkkaApps: 'to-akka-apps-redis-channel'
+    toHTML5: 'to-html5-redis-channel'
     toBBBApps:
       pattern: 'bigbluebutton:to-bbb-apps:*'
       html5: 'bigbluebutton:to-bbb-html5'
@@ -19,5 +22,6 @@ redis:
       polling: 'bigbluebutton:to-bbb-apps:polling'
   ignoredMessages:
     - 'BbbPubSubPongMessage'
+    - 'GetCurrentLayoutEvtMsg'
     - 'bbb_apps_is_alive_message'
     - 'broadcast_layout_message'

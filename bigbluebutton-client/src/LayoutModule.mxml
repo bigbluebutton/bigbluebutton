@@ -18,13 +18,16 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
-			xmlns:maps="org.bigbluebutton.modules.layout.maps.*" 
-			implements="org.bigbluebutton.common.IBigBlueButtonModule">
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:maps="org.bigbluebutton.modules.layout.maps.*" 
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	
-	<maps:LayoutEventMap id="layoutEventMap" />
+	<fx:Declarations>
+		<maps:LayoutEventMap id="layoutEventMap" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -59,5 +62,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Module>

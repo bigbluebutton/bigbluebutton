@@ -29,12 +29,12 @@ package org.bigbluebutton.modules.users.views {
 	import mx.core.ScrollPolicy;
 	import mx.events.FlexMouseEvent;
 	
-	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.PopUpUtil;
-	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
+	// This class is likely to be removed for V2, We need to move the tooltips to MoodeMenu
 	public class EmojiGrid extends VBox {
 		private const EMOJIS:Array = ["raiseHand", "happy", "neutral", "sad", "confused", "away", "thumbsUp", "thumbsDown", "applause"];
 
@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.users.views {
 				button.height = 24;
 				button.toggle = true;
 				button.setStyle("icon", images["emoji_" + emoji]);
-				button.selected = (UserManager.getInstance().getConference().myEmojiStatus == emoji);
+				button.selected = (LiveMeeting.inst().me.emoji == emoji);
 				button.toggle = button.selected;
 				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + emoji);
 				button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.users.views {
 			var button:Button = new Button();
 			button.id = "btnnone";
 			button.height = 24;
-			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
+			if (LiveMeeting.inst().me.emoji != "none") {
 				button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
 				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');
 				button.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');

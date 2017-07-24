@@ -19,10 +19,9 @@
 package org.bigbluebutton.core.services
 {
   import flash.events.AsyncErrorEvent;
+  import flash.events.IOErrorEvent;
   import flash.events.NetStatusEvent;
-  import flash.events.TimerEvent;
   import flash.net.NetConnection;
-  import flash.utils.Timer;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -32,26 +31,69 @@ package org.bigbluebutton.core.services
   import org.red5.flash.bwcheck.events.BandwidthDetectEvent;
 
   public class BandwidthMonitor {
-	private static const LOGGER:ILogger = getClassLogger(BandwidthMonitor);
-	
+    private static const LOGGER:ILogger = getClassLogger(BandwidthMonitor);
+    public static const INTERVAL_BETWEEN_CHECKS:int = 30000; // in ms
+
+    private static var _instance:BandwidthMonitor = null;
     private var _serverURL:String = "localhost";
     private var _serverApplication:String = "video";
     private var _clientServerService:String = "checkBandwidthUp";
     private var _serverClientService:String = "checkBandwidth";
-    private var nc:NetConnection;
+    private var _pendingClientToServer:Boolean;
+    private var _pendingServerToClient:Boolean;
+    private var _lastClientToServerCheck:Date;
+    private var _lastServerToClientCheck:Date;
+    private var _runningMeasurement:Boolean;
+    private var _connecting:Boolean;
+    private var _nc:NetConnection;
     
-    private var bwTestTimer:Timer;
-    
-    public function BandwidthMonitor() {
-      
+    /**
+     * This class is a singleton. Please initialize it using the getInstance() method.
+     */
+    public function BandwidthMonitor(enforcer:SingletonEnforcer) {
+        if (enforcer == null) {
+            throw new Error("There can only be one instance of this class");
+        }
+        initialize();
     }
     
+    private function initialize():void {
+        _pendingClientToServer = false;
+        _pendingServerToClient = false;
+        _runningMeasurement = false;
+        _connecting = false;
+        _lastClientToServerCheck = null;
+        _lastServerToClientCheck = null;
+
+        _nc = new NetConnection();
+        _nc.proxyType = "best";
+        _nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
+        _nc.client = this;
+        _nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);
+        _nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+        _nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+    }
+    
+    /**
+     * Return the single instance of this class
+     */
+    public static function getInstance():BandwidthMonitor {
+        if (_instance == null) {
+            _instance = new BandwidthMonitor(new SingletonEnforcer());
+        }
+        return _instance;
+    }
+
     public function set serverURL(url:String):void {
-      _serverURL = url;
+        if (_nc.connected)
+            _nc.close();
+        _serverURL = url;
     }
     
     public function set serverApplication(app:String):void {
-      _serverApplication = app;
+        if (_nc.connected)
+            _nc.close();
+        _serverApplication = app;
     }
 
     public function start():void {
@@ -59,18 +101,73 @@ package org.bigbluebutton.core.services
     }
        
     private function connect():void {
-      nc = new NetConnection();
-      nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
-      nc.proxyType = "best";
-      nc.client = this;
-      nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);	
-      nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);	
-      nc.connect("rtmp://" + _serverURL + "/" + _serverApplication);
+        if (!_nc.connected && !_connecting) {
+            _nc.connect("rtmp://" + _serverURL + "/" + _serverApplication);
+            _connecting = true;
+        }
     }
-    
-    private function onAsyncError(event:AsyncErrorEvent):void
-    {
-      LOGGER.debug(event.error.toString());
+
+    public function checkClientToServer():void {
+        if (_lastClientToServerCheck != null && _lastClientToServerCheck.getTime() + INTERVAL_BETWEEN_CHECKS > new Date().getTime())
+            return;
+
+        if (!_nc.connected) {
+            _pendingClientToServer = true;
+            connect();
+        } if (_runningMeasurement) {
+            _pendingClientToServer = true;
+        } else {
+            _pendingClientToServer = false;
+            _runningMeasurement = true;
+            _lastClientToServerCheck = new Date();
+
+            LOGGER.debug("Start client-server bandwidth detection");
+            var clientServer:ClientServerBandwidth  = new ClientServerBandwidth();
+            clientServer.connection = _nc;
+            clientServer.service = _clientServerService;
+            clientServer.addEventListener(BandwidthDetectEvent.DETECT_COMPLETE,onClientServerComplete);
+            clientServer.addEventListener(BandwidthDetectEvent.DETECT_STATUS,onClientServerStatus);
+            clientServer.addEventListener(BandwidthDetectEvent.DETECT_FAILED,onDetectFailed);
+            clientServer.start();
+        }
+    }
+
+    public function checkServerToClient():void {
+        if (_lastServerToClientCheck != null && _lastServerToClientCheck.getTime() + INTERVAL_BETWEEN_CHECKS > new Date().getTime())
+            return;
+
+        if (!_nc.connected) {
+            _pendingServerToClient = true;
+            connect();
+        } if (_runningMeasurement) {
+            _pendingServerToClient = true;
+        } else {
+            _pendingServerToClient = false;
+            _runningMeasurement = true;
+            _lastServerToClientCheck = new Date();
+
+            LOGGER.debug("Start server-client bandwidth detection");
+            var serverClient:ServerClientBandwidth = new ServerClientBandwidth();
+            serverClient.connection = _nc;
+            serverClient.service = _serverClientService;
+            serverClient.addEventListener(BandwidthDetectEvent.DETECT_COMPLETE,onServerClientComplete);
+            serverClient.addEventListener(BandwidthDetectEvent.DETECT_STATUS,onServerClientStatus);
+            serverClient.addEventListener(BandwidthDetectEvent.DETECT_FAILED,onDetectFailed);
+            serverClient.start();
+        }
+    }
+
+    private function checkPendingOperations():void {
+      if (_pendingClientToServer) checkClientToServer();
+      if (_pendingServerToClient) checkServerToClient();
+    }
+
+    private function onAsyncError(event:AsyncErrorEvent):void {
+        LOGGER.debug(event.error.toString());
+    }
+
+    private function onIOError(event:IOErrorEvent):void {
+        LOGGER.debug(event.text);
     }
     
     private function onStatus(event:NetStatusEvent):void
@@ -78,87 +175,49 @@ package org.bigbluebutton.core.services
       switch (event.info.code)
       {
         case "NetConnection.Connect.Success":
-			LOGGER.debug("Starting to monitor bandwidth between client and server");
- //         monitor();
+          LOGGER.debug("Starting to monitor bandwidth between client and server");
           break;
         default:
-		  LOGGER.debug("Cannot establish the connection to measure bandwidth");
+          LOGGER.debug("Cannot establish the connection to measure bandwidth");
           break;
       }      
+      _connecting = false;
+      checkPendingOperations();
     }
     
-    private function monitor():void {
-	  LOGGER.debug("Starting to monitor bandwidth");
-      bwTestTimer =  new Timer(30000);
-      bwTestTimer.addEventListener(TimerEvent.TIMER, rtmptRetryTimerHandler);
-      bwTestTimer.start();
+    public function onDetectFailed(event:BandwidthDetectEvent):void {
+      LOGGER.debug("Detection failed with error: " + event.info.application + " " + event.info.description);
+      _runningMeasurement = false;
     }
     
-    private function rtmptRetryTimerHandler(event:TimerEvent):void {
-	  LOGGER.debug("Starting to detect bandwidth from server to client");
-      ServerClient();
-    }
-    
-    public function ClientServer():void
-    {
-      var clientServer:ClientServerBandwidth  = new ClientServerBandwidth();
-      //connect();
-      clientServer.connection = nc;
-      clientServer.service = _clientServerService;
-      clientServer.addEventListener(BandwidthDetectEvent.DETECT_COMPLETE,onClientServerComplete);
-      clientServer.addEventListener(BandwidthDetectEvent.DETECT_STATUS,onClientServerStatus);
-      clientServer.addEventListener(BandwidthDetectEvent.DETECT_FAILED,onDetectFailed);
-      clientServer.start();
-    }
-    
-    public function ServerClient():void
-    {
-      var serverClient:ServerClientBandwidth = new ServerClientBandwidth();
-      //connect();
-      serverClient.connection = nc;
-      serverClient.service = _serverClientService;
-      serverClient.addEventListener(BandwidthDetectEvent.DETECT_COMPLETE,onServerClientComplete);
-      serverClient.addEventListener(BandwidthDetectEvent.DETECT_STATUS,onServerClientStatus);
-      serverClient.addEventListener(BandwidthDetectEvent.DETECT_FAILED,onDetectFailed);
-      serverClient.start();
-    }
-    
-    public function onDetectFailed(event:BandwidthDetectEvent):void
-    {
-	  LOGGER.debug("Detection failed with error: {0} {1}", [event.info.application, event.info.description]);
-    }
-    
-    public function onClientServerComplete(event:BandwidthDetectEvent):void
-    {
-//      LogUtil.debug("Client-slient bandwidth detect complete");
-      
-//      LogUtil.debug(ObjectUtil.toString(event.info));
+    public function onClientServerComplete(event:BandwidthDetectEvent):void {
+      LOGGER.debug("Client-server bandwidth detection complete");
+//      LOGGER.debug(ObjectUtil.toString(event.info));
       NetworkStatsData.getInstance().setUploadMeasuredBW(event.info);
+      _runningMeasurement = false;
+      checkPendingOperations();
     }
     
-    public function onClientServerStatus(event:BandwidthDetectEvent):void
-    {
+    public function onClientServerStatus(event:BandwidthDetectEvent):void {
       if (event.info) {
-//        LogUtil.debug("\n count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" overhead:  "+event.info.overhead+" packet interval: " + event.info.pakInterval + " cumLatency: " + event.info.cumLatency);
+//        LOGGER.debug("\n count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" overhead:  "+event.info.overhead+" packet interval: " + event.info.pakInterval + " cumLatency: " + event.info.cumLatency);
       }
     }
     
-    public function onServerClientComplete(event:BandwidthDetectEvent):void
-    {
-//      LogUtil.debug("Server-client bandwidth detect complete");
-      
-//      LogUtil.debug(ObjectUtil.toString(event.info));
+    public function onServerClientComplete(event:BandwidthDetectEvent):void {
+      LOGGER.debug("Server-client bandwidth detection complete");
+//      LOGGER.debug(ObjectUtil.toString(event.info));
       NetworkStatsData.getInstance().setDownloadMeasuredBW(event.info);
-
-//      LogUtil.debug("Detecting Client Server Bandwidth");
-      ClientServer();
+      _runningMeasurement = false;
+      checkPendingOperations();
     }
     
-    public function onServerClientStatus(event:BandwidthDetectEvent):void
-    {	
+    public function onServerClientStatus(event:BandwidthDetectEvent):void {
       if (event.info) {
-//        LogUtil.debug("\n count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" cumLatency: " + event.info.cumLatency);
+//        LOGGER.debug("\n count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" cumLatency: " + event.info.cumLatency);
       }
     }
   }
 }
+
+class SingletonEnforcer{}

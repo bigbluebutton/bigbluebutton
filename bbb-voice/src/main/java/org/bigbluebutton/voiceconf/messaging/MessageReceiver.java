@@ -31,7 +31,7 @@ public class MessageReceiver {
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
 			    	if (receiveMessage) {
-			    		jedis.psubscribe(new PubSubListener(), MessagingConstants.TO_BBB_APPS_PATTERN); 
+			    		jedis.psubscribe(new PubSubListener(), MessagingConstants.TO_AKKA_APPS_CHANNEL);
 			    	}
 			    }
 			};

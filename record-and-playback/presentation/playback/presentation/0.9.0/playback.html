@@ -33,9 +33,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 
 <body>
-  <div id="loading-recording">
-    <div id="spinner"></div>
-    <p id="load-recording-msg">Initializing recording</p>
+  <div id="loading-error">
+    <p id="load-error-msg">This recording could not be found</p>
   </div>
   <div class="circle" id="cursor"></div>
   <div id="playback-content" class="off-canvas-wrap" data-offcanvas>
@@ -116,6 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <!-- popcorn has to be loaded after playback.js, otherwise the chat won't be displayed -->
   <script type="text/javascript" src="lib/popcorn-complete.min.js"></script>
   <script type="text/javascript" src="lib/popcorn.chattimeline.js"></script>
+  <script type="text/javascript" src="lib/pace.min.js"></script>
   <script>
     $(document).foundation();
   </script>

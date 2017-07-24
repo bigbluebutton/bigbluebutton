@@ -28,11 +28,10 @@ package org.bigbluebutton.main.model.modules
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
-	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.model.MeetingModel;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.main.events.AppVersionEvent;
-	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.options.PortTestOptions;
 	
 	public class ModuleManager
 	{
@@ -46,9 +45,10 @@ package org.bigbluebutton.main.model.modules
 		private var sorted:ArrayCollection; //The array of modules sorted by dependencies, with least dependent first
 		
 		private var _applicationDomain:ApplicationDomain;
-		private var conferenceParameters:ConferenceParameters;
 		
 		private var modulesDispatcher:ModulesDispatcher;
+		
+		private var portTestOptions : PortTestOptions;
 		
 		public function ModuleManager(modulesDispatcher: ModulesDispatcher)
 		{
@@ -66,6 +66,8 @@ package org.bigbluebutton.main.model.modules
 			var resolver:DependancyResolver = new DependancyResolver();
 			sorted = resolver.buildDependencyTree(modules);
 			
+			portTestOptions = Options.getOptions(PortTestOptions) as PortTestOptions;
+			
 			modulesDispatcher.sendPortTestEvent();
 		}
 		
@@ -79,15 +81,15 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function get portTestHost():String {
-			return BBB.getConfigManager().getPortortTestHost();
+			return portTestOptions.host;
 		}
 		
 		public function get portTestApplication():String {
-			return BBB.getConfigManager().getPortTestApplication();
+			return portTestOptions.application;
 		}
 		
 		public function get portTestTimeout():Number {
-			return BBB.getConfigManager().getPortTestTimeout();
+			return portTestOptions.timeout;
 		}
 		
 		private function getModule(name:String):ModuleDescriptor {
@@ -98,13 +100,13 @@ package org.bigbluebutton.main.model.modules
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-        var protocol:String = "rtmp";
-        if (BBB.initConnectionManager().isTunnelling) {
-          protocol = "rtmpt";
-        }
-				m.loadConfigAttributes(conferenceParameters, protocol);
-				bbb.start(m.attributes);		
-			}	
+				var protocol:String = "rtmp";
+				if (BBB.initConnectionManager().isTunnelling) {
+					protocol = "rtmpt";
+				}
+				m.loadConfigAttributes(protocol);
+				bbb.start(m.attributes);
+			}
 		}
 
 		private function stopModule(name:String):void {
@@ -164,10 +166,8 @@ package org.bigbluebutton.main.model.modules
 			modulesDispatcher.sendStartUserServicesEvent();
 		}
 		
-		public function loadAllModules(parameters:ConferenceParameters):void{
+		public function loadAllModules():void{
 			modulesDispatcher.sendModuleLoadingStartedEvent();
-			conferenceParameters = parameters;
-			Role.setRole(parameters.role);
 			
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;

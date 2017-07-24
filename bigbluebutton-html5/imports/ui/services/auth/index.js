@@ -3,7 +3,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import Users from '/imports/api/users';
+import Users2x from '/imports/api/2.0/users';
 import { makeCall, logClient } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
@@ -13,6 +13,7 @@ class Auth {
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
+    this._logoutURL = Storage.getItem('logoutURL');
     this._loggedIn = {
       value: false,
       tracker: new Tracker.Dependency(),
@@ -46,6 +47,15 @@ class Auth {
     Storage.setItem('authToken', this._authToken);
   }
 
+  set logoutURL(logoutURL) {
+    this._logoutURL = logoutURL;
+    Storage.setItem('logoutURL', this._logoutURL);
+  }
+
+  get logoutURL() {
+    return this._logoutURL;
+  }
+
   get loggedIn() {
     this._loggedIn.tracker.depend();
     return this._loggedIn.value;
@@ -61,26 +71,25 @@ class Auth {
       meetingId: this.meetingID,
       requesterUserId: this.userID,
       requesterToken: this.token,
+      logoutURL: this.logoutURL,
     };
   }
 
-  set(meetingId, requesterUserId, requesterToken) {
+  set(meetingId, requesterUserId, requesterToken, logoutURL) {
     this.meetingID = meetingId;
     this.userID = requesterUserId;
     this.token = requesterToken;
+    this.logoutURL = logoutURL;
   }
 
-  set credentials(value) {
-    throw 'Credentials are read-only';
-  }
-
-  clearCredentials() {
+  clearCredentials(...args) {
     this.meetingID = null;
     this.userID = null;
     this.token = null;
     this.loggedIn = false;
+    this.logoutURL = null;
 
-    return Promise.resolve(...arguments);
+    return Promise.resolve(...args);
   }
 
   logout() {
@@ -88,7 +97,7 @@ class Auth {
       return Promise.resolve();
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const credentialsSnapshot = {
         meetingId: this.meetingID,
         requesterUserId: this.userID,
@@ -97,13 +106,13 @@ class Auth {
 
       // make sure users who did not connect are not added to the meeting
       // do **not** use the custom call - it relies on expired data
-      Meteor.call('userLogout', credentialsSnapshot, (error, result) => {
+      Meteor.call('userLogout', credentialsSnapshot, (error) => {
         if (error) {
           logClient('error', { error, method: 'userLogout', credentialsSnapshot });
         } else {
           this.fetchLogoutUrl()
-          .then(this.clearCredentials)
-          .then(resolve);
+            .then(this.clearCredentials)
+            .then(resolve);
         }
       });
     });
@@ -122,7 +131,7 @@ class Auth {
     return new Promise((resolve, reject) => {
       Tracker.autorun((c) => {
         if (!(credentials.meetingId && credentials.requesterToken && credentials.requesterUserId)) {
-          return reject({
+          reject({
             error: 500,
             description: 'Authentication subscription failed due to missing credentials.',
           });
@@ -136,7 +145,7 @@ class Auth {
           });
         }, 5000);
 
-        const subscription = Meteor.subscribe('current-user', credentials);
+        const subscription = Meteor.subscribe('current-user2x', credentials);
         if (!subscription.ready()) return;
 
         resolve(c);
@@ -165,9 +174,9 @@ class Auth {
 
       Tracker.autorun((c) => {
         const selector = { meetingId: this.meetingID, userId: this.userID };
-        const query = Users.find(selector);
+        const query = Users2x.find(selector);
 
-        const handle = query.observeChanges({
+        query.observeChanges({
           changed: (id, fields) => {
             if (fields.validated === true) {
               c.stop();
@@ -186,17 +195,12 @@ class Auth {
         });
       });
 
-      const credentials = this.credentials;
-      makeCall('validateAuthToken', credentials);
+      makeCall('validateAuthToken2x');
     });
   }
 
   fetchLogoutUrl() {
-    const url = '/bigbluebutton/api/enter';
-
-    return fetch(url)
-      .then(response => response.json())
-      .then(data => Promise.resolve(data.response.logoutURL));
+    return Promise.resolve(this._logoutURL);
   }
 }
 

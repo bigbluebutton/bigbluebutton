@@ -1,14 +1,15 @@
 package org.bigbluebutton.modules.videoconf.views
 {
     import flash.display.DisplayObject;
+    
     import mx.containers.Canvas;
     import mx.core.UIComponent;
-
-    import org.bigbluebutton.main.model.users.BBBUser;
+    
+    import org.bigbluebutton.core.model.users.User2x;
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
     public class UserGraphic extends UIComponent {
-        protected var _user:BBBUser = null;
+        protected var _user:User2x = null;
         protected var _options:VideoConfOptions;
         protected var _origWidth:Number = 320;
         protected var _origHeight:Number = 240;
@@ -77,11 +78,11 @@ package org.bigbluebutton.modules.videoconf.views
             object.height = object_height;
         }
 
-        public function set user(value:BBBUser):void {
+        public function set user(value:User2x):void {
             _user = value;
         }
 
-        public function get user():BBBUser {
+        public function get user():User2x {
             return _user;
         }
 

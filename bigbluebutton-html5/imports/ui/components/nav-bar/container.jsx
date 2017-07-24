@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/api/2.0/meetings';
 import Auth from '/imports/ui/services/auth';
 import userListService from '../user-list/service';
 import ChatService from '../chat/service';

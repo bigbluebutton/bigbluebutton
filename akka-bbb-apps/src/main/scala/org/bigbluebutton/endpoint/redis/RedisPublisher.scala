@@ -1,13 +1,9 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.Props
 import redis.RedisClient
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.actor.ActorSystem
-import scala.concurrent.Await
-import akka.actor.Actor
 import org.bigbluebutton.SystemConfiguration
+import akka.util.ByteString
 
 class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
 
@@ -19,7 +15,7 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
 
   def publish(channel: String, data: String) {
     //println("PUBLISH TO [" + channel + "]: \n [" + data + "]")
-    redis.publish(channel, data)
+    redis.publish(channel, ByteString(data))
   }
 
 }
