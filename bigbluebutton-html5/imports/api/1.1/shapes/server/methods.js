@@ -4,7 +4,5 @@ import clearWhiteboard from './methods/clearWhiteboard';
 import sendAnnotation from './methods/sendAnnotation';
 
 Meteor.methods({
-  undoAnnotation,
-  clearWhiteboard,
-  sendAnnotation
+  sendAnnotation,
 });
