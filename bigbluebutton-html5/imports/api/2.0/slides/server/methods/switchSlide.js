@@ -17,10 +17,14 @@ export default function switchSlide(credentials, slideNumber) {
   check(requesterToken, String);
   check(slideNumber, Number);
 
-  const Presentation = Presentations.findOne({
+  const selector = {
     meetingId,
-    'presentation.current': true,
-  });
+    current: true,
+  };
+
+  console.log("Selector", selector);
+
+  const Presentation = Presentations.findOne(selector);
 
   if (!Presentation) {
     throw new Meteor.Error(
@@ -29,8 +33,8 @@ export default function switchSlide(credentials, slideNumber) {
 
   const Slide = Slides.findOne({
     meetingId,
-    presentationId: Presentation.presentation.id,
-    num: parseInt(slideNumber, 2),
+    presentationId: Presentation.id,
+    num: slideNumber,
   });
 
   if (!Slide) {
@@ -42,7 +46,7 @@ export default function switchSlide(credentials, slideNumber) {
 
   const payload = {
     pageId: Slide.id,
-    presentationId: Presentation.presentation.id,
+    presentationId: Presentation.id,
   };
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);

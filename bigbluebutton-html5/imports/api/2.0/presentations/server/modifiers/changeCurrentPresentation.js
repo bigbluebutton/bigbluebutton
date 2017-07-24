@@ -9,10 +9,10 @@ export default function changeCurrentPresentation(meetingId, presentationId) {
   const oldCurrent = {
     selector: {
       meetingId,
-      'presentation.current': true,
+      current: true,
     },
     modifier: {
-      $set: { 'presentation.current': false },
+      $set: { current: false },
     },
     callback: (err) => {
       if (err) {
@@ -26,10 +26,10 @@ export default function changeCurrentPresentation(meetingId, presentationId) {
   const newCurrent = {
     selector: {
       meetingId,
-      'presentation.id': presentationId,
+      id: presentationId,
     },
     modifier: {
-      $set: { 'presentation.current': true },
+      $set: { current: true },
     },
     callback: (err) => {
       if (err) {

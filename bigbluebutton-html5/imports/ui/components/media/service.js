@@ -3,7 +3,7 @@ import { isVideoBroadcasting } from '../deskshare/service';
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
-    'presentation.current': true,
+    current: true,
   });
 
   return {
