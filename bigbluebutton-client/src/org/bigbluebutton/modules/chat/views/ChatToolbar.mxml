@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:VBox xmlns="flexlib.containers.*"
+		initialize="init()"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:mate="http://mate.asfusion.com/"
+		xmlns:common="org.bigbluebutton.common.*"
+		creationComplete="onCreationComplete()"
+		visible="{toolbarVisible}"
+		styleName="chatToolbarStyle"
+		horizontalAlign="center"
+		width="28"
+		hideEffect="{fadeOut}" showEffect="{fadeIn}"
+		backgroundColor="{bgColor}">
+
+	<fx:Declarations>
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			[Bindable] public var chatOptions:ChatOptions;
+			[Bindable] private var baseIndex:int;
+			[Bindable] private var toolbarVisible:Boolean = false;
+			[Bindable] private var bgColor:Number = 0xCCCCCC;
+			[Bindable] private var clrBtnVisible:Boolean = false;
+
+			private var mousedOver:Boolean = false;
+			private var globalDispatcher:Dispatcher;
+			private var _toolbarHideTimer:Timer;
+
+			[Bindable] public var publicChat:Boolean = true;
+
+			public function init():void{
+				chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
+				baseIndex = chatOptions.baseTabIndex;
+
+				_toolbarHideTimer = new Timer(500, 1);
+				_toolbarHideTimer.addEventListener(TimerEvent.TIMER, closeToolbar);
+				clrBtnVisible = UsersUtil.amIModerator() && publicChat;
+			}
+
+			private function onCreationComplete():void {
+				globalDispatcher = new Dispatcher();
+				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+			}
+
+			private function checkVisibility():void {
+				toolbarVisible = (toolbarAllowed() && mousedOver);
+			}
+
+			public function closeToolbar(e:TimerEvent = null):void {
+				mousedOver = false;
+				checkVisibility();
+			}
+
+			private function handleMouseIn(e:MouseEvent = null):void {
+				_toolbarHideTimer.reset();
+				mousedOver = true;
+				checkVisibility();
+			}
+
+			private function handleMouseOut(e:MouseEvent = null):void {
+				_toolbarHideTimer.reset();
+				_toolbarHideTimer.start();
+			}
+
+			private function toolbarAllowed():Boolean {
+				// Created to make possible to create rules to allow or not the toolbar
+				return true;
+			}
+
+			public function sendSaveEvent():void{
+				var saveEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT);
+				globalDispatcher.dispatchEvent(saveEvent);
+			}
+
+			public function sendCopyEvent():void{
+				var copyEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT);
+				globalDispatcher.dispatchEvent(copyEvent);
+			}
+
+			public function sendClearEvent():void{
+				var clearChatHistoryAlert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.text'),
+					ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.title'),
+					Alert.YES | Alert.NO, null, handleClearChatHistoryAlert, null, Alert.YES);
+			}
+
+			private function handleClearChatHistoryAlert(e:CloseEvent):void {
+				if (e.detail == Alert.YES) {
+					var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT);
+					globalDispatcher.dispatchEvent(clearEvent);
+				}
+			}
+
+			public function onChangeMyRole(e:ChangeMyRole):void{
+				clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = clrBtnVisible = UsersUtil.amIModerator() && publicChat;
+			}
+
+			public function registerListeners(component:UIComponent):void {
+				component.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+				component.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" tabIndices="{[saveBtn, copyBtn, clearBtn]}"/>
+	
+		<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0"/>
+		<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0"/>
+	</fx:Declarations>
+
+	<mx:Button id="saveBtn"
+			styleName="chatSaveButtonStyle"
+			width="22"
+			height="22"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}"
+			click="sendSaveEvent()"
+			accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.accessibilityName')}"/>
+
+	<mx:Button id="copyBtn"
+			styleName="chatCopyButtonStyle"
+			width="22"
+			height="22"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}"
+			click="sendCopyEvent()"
+			accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>
+
+	<mx:Button id="clearBtn"
+			styleName="chatClearButtonStyle"
+			width="22"
+			height="22"
+			visible = "{clrBtnVisible}"
+			enabled = "{clrBtnVisible}"
+			includeInLayout = "{clrBtnVisible}"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}"
+			click="sendClearEvent()"
+			accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/>
+</mx:VBox>

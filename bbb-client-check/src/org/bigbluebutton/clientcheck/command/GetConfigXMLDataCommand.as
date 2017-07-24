@@ -23,6 +23,7 @@ package org.bigbluebutton.clientcheck.command
 	import flash.utils.getTimer;
 
 	import mx.core.FlexGlobals;
+	import mx.resources.ResourceManager;
 	import mx.utils.URLUtil;
 
 	import org.bigbluebutton.clientcheck.model.ISystemConfiguration;
@@ -78,7 +79,8 @@ package org.bigbluebutton.clientcheck.command
 			for each (var _port:Object in config.getPorts())
 			{
 				var port:IPortTest=new PortTest();
-				port.portName=_port.name;
+				port.portName=ResourceManager.getInstance().getString('resources', _port.name);
+				if (port.portName == "undefined") port.portName = _port.name;
 				port.portNumber=_port.number;
 				systemConfiguration.ports.push(port);
 			}
@@ -86,7 +88,8 @@ package org.bigbluebutton.clientcheck.command
 			for each (var _rtmpApp:Object in config.getRTMPApps())
 			{
 				var app:IRTMPAppTest=new RTMPAppTest();
-				app.applicationName=_rtmpApp.name;
+				app.applicationName=ResourceManager.getInstance().getString('resources', _rtmpApp.name);
+				if (app.applicationName == "undefined") app.applicationName = _rtmpApp.name;
 				app.applicationUri=_rtmpApp.uri;
 				systemConfiguration.rtmpApps.push(app);
 			}

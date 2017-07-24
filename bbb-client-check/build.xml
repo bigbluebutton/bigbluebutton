@@ -55,7 +55,7 @@
 		<mxmlc file="${SRC_DIR}/BBBClientCheck.mxml"
 			   output="check/BBBClientCheck.swf"
 			   debug="false"
-			   locale="en_US"
+			   locale="en_US,pt_BR"
 			   actionscript-file-encoding="UTF-8"
 			   incremental="false">
 			<static-link-runtime-shared-libraries>false</static-link-runtime-shared-libraries>
@@ -103,6 +103,11 @@
 	</target>
 	<target name="Resolve-Dependency"
 			description="Generate HTML wrapper">
+		<copy todir="resources/lib/" >
+			<fileset file="../bigbluebutton-client/resources/prod/lib/bbb_localization.js" />
+			<fileset file="../bigbluebutton-client/resources/prod/lib/jquery-1.5.1.min.js" />
+		</copy>
+
 		<get src="${TEST_IMAGE_URL}" dest="${html.output}/test_image.jpg" skipexisting="true" />
 		<copy file="html-template/index.html"
 			  tofile="${html.output}/index.html"/>

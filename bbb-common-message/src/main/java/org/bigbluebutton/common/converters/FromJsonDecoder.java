@@ -3,7 +3,6 @@ package org.bigbluebutton.common.converters;
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.common.messages.PubSubPingMessage;
 import org.bigbluebutton.common.messages.PubSubPongMessage;
-import org.bigbluebutton.common.messages.StartCustomPollRequestMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -26,10 +25,6 @@ public class FromJsonDecoder {
 				}else if (PubSubPongMessage.PUBSUB_PONG.equals(messageName)){
 					Gson gson = new Gson();
 					PubSubPongMessage msg = gson.fromJson(message, PubSubPongMessage.class);
-					return msg;
-				} else if (StartCustomPollRequestMessage.START_CUSTOM_POLL_REQUEST.equals(messageName)){
-					Gson gson = new Gson();
-					StartCustomPollRequestMessage msg = gson.fromJson(message, StartCustomPollRequestMessage.class);
 					return msg;
 				} else {
 					// System.out.println("Unknown message name=[" + messageName + "]");

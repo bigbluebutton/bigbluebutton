@@ -19,66 +19,76 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
-				width="700" height="350" 
-				initialize="init()" 
-				styleName="micSettingsWindowStyle"
-				showCloseButton="false">
+				initialize="init()"
+				creationComplete="creationCompleteHandler(event)"
+				close="onCancelClicked()"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+				showCloseButton="true">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import mx.core.mx_internal;
+			import mx.events.FlexEvent;
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
-			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.api.JSAPI;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
-			private var phoneOptions:PhoneOptions = new PhoneOptions;
+			private var phoneOptions:PhoneOptions;
 			private var browserInfo:Array;
-			
+
 			private function init():void {
+				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
+
 				browserInfo = JSAPI.getInstance().getBrowserInfo();
 
-				var conference:Conference = UserManager.getInstance().getConference();
 				if (!phoneOptions.listenOnlyMode)
 					btnListenOnly.enabled = false;
 
 				if (phoneOptions.showPhoneOption) {
-					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [conference.dialNumber, conference.voiceBridge]);
+					var dialNumber:String = LiveMeeting.inst().meeting.dialNumber;
+					var voiceConf:String = LiveMeeting.inst().meeting.voiceConf;
+
+					txtPhone.text = ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [dialNumber, voiceConf]);
 				} else {
-					vrulePhone.visible = vrulePhone.includeInLayout = false;
 					vboxPhone.visible = vboxPhone.includeInLayout = false;
-					this.width = 450;
-					this.height = 325;
 					vboxMic.percentWidth = 50;
 					vboxListen.percentWidth = 50;
 				}
-				
+
 				if (!JSAPI.getInstance().isWebRTCAvailable()) {
 					audioBrowserHint.visible = audioBrowserHint.includeInLayout = true;
-					this.height += 72;
 				}
-				
+
 				// If Puffin browser is deteted and version is less than 4.6
 				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
-					vruleListen.visible = vruleListen.includeInLayout = vboxMic.visible = vboxMic.includeInLayout = false;
 					vboxListen.percentWidth = 100;
-					if (!phoneOptions.showPhoneOption) {
-						this.width = this.width/2;
-					}
 				}
+			}
+			
+			private function creationCompleteHandler(event:FlexEvent):void
+			{
+				this.mx_internal::closeButton.toolTip = ResourceUtil.getInstance().getString('bbb.micSettings.cancel');
+				this.mx_internal::closeButton.accessibilityName = ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip');
+				
+				tabIndexer.tabIndices.unshift(this.mx_internal::closeButton);
 			}
 			
 			private function onMicClick():void {
@@ -114,18 +124,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				PopUpUtil.removePopUp(this);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer startIndex="1" tabIndices="{[textArea, btnMicrophone, btnListenOnly, cancelBtn]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[windowTitle, btnMicrophone, btnListenOnly]}"/>
+	</fx:Declarations>
 	
-	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="right">
-		<mx:HBox width="100%" height="60">
-			<mx:TextArea borderSkin="{null}" verticalScrollPolicy="off" 
-						 editable="false" id="textArea"
-						 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
-						 styleName="micSettingsWindowTitleStyle"
-						 width="100%" height="100%" />
-		</mx:HBox>
+	<mx:VBox width="100%" height="100%" paddingBottom="50" paddingLeft="80" paddingRight="80" paddingTop="0" horizontalAlign="center">
+		<mx:TextArea borderSkin="{null}" verticalScrollPolicy="off" 
+					 editable="false" id="windowTitle"
+					 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
+					 styleName="micSettingsWindowTitleStyle"
+					 width="100%" />
 		<mx:Box width="100%" height="56"
 				verticalAlign="middle" horizontalAlign="center"
 				verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -133,29 +143,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="audioBrowserHint" styleName="audioBroswerHintBoxStyle">
 			<mx:Text width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.message')}" styleName="audioBroswerHintTextStyle"/>
 		</mx:Box>
-		<mx:HRule width="100%" />
-		<mx:HBox width="100%" height="100%">
+		<mx:HBox width="100%" height="100%" styleName="audioSelectionsStyle">
 			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
-				<mx:Image source="@Embed('assets/microphone80.png')" />
-				<mx:Button id="btnMicrophone" click="onMicClick()"
-						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.toolTip')}"/>
+				<mx:Button id="btnMicrophone" buttonMode="true" styleName="btnMicrophoneStyle" width="140" height="140"
+						   click="onMicClick()"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.toolTip')}" />
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
+						  styleName="audioSubtitle" />
 			</mx:VBox>
-			<mx:VRule id="vruleListen" height="100%" width="5%" />
 			<mx:VBox id="vboxListen" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
-				<mx:Image source="@Embed('assets/speaker80.png')" />
-				<mx:Button id="btnListenOnly" click="onListenClick()"
-						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
+				<mx:Button id="btnListenOnly" width="140" height="140" buttonMode="true" styleName="btnListenOnlyStyle"
+						   click="onListenClick()"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.toolTip')}" />
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
+						  styleName="audioSubtitle" />
 			</mx:VBox>
-			<mx:VRule id="vrulePhone" height="100%" width="5%" />
 			<mx:VBox id="vboxPhone" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
-				<mx:Image source="@Embed('assets/phone80.png')" />
+				<mx:Button id="btnPhone"
+						   width="140"
+						   height="140"
+						   buttonMode="true"
+						   styleName="btnPhoneStyle" />
 				<mx:Text id="txtPhone" width="100%" />
 			</mx:VBox>
 		</mx:HBox>
-		<mx:HRule width="100%" />
-		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"
-				   click="onCancelClicked()" styleName="micSettingsWindowPlaySoundButtonStyle" />
 	</mx:VBox>
 </mx:TitleWindow>

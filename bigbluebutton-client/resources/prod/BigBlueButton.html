@@ -45,6 +45,8 @@
       params.quality = "high";
       params.bgcolor = "#FFFFFF";
       params.allowfullscreen = "true";
+      params.allowfullscreeninteractive = "true";
+
       if (ffHangWorkaround()) {
         console.log("Applying Firefox Flash hang workaround");
 	// wmode = opaque causes button clicks to be sometimes unresponsive,
@@ -118,6 +120,9 @@
     <script src="lib/verto-min.js" language="javascript"></script>
     <script src="lib/verto_extension.js" language="javascript"></script>
 
+    <script src="lib/kurento-utils.min.js" language="javascript"></script>
+    <script src="lib/kurento-extension.js" language="javascript"></script>
+
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
     <script src="lib/sip.js?v=VERSION" language="javascript"></script>
 
@@ -127,6 +132,8 @@
     <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script>
     <script src="lib/weburl_regex.js?v=VERSION" language="javascript"></script>
     <script src="lib/jsnlog.min.js?v=VERSION" language="javascript"></script>
+    <script src="lib/diff_match_patch_uncompressed.js?v=VERSION" language="javascript"></script>
+    <script src="lib/shared_notes.js?v=VERSION" language="javascript"></script>
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');

@@ -19,13 +19,16 @@
 package org.bigbluebutton.main.api
 {
   import com.asfusion.mate.events.Dispatcher;
-  import mx.collections.ArrayCollection;
-
+  
   import flash.external.ExternalInterface;
-  import org.bigbluebutton.core.BBB;
+  
+  import mx.collections.ArrayCollection;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
@@ -33,7 +36,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -49,7 +51,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-  import org.bigbluebutton.util.SessionTokenUtil;
 
   public class ExternalApiCallbacks {
 	private static const LOGGER:ILogger = getClassLogger(ExternalApiCallbacks);
@@ -153,12 +154,12 @@ package org.bigbluebutton.main.api
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamNames:Array = UsersUtil.getWebcamStream(userID);
+      var streamNames:Array = UsersUtil.getWebcamStreamsFor(userID);
       if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
       
-      var vidConf:VideoConfOptions = new VideoConfOptions();
+      var vidConf:VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
       obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
@@ -191,7 +192,7 @@ package org.bigbluebutton.main.api
       var obj:Object = new Object();
       var camArray: ArrayCollection = new ArrayCollection();
 
-      var camSettingsArray:ArrayCollection = UsersUtil.amIPublishing();
+      var camSettingsArray:ArrayCollection = UsersUtil.myCamSettings();
       for (var i:int = 0; i < camSettingsArray.length; i++) {
         var camSettings:CameraSettingsVO = camSettingsArray.getItemAt(i) as CameraSettingsVO;
         var cam:Object = new Object();
@@ -250,11 +251,11 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetExternalMeetingID():String {
-      return UserManager.getInstance().getConference().externalMeetingID;
+      return UsersUtil.getExternalMeetingID();
     }
 
     private function handleGetInternalMeetingID():String {
-      return UserManager.getInstance().getConference().internalMeetingID;
+      return UsersUtil.getInternalMeetingID();
     }
     
     private function handleGetSessionToken():String {
@@ -350,20 +351,20 @@ package org.bigbluebutton.main.api
     
     private function handleMuteMeRequest():void {
       var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-      e.userid = UserManager.getInstance().getConference().getMyUserId();
+      e.userid = UsersUtil.getMyUserID();
       e.mute = true;
       _dispatcher.dispatchEvent(e);
     }
 
     private function handleUnmuteMeRequest():void {
       var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-      e.userid = UserManager.getInstance().getConference().getMyUserId();
+      e.userid = UsersUtil.getMyUserID();
       e.mute = false;
       _dispatcher.dispatchEvent(e);
     }
     
     private function handleGetMyRoleRequestSync():String {
-      return UserManager.getInstance().getConference().whatsMyRole();
+      return UsersUtil.getMyRole();
     }
     
     private function handleGetMyRoleRequestAsynch():void {

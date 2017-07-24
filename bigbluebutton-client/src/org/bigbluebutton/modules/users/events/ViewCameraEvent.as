@@ -24,16 +24,12 @@ package org.bigbluebutton.modules.users.events
 	{
 		public static const VIEW_CAMERA_EVENT:String = "VIEW_CAMERA_EVENT";
 		
-		public var stream:String;
-		public var viewedName:String;
 		public var userID:String;
 		
-		public function ViewCameraEvent(userID:String, stream:String, viewedName:String)
+		public function ViewCameraEvent(userID:String)
 		{
 			super(VIEW_CAMERA_EVENT,true);
 			this.userID = userID;
-			this.stream = stream;
-			this.viewedName = viewedName;
 		}
 		
 	}

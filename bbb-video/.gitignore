@@ -2,4 +2,6 @@ bin
 build
 dist
 lib
-build
+.classpath
+.project
+.settings

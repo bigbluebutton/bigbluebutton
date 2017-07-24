@@ -15,6 +15,8 @@
 <state>${r.getState()?string}</state>
 <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
 <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
+<size><#if r.getSize()?? && r.getSize() != "">${r.getSize()}</#if></size>
+<rawSize><#if r.getRawSize()?? && r.getRawSize() != "">${r.getRawSize()}</#if></rawSize>
 <participants><#if r.getParticipants()??>${r.getParticipants()}</#if></participants>
 
 <#if r.getBreakout()??>
@@ -48,7 +50,7 @@
         <type>${pb.getFormat()}</type>
         <url>${pb.getLink()}</url>
         <processingTime>${pb.getProcessingTime()?c}</processingTime>
-
+        <size>${pb.getSize()}</size>
         <#if pb.getDuration() == 0>
             <length>${r.calculateDuration()?c}</length>
         <#else>
@@ -75,3 +77,20 @@
         </#if>
     </format>
 </playback>
+
+<download>
+    <#if r.getDownloads()??>
+    <#list r.getDownloads() as p>
+        <#if p?? && p.getFormat()??>
+        <format>
+            <type>${p.getFormat()}</type>
+            <url>${p.getUrl()}</url>
+            <md5>${p.getMd5()}</md5>
+            <key>${p.getKey()}</key>
+            <length>${p.getLength()}</length>
+            <size>${p.getSize()}</size>
+        </format>
+        </#if>
+    </#list>
+    </#if>
+</download>

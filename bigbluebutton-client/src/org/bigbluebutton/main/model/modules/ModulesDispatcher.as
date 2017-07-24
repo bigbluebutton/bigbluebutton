@@ -102,6 +102,32 @@ package org.bigbluebutton.main.model.modules
       var event:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOADING_STARTED);
       dispatcher.dispatchEvent(event);
     }
-
+/*
+    public function sendConfigParameters(c:ConfigParameters):void{
+      enterApiUrl = c.host;
+      
+      var event:ConfigEvent = new ConfigEvent(ConfigEvent.CONFIG_EVENT);
+      var config:Config;
+      config = new ConfigBuilder(c.version, c.localeVersion)
+        .withApplication(c.application)
+        .withHelpUrl(c.helpURL)
+        .withHost(c.host)
+        .withLanguageEnabled(c.languageEnabled)
+        .withShortcutKeysShowButton(c.shortcutKeysShowButton)
+        .withNumModule(c.numModules)
+        .withPortTestApplication(c.portTestApplication)
+        .withPortTestHost(c.portTestHost)
+        .withShowDebug(c.showDebug)
+        .withSkinning(c.skinning)
+        .withCopyright(c.copyright)
+        .withLogo(c.logo)
+        .withBackground(c.background)
+        .withToolbarColor(c.toolbarColor)
+        .withToolbarColorAlphas(c.toolbarColorAlphas)
+        .build()
+      event.config = config;
+      dispatcher.dispatchEvent(event);
+    }
+*/
   }
 }

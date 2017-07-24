@@ -21,8 +21,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <EventMap xmlns="http://mate.asfusion.com/"
-	xmlns:mx="http://www.adobe.com/2006/mxml">
-	<mx:Script>
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009">
+	<fx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
@@ -36,43 +37,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.broadcast.services.MessageSender;
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		<ObjectBuilder generator="{BroadcastManager}" cache="global"/>
-	</EventHandlers>
+	<fx:Declarations>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<ObjectBuilder generator="{BroadcastManager}" cache="global"/>
+		</EventHandlers>
+		
+		<EventHandlers type="BroadcastModuleStartEvent">
+			<MethodInvoker generator="{BroadcastManager}" method="start" />
+		</EventHandlers>	
 	
-	<EventHandlers type="BroadcastModuleStartEvent">
-		<MethodInvoker generator="{BroadcastManager}" method="start" />
-	</EventHandlers>	
-
-	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
-		<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToPresenterMode" />
-	</EventHandlers>
+		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
+			<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToPresenterMode" />
+		</EventHandlers>
+		
+		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+			<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToViewerMode" />
+		</EventHandlers>
+		
+	  <EventHandlers type="{StreamsListLoadedEvent.STREAMS_LIST_LOADED}">
+	    <MethodInvoker generator="{BroadcastManager}" method="handleStreamsListLoadedEvent" />
+	  </EventHandlers>
+	  
+		<EventHandlers type="BroadcastPlayStreamCommand">
+			<MethodInvoker generator="{BroadcastManager}" method="handlePlayStreamRequest" arguments="{event}"/>
+		</EventHandlers>
 	
-	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-		<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToViewerMode" />
-	</EventHandlers>
-	
-  <EventHandlers type="{StreamsListLoadedEvent.STREAMS_LIST_LOADED}">
-    <MethodInvoker generator="{BroadcastManager}" method="handleStreamsListLoadedEvent" />
-  </EventHandlers>
-  
-	<EventHandlers type="BroadcastPlayStreamCommand">
-		<MethodInvoker generator="{BroadcastManager}" method="handlePlayStreamRequest" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="BroadcastStopStreamCommand">
-		<MethodInvoker generator="{BroadcastManager}" method="handleStopStreamRequest" arguments="{event}"/>
-	</EventHandlers>
-	
-	<EventHandlers type="BroadcastWhatIsTheCurrentStreamRequest">
-		<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamRequest" arguments="{event}"/>
-	</EventHandlers>
-	
-	<EventHandlers type="BroadcastWhatIsTheCurrentStreamReply">
-		<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamReply" arguments="{event}"/>
-	</EventHandlers>
+		<EventHandlers type="BroadcastStopStreamCommand">
+			<MethodInvoker generator="{BroadcastManager}" method="handleStopStreamRequest" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="BroadcastWhatIsTheCurrentStreamRequest">
+			<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamRequest" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="BroadcastWhatIsTheCurrentStreamReply">
+			<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamReply" arguments="{event}"/>
+		</EventHandlers>
+	</fx:Declarations>
 
 <!--
   <Injectors target="{BroadcastService}">

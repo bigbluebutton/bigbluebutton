@@ -5,6 +5,9 @@ var html5StunTurn = null;
 
 function webRTCCallback(message) {
 	switch (message.status) {
+		case 'succeded':
+			BBB.webRTCCallSucceeded();
+			break;
 		case 'failed':
 			if (message.errorcode !== 1004) {
 				message.cause = null;
@@ -180,6 +183,9 @@ function createUA(username, server, callback, makeCallFunc) {
   				'password': data['password']
   			};
   		}) : [] );
+		stunsConfig['remoteIceCandidates'] = ( data['remoteIceCandidates'] ? data['remoteIceCandidates'].map(function(data) {
+			return data['ip'];
+		}) : [] );
   		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
   	}).fail(function(data, textStatus, errorThrown) {
   		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
@@ -204,7 +210,8 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 		autostart: false,
 		userAgentString: "BigBlueButton",
 		stunServers: stunsConfig['stunServers'],
-		turnServers: stunsConfig['turnServers']
+		turnServers: stunsConfig['turnServers'],
+		artificialRemoteIceCandidates: stunsConfig['remoteIceCandidates']
 	};
 	
 	uaConnected = false;
@@ -219,6 +226,7 @@ function setUserAgentListeners(callback, makeCallFunc) {
 	userAgent.removeAllListeners('connected');
 	userAgent.on('connected', function() {
 		uaConnected = true;
+		callback({'status':'succeded'});
 		makeCallFunc();
 	});
 	userAgent.removeAllListeners('disconnected');
@@ -467,6 +475,17 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			console.log('bye event already received');
 		}
 	});
+	currentSession.on('cancel', function(request) {
+		callActive = false;
+
+		if (currentSession) {
+			console.log('call canceled');
+			clearTimeout(callTimeout);
+			currentSession = null;
+		} else {
+			console.log('cancel event already received');
+		}
+	});
 	currentSession.on('accepted', function(data){
 		callActive = true;
 		console.log('BigBlueButton call accepted');
@@ -477,7 +496,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			callback({'status':'waitingforice'});
 			console.log('Waiting for ICE negotiation');
 			iceConnectedTimeout = setTimeout(function() {
-				console.log('60 seconds without ICE finishing');
+				console.log('5 seconds without ICE finishing');
 				callback({'status':'failed', 'errorcode': 1010}); // ICE negotiation timeout
 				currentSession = null;
 				if (userAgent != null) {
@@ -485,7 +504,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 					userAgent = null;
 					userAgentTemp.stop();
 				}
-			}, 60000);
+			}, 5000);
 		}
 		clearTimeout(callTimeout);
 	});
@@ -537,7 +556,12 @@ function webrtc_hangup(callback) {
 	if (callback) {
 	  currentSession.on('bye', callback);
 	}
-	currentSession.bye();
+	try {
+		currentSession.bye();
+	} catch (err) {
+		console.log("Forcing to cancel current session");
+		currentSession.cancel();
+	}
 }
 
 function isWebRTCAvailable() {

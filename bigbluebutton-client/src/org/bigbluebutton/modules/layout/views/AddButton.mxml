@@ -18,37 +18,39 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<views:LayoutButton xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" 
+<views:LayoutButton xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
+		   creationComplete="init()" 
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}"
-		   icon="{icon_add}"
 		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   enabled="{UsersUtil.amIModerator()}">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
+      import org.bigbluebutton.core.UsersUtil;
 			import flash.events.Event;
 			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _images:Images = new Images();
-			[Bindable] private var icon_add:Class = _images.add;
 			
 			private function init():void {
 			}
 			
 			private function onClick(e:Event):void {
-				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.ADD_CURRENT_LAYOUT_EVENT));
+				var layoutNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true);
+				PopUpManager.centerPopUp(layoutNameWindow);
 			}
 			
+			public function refreshRole(amIModerator:Boolean):void {
+				this.enabled = amIModerator;
+			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </views:LayoutButton>

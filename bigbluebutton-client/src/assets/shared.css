@@ -1,0 +1,110 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+.publishHelpPCIE1 {
+	imageSource: Embed(source='assets/images/bbb_pc_ie_1.png');
+}
+
+.publishHelpPCIE2 {
+	imageSource: Embed(source='assets/images/bbb_pc_ie_2.png');
+}
+
+.publishHelpPCIE3 {
+	imageSource: Embed(source='assets/images/bbb_pc_ie_3.png');
+}
+
+.publishHelpPCFirefox1 {
+	imageSource: Embed(source='assets/images/bbb_pc_firefox_1.png');
+}
+
+.publishHelpPCFirefox2 {
+	imageSource: Embed(source='assets/images/bbb_pc_firefox_2.png');
+}
+
+.publishHelpPCFirefox3 {
+	imageSource: Embed(source='assets/images/bbb_pc_firefox_3.png');
+}
+
+.publishHelpPCChrome1 {
+	imageSource: Embed(source='assets/images/bbb_pc_chrome_1.png');
+}
+
+.publishHelpPCChrome2 {
+	imageSource: Embed(source='assets/images/bbb_pc_chrome_2.png');
+}
+
+.publishHelpPCChrome3 {
+	imageSource: Embed(source='assets/images/bbb_pc_chrome_3.png');
+}
+
+.publishHelpMacSafari1 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_1.png');
+}
+
+.publishHelpMacSafari2 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_2.png');
+}
+
+.publishHelpMacSafari3 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_3.png');
+}
+
+.publishHelpMacSafari4 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_4.png');
+}
+
+.publishHelpMacFirefox1 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_1.png');
+}
+
+.publishHelpMacFirefox2 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_2.png');
+}
+
+.publishHelpMacFirefox3 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_3.png');
+}
+
+.publishHelpMacFirefox4 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_4.png');
+}
+
+.publishHelpMacChrome1 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_1.png');
+}
+
+.publishHelpMacChrome2 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_2.png');
+}
+
+.publishHelpMacChrome3 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_3.png');
+}
+
+.publishHelpMacChrome4 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_4.png');
+}
+
+.publishHelpLinuxFirefox1 {
+	imageSource: Embed(source='assets/images/bbb_linux_firefox_1.png');
+}
+
+.publishHelpLinuxFirefox2 {
+	imageSource: Embed(source='assets/images/bbb_linux_firefox_2.png');
+}
+
+.publishHelpLinuxFirefox3 {
+	imageSource: Embed(source='assets/images/bbb_linux_firefox_3.png');
+}
+
+.publishHelpLinuxChrome1 {
+	imageSource: Embed(source='assets/images/bbb_linux_chrome_1.png');
+}
+
+.publishHelpLinuxChrome2 {
+	imageSource: Embed(source='assets/images/bbb_linux_chrome_2.png');
+}
+
+.publishHelpLinuxChrome3 {
+	imageSource: Embed(source='assets/images/bbb_linux_chrome_3.png');
+}

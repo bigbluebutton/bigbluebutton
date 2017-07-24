@@ -20,38 +20,45 @@
   $Id: $
 --> 
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	verticalAlign="middle"
+	horizontalGap="8"
+	horizontalAlign="center"
 	creationComplete="onCreationComplete()" > 
 	
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+	<fx:Declarations>
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole"/>
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
 			import flash.filters.GlowFilter;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.controls.Menu;
 			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
 			
-			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
-			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			[Bindable]
-			private var images:Images = new Images();
-   			
 			private var moderator:Boolean = false;
 			[Bindable]
 			private var rolledOver:Boolean = false;
@@ -63,9 +70,10 @@
 			private var lockRolled:Boolean = false;
 			
 			private var options:UsersOptions;
+			private var myMenu:Menu = null;
 			
 			private function onCreationComplete():void{
-				lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
+				refreshRole(UsersUtil.amIModerator());
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 				
@@ -76,7 +84,7 @@
 				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
         		BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
                 
-				options = new UsersOptions();
+				options = Options.getOptions(UsersOptions) as UsersOptions;
 			}
 			
 			private function dataChangeHandler(e:Event):void {
@@ -87,17 +95,30 @@
 			}
 			
 			private function onRollOver(e:UsersRollEvent):void{
-				if (moderator && (e.userID == data.userID)) {
+				if ((moderator || UsersUtil.isMe(e.userID)) && (e.userID == data.userId)) {
 					rolledOver = true;
 					updateButtons();
 				}
 			}
 			
 			private function onRollOut(e:UsersRollEvent):void{
-				if (moderator && rolledOver) {
+				if ((moderator || UsersUtil.isMe(e.userID)) && rolledOver) {
 					rolledOver = false;
 					updateButtons();
 				}
+			}
+
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				rolledOver = false;
+				updateButtons();
+				// close the menu if it was opened
+				if (myMenu) myMenu.hide();
+
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
+			private function refreshRole(amIModerator:Boolean):void {
+				lockBtn.enabled = settingsBtn.enabled = moderator = amIModerator;
 			}
 			
 			private function muteMouseOverHandler():void {
@@ -121,30 +142,30 @@
 			}
 			
 			private function viewCamera():void {
-				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
+				dispatchEvent(new ViewCameraEvent(data.userId));
    			}	
 			
 			private function kickUser():void{
-				dispatchEvent(new KickUserEvent(data.userID));
+				dispatchEvent(new KickUserEvent(data.userId));
 			}
 			
 			private function toggleMuteState():void {
 				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-				e.userid = data.userID;
-				e.mute = !data.voiceMuted;
+				e.userid = data.userId;
+				e.mute = !data.muted;
 				dispatchEvent(e);
 			}
 			
 			public function toggleLockState():void {
 				var e:LockControlEvent;
 				
-				if(data.userLocked) {
+				if(data.locked) {
 					e = new LockControlEvent(LockControlEvent.UNLOCK_USER);
 				} else {
 					e = new LockControlEvent(LockControlEvent.LOCK_USER);
 				}
 				
-				e.internalUserID = data.userID;
+				e.internalUserID = data.userId;
 				dispatchEvent(e);
 			}
 			
@@ -152,26 +173,24 @@
 				// reset the mute image filter so the talking indicator doesn't stick
 				muteImg.filters = null;
 				
-				var ls:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				var ls:LockSettingsVO = UsersUtil.getLockSettings();
 				
 				if (data != null) {
-					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser && !UserManager.getInstance().getConference().isBreakout;
+					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
 					
-					if (!data.voiceJoined) {
-						if (data.listenOnly) {
-							muteImg.source = images.sound;
-							muteImg.visible = true;
-							muteImg.includeInLayout = true;
-							muteBtn.visible = false;
-							muteBtn.includeInLayout = false;             
-						} else {
+					if (!data.inVoiceConf) {
 							muteImg.visible = false;
 							muteImg.includeInLayout = false;
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = true;
-						}
 					} else {
-						if (data.userLocked && ls.getDisableMic()) {
+            if (data.listenOnly) {
+              muteImg.source = getStyle("iconSound");
+              muteImg.visible = true;
+              muteImg.includeInLayout = true;
+              muteBtn.visible = false;
+              muteBtn.includeInLayout = false;             
+            } else if (data.locked && ls.getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -181,7 +200,8 @@
 							muteImg.includeInLayout = !rolledOver;
 							muteBtn.visible = rolledOver;
 							muteBtn.includeInLayout = rolledOver;
-							
+							muteBtn.enabled = true;
+
 							if(data.talking && !rolledOver){
 								muteImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 							}else{
@@ -190,8 +210,12 @@
 						}
 					}
 					
-					//If it's not a moderator, it always can be locked.
-					if(	data.role != BBBUser.MODERATOR && ls.isAnythingLocked() ){
+					if (data.role == Role.MODERATOR){
+						lockImg.visible = false;
+						lockImg.includeInLayout = true;
+						lockBtn.visible = false;
+						lockBtn.includeInLayout = false;
+					} else if(moderator && ls.isAnythingLocked()) {
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
@@ -225,67 +249,131 @@
 					}
 
 					if (!rolledOver) {
-						if (!data.voiceJoined && data.listenOnly) {
-							muteImg.source = images.sound;
-						} else {
-							if (data.voiceMuted)
-								muteImg.source = images.audio_muted_20;
-							else
-								muteImg.source = images.audio_20;              
+						if (data.inVoiceConf) {
+              if (data.listenOnly) {
+                muteImg.source = getStyle("iconSound");
+              } else if (data.muted) {
+                muteImg.source = getStyle("iconAudioMuted");
+              } else {
+                muteImg.source = getStyle("iconAudio");
+              }
 						}
 						
 						
-						if ( data.userLocked && !data.presenter && ls.isAnythingLocked() ) {
-							lockImg.source = images.locked_20;
+						if ( data.locked && !data.presenter && ls.isAnythingLocked() ) {
+							lockImg.source = getStyle("iconLock");
 						}
 						else {
 							lockImg.source = null;
 						}
 					} else {
-						if (data.voiceMuted == rolledOverMute)
-							muteBtn.setStyle("icon", images.audio);
+						if (data.muted == rolledOverMute)
+							muteBtn.setStyle("icon", getStyle("iconAudio"));
 						else
-							muteBtn.setStyle("icon", images.audio_muted);
+							muteBtn.setStyle("icon", getStyle("iconAudioMuted"));
 						
-						if (data.userLocked == rolledOverLock)
-							lockBtn.setStyle("icon", images.unlocked);
+						if (data.locked == rolledOverLock)
+							lockBtn.setStyle("icon", getStyle("iconUnlock"));
 						else
-							lockBtn.setStyle("icon", images.locked);
+							lockBtn.setStyle("icon", getStyle("iconLock"));
 					}
 				}
 			}
-			
+
+			private function promoteUser():void {
+				changeUserRole(Role.MODERATOR);
+			}
+
+			private function demoteUser():void {
+				changeUserRole(Role.VIEWER);
+			}
+
+			private function changeUserRole(role:String):void {
+				var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(data.userId, role);
+				dispatchEvent(changeRoleEvent);
+			}
+
+			private function openSettings():void {
+				if (data != null) {
+					var myMenuData:Array = [];
+
+					if (data.role == Role.MODERATOR) {
+						myMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
+							icon: getStyle('iconDemote'),
+							callback: demoteUser
+						});
+					} else {
+						myMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
+							icon: getStyle('iconPromote'),
+							callback: promoteUser
+						});
+					}
+
+					if (options.allowKickUser) {
+						myMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
+							icon: getStyle('iconEject'),
+							callback: kickUser
+						});
+					}
+
+					// make sure the previous menu is closed before opening a new one
+					// This could be improved to include a flag that tells if the menu is open,
+					// but it would require an extra listener for the MenuCloseEvent.
+					if (myMenu) myMenu.hide();
+
+					myMenu = Menu.createMenu(null, myMenuData, true);
+					myMenu.variableRowHeight = true;
+
+					var settingsBtnPos:Point = settingsBtn.localToGlobal(new Point(0,0));
+
+					var myMenuPos:Point = new Point();
+					myMenuPos.x = settingsBtnPos.x + settingsBtn.width;
+					myMenuPos.y = settingsBtnPos.y;
+
+					myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+					myMenu.show(myMenuPos.x, myMenuPos.y);
+					myMenu.setFocus();
+				}
+			}
+
+			private function menuClickHandler(e:MenuEvent):void {
+				e.item.callback();
+			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<!--mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
-				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" /-->
-	<mx:Image id="webcamImg" visible="false" source="{images.webcam_new_20}"
+	<mx:Image id="webcamImg" visible="false" source="{getStyle('iconWebcam')}"
 				width="20" height="20"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
-    <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{images.webcam_new_20}"
+    <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{getStyle('iconWebcam')}"
               width="20" height="20" enabled="true" click="viewCamera()"
               toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
 	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="20" height="20" />
-	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
+	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{getStyle('iconAudio')}"
 				width="20" height="20" click="toggleMuteState()"
 				mouseOver="muteMouseOverHandler()"
 				mouseOut="muteMouseOutHandler()"
-				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
-	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
-				width="20" height="20" visible="false"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name])}"
-				click="kickUser()"/>
+				toolTip="{data.muted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
 	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="20" height="20" />
 	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
 				width="20" height="20" click="toggleLockState()"
 				mouseOver="lockMouseOverHandler()"
 				mouseOut="lockMouseOutHandler()"
-				toolTip="{data.userLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+				toolTip="{data.locked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+	<mx:Button id="settingsBtn"
+			visible="false"
+			width="20"
+			height="20"
+			click="openSettings()"
+			icon="{getStyle('iconSettings')}"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}"/>
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
-	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
-	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
-	<mx:Image id="userLockedInd" includeInLayout="false" visible="{data.userLocked}" />
+	<mx:Image id="muteInd" includeInLayout="false" visible="{data.muted}" />
+	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.inVoiceConf}" />
+	<mx:Image id="userLockedInd" includeInLayout="false" visible="{data.locked}" />
   <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
   <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
   <mx:Image id="listenOnlyInd" includeInLayout="false" visible="{data.listenOnly}" />

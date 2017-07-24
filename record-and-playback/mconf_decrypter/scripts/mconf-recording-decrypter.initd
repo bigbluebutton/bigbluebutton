@@ -1,0 +1,44 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          mconf-recording-decrypter
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       Starts the foo service
+### END INIT INFO
+
+NAME=mconf-recording-decrypter
+PID_FILE=/var/run/mconf-recording-decrypter.pid
+DIR=/usr/local/bigbluebutton/core/scripts
+EXEC=mconf-decrypter.rb
+RUN_AS=tomcat7
+
+if [ ! -f $DIR/$EXEC ]; then
+        echo "$DIR/$EXEC not found."
+        exit
+fi
+
+case "$1" in
+  start)
+        echo "Starting $NAME"
+        cd $DIR
+        start-stop-daemon -d $DIR --start --background --pidfile $PID_FILE --chuid $RUN_AS:$RUN_AS --make-pidfile --exec $EXEC --quiet
+        ;;
+  stop)
+        echo "Stopping $NAME"
+        start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE --exec $EXEC
+        ;;
+  force-reload|restart)
+        $0 stop
+        $0 start
+        ;;
+
+  *)
+        echo "Use: /etc/init.d/$NAME {start|stop|restart|force-reload}"
+        exit 1
+        ;;
+esac
+
+exit 0

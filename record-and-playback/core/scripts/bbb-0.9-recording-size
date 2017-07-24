@@ -1,0 +1,82 @@
+#!/usr/bin/ruby1.9.1
+
+require File.expand_path('../../lib/recordandplayback', __FILE__)
+require 'trollop'
+
+props = YAML::load(File.open(File.expand_path('../bigbluebutton.yml', __FILE__)))
+log_dir = props['log_dir']
+raw_recording_dir = "#{props['recording_dir']}/raw"
+published_dir = props['published_dir']
+unpublished_dir = "#{published_dir}/../unpublished"
+
+opts = Trollop::options do
+  opt(:force, "Run script even if it has previously been run",
+              :default => false)
+  opt(:quiet, "Minimal output mode, for automated use",
+              :default => false)
+end
+
+log_file = "#{log_dir}/bbb-0.9-recording-size.log"
+done_file = "#{props['recording_dir']}/status/bbb-0.9-recording-size.done"
+
+logger = Logger.new(log_file)
+logger.level = Logger::INFO
+BigBlueButton.logger = logger
+
+if File.exist?(done_file) and !opts.force
+  if !opts.quiet
+    puts "Script has previously been run, doing nothing"
+    puts "Use the --force option to override"
+  end
+  exit 0
+end
+
+def do_recording_size_update(recording_dir, raw_recording_dir, format_dir)
+  match = /([^\/]*)$/.match(recording_dir)
+  meeting_id = match[1]
+
+  match = /([^\/]*)$/.match(format_dir)
+  format = match[1]
+
+  BigBlueButton.logger.info("Processing #{format} recording #{meeting_id}")
+  BigBlueButton.logger.info("Adding raw size to recording #{meeting_id}")
+  raw_dir = "#{raw_recording_dir}/#{meeting_id}"
+  BigBlueButton.add_raw_size_to_metadata(recording_dir, raw_dir)
+  if format == "mconf_encrypted"
+    BigBlueButton.add_download_size_to_metadata(recording_dir)
+  else
+    BigBlueButton.add_playback_size_to_metadata(recording_dir)
+  end
+end
+
+BigBlueButton.logger.info("Updating size of 0.9.0 recordings")
+
+puts "Updating recording size for 0.9.0..."
+
+num_recordings = 0
+
+BigBlueButton.logger.info("Checking recordings in #{published_dir}")
+Dir.glob("#{published_dir}/*").each do |format_dir|
+  Dir.glob("#{format_dir}/*-*").each do |recording_dir|
+    print '.' if num_recordings % 10 == 0
+    num_recordings += 1
+    do_recording_size_update(recording_dir, raw_recording_dir, format_dir)
+  end
+end
+
+BigBlueButton.logger.info("Checking recordings in #{unpublished_dir}")
+Dir.glob("#{unpublished_dir}/*").each do |format_dir|
+  Dir.glob("#{format_dir}/*-*").each do |recording_dir|
+    print '.' if num_recordings % 10 == 0
+    num_recordings += 1
+    do_recording_size_update(recording_dir, raw_recording_dir, format_dir)
+  end
+end
+
+puts "done"
+
+puts "See the output in #{log_file} for details"
+
+BigBlueButton.logger.info("Processed #{num_recordings} recordings")
+
+IO.write(done_file, Time.now)

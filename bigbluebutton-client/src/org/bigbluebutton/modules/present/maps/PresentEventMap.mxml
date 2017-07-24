@@ -18,15 +18,13 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+<EventMap xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="http://mate.asfusion.com/">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-      import org.bigbluebutton.modules.present.api.PresentationAPI;
       import org.bigbluebutton.modules.present.business.PresentProxy;
       import org.bigbluebutton.modules.present.commands.ChangePageCommand;
       import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
@@ -34,118 +32,103 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.commands.GoToPageCommand;
       import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
       import org.bigbluebutton.modules.present.commands.UploadFileCommand;
-      import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+      import org.bigbluebutton.modules.present.events.DownloadEvent;
       import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
       import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-      import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
-      import org.bigbluebutton.modules.present.events.PresentationEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
-      import org.bigbluebutton.modules.present.services.PresentationService;
-      import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
-
-			private var apiInstance:PresentationAPI;
-			
-			private function createAPI():void{
-				apiInstance = PresentationAPI.getInstance();
-			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		<ObjectBuilder generator="{PresentManager}" cache="global" />
-		<ObjectBuilder generator="{PresentProxy}" cache="global" />
-    
-		<InlineInvoker method="createAPI" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
-		<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
-    <MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
-		<MethodInvoker generator="{PresentManager}" method="handleStopModuleEvent" />
-	</EventHandlers>
-	
-	<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-		<MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
-	</EventHandlers>
-	
-	<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
-		<MethodInvoker generator="{PresentManager}" method="handleOpenUploadWindow" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
-		<MethodInvoker generator="{PresentManager}" method="handleCloseUploadWindow" />
-	</EventHandlers>
+	<fx:Declarations>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<ObjectBuilder generator="{PresentManager}" cache="global" />
+			<ObjectBuilder generator="{PresentProxy}" cache="global" />
+		</EventHandlers>
 		
-	<EventHandlers type="{UploadFileCommand.UPLOAD_FILE}">
-		<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
-	</EventHandlers>
+		<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
+			<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
+      <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+	    <MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
+			<MethodInvoker generator="{PresentManager}" method="handleStopModuleEvent" />
+		</EventHandlers>
 	
-	<EventHandlers type="{PresenterCommands.GOTO_SLIDE}" >
-		<MethodInvoker generator="{PresentProxy}" method="gotoSlide" arguments="{event}" />
-	</EventHandlers>
+		<EventHandlers type="{DownloadEvent.OPEN_DOWNLOAD_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleOpenDownloadWindow" />
+		</EventHandlers>
 	
-	<EventHandlers type="{PresenterCommands.RESET_ZOOM}" >
-		<MethodInvoker generator="{PresentProxy}" method="resetZoom" arguments="{event}" />
-	</EventHandlers>
+		<EventHandlers type="{DownloadEvent.CLOSE_DOWNLOAD_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleCloseDownloadWindow" />
+		</EventHandlers>
 	
-	<EventHandlers type="{PresenterCommands.SHARE_PRESENTATION_COMMAND}">
-		<MethodInvoker generator="{PresentProxy}" method="sharePresentation" arguments="{event}" />
-	</EventHandlers>
+		<EventHandlers type="{DownloadEvent.DOWNLOAD_PRESENTATION}" >
+			<MethodInvoker generator="{PresentProxy}"  method="startDownload" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
+			<MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+		</EventHandlers>
+		
+		<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleOpenUploadWindow" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleCloseUploadWindow" />
+		</EventHandlers>
+			
+		<EventHandlers type="{UploadFileCommand.UPLOAD_FILE}">
+			<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{PresenterCommands.GOTO_SLIDE}" >
+			<MethodInvoker generator="{PresentProxy}" method="gotoSlide" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{PresenterCommands.SHARE_PRESENTATION_COMMAND}">
+			<MethodInvoker generator="{PresentProxy}" method="sharePresentation" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{PresenterCommands.ZOOM}" >
+			<MethodInvoker generator="{PresentProxy}" method="zoomSlide" arguments="{event}" />
+		</EventHandlers>
 	
-	<EventHandlers type="{PresenterCommands.MOVE}" >
-		<MethodInvoker generator="{PresentProxy}" method="moveSlide" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PresenterCommands.ZOOM}" >
-		<MethodInvoker generator="{PresentProxy}" method="zoomSlide" arguments="{event}" />
-	</EventHandlers>
-
-  <EventHandlers type="{GetCurrentPresentationInfo.GET_CURRENT_PRESENTATION_INFO}" >
-    <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
-  </EventHandlers>
-
-  <EventHandlers type="{GetListOfPresentationsRequest.GET_LIST_OF_PRESENTATIONS}" >
-    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" />
-  </EventHandlers>
-  
-	<EventHandlers type="{PresenterCommands.SEND_CURSOR_UPDATE}" >
-		<MethodInvoker generator="{PresentProxy}" method="sendCursorUpdate" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PresenterCommands.RESIZE}" >
-		<MethodInvoker generator="{PresentProxy}" method="resizeSlide" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{ChangePageCommand.CHANGE_PAGE_COMMAND}" >
-		<MethodInvoker generator="{PageLoaderService}" method="loadPage" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
-		<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
-	</EventHandlers>
-	
-  <EventHandlers type="{ChangePresentationCommand.CHANGE_PRESENTATION}">
-    <MethodInvoker generator="{PresentProxy}" method="handleChangePresentationCommand" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{GoToPageCommand.GO_TO_PAGE}">
-    <MethodInvoker generator="{PresentProxy}" method="handleGoToPageCommand" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{GoToPrevPageCommand.GO_TO_PREV_PAGE}">
-    <MethodInvoker generator="{PresentProxy}" method="handleGoToPreviousPageCommand" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{GoToNextPageCommand.GO_TO_NEXT_PAGE}">
-    <MethodInvoker generator="{PresentProxy}" method="handleGoToNextPageCommand" arguments="{event}" />
-  </EventHandlers>
-  
+	  <EventHandlers type="{GetListOfPresentationsRequest.GET_LIST_OF_PRESENTATIONS}" >
+	    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" />
+	  </EventHandlers>
+		
+		<EventHandlers type="{PresenterCommands.RESIZE}" >
+			<MethodInvoker generator="{PresentProxy}" method="resizeSlide" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{ChangePageCommand.CHANGE_PAGE_COMMAND}" >
+			<MethodInvoker generator="{PageLoaderService}" method="loadPage" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
+			<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
+		</EventHandlers>
+		
+	  <EventHandlers type="{ChangePresentationCommand.CHANGE_PRESENTATION}">
+	    <MethodInvoker generator="{PresentProxy}" method="handleChangePresentationCommand" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{GoToPageCommand.GO_TO_PAGE}">
+	    <MethodInvoker generator="{PresentProxy}" method="handleGoToPageCommand" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{GoToPrevPageCommand.GO_TO_PREV_PAGE}">
+	    <MethodInvoker generator="{PresentProxy}" method="handleGoToPreviousPageCommand" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{GoToNextPageCommand.GO_TO_NEXT_PAGE}">
+	    <MethodInvoker generator="{PresentProxy}" method="handleGoToNextPageCommand" arguments="{event}" />
+	  </EventHandlers>
+	</fx:Declarations>
 </EventMap>
