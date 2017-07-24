@@ -17,7 +17,7 @@ const getCurrentSlide = () => {
 
   return Slides.findOne({
     presentationId: currentPresentation.presentation.id,
-    'slide.current': true,
+    current: true,
   });
 };
 

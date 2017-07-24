@@ -27,4 +27,3 @@ acl:
     methods:
       - 'assignPresenter'
       - 'switchSlide'
-      - 'switchSlideMessage'

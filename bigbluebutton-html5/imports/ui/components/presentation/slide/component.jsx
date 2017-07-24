@@ -7,6 +7,9 @@ export default class Slide extends React.Component {
   }
 
   render() {
+
+    const imageUri = this.props.currentSlide.svgUri || this.props.currentSlide.pngUri;
+
     return (
       <g>
         {this.props.currentSlide ?
@@ -14,19 +17,20 @@ export default class Slide extends React.Component {
             <rect
               x="0"
               y="0"
-              width={this.props.currentSlide.slide.width}
-              height={this.props.currentSlide.slide.height}
+              width={this.props.currentSlide.width}
+              height={this.props.currentSlide.height}
               fill="white"
             />
             <image
-              x="0" y="0"
-              width={this.props.currentSlide.slide.width}
-              height={this.props.currentSlide.slide.height}
-              xlinkHref={this.props.currentSlide.slide.img_uri}
+              x="0"
+              y="0"
+              width={this.props.currentSlide.width}
+              height={this.props.currentSlide.height}
+              xlinkHref={imageUri}
               strokeWidth="0.8"
             />
           </g>
-        : null }
+          : null}
       </g>
     );
   }

@@ -17,11 +17,11 @@ export default class PresentationArea extends React.Component {
     let slideObj = this.props.currentSlide;
 
     if (this.props.currentSlide) {
-      slideObj = this.props.currentSlide.slide;
-      const x = -slideObj.x_offset * 2 * slideObj.width / 100;
-      const y = -slideObj.y_offset * 2 * slideObj.height / 100;
-      const viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
-      const viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
+      slideObj = this.props.currentSlide;
+      const x = -slideObj.xOffset * 2 * slideObj.width / 100;
+      const y = -slideObj.yOffset * 2 * slideObj.height / 100;
+      const viewBoxWidth = slideObj.width * slideObj.widthRatio / 100;
+      const viewBoxHeight = slideObj.height * slideObj.heightRatio / 100;
       return (
         <CSSTransitionGroup
           transitionName={{
@@ -65,7 +65,7 @@ export default class PresentationArea extends React.Component {
                   viewBoxHeight={viewBoxHeight}
                   viewBoxX={x}
                   viewBoxY={y}
-                  widthRatio={slideObj.width_ratio}
+                  widthRatio={slideObj.widthRatio}
                   cursorX={this.props.cursor.x}
                   cursorY={this.props.cursor.y}
                 />
@@ -82,7 +82,7 @@ export default class PresentationArea extends React.Component {
     if (this.props.currentSlide) {
       return (
         <PresentationToolbarContainer
-          currentSlideNum={this.props.currentSlide.slide.num}
+          currentSlideNum={this.props.currentSlide.num}
           presentationId={this.props.currentSlide.presentationId}
         />
       );
