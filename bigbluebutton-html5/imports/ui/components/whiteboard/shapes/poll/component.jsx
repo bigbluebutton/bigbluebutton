@@ -73,7 +73,7 @@ export default class PollDrawComponent extends React.Component {
     let votesTotal = 0;
     let maxNumVotes = 0;
     const textArray = [];
-
+    
     // counting the total number of votes, finding the biggest number of votes
     this.props.shape.result.reduce((previousValue, currentValue, currentIndex, array) => {
       votesTotal = previousValue + currentValue.numVotes;

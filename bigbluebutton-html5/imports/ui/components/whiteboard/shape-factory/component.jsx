@@ -14,11 +14,11 @@ export default class WhiteboardShapeModel extends React.Component {
   }
 
   render() {
-    const Component = this.props.shapes[this.props.shape.shape_type];
+    const Component = this.props.shapes[this.props.shape.annotationType];
     if (Component != null) {
       return (
         <Component
-          shape={this.props.shape.shape}
+          shape={this.props.shape.annotationInfo}
           widthRatio={this.props.widthRatio}
           heightRatio={this.props.heightRatio}
           slideWidth={this.props.slideWidth}

@@ -56,7 +56,7 @@ export default function addSlide(meetingId, presentationId, slide) {
     $set: Object.assign(
       { meetingId },
       { presentationId },
-      flat(slide),
+      flat(slide, { safe: true }),
     ),
   };
 

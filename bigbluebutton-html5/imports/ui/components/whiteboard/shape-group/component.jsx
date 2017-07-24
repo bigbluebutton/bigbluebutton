@@ -27,8 +27,8 @@ export default class ShapeGroup extends React.Component {
       <g>
         {shapes ? shapes.map(shape =>
           (<WhiteboardShapeModel
-            shape={shape.shape}
-            key={shape.shape.id}
+            shape={shape}
+            key={shape.id}
             slideWidth={width}
             slideHeight={height}
           />),

@@ -22,8 +22,6 @@ export default function switchSlide(credentials, slideNumber) {
     current: true,
   };
 
-  console.log("Selector", selector);
-
   const Presentation = Presentations.findOne(selector);
 
   if (!Presentation) {

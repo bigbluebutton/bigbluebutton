@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Shapes from '/imports/api/2.0/shapes';
+import flat from 'flat';
 
 const SHAPE_TYPE_TEXT = 'text';
 const SHAPE_TYPE_PENCIL = 'pencil';
@@ -12,22 +13,17 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
 
   const selector = {
     meetingId,
-    'shape.id': shape.id,
+    id: shape.id,
     userId,
   };
 
   const modifier = {
-    $set: {
-      userId,
-      meetingId,
-      whiteboardId,
-      'shape.id': shape.id,
-      'shape.wb_id': shape.wbId,
-      'shape.shape_type': shape.annotationType,
-      'shape.status': shape.status,
-      'shape.shape.type': shape.annotationInfo.type,
-      'shape.shape.status': shape.annotationInfo.status,
-    },
+    $set: Object.assign(
+      { userId },
+      { meetingId },
+      { whiteboardId },
+      flat(shape, { safe: true }),
+    ),
   };
 
   const shapeType = shape.annotationType;
@@ -35,35 +31,19 @@ export default function addShape(meetingId, whiteboardId, userId, shape) {
   switch (shapeType) {
     case SHAPE_TYPE_TEXT:
       modifier.$set = Object.assign(modifier.$set, {
-        'shape.shape.x': shape.annotationInfo.x,
-        'shape.shape.y': shape.annotationInfo.y,
-        'shape.shape.fontColor': shape.annotationInfo.fontColor,
-        'shape.shape.calcedFontSize': shape.annotationInfo.calcedFontSize,
-        'shape.shape.textBoxWidth': shape.annotationInfo.textBoxWidth,
-        'shape.shape.text': shape.annotationInfo.text.replace(/[\r]/g, '\n'),
-        'shape.shape.textBoxHeight': shape.annotationInfo.textBoxHeight,
-        'shape.shape.id': shape.annotationInfo.id,
-        'shape.shape.whiteboardId': shape.annotationInfo.whiteboardId,
-        'shape.shape.fontSize': shape.annotationInfo.fontSize,
-        'shape.shape.dataPoints': shape.annotationInfo.dataPoints,
+        'annotationInfo.text': shape.annotationInfo.text.replace(/[\r]/g, '\n'),
       });
       break;
     case SHAPE_TYPE_PENCIL:
-      modifier.$push = { 'shape.shape.points': { $each: shape.annotationInfo.points } };
+      // On the draw_end he send us all the points, we don't need to push, we can simple
+      // set the new points.
+      if (shape.status !== 'DRAW_END') {
+        // We don't want it to be update twice.
+        delete modifier.$set['annotationInfo.points'];
+        modifier.$push = { 'annotationInfo.points': { $each: shape.annotationInfo.points } };
+      }
       break;
     default:
-      modifier.$set = Object.assign(modifier.$set, {
-        'shape.shape.points': shape.annotationInfo.points,
-        'shape.shape.whiteboardId': shape.annotationInfo.whiteboardId,
-        'shape.shape.id': shape.annotationInfo.id,
-        'shape.shape.square': shape.annotationInfo.square,
-        'shape.shape.transparency': shape.annotationInfo.transparency,
-        'shape.shape.thickness': shape.annotationInfo.thickness * 10,
-        'shape.shape.color': shape.annotationInfo.color,
-        'shape.shape.result': shape.annotationInfo.result,
-        'shape.shape.num_respondents': shape.annotationInfo.numRespondents,
-        'shape.shape.num_responders': shape.annotationInfo.numResponders,
-      });
       break;
   }
 

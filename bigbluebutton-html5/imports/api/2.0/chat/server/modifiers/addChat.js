@@ -37,7 +37,7 @@ export default function addChat(meetingId, message) {
   const modifier = {
     $set: {
       meetingId,
-      message: flat(parsedMessage),
+      message: flat(parsedMessage, { safe: true }),
     },
   };
 
