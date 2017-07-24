@@ -8,6 +8,7 @@
 @namespace layout "org.bigbluebutton.modules.layout.views.*";
 @namespace presentation "org.bigbluebutton.modules.present.ui.views.*";
 @namespace sharednotes "org.bigbluebutton.modules.sharednotes.views.components.*";
+@namespace chat "org.bigbluebutton.modules.chat.views.*";
 
 /*
 //------------------------------
@@ -163,9 +164,11 @@ mx|ApplicationControlBar {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
-.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle,
-.deskshareDefaultButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
+.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
+.deskshareDefaultButtonStyle, .deskshareOverButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
 .muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
+	fillColorOver           : #FFFFFF;
+	borderColorOver         : #1070D7;
 	fillColorSelectedUp     : #1070D7;
 	fillColorSelectedOver   : #0A5EAC;
 	fillColorSelectedDown   : #1070D7;
@@ -174,8 +177,13 @@ mx|ApplicationControlBar {
 	borderColorSelectedDown : #1070D7;
 }
 
-.voiceConfDefaultButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
+.voiceConfDefaultButtonStyle, .voiceConfOverButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
+	/* Normal state */
+	fillColorOver           : #FFFFFF;
+	borderColorOver         : #DE2721;
 	/* Selected state */
+	backgroundColorOver     : #FFFFFF;
+	borderColorOver         : #DE2721;
 	fillColorSelectedUp     : #DE2721;
 	fillColorSelectedOver   : #B4201B;
 	fillColorSelectedDown   : #DE2721;
@@ -184,13 +192,30 @@ mx|ApplicationControlBar {
 	borderColorSelectedDown : #DE2721;
 }
 
+.webcamOnButtonStyle, .webcamOffButtonStyle {
+	fillColorUp     : #1070D7;
+	borderColorUp   : #1070D7;
+	fillColorOver   : #0A5EAC;
+	fillColorDown   : #1070D7;
+	borderColorOver : #0A5EAC;
+
+	iconColor       : #FFFFFF;
+	iconColorOver   : #FFFFFF;
+	iconColorDown   : #FFFFFF;
+}
+
 .voiceConfDefaultButtonStyle {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Disabled");
 }
 
+.voiceConfOverButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Red");
+}
+
 .voiceConfActiveButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_On");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_On");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_On_Disabled");
 }
 
 .voiceConfInactiveButtonStyle {
@@ -200,6 +225,10 @@ mx|ApplicationControlBar {
 .webcamDefaultButtonStyle {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
+}
+
+.webcamOverButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Blue");
 }
 
 .webcamOnButtonStyle {
@@ -212,6 +241,10 @@ mx|ApplicationControlBar {
 
 .deskshareDefaultButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare");
+}
+
+.deskshareOverButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_Blue");
 }
 
 .deskshareOnButtonStyle {
@@ -237,12 +270,13 @@ mx|ApplicationControlBar {
 }
 
 .muteMeDefaultButtonStyle {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
+	glowFilterColor : #B4201B;
+	icon            : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+	disabledIcon    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
 }
 
 .muteMeOnButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_On");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
 }
 
 .muteMeOffButtonStyle {
@@ -331,7 +365,7 @@ mx|Button {
 	skin                        : ClassReference("org.bigbluebutton.skins.ButtonSkin");
 
 	/* Normal state */
-	fillColorUp                 : #F0F2F6;
+	fillColorUp                 : #FFFFFF;
 	fillColorOver               : #CDD4DB;
 	fillColorDown               : #ACB2B7;
 	fillColorDisabled           : #F0F2F6;
@@ -601,16 +635,6 @@ mx|DataGrid {
 //  Layout
 //------------------------------
 */
-layout|AddButton, layout|SaveButton, layout|LoadButton, layout|BroadcastButton, .fullScreenButton, .exitFullScreenButton, .logsButton {
-	fillColorUp         : #FFFFFF;
-	fillColorOver       : #CDD4DB;
-	fillColorDown       : #ACB2B7;
-	fillColorDisabled   : #F0F2F6;
-	borderColorUp       : #CDD4DB;
-	borderColorOver     : #CDD4DB;
-	borderColorDown     : #ACB2B7;
-	borderColorDisabled : #CDD4DB;
-}
 
 layout|AddButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Circle_Add");
@@ -817,18 +841,21 @@ views|NetworkStatsWindow {
 
 mx|PopUpButton {
 	/* Normal state */
-	fillColorUp         : #F0F2F6;
+	fillColorUp         : #FFFFFF;
 	fillColorOver       : #CDD4DB;
 	fillColorDown       : #ACB2B7;
 	fillColorDisabled   : #F0F2F6;
 	borderColorUp       : #CDD4DB;
-	borderColorOver     : #CDD4DB;
-	borderColorDown     : #ACB2B7;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #1070D7;
 	borderColorDisabled : #CDD4DB;
 
-	borderThikness      : 1;
+	/* Icon states */
+	iconColor           : #4E5A66;
+	iconColorOver       : #1070D7;
+	iconColorDown       : #4E5A66;
 
-	iconColor           : #5E6C73;
+	borderThikness      : 1;
 
 	skin                : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
 }
@@ -1128,16 +1155,17 @@ users|StatusItemRenderer {
 }
 
 users|MediaItemRenderer {
-	iconAudioMuted : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
-	iconAudio      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
-	iconSound      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Sound");
-	iconLock       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
-	iconUnlock     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Unlock");
-	iconSettings   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
-	iconWebcam     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Webcam");
-	iconDemote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Demote");
-	iconPromote    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
-	iconEject      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
+	iconAudioMuted  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
+	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
+	iconSound       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Sound");
+	iconLock        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
+	iconUnlock      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Unlock");
+	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconWebcam      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Webcam");
+	iconDemote      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Demote");
+	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
+	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
+	glowFilterColor : #B4201B;
 }
 
 users|NameItemRenderer {

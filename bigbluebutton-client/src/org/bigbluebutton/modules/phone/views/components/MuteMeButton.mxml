@@ -96,7 +96,7 @@ $Id: $
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (UsersUtil.isMe(e.message.userID)) {
 					if (e.message.talking) {
-						currentIcon.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+						currentIcon.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 					} else {
 						currentIcon.filters = [];
 					}
@@ -167,7 +167,7 @@ $Id: $
 								toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
 							} else {
 								selected = false;
-								styleName = "muteMeOnButtonStyle";
+								styleName = "muteMeDefaultButtonStyle";
 							}
 						}
 					}

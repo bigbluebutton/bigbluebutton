@@ -38,7 +38,7 @@
 
 package org.bigbluebutton.skins {
 	import flash.display.DisplayObject;
-
+	
 	import mx.core.IFlexDisplayObject;
 	import mx.core.IProgrammaticSkin;
 	import mx.core.UIComponent;
@@ -124,6 +124,9 @@ package org.bigbluebutton.skins {
 
 			// User-defined styles.
 			var arrowColor:uint = getStyle("iconColor");
+			var arrowColorOver:uint = getStyle("iconColorOver");
+			var arrowColorDown:uint = getStyle("iconColorDown");
+			
 			var cornerRadius:Number = getStyle("cornerRadius");
 
 			var popUpIcon:IFlexDisplayObject = IFlexDisplayObject(getChildByName("popUpIcon"));
@@ -179,6 +182,8 @@ package org.bigbluebutton.skins {
 
 				case "popUpOverSkin": // for hover on the arrow-button (right) side
 				{
+					arrowColor = arrowColorOver;
+					
 					// button border/edge
 					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
 
@@ -196,9 +201,9 @@ package org.bigbluebutton.skins {
 				case "downSkin": // for press on the main button (left) side
 				{
 					// button border/ddge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorDown, 1);
 
-					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), 0, borderColorDown, 1);
+					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), 0, borderColorUp, 1);
 
 					// button fill                
 					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
@@ -211,6 +216,8 @@ package org.bigbluebutton.skins {
 
 				case "popUpDownSkin": // for press on the arrow-button (right) side
 				{
+					arrowColor = arrowColorDown;
+					
 					// button border/edge
 					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
 

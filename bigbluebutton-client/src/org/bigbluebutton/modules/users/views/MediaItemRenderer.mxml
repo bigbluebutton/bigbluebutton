@@ -203,7 +203,7 @@
 							muteBtn.enabled = true;
 
 							if(data.talking && !rolledOver){
-								muteImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+								muteImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 							}else{
 								muteImg.filters = [];
 							}

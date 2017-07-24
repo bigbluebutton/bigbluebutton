@@ -105,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if(_currentState == ON_STATE)
           styleName="deskshareOffButtonStyle"
         else
-          styleName="deskshareOnButtonStyle"
+          styleName="deskshareOverButtonStyle"
       }
 
       private function mouseOutHandler(event:MouseEvent):void {
