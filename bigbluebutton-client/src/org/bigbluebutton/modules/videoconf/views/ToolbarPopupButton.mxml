@@ -218,7 +218,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(_currentState == ON_STATE)
 					this.styleName = "webcamOffButtonStyle";
 				else
-					this.styleName = "webcamOnButtonStyle";
+					this.styleName = "webcamOverButtonStyle";
 				this.selected = false;
 			}
 

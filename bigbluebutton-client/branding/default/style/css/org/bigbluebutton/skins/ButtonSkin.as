@@ -94,7 +94,7 @@ package org.bigbluebutton.skins {
 			var borderAlphaDown:uint = getStyle("borderAlphaDown");
 			var borderAlphaDisabled:uint = getStyle("borderAlphaDisabled");
 
-			var borderThikness:uint = getStyle("borderThikness");
+			var borderThickness:uint = getStyle("borderThickness");
 
 			var fillColorUp:uint = getStyle("fillColorUp");
 			var fillColorOver:uint = getStyle("fillColorOver");
@@ -114,7 +114,7 @@ package org.bigbluebutton.skins {
 
 			// Corner radius
 			var cr:Number = Math.max(0, cornerRadius);
-			var cr1:Number = Math.max(0, cornerRadius - borderThikness);
+			var cr1:Number = Math.max(0, cornerRadius - borderThickness);
 
 			graphics.clear();
 
@@ -160,7 +160,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorUp, borderAlphaUp);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
 					break;
 				}
 
@@ -169,7 +169,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorOver, borderAlphaOver);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorOver, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorOver, 1);
 					break;
 				}
 
@@ -178,7 +178,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorDown, borderAlphaDown);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorDown, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorDown, 1);
 					break;
 				}
 
@@ -188,7 +188,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorDisabled, borderAlphaDisabled);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorDisabled, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorDisabled, 1);
 					break;
 				}
 
