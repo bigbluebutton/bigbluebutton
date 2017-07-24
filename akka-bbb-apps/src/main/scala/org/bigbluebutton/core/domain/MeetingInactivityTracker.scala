@@ -10,7 +10,7 @@ case class MeetingInactivityTracker(
     warningSentOnTimestamp:          Long
 ) {
   def setWarningSentAndTimestamp(nowInSeconds: Long): MeetingInactivityTracker = {
-    copy(warningSent = false, warningSentOnTimestamp = nowInSeconds)
+    copy(warningSent = true, warningSentOnTimestamp = nowInSeconds)
   }
 
   def resetWarningSentAndTimestamp(): MeetingInactivityTracker = {

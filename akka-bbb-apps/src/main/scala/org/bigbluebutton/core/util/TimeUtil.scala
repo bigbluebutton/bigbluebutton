@@ -12,6 +12,10 @@ object TimeUtil {
     TimeUnit.MILLISECONDS.toMinutes(millis)
   }
 
+  def millisToSeconds(millis: Long): Long = {
+    TimeUnit.MILLISECONDS.toSeconds(millis)
+  }
+
   def minutesToSeconds(minutes: Long): Long = {
     TimeUnit.MINUTES.toSeconds(minutes)
   }

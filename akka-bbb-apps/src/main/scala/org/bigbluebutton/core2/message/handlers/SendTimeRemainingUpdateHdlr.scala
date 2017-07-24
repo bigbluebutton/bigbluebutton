@@ -32,28 +32,6 @@ trait SendTimeRemainingUpdateHdlr {
       val event = buildMeetingTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, timeRemaining.toInt)
       outGW.send(event)
     }
-    if (!liveMeeting.props.meetingProp.isBreakout && !BreakoutRooms.getRooms(liveMeeting.breakoutRooms).isEmpty) {
-      val endMeetingTime = BreakoutRooms.breakoutRoomsStartedOn(liveMeeting.breakoutRooms) +
-        (BreakoutRooms.breakoutRoomsdurationInMinutes(liveMeeting.breakoutRooms) * 60)
-      val timeRemaining = endMeetingTime - TimeUtil.timeNowInSeconds
-
-      def buildBreakoutRoomsTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
-        val envelope = BbbCoreEnvelope(BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME, routing)
-        val body = BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeLeftInSec)
-        val header = BbbClientMsgHeader(BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME, meetingId, "not-used")
-        val event = BreakoutRoomsTimeRemainingUpdateEvtMsg(header, body)
-
-        BbbCommonEnvCoreMsg(envelope, event)
-      }
-
-      val event = buildBreakoutRoomsTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, timeRemaining.toInt)
-
-      outGW.send(event)
-    } else if (BreakoutRooms.breakoutRoomsStartedOn(liveMeeting.breakoutRooms) != 0) {
-      BreakoutRooms.breakoutRoomsdurationInMinutes(liveMeeting.breakoutRooms, 0)
-      BreakoutRooms.breakoutRoomsStartedOn(liveMeeting.breakoutRooms, 0)
-    }
 
     state
   }

@@ -1,34 +1,38 @@
 package org.bigbluebutton.core.running
 
-
-import org.bigbluebutton.core. UnitSpec}
+import org.bigbluebutton.core.UnitSpec
+import org.bigbluebutton.core.domain.MeetingInactivityTracker
+import org.bigbluebutton.core.util.TimeUtil
 
 class MeetingExpiryTrackerHelperTests extends UnitSpec {
 
   "A MeetingInactivityTrackerHelper" should "be return meeting is inactive" in {
-    val nowInMinutes = 25
-    val lastActivityTimeInMinutes = 10
-    val maxInactivityTimeoutMinutes = 12
+    val nowInMinutes = TimeUtil.minutesToSeconds(15)
 
-    object Helper extends MeetingExpiryTrackerHelper
-    val active = Helper.isMeetingActive(
-      nowInMinutes,
-      lastActivityTimeInMinutes,
-      maxInactivityTimeoutMinutes
+    val inactivityTracker = new MeetingInactivityTracker(
+      maxInactivityTimeoutMinutes = 12,
+      warningMinutesBeforeMax = 2,
+      lastActivityTimestamp = TimeUtil.minutesToSeconds(5),
+      warningSent = true,
+      warningSentOnTimestamp = 0L
     )
+
+    val active = inactivityTracker.isMeetingInactive(nowInMinutes)
     assert(active == false)
   }
 
   "A MeetingInactivityTrackerHelper" should "be return meeting is active" in {
-    val warningSent = true
-    val nowInMinutes = 25
-    val lastActivityTimeInMinutes = 10
-    val maxInactivityTimeoutMinutes = 12
-    val active = MeetingInactivityTrackerHelper.isMeetingInactive(
-      warningSent,
-      nowInMinutes, lastActivityTimeInMinutes, maxInactivityTimeoutMinutes
+    val nowInMinutes = TimeUtil.minutesToSeconds(18)
+    val inactivityTracker = new MeetingInactivityTracker(
+      maxInactivityTimeoutMinutes = 12,
+      warningMinutesBeforeMax = 2,
+      lastActivityTimestamp = TimeUtil.minutesToSeconds(5),
+      warningSent = true,
+      warningSentOnTimestamp = 0L
     )
-    assert(active)
+
+    val inactive = inactivityTracker.isMeetingInactive(nowInMinutes)
+    assert(inactive)
   }
 
 }

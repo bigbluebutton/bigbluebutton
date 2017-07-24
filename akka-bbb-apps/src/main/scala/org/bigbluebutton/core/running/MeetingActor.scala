@@ -74,6 +74,7 @@ class MeetingActor(
     with EndMeetingSysCmdMsgHdlr
     with DestroyMeetingSysCmdMsgHdlr
     with SendTimeRemainingUpdateHdlr
+    with SendBreakoutUsersAuditInternalMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -121,7 +122,7 @@ class MeetingActor(
     meetingExpireWhenLastUserLeftInMinutes = props.durationProps.meetingExpireWhenLastUserLeftInMinutes
   )
 
-  var state = new MeetingState2x(inactivityTracker, expiryTracker)
+  var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -149,11 +150,12 @@ class MeetingActor(
 
     case msg: ExtendMeetingDuration              => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg  => state = handleSendTimeRemainingUpdate(msg, state)
-    case msg: BreakoutRoomCreatedInternalMsg     => handleBreakoutRoomCreatedInternalMsg(msg)
+    case msg: SendBreakoutUsersAuditInternalMsg  => state = handleSendBreakoutUsersAuditInternalMsg(msg, state)
+    case msg: BreakoutRoomCreatedInternalMsg     => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg  => handleSendBreakoutUsersUpdateInternalMsg(msg)
-    case msg: BreakoutRoomUsersUpdateInternalMsg => handleBreakoutRoomUsersUpdateInternalMsg(msg)
+    case msg: BreakoutRoomUsersUpdateInternalMsg => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
     case msg: EndBreakoutRoomInternalMsg         => handleEndBreakoutRoomInternalMsg(msg)
-    case msg: BreakoutRoomEndedInternalMsg       => handleBreakoutRoomEndedInternalMsg(msg)
+    case msg: BreakoutRoomEndedInternalMsg       => state = handleBreakoutRoomEndedInternalMsg(msg, state)
 
     // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest   => handleDeskShareGetDeskShareInfoRequest(msg)
@@ -204,12 +206,11 @@ class MeetingActor(
       case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
 
       // Breakout
-      case m: BreakoutRoomsListMsg => handleBreakoutRoomsListMsg(m)
-      case m: CreateBreakoutRoomsCmdMsg => handleCreateBreakoutRoomsCmdMsg(m)
-      case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
-      case m: RequestBreakoutJoinURLReqMsg => handleRequestBreakoutJoinURLReqMsg(m)
-
-      case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+      case m: BreakoutRoomsListMsg => state = handleBreakoutRoomsListMsg(m, state)
+      case m: CreateBreakoutRoomsCmdMsg => state = handleCreateBreakoutRoomsCmdMsg(m, state)
+      case m: EndAllBreakoutRoomsMsg => state = handleEndAllBreakoutRoomsMsg(m, state)
+      case m: RequestBreakoutJoinURLReqMsg => state = handleRequestBreakoutJoinURLReqMsg(m, state)
+      case m: TransferUserToMeetingRequestMsg => state = handleTransferUserToMeetingRequestMsg(m, state)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg => handleUserLeftVoiceConfEvtMsg(m)

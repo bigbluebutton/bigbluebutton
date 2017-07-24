@@ -1,21 +1,20 @@
 package org.bigbluebutton.core.domain
 
+import org.bigbluebutton.core.apps.BreakoutModel
+
 object MeetingState2x {
 
 }
 
 case class MeetingState2x(
+    breakout:          Option[BreakoutModel],
     inactivityTracker: MeetingInactivityTracker,
     expiryTracker:     MeetingExpiryTracker
 ) {
-  def update(expiry: MeetingExpiryTracker): MeetingState2x = {
-    copy(expiryTracker = expiry)
-  }
 
-  def update(inactivityTracker: MeetingInactivityTracker): MeetingState2x = {
-    copy(inactivityTracker = inactivityTracker)
-  }
-
+  def update(breakout: Option[BreakoutModel]) = copy(breakout = breakout)
+  def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
+  def update(inactivityTracker: MeetingInactivityTracker): MeetingState2x = copy(inactivityTracker = inactivityTracker)
 }
 
 object MeetingEndReason {

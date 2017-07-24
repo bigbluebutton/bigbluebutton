@@ -2,9 +2,7 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.core.running.MeetingActor
 import java.net.URLEncoder
-
 import scala.collection.SortedSet
-import scala.collection.mutable
 import org.apache.commons.codec.digest.DigestUtils
 
 trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
@@ -52,8 +50,8 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutMeetingId: String,
-                 password: String): (mutable.Map[String, String], mutable.Map[String, String]) = {
-    val params = collection.mutable.HashMap(
+                 password: String): (collection.immutable.Map[String, String], collection.immutable.Map[String, String]) = {
+    val params = collection.immutable.HashMap(
       "fullName" -> urlEncode(username),
       "userID" -> urlEncode(userId),
       "isBreakout" -> urlEncode(isBreakout.toString()),
@@ -61,16 +59,16 @@ object BreakoutRoomsUtil {
       "password" -> urlEncode(password)
     )
 
-    (params += "redirect" -> urlEncode("true"), mutable.Map[String, String]() ++= params += "redirect" -> urlEncode("false"))
+    (params + ("redirect" -> urlEncode("true")), params + ("redirect" -> urlEncode("false")))
   }
 
-  def sortParams(params: mutable.Map[String, String]): SortedSet[String] = {
+  def sortParams(params: collection.immutable.Map[String, String]): SortedSet[String] = {
     collection.immutable.SortedSet[String]() ++ params.keySet
   }
 
   //From the list of parameters we want to pass. Creates a base string with parameters
   //sorted in alphabetical order for us to sign.
-  def createBaseString(params: mutable.Map[String, String]): String = {
+  def createBaseString(params: collection.immutable.Map[String, String]): String = {
     val csbuf = new StringBuffer()
     val keys = sortParams(params)
 

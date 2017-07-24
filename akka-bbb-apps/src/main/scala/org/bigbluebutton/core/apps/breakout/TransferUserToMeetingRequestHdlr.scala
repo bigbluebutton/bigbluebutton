@@ -1,7 +1,9 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ BreakoutRooms, VoiceUsers }
+import org.bigbluebutton.core.apps.BreakoutModel
+import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.{ VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait TransferUserToMeetingRequestHdlr {
@@ -9,41 +11,38 @@ trait TransferUserToMeetingRequestHdlr {
 
   val outGW: OutMsgRouter
 
-  def handleTransferUserToMeetingRequestMsg(msg: TransferUserToMeetingRequestMsg): Unit = {
+  def handleTransferUserToMeetingRequestMsg(msg: TransferUserToMeetingRequestMsg, state: MeetingState2x): MeetingState2x = {
 
-    def broadcastEvent(msg: TransferUserToMeetingRequestMsg): Unit = {
-      var targetVoiceBridge: String = msg.body.targetMeetingId
-      // If the current room is a parent room we fetch the voice bridge from the breakout room
-      if (!props.meetingProp.isBreakout) {
-        BreakoutRooms.getBreakoutRoom(liveMeeting.breakoutRooms, msg.body.targetMeetingId) match {
-          case Some(b) => {
-            targetVoiceBridge = b.voiceConfId;
-          }
-          case None => // do nothing
-        }
-      } // if it is a breakout room, the target voice bridge is the same after removing the last digit
-      else {
-        targetVoiceBridge = props.voiceProp.voiceConf.dropRight(1)
-      }
-      // We check the user from the mode
-      VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId) match {
-        case Some(u) =>
-          log.info("Transferring user userId=" + u.intId + " from voiceBridge=" + props.voiceProp.voiceConf + " to targetVoiceConf=" + targetVoiceBridge)
-
-          val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
-          val envelope = BbbCoreEnvelope(TransferUserToMeetingEvtMsg.NAME, routing)
-          val header = BbbClientMsgHeader(TransferUserToMeetingEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
-
-          val body = TransferUserToMeetingEvtMsgBody(props.voiceProp.voiceConf, targetVoiceBridge, u.voiceUserId)
-          val event = TransferUserToMeetingEvtMsg(header, body)
-          val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-
-          outGW.send(msgEvent)
-
-        case None => // do nothing
-      }
+    for {
+      model <- state.breakout
+      to <- getVoiceConf(msg.body.targetMeetingId, model)
+      from <- getVoiceConf(msg.body.meetingId, model)
+      voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
+    } yield {
+      val event = buildTransferUserToVoiceConfSysMsg(from, to, voiceUser.voiceUserId)
+      outGW.send(event)
     }
 
-    broadcastEvent(msg)
+    state
+  }
+
+  def buildTransferUserToVoiceConfSysMsg(fromVoiceConf: String, toVoiceConf: String, voiceUserId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(TransferUserToVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(TransferUserToVoiceConfSysMsg.NAME, props.meetingProp.intId)
+
+    val body = TransferUserToVoiceConfSysMsgBody(fromVoiceConf, toVoiceConf, voiceUserId)
+    val event = TransferUserToVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def getVoiceConf(meetingId: String, breakoutModel: BreakoutModel): Option[String] = {
+    if (meetingId == liveMeeting.props.meetingProp.intId) {
+      Some(liveMeeting.props.voiceProp.voiceConf)
+    } else {
+      for {
+        room <- breakoutModel.find(meetingId)
+      } yield room.voiceConf
+    }
   }
 }
