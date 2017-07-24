@@ -1,21 +1,19 @@
-import React from 'react';
-import AudioModal from './audio-modal/component';
-import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 
-import AudioManager from '/imports/api/audio/client/manager';
+import AudioManager from '/imports/api/2.0/audio/client/manager';
 
 const init = () => {
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
   const username = User.user.name;
 
-  const Meeting = Meetings.findOne(); // TODO test this with Breakouts
-  const turns = Meeting.turns;
-  const stuns = Meeting.stuns;
-  const voiceBridge = Meeting.voiceConf;
-  const microphoneLockEnforced = Meeting.roomLockSettings.disableMic;
+  const turns = [];
+  const stuns = [];
+  // FIX ME
+  const voiceBridge = 'Meeting.voiceConf';
+  // FIX ME
+  const microphoneLockEnforced = 'Meeting.roomLockSettings.disableMic';
 
   const userData = {
     userId,

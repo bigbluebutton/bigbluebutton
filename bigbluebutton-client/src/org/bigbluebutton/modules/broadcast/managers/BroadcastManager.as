@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.broadcast.managers
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 	import org.bigbluebutton.modules.broadcast.models.Stream;
@@ -77,7 +77,7 @@ package org.bigbluebutton.modules.broadcast.managers
       
       sendWhatIsTheCurrentStreamRequest();
       
-      if (UserManager.getInstance().getConference().amIPresenter) {
+      if (UsersUtil.amIPresenter()) {
         handleSwitchToPresenterMode();
       } else {
         handleSwitchToViewerMode();
@@ -113,7 +113,7 @@ package org.bigbluebutton.modules.broadcast.managers
 		
 		public function handleWhatIsTheCurrentStreamRequest(event:BBBEvent):void {
 			LOGGER.debug("BroadcastManager:: handleWhatIsTheCurrentStreamRequest {0}", [event.payload["requestedBy"]]);
-			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
+			var isPresenter:Boolean = UsersUtil.amIPresenter();
 			if (isPresenter && curStream != null) {
 				LOGGER.debug("MessageSender:: sendWhatIsTheCurrentStreamReply [{0},{1}]", [event.payload["requestedBy"], curStream.getStreamId()]);
 				broadcastService.sendWhatIsTheCurrentStreamReply(event.payload["requestedBy"], curStream.getStreamId());
@@ -122,8 +122,9 @@ package org.bigbluebutton.modules.broadcast.managers
 		
 		public function handleWhatIsTheCurrentStreamReply(event:BBBEvent):void {
 			LOGGER.debug("BroadcastManager:: handleWhatIsTheCurrentStreamReply [{0},{1}]",[event.payload["requestedBy"], event.payload["streamID"]]);
-			var amIRequester:Boolean = UserManager.getInstance().getConference().amIThisUser(event.payload["requestedBy"]);
-			LOGGER.debug("BroadcastManager:: handleWhatIsTheCurrentStreamReply [my id={0}, requester={1}]", [UserManager.getInstance().getConference().getMyUserId(), event.payload["requestedBy"]]);
+			var amIRequester:Boolean = UsersUtil.isMe(event.payload["requestedBy"]);
+			LOGGER.debug("BroadcastManager:: handleWhatIsTheCurrentStreamReply [my id={0}, requester={1}]", 
+        [UsersUtil.getMyUserID(), event.payload["requestedBy"]]);
 			if (amIRequester) {
 				var streamId:String = event.payload["streamID"];
 				var info:Object = streams.getStreamNameAndUrl(streamId);

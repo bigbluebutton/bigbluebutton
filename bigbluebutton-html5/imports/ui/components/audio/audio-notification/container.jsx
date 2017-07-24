@@ -2,7 +2,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import AudioNotification from './component';
-import AudioManager, { AudioErrorCodes } from '/imports/api/audio/client/manager';
+import AudioManager, { AudioErrorCodes } from '/imports/api/2.0/audio/client/manager';
 
 const intlMessages = defineMessages({
   [AudioErrorCodes.CODE_1001]: {
@@ -136,5 +136,5 @@ export default injectIntl(createContainer(({ intl }) => {
   messages.audioFailure = intl.formatMessage(intlMessages.audioFailed);
   messages.mediaFailure = intl.formatMessage(intlMessages.mediaFailed);
 
-  return {messages};
+  return { messages };
 }, AudioNotificationContainer));

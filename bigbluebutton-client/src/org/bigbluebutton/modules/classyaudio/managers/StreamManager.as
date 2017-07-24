@@ -30,6 +30,9 @@ package org.bigbluebutton.modules.classyaudio.managers
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.classyaudio.events.MicMutedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.PlayStreamStatusEvent;
 	
@@ -45,6 +48,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private var dispatcher:Dispatcher;
 		
 		private var gain:Number = 60; //default gain for bbb
+		
+		private static const LOGGER:ILogger = getClassLogger(StreamManager);
 					
 		public function StreamManager()
 		{			
@@ -59,7 +64,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 			mic = Microphone.getMicrophone();
 			
 			if(mic == null){
-				LogUtil.debug("No available microphone");
+				LOGGER.debug("No available microphone");
 				return;
 			}
 			
@@ -75,11 +80,11 @@ package org.bigbluebutton.modules.classyaudio.managers
 				mic.framesPerPacket = 1;
 				mic.rate = 16; 
 				//mic.enableVAD = true;
-				LogUtil.debug("codec=SPEEX,framesPerPacket=1,rate=16");
+				LOGGER.debug("codec=SPEEX,framesPerPacket=1,rate=16");
 			} else {
 				mic.codec = SoundCodec.NELLYMOSER;
 				mic.rate = 8;
-				LogUtil.debug("codec=NELLYMOSER,rate=8");
+				LOGGER.debug("codec=NELLYMOSER,rate=8");
 			}			
 			//mic.gain = 60;			
 		}
@@ -100,20 +105,20 @@ package org.bigbluebutton.modules.classyaudio.managers
 					dispatcher.dispatchEvent(unmutedEvent);
 					break;
 				default:
-				LogUtil.debug("unknown micStatusHandler event: " + event);
+				LOGGER.debug("unknown micStatusHandler event: " + event);
 			}
 		}
 		
 		public function mute():void {
 			/*if(outgoingStream != null) {
-				LogUtil.debug("***** Muting the mic.");
+				LOGGER.debug("***** Muting the mic.");
 				//outgoingStream.close();
 				//outgoingStream = null;
 				//outgoingStream.attachAudio(null);
 			}*/
 			
 			if (mic != null){
-				LogUtil.debug("***** Muting the mic.");
+				LOGGER.debug("***** Muting the mic.");
 				mic.setSilenceLevel(100, 0);
 				//Save the gain for when the user becomes unmuted
 				//this.gain = mic.gain;
@@ -123,7 +128,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 		
 		public function unmute():void {
-			LogUtil.debug("***** UNMuting the mic.");
+			LOGGER.debug("***** UNMuting the mic.");
 			//outgoingStream = new NetStream(connection);
 			//outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			//outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
@@ -144,20 +149,20 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 								
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
-			LogUtil.debug("SM callConnected");
+			LOGGER.debug("SM callConnected");
 			isCallConnected = true;
 			audioCodec = codec;
 			setupIncomingStream();
-			LogUtil.debug("SM callConnected: Incoming Stream Setup");
+			LOGGER.debug("SM callConnected: Incoming Stream Setup");
 			setupOutgoingStream();
-			LogUtil.debug("SM callConnected: Setup Outgoing Stream");
-			LogUtil.debug("SM callConnected: Setup Stream(s)");
+			LOGGER.debug("SM callConnected: Setup Outgoing Stream");
+			LOGGER.debug("SM callConnected: Setup Stream(s)");
 			setupPlayStatusHandler();
-			LogUtil.debug("SM callConnected: After setupPlayStatusHandler");
+			LOGGER.debug("SM callConnected: After setupPlayStatusHandler");
 			play(playStreamName);
-			LogUtil.debug("SM callConnected: After play");
+			LOGGER.debug("SM callConnected: After play");
 			publish(publishStreamName);
-			LogUtil.debug("SM callConnected: Published Stream"); 
+			LOGGER.debug("SM callConnected: Published Stream"); 
 		}
 		
 		private function play(playStreamName:String):void {			
@@ -165,11 +170,11 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 		
 		private function publish(publishStreamName:String):void {
-			LogUtil.debug("Publishing stream " + publishStreamName);
+			LOGGER.debug("Publishing stream " + publishStreamName);
 			if (mic != null)
 				outgoingStream.publish(publishStreamName, "live");
 			else
-				LogUtil.debug("SM publish: No Microphone to publish");
+				LOGGER.debug("SM publish: No Microphone to publish");
 		}
 		
 		private function setupIncomingStream():void {
@@ -206,30 +211,30 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 			
 		public function stopStreams():void {
-			LogUtil.debug("Stopping Stream(s)");
+			LOGGER.debug("Stopping Stream(s)");
 			if(incomingStream != null) {
-				LogUtil.debug("--Stopping Incoming Stream");
+				LOGGER.debug("--Stopping Incoming Stream");
 				incomingStream.play(false); 
 			} else {
-				LogUtil.debug("--Incoming Stream Null");
+				LOGGER.debug("--Incoming Stream Null");
 			}
 			
 			if(outgoingStream != null) {
-				LogUtil.debug("--Stopping Outgoing Stream");
+				LOGGER.debug("--Stopping Outgoing Stream");
 				outgoingStream.attachAudio(null);
 				outgoingStream.close();
 			} else {
-				LogUtil.debug("--Outgoing Stream Null");
+				LOGGER.debug("--Outgoing Stream Null");
 			}
 				
 			isCallConnected = false;
-			LogUtil.debug("Stopped Stream(s)");
+			LOGGER.debug("Stopped Stream(s)");
 		}
 
 		private function netStatusIncoming (evt:NetStatusEvent ):void {		 
 
 			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
-			LogUtil.debug("StreamManager:NetStream: " + evt.info.code);
+			LOGGER.debug("StreamManager:NetStream: " + evt.info.code);
 			
 			switch(evt.info.code) {
 			
@@ -262,7 +267,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private function netStatusOutgoing (evt:NetStatusEvent ):void {		 
 			
 			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
-			LogUtil.debug("StreamManager: NetStream: " + evt.info.code);
+			LOGGER.debug("StreamManager: NetStream: " + evt.info.code);
 			
 			switch(evt.info.code) {
 				
@@ -293,7 +298,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		} 
 			
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-	    	LogUtil.debug("StreamManager: AsyncErrorEvent: " + event);
+	    	LOGGER.debug("StreamManager: AsyncErrorEvent: " + event);
 	    }
 	        
 	    private function playStatus(event:Object):void {
@@ -301,7 +306,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 	    }
 		
 		private function onMetadata(event:Object):void {
-	    	LogUtil.debug("Recieve ON METADATA from SIP");
+	    	LOGGER.debug("Recieve ON METADATA from SIP");
 	    }	
 	}
 }

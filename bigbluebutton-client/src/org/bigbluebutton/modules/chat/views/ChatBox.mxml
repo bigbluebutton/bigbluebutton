@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:common="org.bigbluebutton.common.*"
     xmlns:chat="org.bigbluebutton.modules.chat.views.*"
@@ -28,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	click="setMessageRead()" verticalScrollPolicy="off"
 	creationComplete="onCreationComplete()">
 
-  <mx:Style>
+  <fx:Style>
     .chatColorPickerStyle {
       backgroundColor:#E5E6E7;
       columnCount:12;
@@ -45,58 +46,63 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       verticalGap:0;
     }
     
-  </mx:Style>
+  </fx:Style>
   
-	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
-  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
-  <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-  <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
-  <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
-  <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent"/>
-  <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
-  <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
-  <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
-  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
-	
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<fx:Declarations>
+		<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
+		<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+		<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+		<mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleRecievedChatHistoryEvent" />
+		<mate:Listener type="{ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT}" method="handleClearPublicChatBoxMessages"/>
+		<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
+		<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
+		<mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent"/>
+		<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
+		<mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
+		<mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
+		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
+		
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.accessibility.AccessibilityProperties;
-			import flash.events.TextEvent;
-			
-			import mx.binding.utils.BindingUtils;
-			
-			import org.as3commons.lang.StringUtils;
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.KeyboardUtil;
-			import org.bigbluebutton.core.TimerUtil;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.BreakoutRoomEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.UserJoinedEvent;
-			import org.bigbluebutton.main.events.UserLeftEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.chat.ChatConstants;
-			import org.bigbluebutton.modules.chat.ChatUtil;
-			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-			import org.bigbluebutton.modules.chat.model.ChatConversation;
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.TextEvent;
+      
+      import mx.binding.utils.BindingUtils;
+      
+      import org.as3commons.lang.StringUtils;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.TimerUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.modules.chat.ChatConstants;
+      import org.bigbluebutton.modules.chat.ChatUtil;
+      import org.bigbluebutton.modules.chat.events.ChatEvent;
+      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+      import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.model.ChatConversation;
+      import org.bigbluebutton.modules.chat.model.ChatOptions;
+      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+      import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(ChatBox);      
       
@@ -135,10 +141,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable]
 			private var chatListHeight:Number = 100;
-			
-			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
+
+			[Bindable] public var chatOptions:ChatOptions;
+
+			private var shiftPressed:Boolean = false;
+			private var ctrlPressed:Boolean = false;
       
-			private function onCreationComplete():void {    
+			private function onCreationComplete():void {
+				chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 				bindToHeightToDetermineHeightOfMessageList();
 				
 				addContextMenuItems();
@@ -155,11 +165,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
 				txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, handleMsgAreaKeyDown);
 				
+				// Listen for the navigable keys to avoid moving and resizing the chat box while text selection
+				txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, checkNavigableButtonDown);
+				txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, checkNavigableButtonUp);
+				chatMessagesList.addEventListener(KeyboardEvent.KEY_DOWN, checkNavigableButtonDown);
+				chatMessagesList.addEventListener(KeyboardEvent.KEY_UP, checkNavigableButtonUp);
+
+				this.addEventListener(FocusEvent.FOCUS_OUT, releaseNavigableButton);
+
 				queryForChatHistory();
 				
 				chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
 				
-				if (publicChat && UserManager.getInstance().getConference().isBreakout){
+				if (publicChat && UsersUtil.isBreakout()){
 					var timerListener : Listener = new Listener();
 					timerListener.type = BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT;
 					timerListener.method = handleRemaininTimeBreakout;
@@ -169,10 +187,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				LOGGER.debug(" onCreationComplete. Apply lock settings");
 				applyLockSettings();
+
+				chatToolbar.registerListeners(chatMessagesList);
+
+				chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, adjustToolbarWidthAccordingToScrollBar);
 			}
 
 			private function handleRemaininTimeBreakout(e:BreakoutRoomEvent):void {
 				TimerUtil.setCountDownTimer(timerLabel, e.durationInMinutes);
+			}
+
+			private function checkNavigableButtonDown(e:KeyboardEvent):void {
+				if (e.shiftKey && !shiftPressed) {
+					shiftPressed = true;
+					parentDocument.handleDraggableStatus(false);
+				}
+				if (e.ctrlKey && !ctrlPressed) {
+					ctrlPressed = true;
+					parentDocument.handleResizableStatus(false);
+				}
+			}
+
+			private function checkNavigableButtonUp(e:KeyboardEvent):void {
+				if (!e.shiftKey && shiftPressed) {
+					shiftPressed = false;
+					parentDocument.handleDraggableStatus(true);
+				}
+				if (!e.ctrlKey && ctrlPressed) {
+					ctrlPressed = false;
+					parentDocument.handleResizableStatus(true);
+				}
+			}
+
+			private function releaseNavigableButton(focus:FocusEvent):void {
+				if (shiftPressed) {
+					shiftPressed = false;
+					parentDocument.handleDraggableStatus(true);
+				}
+				if (ctrlPressed) {
+					ctrlPressed = false;
+					parentDocument.handleResizableStatus(true);
+				}
 			}
 
 			private function focusChatBox(e:ShortcutEvent):void{
@@ -213,7 +268,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function loadChatHistory(event:TimerEvent):void {
         if (publicChat) {
           var disp:Dispatcher  = new Dispatcher();
-          disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
+          disp.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.REQUEST_HISTORY));
         }
       }
       
@@ -244,13 +299,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var SPACE:String = " ";
       private function displayUserHasLeftMessage():void {
         var msg:ChatMessageVO = new ChatMessageVO();
-        msg.chatType = ChatConstants.PUBLIC_CHAT;
-        msg.fromUserID = SPACE;
+        msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserID = SPACE;
+        msg.toUserId = SPACE;
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
@@ -259,13 +313,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function displayUserHasJoinedMessage():void {
         var msg:ChatMessageVO = new ChatMessageVO();
-        msg.chatType = ChatConstants.PUBLIC_CHAT;
-        msg.fromUserID = SPACE;
+        msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserID = SPACE;
+        msg.toUserId = SPACE;
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
@@ -280,18 +333,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
           chatMessages.newChatMessage(event.message);
-          if (!event.history) {
-            scrollToEndOfMessage();
-          }
+          scrollToEndOfMessage();
         }
+      }
+      
+      private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
+        if (publicChat && event.history != null) {
+          chatMessages.processChatHistory(event.history);
+          scrollToEndOfMessage();
+        }
+      }
+
+      private function adjustToolbarWidthAccordingToScrollBar(e:ChatEvent):void{
+        invalidateDisplayList();
+        validateNow();
       }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         var message:ChatMessageVO = event.message;
         
         if (!publicChat && 
-          ( (message.fromUserID == chatWithUserID && UsersUtil.isMe(message.toUserID)) ||
-            (message.toUserID == chatWithUserID && UsersUtil.isMe(message.fromUserID)) )) {
+          ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
+            (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
           chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }        
@@ -306,13 +369,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var keyCombo:String = modifier + String.fromCharCode(int(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate')));
         
         var msg:ChatMessageVO = new ChatMessageVO();
-        msg.chatType = ChatConstants.PUBLIC_CHAT;
-        msg.fromUserID = SPACE;
+        msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserID = SPACE;
+        msg.toUserId = SPACE;
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
         
@@ -359,6 +421,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function changeFontSize(e:ChatOptionsEvent):void {
 				this.setStyle("fontSize", e.fontSize);
+			}
+
+			private function copyAllText():void{
+				System.setClipboard(chatMessages.getAllMessageAsString());
+			}
+
+			public function getChatMessages():ChatConversation {
+				return chatMessages;
 			}
 			
 			private function addContextMenuItems():void {
@@ -413,8 +483,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		} else {
 			var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
 			var cm:ChatMessageVO = new ChatMessageVO();
-			cm.chatType = ChatConstants.PUBLIC_CHAT;
-			cm.fromUserID = UsersUtil.getMyUserID();
+			cm.fromUserId = UsersUtil.getMyUserID();
 			cm.fromUsername = UsersUtil.getMyUsername();
 			// get the color value from ColorPicker
 			cm.fromColor =  cmpColorPicker.selectedColor.toString();
@@ -435,8 +504,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function sendPrivateChatMessage(message:String):void {
         var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
         var cm:ChatMessageVO = new ChatMessageVO();
-        cm.chatType = ChatConstants.PRIVATE_CHAT;
-        cm.fromUserID = UsersUtil.getMyUserID();
+        cm.fromUserId = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
 		// get the color value from ColorPicker
         cm.fromColor = cmpColorPicker.selectedColor.toString();
@@ -449,7 +517,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
         //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
         cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
-        cm.toUserID = chatWithUserID;
+        cm.toUserId = chatWithUserID;
         cm.toUsername = chatWithUsername;
         
         privateEvent.chatMessage = cm;
@@ -533,16 +601,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function applyLockSettings():void {
-			var userManager:UserManager = UserManager.getInstance();
-			var conference:Conference = userManager.getConference();
-			var me:BBBUser = conference.getMyUser();
 			if (publicChat) {
-				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
+				txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
 			} else {
-				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
+				txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat;
 			}
 		}
 		
+		private function refreshRole(e:ChangeMyRole):void {
+			applyLockSettings();
+		}
+
 		private function get messageCanBeSent() : Boolean {
 			return StringUtils.trim(txtMsgArea.text).length <= chatOptions.maxMessageLength;
 		}
@@ -556,18 +625,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				hideMessageTooLong();
 			}
 		}
+
+		private function handleClearPublicChatBoxMessages(event:ClearPublicChatEvent):void {
+			if(publicChat){
+				chatMessages.clearPublicChat();
+				invalidateDisplayList();
+				validateNow();
+			}
+		}
+
+		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+			super.updateDisplayList(unscaledWidth, unscaledHeight);
+
+			// Force validation before evaluation of toolbar width
+			validateNow();
+
+			const paddingHeight:int = 5;
+			const paddingWidth:int = 5;
+
+			chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 20;
+			chatToolbar.y = 10;
+
+			if (!publicChat) {
+				chatToolbar.publicChat = false;
+			}
+		}
 		]]>
 		
-	</mx:Script>
+	</fx:Script>
 
-	<common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
+	</fx:Declarations>
 
 	<mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-		<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
+		<mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+			<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
 						   itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
 						   dataProvider="{chatMessages.messages}"
 						   styleName="chatMessageListStyle"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
+			<chat:ChatToolbar id="chatToolbar" />
+		</mx:Canvas>
 		<mx:HBox id="timerBox" styleName="breakoutRoomTimerBox"
 				 includeInLayout="false" visible="false"
 				 width="100%" height="0">
@@ -580,7 +679,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
 			 paddingLeft="5" paddingRight="5">	
 		<mx:VBox width="100%" height="100%">
-			<mx:TextArea id="txtMsgArea" width="100%" height="100%"
+			<!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
+			<mx:TextArea id="txtMsgArea" width="100%" height="100%" restrict="^\u007F"
 						 styleName="chatControlBarTextMsgStyle"
 						 change="txtMsgAreaChangeHandler(event)"
 						 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
@@ -588,11 +688,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label id="msgTooLongLabel" width="100%" height="100%" includeInLayout="false" visible="false"/>
 		</mx:VBox>
 		<mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
-			<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
+			<mx:HBox horizontalGap="0">
+				<mx:Button id="sendBtn"
 					   styleName="chatControlBarSendButtonStyle"
+					   width="40" height="40"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
 					   click="sendMessages()"
-					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>  
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>
+			</mx:HBox>
 			<mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}"
 							includeInLayout="{chatOptions.colorPickerIsVisible}" 
 							toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 

@@ -18,27 +18,31 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
-	<mx:Script>
+<EventMap xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="http://mate.asfusion.com/">
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.layout.views.ToolbarComponent;
 			
 			private var _attributes:Object;
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
-			private var options:LayoutOptions = new LayoutOptions();
+			private var options:LayoutOptions;
+			private var layoutComponent:ToolbarComponent;
 			
 			public function stopModule():void {
 			}
 			
 			public function startModule(attributes:Object):void {
 				_attributes = attributes;
-				options.parseOptions();
+				options = Options.getOptions(LayoutOptions) as LayoutOptions;
 				
-				var layoutComponent:ToolbarComponent = new ToolbarComponent();
+				layoutComponent = new ToolbarComponent();
 				
 				// using the negation will keep it enabled if the property is not there
 				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
@@ -49,6 +53,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_globalDispatcher.dispatchEvent(event);
 				
 			}
+
+			public function refreshRole(e:ChangeMyRole):void {
+				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
+				layoutComponent.refreshRole(e.role == Role.MODERATOR);
+			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </EventMap>

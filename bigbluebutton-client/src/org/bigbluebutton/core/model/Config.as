@@ -34,18 +34,6 @@ package org.bigbluebutton.core.model
 			buildModuleDescriptors();
 		}
 
-		public function get help():Object {
-			var help:Object = new Object();
-			help.url = config.help.@url;
-			return help;
-		}
-    
-    public function get javaTest():Object {
-      var javaTest:Object = new Object();
-      javaTest.url = config.javaTest.@url;
-      return javaTest;
-    }
-			
 		public function get locale():Object {
 			var v:Object = new Object();
 			v.version = config.localeversion;
@@ -55,65 +43,6 @@ package org.bigbluebutton.core.model
 			
 		public function get version():String {
 			return config.version;
-		}
-			
-		public function get porttest():Object {
-			var p:Object = new Object();
-			p.host = config.porttest.@host;
-			p.application = config.porttest.@application;
-			p.timeout = config.porttest.@timeout;
-			return p;
-		}
-			
-		public function get application():Object {
-			var a:Object = new Object();
-			a.uri = config.application.@uri;
-			a.host = config.application.@host;
-			return a;
-		}
-		
-		public function get language():Object {
-			var a:Object = new Object();
-			a.userSelectionEnabled = ((config.language.@userSelectionEnabled).toUpperCase() == "TRUE") ? true : false;
-			return a
-		}
-		
-		public function get shortcutKeys():Object {
-			var a:Object = new Object();
-			a.showButton = ((config.shortcutKeys.@showButton).toUpperCase() == "TRUE") ? true : false;
-			return a
-		}
-			
-		public function get skinning():Object {
-			var a:Object = new Object();
-			a.enabled = ((config.skinning.@enabled).toUpperCase() == "TRUE") ? true : false;
-			a.url = config.skinning.@url;
-			return a
-		}
-		
-		public function get browserVersions():XML {
-			return new XML(config.browserVersions.toXMLString());
-		}
-
-	    public function get layout():XML {
-	      return new XML(config.layout.toXMLString());
-	    }
-    	
-		public function get meeting():XML {
-			return new XML(config.meeting.toXMLString());
-		}
-
-		public function get logging():XML {
-			return new XML(config.logging.toXMLString());
-		}
-		
-		public function get breakoutRooms():XML {
-			return new XML(config.breakoutRooms.toXMLString());
-		}
-		
-		public function get lock():XML {
-			if(config.lock == null) return null;
-			return new XML(config.lock.toXMLString());
 		}
 			
 		public function isModulePresent(name:String):Boolean {
@@ -139,7 +68,11 @@ package org.bigbluebutton.core.model
 			}
 			return null;
 		}
-				
+		
+		public function getOptionsFor(name:String) : XML {
+			return new XML(config[name].toXMLString());
+		}
+		
 		public function getModules():Dictionary{
 			return _modules;
 		}

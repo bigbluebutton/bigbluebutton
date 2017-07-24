@@ -25,12 +25,8 @@ package org.bigbluebutton.modules.videoconf.business
 	import mx.containers.HBox;
 	import mx.controls.Button;
 	
-	import org.bigbluebutton.common.Images;
-	
 	public class TalkingButtonOverlay extends HBox
 	{
-    private var images:Images = new Images();
-    
 		private var buttons:Dictionary = new Dictionary;
 		private var BUTTONS_SIZE:int = 20;
 		private var BUTTONS_PADDING:int = 10;

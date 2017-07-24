@@ -18,17 +18,16 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<bcast:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<bcast:CustomMdiWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:fx="http://ns.adobe.com/mxml/2009"
 					  xmlns:bcast="org.bigbluebutton.common.*" 
 					  implements="org.bigbluebutton.common.IBbbModuleWindow" 
-            styleNameFocus="broadcastStyleFocus" 
-            styleNameNoFocus="broadcastStyleNoFocus"
             creationComplete="onCreationComplete()"
             visible="false"
 					  xmlns:mate="http://mate.asfusion.com/" showCloseButton="false"
 					  layout="absolute" title="Broadcast" resize="onResize()" resizeEndMDIWindow="onResize()">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
@@ -127,14 +126,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 												
 		]]>
-	</mx:Script>
-  
+	</fx:Script>
+  <!-- @fixme Deprecated
   <bcast:states>
     <mx:State name="doNotShowPlaylist">      
       <mx:SetProperty target="{streamsList}" name="height" value="1"/>
     </mx:State>
   </bcast:states>  
-  
+  -->
 	<mx:HBox id="videoHolderBox" width="100%" height="100%" />		
   <mx:ControlBar id="streamsList" visible="false" width="100%" height="30" paddingTop="0" borderStyle="outset" horizontalAlign="center">
     <mx:HBox x="1" y="1" id="videoStreamList" visible="false" width="100%" height="100%" horizontalAlign="center">

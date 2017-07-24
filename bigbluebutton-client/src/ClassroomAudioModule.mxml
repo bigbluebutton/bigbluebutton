@@ -20,11 +20,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx" layout="absolute" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:maps="org.bigbluebutton.modules.classyaudio.maps.*"
 		   implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	
-	<mx:Style>
+	<fx:Style>
 		PushToTalkButton {
 			skin: ClassReference("org.bigbluebutton.modules.classyaudio.views.PushButtonSkin");
 			upSkin: ClassReference("mx.skins.halo.ButtonSkin");
@@ -35,15 +36,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			selectedDownSkin: ClassReference("mx.skins.halo.ButtonSkin");
 			selectedDisabledSkin: ClassReference("mx.skins.halo.ButtonSkin");
 		}
-	</mx:Style> 
+	</fx:Style> 
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.modules.classyaudio.events.StartClassAudioEvent;
 			import org.bigbluebutton.modules.classyaudio.events.StopClassAudioEvent;
+			
+			private static const LOGGER:ILogger = getClassLogger(ClassroomAudioModule);
 			
 			private var _moduleName:String = "ClassroomAudioModule";			
 			private var _attributes:Object;
@@ -51,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("ClassroomAudioModule Initialized");			
+				LOGGER.debug("ClassroomAudioModule Initialized");			
 			}
 			
 			public function get moduleName():String {
@@ -112,7 +117,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(stopEvent);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<maps:ClassyEventMap />
+	<fx:Declarations>
+		<maps:ClassyEventMap />
+	</fx:Declarations>
 </mx:Module>

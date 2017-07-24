@@ -3,7 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Button from '/imports/ui/components/button/component';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
-import AudioManager from '/imports/api/audio/client/manager';
+import AudioManager from '/imports/api/2.0/audio/client/manager';
 
 const intlMessages = defineMessages({
   joinAudio: {

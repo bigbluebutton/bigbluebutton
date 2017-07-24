@@ -18,29 +18,23 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<views:LayoutButton xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" 
+<views:LayoutButton xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
+		   creationComplete="init()"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.saveButton.toolTip')}"
-		   icon="{icon_save}"
 		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   enabled="{UsersUtil.amIModerator()}">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.core.UsersUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _images:Images = new Images();
-			[Bindable] private var icon_save:Class = _images.disk;
 			
 			private function init():void {
 			}
@@ -49,6 +43,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_EVENT));
 			}
 			
+			public function refreshRole(amIModerator:Boolean):void {
+				this.enabled = amIModerator;
+			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </views:LayoutButton>
