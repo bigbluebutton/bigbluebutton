@@ -73,13 +73,11 @@ class MeetingActorAudit(
     // Trigger updating users of time remaining on meeting.
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendTimeRemainingAuditInternalMsg(props.meetingProp.intId)))
 
-    if (props.meetingProp.isBreakout) {
-      // This is a breakout room. Update the main meeting with list of users in this breakout room.
-      eventBus.publish(BigBlueButtonEvent(
+    // This is a breakout room. Update the main meeting with list of users in this breakout room.
+    eventBus.publish(BigBlueButtonEvent(
         props.meetingProp.intId,
         SendBreakoutUsersAuditInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)
       ))
-    }
   }
 
 }
