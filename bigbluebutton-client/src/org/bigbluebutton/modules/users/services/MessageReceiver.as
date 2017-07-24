@@ -689,16 +689,15 @@ package org.bigbluebutton.modules.users.services
     
 	
 	private function handleBreakoutRoomsList(msg:Object):void{
-		for each(var room : Object in msg.body.rooms)
-		{
+		for each(var room : Object in msg.body.rooms) {
 			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
-			breakoutRoom.meetingId = room.meetingId;
-			breakoutRoom.externalMeetingId = room.externalMeetingId;
-			breakoutRoom.name = room.name;
-			breakoutRoom.sequence = room.sequence;
+			breakoutRoom.meetingId = room.meetingId as String;
+			breakoutRoom.externalMeetingId = room.externalMeetingId as String;
+			breakoutRoom.name = room.name as String;
+			breakoutRoom.sequence = room.sequence as Number;
       LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
 		}
-    LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = msg.body.roomsReady;
+    LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = msg.body.roomsReady as Boolean;
 	}
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{

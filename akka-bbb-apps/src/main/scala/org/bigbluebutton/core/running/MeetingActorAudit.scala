@@ -75,9 +75,9 @@ class MeetingActorAudit(
 
     // This is a breakout room. Update the main meeting with list of users in this breakout room.
     eventBus.publish(BigBlueButtonEvent(
-        props.meetingProp.intId,
-        SendBreakoutUsersAuditInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)
-      ))
+      props.meetingProp.intId,
+      SendBreakoutUsersAuditInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)
+    ))
   }
 
 }

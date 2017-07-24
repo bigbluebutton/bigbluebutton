@@ -32,8 +32,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsgBody;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.ListenInOnBreakoutMsg;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.ListenInOnBreakoutMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsgBody;
   import org.bigbluebutton.core.managers.ConnectionManager;
