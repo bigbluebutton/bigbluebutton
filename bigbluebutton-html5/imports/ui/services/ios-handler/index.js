@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import AudioManager from '/imports/ui/components/audio/service';
 
 class IosHandler {
   constructor() {
@@ -10,8 +11,8 @@ class IosHandler {
   }
 
   postMessage(message) {
+    console.log('isIosApp', this.isIosApp, message);
     if (this.isIosApp) {
-      console.log('isIosApp', message);
       return this.messageHandler.postMessage(JSON.stringify(message));
     }
   }
@@ -68,8 +69,30 @@ class IosHandler {
     return this.postMessage(message);
   }
 
+  goToVideoREMOVETHIS() {
+    const message = {
+      method: 'goToVideo',
+    };
+
+    return this.postMessage(message);
+  }
+
+  sendCallParametersREMOVETHIS() {
+    console.log('if ios app will send parameters from call');
+    if (this.isIosApp) {
+      console.log(AudioManager);
+      AudioManager.sendCallParameters();
+    }
+  }
+
   goToMainMeeting() {
     this.goToRoom();
+  }
+
+  restartMeter() {
+    console.log('restartMeter');
+    this.requestMicrophoneLevelStop();
+    this.requestMicrophoneLevelStart();
   }
 }
 

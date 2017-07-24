@@ -19,9 +19,8 @@ class AudioTestContainer extends Component {
 
 export default createContainer(() => ({
   handlePlayAudioSample: () => {
+    console.log('handlePlayAudioSample');
     const snd = new Audio('resources/sounds/audioSample.mp3');
     snd.play();
-    IosHandler.requestMicrophoneLevelStop();
-    IosHandler.requestMicrophoneLevelStart();
   },
 }), AudioTestContainer);

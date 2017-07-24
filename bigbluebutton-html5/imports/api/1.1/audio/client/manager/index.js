@@ -8,6 +8,8 @@ export default class AudioManager {
   constructor(userData) {
     const MEDIA_CONFIG = Meteor.settings.public.media;
 
+    console.log('userdata', userData);
+
     let audioBridge;
     if (window.navigator.userAgent === 'BigBlueButton') {
       audioBridge = new IOSBridge(userData);
@@ -26,6 +28,11 @@ export default class AudioManager {
 
   exitAudio() {
     this.bridge.exitAudio(this.isListenOnly);
+  }
+
+  sendCallParameters() {
+    console.log('sending call parameters');
+    this.bridge._sendCallParameters();
   }
 
   joinAudio(listenOnly) {

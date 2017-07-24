@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SettingsDropdown from './component';
 import Service from './service';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 export default class SettingsDropdownContainer extends Component {
   constructor(props) {
@@ -38,14 +39,15 @@ export default class SettingsDropdownContainer extends Component {
   }
 
   handleFullscreenChange() {
-    if (document.fullscreenElement
-      || document.webkitFullscreenElement
-      || document.mozFullScreenElement
-      || document.msFullscreenElement) {
-      this.setState({ isFullScreen: true });
-    } else {
-      this.setState({ isFullScreen: false });
-    }
+    IosHandler.goToVideoREMOVETHIS();
+    // if (document.fullscreenElement
+    //   || document.webkitFullscreenElement
+    //   || document.mozFullScreenElement
+    //   || document.msFullscreenElement) {
+    //   this.setState({ isFullScreen: true });
+    // } else {
+    //   this.setState({ isFullScreen: false });
+    // }
   }
 
   render() {

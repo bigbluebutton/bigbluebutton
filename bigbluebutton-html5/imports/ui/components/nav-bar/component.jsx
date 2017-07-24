@@ -61,13 +61,15 @@ class NavBar extends Component {
 
   componentDidMount() {
     document.title = this.props.presentationTitle;
-    console.log('123321');
 
+    this.addTouchEventListeners();
+  }
+
+  addTouchEventListeners() {
     let xDown = null;
     let yDown = null;
 
     const handleTouchStart = (evt) => {
-      console.log('handleTouchStart');
       xDown = evt.touches[0].clientX;
       yDown = evt.touches[0].clientY;
     };
@@ -85,10 +87,8 @@ class NavBar extends Component {
 
       if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
         if ( xDiff > 0 ) {
-          console.log('Krappa');
           this.leftSwipeHandler();
         } else {
-          console.log('Kreppo');
           this.rightSwipeHandler();
         }
       }
@@ -101,7 +101,6 @@ class NavBar extends Component {
   }
 
   componentWillUnmount(){
-    console.log('component will unmount');
     document.removeEventListener('touchstart', handleTouchStart, false);
     document.removeEventListener('touchmove', handleTouchMove, false);
   }
@@ -140,8 +139,6 @@ class NavBar extends Component {
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
-
-    const isIosApp = window.navigator.userAgent === 'BigBlueButton';
 
     return (
       <div className={styles.navbar}>

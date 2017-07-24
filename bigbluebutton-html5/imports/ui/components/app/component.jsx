@@ -58,6 +58,7 @@ class App extends Component {
   componentDidMount() {
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
 
+    IosHandler.sendCallParametersREMOVETHIS();
     window.addEventListener('requestBreakoutRooms',
     (e) => {
       IosHandler.updateBreakoutRooms(this.props.breakoutIds);

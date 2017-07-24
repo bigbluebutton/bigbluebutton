@@ -54,6 +54,23 @@ export default class IOSBridge extends BaseAudioBridge {
     return false;
   }
 
+  _sendCallParameters() {
+    const options = this.options;
+
+    let message = {
+      method: 'call_params',
+      fsWebSocketUrl: options.fsWebSocketUrl,
+      fsLogin: options.fsLogin,
+      fsPassword: options.fsPassword,
+      fsVoiceBridgeNumber: options.fsVoiceBridgeNumber,
+      sessId: options.sessId,
+      callerIdName: options.callerIdName,
+      callerIdNumber: options.callerIdNumber,
+    };
+
+    this._sendMessageToSwift(message);
+  }
+
   _joinVoiceCallIOS(isListenOnly) {
     console.log('Joining audio using the iOS Bridge');
     console.log('listenOnly', isListenOnly);
