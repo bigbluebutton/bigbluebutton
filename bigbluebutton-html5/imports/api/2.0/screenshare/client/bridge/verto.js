@@ -1,4 +1,4 @@
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 import { getConferenceBridge } from './service';
 
@@ -9,14 +9,14 @@ const createVertoUserName = () => {
   return `FreeSWITCH User - ${encodeURIComponent(uName)}`;
 };
 
-export default class VertoDeskshareBridge {
+export default class VertoScreenshareBridge {
   constructor() {
     this.data = { getConferenceBridge };
   }
 
   vertoWatchVideo() {
     window.vertoWatchVideo(
-      'deskshareVideo',
+      'screenshareVideo',
       this.data.getConferenceBridge(),
       createVertoUserName(),
       null,
