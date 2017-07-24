@@ -4,7 +4,7 @@ import Slides from '/imports/api/2.0/slides';
 import { makeCall } from '/imports/ui/services/api';
 
 const getSlideData = (params) => {
-  const { currentSlideNum, presentationId } = params;
+  const { presentationId } = params;
 
   // Get userId and meetingId
   const userId = AuthSingleton.userID;
@@ -35,19 +35,19 @@ const getSlideData = (params) => {
 
 const previousSlide = (currentSlideNum) => {
   if (currentSlideNum > 1) {
-    makeCall('switchSlideMessage', currentSlideNum - 1);
+    makeCall('switchSlide', currentSlideNum - 1);
   }
 };
 
 const nextSlide = (currentSlideNum, numberOfSlides) => {
   if (currentSlideNum < numberOfSlides) {
-    makeCall('switchSlideMessage', currentSlideNum + 1);
+    makeCall('switchSlide', currentSlideNum + 1);
   }
 };
 
 const skipToSlide = (event) => {
-  const requestedSlideNum = parseInt(event.target.value);
-  makeCall('switchSlideMessage', requestedSlideNum);
+  const requestedSlideNum = parseInt(event.target.value, 10);
+  makeCall('switchSlide', requestedSlideNum);
 };
 
 export default {
