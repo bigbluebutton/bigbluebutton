@@ -20,6 +20,8 @@ package org.bigbluebutton.main.model.users {
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.core.model.BreakoutUser;
+	
 	[Bindable]
 	public class BreakoutRoom {
 		public static const NONE:String = "none";
@@ -50,5 +52,21 @@ package org.bigbluebutton.main.model.users {
 		public function get numberOfUsers():int {
 			return users.length;
 		}
+        
+        public function addUser(user: BreakoutUser): void {
+            removeUser(user.id);
+            users.addItem(user);
+        }
+        
+        public function removeUser(id: String): void {
+            for (var i: int = 0; i < users.length; i++) {
+                var user: BreakoutUser = users[i] as BreakoutUser;
+                if (user.id == id) {
+                    users.removeItemAt(i);
+                    users.refresh();
+                    return;
+                }
+            }
+        }
 	}
 }

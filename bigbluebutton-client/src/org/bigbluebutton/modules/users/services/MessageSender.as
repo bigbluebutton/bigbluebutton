@@ -131,7 +131,7 @@ package org.bigbluebutton.modules.users.services
       var message:Object = {
         header: {name: "TransferUserToMeetingRequestMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {meetingId: fomMeetingId, targetMeetingId: toMeetingId, userId: UsersUtil.getMyUserID()}
+        body: {meetingId: fomMeetingId, toMeetingId: toMeetingId, userId: UsersUtil.getMyUserID()}
       };
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();

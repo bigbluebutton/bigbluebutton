@@ -24,11 +24,12 @@ trait BreakoutHdlrHelpers extends SystemConfiguration {
       noRedirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, noRedirectBaseString,
         BreakoutRoomsUtil.calculateChecksum(apiCall, noRedirectBaseString, bbbWebSharedSecret))
     } yield {
-      sendJoinURLMsg(liveMeeting.props.meetingProp.intId, breakoutId, userId, redirectJoinURL, noRedirectJoinURL)
+      sendJoinURLMsg(liveMeeting.props.meetingProp.intId, breakoutId, externalMeetingId,
+        userId, redirectJoinURL, noRedirectJoinURL)
     }
   }
 
-  def sendJoinURLMsg(meetingId: String, breakoutId: String,
+  def sendJoinURLMsg(meetingId: String, breakoutId: String, externalId: String,
                      userId: String, redirectJoinURL: String, noRedirectJoinURL: String): Unit = {
     def build(meetingId: String, breakoutId: String,
               userId: String, redirectJoinURL: String, noRedirectJoinURL: String): BbbCommonEnvCoreMsg = {
@@ -36,7 +37,7 @@ trait BreakoutHdlrHelpers extends SystemConfiguration {
       val envelope = BbbCoreEnvelope(BreakoutRoomJoinURLEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(BreakoutRoomJoinURLEvtMsg.NAME, meetingId, userId)
 
-      val body = BreakoutRoomJoinURLEvtMsgBody(meetingId, breakoutId,
+      val body = BreakoutRoomJoinURLEvtMsgBody(meetingId, breakoutId, externalId,
         userId, redirectJoinURL, noRedirectJoinURL)
       val event = BreakoutRoomJoinURLEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)

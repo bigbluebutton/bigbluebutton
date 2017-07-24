@@ -15,8 +15,8 @@ trait TransferUserToMeetingRequestHdlr {
 
     for {
       model <- state.breakout
-      to <- getVoiceConf(msg.body.targetMeetingId, model)
-      from <- getVoiceConf(msg.body.meetingId, model)
+      to <- getVoiceConf(msg.body.toMeetingId, model)
+      from <- getVoiceConf(msg.body.fromMeetingId, model)
       voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
     } yield {
       val event = buildTransferUserToVoiceConfSysMsg(from, to, voiceUser.voiceUserId)

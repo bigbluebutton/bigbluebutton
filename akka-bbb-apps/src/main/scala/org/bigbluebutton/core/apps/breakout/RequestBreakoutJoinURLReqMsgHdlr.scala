@@ -13,7 +13,7 @@ trait RequestBreakoutJoinURLReqMsgHdlr extends BreakoutHdlrHelpers {
 
     for {
       model <- state.breakout
-      room <- model.find(msg.body.breakoutMeetingId)
+      room <- model.find(msg.body.breakoutId)
     } yield {
       sendJoinURL(msg.body.userId, room.externalId, room.sequence.toString(), room.id)
     }
