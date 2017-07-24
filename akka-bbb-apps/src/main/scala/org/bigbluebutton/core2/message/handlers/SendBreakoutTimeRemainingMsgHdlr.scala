@@ -1,24 +1,26 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.SendBreakoutUsersAuditInternalMsg
+import org.bigbluebutton.core.api.{ SendBreakoutUsersAuditInternalMsg, SendTimeRemainingAuditInternalMsg }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.util.TimeUtil
 
-trait SendBreakoutUsersAuditInternalMsgHdlr {
+trait SendBreakoutTimeRemainingMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleSendBreakoutUsersAuditInternalMsg(msg: SendBreakoutUsersAuditInternalMsg, state: MeetingState2x): MeetingState2x = {
+  def handleSendBreakoutTimeRemainingMsg(msg: SendTimeRemainingAuditInternalMsg, state: MeetingState2x): MeetingState2x = {
 
     for {
       model <- state.breakout
       startedOn <- model.startedOn
     } yield {
       if (!liveMeeting.props.meetingProp.isBreakout) {
+
         val endMeetingTime = TimeUtil.millisToSeconds(startedOn) + TimeUtil.minutesToSeconds(model.durationInMinutes)
-        val timeRemaining = endMeetingTime - TimeUtil.timeNowInSeconds
+        val timeRemaining = endMeetingTime - TimeUtil.millisToSeconds(System.currentTimeMillis())
+
         val event = buildBreakoutRoomsTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, timeRemaining.toInt)
 
         outGW.send(event)

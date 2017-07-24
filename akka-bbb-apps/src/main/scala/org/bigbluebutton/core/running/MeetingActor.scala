@@ -74,7 +74,7 @@ class MeetingActor(
     with EndMeetingSysCmdMsgHdlr
     with DestroyMeetingSysCmdMsgHdlr
     with SendTimeRemainingUpdateHdlr
-    with SendBreakoutUsersAuditInternalMsgHdlr
+    with SendBreakoutTimeRemainingMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -132,25 +132,26 @@ class MeetingActor(
   def receive = {
     //=============================
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg                => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg             => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                   => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg                 => handleGetAllMeetingsReqMsg(m)
+    case m: RegisterUserReqMsg                => usersApp.handleRegisterUserReqMsg(m)
+    case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg              => handleDestroyMeetingSysCmdMsg(m)
+    case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)
 
     //======================================
 
     //=======================================
     // internal messages
-    case msg: MonitorNumberOfUsersInternalMsg    => handleMonitorNumberOfUsers(msg)
+    case msg: MonitorNumberOfUsersInternalMsg => handleMonitorNumberOfUsers(msg)
 
-    case msg: ExtendMeetingDuration              => handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingAuditInternalMsg  => state = handleSendTimeRemainingUpdate(msg, state)
-    case msg: SendBreakoutUsersAuditInternalMsg  => state = handleSendBreakoutUsersAuditInternalMsg(msg, state)
+    case msg: ExtendMeetingDuration           => handleExtendMeetingDuration(msg)
+    case msg: SendTimeRemainingAuditInternalMsg =>
+      state = handleSendTimeRemainingUpdate(msg, state)
+      state = handleSendBreakoutTimeRemainingMsg(msg, state)
     case msg: BreakoutRoomCreatedInternalMsg     => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg  => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)

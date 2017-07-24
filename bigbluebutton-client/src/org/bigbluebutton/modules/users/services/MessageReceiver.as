@@ -726,10 +726,9 @@ package org.bigbluebutton.modules.users.services
     }
 
 	private function handleMeetingTimeRemainingUpdateEvtMsg(msg:Object):void {
-	//	var map:Object = JSON.parse(msg.body);
-	//	var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT);
-	//	e.durationInMinutes = map.timeRemaining;
-	//	dispatcher.dispatchEvent(e);
+ //       var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
+ //       e.durationInMinutes = msg.body.timeRemaining;
+ //       dispatcher.dispatchEvent(e);
 	}
 	
 	private function handleBreakoutRoomsTimeRemainingUpdate(msg:Object):void {
