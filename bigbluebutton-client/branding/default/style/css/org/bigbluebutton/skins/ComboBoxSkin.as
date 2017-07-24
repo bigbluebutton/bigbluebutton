@@ -73,7 +73,7 @@ package org.bigbluebutton.skins {
 			var borderColorDown:uint = getStyle("borderColorDown");
 			var borderColorDisabled:uint = getStyle("borderColorDisabled");
 
-			var borderThikness:uint = getStyle("borderThikness");
+			var borderThickness:uint = getStyle("borderThickness");
 
 			var fillColorUp:uint = getStyle("fillColorUp");
 			var fillColorOver:uint = getStyle("fillColorOver");
@@ -90,7 +90,7 @@ package org.bigbluebutton.skins {
 
 			var cornerRadius1:Number = Math.max(cornerRadius - 1, 0);
 			var cr:Object = {tl: 0, tr: cornerRadius, bl: 0, br: cornerRadius};
-			var cr1:Object = {tl: 0, tr: cornerRadius - borderThikness, bl: 0, br: cornerRadius - borderThikness};
+			var cr1:Object = {tl: 0, tr: cornerRadius - borderThickness, bl: 0, br: cornerRadius - borderThickness};
 
 			var arrowOnly:Boolean = true;
 
@@ -114,7 +114,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
 
 					if (!arrowOnly) {
 						// line
@@ -131,7 +131,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorOver, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorOver, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorOver, 1);
 
 					if (!arrowOnly) {
 						// line
@@ -148,7 +148,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorDown, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorDown, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorDown, 1);
 
 					if (!arrowOnly) {
 						// line
@@ -165,7 +165,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorDisabled, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorDisabled, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorDisabled, 1);
 
 					if (!arrowOnly) {
 						// line
