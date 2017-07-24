@@ -1,7 +1,7 @@
 import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 
-import AudioManager from '/imports/api/1.1/audio/client/manager';
+import AudioManager from '/imports/api/2.0/audio/client/manager';
 
 const init = () => {
   const userId = Auth.userID;
