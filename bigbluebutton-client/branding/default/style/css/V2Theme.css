@@ -96,7 +96,7 @@ mx|Application {
 	borderColorOver     : #1070D7;
 	borderColorDown     : #1070D7;
 
-	borderThickness      : 5;
+	borderThickness     : 5;
 	cornerRadius        : 70;
 }
 
@@ -379,7 +379,7 @@ mx|Button {
 	borderAlphaDown             : 1;
 	borderAlphaDisabled         : 1;
 
-	borderThickness              : 1;
+	borderThickness             : 1;
 
 	/* Selected state */
 	fillColorSelectedUp         : #F0F2F6;
@@ -551,7 +551,7 @@ mx|ComboBox {
 
 	iconColor           : #5E6C73;
 
-	borderThickness      : 1;
+	borderThickness     : 1;
 
 	skin                : ClassReference("org.bigbluebutton.skins.ComboBoxSkin");
 }
@@ -735,6 +735,9 @@ flexlib|MDIWindow {
 	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
 	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
 
+	paddingLeft          : 0;
+	paddingRight         : 0;
+
 	showHeaderSeparator  : true;
 }
 
@@ -855,7 +858,7 @@ mx|PopUpButton {
 	iconColorOver       : #1070D7;
 	iconColorDown       : #4E5A66;
 
-	borderThickness      : 1;
+	borderThickness     : 1;
 
 	skin                : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
 }
