@@ -1,8 +1,7 @@
 import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
-import { getConferenceBridge } from './service';
+import BridgeService from './service';
 
-// TODO pass info in constructor instead of importing ^^
 const createVertoUserName = () => {
   const userId = Auth.userID;
   const uName = Users.findOne({ userId }).user.name;
@@ -11,13 +10,15 @@ const createVertoUserName = () => {
 
 export default class VertoScreenshareBridge {
   constructor() {
-    this.data = { getConferenceBridge };
+    // TODO - this info must be set in the call manager
+    BBB = {};
+    BBB.sessionToken = Auth.sessionToken;
   }
 
   vertoWatchVideo() {
     window.vertoWatchVideo(
       'screenshareVideo',
-      this.data.getConferenceBridge(),
+      BridgeService.getConferenceBridge(),
       createVertoUserName(),
       null,
       null,
@@ -29,4 +30,3 @@ export default class VertoScreenshareBridge {
     window.vertoExitVideo();
   }
 }
-
