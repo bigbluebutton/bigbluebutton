@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Breakouts from '/imports/api/2.0/breakouts';
+import flat from 'flat';
 
 export default function addBreakout(breakout) {
   const {
@@ -16,11 +17,9 @@ export default function addBreakout(breakout) {
   const selector = { breakoutMeetingId };
 
   const modifier = {
-    $set: {
-      breakoutMeetingId,
-      parentId,
-      name,
-    },
+    $set:
+    flat(breakout, { safe: true })
+    ,
   };
 
   const cb = (err, numChanged) => {
