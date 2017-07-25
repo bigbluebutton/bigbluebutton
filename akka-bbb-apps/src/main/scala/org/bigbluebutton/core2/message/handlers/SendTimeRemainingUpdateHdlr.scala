@@ -15,9 +15,9 @@ trait SendTimeRemainingUpdateHdlr {
 
   def handleSendTimeRemainingUpdate(msg: SendTimeRemainingAuditInternalMsg, state: MeetingState2x): MeetingState2x = {
 
-    if (state.expiryTracker.durationInMinutes > 0) {
+    if (state.expiryTracker.durationInMs > 0) {
       val endMeetingTime = state.expiryTracker.endMeetingTime()
-      val timeRemaining = endMeetingTime - TimeUtil.timeNowInSeconds
+      val timeRemaining = TimeUtil.millisToSeconds(endMeetingTime - TimeUtil.timeNowInMs())
 
       def buildMeetingTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")

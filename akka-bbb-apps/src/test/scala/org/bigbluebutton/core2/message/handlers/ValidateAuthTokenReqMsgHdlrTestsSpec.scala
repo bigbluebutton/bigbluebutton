@@ -34,18 +34,18 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
   val inactivityTracker = new MeetingInactivityTracker(
     12,
     2,
-    lastActivityTimestamp = 10,
+    lastActivityTimestampInMs = 10,
     warningSent = false,
-    warningSentOnTimestamp = 0L
+    warningSentOnTimestampInMs = 0L
   )
 
   val expiryTracker = new MeetingExpiryTracker(
-    startedOn = TimeUtil.timeNowInSeconds(),
+    startedOnInMs = TimeUtil.timeNowInSeconds(),
     userHasJoined = false,
-    lastUserLeftOn = None,
-    durationInMinutes = 120,
-    meetingExpireIfNoUserJoinedInMinutes = 5,
-    meetingExpireWhenLastUserLeftInMinutes = 2
+    lastUserLeftOnInMs = None,
+    durationInMs = 120,
+    meetingExpireIfNoUserJoinedInMs = 5,
+    meetingExpireWhenLastUserLeftInMs = 2
   )
 
   "A MeetingActor" should {

@@ -13,9 +13,9 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     liveMeeting: LiveMeeting,
     state:       MeetingState2x
   ): MeetingState2x = {
-    val nowInSeconds = TimeUtil.timeNowInSeconds()
+    val nowInMs = TimeUtil.timeNowInMs()
 
-    val (expired, reason) = state.expiryTracker.hasMeetingExpired(nowInSeconds)
+    val (expired, reason) = state.expiryTracker.hasMeetingExpired(nowInMs)
     if (expired) {
       for {
         expireReason <- reason
@@ -35,18 +35,18 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     state:       MeetingState2x
   ): MeetingState2x = {
 
-    val nowInSeconds = TimeUtil.timeNowInSeconds()
-    if (!state.inactivityTracker.hasRecentActivity(nowInSeconds)) {
-      if (state.inactivityTracker.isMeetingInactive(nowInSeconds)) {
+    val nowInMs = TimeUtil.timeNowInMs()
+    if (!state.inactivityTracker.hasRecentActivity(nowInMs)) {
+      if (state.inactivityTracker.isMeetingInactive(nowInMs)) {
         println("**** Ending meeting due to inactivity!")
         sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_DUE_TO_INACTIVITY, eventBus, outGW, liveMeeting)
         state
       } else {
         if (!state.inactivityTracker.warningSent) {
-          val timeLeftSeconds = state.inactivityTracker.timeLeftInSeconds(nowInSeconds)
+          val timeLeftSeconds = TimeUtil.millisToSeconds(state.inactivityTracker.timeLeftInMs(nowInMs))
           val event = buildMeetingInactivityWarningEvtMsg(liveMeeting.props.meetingProp.intId, timeLeftSeconds)
           outGW.send(event)
-          val tracker = state.inactivityTracker.setWarningSentAndTimestamp(nowInSeconds)
+          val tracker = state.inactivityTracker.setWarningSentAndTimestamp(nowInMs)
           state.update(tracker)
         } else {
           state

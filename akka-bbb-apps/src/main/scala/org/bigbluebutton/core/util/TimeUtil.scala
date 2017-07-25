@@ -22,4 +22,5 @@ object TimeUtil {
 
   def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
+  def timeNowInMs(): Long = TimeUnit.NANOSECONDS.toMillis(System.nanoTime())
 }

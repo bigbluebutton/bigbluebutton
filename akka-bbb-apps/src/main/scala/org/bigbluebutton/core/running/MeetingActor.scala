@@ -106,20 +106,20 @@ class MeetingActor(
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
   val inactivityTracker = new MeetingInactivityTracker(
-    props.durationProps.maxInactivityTimeoutMinutes,
-    props.durationProps.warnMinutesBeforeMax,
-    lastActivityTimestamp = TimeUtil.timeNowInSeconds(),
+    TimeUtil.minutesToMillis(props.durationProps.maxInactivityTimeoutMinutes),
+    TimeUtil.minutesToMillis(props.durationProps.warnMinutesBeforeMax),
+    lastActivityTimestampInMs = TimeUtil.timeNowInMs(),
     warningSent = false,
-    warningSentOnTimestamp = 0L
+    warningSentOnTimestampInMs = 0L
   )
 
   val expiryTracker = new MeetingExpiryTracker(
-    startedOn = TimeUtil.timeNowInSeconds(),
+    startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
-    lastUserLeftOn = None,
-    durationInMinutes = props.durationProps.duration,
-    meetingExpireIfNoUserJoinedInMinutes = props.durationProps.meetingExpireIfNoUserJoinedInMinutes,
-    meetingExpireWhenLastUserLeftInMinutes = props.durationProps.meetingExpireWhenLastUserLeftInMinutes
+    lastUserLeftOnInMs = None,
+    durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
+    meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
+    meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
   var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
@@ -168,7 +168,7 @@ class MeetingActor(
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
-    val tracker = state.inactivityTracker.updateLastActivityTimestamp(TimeUtil.timeNowInSeconds())
+    val tracker = state.inactivityTracker.updateLastActivityTimestamp(TimeUtil.timeNowInMs())
     state = state.update(tracker)
 
     msg.core match {

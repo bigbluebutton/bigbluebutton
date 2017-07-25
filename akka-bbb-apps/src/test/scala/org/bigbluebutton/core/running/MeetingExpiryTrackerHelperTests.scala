@@ -10,11 +10,11 @@ class MeetingExpiryTrackerHelperTests extends UnitSpec {
     val nowInMinutes = TimeUtil.minutesToSeconds(15)
 
     val inactivityTracker = new MeetingInactivityTracker(
-      maxInactivityTimeoutMinutes = 12,
-      warningMinutesBeforeMax = 2,
-      lastActivityTimestamp = TimeUtil.minutesToSeconds(5),
+      maxInactivityTimeoutInMs = 12,
+      warningBeforeMaxInMs = 2,
+      lastActivityTimestampInMs = TimeUtil.minutesToSeconds(5),
       warningSent = true,
-      warningSentOnTimestamp = 0L
+      warningSentOnTimestampInMs = 0L
     )
 
     val active = inactivityTracker.isMeetingInactive(nowInMinutes)
@@ -24,11 +24,11 @@ class MeetingExpiryTrackerHelperTests extends UnitSpec {
   "A MeetingInactivityTrackerHelper" should "be return meeting is active" in {
     val nowInMinutes = TimeUtil.minutesToSeconds(18)
     val inactivityTracker = new MeetingInactivityTracker(
-      maxInactivityTimeoutMinutes = 12,
-      warningMinutesBeforeMax = 2,
-      lastActivityTimestamp = TimeUtil.minutesToSeconds(5),
+      maxInactivityTimeoutInMs = 12,
+      warningBeforeMaxInMs = 2,
+      lastActivityTimestampInMs = TimeUtil.minutesToSeconds(5),
       warningSent = true,
-      warningSentOnTimestamp = 0L
+      warningSentOnTimestampInMs = 0L
     )
 
     val inactive = inactivityTracker.isMeetingInactive(nowInMinutes)
