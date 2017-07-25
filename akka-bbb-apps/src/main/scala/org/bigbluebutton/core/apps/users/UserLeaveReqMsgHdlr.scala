@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -26,6 +26,9 @@ trait UserLeaveReqMsgHdlr {
       outGW.send(userLeftMeetingEvent)
       log.info("User left meetingId=" + liveMeeting.props.meetingProp.intId + " userId=" + msg.body.userId)
 
+      if (u.presenter) {
+        automaticallyAssignPresenter(outGW, liveMeeting)
+      }
     }
 
     if (Users2x.numUsers(liveMeeting.users2x) == 0) {
