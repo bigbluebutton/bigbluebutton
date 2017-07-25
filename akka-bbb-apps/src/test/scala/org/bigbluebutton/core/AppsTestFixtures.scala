@@ -107,7 +107,7 @@ trait AppsTestFixtures {
     // We extract the meeting handlers into this class so it is
     // easy to test.
     new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
-      registeredUsers, polls2x, wbModel, presModel, breakoutRooms, captionModel,
+      registeredUsers, polls2x, wbModel, presModel, captionModel,
       notesModel, webcams, voiceUsers, users2x, guestsWaiting)
   }
 }

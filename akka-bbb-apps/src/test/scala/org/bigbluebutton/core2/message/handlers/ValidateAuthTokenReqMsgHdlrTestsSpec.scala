@@ -57,7 +57,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
         // Need to get an ActorContext
         val actorRef = TestActorRef[MockTestActor]
@@ -88,7 +88,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
         val richard = TestDataGen.createRegisteredUser(live.registeredUsers, "Richard", Roles.MODERATOR_ROLE,
           guest = false, authed = false, waitForApproval = false)
@@ -121,7 +121,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
         val richard = TestDataGen.createRegisteredUser(live.registeredUsers, "Richard", Roles.MODERATOR_ROLE,
           guest = false, authed = false, waitForApproval = false)
@@ -154,7 +154,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
         // Set the guest policy to ask moderator
         GuestsWaiting.setGuestPolicy(live.guestsWaiting, GuestPolicy(GuestPolicyType.ASK_MODERATOR, "SYSTEM"))
@@ -192,7 +192,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val registeredUsers = new RegisteredUsers
         val users2x = new Users2x
         val live = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
-          registeredUsers, polls2x, wbModel, presModel, breakoutRooms, captionModel,
+          registeredUsers, polls2x, wbModel, presModel, captionModel,
           notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 
         // Set the guest policy to ask moderator
@@ -217,7 +217,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
         // Need to get an ActorContext
         val actorRef = TestActorRef[MockTestActor]
