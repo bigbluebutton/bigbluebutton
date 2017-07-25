@@ -270,7 +270,7 @@ mx|ApplicationControlBar {
 }
 
 .muteMeDefaultButtonStyle {
-	glowFilterColor : #B4201B;
+	glowFilterColor : #1070D7;
 	icon            : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 	disabledIcon    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
 }
@@ -1163,7 +1163,7 @@ users|MediaItemRenderer {
 	iconDemote      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Demote");
 	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
-	glowFilterColor : #B4201B;
+	glowFilterColor : #1070D7;
 }
 
 users|NameItemRenderer {
