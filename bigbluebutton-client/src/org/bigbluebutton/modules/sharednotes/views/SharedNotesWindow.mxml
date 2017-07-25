@@ -238,8 +238,6 @@
 			}
 
 			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
-				btnUndo.styleName = undo ? "sharedNotesEnabledUndoButtonStyle" : "sharedNotesDisabledUndoButtonStyle";
-				btnRedo.styleName = redo ? "sharedNotesEnabledRedoButtonStyle" : "sharedNotesDisabledRedoButtonStyle";
 				btnUndo.enabled = undo;
 				btnRedo.enabled = redo;
 			}
@@ -457,7 +455,7 @@
 		<mx:HBox width="100%" paddingTop="0">
 			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
 				<mx:Button id="btnUndo"
-						styleName="sharedNotesDisabledUndoButtonStyle"
+						styleName="sharedNotesUndoButtonStyle"
 						width="26"
 						height="26"
 						click="btnUndo_clickHandler(event)"
@@ -465,7 +463,7 @@
 						enabled="false"
 						visible="true"/>
 				<mx:Button id="btnRedo"
-						styleName="sharedNotesDisabledRedoButtonStyle"
+						styleName="sharedNotesRedoButtonStyle"
 						width="26"
 						height="26"
 						click="btnRedo_clickHandler(event)"

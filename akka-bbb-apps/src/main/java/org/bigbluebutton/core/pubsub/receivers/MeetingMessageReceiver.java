@@ -13,10 +13,8 @@ import org.bigbluebutton.common.messages.MessageFromJsonConverter;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.PubSubPingMessage;
 
-import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.messages.CreateMeetingRequest;
-import org.bigbluebutton.messages.RegisterUserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +45,6 @@ public class MeetingMessageReceiver implements MessageHandler {
 						Gson gson = new Gson();
                         CreateMeetingRequest msg = gson.fromJson(message, CreateMeetingRequest.class);
 						bbbGW.handleBigBlueButtonMessage(msg);
-					} else if (RegisterUserMessage.NAME.equals(messageName)) {
-						Gson gson = new Gson();
-						RegisterUserMessage msg = gson.fromJson(message, RegisterUserMessage.class);
-						bbbGW.registerUser(msg.payload.meetingId, msg.payload.userId, msg.payload.name, msg.payload.role,
-								msg.payload.extUserId, msg.payload.authToken, msg.payload.avatarUrl, msg.payload.guest,
-						msg.payload.authed);
 					}
 				}
 			}
@@ -66,11 +58,6 @@ public class MeetingMessageReceiver implements MessageHandler {
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage dmm = (DestroyMeetingMessage) msg;
 					bbbGW.destroyMeeting(dmm.meetingId);
-				} else if (msg instanceof ValidateAuthTokenMessage) {
-					ValidateAuthTokenMessage vam = (ValidateAuthTokenMessage) msg;
-					String sessionId = "tobeimplemented";
-					bbbGW.validateAuthToken(vam.meetingId, vam.userId, vam.token, vam.replyTo, sessionId);
-				} else if (msg instanceof GetAllMeetingsRequest) {
 					GetAllMeetingsRequest gamr = (GetAllMeetingsRequest) msg;
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
 				} else if (msg instanceof ActivityResponseMessage) {

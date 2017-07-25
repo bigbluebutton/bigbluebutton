@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.screenshare
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
   this: ScreenshareApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(msg: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg): Unit = {
 

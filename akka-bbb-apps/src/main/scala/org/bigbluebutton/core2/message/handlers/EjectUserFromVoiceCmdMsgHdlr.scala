@@ -1,15 +1,14 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs.EjectUserFromVoiceCmdMsg
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.VoiceUsers
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait EjectUserFromVoiceCmdMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleEjectUserFromVoiceCmdMsg(msg: EjectUserFromVoiceCmdMsg) {
     log.info("Received eject user request. meetingId=" + msg.header.meetingId + " userId=" + msg.body.userId)

@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.videoconf.maps
   
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
+  import mx.core.IUIComponent;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -109,11 +110,14 @@ package org.bigbluebutton.modules.videoconf.maps
       _videoDock.addChild(_graphics);
     }
 
-    public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
+    public function addStaticComponent(component:IUIComponent):void {
+      _graphics.addStaticComponent(component);
+    }
+
+    public function viewCamera(userID:String):void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] viewCamera. ready = [{1}]", [me, _ready]);
 
       if (!_ready) return;
-      LOGGER.debug("VideoEventMapDelegate:: [{0}] Viewing [{1} stream [{2}]", [me, userID, stream]);
       if (! UsersUtil.isMe(userID)) {
         openViewWindowFor(userID);
       }

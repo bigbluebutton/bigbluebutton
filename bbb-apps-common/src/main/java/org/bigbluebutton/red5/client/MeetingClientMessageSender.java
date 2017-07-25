@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.DisconnectAllUsersMessage;
-import org.bigbluebutton.common.messages.DisconnectUserMessage;
 import org.bigbluebutton.common.messages.InactivityWarningMessage;
 import org.bigbluebutton.common.messages.MeetingEndedMessage;
 import org.bigbluebutton.common.messages.MeetingEndingMessage;
@@ -13,8 +12,6 @@ import org.bigbluebutton.common.messages.MeetingHasEndedMessage;
 import org.bigbluebutton.common.messages.MeetingIsActiveMessage;
 import org.bigbluebutton.common.messages.MeetingMutedMessage;
 import org.bigbluebutton.common.messages.MeetingStateMessage;
-import org.bigbluebutton.common.messages.NewPermissionsSettingMessage;
-import org.bigbluebutton.common.messages.UserLockedMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.IConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
@@ -43,12 +40,6 @@ public class MeetingClientMessageSender {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				switch (messageName) {
-				  case DisconnectUserMessage.DISCONNECT_USER:
-					  DisconnectUserMessage m = DisconnectUserMessage.fromJson(message);
-					  if (m != null) {
-						  processDisconnectUserMessage(m);
-					  }
-					  break;
 				  case DisconnectAllUsersMessage.DISCONNECT_All_USERS:
 					  DisconnectAllUsersMessage daum = DisconnectAllUsersMessage.fromJson(message);
 					  if (daum != null) {
@@ -79,22 +70,10 @@ public class MeetingClientMessageSender {
 						  processMeetingStateMessage(msm);
 					  }
 					  break;
-				  case NewPermissionsSettingMessage.NEW_PERMISSIONS_SETTING:
-					  NewPermissionsSettingMessage npsm = NewPermissionsSettingMessage.fromJson(message);
-					  if (npsm != null) {
-						  processNewPermissionsSettingMessage(npsm);
-					  }
-					  break;
 				  case MeetingMutedMessage.MEETING_MUTED:
 					  MeetingMutedMessage mmm = MeetingMutedMessage.fromJson(message);
 					  if (mmm != null) {
 						  processMeetingMutedMessage(mmm);
-					  }
-					  break;
-				  case UserLockedMessage.USER_LOCKED:
-					  UserLockedMessage ulm = UserLockedMessage.fromJson(message);
-					  if (ulm != null) {
-						  processUserLockedMessage(ulm);
 					  }
 					  break;
 				  case InactivityWarningMessage.INACTIVITY_WARNING:
@@ -137,26 +116,6 @@ public class MeetingClientMessageSender {
 	  	  
 		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "meetingState", message);
 	  	service.sendMessage(m);   
-	}
-	
-	private void processNewPermissionsSettingMessage(NewPermissionsSettingMessage msg) {	  	  
-		Map<String, Object> args = new HashMap<String, Object>();  
-		args.put("disableCam", msg.permissions.get(Constants.PERM_DISABLE_CAM));
-		args.put("disableMic", msg.permissions.get(Constants.PERM_DISABLE_MIC));
-		args.put("disablePrivateChat", msg.permissions.get(Constants.PERM_DISABLE_PRIVCHAT));
-		args.put("disablePublicChat", msg.permissions.get(Constants.PERM_DISABLE_PUBCHAT));
-	    args.put("lockedLayout", msg.permissions.get(Constants.PERM_LOCKED_LAYOUT));
-	    args.put("lockOnJoin", msg.permissions.get(Constants.PERM_LOCK_ON_JOIN));
-	    args.put("lockOnJoinConfigurable", msg.permissions.get(Constants.PERM_LOCK_ON_JOIN_CONFIG));
-		
-	    args.put("users", msg.users);
-	    
-		Map<String, Object> message = new HashMap<String, Object>();
-		Gson gson = new Gson();
-		message.put("msg", gson.toJson(args));
-	  	  
-		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "permissionsSettingsChanged", message);
-	  	service.sendMessage(m);   	 
 	}	
 	
 	private void processMeetingMutedMessage(MeetingMutedMessage msg) {	  	  
@@ -198,25 +157,6 @@ public class MeetingClientMessageSender {
 	private void processDisconnectAllUsersMessage(DisconnectAllUsersMessage msg) {
 		DisconnectAllClientsMessage dm = new DisconnectAllClientsMessage(msg.meetingId);
 		service.sendMessage(dm);	  	 
-	}
-	
-	private void processDisconnectUserMessage(DisconnectUserMessage msg) {		  
-		DisconnectClientMessage m = new DisconnectClientMessage(msg.meetingId, msg.userId);
-		service.sendMessage(m);	  	 
-	}
-	
-	private void processUserLockedMessage(UserLockedMessage msg) {	  	
-		Map<String, Object> args = new HashMap<String, Object>();	
-	     args.put("meetingID", msg.meetingId);
-	     args.put("user", msg.userId);
-	     args.put("lock", msg.locked);
-		  
-		Map<String, Object> message = new HashMap<String, Object>();
-		Gson gson = new Gson();
-		message.put("msg", gson.toJson(args));
-	  	    		  	    
-	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLocked", message);
-		service.sendMessage(m);
 	}
 
 	private void processInactivityWarningMessage(InactivityWarningMessage msg) {

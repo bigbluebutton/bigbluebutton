@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.polls
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Polls
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait HidePollResultReqMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleHidePollResultReqMsg(msg: HidePollResultReqMsg): Unit = {
 

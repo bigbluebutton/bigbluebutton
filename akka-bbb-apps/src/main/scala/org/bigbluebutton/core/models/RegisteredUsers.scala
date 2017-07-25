@@ -6,10 +6,8 @@ import com.softwaremill.quicklens._
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              token: String, avatar: String, guest: Boolean, authenticated: Boolean,
-             waitingForAcceptance: Boolean, users: RegisteredUsers): RegisteredUser = {
-    val ru = new RegisteredUser(userId, extId, name, roles, token, avatar, guest, authenticated, waitingForAcceptance)
-    users.save(ru)
-    ru
+             waitingForAcceptance: Boolean): RegisteredUser = {
+    new RegisteredUser(userId, extId, name, roles, token, avatar, guest, authenticated, waitingForAcceptance)
   }
 
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
@@ -41,6 +39,10 @@ object RegisteredUsers {
       regUser = new RegisteredUser(uvo.id, uvo.externalId, uvo.name, uvo.role, ru.authToken,
         uvo.avatarURL, uvo.guest, uvo.authed, uvo.waitingForAcceptance)
     } yield users.save(regUser)
+  }
+
+  def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
+    users.save(user)
   }
 
   def remove(id: String, users: RegisteredUsers): Option[RegisteredUser] = {

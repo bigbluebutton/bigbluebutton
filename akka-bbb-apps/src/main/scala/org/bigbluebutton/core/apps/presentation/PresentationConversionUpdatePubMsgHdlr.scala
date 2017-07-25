@@ -1,15 +1,15 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait PresentationConversionUpdatePubMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handlePresentationConversionUpdatePubMsg(msg: PresentationConversionUpdateSysPubMsg): Unit = {
-    log.debug("**************** !!!!!PresentationConversionUpdateSysPubMsg " + msg.body.messageKey)
+
     def broadcastEvent(msg: PresentationConversionUpdateSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PresentationConversionUpdateEvtMsg.NAME, routing)

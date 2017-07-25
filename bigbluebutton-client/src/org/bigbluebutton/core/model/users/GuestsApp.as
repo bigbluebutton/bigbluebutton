@@ -10,6 +10,10 @@ package org.bigbluebutton.core.model.users
     
     private var _guests:ArrayCollection = new ArrayCollection();
     
+    public function getGuests(): Array {
+      return new ArrayCollection(_guests.toArray()).toArray();
+    }
+    
     public function add(user: GuestWaiting):void {
       _guests.addItem(user);
     }
@@ -61,6 +65,14 @@ package org.bigbluebutton.core.model.users
       }
       
       return -1;
+    }
+    
+    public function setGuestPolicy(value: String): void {
+      _guestPolicy = value;
+    }
+    
+    public function getGuestPolicy(): String {
+      return _guestPolicy;
     }
     
     public function userJoined(vu: GuestWaiting):void {

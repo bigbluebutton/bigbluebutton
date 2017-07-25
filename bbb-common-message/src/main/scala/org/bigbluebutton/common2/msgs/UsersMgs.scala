@@ -102,6 +102,13 @@ case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: Record
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
 
 /**
+  * Sent by user to get status of screenshare (meant for late joiners).
+  */
+object GetScreenshareStatusReqMsg { val NAME = "GetScreenshareStatusReqMsg" }
+case class GetScreenshareStatusReqMsg(header: BbbClientMsgHeader, body: GetScreenshareStatusReqMsgBody) extends StandardMsg
+case class GetScreenshareStatusReqMsgBody(requestedBy: String)
+
+/**
   * Sent from client about a user changing emoji.
   */
 object ChangeUserEmojiCmdMsg { val NAME = "ChangeUserEmojiCmdMsg" }

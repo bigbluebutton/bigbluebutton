@@ -20,18 +20,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
-				labelPlacement="bottom" minimum="0" maximum="100" mode="manual" >
-	
+<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				minimum="0"
+				maximum="100"
+				mode="manual">
+
 	<fx:Declarations>
-		<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}" method="moduleLoadingStarted" />
-		<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
-		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
-		<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
-		<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}" method="testRTMPupdate" />
-		<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
+		<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}"
+					   method="moduleLoadingStarted" />
+		<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}"
+					   method="moduleLoadProgress" />
+		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}"
+					   method="allModulesLoaded" />
+		<mate:Listener type="{PortTestEvent.TEST_RTMP}"
+					   method="testRTMP" />
+		<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}"
+					   method="testRTMPupdate" />
+		<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}"
+					   method="tunnelingFailed" />
 	</fx:Declarations>
-		
+
 	<fx:Script>
 		<![CDATA[
 			import org.as3commons.logging.api.ILogger;
@@ -40,58 +50,59 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-	
-	  private static const LOGGER:ILogger = getClassLogger(LoadingBar);
 
-      private var modules:Dictionary = new Dictionary();
-      private var numModules:int = 0;
-      private var portUpdateStr:String = 'Connecting to the server';
-      
-      private function moduleLoadingStarted(e:ModuleLoadEvent):void{
-		  numModules = BBB.getConfigManager().config.numberOfModules();
-        this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
-        this.visible = true;
-      }
-			
-      private function moduleLoadProgress(e:ModuleLoadEvent):void{
-        modules[e.moduleName] = e.progress;
-        updateProgress();
-      }
-			
-      private function updateProgress():void{
-        var totalProgress:Number = 0;
-        for (var key:Object in modules) {
-          var progress:Number = modules[key] as Number;
-          totalProgress += progress;
-        }
-        
-        ExternalInterface.call("setProgressBar", int(totalProgress/numModules));
-        //LogUtil.debug("Progress: " + totalProgress);
-        this.setProgress(totalProgress/numModules, 100);
-      }
+			private static const LOGGER:ILogger = getClassLogger(LoadingBar);
 
-      private function allModulesLoaded(e:ModuleLoadEvent):void{
-        ExternalInterface.call("removeProgressBar");
-        if (parent != null) parent.removeChild(this);
-      }
-						
-      private function testRTMP(e:PortTestEvent):void{
-        //- Cannot get locale string this early in loading process
-        portUpdateStr += "."
-        this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
-      }
-			
-      private function testRTMPupdate(e:PortTestEvent):void{
-        //- Cannot get locale string this early in loading process
-        portUpdateStr += "...";
-        this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
-      }
-			
-      private function tunnelingFailed(e:PortTestEvent):void{
-        this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
-      }
-			
-			
+			private var modules:Dictionary = new Dictionary();
+
+			private var numModules:int = 0;
+
+			private var portUpdateStr:String = 'Connecting to the server';
+
+			private function moduleLoadingStarted(e:ModuleLoadEvent):void {
+				numModules = BBB.getConfigManager().config.numberOfModules();
+				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
+				this.visible = true;
+			}
+
+			private function moduleLoadProgress(e:ModuleLoadEvent):void {
+				modules[e.moduleName] = e.progress;
+				updateProgress();
+			}
+
+			private function updateProgress():void {
+				var totalProgress:Number = 0;
+				for (var key:Object in modules) {
+					var progress:Number = modules[key] as Number;
+					totalProgress += progress;
+				}
+
+				ExternalInterface.call("setProgressBar", int(totalProgress / numModules));
+				//LogUtil.debug("Progress: " + totalProgress);
+				this.setProgress(totalProgress / numModules, 100);
+			}
+
+			private function allModulesLoaded(e:ModuleLoadEvent):void {
+				ExternalInterface.call("removeProgressBar");
+				if (parent != null)
+					parent.removeChild(this);
+			}
+
+			private function testRTMP(e:PortTestEvent):void {
+				//- Cannot get locale string this early in loading process
+				portUpdateStr += "."
+				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+			}
+
+			private function testRTMPupdate(e:PortTestEvent):void {
+				//- Cannot get locale string this early in loading process
+				portUpdateStr += "...";
+				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+			}
+
+			private function tunnelingFailed(e:PortTestEvent):void {
+				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
+			}
 		]]>
 	</fx:Script>
 </mx:ProgressBar>

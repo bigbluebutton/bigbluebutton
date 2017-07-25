@@ -17,9 +17,7 @@ app:
   bbbServerVersion: "1.1-beta"
   copyright: "©2017 BigBlueButton Inc."
   html5ClientBuild: "HTML5_CLIENT_VERSION"
-  defaultWelcomeMessage: Welcome to %%CONFNAME%%!<br /><br />For help on using BigBlueButton see these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial videos</u></a>.<br /><br />To join the audio bridge click the gear icon (upper-right hand corner).  Use a headset to avoid causing background noise for others.<br /><br /><br />
   lockOnJoin: true
-  defaultWelcomeMessageFooter: This server is running a build of <a href="http://docs.bigbluebutton.org/1.1/overview.html" target="_blank"><u>BigBlueButton 1.1-beta</u></a>.
 
   # Name displayed in the brower URL
   basename: '/html5client'

@@ -13,6 +13,7 @@ class Auth {
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
+    this._sessionToken = Storage.getItem('sessionToken');
     this._logoutURL = Storage.getItem('logoutURL');
     this._loggedIn = {
       value: false,
@@ -27,6 +28,15 @@ class Auth {
   set meetingID(meetingID) {
     this._meetingID = meetingID;
     Storage.setItem('meetingID', this._meetingID);
+  }
+
+  set sessionToken(sessionToken) {
+    this._sessionToken = sessionToken;
+    Storage.setItem('sessionToken', this._sessionToken);
+  }
+
+  get sessionToken() {
+    return this._sessionToken;
   }
 
   get userID() {
@@ -72,14 +82,16 @@ class Auth {
       requesterUserId: this.userID,
       requesterToken: this.token,
       logoutURL: this.logoutURL,
+      sessionToken: this.sessionToken,
     };
   }
 
-  set(meetingId, requesterUserId, requesterToken, logoutURL) {
+  set(meetingId, requesterUserId, requesterToken, logoutURL, sessionToken) {
     this.meetingID = meetingId;
     this.userID = requesterUserId;
     this.token = requesterToken;
     this.logoutURL = logoutURL;
+    this.sessionToken = sessionToken;
   }
 
   clearCredentials(...args) {
@@ -88,6 +100,7 @@ class Auth {
     this.token = null;
     this.loggedIn = false;
     this.logoutURL = null;
+    this.sessionToken = null;
 
     return Promise.resolve(...args);
   }

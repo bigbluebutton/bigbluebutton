@@ -10,18 +10,15 @@ import akka.actor.SupervisorStrategy.Resume
 import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
-
+import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.{ Deadline, FiniteDuration }
 
 object MeetingActorAudit {
   def props(
     props:    DefaultProps,
-    eventBus: IncomingEventBus,
-    outGW:    OutMessageGateway
+    eventBus: InternalEventBus,
+    outGW:    OutMsgRouter
   ): Props =
     Props(classOf[MeetingActorAudit], props, eventBus, outGW)
 }
@@ -30,7 +27,7 @@ object MeetingActorAudit {
 // periodically sends messages to the meeting actor
 class MeetingActorAudit(
   val props:    DefaultProps,
-  val eventBus: IncomingEventBus, val outGW: OutMessageGateway
+  val eventBus: InternalEventBus, val outGW: OutMsgRouter
 )
     extends Actor with ActorLogging with SystemConfiguration with AuditHelpers {
 
@@ -72,7 +69,7 @@ class MeetingActorAudit(
   }
 
   def handleMonitorNumberOfWebUsers() {
-    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, MonitorNumberOfUsers(props.meetingProp.intId)))
+    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, MonitorNumberOfUsersInternalMsg(props.meetingProp.intId)))
 
     // Trigger updating users of time remaining on meeting.
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendTimeRemainingUpdate(props.meetingProp.intId)))
