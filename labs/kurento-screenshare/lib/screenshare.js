@@ -35,8 +35,8 @@ module.exports = class Screenshare {
     this._ws = ws;
     this._id = id;
     this._BigBlueButtonGW = bbbgw;
-    this._webRtcEndpoint = null;
-    this._rtpEndpoint = null;
+    this._presenterEndpoint = null;
+    this._ffmpegRtpEndpoint = null;
     this._voiceBridge = voiceBridge;
     this._caller = caller;
     this._streamUrl = "";
@@ -49,8 +49,8 @@ module.exports = class Screenshare {
   _onIceCandidate(_candidate) {
     let candidate = kurento.getComplexType('IceCandidate')(_candidate);
 
-    if (this._webRtcEndpoint) {
-      this._webRtcEndpoint.addIceCandidate(candidate);
+    if (this._presenterEndpoint) {
+      this._presenterEndpoint.addIceCandidate(candidate);
     }
     else {
       this._candidatesQueue.push(candidate);
@@ -93,10 +93,10 @@ module.exports = class Screenshare {
           rtpEndpoints[id] = rtpEndpoint;
 
           // Store our endpoint
-          self._webRtcEndpoint = webRtcEndpoint;
-          self._rtpEndpoint = rtpEndpoint;
+          self._presenterEndpoint = webRtcEndpoint;
+          self._ffmpegRtpEndpoint = rtpEndpoint;
 
-          self._webRtcEndpoint.on('OnIceCandidate', function(event) {
+          self._presenterEndpoint.on('OnIceCandidate', function(event) {
             let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
             ws.sendMessage({ id : 'iceCandidate', cameraId: id, candidate : candidate });
           });
@@ -130,7 +130,7 @@ module.exports = class Screenshare {
                 let rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
                     sendVideoPort, recvVideoPort, self._voiceBridge, "stream_type_video", C.RTP_TO_RTMP, "copy", "caller");
 
-                self._rtpEndpoint.on('MediaFlowInStateChange', function(event) {
+                self._ffmpegRtpEndpoint.on('MediaFlowInStateChange', function(event) {
                   if (event.state === 'NOT_FLOWING') {
                     self._onRtpMediaNotFlowing();
                   }
@@ -153,16 +153,16 @@ module.exports = class Screenshare {
 
     this._stopScreensharing();
 
-    if (this._webRtcEndpoint) {
-      MediaController.releaseMediaElement(this._webRtcEndpoint.id);
-      this._webRtcEndpoint = null;
+    if (this._presenterEndpoint) {
+      MediaController.releaseMediaElement(this._presenterEndpoint.id);
+      this._presenterEndpoint = null;
     } else {
       console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
     }
 
-    if (this._rtpEndpoint) {
-      MediaController.releaseMediaElement(this._rtpEndpoint.id);
-      this._rtpEndpoint = null;
+    if (this._ffmpegRtpEndpoint) {
+      MediaController.releaseMediaElement(this._ffmpegRtpEndpoint.id);
+      this._ffmpegRtpEndpoint = null;
     } else {
       console.log(" [rtpEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
     }
@@ -180,44 +180,69 @@ module.exports = class Screenshare {
 
     self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
+    // Interoperability: capturing 1.1 stop_transcoder_reply messages
     self._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY, function(payload) {
       let meetingId = payload[C.MEETING_ID];
-      let transcoderId = payload[C.TRANSCODER_ID];
-
-      if(self._voiceBridge === meetingId) {
-        // TODO correctly assemble this timestamp
-        let timestamp = now.format('hhmmss');
-        let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(self._voiceBridge,
-            self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
-        self._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
-      }
+      self._stopRtmpBroadcast(meetingId);
     });
+
+    // Capturing stop transcoder responses from the 2x model
+    self._BigBlueButtonGW.once(C.STOP_TRANSCODER_RESP_2x, function(payload) {
+      let meetingId = payload[C.MEETING_ID_2x];
+      self._stopRtmpBroadcast(meetingId);
+    });
+
   }
 
   _onRtpMediaFlowing(voiceBridge, rtpParams) {
     let self = this;
     let strm = Messaging.generateStartTranscoderRequestMessage(voiceBridge, voiceBridge, rtpParams);
 
+    // Interoperability: capturing 1.1 start_transcoder_reply messages
     self._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, function(payload) {
       let meetingId = payload[C.MEETING_ID];
-      let transcoderId = payload[C.TRANSCODER_ID];
-
-      if(voiceBridge === meetingId) {
-        let output = payload["params"].output;
-        // TODO correctly assemble this timestamp
-        let timestamp = now.format('hhmmss');
-        self._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, voiceBridge, output);
-        let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(self._voiceBridge,
-            self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
-
-        self._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
-      }
+      let output = payload["params"].output;
+      self._startRtmpBroadcast(meetingId, output);
     });
+
+    // Capturing stop transcoder responses from the 2x model
+    self._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, function(payload) {
+      let meetingId = payload[C.MEETING_ID_2x];
+      let output = payload["params"].output;
+      self._startRtmpBroadcast(meetingId, output);
+    });
+
 
     self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
   };
 
+  _stopRtmpBroadcast (meetingId) {
+    var self = this;
+    if(self._voiceBridge === meetingId) {
+      // TODO correctly assemble this timestamp
+      let timestamp = now.format('hhmmss');
+      let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(self._voiceBridge,
+          self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
+      self._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+    }
+  }
+
+  _startRtmpBroadcast (meetingId, output) {
+    var self = this;
+    if(self._voiceBridge === meetingId) {
+      // TODO correctly assemble this timestamp
+      let timestamp = now.format('hhmmss');
+      self._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
+      let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(self._voiceBridge,
+          self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
+
+      self._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+    }
+  }
+
   _onRtpMediaNotFlowing() {
     console.log("  [screenshare] TODO RTP NOT_FLOWING");
   };
+
+
 };
