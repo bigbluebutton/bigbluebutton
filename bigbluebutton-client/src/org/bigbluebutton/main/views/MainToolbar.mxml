@@ -190,10 +190,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function handleRemainingTimeUpdate(e:BreakoutRoomEvent):void {
-        trace("Displaying remaining time: " + e.durationInMinutes);
-       // timeRemaining.text = "Remaining time: " + e.durationInMinutes;
-       // timeRemaining.htmlText = "Remaining time 2:" + e.durationInMinutes;
-        
         TimerUtil.setCountDownTimer(timeRemaining, e.durationInMinutes);
       }
       
