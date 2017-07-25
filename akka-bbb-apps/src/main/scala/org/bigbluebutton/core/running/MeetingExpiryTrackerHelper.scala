@@ -6,6 +6,7 @@ import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 
 trait MeetingExpiryTrackerHelper extends HandlerHelpers {
+
   def processMeetingExpiryAudit(
     outGW:       OutMsgRouter,
     eventBus:    InternalEventBus,
@@ -19,6 +20,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
       for {
         expireReason <- reason
       } yield {
+        println("**** Ending meeting for reason " + expireReason)
         sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting)
       }
     }
@@ -36,6 +38,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     val nowInSeconds = TimeUtil.timeNowInSeconds()
     if (!state.inactivityTracker.hasRecentActivity(nowInSeconds)) {
       if (state.inactivityTracker.isMeetingInactive(nowInSeconds)) {
+        println("**** Ending meeting due to inactivity!")
         sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_DUE_TO_INACTIVITY, eventBus, outGW, liveMeeting)
         state
       } else {

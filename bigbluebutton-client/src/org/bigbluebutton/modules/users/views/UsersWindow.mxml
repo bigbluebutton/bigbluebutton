@@ -56,7 +56,9 @@ $Id: $
     <mate:Listener type="{StartedViewingWebcamEvent.STARTED_VIEWING_WEBCAM}" method="handleStartedViewingWebcamEvent" />
     <mate:Listener type="{StreamStartedEvent.STREAM_STARTED}" method="handleStreamStartedEvent" />
     <mate:Listener type="{StreamStoppedEvent.STREAM_STOPPED}" method="handleStreamStoppedEvent" />
-    
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleMadeViewerEvent" />
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleMadePresenterEvent" />
+
     
   </fx:Declarations>
   <fx:Script>
@@ -100,6 +102,7 @@ $Id: $
       import org.bigbluebutton.core.vo.LockSettingsVO;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.StartedViewingWebcamEvent;
       import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
@@ -175,6 +178,14 @@ $Id: $
       private var muteMeRolled:Boolean = false;
       
       private var handler: UsersWindowEventHandler = new UsersWindowEventHandler();
+      
+      private function handleMadePresenterEvent(event: MadePresenterEvent): void {
+        handler.handleMadePresenterEvent(event.userID);
+      }
+      
+      private function handleMadeViewerEvent(event: MadePresenterEvent): void {
+        handler.handleMadeVieweEvent(event.userID);
+      }
       
       private function handleUserEmojiChangedEvent(event: UserEmojiChangedEvent):void {
         handler.handleUserEmojiChangedEvent(event.userId, event.emoji);

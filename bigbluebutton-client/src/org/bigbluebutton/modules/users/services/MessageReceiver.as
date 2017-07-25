@@ -726,7 +726,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleMeetingTimeRemainingUpdateEvtMsg(msg:Object):void {
-      trace("Message meeting time remaining " + msg.body.timeLeftInSec);
       var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
       e.durationInMinutes = msg.body.timeLeftInSec;
       dispatcher.dispatchEvent(e);
