@@ -63,7 +63,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
 			
-			import org.as3commons.lang.ArrayUtils;
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -165,6 +164,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             break;
 		  case "caption":
 			  dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CAPTION_WINDOW));
+			  break;
+		  case "sharedNotes":
+			  dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW));
 			  break;
          }
        }
@@ -507,7 +509,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
     
-    <mx:Image id="logo" right="20" maxHeight="30" ioError="hideLogo()" />
+    <mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
@@ -523,7 +525,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        height="30" styleName="quickWindowLinkStyle" />
 		<mx:LinkButton id="captionLinkBtn" click="onQuickLinkClicked('caption')" label="{ResourceUtil.getInstance().getString('bbb.caption.quickLink.label')}" 
 					   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
-					   height="20" styleName="quickWindowLinkStyle" />
+					   height="30" styleName="quickWindowLinkStyle" />
+		<mx:LinkButton id="sharedNotesLinkBtn" click="onQuickLinkClicked('sharedNotes')" label="{ResourceUtil.getInstance().getString('bbb.sharedNotes.quickLink.label')}" 
+					   accessibilityDescription="{sharedNotesLinkBtn.label}" toolTip="{sharedNotesLinkBtn.label}"
+					   height="30" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:VRule styleName="toolbarSeparator" height="10" />
 	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
@@ -553,7 +558,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="30" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>
-	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="30" 
+	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" click="onHelpButtonClicked()" height="30" 
                    styleName="helpLinkButtonStyle"
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
