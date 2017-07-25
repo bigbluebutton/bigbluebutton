@@ -1,16 +1,15 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.{ GuestApprovedVO, GuestsWaitingApprovedMsg }
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ GuestsWaiting, RegisteredUsers, Roles, Users2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleGuestsWaitingApprovedMsg(msg: GuestsWaitingApprovedMsg): Unit = {
     msg.body.guests foreach { g =>
@@ -30,10 +29,12 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
         RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, false)
         // send message to user that he has been approved
       }
-      val event = MsgBuilder.buildGuestApprovedEvtMsg(liveMeeting.props.meetingProp.intId,
-        g.intId, guest.approved, approvedBy)
+      val event = MsgBuilder.buildGuestApprovedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        g.intId, guest.approved, approvedBy
+      )
 
-      Sender.send(outGW, event)
+      outGW.send(event)
 
     }
   }
@@ -41,9 +42,11 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   def notifyModeratorsOfGuestsApproval(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {
     val mods = Users2x.findAll(liveMeeting.users2x).filter(p => p.role == Roles.MODERATOR_ROLE)
     mods foreach { m =>
-      val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(liveMeeting.props.meetingProp.intId,
-        m.intId, guests, approvedBy)
-      Sender.send(outGW, event)
+      val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        m.intId, guests, approvedBy
+      )
+      outGW.send(event)
     }
   }
 }

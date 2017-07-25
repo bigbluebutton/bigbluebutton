@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.sharednotes
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait UpdateSharedNoteReqMsgHdlr {
   this: SharedNotesApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleUpdateSharedNoteReqMsg(msg: UpdateSharedNoteReqMsg): Unit = {
 
@@ -23,9 +23,9 @@ trait UpdateSharedNoteReqMsgHdlr {
 
     val userId = msg.body.operation match {
       case "PATCH" => msg.header.userId
-      case "UNDO" => liveMeeting.notesModel.SYSTEM_ID
-      case "REDO" => liveMeeting.notesModel.SYSTEM_ID
-      case _ => return
+      case "UNDO"  => liveMeeting.notesModel.SYSTEM_ID
+      case "REDO"  => liveMeeting.notesModel.SYSTEM_ID
+      case _       => return
     }
 
     val (patchId, patch, undo, redo) = liveMeeting.notesModel.patchNote(msg.body.noteId, msg.body.patch, msg.body.operation)

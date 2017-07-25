@@ -2,15 +2,14 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor, OutMsgRouter }
 
 trait BreakoutRoomCreatedMsgHdlr extends SystemConfiguration {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleBreakoutRoomCreatedMsg(msg: BreakoutRoomCreatedMsg): Unit = {
 
@@ -61,12 +60,14 @@ trait BreakoutRoomCreatedMsgHdlr extends SystemConfiguration {
   }
 
   def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, externalMeetingId: String,
-    breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
+                              breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
     log.info("Sending breakout room started {} for parent meeting {} ", breakoutMeetingId, meetingId)
 
     def build(meetingId: String, breakout: BreakoutRoomInfo): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, "not-used")
+      val routing = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        liveMeeting.props.meetingProp.intId, "not-used"
+      )
       val envelope = BbbCoreEnvelope(BreakoutRoomStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(BreakoutRoomStartedEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
 
@@ -97,7 +98,7 @@ trait BreakoutRoomCreatedMsgHdlr extends SystemConfiguration {
         BreakoutRoomsUtil.calculateChecksum(apiCall, noRedirectBaseString, bbbWebSharedSecret))
     } yield {
       def build(meetingId: String, breakoutMeetingId: String,
-        userId: String, redirectJoinURL: String, noRedirectJoinURL: String): BbbCommonEnvCoreMsg = {
+                userId: String, redirectJoinURL: String, noRedirectJoinURL: String): BbbCommonEnvCoreMsg = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
         val envelope = BbbCoreEnvelope(BreakoutRoomJoinURLEvtMsg.NAME, routing)
         val header = BbbClientMsgHeader(BreakoutRoomJoinURLEvtMsg.NAME, meetingId, "not-used")

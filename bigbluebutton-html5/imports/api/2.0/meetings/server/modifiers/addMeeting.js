@@ -11,11 +11,14 @@ export default function addMeeting(meeting) {
   check(meetingId, String);
 
   const selector = {
-    'meetingProp.intId': meetingId,
+    meetingId,
   };
 
   const modifier = {
-    $set: flat(meeting),
+    $set: Object.assign(
+      { meetingId },
+      flat(meeting),
+    ),
   };
 
   const cb = (err, numChanged) => {

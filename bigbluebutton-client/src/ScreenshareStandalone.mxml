@@ -38,10 +38,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
+      	
+      import mx.core.UIComponent;
       
-      import mx.controls.Image;
-      import mx.core.UIComponent;      
-      import org.bigbluebutton.common.Images;
       import org.bigbluebutton.modules.screenshare.events.AppletStartedEvent;
       import org.bigbluebutton.modules.screenshare.events.CursorEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
@@ -52,9 +51,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var videoHolder:UIComponent;
       
       private var cursor:Shape = new Shape();;
-      
-      private var images:Images = new Images();
-      [Bindable] public var bbbLogo:Class = images.bbb_logo;
       
       private var video:Video;
       private var ns:NetStream;

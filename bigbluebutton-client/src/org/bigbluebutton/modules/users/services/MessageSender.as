@@ -37,13 +37,20 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsgBody;
   import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.core.model.users.GuestWaiting;
 
   public class MessageSender {
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
     public function queryForParticipants():void {
+      var message:Object = {
+        header: {name: "GetUsersMeetingReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.getParticipants", 
+      _nc.sendMessage2x( 
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
@@ -51,7 +58,7 @@ package org.bigbluebutton.modules.users.services
             logData.tags = ["apps"];
             logData.message = "Error occured querying users.";
             LOGGER.info(JSON.stringify(logData));
-        }
+        }, JSON.stringify(message)
       );
     }
     
@@ -572,8 +579,15 @@ package org.bigbluebutton.modules.users.services
 
     public function queryForGuestPolicy():void {
       LOGGER.debug("queryForGuestPolicy");
+      
+      var message:Object = {
+        header: {name: "GetGuestPolicyReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requestedBy: UsersUtil.getMyUserID()}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.getGuestPolicy",
+      _nc.sendMessage2x(
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
@@ -582,14 +596,15 @@ package org.bigbluebutton.modules.users.services
                 logData.tags = ["apps"];
                 logData.message = "Error occured query guest policy.";
                 LOGGER.info(JSON.stringify(logData));
-         }
+         },
+         JSON.stringify(message)
        );
     }
 
     public function setGuestPolicy(policy:String):void {
       LOGGER.debug("setGuestPolicy - new policy:[" + policy + "]");
       var message:Object = {
-        header: {name: "SetGuestPolicyMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+        header: {name: "SetGuestPolicyCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
         body: {policy: policy, setBy: UsersUtil.getMyUserID()}
       };
@@ -612,12 +627,17 @@ package org.bigbluebutton.modules.users.services
     public function responseToGuest(userId:String, response:Boolean):void {
       LOGGER.debug("responseToGuest - userId:[" + userId + "] response:[" + response + "]");
 
-      var message:Object = new Object();
-      message["userId"] = userId;
-      message["response"] = response;
+	  var _guests: Array = new Array();
+	  _guests.push({guest: userId, approved: response});
+	  
+	  var message:Object = {
+		  header: {name: "GuestsWaitingApprovedMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+			  userId: UsersUtil.getMyUserID()},
+		  body: {guests: _guests, approvedBy: UsersUtil.getMyUserID()}
+	  };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.responseToGuest",
+      _nc.sendMessage2x(
          function(result:String):void { // On successful result
            LOGGER.debug(result);
          },
@@ -627,12 +647,38 @@ package org.bigbluebutton.modules.users.services
                 logData.message = "Error occured response guest.";
                 LOGGER.info(JSON.stringify(logData));
          },
-         message
+		 JSON.stringify(message)
        );
     }
 
     public function responseToAllGuests(response:Boolean):void {
-      responseToGuest(null, response);
+		var _guestsWaiting: Array = LiveMeeting.inst().guestsWaiting.getGuests();
+		var _guests: Array = new Array();
+		
+		for (var i:int = 0; i < _guests.length; i++) {
+			var _guest: GuestWaiting = _guestsWaiting[i] as GuestWaiting;
+			_guests.push({guest: _guest.intId, approved: response});
+		}
+		
+		var message:Object = {
+			header: {name: "GuestsWaitingApprovedMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+				userId: UsersUtil.getMyUserID()},
+			body: {guests: _guests, approvedBy: UsersUtil.getMyUserID()}
+		};
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage2x(
+			function(result:String):void { // On successful result
+				LOGGER.debug(result);
+			},
+			function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.message = "Error occured response guest.";
+				LOGGER.info(JSON.stringify(logData));
+			},
+			JSON.stringify(message)
+		);
     }
   }
 }

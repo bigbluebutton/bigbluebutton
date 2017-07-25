@@ -25,7 +25,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
 	creationComplete="onCreationComplete()"
-	height="24"
+	height="30"
+	width="40"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
@@ -100,7 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (_currentState == ACTIVE_STATE)
 					this.styleName = "voiceConfInactiveButtonStyle";
 				else
-					this.styleName = "voiceConfActiveButtonStyle";
+					this.styleName = "voiceConfOverButtonStyle";
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
@@ -148,7 +149,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 			}
-
 
       private function onUserJoinedConference():void {
         PhoneOptions.firstAudioJoin = false;
@@ -236,7 +236,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.enabled = true;
 				LOGGER.debug("onClosedAudioSelection enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				_currentState = DEFAULT_STATE;
-        this.styleName = "voiceConfDefaultButtonStyle";
+        		this.styleName = "voiceConfDefaultButtonStyle";
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 				joinDefaultListenOnlyMode();
 			}

@@ -1,24 +1,27 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 
 trait CreateBreakoutRoomsCmdMsgHdlr {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg): Unit = {
     // If breakout rooms are being created we ignore the coming message
     if (liveMeeting.breakoutRooms.pendingRoomsNumber > 0) {
-      log.warning("CreateBreakoutRooms event received while {} are pending to be created for meeting {}",
-        liveMeeting.breakoutRooms.pendingRoomsNumber, liveMeeting.props.meetingProp.intId)
+      log.warning(
+        "CreateBreakoutRooms event received while {} are pending to be created for meeting {}",
+        liveMeeting.breakoutRooms.pendingRoomsNumber, liveMeeting.props.meetingProp.intId
+      )
     } else if (BreakoutRooms.getNumberOfRooms(liveMeeting.breakoutRooms) > 0) {
-      log.warning("CreateBreakoutRooms event received while {} breakout rooms running for meeting {}",
-        BreakoutRooms.getNumberOfRooms(liveMeeting.breakoutRooms), liveMeeting.props.meetingProp.intId)
+      log.warning(
+        "CreateBreakoutRooms event received while {} breakout rooms running for meeting {}",
+        BreakoutRooms.getNumberOfRooms(liveMeeting.breakoutRooms), liveMeeting.props.meetingProp.intId
+      )
     } else {
       var i = 0
       // in very rare cases the presentation conversion generates an error, what should we do?

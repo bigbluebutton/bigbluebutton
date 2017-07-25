@@ -28,7 +28,7 @@ object MsgBuilder {
   }
 
   def buildGuestsWaitingApprovedEvtMsg(meetingId: String, userId: String,
-    guests: Vector[GuestApprovedVO], approvedBy: String): BbbCommonEnvCoreMsg = {
+                                       guests: Vector[GuestApprovedVO], approvedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(GuestsWaitingApprovedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GuestsWaitingApprovedEvtMsg.NAME, meetingId, userId)
@@ -64,7 +64,7 @@ object MsgBuilder {
   }
 
   def buildValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-    valid: Boolean, waitForApproval: Boolean): BbbCommonEnvCoreMsg = {
+                                    valid: Boolean, waitForApproval: Boolean): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, meetingId, userId)
@@ -223,26 +223,6 @@ object MsgBuilder {
     val body = MuteUserInVoiceConfSysMsgBody(voiceConf, voiceUserId, mute)
     val header = BbbCoreHeaderWithMeetingId(MuteUserInVoiceConfSysMsg.NAME, meetingId)
     val event = MuteUserInVoiceConfSysMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildMeetingEndingEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
-    val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
-    val body = MeetingEndingEvtMsgBody(meetingId)
-    val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
-    val event = MeetingEndingEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildMeetingEndedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(MeetingEndedEvtMsg.NAME, routing)
-    val body = MeetingEndedEvtMsgBody(meetingId)
-    val header = BbbCoreBaseHeader(MeetingEndedEvtMsg.NAME)
-    val event = MeetingEndedEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

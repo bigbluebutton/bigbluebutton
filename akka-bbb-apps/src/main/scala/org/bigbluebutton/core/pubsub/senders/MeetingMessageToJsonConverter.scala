@@ -56,30 +56,6 @@ object MeetingMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def voiceRecordingStartedToJson(msg: VoiceRecordingStarted): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
-    payload.put(Constants.VOICE_CONF, msg.confNum)
-    payload.put(Constants.TIMESTAMP, msg.timestamp)
-
-    val header = Util.buildHeader(MessageNames.VOICE_RECORDING_STARTED, None)
-    Util.buildJson(header, payload)
-  }
-
-  def voiceRecordingStoppedToJson(msg: VoiceRecordingStopped): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
-    payload.put(Constants.VOICE_CONF, msg.confNum)
-    payload.put(Constants.TIMESTAMP, msg.timestamp)
-
-    val header = Util.buildHeader(MessageNames.VOICE_RECORDING_STOPPED, None)
-    Util.buildJson(header, payload)
-  }
-
   def recordingStatusChangedToJson(msg: RecordingStatusChanged): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -111,105 +87,11 @@ object MeetingMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def startRecordingToJson(msg: StartRecording): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-
-    val header = Util.buildHeader(MessageNames.START_RECORDING, None)
-    Util.buildJson(header, payload)
-  }
-
-  def stopRecordingToJson(msg: StopRecording): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-
-    val header = Util.buildHeader(MessageNames.STOP_RECORDING, None)
-    Util.buildJson(header, payload)
-  }
-
   def getAllMeetingsReplyToJson(msg: GetAllMeetingsReply): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetings", msg.meetings)
 
     val header = Util.buildHeader(MessageNames.GET_ALL_MEETINGS_REPLY, None)
-    Util.buildJson(header, payload)
-  }
-
-  def breakoutRoomsListOutMessageToJson(msg: BreakoutRoomsListOutMessage): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingId", msg.meetingId)
-    payload.put("rooms", msg.rooms.toArray)
-    payload.put("roomsReady", msg.roomsReady)
-
-    val header = Util.buildHeader(BreakoutRoomsList.NAME, None)
-    Util.buildJson(header, payload)
-  }
-
-  def breakoutRoomStartedOutMessageToJson(msg: BreakoutRoomStartedOutMessage): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingId", msg.breakout.meetingId)
-    payload.put("externalMeetingId", msg.breakout.externalMeetingId)
-    payload.put("parentMeetingId", msg.parentMeetingId)
-    payload.put("sequence", msg.breakout.sequence)
-    payload.put("name", msg.breakout.name)
-
-    val header = Util.buildHeader(BreakoutRoomStarted.NAME, None)
-    Util.buildJson(header, payload)
-  }
-
-  def breakoutRoomEndedOutMessageToJson(msg: BreakoutRoomEndedOutMessage): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("parentMeetingId", msg.parentMeetingId)
-    payload.put("meetingId", msg.meetingId)
-
-    val header = Util.buildHeader(BreakoutRoomClosed.NAME, None)
-    Util.buildJson(header, payload)
-  }
-
-  def breakoutRoomJoinURLOutMessageToJson(msg: BreakoutRoomJoinURLOutMessage): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("parentMeetingId", msg.parentMeetingId)
-    payload.put("breakoutMeetingId", msg.breakoutMeetingId)
-    payload.put("userId", msg.userId)
-    payload.put("redirectJoinURL", msg.redirectJoinURL)
-    payload.put("noRedirectJoinURL", msg.noRedirectJoinURL)
-
-    val header = Util.buildHeader(BreakoutRoomJoinURL.NAME, None)
-    Util.buildJson(header, payload)
-  }
-
-  def updateBreakoutUsersOutMessageToJson(msg: UpdateBreakoutUsersOutMessage): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("parentMeetingId", msg.parentMeetingId)
-    payload.put("breakoutMeetingId", msg.breakoutMeetingId)
-    payload.put("recorded", msg.recorded)
-    payload.put("users", msg.users.toArray)
-
-    val header = Util.buildHeader(UpdateBreakoutUsers.NAME, None)
-    Util.buildJson(header, payload)
-  }
-
-  def meetingTimeRemainingUpdateToJson(msg: MeetingTimeRemainingUpdate): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingId", msg.meetingId)
-    payload.put("recorded", msg.recorded)
-    payload.put("timeRemaining", msg.timeRemaining)
-
-    val header = Util.buildHeader(TimeRemainingUpdate.NAME, None)
-    Util.buildJson(header, payload)
-  }
-
-  def breakoutRoomsTimeRemainingUpdateToJson(msg: BreakoutRoomsTimeRemainingUpdateOutMessage): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingId", msg.meetingId)
-    payload.put("recorded", msg.recorded)
-    payload.put("timeRemaining", msg.timeRemaining)
-
-    val header = Util.buildHeader(BreakoutRoomsTimeRemainingUpdate.NAME, None)
     Util.buildJson(header, payload)
   }
 

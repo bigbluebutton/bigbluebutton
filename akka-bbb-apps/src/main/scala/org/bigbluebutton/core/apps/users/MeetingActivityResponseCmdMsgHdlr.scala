@@ -1,16 +1,30 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
+import org.bigbluebutton.core.domain.{ MeetingInactivityTracker, MeetingState2x }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait MeetingActivityResponseCmdMsgHdlr {
-  this: BaseMeetingActor =>
+  this: UsersApp =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
-  def handleMeetingActivityResponseCmdMsg(msg: MeetingActivityResponseCmdMsg) {
+  def handleMeetingActivityResponseCmdMsg(
+    msg:   MeetingActivityResponseCmdMsg,
+    state: MeetingState2x
+  ): MeetingState2x = {
+    processMeetingActivityResponse(liveMeeting.props, outGW, msg)
+    MeetingInactivityTracker.resetWarningSentAndTimestamp(state)
+  }
+
+  def processMeetingActivityResponse(
+    props: DefaultProps,
+    outGW: OutMsgRouter,
+    msg:   MeetingActivityResponseCmdMsg
+  ): Unit = {
+
     def buildMeetingIsActiveEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
       val envelope = BbbCoreEnvelope(MeetingIsActiveEvtMsg.NAME, routing)
@@ -21,8 +35,8 @@ trait MeetingActivityResponseCmdMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    log.info("User endorsed that meeting {} is active", liveMeeting.props.meetingProp.intId)
-    val event = buildMeetingIsActiveEvtMsg(liveMeeting.props.meetingProp.intId)
+    val event = buildMeetingIsActiveEvtMsg(props.meetingProp.intId)
     outGW.send(event)
+
   }
 }

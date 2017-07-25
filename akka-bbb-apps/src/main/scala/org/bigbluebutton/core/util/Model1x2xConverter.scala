@@ -12,7 +12,7 @@ object Model1x2xConverter {
   }
 
   def defaultUserVO(intId: String, extId: String, name: String, role: String, guest: Boolean, authed: Boolean,
-    waitingForAcceptance: Boolean, lockStatus: Boolean, vu: VoiceUserVO): UserVO = {
+                    waitingForAcceptance: Boolean, lockStatus: Boolean, vu: VoiceUserVO): UserVO = {
     new UserVO(intId, extId, name, role, guest, authed, waitingForAcceptance = waitingForAcceptance,
       emojiStatus = "none", presenter = false,
       hasStream = false, locked = lockStatus,

@@ -3,11 +3,12 @@ package org.bigbluebutton.core.apps.caption
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.common2.msgs.TranscriptVO
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
-class CaptionApp2x(val liveMeeting: LiveMeeting,
-  val outGW: OutMessageGateway)(implicit val context: ActorContext)
+class CaptionApp2x(
+  val liveMeeting: LiveMeeting,
+  val outGW:       OutMsgRouter
+)(implicit val context: ActorContext)
     extends UserLeavingHdlr
     with EditCaptionHistoryPubMsgHdlr
     with UpdateCaptionOwnerPubMsgHdlr

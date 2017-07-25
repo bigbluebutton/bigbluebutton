@@ -2,13 +2,13 @@ package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.common2.msgs.PreuploadedPresentationsSysPubMsg
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait PreuploadedPresentationsPubMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handlePreuploadedPresentationsPubMsg(msg: PreuploadedPresentationsSysPubMsg): Unit = {
 

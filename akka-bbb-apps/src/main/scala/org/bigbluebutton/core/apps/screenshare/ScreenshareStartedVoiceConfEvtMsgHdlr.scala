@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.screenshare
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait ScreenshareStartedVoiceConfEvtMsgHdlr {
   this: ScreenshareApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleScreenshareStartedVoiceConfEvtMsg(msg: ScreenshareStartedVoiceConfEvtMsg): Unit = {
 
@@ -15,8 +15,10 @@ trait ScreenshareStartedVoiceConfEvtMsgHdlr {
 
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
       val envelope = BbbCoreEnvelope(ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME, routing)
-      val header = BbbCoreHeaderWithMeetingId(ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME,
-        liveMeeting.props.meetingProp.intId)
+      val header = BbbCoreHeaderWithMeetingId(
+        ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME,
+        liveMeeting.props.meetingProp.intId
+      )
 
       val body = ScreenshareStartRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
       val event = ScreenshareStartRtmpBroadcastVoiceConfMsg(header, body)

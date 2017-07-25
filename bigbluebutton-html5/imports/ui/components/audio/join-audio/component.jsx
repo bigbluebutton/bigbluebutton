@@ -50,7 +50,7 @@ class JoinAudio extends React.Component {
     const { intl } = this.props;
     return (
       <div>
-        <div className={styles.closeBtn}>
+        <div className={styles.closeBtnWrapper}>
           <Button
             className={styles.closeBtn}
             label={intl.formatMessage(intlMessages.closeLabel)}

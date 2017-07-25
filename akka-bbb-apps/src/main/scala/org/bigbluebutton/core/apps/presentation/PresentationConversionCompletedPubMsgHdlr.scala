@@ -2,17 +2,15 @@ package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait PresentationConversionCompletedPubMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handlePresentationConversionCompletedPubMsg(msg: PresentationConversionCompletedSysPubMsg): Unit = {
-    log.debug("**************** !!!!!PresentationConversionCompletedPubMsg ")
-
     def broadcastEvent(msg: PresentationConversionCompletedSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PresentationConversionCompletedEvtMsg.NAME, routing)

@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x }
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait RequestBreakoutJoinURLReqMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleRequestBreakoutJoinURLReqMsg(msg: RequestBreakoutJoinURLReqMsg): Unit = {
 
@@ -38,8 +37,10 @@ trait RequestBreakoutJoinURLReqMsgHdlr {
         val envelope = BbbCoreEnvelope(RequestBreakoutJoinURLRespMsg.NAME, routing)
         val header = BbbClientMsgHeader(RequestBreakoutJoinURLRespMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-        val body = RequestBreakoutJoinURLRespMsgBody(props.meetingProp.intId,
-          externalMeetingId, userId, redirectJoinURL, noRedirectJoinURL)
+        val body = RequestBreakoutJoinURLRespMsgBody(
+          props.meetingProp.intId,
+          externalMeetingId, userId, redirectJoinURL, noRedirectJoinURL
+        )
         val event = RequestBreakoutJoinURLRespMsg(header, body)
         val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

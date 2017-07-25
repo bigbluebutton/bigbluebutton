@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.sharednotes
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait SyncSharedNotePubMsgHdlr {
   this: SharedNotesApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSyncSharedNotePubMsg(msg: SyncSharedNotePubMsg): Unit = {
 
@@ -23,7 +23,7 @@ trait SyncSharedNotePubMsgHdlr {
 
     liveMeeting.notesModel.getNoteReport(msg.body.noteId) match {
       case Some(noteReport) => broadcastEvent(msg, noteReport)
-      case None => log.warning("Could not find note " + msg.body.noteId)
+      case None             => log.warning("Could not find note " + msg.body.noteId)
     }
   }
 }

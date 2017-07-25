@@ -26,8 +26,7 @@ object FakeUserGenerator {
     "Jake", "James", "Jason", "Joe", "John", "Jonathan", "Joseph", "Joshua", "Julian", "Justin", "Keith", "Kevin",
     "Leonard", "Liam", "Lucas", "Luke", "Matt", "Max", "Michael", "Nathan", "Neil", "Nicholas", "Oliver", "Owen",
     "Paul", "Peter", "Phil", "Piers", "Richard", "Robert", "Ryan", "Sam", "Sean", "Sebastian", "Simon", "Stephen",
-    "Steven", "Stewart", "Thomas", "Tim", "Trevor", "Victor", "Warren", "William"
-  )
+    "Steven", "Stewart", "Thomas", "Tim", "Trevor", "Victor", "Warren", "William")
 
   private val lastNames = Seq("Abraham", "Allan", "Alsop", "Anderson", "Arnold", "Avery", "Bailey", "Baker", "Ball", "Bell",
     "Berry", "Black", "Blake", "Bond", "Bower", "Brown", "Buckland", "Burgess", "Butler", "Cameron", "Campbell",
@@ -42,8 +41,7 @@ object FakeUserGenerator {
     "Piper", "Poole", "Powell", "Pullman", "Quinn", "Rampling", "Randall", "Rees", "Reid", "Roberts", "Robertson",
     "Ross", "Russell", "Rutherford", "Sanderson", "Scott", "Sharp", "Short", "Simpson", "Skinner", "Slater", "Smith",
     "Springer", "Stewart", "Sutherland", "Taylor", "Terry", "Thomson", "Tucker", "Turner", "Underwood", "Vance",
-    "Vaughan", "Walker", "Wallace", "Walsh", "Watson", "Welch", "White", "Wilkins", "Wilson", "Wright", "Young"
-  )
+    "Vaughan", "Walker", "Wallace", "Walsh", "Watson", "Welch", "White", "Wilkins", "Wilson", "Wright", "Young")
 
   private def getRandomElement(list: Seq[String], random: Random): String = list(random.nextInt(list.length))
 
@@ -55,19 +53,21 @@ object FakeUserGenerator {
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
-    RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, waitingForAcceptance = true, users)
+    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+      authToken, avatarURL, guest, authed, waitingForAcceptance = true)
+    RegisteredUsers.add(users, ru)
+    ru
   }
 
   def createFakeVoiceUser(user: RegisteredUser, callingWith: String, muted: Boolean, talking: Boolean,
-    listenOnly: Boolean): VoiceUserState = {
+                          listenOnly: Boolean): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     VoiceUserState(intId = user.id, voiceUserId = voiceUserId, callingWith, callerName = user.name,
       callerNum = user.name, muted, talking, listenOnly)
   }
 
   def createFakeVoiceOnlyUser(callingWith: String, muted: Boolean, talking: Boolean,
-    listenOnly: Boolean): VoiceUserState = {
+                              listenOnly: Boolean): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
     val name = getRandomElement(firstNames, random) + " " + getRandomElement(lastNames, random)

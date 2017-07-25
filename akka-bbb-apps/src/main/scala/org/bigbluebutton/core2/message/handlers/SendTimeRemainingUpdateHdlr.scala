@@ -2,21 +2,23 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ BreakoutRoomsTimeRemainingUpdateOutMessage, MeetingTimeRemainingUpdate, SendTimeRemainingUpdate }
+import org.bigbluebutton.core.api.SendTimeRemainingUpdate
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
 import org.bigbluebutton.core.models.BreakoutRooms
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
-import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.util.TimeUtil
 
 trait SendTimeRemainingUpdateHdlr {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
-  def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {
+  def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate, state: MeetingState2x): MeetingState2x = {
+
     if (liveMeeting.props.durationProps.duration > 0) {
-      val endMeetingTime = MeetingStatus2x.startedOn(liveMeeting.status) + (liveMeeting.props.durationProps.duration * 60)
-      val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
+      val endMeetingTime = MeetingExpiryTracker.endMeetingTime(state)
+      val timeRemaining = endMeetingTime - TimeUtil.timeNowInSeconds
 
       def buildMeetingTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
@@ -34,7 +36,7 @@ trait SendTimeRemainingUpdateHdlr {
     if (!liveMeeting.props.meetingProp.isBreakout && !BreakoutRooms.getRooms(liveMeeting.breakoutRooms).isEmpty) {
       val endMeetingTime = BreakoutRooms.breakoutRoomsStartedOn(liveMeeting.breakoutRooms) +
         (BreakoutRooms.breakoutRoomsdurationInMinutes(liveMeeting.breakoutRooms) * 60)
-      val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
+      val timeRemaining = endMeetingTime - TimeUtil.timeNowInSeconds
 
       def buildBreakoutRoomsTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
@@ -53,6 +55,8 @@ trait SendTimeRemainingUpdateHdlr {
       BreakoutRooms.breakoutRoomsdurationInMinutes(liveMeeting.breakoutRooms, 0)
       BreakoutRooms.breakoutRoomsStartedOn(liveMeeting.breakoutRooms, 0)
     }
+
+    state
   }
 
 }

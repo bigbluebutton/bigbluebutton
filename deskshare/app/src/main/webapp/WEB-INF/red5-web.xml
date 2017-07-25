@@ -39,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <bean id="web.handler" class="org.bigbluebutton.deskshare.server.red5.DeskshareApplication">
     <constructor-arg ref="streamManager"/>
     <constructor-arg ref="deskShareServer"/>
+    <constructor-arg ref="messagePublisher"/>
   </bean>
   <bean id="deskshare.service" class="org.bigbluebutton.deskshare.server.stream.DeskshareService">
     <constructor-arg ref="streamManager"/>
@@ -71,4 +72,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <constructor-arg index="1" value="${redis.port}"/>
     <constructor-arg index="2" value="${redis.keyExpiry}"/>
   </bean>
+  <bean id="messageSender" class="org.bigbluebutton.deskshare.server.red5.pubsub.MessageSender"
+      init-method="start" destroy-method="stop">
+    <property name="redisPool" ref="redisPool"/>
+  </bean>
+  <bean id="messagePublisher" class="org.bigbluebutton.deskshare.server.red5.pubsub.MessagePublisher">
+    <property name="messageSender" ref="messageSender"/>
+  </bean>
+  <import resource="bbb-redis-pool.xml"/>
 </beans>

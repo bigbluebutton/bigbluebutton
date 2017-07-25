@@ -5,15 +5,14 @@ import org.bigbluebutton.core.api.Permissions
 case object StopMeetingActor
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
-  sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
-  sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
+                                sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
+                                sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
 
 class MeetingModel {
   private var audioSettingsInited = false
   private var permissionsInited = false
   private var permissions = new Permissions()
   private var recording = false
-  private var broadcastingRTMP = false
   private var muted = false
   private var meetingEnded = false
   private var meetingMuted = false
@@ -23,69 +22,10 @@ class MeetingModel {
   private var lastWebUserLeftOnTimestamp: Long = 0
 
   private var voiceRecordingFilename: String = ""
-  private var rtmpBroadcastingUrl: String = ""
-  private var deskShareStarted = false
-  private var desktopShareVideoWidth = 0
-  private var desktopShareVideoHeight = 0
 
   private var extension = new MeetingExtensionProp
   /*
     val startedOn = timeNowInSeconds;
-
-    var breakoutRoomsStartedOn: Long = 0
-    var breakoutRoomsdurationInMinutes: Int = 0
-
-    def resetDesktopSharingParams() = {
-      broadcastingRTMP = false
-      deskShareStarted = false
-      rtmpBroadcastingUrl = ""
-      desktopShareVideoWidth = 0
-      desktopShareVideoHeight = 0
-    }
-
-    def getDeskShareStarted(): Boolean = {
-      return deskShareStarted
-    }
-
-    def setDeskShareStarted(b: Boolean) {
-      deskShareStarted = b
-    }
-
-    def setDesktopShareVideoWidth(videoWidth: Int) {
-      desktopShareVideoWidth = videoWidth
-    }
-
-    def setDesktopShareVideoHeight(videoHeight: Int) {
-      desktopShareVideoHeight = videoHeight
-    }
-
-    def getDesktopShareVideoWidth(): Int = {
-      desktopShareVideoWidth
-    }
-
-    def getDesktopShareVideoHeight(): Int = {
-      desktopShareVideoHeight
-    }
-
-    def broadcastingRTMPStarted() {
-      broadcastingRTMP = true
-    }
-
-    def isBroadcastingRTMP(): Boolean = {
-      broadcastingRTMP
-    }
-
-    def broadcastingRTMPStopped() {
-      broadcastingRTMP = false
-    }
-
-    def setRTMPBroadcastingUrl(path: String) {
-      rtmpBroadcastingUrl = path
-    }
-
-    def getRTMPBroadcastingUrl(): String = {
-      rtmpBroadcastingUrl
-    }
 
     def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
     def incNumExtension(): Int = {

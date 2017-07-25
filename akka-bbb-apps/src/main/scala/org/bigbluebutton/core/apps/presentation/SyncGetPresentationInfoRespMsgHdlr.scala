@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.presentation
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.domain.PresentationVO
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait SyncGetPresentationInfoRespMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSyncGetPresentationInfoRespMsg(): Unit = {
     log.debug("Handling SyncGetPresentationInfo")

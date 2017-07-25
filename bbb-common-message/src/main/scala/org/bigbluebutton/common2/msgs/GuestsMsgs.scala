@@ -7,7 +7,7 @@ object GetGuestsWaitingApprovalReqMsg {
   val NAME = "GetGuestsWaitingApprovalReqMsg"
 }
 case class GetGuestsWaitingApprovalReqMsg(header: BbbClientMsgHeader,
-                                          body: GetGuestsWaitingApprovalReqMsgBody) extends BbbCoreMsg
+                                          body: GetGuestsWaitingApprovalReqMsgBody) extends StandardMsg
 case class GetGuestsWaitingApprovalReqMsgBody(requesterId: String)
 
 
@@ -47,7 +47,7 @@ object GuestsWaitingApprovedMsg {
 }
 
 case class GuestsWaitingApprovedMsg(header: BbbClientMsgHeader,
-                                    body: GuestsWaitingApprovedMsgBody) extends BbbCoreMsg
+                                    body: GuestsWaitingApprovedMsgBody) extends StandardMsg
 
 case class GuestsWaitingApprovedMsgBody(guests: Vector[GuestApprovedVO], approvedBy: String)
 case class GuestApprovedVO(guest: String, approved: Boolean)
@@ -76,12 +76,12 @@ case class GuestApprovedEvtMsgBody(approved: Boolean, approvedBy: String)
 /**
   * Message from user to set the guest policy.
   */
-object SetGuestPolicyMsg {
-  val NAME = "SetGuestPolicyMsg"
+object SetGuestPolicyCmdMsg {
+  val NAME = "SetGuestPolicyCmdMsg"
 }
-case class SetGuestPolicyMsg(header: BbbClientMsgHeader,
-                                    body: SetGuestPolicyMsgBody) extends BbbCoreMsg
-case class SetGuestPolicyMsgBody(policy: String, setBy: String)
+case class SetGuestPolicyCmdMsg(header: BbbClientMsgHeader,
+                                    body: SetGuestPolicyCmdMsgBody) extends StandardMsg
+case class SetGuestPolicyCmdMsgBody(policy: String, setBy: String)
 
 /**
   * Message sent to all clients that guest policy has been changed.
@@ -94,6 +94,18 @@ case class GuestPolicyChangedEvtMsg(header: BbbClientMsgHeader,
 case class GuestPolicyChangedEvtMsgBody(policy: String, setBy: String)
 
 
+/**
+  * Message from user to get the guest policy.
+  */
+object GetGuestPolicyReqMsg { val NAME = "GetGuestPolicyReqMsg" }
+case class GetGuestPolicyReqMsg(header: BbbClientMsgHeader,
+                             body: GetGuestPolicyReqMsgBody) extends StandardMsg
+case class GetGuestPolicyReqMsgBody(requestedBy: String)
 
-
-
+/**
+  * Sent to client as response to query for guest policy.
+  */
+object GetGuestPolicyRespMsg { val NAME = "GetGuestPolicyRespMsg" }
+case class GetGuestPolicyRespMsg(header: BbbClientMsgHeader,
+                                body: GetGuestPolicyRespMsgBody) extends StandardMsg
+case class GetGuestPolicyRespMsgBody(policy: String)

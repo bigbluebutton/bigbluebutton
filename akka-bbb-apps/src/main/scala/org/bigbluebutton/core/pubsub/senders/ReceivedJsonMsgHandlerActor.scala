@@ -14,8 +14,9 @@ object ReceivedJsonMsgHandlerActor {
 }
 
 class ReceivedJsonMsgHandlerActor(
-  val eventBus: BbbMsgRouterEventBus,
-  val incomingJsonMessageBus: IncomingJsonMessageBus)
+  val eventBus:               BbbMsgRouterEventBus,
+  val incomingJsonMessageBus: IncomingJsonMessageBus
+)
     extends Actor with ActorLogging
     with SystemConfiguration
     with ReceivedJsonMsgDeserializer
@@ -70,6 +71,19 @@ class ReceivedJsonMsgHandlerActor(
       case DestroyMeetingSysCmdMsg.NAME =>
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
 
+      // Guests
+      case GetGuestsWaitingApprovalReqMsg.NAME =>
+        routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
+      case GuestsWaitingApprovedMsg.NAME =>
+        routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
+      case SetGuestPolicyCmdMsg.NAME =>
+        routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
+      case GetGuestPolicyReqMsg.NAME =>
+        routeGenericMsg[GetGuestPolicyReqMsg](envelope, jsonNode)
+
+      // Users
+      case GetUsersMeetingReqMsg.NAME =>
+        routeGenericMsg[GetUsersMeetingReqMsg](envelope, jsonNode)
       // Poll
       case StartCustomPollReqMsg.NAME =>
         routeGenericMsg[StartCustomPollReqMsg](envelope, jsonNode)
@@ -262,6 +276,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
       case GetRecordingStatusReqMsg.NAME =>
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
+      case GetScreenshareStatusReqMsg.NAME =>
+        routeGenericMsg[GetScreenshareStatusReqMsg](envelope, jsonNode)
 
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>

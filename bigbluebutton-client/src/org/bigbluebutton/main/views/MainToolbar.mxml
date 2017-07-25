@@ -22,8 +22,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:ApplicationControlBar xmlns:mx="library://ns.adobe.com/flex/mx" 
     xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mate="http://mate.asfusion.com/" xmlns:common="org.bigbluebutton.common.*"
+	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:common="org.bigbluebutton.common.*"
 	xmlns:views="org.bigbluebutton.main.views.*"
+	xmlns:components="org.bigbluebutton.modules.phone.views.components.*"
 	enabled="true" visible="{showToolbar}"
 	initialize="init()">   
 	
@@ -50,44 +52,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.binding.utils.BindingUtils;
-      import mx.controls.Alert;
-      import mx.core.FlexGlobals;
-      import mx.core.IToolTip;
-      import mx.core.UIComponent;
-      import mx.events.CloseEvent;
-      import mx.events.ToolTipEvent;
-      import mx.managers.PopUpManager;
-      
-      import org.as3commons.lang.ArrayUtils;
-      import org.as3commons.lang.StringUtils;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.IBbbToolbarComponent;
-      import org.bigbluebutton.common.events.SettingsComponentEvent;
-      import org.bigbluebutton.common.events.ToolbarButtonEvent;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.model.Config;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ConfigLoadedEvent;
-      import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.main.events.NetworkStatsEvent;
-      import org.bigbluebutton.main.events.SettingsEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-      import org.bigbluebutton.main.model.NetworkStatsData;
-      import org.bigbluebutton.main.model.options.BrandingOptions;
-      import org.bigbluebutton.main.model.options.LayoutOptions;
-      import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.IToolTip;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.ToolTipEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.as3commons.lang.ArrayUtils;
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbToolbarComponent;
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.model.Config;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ConfigLoadedEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
+			import org.bigbluebutton.main.events.SettingsEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.model.NetworkStatsData;
+			import org.bigbluebutton.main.model.options.BrandingOptions;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(MainToolbar);
 
@@ -102,6 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var showRecordButton:Boolean = false;
 			[Bindable] public var toolbarOptions:LayoutOptions;
 			[Bindable] private var brandingOptions:BrandingOptions;
+			[Bindable] private var usersOptions:UsersOptions;
 
 			[Bindable] private var numButtons:int;
       
@@ -125,6 +129,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void{
 				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
+				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
+				
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -192,7 +198,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function refreshModeratorButtonsVisibility(e:*):void {
-          showGuestSettingsButton = UsersUtil.amIModerator();
+          showGuestSettingsButton = UsersUtil.amIModerator() && usersOptions.enableGuestUI;
 
           showRecordButton = UsersUtil.amIModerator();
       }
@@ -361,18 +367,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for each (var button:UIComponent in addedBtns.getChildren()){
 					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
 					
-					/*if (toolbarComponent.getAlignment() == ALIGN_LEFT){ 
-						addedBtns.setChildIndex(button, 0);
-						//(addedBtns.getChildAt(0) as Button).tabIndex = 0;
-					}
-					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT){ 
-						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
-						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
-					}*/
 					button.tabIndex = quickLinksIndexer.startIndex + 5;
-					//for (var i:int = 0; i < addedBtns.numChildren; i++){
-					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
-					//}
 				}
 			}
 						
@@ -389,10 +384,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
 					setStyle("backgroundColor", brandingOptions.toolbarColor);
-				}
-
-				if (ArrayUtils.isNotEmpty(brandingOptions.toolbarColorAlphas)) {
-					setStyle("highlightAlphas", brandingOptions.toolbarColorAlphas);
 				}
 			}
 			
@@ -487,7 +478,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function hideLogo():void {
-				logoHolder.visible = logoHolder.includeInLayout = false;
+				logo.visible = logo.includeInLayout = false;
 			}
 
 			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
@@ -512,36 +503,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
 		<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
-						   tabIndices="{[recordBtn, muteMeBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
 
     
-    <mx:HBox id="logoHolder" paddingRight="12" >
-        <mx:Image id="logo" ioError="hideLogo()" />
-    </mx:HBox>
+    <mx:Image id="logo" right="20" maxHeight="30" ioError="hideLogo()" />
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
                        accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
                        accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
                        accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
-                       height="22" styleName="quickWindowLinkStyle" />
+                       height="30" styleName="quickWindowLinkStyle" />
 		<mx:LinkButton id="captionLinkBtn" click="onQuickLinkClicked('caption')" label="{ResourceUtil.getInstance().getString('bbb.caption.quickLink.label')}" 
 					   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
-					   height="22" styleName="quickWindowLinkStyle" />
+					   height="20" styleName="quickWindowLinkStyle" />
     </mx:HBox>
-	<mx:HBox id="addedBtns"/>
+	<mx:VRule styleName="toolbarSeparator" height="10" />
+	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
+	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center"/>
 	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
-	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="20"/>
-	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="20"/>
-	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
+	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 
 	<mx:Button
 			id="bbbSettings"
@@ -550,7 +538,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
 			click="onSettingsButtonClick()"
 			styleName="settingsButtonStyle"
-			height="22"
+			height="30"
 	/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
@@ -560,14 +548,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			styleName="bandwidthButtonStyle"
 			toolTip="dummy text"
 			click="onNetStatsButtonClick()"
-			visible="{toolbarOptions.showNetworkMonitor}" />
+			visible="{toolbarOptions.showNetworkMonitor}"
+			includeInLayout="{toolbarOptions.showNetworkMonitor}"/>
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
-             click="onShortcutButtonClick()" height="22" 
+             click="onShortcutButtonClick()" height="30" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>
-	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
+	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="30" 
                    styleName="helpLinkButtonStyle"
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"/>
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="30"/>
 </mx:ApplicationControlBar>
