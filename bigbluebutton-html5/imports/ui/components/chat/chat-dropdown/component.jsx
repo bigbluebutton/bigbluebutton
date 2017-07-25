@@ -89,7 +89,7 @@ class ChatDropdown extends Component {
     const { intl } = this.props;
 
     return _.compact([
-      (Acl.can('clearPublicChatHistory', Auth.credentials) ?
+      (Acl.can('methods.clearPublicChatHistory', Auth.credentials) ?
         <DropdownListItem
           label={intl.formatMessage(intlMessages.clear)}
           key={_.uniqueId('action-item-')}
