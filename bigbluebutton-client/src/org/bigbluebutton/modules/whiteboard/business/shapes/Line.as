@@ -18,34 +18,29 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import org.bigbluebutton.modules.whiteboard.models.Annotation;
-	
+	import flash.display.CapsStyle;
+
 	public class Line extends DrawObject
 	{
-		public function Line(id:String, type:String, status:String)
-		{
-			super(id, type, status);
+		public function Line(id:String, type:String, status:String, userId:String) {
+			super(id, type, status, userId);
 		}
-				
-		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		
+		override protected function makeGraphic():void {
+			this.graphics.clear();
 //			LogUtil.debug("Drawing LINE");
-			var ao:Object = a.annotation;
 			
-			this.graphics.lineStyle(ao.thickness * zoom, ao.color);
-			var arrayEnd:Number = (ao.points as Array).length;
-			var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
-			var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
-			var endX:Number = denormalize((ao.points as Array)[arrayEnd-2], parentWidth);
-			var endY:Number = denormalize((ao.points as Array)[arrayEnd-1], parentHeight);
+			this.graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color, _ao.transparency ? 0.6 : 1.0, true, "normal", CapsStyle.NONE);
+			
+			var arrayEnd:Number = (_ao.points as Array).length;
+			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);
+			var startY:Number = denormalize((_ao.points as Array)[1], _parentHeight);
+			var endX:Number = denormalize((_ao.points as Array)[arrayEnd-2], _parentWidth);
+			var endY:Number = denormalize((_ao.points as Array)[arrayEnd-1], _parentHeight);
 			this.alpha = 1;
 			this.x = startX;
 			this.y = startY;
 			this.graphics.lineTo(endX-startX, endY-startY);			
 		}
-		
-		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-			draw(a, parentWidth, parentHeight, zoom);
-		}
-		
 	}
 }

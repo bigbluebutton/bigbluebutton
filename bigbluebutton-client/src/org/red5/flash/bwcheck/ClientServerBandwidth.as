@@ -139,5 +139,15 @@ package org.red5.flash.bwcheck
 				break;
 			}
 		}
+
+		public function onBWCheck(obj:Object):void
+		{
+//			dispatchStatus(obj);
+		}
+
+		public function onBWDone(obj:Object):void
+		{
+//			dispatchComplete(obj);
+		}
 	}
 }

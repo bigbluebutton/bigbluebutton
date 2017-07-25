@@ -42,16 +42,16 @@ package org.bigbluebutton.modules.caption.model {
 			return _historyInited;
 		}
 		
-		public function receiveCaptionHistory(history:Object):void {
-			for (var locale:Object in history) {
+		public function receiveCaptionHistory(history:ArrayCollection):void {
+			for each(var receivedTranscript:Transcript in history) {
 				// This convoluted conversion from Object to the actual class is required to get the accurate 
 				// String value. See, http://stackoverflow.com/a/204003, for more information
-				var localeClassName:String = flash.utils.getQualifiedClassName(locale);
-				var localeClass:Class = flash.utils.getDefinitionByName(localeClassName) as Class;
+				//var localeClassName:String = flash.utils.getQualifiedClassName(locale);
+				//var localeClass:Class = flash.utils.getDefinitionByName(localeClassName) as Class;
 				
-				var t:Transcript = findLocale((locale as localeClass).toString(), history[locale][2]);
-				t.ownerID = history[locale][0];
-				t.editHistory(0,0,history[locale][1]);
+				var t:Transcript = findLocale(receivedTranscript.locale, receivedTranscript.localeCode);
+				t.ownerID = receivedTranscript.ownerID;
+				t.transcript = receivedTranscript.transcript;
 			}
 			_historyInited = true;
 		}

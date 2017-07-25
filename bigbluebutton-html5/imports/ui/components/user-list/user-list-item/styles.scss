@@ -1,4 +1,4 @@
-@import '../styles.scss';
+@import "../styles.scss";
 
 .userListItem {
   @extend %list-item;
@@ -157,6 +157,7 @@
   cursor: default;
   min-width: 10vw;
   max-width: 100%;
+  overflow: visible;
 }
 
 .actionsHeader {

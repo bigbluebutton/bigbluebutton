@@ -13,12 +13,14 @@ package org.bigbluebutton.modules.present.model
     private var _pages:ArrayCollection;
     
     private var _current:Boolean = false;
-    
-    public function Presentation(id: String, name: String, current: Boolean, pages: ArrayCollection) {
+    private var _downloadable:Boolean = false;
+
+    public function Presentation(id: String, name: String, current: Boolean, pages: ArrayCollection, downloadable: Boolean) {
       _id = id;
       _name = name;
       _current = current;
       _pages = pages
+      _downloadable = downloadable;
     }
     
     public function get id():String {
@@ -60,6 +62,17 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
+    public function getPageByNum(pageNum:int):Page {
+      for (var i: int = 0; i < _pages.length; i++) {
+        var p: Page = _pages.getItemAt(i) as Page;
+        if (p.num == pageNum) {
+          return p;
+        }
+      }
+      
+      return null;
+    }
+    
     public function getPages():ArrayCollection {
       var pages:ArrayCollection = new ArrayCollection();
       
@@ -68,6 +81,10 @@ package org.bigbluebutton.modules.present.model
       }
       
       return pages;
+    }
+
+    public function get downloadable():Boolean {
+      return _downloadable;
     }
   }
 }

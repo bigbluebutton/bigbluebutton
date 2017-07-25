@@ -36,16 +36,13 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-  import org.bigbluebutton.modules.present.events.UploadEvent;
-  import org.bigbluebutton.modules.present.model.PresentationModel;
-  import org.bigbluebutton.modules.present.model.Presenter;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   
   public class MessageReceiver implements IMessageListener {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
        
     private var service:PresentationService;
     private var dispatcher:Dispatcher;
@@ -60,67 +57,44 @@ package org.bigbluebutton.modules.present.services.messaging
       //LOGGER.info("Presentation: received message " + messageName);
       
       switch (messageName) {
-        case "PresentationCursorUpdateCommand":
-          handlePresentationCursorUpdateCommand(message);
-          break;			
-        case "goToSlideCallback":
-          handleGotoSlideCallback(message);
-          break;			
-        case "moveCallback":
-          handleMoveCallback(message);
-          break;	
-        case "sharePresentationCallback":
-          handleSharePresentationCallback(message);
+        case "SetCurrentPageEvtMsg":
+          handleSetCurrentPageEvtMsg(message);
           break;
-        case "removePresentationCallback":
-          handleRemovePresentationCallback(message);
+        case "ResizeAndMovePageEvtMsg":
+          handleResizeAndMovePageEvtMsg(message);
           break;
-        case "conversionCompletedUpdateMessageCallback":
-          handleConversionCompletedUpdateMessageCallback(message);
+        case "SetCurrentPresentationEvtMsg":
+          handleSetCurrentPresentationEvtMsg(message);
           break;
-        case "generatedSlideUpdateMessageCallback":
-          handleGeneratedSlideUpdateMessageCallback(message);
+        case "RemovePresentationEvtMsg":
+          handleRemovePresentationEvtMsg(message);
           break;
-        case "pageCountExceededUpdateMessageCallback":
-          handlePageCountExceededUpdateMessageCallback(message);
+        case "PresentationConversionCompletedEvtMsg":
+          handlePresentationConversionCompletedEvtMsg(message);
           break;
-        case "conversionUpdateMessageCallback":
-          handleConversionUpdateMessageCallback(message);
+        case "PresentationPageGeneratedEvtMsg":
+          handlePresentationPageGeneratedEvtMsg(message);
           break;
-        case "getPresentationInfoReply":
-          handleGetPresentationInfoReply(message);
+        case "PresentationPageCountErrorEvtMsg":
+          handlePresentationPageCountErrorEvtMsg(message);
           break;
-        case "getSlideInfoReply":
-          handleGetSlideInfoReply(message);
+        case "PresentationConversionUpdateEvtMsg":
+          handlePresentationConversionUpdateEvtMsg(message);
           break;
-      }
-    }  
-    
-    private function handleGetSlideInfoReply(msg:Object):void {
-      LOGGER.debug("*** handleGetSlideInfoReply {0} [DISABLED: SHouldn't be getting this!!] **** \n", [msg.msg]);
-     
-    }
-    
-    private function handlePresentationCursorUpdateCommand(msg:Object):void {    
-//      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");      
-      var map:Object = JSON.parse(msg.msg);      
-      if (map.hasOwnProperty("xPercent") && map.hasOwnProperty("yPercent")) {
-        service.cursorMoved(map.xPercent, map.yPercent);
+        case "GetPresentationInfoRespMsg":
+          handleGetPresentationInfoRespMsg(message);
+          break;
       }
     }
     
-    private function handleGotoSlideCallback(msg:Object) : void {
-      var map:Object = JSON.parse(msg.msg);
-
-      var page:PageVO = extractPage(map);
-      service.pageChanged(page);
-
+    private function handleSetCurrentPageEvtMsg(msg:Object):void {
+      service.pageChanged(msg.body.pageId);
     }
     
     private function validatePage(map:Object):Boolean {
       var missing:Array = new Array();
       
-      if (! map.hasOwnProperty("id")) missing.push("Missing [id] param."); 
+      if (! map.hasOwnProperty("id")) missing.push("Missing [id] param.");
       if (! map.hasOwnProperty("num")) missing.push("Missing [num] param.");
       if (! map.hasOwnProperty("current")) missing.push("Missing [current] param.");
       if (! map.hasOwnProperty("swfUri")) missing.push("Missing [swfUri] param.");
@@ -150,8 +124,6 @@ package org.bigbluebutton.modules.present.services.messaging
     
     
     private function extractPage(map:Object):PageVO {
-      validatePage(map);
-      
       var page:PageVO = new PageVO();
       page.id = map.id;
       page.num = map.num;
@@ -163,49 +135,36 @@ package org.bigbluebutton.modules.present.services.messaging
       page.xOffset = map.xOffset;
       page.yOffset = map.yOffset;
       page.widthRatio = map.widthRatio;
-      page.heightRatio = map.heightRatio; 
+      page.heightRatio = map.heightRatio;
       
       return page;
     }
     
-    private function handleMoveCallback(msg:Object):void{  
-      var map:Object = JSON.parse(msg.msg);      
-      if (validatePage(map)) {
-        service.pageMoved(extractPage(map));
-      }
+    private function handleResizeAndMovePageEvtMsg(msg:Object):void {
+      service.pageMoved(msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio);
     }
     
-    private function handleSharePresentationCallback(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
-      if (map.hasOwnProperty("presentation")) {
-        var pres:Object = map.presentation as Object;
-        var presVO: PresentationVO = processUploadedPresentation(pres)
-        service.changePresentation(presVO);
-      }
+    private function handleSetCurrentPresentationEvtMsg(msg:Object):void {
+      service.changeCurrentPresentation(msg.body.presentationId);
     }
     
-    private function handleRemovePresentationCallback(msg:Object):void {
-	  var map:Object = JSON.parse(msg.msg);
-	  
-	  if(map.hasOwnProperty("presentationID")) {
-        service.removePresentation(map.presentationID);
-	  }
+    private function handleRemovePresentationEvtMsg(msg:Object):void {
+      service.removePresentation(msg.body.presentationId);
     }
     
-    private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void { 
-      var map:Object = JSON.parse(msg.msg);      
-      var pres:Object = map.presentation as Object;
-      var presVO: PresentationVO = processUploadedPresentation(pres)
+    private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
+      var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
+      
+      LOGGER.debug("Adding presentation name=" + presVO.name);
       
       service.addPresentation(presVO);
       
       var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);
       dispatcher.dispatchEvent(uploadEvent);
-              
     }
     
     private function processUploadedPresentation(presentation:Object):PresentationVO {
-      var presoPages:ArrayCollection = new ArrayCollection();      
+      var presoPages:ArrayCollection = new ArrayCollection();
       var pages:Array = presentation.pages as Array;
       for (var k:int = 0; k < pages.length; k++) {
         var page:Object = pages[k] as Object;
@@ -214,51 +173,42 @@ package org.bigbluebutton.modules.present.services.messaging
       }
       
       var preso:PresentationVO = new PresentationVO(presentation.id, presentation.name, 
-                                   presentation.current, presoPages);
+                                   presentation.current, presoPages, presentation.downloadable);
       return preso;
     }
     
-    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		  
-      var map:Object = JSON.parse(msg.msg);
-      var numPages:Number = map.numberOfPages;
-      var pagesDone:Number = map.pagesCompleted;
-      
-      dispatcher.dispatchEvent(new ConversionUpdateEvent(numPages, pagesDone));	
+    private function handlePresentationPageGeneratedEvtMsg(msg:Object):void {
+      dispatcher.dispatchEvent(new ConversionUpdateEvent(msg.body.numPages, msg.body.pagesDone));
     }
     
-    private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {     
-      LOGGER.debug("handlePageCountExceededUpdateMessageCallback " + JSON.stringify(msg.msg));
-      var map:Object = JSON.parse(msg.msg);
-      dispatcher.dispatchEvent(new ConversionPageCountMaxed(map.maxNumberPages as Number));
+    private function handlePresentationPageCountErrorEvtMsg(msg:Object):void {
+      LOGGER.debug("handlePageCountExceededUpdateMessageCallback " + msg);
+      dispatcher.dispatchEvent(new ConversionPageCountMaxed(msg.body.maxNumberPages as Number));
     }
     
-    private function handleConversionUpdateMessageCallback(msg:Object) : void {
-      var map:Object = JSON.parse(msg.msg);
-      
-      var uploadEvent:UploadEvent;
-      
-      switch (map.messageKey) {
+    private function handlePresentationConversionUpdateEvtMsg(msg:Object):void {
+      switch (msg.body.messageKey) {
         case Constants.OFFICE_DOC_CONVERSION_SUCCESS_KEY :
           dispatcher.dispatchEvent(new OfficeDocConvertSuccessEvent());
           break;
         case Constants.OFFICE_DOC_CONVERSION_FAILED_KEY :
           dispatcher.dispatchEvent(new OfficeDocConvertFailedEvent());
           break;
-		case Constants.OFFICE_DOC_CONVERSION_INVALID_KEY :
-			dispatcher.dispatchEvent(new OfficeDocConvertInvalidEvent());
-			break;
+        case Constants.OFFICE_DOC_CONVERSION_INVALID_KEY :
+          dispatcher.dispatchEvent(new OfficeDocConvertInvalidEvent());
+          break;
         case Constants.SUPPORTED_DOCUMENT_KEY :
           dispatcher.dispatchEvent(new ConversionSupportedDocEvent());
           break;
         case Constants.UNSUPPORTED_DOCUMENT_KEY :
           dispatcher.dispatchEvent(new ConversionUnsupportedDocEvent());
           break;
-        case Constants.GENERATING_THUMBNAIL_KEY :	
+        case Constants.GENERATING_THUMBNAIL_KEY :
           dispatcher.dispatchEvent(new CreatingThumbnailsEvent());
-          break;		
+          break;
         case Constants.PAGE_COUNT_FAILED_KEY :
           dispatcher.dispatchEvent(new ConversionPageCountError());
-          break;	
+          break;
         case Constants.GENERATED_THUMBNAIL_KEY :
           break;
         default:
@@ -266,25 +216,14 @@ package org.bigbluebutton.modules.present.services.messaging
       }		
 
     }	
-      
-    private function handleGetPresentationInfoReply(msg:Object) : void {
-//      trace(LOG + "*** handleGetPresentationInfoReply " + msg.msg + " **** \n");
-      var map:Object = JSON.parse(msg.msg);
-      
-      var presenterMap:Object = map.presenter as Object;
-      if (presenterMap.hasOwnProperty("userId") && presenterMap.hasOwnProperty("name") &&
-        presenterMap.hasOwnProperty("assignedBy")) {
-//        trace(LOG + "Got presenter information");
-        var presenter: Presenter = new Presenter(presenterMap.userId, presenterMap.name, presenterMap.assignedBy);
-        PresentationModel.getInstance().setPresenter(presenter);        
-      }
-      
+            
+    private function handleGetPresentationInfoRespMsg(msg:Object):void {
 //      trace(LOG + "Getting presentations information");
       
       var presos:ArrayCollection = new ArrayCollection();
-      var presentations:Array = map.presentations as Array;
+      var presentations:Array = msg.body.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
-        var presentation:Object = presentations[j] as Object;     
+        var presentation:Object = presentations[j] as Object;
 //        trace(LOG + "Processing presentation information");
         var presVO: PresentationVO = processUploadedPresentation(presentation)
         presos.addItem(presVO);
@@ -293,8 +232,5 @@ package org.bigbluebutton.modules.present.services.messaging
       service.removeAllPresentations();
       service.addPresentations(presos);
     }
-    
-
-    
   }
 }

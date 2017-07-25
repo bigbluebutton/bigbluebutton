@@ -23,57 +23,86 @@ package org.bigbluebutton.modules.chat.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
   public class MessageSender
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageSender);
+    private static const LOGGER:ILogger = getClassLogger(MessageSender);
     
     public var dispatcher:IEventDispatcher;
     
-    public function getPublicChatMessages():void
-    {  
+    public function getPublicChatMessages():void {
       LOGGER.debug("Sending [chat.getPublicMessages] to server.");
+      var message:Object = {
+        header: {name: "GetChatHistoryReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("chat.sendPublicChatHistory", 
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
-          LOGGER.debug(result); 
-        },	                   
+        },
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        }
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
       );
     }
     
-    public function sendPublicMessage(message:ChatMessageVO):void
-    {  
-	  LOGGER.debug("Sending [chat.sendPublicMessage] to server. [{0}]", [message.message]);
+    public function sendPublicMessage(cm:ChatMessageVO):void {
+      LOGGER.debug("Sending [chat.sendPublicMessage] to server. [{0}]", [cm.message]);
+      var message:Object = {
+        header: {name: "SendPublicMessagePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {message: cm}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("chat.sendPublicMessage", 
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
         },
-        message.toObj()
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
       );
     }
     
-    public function sendPrivateMessage(message:ChatMessageVO):void
-    {  
-	  LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");
-	  LOGGER.debug("Sending fromUserID [{0}] to toUserID [{1}]", [message.fromUserID, message.toUserID]);
+    public function sendPrivateMessage(cm:ChatMessageVO):void {
+      LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");
+      LOGGER.debug("Sending fromUserID [{0}] to toUserID [{1}]", [cm.fromUserId, cm.toUserId]);
+      var message:Object = {
+        header: {name: "SendPrivateMessagePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {message: cm}
+      };
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("chat.sendPrivateMessage", 
+      _nc.sendMessage2x(
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
         },
-        message.toObj()
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
+    }
+
+    public function clearPublicChatMessages():void {
+      LOGGER.debug("Sending [chat.clearPublicChatMessages] to server.");
+      var message:Object = {
+        header: {name: "ClearPublicChatHistoryPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
       );
     }
   }

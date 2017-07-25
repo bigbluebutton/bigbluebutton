@@ -17,7 +17,7 @@ export const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/logout" onEnter={logoutRouteHandler} />
     <Route
-      path="/join/:meetingID/:userID/:authToken"
+      path="/join"
       component={LoadingScreen} onEnter={joinRouteHandler}
     />
     <Route path="/" component={Base} onEnter={authenticatedRouteHandler} >

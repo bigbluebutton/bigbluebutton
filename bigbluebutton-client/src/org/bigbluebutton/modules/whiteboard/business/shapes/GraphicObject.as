@@ -18,17 +18,26 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
 	public interface GraphicObject {
-		function get type():String;
+		function get toolType():String;
 		
 		function get id():String;
+		
+		function get userId():String;
+		
+		function get status():String;
 				
 		function denormalize(val:Number, side:Number):Number;
 		
 		function normalize(val:Number, side:Number):Number;
-				
-		function makeGraphic(parentWidth:Number, parentHeight:Number):void;
+		
+		function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void;
+		
+		function updateAnnotation(a:Annotation):void;
+		
+		function redraw(parentWidth:Number, parentHeight:Number):void;
 		
 	}
 }

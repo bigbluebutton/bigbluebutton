@@ -4,8 +4,9 @@ package org.bigbluebutton.modules.present.services
   
   import mx.collections.ArrayCollection;
   
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.present.commands.ChangePageCommand;
-  import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
   import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -17,8 +18,6 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
   import org.bigbluebutton.modules.present.services.messaging.MessageSender;
-  import org.as3commons.logging.api.getClassLogger;
-  import org.as3commons.logging.api.ILogger;
 
   public class PresentationService
   {
@@ -35,38 +34,26 @@ package org.bigbluebutton.modules.present.services
       dispatcher = new Dispatcher();
     }
     
-    public function cursorMoved(x: Number, y: Number):void {
-      var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
-      e.xPercent = x;
-      e.yPercent = y;
-      dispatcher.dispatchEvent(e);
-    }
-    
-    public function pageChanged(page: PageVO):void {
-      var np: Page = model.getPage(page.id);
+    public function pageChanged(pageId:String):void {
+      var np: Page = model.getPage(pageId);
       if (np != null) {        
         var oldPage: Page = PresentationModel.getInstance().getCurrentPage();
         if (oldPage != null) oldPage.current = false;
         
-        np.current = page.current;
-        np.xOffset = page.xOffset;
-        np.yOffset = page.yOffset;
-        np.widthRatio = page.widthRatio;
-        np.heightRatio = page.heightRatio;
+        np.current = true
 //        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
         var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id, NUM_PRELOAD);
         dispatcher.dispatchEvent(changePageCommand);          
       }       
     }
     
-    public function pageMoved(page: PageVO):void {
-      var np: Page = model.getPage(page.id);
+    public function pageMoved(pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
+      var np: Page = model.getPage(pageId);
       if (np != null) {
-        np.current = page.current;
-        np.xOffset = page.xOffset;
-        np.yOffset = page.yOffset;
-        np.widthRatio = page.widthRatio;
-        np.heightRatio = page.heightRatio;
+        np.xOffset = xOffset;
+        np.yOffset = yOffset;
+        np.widthRatio = widthRatio;
+        np.heightRatio = heightRatio;
 //        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
         var event: PageChangedEvent = new PageChangedEvent(np.id);
         dispatcher.dispatchEvent(event);           
@@ -98,19 +85,19 @@ package org.bigbluebutton.modules.present.services
         var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
         dispatcher.dispatchEvent(event);
         
-        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+        var curPage:Page = presentation.getCurrentPage();
         if (curPage != null) {
           var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
           dispatcher.dispatchEvent(changePageCommand);          
           
-		  LOGGER.debug("Sending page moved event to position page [{0}] current=[{1}]", [curPage.id, curPage.current]);
+          LOGGER.debug("Sending page moved event to position page [{0}] current=[{1}]", [curPage.id, curPage.current]);
           var pageChangedEvent: PageChangedEvent = new PageChangedEvent(curPage.id);
           dispatcher.dispatchEvent(pageChangedEvent); 
         }        
       }
     }
     
-    public function presentationVOToPresentation(presVO:PresentationVO):Presentation {
+    private function presentationVOToPresentation(presVO:PresentationVO):Presentation {
       var presoPages:ArrayCollection = new ArrayCollection();
       var pages:ArrayCollection = presVO.getPages() as ArrayCollection;
       for (var k:int = 0; k < pages.length; k++) {
@@ -119,11 +106,11 @@ package org.bigbluebutton.modules.present.services
         presoPages.addItem(pg);
       }          
       
-      var presentation: Presentation = new Presentation(presVO.id, presVO.name, presVO.isCurrent(), presoPages);
+      var presentation: Presentation = new Presentation(presVO.id, presVO.name, presVO.isCurrent(), presoPages, presVO.downloadable);
       return presentation;
     }
     
-    public function changePresentation(presVO: PresentationVO):void {      
+    public function changeCurrentPresentation(presentationId:String):void {
       // We've switched presentations. Mark the old presentation as not current.
       var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
       if (curPres != null) {
@@ -131,30 +118,29 @@ package org.bigbluebutton.modules.present.services
       } else {
         LOGGER.debug("No previous active presentation.");
       }
-            
-      if (presVO.isCurrent()) {
-        LOGGER.debug("Making presentation [{0}] the  active presentation.", [presVO.id]);
-        var newPres:Presentation = presentationVOToPresentation(presVO);
-        PresentationModel.getInstance().replacePresentation(newPres);
+      
+      var newPres:Presentation = PresentationModel.getInstance().getPresentation(presentationId);
+      if (newPres != null) {
+        LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
+        newPres.current = true;
         
-        var event: PresentationChangedEvent = new PresentationChangedEvent(presVO.id);
+        var event: PresentationChangedEvent = new PresentationChangedEvent(presentationId);
         dispatcher.dispatchEvent(event);
         
         var curPage:Page = PresentationModel.getInstance().getCurrentPage();
         if (curPage != null) {
           var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
-          dispatcher.dispatchEvent(changePageCommand);   
-          
-        }        
+          dispatcher.dispatchEvent(changePageCommand);
+        }
       } else {
-        LOGGER.debug("Switching presentation but presentation [{0}] is not current [{0}]", [presVO.id, presVO.isCurrent()]);
+        LOGGER.debug("Could not find presentation to make current. id="+presentationId);
       }
     }
     
     public function removeAllPresentations():void {
       model.removeAllPresentations();
     }
-	
+    
 	public function removePresentation(presentationID:String):void {
 		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
 		removedEvent.presentationName = presentationID;
@@ -168,6 +154,8 @@ package org.bigbluebutton.modules.present.services
 		}
 		
 		model.removePresentation(presentationID);
+		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT);
+		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
 	}
   }
 }

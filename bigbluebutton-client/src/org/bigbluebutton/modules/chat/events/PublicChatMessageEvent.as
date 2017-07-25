@@ -27,7 +27,6 @@ package org.bigbluebutton.modules.chat.events
 		public static const PUBLIC_CHAT_MESSAGE_EVENT:String = 'PUBLIC_CHAT_MESSAGE_EVENT';
 		
 		public var message:ChatMessageVO;
-		public var history:Boolean;
 		
 		public function PublicChatMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

@@ -18,6 +18,8 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 
+			import flash.external.ExternalInterface;
+
 			import org.bigbluebutton.clientcheck.AppConfig;
 			import org.bigbluebutton.clientcheck.view.mainview.MainViewConfig;
 			import org.bigbluebutton.clientcheck.view.mainview.RefreshButtonConfig;
@@ -31,10 +33,23 @@
 
 			private static var robotlegsContext:IContext;
 
+			private static var DEFAULT_LOCALE:String = "en_US";
+			private var language:String;
+
 			protected function preinitializeHandler(event:FlexEvent):void
 			{
+				setLanguage();
 				setupRobotlegsContext();
 				Security.allowDomain("*");
+			}
+
+			private function setLanguage():void
+			{
+				language = ExternalInterface.call("getLanguage");
+				if (resourceManager.getLocales().indexOf(language) != -1)
+				{
+					resourceManager.localeChain = [language, DEFAULT_LOCALE];
+				}
 			}
 
 			/**
