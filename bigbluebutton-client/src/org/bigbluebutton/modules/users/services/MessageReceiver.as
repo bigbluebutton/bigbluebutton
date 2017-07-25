@@ -51,24 +51,24 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-
+  
   public class MessageReceiver implements IMessageListener
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
-
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+    
     private var dispatcher:Dispatcher;
-
+    
     public var onAllowedToJoin:Function = null;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
-
+    
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
       this.dispatcher = new Dispatcher();
     }
-
+    
     public function onMessage(messageName:String, message:Object):void {
       LOGGER.debug(" received message " + messageName);
-
+      
       switch (messageName) {
         case "GetUsersMeetingRespMsg":
           handleGetUsersMeetingRespMsg(message);
@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.users.services
           handleAssignPresenterCallback(message);
           break;
         case "PresenterUnassignedEvtMsg":
-           handleUnassignPresenterCallback(message);
+          handleUnassignPresenterCallback(message);
           break;
         case "UserBroadcastCamStartedEvtMsg": 
           handleUserBroadcastCamStartedEvtMsg(message);
@@ -145,28 +145,28 @@ package org.bigbluebutton.modules.users.services
         case "userLocked":
           handleUserLocked(message);
           break;
-		// Breakout room feature
-		case "BreakoutRoomsListEvtMsg":
-		  handleBreakoutRoomsList(message)
-		  break;
-		case "BreakoutRoomJoinURLEvtMsg":
-		  handleBreakoutRoomJoinURL(message);
-		  break;
-		case "UpdateBreakoutUsersEvtMsg":
-		  handleUpdateBreakoutUsers(message);
-		  break;
-		case "MeetingTimeRemainingUpdateEvtMsg":
-	      handleMeetingTimeRemainingUpdateEvtMsg(message);
-		  break;
-		case "BreakoutRoomsTimeRemainingUpdateEvtMsg":
-		  handleBreakoutRoomsTimeRemainingUpdate(message);
-		  break;
-		case "BreakoutRoomStartedEvtMsg":
-		  handleBreakoutRoomStarted(message);
-		  break;
-		case "BreakoutRoomEndedEvtMsg":
-		  handleBreakoutRoomClosed(message);
-		  break;
+        // Breakout room feature
+        case "BreakoutRoomsListEvtMsg":
+          handleBreakoutRoomsList(message)
+          break;
+        case "BreakoutRoomJoinURLEvtMsg":
+          handleBreakoutRoomJoinURL(message);
+          break;
+        case "UpdateBreakoutUsersEvtMsg":
+          handleUpdateBreakoutUsers(message);
+          break;
+        case "MeetingTimeRemainingUpdateEvtMsg":
+          handleMeetingTimeRemainingUpdateEvtMsg(message);
+          break;
+        case "BreakoutRoomsTimeRemainingUpdateEvtMsg":
+          handleBreakoutRoomsTimeRemainingUpdate(message);
+          break;
+        case "BreakoutRoomStartedEvtMsg":
+          handleBreakoutRoomStarted(message);
+          break;
+        case "BreakoutRoomEndedEvtMsg":
+          handleBreakoutRoomClosed(message);
+          break;
         case "UserEjectedFromMeetingEvtMsg":
           handleUserEjectedFromMeeting(message);
           break;
@@ -187,11 +187,11 @@ package org.bigbluebutton.modules.users.services
           break;
       }
     }
-
+    
     private function handleUserJoinedVoiceConfToClientEvtMsg(msg: Object): void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
- 
+      
       var vu: VoiceUser2x = new VoiceUser2x();
       vu.intId = body.intId as String;
       vu.voiceUserId = body.voiceUserId as String;
@@ -212,7 +212,7 @@ package org.bigbluebutton.modules.users.services
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
       bbbEvent.payload.userID = vu.intId;            
       globalDispatcher.dispatchEvent(bbbEvent);
-        
+      
     }
     
     private function handleUserLeftVoiceConfToClientEvtMsg(msg: Object):void {
@@ -268,7 +268,7 @@ package org.bigbluebutton.modules.users.services
       var guestWaiting: GuestWaiting = new GuestWaiting(guest.intId, guest.name, guest.role);
       LiveMeeting.inst().guestsWaiting.add(guestWaiting);
     }
-	
+    
     private function handleGuestsWaitingForApprovalEvtMsg(msg: Object): void {
       var body: Object = msg.body as Object;
       var guests: Array = body.guests as Array;
@@ -287,7 +287,7 @@ package org.bigbluebutton.modules.users.services
       var body: Object = msg.body as Object
       var users: Array = body.users as Array;
       LOGGER.debug("Num USERs = " + users.length);
-
+      
       for (var i:int = 0; i < users.length; i++) {
         var user:Object = users[i] as Object;
         processUserJoinedMeetingMsg(user);
@@ -410,7 +410,7 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
-
+    
     private function handleScreenshareRtmpBroadcastStartedEvtMsg(msg:Object):void {
       var body: Object = msg.body as Object
       var stream: String = body.stream as String;
@@ -440,45 +440,45 @@ package org.bigbluebutton.modules.users.services
       
       dispatcher.dispatchEvent(event);
     }
-
+    
     private function handleUserEjectedFromMeeting(msg: Object):void {
       var body: Object = msg.body as Object;
       var userId:String = body.userId as String;
-
+      
       UsersUtil.setUserEjected();
-
+      
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["users"];
       logData.status = "user_ejected";
       logData.message = "User ejected from meeting.";
       LOGGER.info(JSON.stringify(logData));
     }
-
-	private function handleUserLocked(msg:Object):void {
-		var map:Object = JSON.parse(msg.msg);
-		var user:User2x = UsersUtil.getUser(map.user);
-
-		if(user.locked != map.lock) {
-      if (UsersUtil.isMe(user.intId)) {
-        LiveMeeting.inst().me.locked = map.locked;
+    
+    private function handleUserLocked(msg:Object):void {
+      var map:Object = JSON.parse(msg.msg);
+      var user:User2x = UsersUtil.getUser(map.user);
+      
+      if(user.locked != map.lock) {
+        if (UsersUtil.isMe(user.intId)) {
+          LiveMeeting.inst().me.locked = map.locked;
+        }
+        
+        dispatcher.dispatchEvent(new UserStatusChangedEvent(user.intId));
       }
       
-      dispatcher.dispatchEvent(new UserStatusChangedEvent(user.intId));
+      return;
     }
-			
-		return;
-	}
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
       //LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       var lockSettings:LockSettingsVO = new LockSettingsVO(map.disableCam,
-	  														map.disableMic,
-	  														map.disablePrivateChat,
-	  														map.disablePublicChat,
-	  														map.lockedLayout,
-	  														map.lockOnJoin,
-	  														map.lockOnJoinConfigurable);
+        map.disableMic,
+        map.disablePrivateChat,
+        map.disablePublicChat,
+        map.lockedLayout,
+        map.lockOnJoin,
+        map.lockOnJoinConfigurable);
       UsersUtil.setLockSettings(lockSettings);
     }
     
@@ -488,7 +488,7 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
-
+      
       dispatcher.dispatchEvent(e);
     }
     
@@ -506,8 +506,8 @@ package org.bigbluebutton.modules.users.services
       var perm:Object = map.permissions;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
-                                                 perm.disablePrivateChat, perm.disablePublicChat, 
-                                                 perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
+        perm.disablePrivateChat, perm.disablePublicChat, 
+        perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
       UsersUtil.setLockSettings(lockSettings);
       LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
       
@@ -516,17 +516,17 @@ package org.bigbluebutton.modules.users.services
     
     private function handleInactivityWarning(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);
-
+      
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.INACTIVITY_WARNING_EVENT);
       bbbEvent.payload.duration = map.duration;
       globalDispatcher.dispatchEvent(bbbEvent);
     }
-
+    
     private function handleMeetingIsActive(msg:Object):void {
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.MEETING_IS_ACTIVE_EVENT);
       globalDispatcher.dispatchEvent(bbbEvent);
     }
-
+    
     private function handleGetRecordingStatusReply(msg: Object):void {     
       var body:Object = msg.body as Object;
       var recording: Boolean = body.recording as Boolean;
@@ -535,8 +535,8 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleRecordingStatusChanged(msg: Object):void {    
-        var body:Object = msg.body as Object;
-        var recording: Boolean = body.recording as Boolean;
+      var body:Object = msg.body as Object;
+      var recording: Boolean = body.recording as Boolean;
       sendRecordingStatusUpdate(recording);
     }
     
@@ -548,7 +548,7 @@ package org.bigbluebutton.modules.users.services
       LiveMeeting.inst().voiceUsers.setListenOnlyForUser(userId, listenOnly);
     }
     
-
+    
     private function userTalk(userId:String, talking:Boolean):void { 
       LiveMeeting.inst().voiceUsers.setMutedForUser(userId, talking);
       
@@ -567,8 +567,8 @@ package org.bigbluebutton.modules.users.services
       // Avoid trying to reconnect
       var cancelReconnectEvent:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
       dispatcher.dispatchEvent(cancelReconnectEvent);
-	  var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
-	  dispatcher.dispatchEvent(endMeetingEvent);
+      var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
+      dispatcher.dispatchEvent(endMeetingEvent);
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {     
@@ -577,10 +577,10 @@ package org.bigbluebutton.modules.users.services
       var newPresenterID:String = body.presenterId as String;
       var newPresenterName:String = body.presenterName as String;
       var assignedBy:String = body.assignedBy as String;
-
+      
       UsersUtil.setUserAsPresent(newPresenterID, true);
       sendSwitchedPresenterEvent(true, newPresenterID);
-
+      
       if (UsersUtil.getMyUserID() == newPresenterID) {
         var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
         e.userID = newPresenterID;
@@ -591,17 +591,17 @@ package org.bigbluebutton.modules.users.services
       
       dispatcher.dispatchEvent(new UserStatusChangedEvent(newPresenterID));
     }
-
+    
     public function handleUnassignPresenterCallback(msg:Object):void {
       var body: Object = msg.body as Object;
-
+      
       var oldPresenterID:String = body.intId as String;
       var oldPresenterName:String = body.name as String;
       var assignedBy:String = body.assignedBy as String;
-
+      
       UsersUtil.setUserAsPresent(oldPresenterID, false);
       sendSwitchedPresenterEvent(false, oldPresenterID);
-
+      
       if (UsersUtil.getMyUserID() == oldPresenterID) {
         var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
         e.userID = oldPresenterID;
@@ -609,17 +609,17 @@ package org.bigbluebutton.modules.users.services
         e.assignedBy = assignedBy;
         dispatcher.dispatchEvent(e);
       }
-
+      
       dispatcher.dispatchEvent(new UserStatusChangedEvent(oldPresenterID));
     }
-
+    
     private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
       var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
       roleEvent.amIPresenter = amIPresenter;
       roleEvent.newPresenterUserID = newPresenterUserID;
       dispatcher.dispatchEvent(roleEvent);   
     }
-
+    
     private function handleEmojiStatusHand(msg: Object): void {   
       var body:Object = msg.body as Object;      
       var userId: String = body.userId as String;
@@ -635,7 +635,7 @@ package org.bigbluebutton.modules.users.services
       }
       
     }
-
+    
     private function sendUserEmojiChangedEvent(userId: String, emoji: String):void{
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new UserEmojiChangedEvent(userId, emoji));
@@ -643,145 +643,146 @@ package org.bigbluebutton.modules.users.services
     
     
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
-        var userId: String = msg.body.userId as String; 
-        var streamId: String = msg.body.stream as String;
-        
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["webcam"];
-        logData.message = "UserBroadcastCamStartedEvtMsg server message";
-        logData.user.webcamStream = streamId;
-        LOGGER.info(JSON.stringify(logData));
-
-        var mediaStream: MediaStream = new MediaStream(streamId, userId)
-        LiveMeeting.inst().webcams.add(mediaStream);
-        
-        var webUser: User2x = UsersUtil.getUser(userId);
-        if (webUser != null) {
-          sendStreamStartedEvent(userId, webUser.name, streamId);
-        }
-        
+      var userId: String = msg.body.userId as String; 
+      var streamId: String = msg.body.stream as String;
+      
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["webcam"];
+      logData.message = "UserBroadcastCamStartedEvtMsg server message";
+      logData.user.webcamStream = streamId;
+      LOGGER.info(JSON.stringify(logData));
+      
+      var mediaStream: MediaStream = new MediaStream(streamId, userId)
+      LiveMeeting.inst().webcams.add(mediaStream);
+      
+      var webUser: User2x = UsersUtil.getUser(userId);
+      if (webUser != null) {
+        sendStreamStartedEvent(userId, webUser.name, streamId);
+      }
+      
     }
-
+    
     private function sendStreamStartedEvent(userId: String, name: String, stream: String):void{
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new StreamStartedEvent(userId, name, stream));
     }
     
     private function handleUserBroadcastCamStoppedEvtMsg(msg: Object):void {  
-        var userId: String = msg.body.userId as String; 
-        var stream: String = msg.body.stream as String;
-
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["webcam"];
-        logData.message = "UserBroadcastCamStoppedEvtMsg server message";
-        logData.user.webcamStream = stream;
-        LOGGER.info(JSON.stringify(logData));
-	  
-        LiveMeeting.inst().webcams.remove(stream);
-        
-        sendStreamStoppedEvent(userId, stream);
+      var userId: String = msg.body.userId as String; 
+      var stream: String = msg.body.stream as String;
+      
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["webcam"];
+      logData.message = "UserBroadcastCamStoppedEvtMsg server message";
+      logData.user.webcamStream = stream;
+      LOGGER.info(JSON.stringify(logData));
+      
+      LiveMeeting.inst().webcams.remove(stream);
+      
+      sendStreamStoppedEvent(userId, stream);
     }
-	
-	private function sendStreamStoppedEvent(userId: String, streamId: String):void{
-		var dispatcher:Dispatcher = new Dispatcher();
-		dispatcher.dispatchEvent(new StreamStoppedEvent(userId, streamId));
-	}
     
-	
-	private function handleBreakoutRoomsList(msg:Object):void{
-		for each(var room : Object in msg.body.rooms) {
-			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
-			breakoutRoom.meetingId = room.breakoutId as String;
-			breakoutRoom.externalMeetingId = room.externalId as String;
-			breakoutRoom.name = room.name as String;
-			breakoutRoom.sequence = room.sequence as Number;
-      LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
-		}
-    LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = msg.body.roomsReady as Boolean;
-	}
-	
-	private function handleBreakoutRoomJoinURL(msg:Object):void{
-        var body: Object = msg.body as Object;
-        var externalId: String = body.externalId as String;
-        var redirectJoinURL: String = body.redirectJoinURL as String;
-        
-		var breakoutRoom : BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoomByExternalId(externalId);
-		var sequence : int = breakoutRoom.sequence;
-		
-		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
-		event.joinURL = redirectJoinURL;
-		event.breakoutMeetingSequence = sequence;
-		dispatcher.dispatchEvent(event);
-		
-		// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
-		setTimeout(function() : void {LiveMeeting.inst().breakoutRooms.setLastBreakoutRoomInvitation(sequence)}, 1000);
-	}
-	
-	private function handleUpdateBreakoutUsers(msg:Object):void{
-        var body: Object = msg.body as Object;
-        var breakoutId: String = body.breakoutId as String;
-        var users: Array = body.users as Array;
-        
-        LiveMeeting.inst().breakoutRooms.updateUsers(breakoutId, users);
-    }
-
-	private function handleMeetingTimeRemainingUpdateEvtMsg(msg:Object):void {
- //       var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
- //       e.durationInMinutes = msg.body.timeRemaining;
- //       dispatcher.dispatchEvent(e);
-	}
-	
-	private function handleBreakoutRoomsTimeRemainingUpdate(msg:Object):void {
-		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
-		e.durationInMinutes = msg.body.timeRemaining;
-		dispatcher.dispatchEvent(e);
-	}
-	
-	private function handleBreakoutRoomStarted(msg:Object):void{
-        var breakout: Object = msg.body.breakout as Object;
-        var breakoutId: String = breakout.breakoutId as String;
-        var externalId: String = breakout.externalId as String;
-        var name: String = breakout.name as String;
-        var sequence: int = breakout.sequence as Number;
-        
-		var breakoutRoom : BreakoutRoom = new BreakoutRoom();
-		breakoutRoom.meetingId = breakoutId;
-		breakoutRoom.externalMeetingId = externalId;
-		breakoutRoom.name = name;
-		breakoutRoom.sequence = sequence;
-    LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
-	}
-	
-	private function handleBreakoutRoomClosed(msg:Object):void{
-    var body: Object = msg.body as Object;
-    var breakoutId: String = body.breakoutId as String;
-       
-    switchUserFromBreakoutToMainVoiceConf(breakoutId);
-    var breakoutRoom: BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId);
-    LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(breakoutId);    
-	}
-  
-  private function switchUserFromBreakoutToMainVoiceConf(breakoutId: String): void {
-    // We need to switch the use back to the main audio confrence if he is in a breakout audio conference
-    if (LiveMeeting.inst().breakoutRooms.isListeningToBreakoutRoom(breakoutId)) {
+    private function sendStreamStoppedEvent(userId: String, streamId: String):void{
       var dispatcher:Dispatcher = new Dispatcher();
-      var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
-      e.breakoutMeetingId = breakoutId;
-      e.listen = false;
+      dispatcher.dispatchEvent(new StreamStoppedEvent(userId, streamId));
+    }
+    
+    
+    private function handleBreakoutRoomsList(msg:Object):void{
+      for each(var room : Object in msg.body.rooms) {
+        var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+        breakoutRoom.meetingId = room.breakoutId as String;
+        breakoutRoom.externalMeetingId = room.externalId as String;
+        breakoutRoom.name = room.name as String;
+        breakoutRoom.sequence = room.sequence as Number;
+        LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
+      }
+      LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = msg.body.roomsReady as Boolean;
+    }
+    
+    private function handleBreakoutRoomJoinURL(msg:Object):void{
+      var body: Object = msg.body as Object;
+      var externalId: String = body.externalId as String;
+      var redirectJoinURL: String = body.redirectJoinURL as String;
+      
+      var breakoutRoom : BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoomByExternalId(externalId);
+      var sequence : int = breakoutRoom.sequence;
+      
+      var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
+      event.joinURL = redirectJoinURL;
+      event.breakoutMeetingSequence = sequence;
+      dispatcher.dispatchEvent(event);
+      
+      // We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
+      setTimeout(function() : void {LiveMeeting.inst().breakoutRooms.setLastBreakoutRoomInvitation(sequence)}, 1000);
+    }
+    
+    private function handleUpdateBreakoutUsers(msg:Object):void{
+      var body: Object = msg.body as Object;
+      var breakoutId: String = body.breakoutId as String;
+      var users: Array = body.users as Array;
+      
+      LiveMeeting.inst().breakoutRooms.updateUsers(breakoutId, users);
+    }
+    
+    private function handleMeetingTimeRemainingUpdateEvtMsg(msg:Object):void {
+      trace("Message meeting time remaining " + msg.body.timeLeftInSec);
+      var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
+      e.durationInMinutes = msg.body.timeLeftInSec;
       dispatcher.dispatchEvent(e);
     }
-  }
-
+    
+    private function handleBreakoutRoomsTimeRemainingUpdate(msg:Object):void {
+      var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
+      e.durationInMinutes = msg.body.timeRemaining;
+      dispatcher.dispatchEvent(e);
+    }
+    
+    private function handleBreakoutRoomStarted(msg:Object):void{
+      var breakout: Object = msg.body.breakout as Object;
+      var breakoutId: String = breakout.breakoutId as String;
+      var externalId: String = breakout.externalId as String;
+      var name: String = breakout.name as String;
+      var sequence: int = breakout.sequence as Number;
+      
+      var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+      breakoutRoom.meetingId = breakoutId;
+      breakoutRoom.externalMeetingId = externalId;
+      breakoutRoom.name = name;
+      breakoutRoom.sequence = sequence;
+      LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
+    }
+    
+    private function handleBreakoutRoomClosed(msg:Object):void{
+      var body: Object = msg.body as Object;
+      var breakoutId: String = body.breakoutId as String;
+      
+      switchUserFromBreakoutToMainVoiceConf(breakoutId);
+      var breakoutRoom: BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId);
+      LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(breakoutId);    
+    }
+    
+    private function switchUserFromBreakoutToMainVoiceConf(breakoutId: String): void {
+      // We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+      if (LiveMeeting.inst().breakoutRooms.isListeningToBreakoutRoom(breakoutId)) {
+        var dispatcher:Dispatcher = new Dispatcher();
+        var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+        e.breakoutMeetingId = breakoutId;
+        e.listen = false;
+        dispatcher.dispatchEvent(e);
+      }
+    }
+    
     public function handleGuestPolicyChanged(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
       var policy: String = body.policy as String;
-
+      
       var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
       policyEvent.payload['guestPolicy'] = policy;
       dispatcher.dispatchEvent(policyEvent);
     }
-
+    
     public function handleGetGuestPolicyReply(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
@@ -793,11 +794,11 @@ package org.bigbluebutton.modules.users.services
       policyEvent.payload['guestPolicy'] = policyEvent;
       dispatcher.dispatchEvent(policyEvent);
     }
-
+    
     public function handleGuestAccessDenied(msg:Object):void {
       LOGGER.debug("*** handleGuestAccessDenied " + msg.msg + " ****");
       var map:Object = JSON.parse(msg.msg);
-
+      
       if (UsersUtil.getMyUserID() == map.userId) {
         dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
       }

@@ -15,7 +15,7 @@ trait SendTimeRemainingUpdateHdlr {
 
   def handleSendTimeRemainingUpdate(msg: SendTimeRemainingAuditInternalMsg, state: MeetingState2x): MeetingState2x = {
 
-    if (liveMeeting.props.durationProps.duration > 0) {
+    if (state.expiryTracker.durationInMinutes > 0) {
       val endMeetingTime = state.expiryTracker.endMeetingTime()
       val timeRemaining = endMeetingTime - TimeUtil.timeNowInSeconds
 
