@@ -30,14 +30,15 @@ export default function addUser(meetingId, user) {
     user.role = ROLE_VIEWER;
   }
 
-  const userRoles = [];
-  userRoles.push('viewer');
-  if (user.presenter) {
-    userRoles.push('presenter');
-  }
-  if (user.role === 'MODERATOR') {
-    userRoles.push('moderator');
-  }
+  let userRoles = [];
+
+  userRoles.push(
+    'viewer',
+    user.presenter ? 'presenter' : false,
+    user.role === 'MODERATOR' ? 'moderator' : false,
+  );
+
+  userRoles = userRoles.filter(Boolean);
 
   const modifier = {
     $set: {

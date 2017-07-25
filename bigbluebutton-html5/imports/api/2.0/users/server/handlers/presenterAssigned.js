@@ -48,13 +48,17 @@ export default function handlePresenterAssigned({ body }, meetingId) {
     },
   };
 
-  const cb = (err) => {
+  const cb = (err, numChange) => {
     if (err) {
       return Logger.error(`Assigning user as presenter: ${err}`);
     }
 
-    unassignCurrentPresenter(meetingId, presenterId);
-    return Logger.info(`Assigned user as presenter id=${presenterId} meeting=${meetingId}`);
+    if (numChange) {
+      unassignCurrentPresenter(meetingId, presenterId);
+      return Logger.info(`Assigned user as presenter id=${presenterId} meeting=${meetingId}`);
+    }
+
+    return Logger.info(`User not assigned as presenter id=${presenterId} meeting=${meetingId}`);
   };
 
   return Users.update(selector, modifier, cb);
