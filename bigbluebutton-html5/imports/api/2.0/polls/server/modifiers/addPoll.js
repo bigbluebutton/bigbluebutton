@@ -1,6 +1,7 @@
 import Users from '/imports/api/2.0/users';
 import Polls from '/imports/api/2.0/polls';
 import Logger from '/imports/startup/server/logger';
+import flat from 'flat';
 import { check } from 'meteor/check';
 
 export default function addPoll(meetingId, requesterId, poll) {
@@ -20,21 +21,21 @@ export default function addPoll(meetingId, requesterId, poll) {
   };
 
   const userIds = Users.find(selector, options)
-                       .fetch()
-                       .map(user => user.user.userid);
+    .fetch()
+    .map(user => user.user.userid);
 
   selector = {
     meetingId,
     requester: requesterId,
-    'poll.id': poll.id,
+    id: poll.id,
   };
 
-  const modifier = {
-    meetingId,
-    poll,
-    requester: requesterId,
-    users: userIds,
-  };
+  const modifier = Object.assign(
+    { meetingId },
+    { requester: requesterId },
+    { users: userIds },
+    flat(poll, { safe: true }),
+  );
 
   const cb = (err, numChanged) => {
     if (err != null) {
