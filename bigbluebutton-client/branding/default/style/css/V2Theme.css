@@ -981,10 +981,6 @@ presentation|FileUploadWindow {
 	color : #2A2D33;
 }
 
-.presentationUploadCancelButtonStyle {
-	color : #2A2D33;
-}
-
 .presentationUploadShowButtonStyle {
 	color : #2A2D33;
 }
@@ -1096,11 +1092,15 @@ sharednotes|SharedNotesRichTextEditor {
 */
 
 mx|TitleWindow {
-	borderColor          : #FFFFFF;
-	cornerRadius         : 4;
-	roundedBottomCorners : true;
-	dropShadowEnabled    : true;
-	shadowDistance       : 0;
+	closeButtonDisabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
+	closeButtonDownSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
+	closeButtonOverSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
+	closeButtonUpSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
+	borderColor             : #FFFFFF;
+	cornerRadius            : 4;
+	roundedBottomCorners    : true;
+	dropShadowEnabled       : true;
+	shadowDistance          : 0;
 }
 
 /*
