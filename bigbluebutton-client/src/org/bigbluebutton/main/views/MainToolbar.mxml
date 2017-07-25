@@ -509,7 +509,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
     
-    <mx:Image id="logo" right="20" maxHeight="30" ioError="hideLogo()" />
+    <mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
