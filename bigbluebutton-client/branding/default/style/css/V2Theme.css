@@ -284,15 +284,14 @@ mx|ApplicationControlBar {
 }
 
 .quickWindowLinkStyle {
-	/* FIXME */
 	paddingLeft       : 0;
 	paddingRight      : 0;
 	textDecoration    : underline;
-	rollOverColor     : #CCCCCC;
-	selectionColor    : #999999;
-	color             : #FFFFFF;
-	textRollOverColor : #504F3D;
-	textSelectedColor : #504F3D;
+	rollOverColor     : #1070D7;
+	selectionColor    : #0A5EAC;
+	color             : #4E5A66;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
 }
 
 .helpLinkButtonStyle {
