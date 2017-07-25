@@ -2,15 +2,14 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor, OutMsgRouter }
 
 trait BreakoutRoomCreatedMsgHdlr extends SystemConfiguration {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleBreakoutRoomCreatedMsg(msg: BreakoutRoomCreatedMsg): Unit = {
 

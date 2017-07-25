@@ -78,10 +78,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>
 
-    <bean id="lock.service" class="org.bigbluebutton.red5.service.LockService">
-        <property name="red5Publisher"><ref bean="red5Publisher"/></property>
-    </bean>
-
     <bean id="participants.service" class="org.bigbluebutton.red5.service.ParticipantsService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>

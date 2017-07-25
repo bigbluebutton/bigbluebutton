@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.chat
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait SendPrivateMessagePubMsgHdlr {
   this: ChatApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSendPrivateMessagePubMsg(msg: SendPrivateMessagePubMsg): Unit = {
     def broadcastEvent(message: ChatMessageVO, userId: String): Unit = {

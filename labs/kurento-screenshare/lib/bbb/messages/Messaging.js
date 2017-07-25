@@ -16,10 +16,10 @@ var DeskShareRTMPBroadcastStartedEventMessage =
     require('./screenshare/DeskShareRTMPBroadcastStartedEventMessage.js')(Constants);
 var DeskShareRTMPBroadcastStoppedEventMessage =
     require('./screenshare/DeskShareRTMPBroadcastStoppedEventMessage.js')(Constants);
-var DeskShareRTMPBroadcastStartedEventMessage2x =
-    require('./screenshare/DeskShareRTMPBroadcastStartedEventMessage2x.js')(Constants);
-var DeskShareRTMPBroadcastStoppedEventMessage2x =
-    require('./screenshare/DeskShareRTMPBroadcastStoppedEventMessage2x.js')(Constants);
+var ScreenshareRTMPBroadcastStartedEventMessage2x =
+    require('./screenshare/ScreenshareRTMPBroadcastStartedEventMessage2x.js')(Constants);
+var ScreenshareRTMPBroadcastStoppedEventMessage2x =
+    require('./screenshare/ScreenshareRTMPBroadcastStoppedEventMessage2x.js')(Constants);
 
 
  /**
@@ -53,15 +53,15 @@ Messaging.prototype.generateDeskShareRTMPBroadcastStoppedEvent =
   return stodrbem.toJson();
 }
 
-Messaging.prototype.generateDeskShareRTMPBroadcastStartedEvent2x = 
+Messaging.prototype.generateScreenshareRTMPBroadcastStartedEvent2x =
   function(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp) {
-  var stadrbem = new DeskShareRTMPBroadcastStartedEventMessage2x(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp);
+  var stadrbem = new ScreenshareRTMPBroadcastStartedEventMessage2x(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp);
   return stadrbem.toJson();
 }
 
-Messaging.prototype.generateDeskShareRTMPBroadcastStoppedEvent2x = 
+Messaging.prototype.generateScreenshareRTMPBroadcastStoppedEvent2x =
   function(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp) {
-  var stodrbem = new DeskShareRTMPBroadcastStoppedEventMessage2x(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp);
+  var stodrbem = new ScreenshareRTMPBroadcastStoppedEventMessage2x(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp);
   return stodrbem.toJson();
 }
 

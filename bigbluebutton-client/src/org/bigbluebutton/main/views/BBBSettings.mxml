@@ -10,15 +10,11 @@
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.ItemClickEvent;
-			import mx.managers.PopUpManager;
 			import mx.core.UIComponent;
-
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
+			import mx.managers.PopUpManager;
+			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.events.SettingsComponentEvent;
 
 			private function init():void {
 				this.x = (this.parent.width - this.width) / 2;

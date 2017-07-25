@@ -2,15 +2,13 @@ package org.bigbluebutton.core.apps.presentation
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.common2.domain.PresentationVO
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.apps.Presentation
 
 class PresentationApp2x(
   val liveMeeting: LiveMeeting,
-  val outGW:       OutMessageGateway
+  val outGW:       OutMsgRouter
 )(implicit val context: ActorContext)
     extends NewPresentationMsgHdlr
     with SetCurrentPresentationPubMsgHdlr
@@ -63,8 +61,8 @@ class PresentationApp2x(
     // 100D-checkedWidth is the maximum the page can be moved over
     val checkedWidth = Math.min(Math.max(widthRatio, 25D), 100D) //if (widthRatio <= 100D) widthRatio else 100D
     val checkedHeight = Math.min(Math.max(heightRatio, 25D), 100D)
-    val checkedXOffset = Math.min(Math.max(xOffset, 0D), 100D - checkedWidth)
-    val checkedYOffset = Math.min(Math.max(yOffset, 0D), 100D - checkedHeight)
+    val checkedXOffset = Math.min(xOffset, 0D)
+    val checkedYOffset = Math.min(yOffset, 0D)
 
     liveMeeting.presModel.resizePage(presentationId, pageId, checkedXOffset, checkedYOffset, checkedWidth, checkedHeight);
   }

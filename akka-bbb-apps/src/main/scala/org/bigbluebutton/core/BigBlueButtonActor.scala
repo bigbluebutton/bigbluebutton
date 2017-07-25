@@ -21,7 +21,7 @@ import org.bigbluebutton.core2.message.senders.MsgBuilder
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
     system:    ActorSystem,
-    eventBus:  IncomingEventBus,
+    eventBus:  InternalEventBus,
     bbbMsgBus: BbbMsgRouterEventBus,
     outGW:     OutMessageGateway
   ): Props =
@@ -30,7 +30,7 @@ object BigBlueButtonActor extends SystemConfiguration {
 
 class BigBlueButtonActor(
   val system:   ActorSystem,
-  val eventBus: IncomingEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
+  val eventBus: InternalEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
   val outGW: OutMessageGateway
 ) extends Actor
     with ActorLogging with SystemConfiguration {
@@ -59,21 +59,21 @@ class BigBlueButtonActor(
   }
 
   def receive = {
-    // 2x messages
-    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
+    // Internal messages
+    case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
 
-    case msg: ValidateAuthToken   => handleValidateAuthToken(msg)
-    case _                        => // do nothing
+    // 2x messages
+    case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
+    case _                              => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: CreateMeetingReqMsg     => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg      => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg    => handleGetAllMeetingsReqMsg(m)
-      case m: PubSubPingSysReqMsg     => handlePubSubPingSysReqMsg(m)
-      case m: DestroyMeetingSysCmdMsg => handleDestroyMeeting(m)
-      case _                          => log.warning("Cannot handle " + msg.envelope.name)
+      case m: CreateMeetingReqMsg  => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg   => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
+      case m: PubSubPingSysReqMsg  => handlePubSubPingSysReqMsg(m)
+      case _                       => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -109,7 +109,7 @@ class BigBlueButtonActor(
 
         // Send new 2x message
         val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(m.props.meetingProp.intId, msg.body.props)
-        outGW.send(msgEvent)
+        m.outMsgRouter.send(msgEvent)
 
       case Some(m) =>
         log.info("Meeting already created. meetingID={}", msg.body.props.meetingProp.intId)
@@ -125,70 +125,40 @@ class BigBlueButtonActor(
     })
   }
 
-  private def handleValidateAuthToken(msg: ValidateAuthToken) {
-    for {
-      m <- RunningMeetings.findWithId(meetings, msg.meetingID)
-    } yield {
-      m.actorRef forward (msg)
-    }
-
-    //meetings.get(msg.meetingID) foreach { m =>
-    //  m.actorRef ! msg
-
-    //      val future = m.actorRef.ask(msg)(5 seconds)
-    //      future onComplete {
-    //        case Success(result) => {
-    //          log.info("Validate auth token response. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-    //          /**
-    //           * Received a reply from MeetingActor which means hasn't hung!
-    //           * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
-    //           * audit to check whether the actor is still alive. (ralam feb 25, 2015)
-    //           */
-    //        }
-    //        case Failure(failure) => {
-    //          log.warning("Validate auth token timeout. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-    //          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
-    //        }
-    //      }
-    //}
-  }
-
   private def handlePubSubPingSysReqMsg(msg: PubSubPingSysReqMsg): Unit = {
     val event = MsgBuilder.buildPubSubPongSysRespMsg(msg.body.system, msg.body.timestamp)
     outGW.send(event)
   }
 
-  private def handleDestroyMeeting(msg: DestroyMeetingSysCmdMsg): Unit = {
+  private def handleDestroyMeeting(msg: DestroyMeetingInternalMsg): Unit = {
 
     for {
-      m <- RunningMeetings.findWithId(meetings, msg.body.meetingId)
-      m2 <- RunningMeetings.remove(meetings, msg.body.meetingId)
+      m <- RunningMeetings.findWithId(meetings, msg.meetingId)
+      m2 <- RunningMeetings.remove(meetings, msg.meetingId)
     } yield {
-      // send the message for MeetingActor to handle too
-      m.actorRef ! msg
+      /** Unsubscribe to meeting and voice events. **/
+      eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
+      eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
+      eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
-      // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client
+      bbbMsgBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
+      bbbMsgBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
+      bbbMsgBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
+
+      // Delay sending DisconnectAllUsers to allow messages to reach the client
+      // before the connections are closed.
       context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
         // Disconnect all clients
 
-        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.body.meetingId)
-        outGW.send(disconnectEvnt)
+        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingId)
+        m2.outMsgRouter.send(disconnectEvnt)
 
-        val stopTranscodersCmd = MsgBuilder.buildStopMeetingTranscodersSysCmdMsg(msg.body.meetingId)
-        outGW.send(stopTranscodersCmd)
+        val stopTranscodersCmd = MsgBuilder.buildStopMeetingTranscodersSysCmdMsg(msg.meetingId)
+        m2.outMsgRouter.send(stopTranscodersCmd)
 
-        log.info("Destroyed meetingId={}", msg.body.meetingId)
-        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.body.meetingId)
-        outGW.send(destroyedEvent)
-
-        /** Unsubscribe to meeting and voice events. **/
-        eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
-        eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
-
-        bbbMsgBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
-        bbbMsgBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        bbbMsgBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
+        log.info("Destroyed meetingId={}", msg.meetingId)
+        val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.meetingId)
+        m2.outMsgRouter.send(destroyedEvent)
 
         // Stop the meeting actor.
         context.stop(m.actorRef)

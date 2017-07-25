@@ -13,5 +13,21 @@ package org.bigbluebutton.core.model
       this.streamId = streamId;
       this.userId = userId;
     }
+    
+    public function addViewer(userId: String):void {
+        for (var i: int=0; i < viewers.length; i++) {
+            var viewer: String = viewers[i] as String;
+            if (viewer == userId) return;
+        }
+        
+        viewers.push(userId);
+    }
+    
+    public function removeViewer(userId: String):void {
+        var index: int = viewers.indexOf(userId);
+        if (index > -1 && index < viewers.length) {
+            viewers.removeAt(index);
+        }
+    }
   }
 }

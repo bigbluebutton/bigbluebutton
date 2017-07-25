@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.models.{ BreakoutRooms, Users2x, VoiceUser2x, VoiceUsers }
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.models.{ BreakoutRooms, VoiceUsers }
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait TransferUserToMeetingRequestHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleTransferUserToMeetingRequestMsg(msg: TransferUserToMeetingRequestMsg): Unit = {
 

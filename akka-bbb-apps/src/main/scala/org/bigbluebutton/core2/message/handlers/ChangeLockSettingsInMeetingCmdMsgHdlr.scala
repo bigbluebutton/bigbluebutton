@@ -1,14 +1,13 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.Permissions
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait ChangeLockSettingsInMeetingCmdMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg) {
     val settings = Permissions(

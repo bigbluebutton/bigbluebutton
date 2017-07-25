@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait LockLayoutMsgHdlr {
   this: LayoutApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleLockLayoutMsg(msg: LockLayoutMsg): Unit = {
 
