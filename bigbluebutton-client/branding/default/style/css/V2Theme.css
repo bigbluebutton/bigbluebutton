@@ -296,18 +296,12 @@ mx|ApplicationControlBar {
 }
 
 .helpLinkButtonStyle {
-	/* FIXME */
-	paddingLeft       : 4;
-	paddingRight      : 4;
-	paddingTop        : 2;
-	paddingBottom     : 2;
-	fontSize          : 16;
-	rollOverColor     : #CCCCCC;
-	selectionColor    : #999999;
-	color             : #FFFFFF;
-	textRollOverColor : #504F3D;
-	textSelectedColor : #504F3D;
-	fontWeight        : bold;
+	cornerRadius   : 2;
+	rollOverColor  : #1070D7;
+	selectionColor : #0A5EAC;
+	icon           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help");
+	overIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
+	downIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
 }
 
 /*
@@ -756,8 +750,10 @@ flexlib|MDIWindow {
 }
 
 .mdiWindowTitle {
-	color    : #2A2D33;
-	fontSize : 12;
+	color        : #2A2D33;
+	fontSize     : 12;
+	paddingLeft  : 12;
+	paddingRight : 12;
 }
 
 .mdiWindowNoFocus {
