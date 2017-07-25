@@ -167,7 +167,7 @@ package org.bigbluebutton.skins {
 				case "overSkin": // for hover on the main button (left) side
 				{
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorOver, 1);
 
 					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorOver, 1);
 
@@ -185,7 +185,7 @@ package org.bigbluebutton.skins {
 					arrowColor = arrowColorOver;
 					
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorOver, 1);
 
 					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorOver, 1);
 
@@ -203,7 +203,7 @@ package org.bigbluebutton.skins {
 					// button border/ddge
 					drawRoundRect(0, 0, w, h, cr, borderColorDown, 1);
 
-					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorUp, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorDown, 1);
 
 					// button fill                
 					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
@@ -219,9 +219,9 @@ package org.bigbluebutton.skins {
 					arrowColor = arrowColorDown;
 					
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorDown, 1);
 
-					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, fillColorDown, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorDown, 1);
 
 					// button fill                
 					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
