@@ -48,7 +48,9 @@ trait AppsTestFixtures {
     duration = durationInMinutes,
     createdTime = createTime, createdDate = createDate,
     maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes,
-    warnMinutesBeforeMax = warnMinutesBeforeMax
+    warnMinutesBeforeMax = warnMinutesBeforeMax,
+    meetingExpireIfNoUserJoinedInMinutes = 5,
+    meetingExpireWhenLastUserLeftInMinutes = 1
   )
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
@@ -105,7 +107,7 @@ trait AppsTestFixtures {
     // We extract the meeting handlers into this class so it is
     // easy to test.
     new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
-      registeredUsers, polls2x, wbModel, presModel, breakoutRooms, captionModel,
+      registeredUsers, polls2x, wbModel, presModel, captionModel,
       notesModel, webcams, voiceUsers, users2x, guestsWaiting)
   }
 }

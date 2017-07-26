@@ -49,6 +49,8 @@ package org.bigbluebutton.main.events {
 		
 		public static const FOCUS_CAPTION_WINDOW:String = 'FOCUS_CAPTION_WINDOW';
 		
+		public static const FOCUS_SHARED_NOTES_WINDOW:String = 'FOCUS_SHARED_NOTES_WINDOW';
+		
 		public static const REMOTE_FOCUS_DESKTOP:String = 'REMOTE_FOCUS_DESKTOP';
 		public static const REMOTE_FOCUS_WEBCAM:String = 'REMOTE_FOCUS_WEBCAM';
 		// Remote focus microphone not necessary; audio options already hog focus

@@ -9,7 +9,7 @@ package org.bigbluebutton.core.model
   import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
   import org.bigbluebutton.core.events.BreakoutRoomsReadyEvent;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
-
+  
   public class BreakoutRooms
   {
     private var dispatcher:Dispatcher = new Dispatcher();
@@ -130,6 +130,20 @@ package org.bigbluebutton.core.model
         return true;
       }
       return false;
+    }
+    
+    public function updateUsers(breakoutId: String, users: Array): void {
+      var breakout: BreakoutRoom = getBreakoutRoom(breakoutId);
+      if (breakout != null) {
+        if (users != null) {
+          for (var i: int = 0; i < users.length; i++) {
+            var user: Object = users[i] as Object;
+            var buser: BreakoutUser = new BreakoutUser(user.id, user.name);
+            breakout.addUser(buser);
+          }
+        }
+      }
+      dispatcher.dispatchEvent(new BreakoutRoomsListUpdatedEvent());
     }
     
     public function setBreakoutRoomInListen(listen:Boolean, breakoutMeetingId:String):void {

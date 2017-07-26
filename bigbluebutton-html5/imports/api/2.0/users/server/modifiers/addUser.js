@@ -2,8 +2,6 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
 
-import requestStunTurn from '../methods/requestStunTurn';
-
 export default function addUser(meetingId, user) {
   check(user, Object);
   check(meetingId, String);
@@ -32,10 +30,15 @@ export default function addUser(meetingId, user) {
     user.role = ROLE_VIEWER;
   }
 
-  const userRoles = [];
-  userRoles.push('viewer');
-  userRoles.push(user.presenter ? 'presenter' : undefined);
-  userRoles.push(user.role === 'MODERATOR' ? 'moderator' : undefined);
+  let userRoles = [];
+
+  userRoles.push(
+    'viewer',
+    user.presenter ? 'presenter' : false,
+    user.role === 'MODERATOR' ? 'moderator' : false,
+  );
+
+  userRoles = userRoles.filter(Boolean);
 
   const modifier = {
     $set: {
@@ -82,9 +85,7 @@ export default function addUser(meetingId, user) {
       return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-    }
+    return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
   };
 
   return Users.upsert(selector, modifier, cb);

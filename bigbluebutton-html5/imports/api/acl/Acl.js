@@ -9,9 +9,6 @@ export class Acl {
   }
 
   can(permission, credentials) {
-
-    return true; // TODO !!!! REMOVE THIS
-
     check(permission, String);
     const permissions = this.getPermissions(credentials);
 

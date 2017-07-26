@@ -16,7 +16,8 @@ trait MeetingActivityResponseCmdMsgHdlr {
     state: MeetingState2x
   ): MeetingState2x = {
     processMeetingActivityResponse(liveMeeting.props, outGW, msg)
-    MeetingInactivityTracker.resetWarningSentAndTimestamp(state)
+    val tracker = state.inactivityTracker.resetWarningSentAndTimestamp()
+    state.update(tracker)
   }
 
   def processMeetingActivityResponse(

@@ -74,6 +74,7 @@ class MeetingActor(
     with EndMeetingSysCmdMsgHdlr
     with DestroyMeetingSysCmdMsgHdlr
     with SendTimeRemainingUpdateHdlr
+    with SendBreakoutTimeRemainingMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -102,26 +103,26 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
 
-  val expiryTrackerHelper = new MeetingExpiryTrackerHelper(liveMeeting, outGW, eventBus)
+  object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
   val inactivityTracker = new MeetingInactivityTracker(
-    props.durationProps.maxInactivityTimeoutMinutes,
-    props.durationProps.warnMinutesBeforeMax,
-    lastActivityTimestamp = TimeUtil.timeNowInSeconds(),
+    TimeUtil.minutesToMillis(props.durationProps.maxInactivityTimeoutMinutes),
+    TimeUtil.minutesToMillis(props.durationProps.warnMinutesBeforeMax),
+    lastActivityTimestampInMs = TimeUtil.timeNowInMs(),
     warningSent = false,
-    warningSentOnTimestamp = 0L
+    warningSentOnTimestampInMs = 0L
   )
 
   val expiryTracker = new MeetingExpiryTracker(
-    startedOn = TimeUtil.timeNowInSeconds(),
+    startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
-    lastUserLeftOn = None,
-    durationInMinutes = props.durationProps.duration,
-    meetingExpireIfNoUserJoinedInMinutes = props.durationProps.meetingExpireIfNoUserJoinedInMinutes,
-    meetingExpireWhenLastUserLeftInMinutes = props.durationProps.meetingExpireWhenLastUserLeftInMinutes
+    lastUserLeftOnInMs = None,
+    durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
+    meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
+    meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
-  var state = new MeetingState2x(inactivityTracker, expiryTracker)
+  var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -131,24 +132,34 @@ class MeetingActor(
   def receive = {
     //=============================
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg              => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg             => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                 => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg               => handleGetAllMeetingsReqMsg(m)
+    case m: RegisterUserReqMsg                => usersApp.handleRegisterUserReqMsg(m)
+    case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg            => handleDestroyMeetingSysCmdMsg(m)
+    case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)
 
     //======================================
 
     //=======================================
-    // old messages
-    case msg: MonitorNumberOfUsersInternalMsg  => handleMonitorNumberOfUsers(msg)
+    // internal messages
+    case msg: MonitorNumberOfUsersInternalMsg => handleMonitorNumberOfUsers(msg)
 
-    case msg: ExtendMeetingDuration            => handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingUpdate          => state = handleSendTimeRemainingUpdate(msg, state)
+    case msg: ExtendMeetingDuration           => handleExtendMeetingDuration(msg)
+    case msg: SendTimeRemainingAuditInternalMsg =>
+      state = handleSendTimeRemainingUpdate(msg, state)
+      state = handleSendBreakoutTimeRemainingMsg(msg, state)
+    case msg: BreakoutRoomCreatedInternalMsg =>
+      state = handleBreakoutRoomCreatedInternalMsg(msg, state)
+    case msg: SendBreakoutUsersAuditInternalMsg => handleSendBreakoutUsersUpdateInternalMsg(msg)
+    case msg: BreakoutRoomUsersUpdateInternalMsg =>
+      state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
+    case msg: EndBreakoutRoomInternalMsg => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: BreakoutRoomEndedInternalMsg =>
+      state = handleBreakoutRoomEndedInternalMsg(msg, state)
 
     // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
@@ -157,7 +168,8 @@ class MeetingActor(
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
-    state = MeetingInactivityTracker.updateLastActivityTimestamp(state, TimeUtil.timeNowInSeconds())
+    val tracker = state.inactivityTracker.updateLastActivityTimestamp(TimeUtil.timeNowInMs())
+    state = state.update(tracker)
 
     msg.core match {
       // Users
@@ -172,41 +184,42 @@ class MeetingActor(
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
-      case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
-      case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
-      case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
-      case m: EjectUserFromMeetingCmdMsg => usersApp.handleEjectUserFromMeetingCmdMsg(m)
-      case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg      => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
+      case m: SetRecordingStatusCmdMsg       => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: GetRecordingStatusReqMsg       => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: ChangeUserEmojiCmdMsg          => handleChangeUserEmojiCmdMsg(m)
+      case m: EjectUserFromMeetingCmdMsg     => usersApp.handleEjectUserFromMeetingCmdMsg(m)
+      case m: GetUsersMeetingReqMsg          => usersApp.handleGetUsersMeetingReqMsg(m)
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg => handleSendCursorPositionPubMsg(m)
-      case m: ClearWhiteboardPubMsg => handleClearWhiteboardPubMsg(m)
-      case m: UndoWhiteboardPubMsg => handleUndoWhiteboardPubMsg(m)
-      case m: ModifyWhiteboardAccessPubMsg => handleModifyWhiteboardAccessPubMsg(m)
-      case m: GetWhiteboardAccessReqMsg => handleGetWhiteboardAccessReqMsg(m)
+      case m: SendCursorPositionPubMsg       => handleSendCursorPositionPubMsg(m)
+      case m: ClearWhiteboardPubMsg          => handleClearWhiteboardPubMsg(m)
+      case m: UndoWhiteboardPubMsg           => handleUndoWhiteboardPubMsg(m)
+      case m: ModifyWhiteboardAccessPubMsg   => handleModifyWhiteboardAccessPubMsg(m)
+      case m: GetWhiteboardAccessReqMsg      => handleGetWhiteboardAccessReqMsg(m)
       case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
       case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
 
       // Poll
-      case m: StartPollReqMsg => handleStartPollReqMsg(m)
-      case m: StartCustomPollReqMsg => handleStartCustomPollReqMsg(m)
-      case m: StopPollReqMsg => handleStopPollReqMsg(m)
-      case m: ShowPollResultReqMsg => handleShowPollResultReqMsg(m)
-      case m: HidePollResultReqMsg => handleHidePollResultReqMsg(m)
-      case m: GetCurrentPollReqMsg => handleGetCurrentPollReqMsg(m)
-      case m: RespondToPollReqMsg => handleRespondToPollReqMsg(m)
+      case m: StartPollReqMsg                => handleStartPollReqMsg(m)
+      case m: StartCustomPollReqMsg          => handleStartCustomPollReqMsg(m)
+      case m: StopPollReqMsg                 => handleStopPollReqMsg(m)
+      case m: ShowPollResultReqMsg           => handleShowPollResultReqMsg(m)
+      case m: HidePollResultReqMsg           => handleHidePollResultReqMsg(m)
+      case m: GetCurrentPollReqMsg           => handleGetCurrentPollReqMsg(m)
+      case m: RespondToPollReqMsg            => handleRespondToPollReqMsg(m)
 
       // Breakout
-      case m: BreakoutRoomsListMsg => handleBreakoutRoomsListMsg(m)
-      case m: CreateBreakoutRoomsCmdMsg => handleCreateBreakoutRoomsCmdMsg(m)
-      case m: EndAllBreakoutRoomsMsg => handleEndAllBreakoutRoomsMsg(m)
-      case m: RequestBreakoutJoinURLReqMsg => handleRequestBreakoutJoinURLReqMsg(m)
-      case m: BreakoutRoomCreatedMsg => handleBreakoutRoomCreatedMsg(m)
-      case m: BreakoutRoomEndedMsg => handleBreakoutRoomEndedMsg(m)
-      case m: BreakoutRoomUsersUpdateMsg => handleBreakoutRoomUsersUpdateMsg(m)
-      case m: SendBreakoutUsersUpdateMsg => handleSendBreakoutUsersUpdateMsg(m)
-      case m: TransferUserToMeetingRequestMsg => handleTransferUserToMeetingRequestMsg(m)
+      case m: BreakoutRoomsListMsg =>
+        state = handleBreakoutRoomsListMsg(m, state)
+      case m: CreateBreakoutRoomsCmdMsg =>
+        state = handleCreateBreakoutRoomsCmdMsg(m, state)
+      case m: EndAllBreakoutRoomsMsg =>
+        state = handleEndAllBreakoutRoomsMsg(m, state)
+      case m: RequestBreakoutJoinURLReqMsg =>
+        state = handleRequestBreakoutJoinURLReqMsg(m, state)
+      case m: TransferUserToMeetingRequestMsg =>
+        state = handleTransferUserToMeetingRequestMsg(m, state)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg => handleUserLeftVoiceConfEvtMsg(m)
@@ -315,8 +328,8 @@ class MeetingActor(
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
-    state = expiryTrackerHelper.processMeetingInactivityAudit(state)
-    state = expiryTrackerHelper.processMeetingExpiryAudit(state)
+    state = ExpiryTrackerHelper.processMeetingInactivityAudit(outGW, eventBus, liveMeeting, state)
+    state = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {

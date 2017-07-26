@@ -32,6 +32,7 @@
 		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
 		<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
 		<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+		<mate:Listener type="{ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW}" method="focusWindow" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -57,6 +58,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.main.views.WellPositionedMenu;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
@@ -432,6 +434,12 @@
 
 			public function handleResizableStatus(value:Boolean):void {
 				this.resizable = value;
+			}
+			
+			private function focusWindow(e:ShortcutEvent):void {
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
 			}
 
 		]]>
