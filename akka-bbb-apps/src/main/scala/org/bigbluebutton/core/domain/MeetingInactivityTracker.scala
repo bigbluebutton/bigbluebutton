@@ -3,103 +3,93 @@ package org.bigbluebutton.core.domain
 import org.bigbluebutton.core.util.TimeUtil
 
 case class MeetingInactivityTracker(
-    val maxInactivityTimeoutMinutes: Int,
-    val warningMinutesBeforeMax:     Int,
-    lastActivityTimestamp:           Long,
-    warningSent:                     Boolean,
-    warningSentOnTimestamp:          Long
+    val maxInactivityTimeoutInMs: Long,
+    val warningBeforeMaxInMs:     Long,
+    lastActivityTimestampInMs:    Long,
+    warningSent:                  Boolean,
+    warningSentOnTimestampInMs:   Long
 ) {
-  def setWarningSentAndTimestamp(nowInSeconds: Long): MeetingInactivityTracker = {
-    copy(warningSent = true, warningSentOnTimestamp = nowInSeconds)
+  def setWarningSentAndTimestamp(nowInMs: Long): MeetingInactivityTracker = {
+    copy(warningSent = true, warningSentOnTimestampInMs = nowInMs)
   }
 
   def resetWarningSentAndTimestamp(): MeetingInactivityTracker = {
-    copy(warningSent = false, warningSentOnTimestamp = 0L)
+    copy(warningSent = false, warningSentOnTimestampInMs = 0L)
   }
 
-  def updateLastActivityTimestamp(nowInSeconds: Long): MeetingInactivityTracker = {
-    copy(lastActivityTimestamp = nowInSeconds)
+  def updateLastActivityTimestamp(nowInMs: Long): MeetingInactivityTracker = {
+    copy(lastActivityTimestampInMs = nowInMs)
   }
 
-  def hasRecentActivity(nowInSeconds: Long): Boolean = {
-    nowInSeconds - lastActivityTimestamp <
-      TimeUtil.minutesToSeconds(maxInactivityTimeoutMinutes) -
-      TimeUtil.minutesToSeconds(warningMinutesBeforeMax)
+  def hasRecentActivity(nowInMs: Long): Boolean = {
+    nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
   }
 
-  def isMeetingInactive(nowInSeconds: Long): Boolean = {
-    warningSent &&
-      (nowInSeconds - lastActivityTimestamp) >
-      TimeUtil.minutesToSeconds(maxInactivityTimeoutMinutes)
+  def isMeetingInactive(nowInMs: Long): Boolean = {
+    warningSent && (nowInMs - lastActivityTimestampInMs) > maxInactivityTimeoutInMs
   }
 
-  def timeLeftInSeconds(nowInSeconds: Long): Long = {
-    lastActivityTimestamp +
-      TimeUtil.minutesToSeconds(maxInactivityTimeoutMinutes) - nowInSeconds
+  def timeLeftInMs(nowInMs: Long): Long = {
+    lastActivityTimestampInMs + maxInactivityTimeoutInMs - nowInMs
   }
 }
 
 case class MeetingExpiryTracker(
-    startedOn:                              Long,
-    userHasJoined:                          Boolean,
-    lastUserLeftOn:                         Option[Long],
-    durationInMinutes:                      Int,
-    meetingExpireIfNoUserJoinedInMinutes:   Int,
-    meetingExpireWhenLastUserLeftInMinutes: Int
+    startedOnInMs:                     Long,
+    userHasJoined:                     Boolean,
+    lastUserLeftOnInMs:                Option[Long],
+    durationInMs:                      Long,
+    meetingExpireIfNoUserJoinedInMs:   Long,
+    meetingExpireWhenLastUserLeftInMs: Long
 ) {
-  def setMeetingStartedOn(timestampInSeconds: Long): MeetingExpiryTracker = {
-    copy(startedOn = timestampInSeconds)
-  }
-
   def setUserHasJoined(): MeetingExpiryTracker = {
-    if (userHasJoined) {
+    if (!userHasJoined) {
       copy(userHasJoined = true)
     } else {
       copy()
     }
   }
 
-  def setLastUserLeftOn(timestampInSeconds: Long): MeetingExpiryTracker = {
-    copy(lastUserLeftOn = Some(timestampInSeconds))
+  def setLastUserLeftOn(timestampInMs: Long): MeetingExpiryTracker = {
+    copy(lastUserLeftOnInMs = Some(timestampInMs))
   }
 
-  def hasMeetingExpiredAfterLastUserLeft(timestampInSeconds: Long): Boolean = {
+  def hasMeetingExpiredAfterLastUserLeft(timestampInMs: Long): Boolean = {
     val expire = for {
-      lastUserLeftOn <- lastUserLeftOn
+      lastUserLeftOn <- lastUserLeftOnInMs
     } yield {
-      timestampInSeconds - lastUserLeftOn >
-        TimeUtil.minutesToSeconds(meetingExpireWhenLastUserLeftInMinutes)
+      timestampInMs - lastUserLeftOn > meetingExpireWhenLastUserLeftInMs
     }
 
     expire.getOrElse(false)
   }
 
-  def hasMeetingExpired(timestampInSeconds: Long): (Boolean, Option[String]) = {
-    if (hasMeetingExpiredNeverBeenJoined(timestampInSeconds)) {
+  def hasMeetingExpired(timestampInMs: Long): (Boolean, Option[String]) = {
+    if (hasMeetingExpiredNeverBeenJoined(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_WHEN_NOT_JOINED))
-    } else if (meetingOverDuration(timestampInSeconds)) {
+    } else if (meetingOverDuration(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_AFTER_EXCEEDING_DURATION))
-    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInSeconds)) {
+    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_WHEN_LAST_USER_LEFT))
     } else {
       (false, None)
     }
   }
 
-  def hasMeetingExpiredNeverBeenJoined(nowInSeconds: Long): Boolean = {
-    !userHasJoined && (nowInSeconds - startedOn > TimeUtil.minutesToSeconds(meetingExpireIfNoUserJoinedInMinutes))
+  def hasMeetingExpiredNeverBeenJoined(nowInMs: Long): Boolean = {
+    !userHasJoined && (nowInMs - startedOnInMs > meetingExpireIfNoUserJoinedInMs)
   }
 
-  def meetingOverDuration(nowInSeconds: Long): Boolean = {
-    if (durationInMinutes == 0) {
+  def meetingOverDuration(nowInMs: Long): Boolean = {
+    if (durationInMs == 0) {
       false
     } else {
-      nowInSeconds > startedOn + TimeUtil.minutesToSeconds(durationInMinutes)
+      nowInMs > startedOnInMs + durationInMs
     }
   }
 
-  def endMeetingTime(): Int = {
-    (startedOn + TimeUtil.minutesToSeconds(durationInMinutes)).toInt
+  def endMeetingTime(): Long = {
+    startedOnInMs + durationInMs
   }
 }
 

@@ -49,47 +49,49 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
+    <mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.controls.Alert;
-			import mx.core.FlexGlobals;
-			import mx.core.IToolTip;
-			import mx.core.UIComponent;
-			import mx.events.CloseEvent;
-			import mx.events.ToolTipEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.as3commons.lang.StringUtils;
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbToolbarComponent;
-			import org.bigbluebutton.common.events.SettingsComponentEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.model.Config;
-			import org.bigbluebutton.core.model.LiveMeeting;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigLoadedEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
-			import org.bigbluebutton.main.events.NetworkStatsEvent;
-			import org.bigbluebutton.main.events.SettingsEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.model.NetworkStatsData;
-			import org.bigbluebutton.main.model.options.BrandingOptions;
-			import org.bigbluebutton.main.model.options.LayoutOptions;
-			import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.modules.users.model.UsersOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.binding.utils.BindingUtils;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.core.IToolTip;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.events.ToolTipEvent;
+      import mx.managers.PopUpManager;
+      import org.as3commons.lang.StringUtils;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.common.IBbbToolbarComponent;
+      import org.bigbluebutton.common.events.SettingsComponentEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.TimerUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.model.Config;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.ConfigLoadedEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.NetworkStatsEvent;
+      import org.bigbluebutton.main.events.SettingsEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+      import org.bigbluebutton.main.model.NetworkStatsData;
+      import org.bigbluebutton.main.model.options.BrandingOptions;
+      import org.bigbluebutton.main.model.options.LayoutOptions;
+      import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.users.model.UsersOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(MainToolbar);
 
@@ -188,6 +190,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
+      private function handleRemainingTimeUpdate(e:BreakoutRoomEvent):void {
+        TimerUtil.setCountDownTimer(timeRemaining, e.durationInMinutes);
+      }
+      
       private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
          if (toolbarOptions.showMeetingName) {
               var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
@@ -533,9 +539,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:VRule styleName="toolbarSeparator" height="10" />
 	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
 	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center"/>
+  <mx:Label id="timeRemaining" 
+            text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
+            toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
-
+  
 	<mx:Button
 			id="bbbSettings"
 			visible="{showGuestSettingsButton}"
