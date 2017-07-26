@@ -3,7 +3,7 @@ package org.bigbluebutton.core2.message.handlers.guests
 import org.bigbluebutton.common2.msgs.SetGuestPolicyCmdMsg
 import org.bigbluebutton.core.models.{ GuestPolicy, GuestPolicyType, GuestsWaiting }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait SetGuestPolicyMsgHdlr {
   this: BaseMeetingActor =>

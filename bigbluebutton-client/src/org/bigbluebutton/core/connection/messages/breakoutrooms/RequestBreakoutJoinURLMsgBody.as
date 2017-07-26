@@ -22,13 +22,13 @@ package org.bigbluebutton.core.connection.messages.breakoutrooms {
 
 		public var meetingId:String;
 
-		public var breakoutMeetingId:String;
+		public var breakoutId:String;
 
 		public var userId:String;
 
 		public function RequestBreakoutJoinURLMsgBody(meetingId:String, breakoutMeetingId:String, userId:String) {
 			this.meetingId = meetingId;
-			this.breakoutMeetingId = breakoutMeetingId;
+			this.breakoutId = breakoutMeetingId;
 			this.userId = userId;
 		}
 	}

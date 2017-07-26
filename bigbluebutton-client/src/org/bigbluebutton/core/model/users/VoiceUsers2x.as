@@ -89,6 +89,10 @@ package org.bigbluebutton.core.model.users
         
         if (user.intId == userId) {
           user.muted = muted;
+          if (muted) {
+            // Force user to not talking if muted.
+            user.talking = false;
+          }
         }
       }
     }
@@ -98,6 +102,10 @@ package org.bigbluebutton.core.model.users
         var user:VoiceUser2x = _users.getItemAt(i) as VoiceUser2x;
         
         if (user.intId == userId) {
+          if (user.muted && talking) {
+            // if user is muted, we don't want to set it as talking.
+            return;
+          }
           user.talking = talking;
         }
       }

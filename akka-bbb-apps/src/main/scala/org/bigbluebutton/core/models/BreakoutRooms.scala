@@ -21,7 +21,7 @@ object BreakoutRooms {
   }
 
   def getRoomWithExternalId(breakoutRooms: BreakoutRooms, externalId: String): Option[BreakoutRoomVO] = {
-    breakoutRooms.rooms.values find (r => r.externalMeetingId == externalId)
+    breakoutRooms.rooms.values find (r => r.externalId == externalId)
   }
 
   def getRooms(breakoutRooms: BreakoutRooms): Array[BreakoutRoomVO] = {
