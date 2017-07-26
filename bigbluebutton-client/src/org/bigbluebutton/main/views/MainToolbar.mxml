@@ -544,7 +544,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
 	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center"/>
   <mx:Label id="timeRemainingLabel" visible="false"
-            text="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}:  "
+            text="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}:"
             toolTip="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}"/>
   <mx:Label id="timeRemaining" visible="false"
             text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
