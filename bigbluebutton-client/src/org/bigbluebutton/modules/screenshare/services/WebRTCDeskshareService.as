@@ -24,19 +24,12 @@ package org.bigbluebutton.modules.screenshare.services
 
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnection;
 	import org.bigbluebutton.modules.screenshare.services.red5.Connection;
 
-	/**
-	 * The DeskShareProxy communicates with the Red5 deskShare server application
-	 * @author Snap
-	 *
-	 */
 	public class WebRTCDeskshareService
 	{
 		private static const LOGGER:ILogger = getClassLogger(ScreenshareService);
 
-		private var conn:WebRTCConnection;
 		private var red5conn:Connection;
 
 		private var module:ScreenshareModule;
@@ -65,18 +58,14 @@ package org.bigbluebutton.modules.screenshare.services
 			this.uri = uri;
 			this.room = room;
 			LOGGER.debug("Deskshare Service connecting to {0}", [uri]);
-			conn = new WebRTCConnection(room); //to red5 deskshare
-
-			conn.setURI(uri);
-			conn.connect();
 		}
 
 		public function getConnection():NetConnection{
-			return conn.getConnection();
+			return red5conn.getConnection();
 		}
 
 		public function disconnect():void{
-			conn.disconnect();
+			red5conn.disconnect();
 		}
 	}
 }

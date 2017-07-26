@@ -4,6 +4,7 @@ acl:
       - 'users'
       - 'cursor'
       - 'deskshare'
+      - 'screenshare'
       - 'meetings'
       - 'polls'
       - 'chat'
@@ -20,6 +21,7 @@ acl:
       - 'sendChat'
   moderator:
     methods:
+      - 'assignPresenter'
       - 'kickUser'
       - 'muteUser'
       - 'unmuteUser'

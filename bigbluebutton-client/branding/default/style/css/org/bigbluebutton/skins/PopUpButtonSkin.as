@@ -38,7 +38,7 @@
 
 package org.bigbluebutton.skins {
 	import flash.display.DisplayObject;
-
+	
 	import mx.core.IFlexDisplayObject;
 	import mx.core.IProgrammaticSkin;
 	import mx.core.UIComponent;
@@ -115,7 +115,7 @@ package org.bigbluebutton.skins {
 			var borderColorDown:uint = getStyle("borderColorDown");
 			var borderColorDisabled:uint = getStyle("borderColorDisabled");
 
-			var borderThikness:uint = getStyle("borderThikness");
+			var borderThickness:uint = getStyle("borderThickness");
 
 			var fillColorUp:uint = getStyle("fillColorUp");
 			var fillColorOver:uint = getStyle("fillColorOver");
@@ -124,6 +124,9 @@ package org.bigbluebutton.skins {
 
 			// User-defined styles.
 			var arrowColor:uint = getStyle("iconColor");
+			var arrowColorOver:uint = getStyle("iconColorOver");
+			var arrowColorDown:uint = getStyle("iconColorDown");
+			
 			var cornerRadius:Number = getStyle("cornerRadius");
 
 			var popUpIcon:IFlexDisplayObject = IFlexDisplayObject(getChildByName("popUpIcon"));
@@ -136,7 +139,7 @@ package org.bigbluebutton.skins {
 				DisplayObject(popUpIcon).visible = true;
 			}
 
-			var arrowButtonWidth:Number = Math.max(getStyle("arrowButtonWidth"), popUpIcon.width + 3 + borderThikness);
+			var arrowButtonWidth:Number = Math.max(getStyle("arrowButtonWidth"), popUpIcon.width + 3 + borderThickness);
 
 			var dividerPosX:Number = w - arrowButtonWidth;
 
@@ -144,7 +147,7 @@ package org.bigbluebutton.skins {
 
 			// Corner radius
 			var cr:Number = Math.max(0, cornerRadius);
-			var cr1:Number = Math.max(0, cornerRadius - borderThikness);
+			var cr1:Number = Math.max(0, cornerRadius - borderThickness);
 
 			graphics.clear();
 
@@ -154,41 +157,43 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
 
 					// Separator
-					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), cr, borderColorUp, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), cr, borderColorUp, 1);
 
 					break;
 				}
 				case "overSkin": // for hover on the main button (left) side
 				{
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorOver, 1);
 
-					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), 0, borderColorOver, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorOver, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
 
 					// left/main button fill
-					drawRoundRect(borderThikness, borderThikness, w - arrowButtonWidth - (borderThikness * 2), h - (borderThikness * 2), getRadius(cr1, true), fillColorOver, 1);
+					drawRoundRect(borderThickness, borderThickness, w - arrowButtonWidth - (borderThickness * 2), h - (borderThickness * 2), getRadius(cr1, true), fillColorOver, 1);
 
 					break;
 				}
 
 				case "popUpOverSkin": // for hover on the arrow-button (right) side
 				{
+					arrowColor = arrowColorOver;
+					
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorOver, 1);
 
-					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), 0, borderColorOver, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorOver, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), getRadius(cr1, true), fillColorUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), getRadius(cr1, true), fillColorUp, 1);
 
 					// right button fill
-					drawRoundRect(dividerPosX + borderThikness, borderThikness, arrowButtonWidth - (borderThikness * 2), h - (borderThikness * 2), getRadius(cr1, false), fillColorOver, 1);
+					drawRoundRect(dividerPosX + borderThickness, borderThickness, arrowButtonWidth - (borderThickness * 2), h - (borderThickness * 2), getRadius(cr1, false), fillColorOver, 1);
 
 					break;
 				}
@@ -196,31 +201,33 @@ package org.bigbluebutton.skins {
 				case "downSkin": // for press on the main button (left) side
 				{
 					// button border/ddge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorDown, 1);
 
-					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), 0, borderColorDown, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorDown, 1);
 
 					// button fill                
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
 
 					// left/main button fill
-					drawRoundRect(borderThikness, borderThikness, w - arrowButtonWidth - (borderThikness * 2), h - (borderThikness * 2), getRadius(cr1, true), fillColorDown, 1);
+					drawRoundRect(borderThickness, borderThickness, w - arrowButtonWidth - (borderThickness * 2), h - (borderThickness * 2), getRadius(cr1, true), fillColorDown, 1);
 
 					break;
 				}
 
 				case "popUpDownSkin": // for press on the arrow-button (right) side
 				{
+					arrowColor = arrowColorDown;
+					
 					// button border/edge
-					drawRoundRect(0, 0, w, h, cr, borderColorUp, 1);
+					drawRoundRect(0, 0, w, h, cr, borderColorDown, 1);
 
-					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), 0, fillColorDown, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorDown, 1);
 
 					// button fill                
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorUp, 1);
 
 					// right button fill
-					drawRoundRect(dividerPosX + borderThikness, borderThikness, arrowButtonWidth - (borderThikness * 2), h - (borderThikness * 2), getRadius(cr1, false), fillColorDown, 1);
+					drawRoundRect(dividerPosX + borderThickness, borderThickness, arrowButtonWidth - (borderThickness * 2), h - (borderThickness * 2), getRadius(cr1, false), fillColorDown, 1);
 
 					break;
 				}
@@ -231,10 +238,10 @@ package org.bigbluebutton.skins {
 					// outer edge
 					drawRoundRect(0, 0, w, h, cornerRadius, fillColorDisabled, 1);
 
-					drawRoundRect(dividerPosX, borderThikness, borderThikness, h - (borderThikness * 2), 0, borderColorDisabled, 1);
+					drawRoundRect(dividerPosX, borderThickness, borderThickness, h - (borderThickness * 2), 0, borderColorDisabled, 1);
 
 					// button fill
-					drawRoundRect(borderThikness, borderThikness, w - (borderThikness * 2), h - (borderThikness * 2), cr1, fillColorDisabled, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorDisabled, 1);
 
 					break;
 				}

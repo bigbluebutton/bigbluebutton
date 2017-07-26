@@ -88,7 +88,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.modules.chat.ChatConstants;
       import org.bigbluebutton.modules.chat.ChatUtil;
       import org.bigbluebutton.modules.chat.events.ChatEvent;
       import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;

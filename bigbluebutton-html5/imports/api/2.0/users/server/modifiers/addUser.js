@@ -31,26 +31,16 @@ export default function addUser(meetingId, user) {
     user.role = ROLE_VIEWER;
   }
 
-  const userRoles = [];
-  userRoles.push('viewer');
-  userRoles.push(user.presenter ? 'presenter' : undefined);
-  userRoles.push(user.role === 'MODERATOR' ? 'moderator' : undefined);
+  let userRoles = [];
 
-  /**
-   * {
-  "intId": "w_opaqxrriwvga",
-  "extId": "w_opaqxrriwvga",
-  "name": "html5",
-  "role": "VIEWER",
-  "guest": false,
-  "authed": false,
-  "waitingForAcceptance": false,
-  "emoji": "none",
-  "presenter": false,
-  "locked": false,
-  "avatar": "http://localhost/client/avatar.png"
-}
-   */
+  userRoles.push(
+    'viewer',
+    user.presenter ? 'presenter' : false,
+    user.role === 'MODERATOR' ? 'moderator' : false,
+  );
+
+  userRoles = userRoles.filter(Boolean);
+
   const modifier = {
     $set: Object.assign(
       { meetingId },
@@ -74,9 +64,7 @@ export default function addUser(meetingId, user) {
       return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-    }
+    return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
   };
 
   return Users.upsert(selector, modifier, cb);

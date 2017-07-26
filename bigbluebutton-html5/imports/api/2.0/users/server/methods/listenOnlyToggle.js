@@ -7,7 +7,7 @@ import Users from '/imports/api/2.0/users';
 
 export default function listenOnlyToggle(credentials, isJoining = true) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.meeting;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 
   const { meetingId, requesterUserId } = credentials;
 
@@ -18,40 +18,36 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   let EVENT_NAME;
 
   if (isJoining) {
-    EVENT_NAME = 'user_connected_to_global_audio';
+    EVENT_NAME = 'UserConnectedToGlobalAudioMsg';
   } else {
-    EVENT_NAME = 'user_disconnected_from_global_audio';
+    EVENT_NAME = 'UserDisconnectedFromGlobalAudioMsg';
   }
-
-  const Meeting = Meetings.findOne({ meetingId });
-  if (!Meeting) {
-    throw new Meteor.Error(
-      'meeting-not-found', 'You need a valid meeting to be able to toggle audio');
-  }
-
-  check(Meeting.voiceConf, String);
 
   const User = Users.findOne({
-    meetingId,
     userId: requesterUserId,
   });
+
+  const Meeting = Meetings.findOne({ meetingId });
 
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', 'You need a valid user to be able to toggle audio');
   }
 
-  check(User.user.name, String);
+  // check(User.user.name, String);
+
+  const header = {
+    name: EVENT_NAME,
+    voiceConf: Meeting.voiceProp.voiceConf,
+  };
 
   const payload = {
     userId: requesterUserId,
-    meeting_id: meetingId,
-    voice_conf: Meeting.voiceConf,
-    name: User.user.name,
+    name: User.name,
   };
 
   Logger.verbose(`User '${requesterUserId}' ${isJoining
     ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }
