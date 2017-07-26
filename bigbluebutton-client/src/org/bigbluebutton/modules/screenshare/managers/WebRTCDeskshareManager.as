@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var usingKurentoWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
 		private var options:ScreenshareOptions;
+		private var videoLoadingCallbackName:String = "videoLoadingCallback";
 
 		public function WebRTCDeskshareManager() {
 			LOGGER.debug("WebRTCDeskshareManager::WebRTCDeskshareManager");
@@ -145,15 +146,26 @@ package org.bigbluebutton.modules.screenshare.managers
 							chromeExtensionKey
 							);
 				} else {
+					var videoLoadingCallback:Function = function():void {
+						ExternalInterface.addCallback(videoLoadingCallbackName, null);
+						publishWindowManager.openWindow();
+						globalDispatcher.dispatchEvent(new WebRTCPublishWindowChangeState(WebRTCPublishWindowChangeState.DISPLAY_VIDEO_LOADING));
+					}
+
+					ExternalInterface.addCallback(videoLoadingCallbackName, videoLoadingCallback);
+					var dummyStunTurn:Object = null;
+
 					ExternalInterface.call(
-							'vertoShareScreen',
-							videoTag,
-							voiceBridge,
-							myName,
-							null,
-							"onFail",
-							chromeExtensionKey
-							);
+						'vertoShareScreen',
+						videoTag,
+						voiceBridge,
+						myName,
+						null,
+						"onFail",
+						chromeExtensionKey,
+						dummyStunTurn,
+						videoLoadingCallbackName
+					);
 				}
 			}
 		}
