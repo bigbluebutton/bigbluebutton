@@ -15,16 +15,12 @@ export default function removeUser(meetingId, userId) {
 
   const modifier = {
     $set: {
-      'user.connection_status': 'offline',
-      'user.voiceUser.talking': false,
-      'user.voiceUser.joined': false,
-      'user.voiceUser.muted': false,
-      'user.time_of_joining': 0,
-      'user.listenOnly': false,
-      'user.validated': false,
-      'user.emoji': 'none',
-      'user.presenter': false,
-      'user.role': 'VIEWER',
+      connectionStatus: 'offline',
+      listenOnly: false,
+      validated: false,
+      emoji: 'none',
+      presenter: false,
+      role: 'VIEWER',
     },
   };
 

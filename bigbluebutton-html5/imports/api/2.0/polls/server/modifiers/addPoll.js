@@ -15,14 +15,14 @@ export default function addPoll(meetingId, requesterId, poll) {
 
   const options = {
     fields: {
-      'user.userid': 1,
+      userId: 1,
       _id: 0,
     },
   };
 
   const userIds = Users.find(selector, options)
     .fetch()
-    .map(user => user.user.userid);
+    .map(user => user.userId);
 
   selector = {
     meetingId,

@@ -44,7 +44,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   check(User.user.name, String);
 
   const payload = {
-    userid: requesterUserId,
+    userId: requesterUserId,
     meeting_id: meetingId,
     voice_conf: Meeting.voiceConf,
     name: User.user.name,

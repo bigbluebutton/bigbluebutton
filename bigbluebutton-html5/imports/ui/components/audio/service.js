@@ -7,7 +7,7 @@ let audioManager;
 const init = () => {
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
-  const username = User.user.name;
+  const username = User.name;
 
   const turns = [];
   const stuns = [];

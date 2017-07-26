@@ -25,20 +25,20 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
 const mapUser = user => ({
-  id: user.userid,
+  id: user.userId,
   name: user.name,
   emoji: {
     status: user.emoji,
-    changedAt: user.set_emoji_time,
+    changedAt: user.emojiTime,
   },
   isPresenter: user.presenter,
   isModerator: user.role === 'MODERATOR',
-  isCurrent: user.userid === Auth.userID,
-  isVoiceUser: user.voiceUser.joined,
-  isOnline: user.connection_status === 'online',
-  isMuted: user.voiceUser.muted,
+  isCurrent: user.userId === Auth.userID,
+  isVoiceUser: false, // FIXME user.voiceUser.joined,
+  isOnline: user.connectionStatus === 'online',
+  isMuted: false, // FIXME user.voiceUser.muted,
   isListenOnly: user.listenOnly,
-  isSharingWebcam: user.webcam_stream.length,
+  isSharingWebcam: 0, // FIXME user.webcam_stream.length,
   isLocked: user.locked,
 });
 
@@ -49,7 +49,7 @@ const getUser = (userID) => {
     return null;
   }
 
-  return mapUser(user.user);
+  return mapUser(user);
 };
 
 const mapMessage = (messagePayload) => {

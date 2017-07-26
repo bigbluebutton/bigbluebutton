@@ -14,10 +14,10 @@ class JoinAudioOptionsContainer extends React.Component {
 }
 
 export default createContainer((params) => {
-  const user = Users.findOne({ userId: Auth.userID }).user;
+  const user = Users.findOne({ userId: Auth.userID });
 
   return {
-    isInAudio: user.voiceUser.joined,
+    isInAudio: false, // FIXME user.voiceUser.joined,
     isInListenOnly: user.listenOnly,
     handleJoinAudio: params.handleJoinAudio,
     handleCloseAudio: params.handleCloseAudio,

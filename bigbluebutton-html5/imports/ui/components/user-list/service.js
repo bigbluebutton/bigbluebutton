@@ -18,22 +18,22 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 /* TODO: Same map is done in the chat/service we should share this someway */
 
 const mapUser = user => ({
-  id: user.userid,
+  id: user.userId,
   name: user.name,
   emoji: {
     status: user.emoji,
-    changedAt: user.set_emoji_time,
+    changedAt: user.emojiTime,
   },
   isPresenter: user.presenter,
   isModerator: user.role === ROLE_MODERATOR,
-  isCurrent: user.userid === Auth.userID,
-  isVoiceUser: user.voiceUser.joined,
-  isMuted: user.voiceUser.muted,
-  isTalking: user.voiceUser.talking,
+  isCurrent: user.userId === Auth.userID,
+  isVoiceUser: false, // FIXME user.voiceUser.joined,
+  isMuted: false, // FIXME user.voiceUser.muted,
+  isTalking: false, // FIXME user.voiceUser.talking,
   isListenOnly: user.listenOnly,
-  isSharingWebcam: user.webcam_stream.length,
-  isPhoneUser: user.phone_user,
-  isOnline: user.connection_status === 'online',
+  isSharingWebcam: 0, // FIXME user.webcam_stream.length,
+  isPhoneUser: user.phoneUser,
+  isOnline: user.connectionStatus === 'online',
   isLocked: user.locked,
 });
 
@@ -156,20 +156,19 @@ const sortChats = (a, b) => {
 };
 
 const userFindSorting = {
-  'user.set_emoji_time': 1,
-  'user.role': 1,
-  'user.phone_user': 1,
-  'user._sort_name': 1,
-  'user.userid': 1,
+  emojiTime: 1,
+  role: 1,
+  phoneUser: 1,
+  sortName: 1,
+  userId: 1,
 };
 
 const getUsers = () => {
   const users = Users
-    .find({ 'user.connection_status': 'online' }, userFindSorting)
+    .find({ connectionStatus: 'online' }, userFindSorting)
     .fetch();
 
   return users
-    .map(u => u.user)
     .map(mapUser)
     .sort(sortUsers);
 };
@@ -187,8 +186,7 @@ const getOpenChats = (chatID) => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-    .find({ 'user.userid': { $in: openChats } })
-    .map(u => u.user)
+    .find({ userId: { $in: openChats } })
     .map(mapUser)
     .map((op) => {
       const openChat = op;
@@ -230,9 +228,9 @@ const getOpenChats = (chatID) => {
 
 const getCurrentUser = () => {
   const currentUserId = Auth.userID;
-  const currentUser = Users.findOne({ 'user.userid': currentUserId });
+  const currentUser = Users.findOne({ userId: currentUserId });
 
-  return (currentUser) ? mapUser(currentUser.user) : null;
+  return (currentUser) ? mapUser(currentUser) : null;
 };
 
 export default {
