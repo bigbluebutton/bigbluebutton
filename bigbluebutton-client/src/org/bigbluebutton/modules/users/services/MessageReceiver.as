@@ -115,16 +115,16 @@ package org.bigbluebutton.modules.users.services
         case "MeetingEndingEvtMsg":
           handleMeetingEnding(message);
           break;
-        case "meetingMuted":
+        case "MeetingMutedEvtMsg":
           handleMeetingMuted(message);
           break;   
         case "meetingState":
           handleMeetingState(message);
           break;  
-        case "inactivityWarning":
+        case "MeetingInactivityWarningEvtMsg":
           handleInactivityWarning(message);
           break;
-        case "meetingIsActive":
+        case "MeetingIsActiveEvtMsg":
           handleMeetingIsActive(message);
           break;
         case "UserEmojiChangedEvtMsg":
@@ -494,9 +494,9 @@ package org.bigbluebutton.modules.users.services
     
     
     private function handleMeetingMuted(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
-      if (map.hasOwnProperty("meetingMuted")) {
-        LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
+      var body:Object = msg.body as Object;
+      if (body.hasOwnProperty("muted")) {
+        LiveMeeting.inst().meetingStatus.isMeetingMuted = body.muted as Boolean;
         dispatcher.dispatchEvent(new MeetingMutedEvent());
       }
     }
@@ -515,10 +515,10 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleInactivityWarning(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
+      var body:Object = msg.body as Object;
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.INACTIVITY_WARNING_EVENT);
-      bbbEvent.payload.duration = map.duration;
+      bbbEvent.payload.duration = body.timeLeftInSec as Number;
       globalDispatcher.dispatchEvent(bbbEvent);
     }
     

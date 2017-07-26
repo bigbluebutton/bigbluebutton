@@ -252,9 +252,9 @@ package org.bigbluebutton.modules.users.services
 
     public function activityResponse():void {
       var message:Object = {
-        header: {name: "GetRecordingStatusReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+        header: {name: "MeetingActivityResponseCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {requestedBy: UsersUtil.getMyUserID()}
+        body: {respondedBy: UsersUtil.getMyUserID()}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
