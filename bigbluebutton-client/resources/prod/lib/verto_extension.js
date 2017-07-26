@@ -5,7 +5,8 @@ Verto = function (
   userCallback,
   onFail = null,
   chromeExtension = null,
-  stunTurnInfo = null) {
+  stunTurnInfo = null,
+  loadingCallback = null) {
 
   voiceBridge += "-SCREENSHARE";
   this.cur_call = null;
@@ -40,6 +41,12 @@ Verto = function (
   this.shouldConnect = true;
   this.iceServers = stunTurnInfo;
   this.userCallback = userCallback;
+
+  if (loadingCallback != null) {
+    this.videoLoadingCallback = Verto.normalizeCallback(loadingCallback);
+  } else {
+    this.videoLoadingCallback = function() {};
+  }
 
   if (chromeExtension != null) {
     this.chromeExtension = chromeExtension;
@@ -302,6 +309,7 @@ Verto.prototype.setScreenShare = function (tag) {
   // tell Verto we want to share webcam so it knows there will be a video stream
   // but instead of a webcam we pass screen constraints
   this.useCamera = 'any';
+  this.useMic = 'none';
   this.mediaCallback = this.makeShare;
   this.create(tag);
 };
@@ -412,6 +420,8 @@ Verto.prototype.doShare = function (screenConstraints) {
   var _this = this;
   // Override onStream callback in $.FSRTC instance
   this.share_call.rtc.options.callbacks.onStream = function (rtc, stream) {
+    _this.videoLoadingCallback();
+
     if (stream) {
       var StreamTrack = stream.getVideoTracks()[0];
       StreamTrack.addEventListener('ended', stopSharing.bind(_this));
