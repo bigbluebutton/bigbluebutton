@@ -42,12 +42,24 @@ const fetchImageSizes = imageUri =>
 
 export default function addSlide(meetingId, presentationId, slide) {
   check(presentationId, String);
-  check(slide, Object);
+  check(slide, {
+    id: String,
+    num: Number,
+    thumbUri: String,
+    swfUri: String,
+    txtUri: String,
+    svgUri: String,
+    current: Boolean,
+    xOffset: Number,
+    yOffset: Number,
+    widthRatio: Number,
+    heightRatio: Number,
+  });
 
   const selector = {
     meetingId,
     presentationId,
-    'slide.id': slide.id,
+    id: slide.id,
   };
 
   const imageUri = slide.svgUri || slide.pngUri;

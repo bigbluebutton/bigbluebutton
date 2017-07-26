@@ -12,7 +12,7 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
     presentationId,
   };
 
-  const whiteboardIds = Slides.find(selector).map(row => row.slide.id);
+  const whiteboardIds = Slides.find(selector).map(row => row.id);
 
   const cb = (err, numChanged) => {
     if (err) {
