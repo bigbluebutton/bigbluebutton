@@ -5,9 +5,18 @@ import flat from 'flat';
 import { check } from 'meteor/check';
 
 export default function addPoll(meetingId, requesterId, poll) {
-  check(poll, Object);
   check(requesterId, String);
   check(meetingId, String);
+
+  check(poll, {
+    id: String,
+    answers: [
+      {
+        id: Number,
+        key: String,
+      },
+    ],
+  });
 
   let selector = {
     meetingId,
