@@ -15,7 +15,7 @@ class BBB {
   }
 
   getExtension() {
-    const extension = Meetings.findOne().voiceConf;
+    const extension = Meetings.findOne().voiceProp.voiceConf;
     return extension;
   }
 
