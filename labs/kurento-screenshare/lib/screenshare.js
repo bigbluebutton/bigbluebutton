@@ -31,13 +31,14 @@ if (config.get('acceptSelfSignedCertificate')) {
 }
 
 module.exports = class Screenshare {
-  constructor(ws, id, bbbgw, voiceBridge, caller, vh, vw) {
+  constructor(ws, id, bbbgw, voiceBridge, caller, vh, vw, meetingId) {
     this._ws = ws;
     this._id = id;
     this._BigBlueButtonGW = bbbgw;
     this._presenterEndpoint = null;
     this._ffmpegRtpEndpoint = null;
     this._voiceBridge = voiceBridge;
+    this._meetingId = meetingId;
     this._caller = caller;
     this._streamUrl = "";
     this._vw = vw;
@@ -128,14 +129,14 @@ module.exports = class Screenshare {
                 console.log("  [rtpendpoint] KMS answer SDP => " + rtpSdpAnswer);
                 let recvVideoPort = rtpSdpAnswer.match(/m=video\s(\d*)/)[1];
                 let rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
-                    sendVideoPort, recvVideoPort, self._voiceBridge, "stream_type_video", C.RTP_TO_RTMP, "copy", "caller");
+                    sendVideoPort, recvVideoPort, self._meetingId, "stream_type_video", C.RTP_TO_RTMP, "copy", "caller");
 
                 self._ffmpegRtpEndpoint.on('MediaFlowInStateChange', function(event) {
                   if (event.state === 'NOT_FLOWING') {
                     self._onRtpMediaNotFlowing();
                   }
                   else if (event.state === 'FLOWING') {
-                    self._onRtpMediaFlowing(self._voiceBridge, rtpParams);
+                    self._onRtpMediaFlowing(self._meetingId, rtpParams);
                   }
                 });
                 return _callback(null, webRtcSdpAnswer);
@@ -176,7 +177,7 @@ module.exports = class Screenshare {
 
   _stopScreensharing() {
     let self = this;
-    let strm = Messaging.generateStopTranscoderRequestMessage(this._voiceBridge, this._voiceBridge);
+    let strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
 
     self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
@@ -194,9 +195,9 @@ module.exports = class Screenshare {
 
   }
 
-  _onRtpMediaFlowing(voiceBridge, rtpParams) {
+  _onRtpMediaFlowing(meetingId, rtpParams) {
     let self = this;
-    let strm = Messaging.generateStartTranscoderRequestMessage(voiceBridge, voiceBridge, rtpParams);
+    let strm = Messaging.generateStartTranscoderRequestMessage(meetingId, meetingId, rtpParams);
 
     // Interoperability: capturing 1.1 start_transcoder_reply messages
     self._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, function(payload) {
@@ -218,7 +219,7 @@ module.exports = class Screenshare {
 
   _stopRtmpBroadcast (meetingId) {
     var self = this;
-    if(self._voiceBridge === meetingId) {
+    if(self._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
       let timestamp = now.format('hhmmss');
       let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(self._voiceBridge,
@@ -229,7 +230,7 @@ module.exports = class Screenshare {
 
   _startRtmpBroadcast (meetingId, output) {
     var self = this;
-    if(self._voiceBridge === meetingId) {
+    if(self._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
       let timestamp = now.format('hhmmss');
       self._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
