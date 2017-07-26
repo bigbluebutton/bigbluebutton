@@ -438,29 +438,24 @@ package org.bigbluebutton.modules.users.services
      * Set lock state of all users in the room, except the users listed in second parameter
      * */
     public function setAllUsersLock(lock:Boolean, except:Array = null):void {
+      var message:Object = {
+        header: {name: "LockUsersInMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {lock: lock, lockedBy: UsersUtil.getMyUserID(), except: except}
+      };
       
-      return;
-/*      
-      if(except == null) except = [];
-      var nc:NetConnection = _module.connection;
-      nc.call(
-        "lock.setAllUsersLock",// Remote function name
-        new Responder(
-          function(result:Object):void { 
-            LogUtil.debug("Successfully locked all users except " + except.join(","));
-          },	
-          function(status:Object):void { 
-            LogUtil.error("Error occurred:"); 
-            for (var x:Object in status) { 
-              LogUtil.error(x + " : " + status[x]); 
-            } 
-          }
-        )//new Responder
-        , lock, except
-      ); //_netConnection.call
-      
-      _listenersSO.send("lockStateCallback", lock);
-*/
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },	                   
+        function(status:String):void { // status - On error occurred
+          var logData:Object = UsersUtil.initLogData();
+          logData.tags = ["apps"];
+          logData.message = "Error occured setting user lock status.";
+          LOGGER.info(JSON.stringify(logData));
+        },
+        JSON.stringify(message)
+      );
     }
     
     /**
@@ -473,59 +468,40 @@ package org.bigbluebutton.modules.users.services
         body: {userId: internalUserID, lock: lock, lockedBy: UsersUtil.getMyUserID()}
       };
       
-		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage2x(
-			function(result:String):void { // On successful result
-			},	                   
-			function(status:String):void { // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured setting user lock status.";
-                LOGGER.info(JSON.stringify(logData));
-			},
-      JSON.stringify(message)
-		);
-/*      
-      var nc:NetConnection = _module.connection;
-      nc.call(
-        "lock.setUserLock",// Remote function name
-        new Responder(
-          function(result:Object):void { 
-            LogUtil.debug("Successfully locked user " + internalUserID);
-          },	
-          function(status:Object):void { 
-            LogUtil.error("Error occurred:"); 
-            for (var x:Object in status) { 
-              LogUtil.error(x + " : " + status[x]); 
-            } 
-          }
-        )//new Responder
-        , lock, internalUserID
-      ); //_netConnection.call
-*/
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },	                   
+        function(status:String):void { // status - On error occurred
+          var logData:Object = UsersUtil.initLogData();
+          logData.tags = ["apps"];
+          logData.message = "Error occured setting user lock status.";
+          LOGGER.info(JSON.stringify(logData));
+        },
+        JSON.stringify(message)
+      );
     }
     
     
     public function getLockSettings():void{
+      var message:Object = {
+        header: {name: "GetLockSettingsReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
       
-      return;
-/*      
-      var nc:NetConnection = _module.connection;
-      nc.call(
-        "lock.getLockSettings",// Remote function name
-        new Responder(
-          function(result:Object):void {
-            //						_conference.setLockSettings(new LockSettingsVO(result.allowModeratorLocking, result.disableCam, result.disableMic, result.disablePrivateChat, result.disablePublicChat));
-          },	
-          function(status:Object):void { 
-            LogUtil.error("Error occurred:"); 
-            for (var x:Object in status) { 
-              LogUtil.error(x + " : " + status[x]); 
-            } 
-          }
-        )//new Responder
-      ); //_netConnection.call
-*/
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },	                   
+        function(status:String):void { // status - On error occurred
+          var logData:Object = UsersUtil.initLogData();
+          logData.tags = ["apps"];
+          logData.message = "Error occured getting lock state.";
+          LOGGER.info(JSON.stringify(logData));
+        },
+        JSON.stringify(message)
+      );   
     }
     
     public function saveLockSettings(newLockSettings:Object):void{   
@@ -533,12 +509,14 @@ package org.bigbluebutton.modules.users.services
       var message:Object = {
         header: {name: "ChangeLockSettingsInMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {disableCam: newLockSettings.disableCam, disableMic: newLockSettings.disableMic, 
+        body: {disableCam: newLockSettings.disableCam, 
+          disableMic: newLockSettings.disableMic, 
           disablePrivChat: newLockSettings.disablePrivateChat,
           disablePubChat: newLockSettings.disablePublicChat, 
-          lockedLayout: newLockSettings.lockedLayout, lockOnJoin: newLockSettings.lockOnJoin, 
+          lockedLayout: newLockSettings.lockedLayout, 
+          lockOnJoin: newLockSettings.lockOnJoin, 
           lockOnJoinConfigurable: newLockSettings.lockOnJoinConfigurable, 
-          changedBy: UsersUtil.getMyUserID()}
+          setBy: UsersUtil.getMyUserID()}
       };
       
       

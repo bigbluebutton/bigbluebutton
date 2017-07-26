@@ -139,10 +139,10 @@ package org.bigbluebutton.modules.users.services
         case "user_listening_only":
           handleUserListeningOnly(message);
           break;
-        case "permissionsSettingsChanged":
+        case "LockSettingsInMeetingChangedEvtMsg":
           handlePermissionsSettingsChanged(message);
           break;
-        case "userLocked":
+        case "UserLockedInMeetingEvtMsg":
           handleUserLocked(message);
           break;
         // Breakout room feature
@@ -455,12 +455,14 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleUserLocked(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
-      var user:User2x = UsersUtil.getUser(map.user);
+      var body:Object = msg.body as Object;
+      var userId: String = body.userId as String;
+      var locked: Boolean = body.locked as Boolean;
+      var user:User2x = UsersUtil.getUser(userId);
       
-      if(user.locked != map.lock) {
+      if(user.locked != locked) {
         if (UsersUtil.isMe(user.intId)) {
-          LiveMeeting.inst().me.locked = map.locked;
+          LiveMeeting.inst().me.locked = locked;
         }
         
         dispatcher.dispatchEvent(new UserStatusChangedEvent(user.intId));
@@ -471,14 +473,16 @@ package org.bigbluebutton.modules.users.services
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
       //LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.msg]);
-      var map:Object = JSON.parse(msg.msg);
-      var lockSettings:LockSettingsVO = new LockSettingsVO(map.disableCam,
-        map.disableMic,
-        map.disablePrivateChat,
-        map.disablePublicChat,
-        map.lockedLayout,
-        map.lockOnJoin,
-        map.lockOnJoinConfigurable);
+      var body:Object = msg.body as Object;
+      
+      var lockSettings:LockSettingsVO = new LockSettingsVO(
+        body.disableCam as Boolean,
+        body.disableMic as Boolean,
+        body.disablePrivChat as Boolean,
+        body.disablePubChat as Boolean,
+        body.lockedLayout as Boolean,
+        body.lockOnJoin as Boolean,
+        body.lockOnJoinConfigurable as Boolean);
       UsersUtil.setLockSettings(lockSettings);
     }
     

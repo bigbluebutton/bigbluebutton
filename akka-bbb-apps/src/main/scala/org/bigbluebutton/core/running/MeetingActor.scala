@@ -75,6 +75,7 @@ class MeetingActor(
     with DestroyMeetingSysCmdMsgHdlr
     with SendTimeRemainingUpdateHdlr
     with SendBreakoutTimeRemainingMsgHdlr
+    with ChangeLockSettingsInMeetingCmdMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -238,6 +239,12 @@ class MeetingActor(
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
       case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
+
+      // Lock Settings
+      case m: ChangeLockSettingsInMeetingCmdMsg => handleSetLockSettings(m)
+      case m: LockUserInMeetingCmdMsg => handleLockUserInMeetingCmdMsg(m)
+      case m: LockUsersInMeetingCmdMsg => handleLockUsersInMeetingCmdMsg(m)
+      case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
 
       // Presentation
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
