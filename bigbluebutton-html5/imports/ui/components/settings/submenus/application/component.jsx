@@ -177,32 +177,29 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-labelledby="changeLangLabel"
-              >
-                <select
-                  defaultValue={this.state.settings.locale}
-                  className={styles.select}
-                  onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                >
-                  <option disabled>
-                    { availableLocales &&
-                      availableLocales.length ?
-                      intl.formatMessage(intlMessages.languageOptionLabel) :
-                      intl.formatMessage(intlMessages.noLocaleOptionLabel) }
-                  </option>
-                  {availableLocales ? availableLocales.map((locale, index) =>
-                  (<option key={index} value={locale.locale}>
-                    {locale.name}
-                  </option>),
-                ) : null }
-                </select>
-              </div>
-              <div
-                id="changeLangLabel"
-                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
-              />
+                <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
+                  <select
+                    defaultValue={this.state.settings.locale}
+                    className={styles.select}
+                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
+                  >
+                    <option disabled>
+                      { availableLocales &&
+                        availableLocales.length ?
+                        intl.formatMessage(intlMessages.languageOptionLabel) :
+                        intl.formatMessage(intlMessages.noLocaleOptionLabel) }
+                    </option>
+                    {availableLocales ? availableLocales.map((locale, index) =>
+                    (<option key={index} value={locale.locale}>
+                      {locale.name}
+                    </option>),
+                  ) : null }
+                  </select>
+                </label>
+                <div
+                  id="changeLangLabel"
+                  aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
+                />
             </div>
           </div>
           <hr className={styles.separator} />
@@ -227,7 +224,7 @@ class ApplicationMenu extends BaseMenu {
                   <div className={styles.col}>
                     <Button
                       onClick={() => this.handleIncreaseFontSize()}
-                      color={'success'}
+                      color={'primary'}
                       icon={'add'}
                       circle
                       hideLabel
@@ -237,7 +234,7 @@ class ApplicationMenu extends BaseMenu {
                   <div className={styles.col}>
                     <Button
                       onClick={() => this.handleDecreaseFontSize()}
-                      color={'success'}
+                      color={'primary'}
                       icon={'substract'}
                       circle
                       hideLabel

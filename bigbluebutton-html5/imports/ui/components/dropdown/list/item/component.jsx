@@ -11,6 +11,9 @@ const propTypes = {
   description: PropTypes.string,
 };
 
+const defaultProps = {
+};
+
 export default class DropdownListItem extends Component {
   constructor(props) {
     super(props);
@@ -30,16 +33,14 @@ export default class DropdownListItem extends Component {
 
   render() {
     const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, separator, intl, placeInTabOrder } = this.props;
-
-    const index = (placeInTabOrder) ? 0 : -1;
+      className, style, separator, intl, } = this.props;
 
     return (
       <li
         ref={injectRef}
         onClick={onClick}
         onKeyDown={onKeyDown}
-        tabIndex={index}
+        tabIndex={tabIndex}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
         className={cx(styles.item, className)}
@@ -54,14 +55,11 @@ export default class DropdownListItem extends Component {
           (<span id={this.labelID} key="labelledby" hidden>{label}</span>)
           : null
         }
-        {
-          description ?
-          (<span id={this.descID} key="describedby" hidden>{description}</span>)
-          : null
-        }
+        <span id={this.descID} key="describedby" hidden>{description}</span>
       </li>
     );
   }
 }
 
 DropdownListItem.propTypes = propTypes;
+DropdownListItem.defaultProps = defaultProps;

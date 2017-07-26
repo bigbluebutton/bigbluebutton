@@ -8,14 +8,19 @@ const propTypes = {
 
 export default class DropdownListTitle extends Component {
 
+  constructor(props) {
+    super(props);
+    this.labelID = _.uniqueId("labelContext-");
+  }
+
   render() {
     const { intl, description } = this.props;
 
     return (
-      <div>
-        <li className={styles.title} aria-describedby="labelContext">{this.props.children}</li>
-        <div id="labelContext" aria-label={description} />
-      </div>
+      <li className={styles.title} aria-describedby={this.labelID}>
+        {this.props.children}
+        <div id={this.labelID} aria-label={description} />
+      </li>
     );
   }
 }
