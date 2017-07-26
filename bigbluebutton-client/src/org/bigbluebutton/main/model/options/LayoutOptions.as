@@ -52,7 +52,7 @@ package org.bigbluebutton.main.model.options {
 		public var logoutOnStopRecording:Boolean = false;
 
 		[Bindable]
-		public var showNetworkMonitor:Boolean = true;
+		public var showNetworkMonitor:Boolean = false;
 
 		public var defaultLayout:String = "Default";
 

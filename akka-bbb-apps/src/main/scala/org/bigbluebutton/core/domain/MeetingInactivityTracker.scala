@@ -1,122 +1,95 @@
 package org.bigbluebutton.core.domain
 
-import com.softwaremill.quicklens._
 import org.bigbluebutton.core.util.TimeUtil
 
 case class MeetingInactivityTracker(
-  val maxInactivityTimeoutMinutes: Int,
-  val warningMinutesBeforeMax:     Int,
-  lastActivityTimestamp:           Long,
-  warningSent:                     Boolean,
-  warningSentOnTimestamp:          Long
-)
-
-object MeetingInactivityTracker {
-
-  def warningHasBeenSent(state: MeetingState2x): Boolean = {
-    state.inactivityTracker.warningSent
+    val maxInactivityTimeoutInMs: Long,
+    val warningBeforeMaxInMs:     Long,
+    lastActivityTimestampInMs:    Long,
+    warningSent:                  Boolean,
+    warningSentOnTimestampInMs:   Long
+) {
+  def setWarningSentAndTimestamp(nowInMs: Long): MeetingInactivityTracker = {
+    copy(warningSent = true, warningSentOnTimestampInMs = nowInMs)
   }
 
-  def setWarningSentAndTimestamp(state: MeetingState2x, nowInSeconds: Long): MeetingState2x = {
-    val tracker = state.inactivityTracker.modify(_.warningSent).setTo(true)
-      .modify(_.warningSentOnTimestamp).setTo(nowInSeconds)
-    state.modify(_.inactivityTracker).setTo(tracker)
+  def resetWarningSentAndTimestamp(): MeetingInactivityTracker = {
+    copy(warningSent = false, warningSentOnTimestampInMs = 0L)
   }
 
-  def resetWarningSentAndTimestamp(state: MeetingState2x): MeetingState2x = {
-    val tracker = state.inactivityTracker.modify(_.warningSent).setTo(false)
-      .modify(_.warningSentOnTimestamp).setTo(0L)
-    state.modify(_.inactivityTracker).setTo(tracker)
+  def updateLastActivityTimestamp(nowInMs: Long): MeetingInactivityTracker = {
+    copy(lastActivityTimestampInMs = nowInMs)
   }
 
-  def updateLastActivityTimestamp(state: MeetingState2x, nowInSeconds: Long): MeetingState2x = {
-    val tracker = state.inactivityTracker.modify(_.lastActivityTimestamp).setTo(nowInSeconds)
-    state.modify(_.inactivityTracker).setTo(tracker)
+  def hasRecentActivity(nowInMs: Long): Boolean = {
+    nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
   }
 
-  def hasRecentActivity(state: MeetingState2x, nowInSeconds: Long): Boolean = {
-    nowInSeconds - state.inactivityTracker.lastActivityTimestamp <
-      TimeUtil.minutesToSeconds(state.inactivityTracker.maxInactivityTimeoutMinutes) -
-      TimeUtil.minutesToSeconds(state.inactivityTracker.warningMinutesBeforeMax)
+  def isMeetingInactive(nowInMs: Long): Boolean = {
+    warningSent && (nowInMs - lastActivityTimestampInMs) > maxInactivityTimeoutInMs
   }
 
-  def isMeetingInactive(state: MeetingState2x, nowInSeconds: Long): Boolean = {
-    state.inactivityTracker.warningSent &&
-      (nowInSeconds - state.inactivityTracker.lastActivityTimestamp) >
-      TimeUtil.minutesToSeconds(state.inactivityTracker.maxInactivityTimeoutMinutes)
-  }
-
-  def timeLeftInSeconds(state: MeetingState2x, nowInSeconds: Long): Long = {
-    state.inactivityTracker.lastActivityTimestamp +
-      TimeUtil.minutesToSeconds(state.inactivityTracker.maxInactivityTimeoutMinutes) - nowInSeconds
+  def timeLeftInMs(nowInMs: Long): Long = {
+    lastActivityTimestampInMs + maxInactivityTimeoutInMs - nowInMs
   }
 }
 
 case class MeetingExpiryTracker(
-  startedOn:                              Long,
-  userHasJoined:                          Boolean,
-  lastUserLeftOn:                         Option[Long],
-  durationInMinutes:                      Int,
-  meetingExpireIfNoUserJoinedInMinutes:   Int,
-  meetingExpireWhenLastUserLeftInMinutes: Int
-)
-
-object MeetingExpiryTracker {
-  def setMeetingStartedOn(state: MeetingState2x, timestampInSeconds: Long): MeetingState2x = {
-    val tracker = state.expiryTracker.modify(_.startedOn).setTo(timestampInSeconds)
-    state.modify(_.expiryTracker).setTo(tracker)
+    startedOnInMs:                     Long,
+    userHasJoined:                     Boolean,
+    lastUserLeftOnInMs:                Option[Long],
+    durationInMs:                      Long,
+    meetingExpireIfNoUserJoinedInMs:   Long,
+    meetingExpireWhenLastUserLeftInMs: Long
+) {
+  def setUserHasJoined(): MeetingExpiryTracker = {
+    if (!userHasJoined) {
+      copy(userHasJoined = true)
+    } else {
+      copy()
+    }
   }
 
-  def setUserHasJoined(state: MeetingState2x): MeetingState2x = {
-    val tracker = state.expiryTracker.modify(_.userHasJoined).setTo(true)
-      .modify(_.lastUserLeftOn).setTo(None)
-    state.modify(_.expiryTracker).setTo(tracker)
+  def setLastUserLeftOn(timestampInMs: Long): MeetingExpiryTracker = {
+    copy(lastUserLeftOnInMs = Some(timestampInMs))
   }
 
-  def hasMeetingExpiredAfterLastUserLeft(state: MeetingState2x, timestampInSeconds: Long): Boolean = {
+  def hasMeetingExpiredAfterLastUserLeft(timestampInMs: Long): Boolean = {
     val expire = for {
-      lastUserLeftOn <- state.expiryTracker.lastUserLeftOn
+      lastUserLeftOn <- lastUserLeftOnInMs
     } yield {
-      timestampInSeconds - lastUserLeftOn >
-        TimeUtil.minutesToSeconds(state.expiryTracker.meetingExpireWhenLastUserLeftInMinutes)
+      timestampInMs - lastUserLeftOn > meetingExpireWhenLastUserLeftInMs
     }
 
     expire.getOrElse(false)
   }
 
-  def setLastUserLeftOn(state: MeetingState2x, timestampInSeconds: Long): MeetingState2x = {
-    val tracker = state.expiryTracker.modify(_.lastUserLeftOn).setTo(Some(timestampInSeconds))
-    state.modify(_.expiryTracker).setTo(tracker)
-  }
-
-  def hasMeetingExpired(state: MeetingState2x, timestampInSeconds: Long): (Boolean, Option[String]) = {
-    if (MeetingExpiryTracker.hasMeetingExpiredNeverBeenJoined(state, timestampInSeconds)) {
+  def hasMeetingExpired(timestampInMs: Long): (Boolean, Option[String]) = {
+    if (hasMeetingExpiredNeverBeenJoined(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_WHEN_NOT_JOINED))
-    } else if (MeetingExpiryTracker.meetingOverDuration(state, timestampInSeconds)) {
+    } else if (meetingOverDuration(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_AFTER_EXCEEDING_DURATION))
-    } else if (MeetingExpiryTracker.hasMeetingExpiredAfterLastUserLeft(state, timestampInSeconds)) {
+    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_WHEN_LAST_USER_LEFT))
     } else {
       (false, None)
     }
   }
 
-  def hasMeetingExpiredNeverBeenJoined(state: MeetingState2x, nowInSeconds: Long): Boolean = {
-    !state.expiryTracker.userHasJoined &&
-      (nowInSeconds - state.expiryTracker.startedOn >
-        TimeUtil.minutesToSeconds(state.expiryTracker.meetingExpireIfNoUserJoinedInMinutes))
+  def hasMeetingExpiredNeverBeenJoined(nowInMs: Long): Boolean = {
+    !userHasJoined && (nowInMs - startedOnInMs > meetingExpireIfNoUserJoinedInMs)
   }
 
-  def meetingOverDuration(state: MeetingState2x, nowInSeconds: Long): Boolean = {
-    if (state.expiryTracker.durationInMinutes == 0) {
+  def meetingOverDuration(nowInMs: Long): Boolean = {
+    if (durationInMs == 0) {
       false
     } else {
-      nowInSeconds > state.expiryTracker.startedOn + TimeUtil.minutesToSeconds(state.expiryTracker.durationInMinutes)
+      nowInMs > startedOnInMs + durationInMs
     }
   }
 
-  def endMeetingTime(state: MeetingState2x): Int = {
-    (state.expiryTracker.startedOn + TimeUtil.minutesToSeconds(state.expiryTracker.durationInMinutes)).toInt
+  def endMeetingTime(): Long = {
+    startedOnInMs + durationInMs
   }
 }
 

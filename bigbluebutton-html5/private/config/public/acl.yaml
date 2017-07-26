@@ -20,6 +20,7 @@ acl:
       - 'sendChat'
   moderator:
     methods:
+      - 'assignPresenter'
       - 'kickUser'
       - 'muteUser'
       - 'unmuteUser'

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
-		 xmlns:fx="http://ns.adobe.com/mxml/2009"
-     xmlns:mate="http://mate.asfusion.com/"
-		 verticalScrollPolicy="off"
-		 horizontalScrollPolicy="off"
-		 verticalAlign="middle"
-		 creationComplete="onCreationCompleteHandler(event)">
+         xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mate="http://mate.asfusion.com/"
+         verticalScrollPolicy="off"
+         horizontalScrollPolicy="off"
+         verticalAlign="middle"
+         creationComplete="onCreationCompleteHandler(event)">
   <fx:Declarations>
     <mate:Listener type="{BreakoutRoomsReadyEvent.BREAKOUT_ROOMS_READY_EVENT}" method="handleBreakoutRoomsReadyEvent" />	
   </fx:Declarations>
-	<fx:Script>
-		<![CDATA[
+  <fx:Script>
+    <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
       import mx.events.FlexEvent;
@@ -21,64 +21,64 @@
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.model.users.BreakoutRoom;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-
-			private var globalDispatch:Dispatcher = new Dispatcher();
-
-			[Bindable]
-			private var moderator:Boolean = false;
-
+      
+      private var globalDispatch:Dispatcher = new Dispatcher();
+      
+      [Bindable]
+      private var moderator:Boolean = false;
+      
       [Bindable]
       private var breakoutRoomsReady: Boolean = false;
       
-			protected function onCreationCompleteHandler(event:FlexEvent):void {
-				moderator = UsersUtil.amIModerator();
-
-				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
-			}
+      protected function onCreationCompleteHandler(event:FlexEvent):void {
+        moderator = UsersUtil.amIModerator();
+        
+        this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+      }
       
       private function handleBreakoutRoomsReadyEvent(event: BreakoutRoomsReadyEvent): void {
         breakoutRoomsReady = LiveMeeting.inst().breakoutRooms.breakoutRoomsReady;
       }
-
-			private function dataChangeHandler(event:FlexEvent):void {
-				if (BreakoutRoom(data).listenStatus == BreakoutRoom.SELF) {
-					listenBtn.setStyle("icon", getStyle("iconTransfer"));
-					listenBtn.selected = true;
-				} else {
-					listenBtn.setStyle("icon", getStyle("iconTransferred"));
-					listenBtn.selected = false;
-				}
-			}
-
-			protected function listenToBreakoutRoom(event:MouseEvent):void {
-				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
-				e.breakoutMeetingId = data.meetingId as String;
-				e.listen = listenBtn.selected;
-				globalDispatch.dispatchEvent(e);
-			}
-
-			protected function requestBreakoutJoinUrl(event:MouseEvent):void {
-				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
-				e.breakoutMeetingId = data.externalMeetingId as String;
-				e.userId = UsersUtil.getMyUserID();
-				globalDispatch.dispatchEvent(e);
-			}
-		]]>
-	</fx:Script>
-
-	<mx:Button id="joinBtn"
-			   width="20"
-			   height="20"
-			   icon="{getStyle('iconJoin')}"
-			   visible="{(breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently)}"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
-			   click="requestBreakoutJoinUrl(event)" />
-	<mx:Button id="listenBtn"
-			   toggle="true"
-			   width="20"
-			   height="20"
-			   visible="{moderator &amp;&amp; data.listenStatus != BreakoutRoom.OTHER &amp;&amp; UsersUtil.amIinVoiceConf() || data.listenStatus == BreakoutRoom.SELF}"
-			   icon="{getStyle('iconTransfer')}"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
-			   click="listenToBreakoutRoom(event)" />
+      
+      private function dataChangeHandler(event:FlexEvent):void {
+        if (BreakoutRoom(data).listenStatus == BreakoutRoom.SELF) {
+          listenBtn.setStyle("icon", getStyle("iconTransfer"));
+          listenBtn.selected = true;
+        } else {
+          listenBtn.setStyle("icon", getStyle("iconTransferred"));
+          listenBtn.selected = false;
+        }
+      }
+      
+      protected function listenToBreakoutRoom(event:MouseEvent):void {
+        var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+        e.breakoutMeetingId = data.meetingId as String;
+        e.listen = listenBtn.selected;
+        globalDispatch.dispatchEvent(e);
+      }
+      
+      protected function requestBreakoutJoinUrl(event:MouseEvent):void {
+        var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+        e.breakoutMeetingId = data.externalMeetingId as String;
+        e.userId = UsersUtil.getMyUserID();
+        globalDispatch.dispatchEvent(e);
+      }
+    ]]>
+  </fx:Script>
+  
+  <mx:Button id="joinBtn"
+             width="20"
+             height="20"
+             icon="{getStyle('iconJoin')}"
+             visible="{(breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently)}"
+             toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
+             click="requestBreakoutJoinUrl(event)" />
+  <mx:Button id="listenBtn"
+             toggle="true"
+             width="20"
+             height="20"
+             visible="{moderator &amp;&amp; data.listenStatus != BreakoutRoom.OTHER &amp;&amp; UsersUtil.amIinVoiceConf() || data.listenStatus == BreakoutRoom.SELF}"
+             icon="{getStyle('iconTransfer')}"
+             toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
+             click="listenToBreakoutRoom(event)" />
 </mx:HBox>

@@ -56,9 +56,8 @@ package org.bigbluebutton.modules.users.views.model
       throw new Error("hasStream cannot be set. It is derived directly from streamName");
     }
     
-    [Bindable] private var _viewingStream:Array = new Array();
+    private var _viewingStream:Array = new Array();
     
-
     public function isViewingAllStreams():Boolean {
       return _viewingStream.length == _streamNames.length;
     }

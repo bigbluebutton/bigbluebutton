@@ -28,12 +28,10 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.connection.messages.UserBroadcastCamStopMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.BreakoutRoomsListMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.BreakoutRoomsListMsgBody;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsCmdMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsgBody;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.ListenInOnBreakoutMsg;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.ListenInOnBreakoutMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsgBody;
   import org.bigbluebutton.core.managers.ConnectionManager;
@@ -103,7 +101,7 @@ package org.bigbluebutton.modules.users.services
 
 		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
 			var body:CreateBreakoutRoomsMsgBody = new CreateBreakoutRoomsMsgBody(meetingId, durationInMinutes, record, rooms);
-			var message:CreateBreakoutRoomsMsg = new CreateBreakoutRoomsMsg(body);
+			var message:CreateBreakoutRoomsCmdMsg = new CreateBreakoutRoomsCmdMsg(body);
 
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage2x(function(result:String):void { // On successful result
@@ -129,9 +127,12 @@ package org.bigbluebutton.modules.users.services
 			}, JSON.stringify(message));
 		}
 		
-		public function listenInOnBreakout(meetingId:String, targetMeetingId:String, userId:String):void {
-			var body:ListenInOnBreakoutMsgBody = new ListenInOnBreakoutMsgBody(meetingId, targetMeetingId, userId);
-			var message:ListenInOnBreakoutMsg = new ListenInOnBreakoutMsg(body);
+		public function listenInOnBreakout(fomMeetingId:String, toMeetingId:String, userId:String):void {
+      var message:Object = {
+        header: {name: "TransferUserToMeetingRequestMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {fomMeetingId: fomMeetingId, toMeetingId: toMeetingId, userId: UsersUtil.getMyUserID()}
+      };
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage2x(function(result:String):void { // On successful result
@@ -251,9 +252,9 @@ package org.bigbluebutton.modules.users.services
 
     public function activityResponse():void {
       var message:Object = {
-        header: {name: "GetRecordingStatusReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+        header: {name: "MeetingActivityResponseCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {requestedBy: UsersUtil.getMyUserID()}
+        body: {respondedBy: UsersUtil.getMyUserID()}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

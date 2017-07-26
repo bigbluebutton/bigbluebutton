@@ -13,8 +13,11 @@ object TestDataGen {
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
-    RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, waitForApproval, users)
+    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+      authToken, avatarURL, guest, authed, waitForApproval)
+
+    RegisteredUsers.add(users, ru)
+    ru
   }
 
   def createVoiceUserForUser(user: RegisteredUser, callingWith: String, muted: Boolean, talking: Boolean,
