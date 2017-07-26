@@ -9,7 +9,7 @@ let audioManager;
 const init = () => {
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
-  const username = User.user.name;
+  const username = User.name;
   const Meeting = Meetings.findOne({ meetingId: User.meetingId });
   const voiceBridge = Meeting.voiceProp.voiceConf;
 

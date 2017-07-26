@@ -236,8 +236,6 @@ class UserList extends Component {
       },
     };
 
-    console.log("Users",users);
-
     return (
       <div className={styles.participants}>
         {
