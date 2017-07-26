@@ -16,7 +16,25 @@ const addSlides = (meetingId, presentationId, slides) => {
 };
 
 export default function addPresentation(meetingId, presentation) {
-  check(presentation, Object);
+  check(presentation, {
+    id: String,
+    name: String,
+    current: Boolean,
+    pages: [{
+      id: String,
+      num: Number,
+      thumbUri: String,
+      swfUri: String,
+      txtUri: String,
+      svgUri: String,
+      current: Boolean,
+      xOffset: Number,
+      yOffset: Number,
+      widthRatio: Number,
+      heightRatio: Number,
+    }],
+    downloadable: Boolean,
+  });
 
   const selector = {
     meetingId,
