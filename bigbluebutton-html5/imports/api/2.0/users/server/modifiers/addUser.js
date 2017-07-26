@@ -4,8 +4,21 @@ import Users from '/imports/api/2.0/users';
 import flat from 'flat';
 
 export default function addUser(meetingId, user) {
-  check(user, Object);
   check(meetingId, String);
+
+  check(user, {
+    intId: String,
+    extId: String,
+    name: String,
+    role: String,
+    guest: Boolean,
+    authed: Boolean,
+    waitingForAcceptance: Boolean,
+    emoji: String,
+    presenter: Boolean,
+    locked: Boolean,
+    avatar: String,
+  });
 
   const userId = user.intId;
   check(userId, String);
