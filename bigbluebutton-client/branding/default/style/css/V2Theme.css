@@ -1039,7 +1039,7 @@ mx|ProgressBar {
 */
 
 views|ReconnectionPopup {
-	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refreshing");
+	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bandwidth");
 }
 
 /*
