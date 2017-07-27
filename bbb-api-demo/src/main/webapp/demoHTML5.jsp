@@ -101,8 +101,8 @@ if (request.getParameterMap().isEmpty()) {
 	}
 
 	String defaultModeratorPassword = "mp";
-	String defaultAtendeePassword = "ap";
-	String defaultPassword = defaultAtendeePassword;
+	String defaultAttendeePassword = "ap";
+	String defaultPassword = defaultAttendeePassword;
 
 	boolean isModerator = false;
 	if (request.getParameter("isModerator") != null) {
@@ -113,7 +113,7 @@ if (request.getParameterMap().isEmpty()) {
 	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
 	String html5url = ip + "/html5client/join";
 
-	String meetingId = createMeeting( meetingname, null, defaultPassword, "Welcome moderator! (moderator only message)", defaultPassword, null, null );
+	String meetingId = createMeeting( meetingname, null, defaultModeratorPassword, "Welcome moderator! (moderator only message)", defaultAttendeePassword, null, null );
 
 	// Check if we have an existing meeting
 	if( meetingId.startsWith("Error ")) {
