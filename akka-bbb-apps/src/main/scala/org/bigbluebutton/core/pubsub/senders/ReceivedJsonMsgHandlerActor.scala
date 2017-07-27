@@ -51,21 +51,13 @@ class ReceivedJsonMsgHandlerActor(
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
-        for {
-          m <- deserialize[ValidateAuthTokenReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[ValidateAuthTokenReqMsg](envelope, jsonNode)
       case RegisterUserReqMsg.NAME =>
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
-        for {
-          m <- deserialize[UserJoinMeetingReqMsg](jsonNode)
-        } yield {
-          send(m.header.userId, envelope, m)
-        }
+        routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
