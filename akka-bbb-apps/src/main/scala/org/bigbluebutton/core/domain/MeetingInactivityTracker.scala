@@ -44,9 +44,9 @@ case class MeetingExpiryTracker(
 ) {
   def setUserHasJoined(): MeetingExpiryTracker = {
     if (!userHasJoined) {
-      copy(userHasJoined = true)
+      copy(userHasJoined = true, lastUserLeftOnInMs = None)
     } else {
-      copy()
+      this
     }
   }
 
