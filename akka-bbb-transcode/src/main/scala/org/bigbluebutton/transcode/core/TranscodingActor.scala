@@ -2,14 +2,10 @@ package org.bigbluebutton.transcode.core
 
 import akka.actor._
 import akka.actor.ActorLogging
-import scala.collection.mutable.HashMap
 import org.bigbluebutton.endpoint.redis.RedisPublisher
 import org.bigbluebutton.transcode.api._
 import org.bigbluebutton.SystemConfiguration
-import scala.collection._
-import scala.collection.JavaConversions._
-import org.bigbluebutton.common.messages.Constants
-import org.bigbluebutton.transcode.core.apps.{ TranscodingObserverApp }
+import org.bigbluebutton.transcode.core.apps.TranscodingObserverApp
 
 object TranscodingActor extends SystemConfiguration {
   def props(system: ActorSystem, messageSender: RedisPublisher): Props =

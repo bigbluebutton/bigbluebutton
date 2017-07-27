@@ -1,14 +1,11 @@
 package org.bigbluebutton.transcode.core
 
-import org.bigbluebutton.transcode.core.api.ITranscodingInGW
-import org.bigbluebutton.endpoint.redis.RedisPublisher
-import scala.collection.JavaConversions._
-import java.util.ArrayList
-import scala.collection.mutable.ArrayBuffer
 import akka.actor.ActorSystem
+
+import org.bigbluebutton.endpoint.redis.RedisPublisher
 import org.bigbluebutton.transcode.api._
 
-class TranscodingInGW(val system: ActorSystem, messageSender: RedisPublisher) extends ITranscodingInGW {
+class TranscodingInGW(val system: ActorSystem, messageSender: RedisPublisher) {
   val log = system.log
   val transcodingActor = system.actorOf(TranscodingActor.props(system, messageSender), "bbb-transcoding-manager")
 
@@ -31,5 +28,4 @@ class TranscodingInGW(val system: ActorSystem, messageSender: RedisPublisher) ex
   def startProbing(meetingId: String, transcoderId: String, params: java.util.Map[String, String]) {
     transcodingActor ! new StartProbingRequest(meetingId, transcoderId, params)
   }
-
 }
