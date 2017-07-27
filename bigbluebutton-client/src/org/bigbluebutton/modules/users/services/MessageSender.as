@@ -114,9 +114,11 @@ package org.bigbluebutton.modules.users.services
 		}
 
 		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
-			var body:RequestBreakoutJoinURLMsgBody = new RequestBreakoutJoinURLMsgBody(parentMeetingId, breakoutMeetingId, userId);
-			var message:RequestBreakoutJoinURLMsg = new RequestBreakoutJoinURLMsg(body);
-
+      var message:Object = {
+        header: {name: "RequestBreakoutJoinURLReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {meetingId: parentMeetingId, breakoutId: breakoutMeetingId, userId: UsersUtil.getMyUserID()}
+      };
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage2x(function(result:String):void { // On successful result
 			}, function(status:String):void { // status - On error occurred
