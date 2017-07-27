@@ -12,7 +12,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     eventBus:    InternalEventBus,
     liveMeeting: LiveMeeting,
     state:       MeetingState2x
-  ): MeetingState2x = {
+  ): (MeetingState2x, Option[String]) = {
     val nowInMs = TimeUtil.timeNowInMs()
 
     val (expired, reason) = state.expiryTracker.hasMeetingExpired(nowInMs)
@@ -20,12 +20,11 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
       for {
         expireReason <- reason
       } yield {
-        println("**** Ending meeting for reason " + expireReason)
         sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting)
       }
     }
 
-    state
+    (state, reason)
   }
 
   def processMeetingInactivityAudit(
@@ -33,27 +32,27 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     eventBus:    InternalEventBus,
     liveMeeting: LiveMeeting,
     state:       MeetingState2x
-  ): MeetingState2x = {
+  ): (MeetingState2x, Option[String]) = {
 
     val nowInMs = TimeUtil.timeNowInMs()
     if (!state.inactivityTracker.hasRecentActivity(nowInMs)) {
       if (state.inactivityTracker.isMeetingInactive(nowInMs)) {
-        println("**** Ending meeting due to inactivity!")
-        sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_DUE_TO_INACTIVITY, eventBus, outGW, liveMeeting)
-        state
+        val expireReason = MeetingEndReason.ENDED_DUE_TO_INACTIVITY
+        sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting)
+        (state, Some(expireReason))
       } else {
         if (!state.inactivityTracker.warningSent) {
           val timeLeftSeconds = TimeUtil.millisToSeconds(state.inactivityTracker.timeLeftInMs(nowInMs))
           val event = buildMeetingInactivityWarningEvtMsg(liveMeeting.props.meetingProp.intId, timeLeftSeconds)
           outGW.send(event)
           val tracker = state.inactivityTracker.setWarningSentAndTimestamp(nowInMs)
-          state.update(tracker)
+          (state.update(tracker), None)
         } else {
-          state
+          (state, None)
         }
       }
     } else {
-      state
+      (state, None)
     }
   }
 
