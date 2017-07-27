@@ -13,6 +13,7 @@ trait EndMeetingSysCmdMsgHdlr extends HandlerHelpers {
   val eventBus: InternalEventBus
 
   def handleEndMeeting(msg: EndMeetingSysCmdMsg) {
+    log.info("Meeting {} ended by from API.", msg.body.meetingId)
     sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_FROM_API, eventBus, outGW, liveMeeting)
   }
 
