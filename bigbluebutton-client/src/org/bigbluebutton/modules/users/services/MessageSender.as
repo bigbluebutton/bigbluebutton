@@ -61,7 +61,21 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function joinMeeting(): void {
-      // TODO: Send joine meeting message to server.
+      LOGGER.info("Sending JOIN MEETING message");
+      
+      var message:Object = {
+        header: {name: "UserJoinMeetingReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(function(result:String):void { // On successful result
+      }, function(status:String):void { // status - On error occurred
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["apps"];
+        logData.message = "Error occurred assigning a presenter.";
+        LOGGER.info(JSON.stringify(logData));
+      }, JSON.stringify(message));
     }
     
     public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:String):void {
