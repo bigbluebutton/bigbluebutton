@@ -21,10 +21,6 @@ package org.bigbluebutton.deskshare.server.red5.pubsub;
 import java.util.Map;
 import java.util.HashMap;
 
-import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.common.messages.Constants;
-import org.bigbluebutton.common.messages.StartTranscoderRequestMessage;
-import org.bigbluebutton.common.messages.StopTranscoderRequestMessage;
 import org.bigbluebutton.deskshare.server.red5.pubsub.MessageSender;
 
 public class MessagePublisher {
@@ -36,20 +32,10 @@ public class MessagePublisher {
 	}
 
 	public void startH264ToH263TranscoderRequest(String meetingId, String streamName, String ipAddress) {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put(Constants.TRANSCODER_TYPE, Constants.TRANSCODE_H264_TO_H263);
-		params.put(Constants.MODULE, "deskShare");
-		params.put(Constants.LOCAL_IP_ADDRESS, ipAddress);
-		params.put(Constants.DESTINATION_IP_ADDRESS, ipAddress);
-		params.put(Constants.INPUT, streamName);
-		// TODO: transcoderId is getting meetingId, this may have to change
-		StartTranscoderRequestMessage msg = new StartTranscoderRequestMessage(meetingId, meetingId, params);
-		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg.toJson());
+		// NOT USED ANYMORE
 	}
 
 	public void stopTranscoderRequest(String meetingId) {
-		// TODO: transcoderId is getting meetingId, this may have to change
-		StopTranscoderRequestMessage msg = new StopTranscoderRequestMessage(meetingId, meetingId);
-		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg.toJson());
+		// NOT USED ANYMORE
 	}
 }

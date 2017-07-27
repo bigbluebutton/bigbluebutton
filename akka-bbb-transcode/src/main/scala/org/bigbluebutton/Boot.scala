@@ -1,13 +1,11 @@
 package org.bigbluebutton
 
-import akka.actor.{ ActorSystem, Props }
-import scala.concurrent.duration._
-import redis.RedisClient
-import scala.concurrent.{ Future, Await }
-import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor.ActorSystem
+
 import org.bigbluebutton.endpoint.redis.{ RedisPublisher, AppsRedisSubscriberActor }
-import org.bigbluebutton.transcode.pubsub.receivers.RedisMessageReceiver
+import org.bigbluebutton.transcode.JsonMsgHdlrActor
 import org.bigbluebutton.transcode.core.TranscodingInGW
+import org.bigbluebutton.transcode.bus.InJsonMsgBus
 
 object Boot extends App with SystemConfiguration {
 
@@ -15,9 +13,11 @@ object Boot extends App with SystemConfiguration {
 
   val redisPublisher = new RedisPublisher(system)
 
-  var transcodingInGW = new TranscodingInGW(system, redisPublisher);
+  var inGW = new TranscodingInGW(system, redisPublisher)
 
-  val redisMsgReceiver = new RedisMessageReceiver(transcodingInGW);
+  val inJsonMsgBus = new InJsonMsgBus
+  val redisMessageHandlerActor = system.actorOf(JsonMsgHdlrActor.props(inGW))
+  inJsonMsgBus.subscribe(redisMessageHandlerActor, toAkkaTranscodeJsonChannel)
 
-  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(system, redisMsgReceiver), "redis-subscriber")
+  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(system, inJsonMsgBus), "redis-subscriber")
 }

@@ -32,15 +32,24 @@
         //Message identifiers 2x
         SCREENSHARE_RTMP_BROADCAST_STARTED_2x: "ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg",
         SCREENSHARE_RTMP_BROADCAST_STOPPED_2x: "ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg",
+        START_TRANSCODER_REQ_2x: "StartTranscoderSysReqMsg",
+        START_TRANSCODER_RESP_2x: "StartTranscoderSysRespMsg",
+        STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
+        STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
 
         // Redis messages fields
-        //  Transcoder
+        //  Transcoder 1x
         USER_ID : "user_id",
         OPTIONS: "options",
         VOICE_CONF_ID : "voice_conf_id",
         TRANSCODER_ID : "transcoder_id",
 
-        //  Screenshare
+        // Transcoder 2x
+        USER_ID_2x : "userId",
+        TRANSCODER_ID_2x : "transcoderId",
+        MEETING_ID_2x: "meetingId",
+
+        //  Screenshare 2x
         CONFERENCE_NAME: "voiceConf",
         SCREENSHARE_CONF: "screenshareConf",
         STREAM_URL: "stream",
