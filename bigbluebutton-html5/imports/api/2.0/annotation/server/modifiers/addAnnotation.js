@@ -1,4 +1,4 @@
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Annotations from '/imports/api/2.0/annotation';
 import flat from 'flat';
@@ -9,7 +9,41 @@ const ANNOTATION_TYPE_PENCIL = 'pencil';
 export default function addAnnotation(meetingId, whiteboardId, userId, annotation) {
   check(meetingId, String);
   check(whiteboardId, String);
-  check(annotation, Object);
+  check(annotation, {
+    id: String,
+    status: String,
+    annotationType: String,
+    annotationInfo: {
+      x: Match.Maybe(Number), // Text Annotation Only.
+      y: Match.Maybe(Number), // Text Annotation Only.
+      text: Match.Maybe(String), // Text Annotation Only.
+      fontColor: Match.Maybe(Number), // Text Annotation Only.
+      calcedFontSize: Match.Maybe(Number), // Text Annotation Only.
+      textBoxWidth: Match.Maybe(Number), // Text Annotation Only.
+      textBoxHeight: Match.Maybe(Number), // Text Annotation Only.
+      fontSize: Match.Maybe(Number), // Text Annotation Only.
+      dataPoints: Match.Maybe(String), // Text Annotation Only.
+      color: Match.Maybe(Number), // Draw Annotation Only.
+      thickness: Match.Maybe(Number), // Draw Annotation Only.
+      transparency: Match.Maybe(Boolean), // Draw Annotation Only.
+      points: Match.Maybe([Number]), // Draw and Poll Annotation Only.
+      numResponders: Match.Maybe(Number), // Poll Only Annotation.
+      result: Match.Maybe([{
+        id: Number,
+        key: String,
+        numVotes: Number,
+      }]), // Poll Only Annotation.
+      numRespondents: Match.Maybe(Number), // Poll Only Annotation.
+      id: String,
+      whiteboardId: String,
+      status: String,
+      type: String,
+      commands: Match.Maybe([Number]),
+    },
+    wbId: String,
+    userId: String,
+    position: Number,
+  });
 
   const selector = {
     meetingId,
@@ -19,9 +53,8 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
 
   const modifier = {
     $set: Object.assign(
-      { userId },
-      { meetingId },
       { whiteboardId },
+      { meetingId },
       flat(annotation, { safe: true }),
     ),
   };
