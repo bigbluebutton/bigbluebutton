@@ -1,16 +1,25 @@
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import Captions from '/imports/api/2.0/captions';
 import Logger from '/imports/startup/server/logger';
 
 export default function addCaption(meetingId, locale, captionHistory, id = false) {
   check(meetingId, String);
   check(locale, String);
-  check(captionHistory, Object);
+
+  check(captionHistory, {
+    ownerId: String,
+    index: Number,
+    captions: String,
+    locale: Match.Maybe(String),
+    localeCode: Match.Maybe(String),
+    next: Match.OneOf(Number, undefined, null),
+  });
 
   const selector = {
     meetingId,
     locale,
   };
+
 
   if (id) {
     selector._id = id;
@@ -22,11 +31,7 @@ export default function addCaption(meetingId, locale, captionHistory, id = false
     $set: {
       meetingId,
       locale,
-      'captionHistory.locale': locale,
-      'captionHistory.ownerId': captionHistory.ownerId,
-      'captionHistory.captions': captionHistory.captions,
-      'captionHistory.next': captionHistory.next,
-      'captionHistory.index': captionHistory.index,
+      captionHistory,
     },
   };
 
