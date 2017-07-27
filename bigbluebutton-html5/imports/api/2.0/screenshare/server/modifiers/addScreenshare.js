@@ -3,27 +3,26 @@ import flat from 'flat';
 import Logger from '/imports/startup/server/logger';
 import Screenshare from '/imports/api/2.0/screenshare';
 
-export default function addVoiceUser(meetingId, screenshareConf, body) {
+export default function addScreenshare(meetingId, body) {
   check(meetingId, String);
-  check(screenshareConf, String);
 
   const selector = {
     meetingId,
-    'broadcast.screenshareConf': screenshareConf,
   };
 
   const modifier = {
-    $push: {
-      'broadcast.voiceUsers': flat(body),
+    $set: {
+      meetingId,
+      screenshare: flat(body),
     },
   };
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Adding voiceUser to collection: ${err}`);
+      return Logger.error(`Adding screenshare to collection: ${err}`);
     }
 
-    return Logger.info(`Upserted voiceUser id=${body.callerIdNum}, name=${body.callerIdName}`);
+    return Logger.info(`Upserted screenshare id=${body.screenshareConf}`);
   };
 
   return Screenshare.upsert(selector, modifier, cb);

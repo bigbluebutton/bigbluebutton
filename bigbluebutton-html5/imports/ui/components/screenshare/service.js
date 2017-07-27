@@ -11,7 +11,7 @@ function isVideoBroadcasting() {
   if (!ds) {
     return false;
   }
-  return ds.broadcast.stream && !PresentationService.isPresenter();
+  return ds.screenshare.stream && !PresentationService.isPresenter();
 }
 
 // if remote screenshare has been ended disconnect and hide the video stream

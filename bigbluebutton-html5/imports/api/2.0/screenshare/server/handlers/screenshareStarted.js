@@ -1,9 +1,9 @@
 import { check } from 'meteor/check';
-import addBroadcast from '../modifiers/addBroadcast';
+import addScreenshare from '../modifiers/addScreenshare';
 
 export default function handleBroadcastStartedVoice({ body }, meetingId) {
   check(meetingId, String);
   check(body, Object);
 
-  return addBroadcast(meetingId, body);
+  return addScreenshare(meetingId, body);
 }
