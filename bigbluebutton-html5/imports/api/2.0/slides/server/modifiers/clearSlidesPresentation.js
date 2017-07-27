@@ -1,7 +1,7 @@
 import Slides from '/imports/api/2.0/slides';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import clearShapesWhiteboard from '/imports/api/2.0/shapes/server/modifiers/clearShapesWhiteboard';
+import clearAnnotationsWhiteboard from '/imports/api/2.0/annotation/server/modifiers/clearAnnotationsWhiteboard';
 
 export default function clearSlidesPresentation(meetingId, presentationId) {
   check(meetingId, String);
@@ -20,7 +20,7 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
     }
 
     if (numChanged) {
-      whiteboardIds.forEach(whiteboardId => clearShapesWhiteboard(meetingId, whiteboardId));
+      whiteboardIds.forEach(whiteboardId => clearAnnotationsWhiteboard(meetingId, whiteboardId));
 
       return Logger.info(`Removed Slides where presentationId=${presentationId}`);
     }

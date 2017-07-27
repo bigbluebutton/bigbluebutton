@@ -9,7 +9,7 @@ acl:
       - 'polls'
       - 'chat'
       - 'presentations'
-      - 'shapes'
+      - 'annotations'
       - 'slides'
       - 'captions'
       - 'breakouts'

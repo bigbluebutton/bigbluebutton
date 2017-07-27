@@ -18,8 +18,7 @@ export default function addBreakout(breakout) {
 
   const modifier = {
     $set:
-    flat(breakout, { safe: true })
-    ,
+    flat(breakout, { safe: true }),
   };
 
   const cb = (err, numChanged) => {

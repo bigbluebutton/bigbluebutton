@@ -42,6 +42,7 @@ const fetchImageSizes = imageUri =>
 
 export default function addSlide(meetingId, presentationId, slide) {
   check(presentationId, String);
+
   check(slide, {
     id: String,
     num: Number,

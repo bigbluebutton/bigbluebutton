@@ -1,7 +1,7 @@
 import flat from 'flat';
 import Chat from '/imports/api/2.0/chat';
 import Logger from '/imports/startup/server/logger';
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import { BREAK_LINE } from '/imports/utils/lineEndings';
 
 const parseMessage = (message) => {
@@ -18,6 +18,17 @@ const parseMessage = (message) => {
 };
 
 export default function addChat(meetingId, message) {
+  check(message, {
+    message: String,
+    fromColor: String,
+    toUserId: String,
+    toUsername: String,
+    fromUserId: String,
+    fromUsername: Match.Maybe(String),
+    fromTime: Number,
+    fromTimezoneOffset: Match.Maybe(Number),
+  });
+
   const parsedMessage = message;
   parsedMessage.message = parseMessage(message.message);
 
@@ -27,12 +38,10 @@ export default function addChat(meetingId, message) {
   check(fromUserId, String);
   check(toUserId, String);
 
-  const selector = {
-    meetingId,
-    'message.fromTime': parsedMessage.fromTime,
-    'message.fromUserId': parsedMessage.fromUserId,
-    'message.toUserId': parsedMessage.toUserId,
-  };
+  const selector = Object.assign(
+    { meetingId },
+    flat(message),
+  );
 
   const modifier = {
     $set: {

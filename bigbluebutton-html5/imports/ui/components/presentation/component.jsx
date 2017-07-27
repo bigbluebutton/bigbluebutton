@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PollingContainer from '/imports/ui/components/polling/container';
-import ShapeGroupContainer from '../whiteboard/shape-group/container';
+import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import Cursor from './cursor/component';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import Slide from './slide/component';
@@ -54,7 +54,7 @@ export default class PresentationArea extends React.Component {
             </defs>
             <g clipPath="url(#viewBox)">
               <Slide id="slideComponent" currentSlide={this.props.currentSlide} />
-              <ShapeGroupContainer
+              <AnnotationGroupContainer
                 width={slideObj.width}
                 height={slideObj.height}
                 whiteboardId={slideObj.id}

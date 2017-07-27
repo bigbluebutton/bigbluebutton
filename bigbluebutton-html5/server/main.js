@@ -3,7 +3,7 @@ import '/imports/startup/server';
 // 2x
 import '/imports/api/2.0/meetings/server';
 import '/imports/api/2.0/users/server';
-import '/imports/api/2.0/shapes/server';
+import '/imports/api/2.0/annotation/server';
 import '/imports/api/2.0/cursor/server';
 import '/imports/api/2.0/polls/server';
 import '/imports/api/2.0/captions/server';

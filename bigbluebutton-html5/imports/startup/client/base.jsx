@@ -84,7 +84,7 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
-  'users2x', 'chat2x', 'cursor2x', 'meetings2x', 'polls2x', 'presentations2x', 'shapes2x', 'slides2x', 'captions2x', 'breakouts2x',
+  'users2x', 'chat2x', 'cursor2x', 'meetings2x', 'polls2x', 'presentations2x', 'annotation', 'slides2x', 'captions2x', 'breakouts2x',
 ];
 
 const BaseContainer = createContainer(({ params }) => {
