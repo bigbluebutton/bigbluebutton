@@ -36,11 +36,14 @@
 */
 
 global {
-	fontFamily     : "Source Sans Pro", Arial, sans-serif;
-	fontSize       : 13;
-	color          : #2A2D33;
-	selectionColor : #1070D7;
-	focusColor     : #1070D7;
+	fontFamily        : "Source Sans Pro", Arial, sans-serif;
+	fontSize          : 13;
+	color             : #2A2D33;
+	selectionColor    : #1070D7;
+	textSelectedColor : #FFFFFF;
+	focusColor        : #1070D7;
+	rollOverColor     : #DBE4ED;
+	textRollOverColor : #1070D7;
 }
 
 .defaultShellStyle {
@@ -528,8 +531,6 @@ views|ClientStatusItemRenderer {
 mx|ComboBox {
 	cornerRadius        : 2;
 	color               : #5E6C73;
-	textRollOverColor   : #5E6C73;
-	textSelectedColor   : #5E6C73;
 	fontSize            : 12;
 
 	/* Normal state */
@@ -1039,7 +1040,7 @@ mx|ProgressBar {
 */
 
 views|ReconnectionPopup {
-	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refreshing");
+	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bandwidth");
 }
 
 /*
@@ -1203,16 +1204,16 @@ users|EmojiGrid {
 }
 
 users|MoodMenu {
-	iconMoodRaiseHand   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
-	iconMoodApplause    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
-	iconMoodThumbsUp    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
-	iconMoodThumbsDown  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
-	iconMoodAway        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	iconMoodHappy       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
-	iconMoodSad         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
-	iconMoodNeutral     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
-	iconMoodConfused    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
-	iconMoodNone        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_None");
+	iconMoodRaiseHand  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
+	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
+	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
+	iconMoodAway       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
+	iconMoodConfused   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+	iconMoodNone       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_None");
 }
 
 /*
