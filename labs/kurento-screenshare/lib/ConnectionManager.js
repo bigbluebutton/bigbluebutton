@@ -186,8 +186,7 @@ module.exports = class ConnectionManager {
   _stopSession(sessionId) {
     console.log(' [>] Stopping session ' + sessionId);
     let session = this._screenshareSessions[sessionId];
-
-    if(session._stop === 'function') {
+    if(typeof session !== 'undefined' && typeof session._stop === 'function') {
       session._stop();
     }
 
