@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.running.{ OutMsgRouter }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.MeetingActor
 
 trait SendWhiteboardAnnotationPubMsgHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSendWhiteboardAnnotationPubMsg(msg: SendWhiteboardAnnotationPubMsg): Unit = {
 
@@ -21,8 +20,6 @@ trait SendWhiteboardAnnotationPubMsgHdlr {
       val event = SendWhiteboardAnnotationEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
-
-      record(event)
     }
 
     val annotation = sendWhiteboardAnnotation(msg.body.annotation)

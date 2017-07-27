@@ -1,12 +1,11 @@
 package org.bigbluebutton.core.apps.voice
 
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait UserJoinedVoiceConfMessageHdlr {
   this: MeetingActor =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   /*
   def startRecordingVoiceConference() {

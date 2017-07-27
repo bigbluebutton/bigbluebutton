@@ -26,8 +26,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		horizontalScrollPolicy="off"
 		verticalScrollPolicy="off"
 		implements="org.bigbluebutton.common.IBbbModuleWindow"
-		xmlns:mate="http://mate.asfusion.com/" styleNameFocus="videoDockStyleFocus"
-		layout="absolute" visible="true" styleNameNoFocus="videoDockStyleNoFocus"
+		xmlns:mate="http://mate.asfusion.com/"
+		layout="absolute" visible="true"
 		showCloseButton="false"
 		horizontalAlign="center"
 		verticalAlign="middle"
@@ -131,6 +131,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
+				// FIXME : chceck dark layout is still working
 				if(e.layoutID != "bbb.layout.name.videochat"){
 					setStyle("styleNameFocus", "videoDockStyleFocus");
 					setStyle("styleNameNoFocus", "videoDockStyleNoFocus");
@@ -178,4 +179,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</fx:Script>
+	
 </CustomMdiWindow>

@@ -27,11 +27,9 @@
     <fx:Script>
         <![CDATA[
             import com.asfusion.mate.events.Dispatcher;
+            
             import org.bigbluebutton.main.events.ResponseModeratorEvent;
             import org.bigbluebutton.util.i18n.ResourceUtil;
-            import mx.containers.HBox;
-            import mx.controls.Button;
-            import mx.controls.Spacer;
 
             private var dispatcher:Dispatcher = new Dispatcher();
 
@@ -47,7 +45,7 @@
                 sendResponseToServer(false);
             }
 
-            private function onAcceptUserBtnClick():void {
+            private function onAllowUserBtnClick():void {
                 sendResponseToServer(true);
             }
 
@@ -64,6 +62,6 @@
     <mx:Label text="{username}" maxWidth="150" />
     <mx:Spacer width="100%" />
     <mx:Button styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" click="onRejectUserBtnClick()" />
-    <mx:Button styleName="acceptButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" click="onAcceptUserBtnClick()" />
+    <mx:Button styleName="allowButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" click="onAllowUserBtnClick()" />
 
 </mx:HBox>

@@ -563,9 +563,7 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
   }
 
   def getResponders(): Array[Responder] = {
-    var r = new Array[Responder](responders.length)
-    responders.copyToArray(r)
-    return r
+    return responders.toArray
   }
 
   def toSimpleAnswerOutVO(): SimpleAnswerOutVO = {

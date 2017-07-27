@@ -20,10 +20,16 @@ package org.bigbluebutton.modules.screenshare.services
 {
 	import org.bigbluebutton.modules.screenshare.services.red5.Connection;
 
+    import org.bigbluebutton.core.BBB;
+    import org.bigbluebutton.core.UsersUtil;
+    import org.bigbluebutton.core.managers.ConnectionManager;
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
 
     public class MessageSender
     {	
-        private static const LOG:String = "SC::MessageSender - ";	
+        private static const LOG:String = "SC::MessageSender - ";
+        private static const LOGGER:ILogger = getClassLogger(MessageSender);
         private var conn: Connection;
         
         public function MessageSender(conn: Connection) {
@@ -56,6 +62,28 @@ package org.bigbluebutton.modules.screenshare.services
         
         public function sendClientPongMessage(meetingId: String, session: String, timestamp: Number):void {
           conn.sendClientPongMessage(meetingId, session, timestamp);
-        } 
+        }
+
+        public function queryForScreenshare():void {
+            var message:Object = {
+                header: {name: "GetScreenshareStatusReqMsg", meetingId: UsersUtil.getInternalMeetingID(),
+                    userId: UsersUtil.getMyUserID()},
+                body: {requestedBy: UsersUtil.getMyUserID()}
+            };
+
+            var _nc:ConnectionManager = BBB.initConnectionManager();
+            _nc.sendMessage2x(
+                    function(result:String):void { // On successful result
+                    },
+                    function(status:String):void { // status - On error occurred
+                        var logData:Object = UsersUtil.initLogData();
+                        logData.tags = ["apps"];
+                        logData.message = "Error occurred getting screenshare status.";
+                        LOGGER.info(JSON.stringify(logData));
+                    },
+                    JSON.stringify(message)
+            ); //_netConnection.call
+        }
+
     }
 }

@@ -11,9 +11,10 @@
   </fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import mx.events.FlexEvent;     
-      import org.bigbluebutton.common.Images;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.events.FlexEvent;
+      
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.BreakoutRoomsReadyEvent;
       import org.bigbluebutton.core.model.LiveMeeting;
@@ -22,9 +23,6 @@
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var globalDispatch:Dispatcher = new Dispatcher();
-
-			[Bindable]
-			private var images:Images = new Images();
 
 			[Bindable]
 			private var moderator:Boolean = false;
@@ -44,10 +42,10 @@
 
 			private function dataChangeHandler(event:FlexEvent):void {
 				if (BreakoutRoom(data).listenStatus == BreakoutRoom.SELF) {
-					listenBtn.setStyle("icon", images.transferred);
+					listenBtn.setStyle("icon", getStyle("iconTransfer"));
 					listenBtn.selected = true;
 				} else {
-					listenBtn.setStyle("icon", images.transfer);
+					listenBtn.setStyle("icon", getStyle("iconTransferred"));
 					listenBtn.selected = false;
 				}
 			}
@@ -71,7 +69,7 @@
 	<mx:Button id="joinBtn"
 			   width="20"
 			   height="20"
-			   icon="{images.join}"
+			   icon="{getStyle('iconJoin')}"
 			   visible="{(breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently)}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
 			   click="requestBreakoutJoinUrl(event)" />
@@ -80,7 +78,7 @@
 			   width="20"
 			   height="20"
 			   visible="{moderator &amp;&amp; data.listenStatus != BreakoutRoom.OTHER &amp;&amp; UsersUtil.amIinVoiceConf() || data.listenStatus == BreakoutRoom.SELF}"
-			   icon="{images.transfer}"
+			   icon="{getStyle('iconTransfer')}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
 			   click="listenToBreakoutRoom(event)" />
 </mx:HBox>
