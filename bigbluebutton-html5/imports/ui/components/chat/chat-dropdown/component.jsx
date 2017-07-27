@@ -88,15 +88,13 @@ class ChatDropdown extends Component {
   getAvailableActions() {
     const { intl } = this.props;
 
+    const clearIcon = 'delete';
+    const saveIcon = 'save_notes';
+    const copyIcon = 'copy';
+
     return _.compact([
-      (Acl.can('methods.clearPublicChatHistory', Auth.credentials) ?
-        <DropdownListItem
-          label={intl.formatMessage(intlMessages.clear)}
-          key={_.uniqueId('action-item-')}
-          onClick={() => makeCall('clearPublicChatHistory')}
-        />
-        : null),
       (<DropdownListItem
+        icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
         key={_.uniqueId('action-item-')}
         onClick={() => {
@@ -109,10 +107,19 @@ class ChatDropdown extends Component {
         }}
       />),
       (<DropdownListItem
+        icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
         key={_.uniqueId('action-item-')}
       />),
+      (Acl.can('methods.clearPublicChatHistory', Auth.credentials) ?
+        <DropdownListItem
+          icon={clearIcon}
+          label={intl.formatMessage(intlMessages.clear)}
+          key={_.uniqueId('action-item-')}
+          onClick={() => makeCall('clearPublicChatHistory')}
+        />
+        : null),
     ]);
   }
 
