@@ -3,7 +3,6 @@ acl:
     subscriptions:
       - 'users'
       - 'cursor'
-      - 'deskshare'
       - 'screenshare'
       - 'meetings'
       - 'polls'

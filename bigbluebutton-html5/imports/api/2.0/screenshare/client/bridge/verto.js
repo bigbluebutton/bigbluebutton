@@ -1,23 +1,24 @@
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
-import { getConferenceBridge } from './service';
+import BridgeService from './service';
 
-// TODO pass info in constructor instead of importing ^^
 const createVertoUserName = () => {
   const userId = Auth.userID;
   const uName = Users.findOne({ userId }).user.name;
   return `FreeSWITCH User - ${encodeURIComponent(uName)}`;
 };
 
-export default class VertoDeskshareBridge {
+export default class VertoScreenshareBridge {
   constructor() {
-    this.data = { getConferenceBridge };
+    // TODO - this info must be set in the call manager
+    window.BBB = {};
+    window.BBB.getSessionToken = callback => callback(Auth.sessionToken);
   }
 
   vertoWatchVideo() {
     window.vertoWatchVideo(
-      'deskshareVideo',
-      this.data.getConferenceBridge(),
+      'screenshareVideo',
+      BridgeService.getConferenceBridge(),
       createVertoUserName(),
       null,
       null,
@@ -29,4 +30,3 @@ export default class VertoDeskshareBridge {
     window.vertoExitVideo();
   }
 }
-
