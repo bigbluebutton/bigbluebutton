@@ -229,22 +229,22 @@ package org.bigbluebutton.modules.layout.managers
 			_canvas.windowManager.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
 				var obj:Object = (e as Object);
 				if (obj.mdiEventType == "windowAdd") {
-					LOGGER.debug("Ignoring windowAdd");
+					//LOGGER.debug("Ignoring windowAdd");
 					return;
 				}
 				var windows:Array = obj.windows;
 				if (windows != null) {
 					for each (var window:MDIWindow in windows) {
-						LOGGER.debug(e.type + "/" + obj.mdiEventType + " on window " + WindowLayout.getType(window));
+						//LOGGER.debug(e.type + "/" + obj.mdiEventType + " on window " + WindowLayout.getType(window));
 						onActionOverWindowFinished(window);
 					}
 				} else {
-					LOGGER.debug(e.type + "/" + obj.mdiEventType + " with no window associated");
+					//LOGGER.debug(e.type + "/" + obj.mdiEventType + " with no window associated");
 				}
 			});
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_ADD, function(e:MDIManagerEvent):void {
 				checkSingleWindowPermissions(e.window);
-				LOGGER.debug("applying layout to just created window " + WindowLayout.getType(e.window));
+				//LOGGER.debug("applying layout to just created window " + WindowLayout.getType(e.window));
 				applyLayout(_currentLayout);
 			});
 			
@@ -321,12 +321,12 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function applyLayout(layout:LayoutDefinition):void {
-			LOGGER.debug("applyLayout");
+			//LOGGER.debug("applyLayout");
 			detectContainerChange = false;
 
 			if (layout != null) {
 				layout.applyToCanvas(_canvas, function():void {
-					LOGGER.debug("layout applied successfully, resetting detectContainerChange");
+					//LOGGER.debug("layout applied successfully, resetting detectContainerChange");
 					detectContainerChange = true;
 				});
 				dispatchSwitchedLayoutEvent(layout.name);
@@ -338,13 +338,13 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
     private function set detectContainerChange(detect:Boolean):void {
-      LOGGER.debug("setting detectContainerChange to " + detect);
+      //LOGGER.debug("setting detectContainerChange to " + detect);
       if (detect) {
         _applyingLayoutCounter--;
       } else {
         _applyingLayoutCounter++;
       }
-      LOGGER.debug("current value of detectContainerChange: " + detectContainerChange);
+      //LOGGER.debug("current value of detectContainerChange: " + detectContainerChange);
     }
 
     private function get detectContainerChange():Boolean {
@@ -423,7 +423,7 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
 		private function onMDIManagerEvent(e:MDIManagerEvent):void {
-			LOGGER.debug("Window has been modified. Event=[" + e.type + "]");
+			//LOGGER.debug("Window has been modified. Event=[" + e.type + "]");
 			onActionOverWindowFinished(e.window);
 		}
 
@@ -446,7 +446,7 @@ package org.bigbluebutton.modules.layout.managers
         //trace(LOG + "updateCurrentLayout - currentLayout = [" + layout.name + "]");
         layout.currentLayout = true;
       } else if (detectContainerChange) {
-        LOGGER.debug("invalidating layout event");
+        //LOGGER.debug("invalidating layout event");
         _globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
         _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
         //trace(LOG + "updateCurrentLayout - layout is NULL! Setting currentLayout = [" + _currentLayout.name + "]");

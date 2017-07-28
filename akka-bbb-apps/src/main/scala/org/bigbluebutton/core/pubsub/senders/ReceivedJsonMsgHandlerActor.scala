@@ -51,21 +51,13 @@ class ReceivedJsonMsgHandlerActor(
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
-        for {
-          m <- deserialize[ValidateAuthTokenReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[ValidateAuthTokenReqMsg](envelope, jsonNode)
       case RegisterUserReqMsg.NAME =>
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
-        for {
-          m <- deserialize[UserJoinMeetingReqMsg](jsonNode)
-        } yield {
-          send(m.header.userId, envelope, m)
-        }
+        routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
@@ -130,59 +122,15 @@ class ReceivedJsonMsgHandlerActor(
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
-        for {
-          m <- deserialize[BreakoutRoomsListMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[BreakoutRoomsListMsg](envelope, jsonNode)
       case CreateBreakoutRoomsCmdMsg.NAME =>
-        for {
-          m <- deserialize[CreateBreakoutRoomsCmdMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[CreateBreakoutRoomsCmdMsg](envelope, jsonNode)
       case RequestBreakoutJoinURLReqMsg.NAME =>
-        for {
-          m <- deserialize[RequestBreakoutJoinURLReqMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
-      case BreakoutRoomCreatedMsg.NAME =>
-        for {
-          m <- deserialize[BreakoutRoomCreatedMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
-      case BreakoutRoomUsersUpdateMsg.NAME =>
-        for {
-          m <- deserialize[BreakoutRoomUsersUpdateMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
-      case SendBreakoutUsersUpdateMsg.NAME =>
-        for {
-          m <- deserialize[SendBreakoutUsersUpdateMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[RequestBreakoutJoinURLReqMsg](envelope, jsonNode)
       case EndAllBreakoutRoomsMsg.NAME =>
-        for {
-          m <- deserialize[EndAllBreakoutRoomsMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
-      case BreakoutRoomEndedMsg.NAME =>
-        for {
-          m <- deserialize[BreakoutRoomEndedMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[EndAllBreakoutRoomsMsg](envelope, jsonNode)
       case TransferUserToMeetingRequestMsg.NAME =>
-        for {
-          m <- deserialize[TransferUserToMeetingRequestMsg](jsonNode)
-        } yield {
-          send(m.header.meetingId, envelope, m)
-        }
+        routeGenericMsg[TransferUserToMeetingRequestMsg](envelope, jsonNode)
 
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>
@@ -286,6 +234,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[IsMeetingLockedReqMsg](envelope, jsonNode)
       case ChangeLockSettingsInMeetingCmdMsg.NAME =>
         routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
+      case LockUsersInMeetingCmdMsg.NAME =>
+        routeGenericMsg[LockUsersInMeetingCmdMsg](envelope, jsonNode)
+      case GetLockSettingsReqMsg.NAME =>
+        routeGenericMsg[GetLockSettingsReqMsg](envelope, jsonNode)
 
       // Screenshare
       case ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME =>

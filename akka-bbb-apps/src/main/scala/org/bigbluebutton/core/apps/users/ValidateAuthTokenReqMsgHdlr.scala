@@ -91,14 +91,14 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
 
     // TODO: REMOVE Temp only so we can implement user handling in client. (ralam june 21, 2017)
 
-    sendAllUsersInMeeting(user.id)
-    sendAllVoiceUsersInMeeting(user.id, liveMeeting.voiceUsers, meetingId)
-    sendAllWebcamStreams(outGW, user.id, liveMeeting.webcams, meetingId)
-    val newState = userJoinMeeting(outGW, user.authToken, liveMeeting, state)
-    if (!Users2x.hasPresenter(liveMeeting.users2x)) {
-      automaticallyAssignPresenter(outGW, liveMeeting)
-    }
-    newState
+    //sendAllUsersInMeeting(user.id)
+    //sendAllVoiceUsersInMeeting(user.id, liveMeeting.voiceUsers, meetingId)
+    //sendAllWebcamStreams(outGW, user.id, liveMeeting.webcams, meetingId)
+    //val newState = userJoinMeeting(outGW, user.authToken, liveMeeting, state)
+    //if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+    //  automaticallyAssignPresenter(outGW, liveMeeting)
+    // }
+    state
   }
 
   def sendAllUsersInMeeting(requesterId: String): Unit = {

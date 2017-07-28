@@ -3,7 +3,7 @@ package org.bigbluebutton.core2.message.handlers.guests
 import org.bigbluebutton.common2.msgs.{ GuestApprovedVO, GuestsWaitingApprovedMsg }
 import org.bigbluebutton.core.models.{ GuestsWaiting, RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>

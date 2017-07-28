@@ -12,10 +12,15 @@ object TimeUtil {
     TimeUnit.MILLISECONDS.toMinutes(millis)
   }
 
+  def millisToSeconds(millis: Long): Long = {
+    TimeUnit.MILLISECONDS.toSeconds(millis)
+  }
+
   def minutesToSeconds(minutes: Long): Long = {
     TimeUnit.MINUTES.toSeconds(minutes)
   }
 
   def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
+  def timeNowInMs(): Long = TimeUnit.NANOSECONDS.toMillis(System.nanoTime())
 }

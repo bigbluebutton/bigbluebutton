@@ -5,7 +5,7 @@
 
 /* Modules */
 
-var Constants = require('../messages/Constants.js');
+var C = require('../messages/Constants.js');
 var RedisWrapper = require('./RedisWrapper.js');
 var config = require('config');
 var util = require('util');
@@ -41,7 +41,7 @@ BigBlueButtonGW.prototype.addSubscribeChannel = function (channel, callback) {
     }
 
     console.log("  [BigBlueButtonGW] Added redis client to this.redisClients[" + channel + "]");
-    wrobj.on(Constants.REDIS_MESSAGE, self.incomingMessage.bind(self));
+    wrobj.on(C.REDIS_MESSAGE, self.incomingMessage.bind(self));
 
     return callback(null, wrobj);
   });
@@ -55,16 +55,37 @@ BigBlueButtonGW.prototype.addSubscribeChannel = function (channel, callback) {
  */
 BigBlueButtonGW.prototype.incomingMessage = function (message) {
   var msg = JSON.parse(message);
-  var header = msg.header;
-  var payload = msg.payload;
+
+  // Trying to parse both message types, 1x and 2x
+  if (msg.header) {
+    var header = msg.header;
+    var payload = msg.payload;
+  }
+  else if (msg.core) {
+    var header = msg.core.header;
+    var payload = msg.core.body;
+  }
+
   if (header){
     switch (header.name) {
-      case Constants.START_TRANSCODER_REPLY:
-        this.emit(Constants.START_TRANSCODER_REPLY, payload);
+      // interoperability with 1.1
+      case C.START_TRANSCODER_REPLY:
+        this.emit(C.START_TRANSCODER_REPLY, payload);
         break;
-      case Constants.STOP_TRANSCODER_REPLY:
-        this.emit(Constants.STOP_TRANSCODER_REPLY, payload);
+      case C.STOP_TRANSCODER_REPLY:
+        this.emit(C.STOP_TRANSCODER_REPLY, payload);
         break;
+      // 2x messages
+      case C.START_TRANSCODER_RESP_2x:
+        payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
+
+        this.emit(C.START_TRANSCODER_RESP_2x, payload);
+        break;
+      case C.STOP_TRANSCODER_RESP_2x:
+        payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
+        this.emit(C.STOP_TRANSCODER_RESP_2x, payload);
+        break;
+
       default:
         console.log("  [BigBlueButtonGW] Unknown Redis message with ID =>" + header.name);
     }

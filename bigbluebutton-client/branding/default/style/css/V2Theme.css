@@ -36,11 +36,14 @@
 */
 
 global {
-	fontFamily     : "Source Sans Pro", Arial, sans-serif;
-	fontSize       : 13;
-	color          : #2A2D33;
-	selectionColor : #1070D7;
-	focusColor     : #1070D7;
+	fontFamily        : "Source Sans Pro", Arial, sans-serif;
+	fontSize          : 13;
+	color             : #2A2D33;
+	selectionColor    : #1070D7;
+	textSelectedColor : #FFFFFF;
+	focusColor        : #1070D7;
+	rollOverColor     : #DBE4ED;
+	textRollOverColor : #1070D7;
 }
 
 .defaultShellStyle {
@@ -270,7 +273,7 @@ mx|ApplicationControlBar {
 }
 
 .muteMeDefaultButtonStyle {
-	glowFilterColor : #B4201B;
+	glowFilterColor : #1070D7;
 	icon            : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 	disabledIcon    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
 }
@@ -284,30 +287,23 @@ mx|ApplicationControlBar {
 }
 
 .quickWindowLinkStyle {
-	/* FIXME */
 	paddingLeft       : 0;
 	paddingRight      : 0;
 	textDecoration    : underline;
-	rollOverColor     : #CCCCCC;
-	selectionColor    : #999999;
-	color             : #FFFFFF;
-	textRollOverColor : #504F3D;
-	textSelectedColor : #504F3D;
+	rollOverColor     : #1070D7;
+	selectionColor    : #0A5EAC;
+	color             : #4E5A66;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
 }
 
 .helpLinkButtonStyle {
-	/* FIXME */
-	paddingLeft       : 4;
-	paddingRight      : 4;
-	paddingTop        : 2;
-	paddingBottom     : 2;
-	fontSize          : 16;
-	rollOverColor     : #CCCCCC;
-	selectionColor    : #999999;
-	color             : #FFFFFF;
-	textRollOverColor : #504F3D;
-	textSelectedColor : #504F3D;
-	fontWeight        : bold;
+	cornerRadius   : 2;
+	rollOverColor  : #1070D7;
+	selectionColor : #0A5EAC;
+	icon           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help");
+	overIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
+	downIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
 }
 
 /*
@@ -535,8 +531,6 @@ views|ClientStatusItemRenderer {
 mx|ComboBox {
 	cornerRadius        : 2;
 	color               : #5E6C73;
-	textRollOverColor   : #5E6C73;
-	textSelectedColor   : #5E6C73;
 	fontSize            : 12;
 
 	/* Normal state */
@@ -756,8 +750,10 @@ flexlib|MDIWindow {
 }
 
 .mdiWindowTitle {
-	color    : #2A2D33;
-	fontSize : 12;
+	color        : #2A2D33;
+	fontSize     : 12;
+	paddingLeft  : 12;
+	paddingRight : 12;
 }
 
 .mdiWindowNoFocus {
@@ -850,7 +846,7 @@ mx|PopUpButton {
 	fillColorDisabled   : #F0F2F6;
 	borderColorUp       : #CDD4DB;
 	borderColorOver     : #1070D7;
-	borderColorDown     : #1070D7;
+	borderColorDown     : #0A5EAC;
 	borderColorDisabled : #CDD4DB;
 
 	/* Icon states */
@@ -986,10 +982,6 @@ presentation|FileUploadWindow {
 	color : #2A2D33;
 }
 
-.presentationUploadCancelButtonStyle {
-	color : #2A2D33;
-}
-
 .presentationUploadShowButtonStyle {
 	color : #2A2D33;
 }
@@ -1048,7 +1040,7 @@ mx|ProgressBar {
 */
 
 views|ReconnectionPopup {
-	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refreshing");
+	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bandwidth");
 }
 
 /*
@@ -1101,11 +1093,15 @@ sharednotes|SharedNotesRichTextEditor {
 */
 
 mx|TitleWindow {
-	borderColor          : #FFFFFF;
-	cornerRadius         : 4;
-	roundedBottomCorners : true;
-	dropShadowEnabled    : true;
-	shadowDistance       : 0;
+	closeButtonDisabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
+	closeButtonDownSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
+	closeButtonOverSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
+	closeButtonUpSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
+	borderColor             : #FFFFFF;
+	cornerRadius            : 4;
+	roundedBottomCorners    : true;
+	dropShadowEnabled       : true;
+	shadowDistance          : 0;
 }
 
 /*
@@ -1146,7 +1142,6 @@ users|StatusItemRenderer {
 	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Moderator");
 	iconModeratorOnly  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ListenOnly");
 	iconMoodRaiseHand  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
-	iconMood           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
 	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
 	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
 	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
@@ -1168,7 +1163,7 @@ users|MediaItemRenderer {
 	iconDemote      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Demote");
 	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
-	glowFilterColor : #B4201B;
+	glowFilterColor : #1070D7;
 }
 
 users|NameItemRenderer {
@@ -1209,21 +1204,16 @@ users|EmojiGrid {
 }
 
 users|MoodMenu {
-	iconMoodRaiseHand   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
-	iconMoodApplause    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
-	iconMoodAgree       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
-	iconMoodDisagree    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
-	/* FIXME - start*/
-	iconMoodSpeakFaster : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	iconMoodSpeakSlower : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	iconMoodSpeakLouder : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Speak_Louder");
-	iconMoodSpeakSofter : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	/* FIXME - end */
-	iconMoodBeRightBack : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	iconMoodHappy       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
-	iconMoodClear       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Clear");
-	iconMoodNeutral     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
-	iconMoodConfused    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+	iconMoodRaiseHand  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
+	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
+	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
+	iconMoodAway       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
+	iconMoodConfused   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+	iconMoodNone       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_None");
 }
 
 /*
