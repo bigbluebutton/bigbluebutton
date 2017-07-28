@@ -247,14 +247,14 @@ class UserListItem extends Component {
 
     const userNameSub = [];
 
-    if (user.isLocked || true) {
+    if (user.isLocked) {
       userNameSub.push(<span>
         <Icon iconName="lock" />
         {intl.formatMessage(messages.locked)}
       </span>);
     }
 
-    if (user.isGuest || true) {
+    if (user.isGuest) {
       userNameSub.push(intl.formatMessage(messages.guest));
     }
 

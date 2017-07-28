@@ -20,7 +20,6 @@ export default function handlePresentationInfoReply({ body }, meetingId) {
 
   const presentationsAdded = [];
   presentations.forEach((presentation) => {
-    console.error(presentation);
     presentationsAdded.push(addPresentation(meetingId, presentation));
   });
 

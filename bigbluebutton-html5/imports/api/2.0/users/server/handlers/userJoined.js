@@ -1,4 +1,3 @@
-/* eslint "no-bitwise": 0 */
 import stringHash from 'string-hash';
 import { check } from 'meteor/check';
 
