@@ -303,6 +303,9 @@ class MeetingActor(
     // sync all presentations
     presentationApp2x.handleSyncGetPresentationInfoRespMsg()
 
+    // sync access of whiteboard (multi user)
+    handleSyncWhiteboardAccessRespMsg()
+
     // TODO send all chat
     // TODO send all lock settings
     // TODO send all screen sharing info
