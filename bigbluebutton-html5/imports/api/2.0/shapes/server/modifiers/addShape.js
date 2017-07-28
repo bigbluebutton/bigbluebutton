@@ -8,6 +8,7 @@ const SHAPE_TYPE_PENCIL = 'pencil';
 export default function addShape(meetingId, whiteboardId, userId, shape) {
   check(meetingId, String);
   check(whiteboardId, String);
+  check(userId, String);
   check(shape, Object);
 
   const selector = {
