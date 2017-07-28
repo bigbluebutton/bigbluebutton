@@ -6,6 +6,6 @@ export default function handleVoiceUpdate({ body }, meetingId) {
   const user = body;
 
   check(user, Object);
-
+  console.error(user);
   return updateVoiceUser(meetingId, user);
 }

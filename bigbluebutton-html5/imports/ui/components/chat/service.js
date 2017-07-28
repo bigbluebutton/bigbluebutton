@@ -31,6 +31,7 @@ const mapUser = user => ({
     status: user.emoji,
     changedAt: user.set_emoji_time,
   },
+  color: user.color,
   isPresenter: user.presenter,
   isModerator: user.role === 'MODERATOR',
   isCurrent: user.userid === Auth.userID,

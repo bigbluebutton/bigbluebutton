@@ -23,10 +23,14 @@
   }
 }
 
-.avatar {
-  flex-basis: 2.2rem;
+.avatarWrapper {
+  flex-basis: 1.65rem;
   flex-shrink: 0;
   flex-grow: 0;
+}
+
+.avatar {
+  font-size: .85rem;
 }
 
 .content {

@@ -24,6 +24,7 @@ const mapUser = user => ({
     status: user.emoji,
     changedAt: user.set_emoji_time,
   },
+  color: user.color,
   isPresenter: user.presenter,
   isModerator: user.role === ROLE_MODERATOR,
   isCurrent: user.userid === Auth.userID,
@@ -35,6 +36,7 @@ const mapUser = user => ({
   isPhoneUser: user.phone_user,
   isOnline: user.connection_status === 'online',
   isLocked: user.locked,
+  isGuest: user.guest,
 });
 
 const mapOpenChats = (chat) => {

@@ -41,6 +41,7 @@ export default function addUser(meetingId, user) {
     $set: {
       meetingId,
       userId,
+      'user.color': user.color,
       'user.connection_status': 'online',
       'user.userid': userId,
       'user.extId': user.extId,

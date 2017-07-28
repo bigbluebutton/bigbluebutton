@@ -80,13 +80,37 @@ $user-icons-color-hover: $color-gray;
   @extend %flex-column;
   justify-content: center;
   flex-grow: 0;
+  display: flex;
+  flex-direction: row;
+  padding: 0 $sm-padding-x;
+  margin: $lg-padding-x 0;
 }
 
 .headerTitle {
+  flex: 0;
   font-size: 1.05rem;
   font-weight: 600;
-  padding: 0 $sm-padding-x;
-  margin: $lg-padding-x 0;
+  color: $color-heading;
+}
+
+.btnToggle {
+  flex: 0;
+  padding: 0;
+  margin: 0;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: right;
+
+  & > i {
+    color: $color-heading;
+    text-align: right;
+  }
+
+  &:hover, &:focus, &:active {
+    background-color: transparent;
+  }
 }
 
 .content {
@@ -110,8 +134,7 @@ $user-icons-color-hover: $color-gray;
 }
 
 .smallTitle {
-  color: $color-heading;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
   padding: 0 $sm-padding-x;
