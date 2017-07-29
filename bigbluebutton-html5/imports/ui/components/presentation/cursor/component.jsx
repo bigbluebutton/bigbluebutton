@@ -2,18 +2,98 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 
-const propTypes = {
-  // Width of the view box
-  viewBoxWidth: PropTypes.number.isRequired,
+export default class Cursor extends Component {
 
-  // Height of the view box
-  viewBoxHeight: PropTypes.number.isRequired,
+  static calculatePositionAndRadius(propsObj) {
+    const { cursorX, cursorY, slideWidth, slideHeight,
+        physicalWidthRatio, radius, widthRatio, fill } = propsObj;
 
-  // x Position of the view box
-  viewBoxX: PropTypes.number.isRequired,
+    return {
+      // Adjust the x,y cursor position according to zoom
+      cx: (cursorX / 100) * slideWidth,
+      cy: (cursorY / 100) * slideHeight,
+      // Adjust the radius of the cursor according to zoom
+      // and divide it by the physicalWidth ratio, so that svg scaling wasn't applied to the cursor
+      finalRadius: ((radius * widthRatio) / 100) / physicalWidthRatio,
+      fill,
+    };
+  }
 
-  // y Position of the view box
-  viewBoxY: PropTypes.number.isRequired,
+  constructor(props) {
+    super(props);
+    this.state = {
+      prevData: undefined,
+      currentData: undefined,
+      defaultRadius: 5,
+    };
+  }
+
+  componentWillMount() {
+    const calculatedData = Cursor.calculatePositionAndRadius(this.props);
+    this.setState({
+      currentData: calculatedData,
+      prevData: calculatedData,
+      defaultRadius: calculatedData.finalRadius,
+    });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const calculatedData = Cursor.calculatePositionAndRadius(nextProps);
+    this.setState({
+      prevData: this.state.currentData,
+      currentData: calculatedData,
+    });
+  }
+
+  componentDidUpdate() {
+    const node1 = findDOMNode(this.cursorCoordinatesRef);
+    const node2 = findDOMNode(this.cursorRadiusRef);
+    node1.beginElement();
+    node2.beginElement();
+  }
+
+  render() {
+    const {
+      currentData,
+      prevData,
+    } = this.state;
+
+    return (
+      <circle
+        r={this.state.defaultRadius}
+        fill={currentData.fill}
+      >
+        <animateTransform
+          ref={(ref) => { this.cursorCoordinatesRef = ref; }}
+          attributeName="transform"
+          type="translate"
+          from={`${prevData.cx} ${prevData.cy}`}
+          to={`${currentData.cx} ${currentData.cy}`}
+          begin={'indefinite'}
+          dur="0.1s"
+          repeatCount="0"
+          fill="freeze"
+        />
+        <animate
+          ref={(ref) => { this.cursorRadiusRef = ref; }}
+          attributeName="r"
+          attributeType="XML"
+          from={prevData.finalRadius}
+          to={currentData.finalRadius}
+          begin={'indefinite'}
+          dur="0.2s"
+          repeatCount="0"
+          fill="freeze"
+        />
+      </circle>
+    );
+  }
+}
+
+Cursor.propTypes = {
+  // ESLint can't detect where all these propTypes are used, and they are not planning to fix it
+  // so the next line disables eslint's no-unused-prop-types rule for this file.
+  /* eslint-disable react/no-unused-prop-types */
 
   // Defines the cursor x position
   cursorX: PropTypes.number.isRequired,
@@ -40,95 +120,7 @@ const propTypes = {
   radius: PropTypes.number,
 };
 
-const defaultProps = {
+Cursor.defaultProps = {
   fill: 'red',
   radius: 5,
 };
-
-export default class Cursor extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      prevData: undefined,
-      currentData: undefined,
-      defaultRadius: 5,
-    };
-  }
-
-  componentWillMount() {
-    let calculatedData = this.calculatePositionAndRadius(this.props);
-    this.setState({
-      currentData: calculatedData,
-      prevData: calculatedData,
-      defaultRadius: calculatedData.finalRadius,
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    let calculatedData = this.calculatePositionAndRadius(nextProps);
-    this.setState({
-      prevData: this.state.currentData,
-      currentData: calculatedData,
-    });
-  }
-
-  componentDidUpdate() {
-    const { cursorCoordinates, cursorRadius } = this.refs;
-    var node1 = findDOMNode(cursorCoordinates);
-    var node2 = findDOMNode(cursorRadius);
-    node1.beginElement();
-    node2.beginElement();
-  }
-
-  calculatePositionAndRadius(propsObj) {
-    return {
-      //Adjust the x,y cursor position according to zoom
-      cx: (propsObj.cursorX * propsObj.viewBoxWidth) + propsObj.viewBoxX,
-      cy: (propsObj.cursorY * propsObj.viewBoxHeight) + propsObj.viewBoxY,
-      //Adjust the radius of the cursor according to zoom
-      //and divide it by the physicalWidth ratio, so that svg scaling wasn't applied to the cursor
-      finalRadius: (propsObj.radius * propsObj.widthRatio / 100) / this.props.physicalWidthRatio,
-      fill: propsObj.fill,
-    }
-  }
-
-  render() {
-    const {
-      currentData,
-      prevData
-    } = this.state;
-
-    return (
-      <circle
-        r={this.state.defaultRadius}
-        fill={currentData.fill}
-      >
-        <animateTransform
-          ref="cursorCoordinates"
-          attributeName="transform"
-          type="translate"
-          from={prevData.cx + " " + prevData.cy}
-          to={currentData.cx + " " + currentData.cy}
-          begin={'indefinite'}
-          dur="0.1s"
-          repeatCount="0"
-          fill="freeze"
-        />
-        <animate
-          ref="cursorRadius"
-          attributeName="r"
-          attributeType="XML"
-          from={prevData.finalRadius}
-          to={currentData.finalRadius}
-          begin={'indefinite'}
-          dur="0.2s"
-          repeatCount="0"
-          fill="freeze"
-        />
-      </circle>
-    );
-  }
-}
-
-Cursor.propTypes = propTypes;
-Cursor.defaultProps = defaultProps;

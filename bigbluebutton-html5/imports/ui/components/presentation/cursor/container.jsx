@@ -4,33 +4,43 @@ import { createContainer } from 'meteor/react-meteor-data';
 import CursorService from './service';
 import Cursor from './component';
 
-class CursorContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
 
-  render() {
+const CursorContainer = ({ cursorX, cursorY, ...rest }) => {
+  if (cursorX > 0 && cursorY > 0) {
     return (
-      <Cursor {...this.props}>
-        {this.props.children}
-      </Cursor>
+      <Cursor
+        cursorX={cursorX}
+        cursorY={cursorY}
+        {...rest}
+      />
     );
   }
-}
+  return null;
+};
+
 
 export default createContainer(() => {
-  let cursor = CursorService.getCurrentCursor();
-  let cursorX = 0;
-  let cursorY = 0;
+  const cursor = CursorService.getCurrentCursor();
 
-  if(cursor) {
+  let cursorX = -1;
+  let cursorY = -1;
+
+  if (cursor) {
     cursorX = cursor.x;
     cursorY = cursor.y;
   }
 
   return {
-    cursorX: cursorX,
-    cursorY: cursorY,
+    cursorX,
+    cursorY,
   };
 }, CursorContainer);
 
+
+CursorContainer.propTypes = {
+  // Defines the 'x' coordinate for the cursor, in percentages of the slide's width
+  cursorX: PropTypes.number.isRequired,
+
+  // Defines the 'y' coordinate for the cursor, in percentages of the slide's height
+  cursorY: PropTypes.number.isRequired,
+};

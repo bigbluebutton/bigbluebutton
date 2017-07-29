@@ -3,19 +3,14 @@ import { createContainer } from 'meteor/react-meteor-data';
 import PresentationOverlayService from './service';
 import PresentationOverlay from './component';
 
-class PresentationOverlayContainer extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <PresentationOverlay {...this.props}/>
-    );
-  }
-}
+const PresentationOverlayContainer = ({children, ...rest}) => {
+  return (
+    <PresentationOverlay {...rest}>
+      {children}
+    </PresentationOverlay>
+  );
+};
 
 export default createContainer(() => ({
   updateCursor: PresentationOverlayService.updateCursor,
-  isUserPresenter: PresentationOverlayService.getUserData().isUserPresenter,
 }), PresentationOverlayContainer);
