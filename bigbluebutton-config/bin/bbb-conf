@@ -56,6 +56,7 @@
 #   2016-08-15 GTR  Archive more logs with zip option and show more applications with status
 #   2016-10-17 GTR  Added redis to checked server components & added ownership check for video and freeswitch recording directories
 #   2017-04-08 FFD  Cleanup for 1.1-beta
+#	2017-07-30 mikhailnov Add checks and warnings for MongoDB
 
 #set -x
 #set -e
@@ -285,6 +286,7 @@ uncomment () {
 
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
+    check_mongodb_service
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5="mongod bbb-html5"
@@ -328,8 +330,16 @@ stop_bigbluebutton () {
    fi
 }
 
+function check_mongodb_service {
+	# Ubuntu's version of mongodb-server has the systemd service mongodb.service, the build by MongoDB developers uses mongod.service, BigBlueButton is currently developed and tested with the second build; te packages of these 2 build conflict which each other by dependency resolving system.
+    if [ -f /lib/systemd/system/mongodb.service ]; then
+		echo "You are probably using a MongoDB version from official Ubuntu's repositories, but BigBlueButton recommends to install another version of MongoDB, see here: http://docs.bigbluebutton.org/html/html5-overview.html#installation "
+		echo "Starting MongoDB (sudo systemctl start mongod) will probably fail!"
+	fi
+}
 start_bigbluebutton () {
     echo "Starting BigBlueButton"
+    check_mongodb_service
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5="mongod bbb-html5"
