@@ -122,7 +122,6 @@
 			private function gotCurrentDocument():void {
 				if(noteId == "MAIN_NOTE"){
 					getDocumentTimer.stop();
-
 				}
 			}
 
