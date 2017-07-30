@@ -176,7 +176,7 @@
     "app.breakoutTimeRemainingMessage": "Breakout Room time remaining: {0}",
     "app.breakoutWillCloseMessage": "Time ended. Breakout Room will close soon",
     "app.calculatingBreakoutTimeRemaining": "Calculating remaining time...",
-    "app.audioModal.microphoneLabel": "Microphone",
+    "app.audioModal.microphoneLabel": "With working microphone",
     "app.audioModal.listenOnlyLabel": "Listen Only",
     "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
     "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting",
@@ -184,7 +184,7 @@
     "app.audio.joinAudio": "Join Audio",
     "app.audio.leaveAudio": "Leave Audio",
     "app.audio.enterSessionLabel": "Enter Session",
-    "app.audio.playSoundLabel": "Play Sound",
+    "app.audio.playSoundLabel": "Play test Sound",
     "app.audio.backLabel": "Back",
     "app.audio.audioSettings.titleLabel": "Choose your audio settings",
     "app.audio.audioSettings.descriptionLabel": "Please note, a dialog will appear in your browser, requiring you to accept sharing your microphone.",
@@ -201,4 +201,4 @@
     "app.error.401": "Unauthorized",
     "app.error.403": "Forbidden",
     "app.error.leaveLabel": "Log in again"
-}
+} 
