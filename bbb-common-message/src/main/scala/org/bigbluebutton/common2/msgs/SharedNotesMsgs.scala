@@ -40,7 +40,7 @@ case class DestroySharedNoteReqMsgBody(noteId: String)
 /* Out Messages */
 object GetSharedNotesEvtMsg {val NAME = "GetSharedNotesEvtMsg"}
 case class GetSharedNotesEvtMsg(header: BbbClientMsgHeader, body: GetSharedNotesEvtMsgBody) extends StandardMsg
-case class GetSharedNotesEvtMsgBody(notesReport: Map[String, NoteReport])
+case class GetSharedNotesEvtMsgBody(notesReport: Map[String, NoteReport], isNotesLimit: Boolean)
 
 object SyncSharedNoteEvtMsg {val NAME = "SyncSharedNoteEvtMsg"}
 case class SyncSharedNoteEvtMsg(header: BbbClientMsgHeader, body: SyncSharedNoteEvtMsgBody) extends StandardMsg
@@ -52,8 +52,8 @@ case class UpdateSharedNoteRespMsgBody(noteId: String, patch: String, patchId: I
 
 object CreateSharedNoteRespMsg {val NAME = "CreateSharedNoteRespMsg"}
 case class CreateSharedNoteRespMsg(header: BbbClientMsgHeader, body: CreateSharedNoteRespMsgBody) extends StandardMsg
-case class CreateSharedNoteRespMsgBody(noteId: String, noteName: String)
+case class CreateSharedNoteRespMsgBody(noteId: String, noteName: String, isNotesLimit: Boolean)
 
 object DestroySharedNoteRespMsg {val NAME = "DestroySharedNoteRespMsg"}
 case class DestroySharedNoteRespMsg(header: BbbClientMsgHeader, body: DestroySharedNoteRespMsgBody) extends StandardMsg
-case class DestroySharedNoteRespMsgBody(noteId: String)
+case class DestroySharedNoteRespMsgBody(noteId: String, isNotesLimit: Boolean)
