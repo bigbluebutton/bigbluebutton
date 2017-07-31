@@ -25,7 +25,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
         liveMeeting.props.meetingProp.intId, voiceUserState.intId
       )
 
-      val body = UserJoinedVoiceConfToClientEvtMsgBody(intId = voiceUserState.intId, voiceUserId = voiceUserState.voiceUserId,
+      val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf = msg.body.voiceConf, intId = voiceUserState.intId, voiceUserId = voiceUserState.voiceUserId,
         callerName = voiceUserState.callerName, callerNum = voiceUserState.callerNum, muted = voiceUserState.muted,
         talking = voiceUserState.talking, callingWith = voiceUserState.callingWith, listenOnly = voiceUserState.listenOnly)
 
