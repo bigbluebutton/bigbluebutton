@@ -12,7 +12,6 @@ trait UserLeftVoiceConfEvtMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleUserLeftVoiceConfEvtMsg(msg: UserLeftVoiceConfEvtMsg): Unit = {
-    log.debug("Received UserLeftVoiceConfEvtMsg from FS {} ", msg.body.voiceUserId)
 
     def broadcastEvent(vu: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId,
@@ -42,8 +41,6 @@ trait UserLeftVoiceConfEvtMsgHdlr {
       liveMeeting.props.recordProp.record &&
       MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
       MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
-      log.info("Send STOP RECORDING voice conf. meetingId=" + liveMeeting.props.meetingProp.intId
-        + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
 
       val event = buildStopRecordingVoiceConfSysMsg(
         liveMeeting.props.meetingProp.intId,
