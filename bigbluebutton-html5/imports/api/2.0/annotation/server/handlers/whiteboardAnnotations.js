@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { check } from 'meteor/check';
-import Annotations from '/imports/api/2.0/annotations';
+import Annotations from '/imports/api/2.0/annotation';
 import addAnnotation from '../modifiers/addAnnotation';
 import removeAnnotation from '../modifiers/removeAnnotation';
 
@@ -9,7 +9,7 @@ export default function handleWhiteboardAnnotations({ body }, meetingId) {
   check(body, Object);
 
   const { annotations, whiteboardId } = body;
-  const annotationIds = annotations.map(annotation => annotation.id);
+  const annotationIds = annotations.map(a => a.id);
   const annotationsToRemove = Annotations.find({
     meetingId,
     wbId: whiteboardId,
