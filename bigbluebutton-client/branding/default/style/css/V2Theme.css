@@ -797,29 +797,10 @@ flexlib|MDIWindow {
 	color    : #5E6C72;
 }
 
-.micSettingsWindowPlaySoundButtonStyle {
-	color             : #2A2D33;
-	textRollOverColor : #CDD4DB;
-	textSelectedColor : #CDD4DB;
-}
-
-.micSettingsWindowCancelButtonStyle, .inactivityWarningWindowCancelButtonStyle {
+.inactivityWarningWindowCancelButtonStyle {
 	color             : #CDD4DB;
 	textRollOverColor : #CDD4DB;
 	textSelectedColor : #CDD4DB;
-}
-
-.micSettingsWindowHelpButtonStyle {
-	paddingLeft       : 4;
-	paddingRight      : 4;
-	paddingTop        : 2;
-	paddingBottom     : 2;
-	fontSize          : 16;
-	rollOverColor     : #CDD4DB;
-	selectionColor    : #5E6C73;
-	textRollOverColor : #FFFFFF;
-	textSelectedColor : #FFFFFF;
-	fontWeight        : bold;
 }
 
 /*
@@ -1040,7 +1021,7 @@ mx|ProgressBar {
 */
 
 views|ReconnectionPopup {
-	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bandwidth");
+	iconRefresh : Embed(source="assets/swf/refreshing.swf");
 }
 
 /*
@@ -1102,6 +1083,14 @@ mx|TitleWindow {
 	roundedBottomCorners    : true;
 	dropShadowEnabled       : true;
 	shadowDistance          : 0;
+	titleStyleName          : "titleWindowStyle";
+}
+
+.titleWindowStyle {
+	color      : #05172A;
+	fontSize   : 24;
+	textAlign  :center;
+	paddingTop : 40;
 }
 
 /*
