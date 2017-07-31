@@ -114,4 +114,6 @@ case class AnnotationVO(id: String, status: String, annotationType: String, anno
 
   case class UndoWhiteboardPubMsgBody(whiteboardId: String)
 
-
+  object SyncGetWhiteboardAccessRespMsg { val NAME = "SyncGetWhiteboardAccessRespMsg" }
+  case class SyncGetWhiteboardAccessRespMsg(header: BbbClientMsgHeader, body: SyncGetWhiteboardAccessRespMsgBody) extends BbbCoreMsg
+  case class SyncGetWhiteboardAccessRespMsgBody(multiUser: Boolean)
