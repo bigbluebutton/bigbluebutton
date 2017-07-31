@@ -1,6 +1,6 @@
-import BaseAudioBridge from './base';
-
 import { makeCall } from '/imports/ui/services/api';
+
+import BaseAudioBridge from './base';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const MEDIA_CONFIG = Meteor.settings.public.media;
@@ -13,13 +13,13 @@ export default class SIPBridge extends BaseAudioBridge {
     this.userData = userData;
   }
 
-  joinListenOnly(stunServers, turnServers) {
+  joinListenOnly(stunServers, turnServers, callbackFromManager) {
     makeCall('listenOnlyToggle', true);
-    this._joinVoiceCallSIP({ isListenOnly: true, stunServers, turnServers });
+    this._joinVoiceCallSIP({ isListenOnly: true }, stunServers, turnServers, callbackFromManager);
   }
 
-  joinMicrophone(stunServers, turnServers) {
-    this._joinVoiceCallSIP({ isListenOnly: false, stunServers, turnServers });
+  joinMicrophone(stunServers, turnServers, callbackFromManager) {
+    this._joinVoiceCallSIP({ isListenOnly: false }, stunServers, turnServers, callbackFromManager);
   }
 
   // Periodically check the status of the WebRTC call, when a call has been established attempt to
@@ -66,7 +66,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   // join the conference. If listen only send the request to the server
-  _joinVoiceCallSIP(options) {
+  _joinVoiceCallSIP(options, stunServers, turnServers, callbackFromManager) {
     const extension = this.userData.voiceBridge;
     console.log(options);
 
@@ -75,50 +75,11 @@ export default class SIPBridge extends BaseAudioBridge {
       console.log('Beginning WebRTC Conference Call');
     };
 
-    const {
-      userId,
-      username,
-    } = this.userData;
-
-    window.BBB = {};
-    window.BBB.getMyUserInfo = function (callback) {
-      const result = {
-        myUserID: userId,
-        myUsername: username,
-        myInternalUserID: userId,
-        myAvatarURL: null,
-        myRole: 'getMyRole',
-        amIPresenter: 'false',
-        voiceBridge: extension,
-        dialNumber: null,
-      };
-      return callback(result);
-    };
-
     const stunsAndTurns = {
-      stun: options.stunServers,
-      turn: options.turnServers,
+      stun: stunServers,
+      turn: turnServers,
     };
 
-    callIntoConference(extension, (audio) => {
-      switch (audio.status) {
-        case 'failed':
-          const audioFailed = new CustomEvent('bbb.webrtc.failed', {
-            status: 'Failed' });
-          window.dispatchEvent(audioFailed);
-          break;
-        case 'mediafail':
-          const mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
-            status: 'MediaFailed' });
-          window.dispatchEvent(mediaFailed);
-          break;
-        case 'mediasuccess':
-        case 'started':
-          const connected = new CustomEvent('bbb.webrtc.connected', {
-            status: 'started' });
-          window.dispatchEvent(connected);
-          break;
-      }
-    }, options.isListenOnly, stunsAndTurns);
+    callIntoConference(extension, callbackFromManager, options.isListenOnly, stunsAndTurns);
   }
 }

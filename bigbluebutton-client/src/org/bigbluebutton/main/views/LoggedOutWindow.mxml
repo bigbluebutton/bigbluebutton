@@ -89,7 +89,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function setReason(reason:String):void {
-				LOGGER.debug("Received ConnectionFailedEvent with reason: " + reason);
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["connection"];
+        logData.message = "User logged out.";
+        logData.reason = reason;
+        LOGGER.info(JSON.stringify(logData));
+        
 				switch (reason) {
 					case ConnectionFailedEvent.APP_SHUTDOWN:
 						message = ResourceUtil.getInstance().getString('bbb.logout.appshutdown');

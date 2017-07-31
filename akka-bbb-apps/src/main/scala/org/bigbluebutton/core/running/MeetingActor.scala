@@ -303,6 +303,9 @@ class MeetingActor(
     // sync all presentations
     presentationApp2x.handleSyncGetPresentationInfoRespMsg()
 
+    // sync access of whiteboard (multi user)
+    handleSyncWhiteboardAccessRespMsg()
+
     // TODO send all chat
     // TODO send all lock settings
     // TODO send all screen sharing info
@@ -315,7 +318,11 @@ class MeetingActor(
     // switch user presenter status for old and new presenter
     usersApp.handleAssignPresenterReqMsg(msg)
 
-    // TODO stop current screen sharing session (initiated by the old presenter)
+    // request screenshare to end
+    screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
+      liveMeeting.props.voiceProp.voiceConf,
+      liveMeeting.props.screenshareProps.screenshareConf
+    )
 
   }
 

@@ -2,12 +2,12 @@ package org.bigbluebutton.endpoint.redis
 
 import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.recorders.events._
 import redis.RedisClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.StringOps
-import scala.collection.JavaConverters
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.record.events._
+import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
 object RedisRecorderActor {
   def props(system: ActorSystem): Props = Props(classOf[RedisRecorderActor], system)
@@ -24,7 +24,7 @@ class RedisRecorderActor(val system: ActorSystem)
 
   val COLON = ":"
 
-  def record(session: String, message: collection.immutable.Map[String, String]): Unit = {
+  private def record(session: String, message: collection.immutable.Map[String, String]): Unit = {
     for {
       msgid <- redis.incr("global:nextRecordedMsgId")
       key = "recording" + COLON + session + COLON + msgid
@@ -38,325 +38,138 @@ class RedisRecorderActor(val system: ActorSystem)
   }
 
   def receive = {
-    //case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
-    //case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
-    //case msg: EndAndKickAll               => handleEndAndKickAll(msg)
-    //case msg: PresenterAssigned           => handleAssignPresenter(msg)
-    //case msg: UserJoined                  => handleUserJoined(msg)
-    //case msg: UserLeft                    => handleUserLeft(msg)
-    //case msg: UserStatusChange            => handleUserStatusChange(msg)
-    //    case msg: UserVoiceMuted              => handleUserVoiceMuted(msg)
-    //    case msg: UserVoiceTalking            => handleUserVoiceTalking(msg)
-    //    case msg: UserJoinedVoice             => handleUserJoinedVoice(msg)
-    //    case msg: UserLeftVoice               => handleUserLeftVoice(msg)
-    //case msg: RecordingStatusChanged      => handleRecordingStatusChanged(msg)
-    //case msg: UserChangedEmojiStatus      => handleChangedUserEmojiStatus(msg)
-    //case msg: UserSharedWebcam            => handleUserSharedWebcam(msg)
-    //case msg: UserUnsharedWebcam          => handleUserUnsharedWebcam(msg)
-    //    case msg: VoiceRecordingStarted       => handleVoiceRecordingStarted(msg)
-    //    case msg: VoiceRecordingStopped       => handleVoiceRecordingStopped(msg)
-    //case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
-    //case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
-    //case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
-    //case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
-    //case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
-    //    case msg: SendWhiteboardAnnotationEvtMsg => handleSendWhiteboardAnnotationEvent(msg)
-    //    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
-    //    case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
-    //    case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
-    //    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
-    //case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
-    //case msg: DeskShareStopRTMPBroadcast  => handleDeskShareStopRTMPBroadcast(msg)
-    //case msg: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(msg)
-    case _ => // do nothing
+    //=============================
+    // 2x messages
+    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
+
+    case _                        => // do nothing
   }
 
-  /*  private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
-    if (msg.recorded) {
-      val message = JavaConverters.mapAsJavaMap(msg.message)
-      val ev = new PublicChatRecordEvent()
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setMeetingId(msg.meetingID)
-      ev.setSender(message.get("fromUsername"))
-      ev.setSenderId(message.get("fromUserID"))
-      ev.setMessage(message.get("message"))
-      ev.setColor(message.get("fromColor"))
+  private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
+    msg.core match {
+      // Chat
+      case m: SendPublicMessageEvtMsg               => handleSendPublicMessageEvtMsg(m)
+      case m: ClearPublicChatHistoryEvtMsg          => handleClearPublicChatHistoryEvtMsg(m)
 
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
+      // Presentation
+      case m: PresentationConversionCompletedEvtMsg => handlePresentationConversionCompletedEvtMsg(m)
+      case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
+      case m: ResizeAndMovePageEvtMsg               => handleResizeAndMovePageEvtMsg(m)
+      case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
+      case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
 
-    }
-  }*/
+      // Whiteboard
+      case m: SendWhiteboardAnnotationEvtMsg        => handleSendWhiteboardAnnotationEvtMsg(m)
+      case m: SendCursorPositionEvtMsg              => handleSendCursorPositionEvtMsg(m)
+      case m: ClearWhiteboardEvtMsg                 => handleClearWhiteboardEvtMsg(m)
+      case m: UndoWhiteboardEvtMsg                  => handleUndoWhiteboardEvtMsg(m)
 
-  /*  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
-    if (msg.recorded) {
-      val ev = new ClearPublicChatRecordEvent()
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setMeetingId(msg.meetingID)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-    }
-  }*/
+      // User
+      case m: UserJoinedMeetingEvtMsg               => handleUserJoinedMeetingEvtMsg(m)
+      case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
+      case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
+      case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
+      case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
 
-  /*
-  private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
+      // Voice
+      case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
+      case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
+      case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
+      case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
 
-  }
+      case m: VoiceRecordingStartedEvtMsg           => handleVoiceRecordingStartedEvtMsg(m)
+      case m: VoiceRecordingStoppedEvtMsg           => handleVoiceRecordingStoppedEvtMsg(m)
 
-  private def handlePresentationConversionDone(msg: PresentationConversionDone) {
-    if (msg.recorded) {
-      val event = new ConversionCompletedPresentationRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setPresentationName(msg.presentation.id)
-      event.setOriginalFilename(msg.presentation.name)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
+      // Caption
+      case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
-  }
+      // Screenshare
+      case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
+      case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
+      //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
-  private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
-    if (msg.recorded) {
-      val event = new GotoSlidePresentationRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setSlide(msg.page.num)
-      event.setId(msg.page.id)
-      event.setNum(msg.page.num)
-      event.setThumbUri(msg.page.thumbUri)
-      event.setSwfUri(msg.page.swfUri)
-      event.setTxtUri(msg.page.txtUri)
-      event.setSvgUri(msg.page.svgUri)
-      event.setXOffset(msg.page.xOffset)
-      event.setYOffset(msg.page.yOffset)
-      event.setWidthRatio(msg.page.widthRatio)
-      event.setHeightRatio(msg.page.heightRatio)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
+      // Meeting
+      case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
+      case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
     }
   }
 
-  private def handleResizeAndMoveSlideOutMsg(msg: ResizeAndMoveSlideOutMsg) {
-    if (msg.recorded) {
-      val event = new ResizeAndMoveSlidePresentationRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setId(msg.page.id)
-      event.setNum(msg.page.num)
-      event.setThumbUri(msg.page.thumbUri)
-      event.setSwfUri(msg.page.swfUri)
-      event.setTxtUri(msg.page.txtUri)
-      event.setSvgUri(msg.page.svgUri)
-      event.setXOffset(msg.page.xOffset)
-      event.setYOffset(msg.page.yOffset)
-      event.setWidthRatio(msg.page.widthRatio)
-      event.setHeightRatio(msg.page.heightRatio)
+  private def handleSendPublicMessageEvtMsg(msg: SendPublicMessageEvtMsg) {
+    val ev = new PublicChatRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setSender(msg.body.message.fromUsername)
+    ev.setSenderId(msg.body.message.fromUserId)
+    ev.setMessage(msg.body.message.message)
+    ev.setColor(msg.body.message.fromColor)
 
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
-    if (msg.recorded) {
-      val event = new RemovePresentationPresentationRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setPresentationName(msg.presentationID)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
+  private def handleClearPublicChatHistoryEvtMsg(msg: ClearPublicChatHistoryEvtMsg) {
+    val ev = new ClearPublicChatRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {
-    if (msg.recorded) {
-      val event = new SharePresentationPresentationRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setPresentationName(msg.presentation.id)
-      event.setOriginalFilename(msg.presentation.name)
-      event.setShare(true)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
-  }
-  */
-  /*
-  private def handleEndAndKickAll(msg: EndAndKickAll): Unit = {
-    if (msg.recorded) {
-      val ev = new ParticipantEndAndKickAllRecordEvent()
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setMeetingId(msg.meetingID)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-    }
+  private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
+    val ev = new ConversionCompletedPresentationRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentationName(msg.body.presentation.id)
+    ev.setOriginalFilename(msg.body.presentation.name)
+
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  private def handleUserJoined(msg: UserJoined): Unit = {
-    if (msg.recorded) {
-      val ev = new ParticipantJoinRecordEvent()
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setUserId(msg.user.id)
-      ev.setExternalUserId(msg.user.externalId)
-      ev.setName(msg.user.name)
-      ev.setMeetingId(msg.meetingID)
-      ev.setRole(msg.user.role.toString)
+  private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {
+    val ev = new GotoSlideRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setSlide(getPageNum(msg.body.pageId))
+    ev.setId(msg.body.pageId)
 
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-    }
-  }
-*/
-  /*
-  def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
-    if (msg.recorded) {
-      val evt = new StartRecordingVoiceRecordEvent(true)
-      evt.setMeetingId(msg.meetingID)
-      evt.setTimestamp(TimestampGenerator.generateTimestamp())
-      evt.setBridge(msg.confNum)
-      evt.setRecordingTimestamp(msg.timestamp)
-      evt.setFilename(msg.recordingFile)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
-    }
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  def handleVoiceRecordingStopped(msg: VoiceRecordingStopped) {
-    if (msg.recorded) {
-      val evt = new StartRecordingVoiceRecordEvent(false)
-      evt.setMeetingId(msg.meetingID)
-      evt.setTimestamp(TimestampGenerator.generateTimestamp())
-      evt.setBridge(msg.confNum)
-      evt.setRecordingTimestamp(msg.timestamp)
-      evt.setFilename(msg.recordingFile)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
-    }
+  private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
+    val ev = new ResizeAndMoveSlideRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setId(msg.body.pageId)
+    ev.setXOffset(msg.body.xOffset)
+    ev.setYOffset(msg.body.yOffset)
+    ev.setWidthRatio(msg.body.widthRatio)
+    ev.setHeightRatio(msg.body.heightRatio)
+
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  def handleUserVoiceMuted(msg: UserVoiceMuted) {
-    if (msg.recorded) {
-      val ev = new ParticipantMutedVoiceRecordEvent()
-      ev.setMeetingId(msg.meetingID)
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setBridge(msg.confNum)
-      ev.setParticipant(msg.user.voiceUser.userId)
-      ev.setMuted(msg.user.voiceUser.muted)
+  private def handleRemovePresentationEvtMsg(msg: RemovePresentationEvtMsg) {
+    val ev = new RemovePresentationRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentationName(msg.body.presentationId)
 
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-    }
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  def handleUserVoiceTalking(msg: UserVoiceTalking) {
-    if (msg.recorded) {
-      val evt = new ParticipantTalkingVoiceRecordEvent()
-      evt.setMeetingId(msg.meetingID)
-      evt.setTimestamp(TimestampGenerator.generateTimestamp())
-      evt.setBridge(msg.confNum)
-      evt.setParticipant(msg.user.id)
-      evt.setTalking(msg.user.voiceUser.talking)
+  private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
+    val ev = new SharePresentationRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentationName(msg.body.presentationId)
+    ev.setShare(true)
 
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
-    }
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  def handleUserJoinedVoice(msg: UserJoinedVoice) {
-    if (msg.recorded) {
-      val evt = new ParticipantJoinedVoiceRecordEvent()
-      evt.setMeetingId(msg.meetingID)
-      evt.setTimestamp(TimestampGenerator.generateTimestamp())
-      evt.setBridge(msg.confNum)
-      evt.setParticipant(msg.user.voiceUser.userId)
-      evt.setCallerName(msg.user.voiceUser.callerName)
-      evt.setCallerNumber(msg.user.voiceUser.callerNum)
-      evt.setMuted(msg.user.voiceUser.muted)
-      evt.setTalking(msg.user.voiceUser.talking)
-
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
+  private def getPageNum(id: String): Integer = {
+    val strId = new StringOps(id)
+    val ids = strId.split('/')
+    var pageNum = 0
+    if (ids.length == 2) {
+      pageNum = ids(1).toInt
     }
+    pageNum
   }
 
-  def handleUserLeftVoice(msg: UserLeftVoice) {
-    if (msg.recorded) {
-      val evt = new ParticipantLeftVoiceRecordEvent()
-      evt.setMeetingId(msg.meetingID)
-      evt.setTimestamp(TimestampGenerator.generateTimestamp())
-      evt.setBridge(msg.confNum)
-      evt.setParticipant(msg.user.voiceUser.userId)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
-    }
-  }
-  */
-  /*
-  def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
-    if (msg.recorded) {
-      val evt = new RecordStatusRecordEvent()
-      evt.setMeetingId(msg.meetingID)
-      evt.setTimestamp(TimestampGenerator.generateTimestamp())
-      evt.setUserId(msg.userId)
-      evt.setRecordingStatus(msg.recording.toString)
-
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(evt.toMap).toMap)
-    }
-  }
-
-  private def handleUserLeft(msg: UserLeft): Unit = {
-    if (msg.recorded) {
-      val ev = new ParticipantLeftRecordEvent()
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setUserId(msg.user.id)
-      ev.setMeetingId(msg.meetingID)
-
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-    }
-
-  }
-
-  private def handleChangedUserEmojiStatus(msg: UserChangedEmojiStatus) {
-    if (msg.recorded) {
-      val status = UserStatusChange(msg.meetingID, msg.recorded,
-        msg.userID, "emojiStatus", msg.emojiStatus)
-      handleUserStatusChange(status)
-    }
-
-  }
-
-  private def handleUserSharedWebcam(msg: UserSharedWebcam) {
-    if (msg.recorded) {
-      val status = UserStatusChange(msg.meetingID, msg.recorded,
-        msg.userID, "hasStream", "true,stream=" + msg.stream)
-      handleUserStatusChange(status)
-    }
-
-  }
-
-  private def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
-    if (msg.recorded) {
-      val status = UserStatusChange(msg.meetingID, msg.recorded,
-        msg.userID, "hasStream", "false,stream=" + msg.stream)
-      handleUserStatusChange(status)
-    }
-
-  }
-
-  private def handleUserStatusChange(msg: UserStatusChange): Unit = {
-    if (msg.recorded) {
-      val ev = new ParticipantStatusChangeRecordEvent()
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setUserId(msg.userID)
-      ev.setMeetingId(msg.meetingID)
-      ev.setStatus(msg.status)
-      ev.setValue(msg.value.toString)
-
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-    }
-  }
-
-  private def handleAssignPresenter(msg: PresenterAssigned): Unit = {
-    if (msg.recorded) {
-      val event = new AssignPresenterRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setUserId(msg.presenter.presenterID)
-      event.setName(msg.presenter.presenterName)
-      event.setAssignedBy(msg.presenter.assignedBy)
-
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
-
-  }*/
-
-  /*
   private def getPresentationId(whiteboardId: String): String = {
     // Need to split the whiteboard id into presenation id and page num as the old
     // recording expects them
@@ -370,135 +183,231 @@ class RedisRecorderActor(val system: ActorSystem)
     presId
   }
 
-  private def getPageNum(whiteboardId: String): String = {
-    val strId = new StringOps(whiteboardId)
-    val ids = strId.split('/')
-    var pageNum = "0"
-    if (ids.length == 2) {
-      pageNum = ids(1)
+  private def handleSendWhiteboardAnnotationEvtMsg(msg: SendWhiteboardAnnotationEvtMsg) {
+    val annotation = msg.body.annotation
+
+    if ((annotation.annotationType == WhiteboardKeyUtil.TEXT_TYPE) && (annotation.status != WhiteboardKeyUtil.DRAW_START_STATUS)) {
+      val ev = new ModifyTextWhiteboardRecordEvent()
+      ev.setMeetingId(msg.header.meetingId)
+      ev.setPresentation(getPresentationId(annotation.wbId))
+      ev.setPageNumber(getPageNum(annotation.wbId))
+      ev.setWhiteboardId(annotation.wbId)
+      ev.setUserId(annotation.userId)
+      ev.setAnnotationId(annotation.id)
+      ev.addAnnotation(annotation.annotationInfo)
+
+      record(msg.header.meetingId, ev.toMap)
+    } else {
+      val ev = new AddShapeWhiteboardRecordEvent()
+      ev.setMeetingId(msg.header.meetingId)
+      ev.setPresentation(getPresentationId(annotation.wbId))
+      ev.setPageNumber(getPageNum(annotation.wbId))
+      ev.setWhiteboardId(annotation.wbId)
+      ev.setUserId(annotation.userId)
+      ev.setAnnotationId(annotation.id)
+      ev.addAnnotation(annotation.annotationInfo)
+
+      record(msg.header.meetingId, ev.toMap)
     }
-    pageNum
   }
-  */
+
+  private def handleSendCursorPositionEvtMsg(msg: SendCursorPositionEvtMsg) {
+    val ev = new WhiteboardCursorMoveRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setUserId(msg.header.userId)
+    ev.setXPercent(msg.body.xPercent)
+    ev.setYPercent(msg.body.yPercent)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleClearWhiteboardEvtMsg(msg: ClearWhiteboardEvtMsg) {
+    val ev = new ClearWhiteboardRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setWhiteboardId(msg.body.whiteboardId)
+    ev.setUserId(msg.body.userId)
+    ev.setFullClear(msg.body.fullClear)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleUndoWhiteboardEvtMsg(msg: UndoWhiteboardEvtMsg) {
+    val ev = new UndoAnnotationRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setWhiteboardId(msg.body.whiteboardId)
+    ev.setUserId(msg.body.userId)
+    ev.setShapeId(msg.body.annotationId)
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
+    val ev = new ParticipantJoinRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setUserId(msg.body.intId)
+    ev.setExternalUserId(msg.body.extId)
+    ev.setName(msg.body.name)
+    ev.setRole(msg.body.role)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
+    val ev = new ParticipantLeftRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setUserId(msg.body.intId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handlePresenterAssignedEvtMsg(msg: PresenterAssignedEvtMsg): Unit = {
+    val ev = new AssignPresenterRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setUserId(msg.body.presenterId)
+    ev.setName(msg.body.presenterName)
+    ev.setAssignedBy(msg.body.assignedBy)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
+  }
+
+  private def handleUserBroadcastCamStartedEvtMsg(msg: UserBroadcastCamStartedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "hasStream", "true,stream=" + msg.body.stream)
+  }
+
+  private def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "hasStream", "false,stream=" + msg.body.stream)
+  }
+
+  private def handleUserStatusChange(meetingId: String, userId: String, statusName: String, statusValue: String): Unit = {
+    val ev = new ParticipantStatusChangeRecordEvent()
+    ev.setMeetingId(meetingId)
+    ev.setUserId(userId)
+    ev.setStatus(statusName)
+    ev.setValue(statusValue)
+
+    record(meetingId, ev.toMap)
+  }
+
+  private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg) {
+    val ev = new ParticipantJoinedVoiceRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setParticipant(msg.body.intId)
+    ev.setCallerName(msg.body.callerName)
+    ev.setCallerNumber(msg.body.callerNum)
+    ev.setMuted(msg.body.muted)
+    ev.setTalking(msg.body.talking)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
+    val ev = new ParticipantLeftVoiceRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setParticipant(msg.body.intId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleUserMutedVoiceEvtMsg(msg: UserMutedVoiceEvtMsg) {
+    val ev = new ParticipantMutedVoiceRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setParticipant(msg.body.intId)
+    ev.setMuted(msg.body.muted)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleUserTalkingVoiceEvtMsg(msg: UserTalkingVoiceEvtMsg) {
+    val ev = new ParticipantTalkingVoiceRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setParticipant(msg.body.intId)
+    ev.setTalking(msg.body.talking)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleVoiceRecordingStartedEvtMsg(msg: VoiceRecordingStartedEvtMsg) {
+    val ev = new StartRecordingVoiceRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setRecordingTimestamp(msg.body.timestamp)
+    ev.setFilename(msg.body.stream)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleVoiceRecordingStoppedEvtMsg(msg: VoiceRecordingStoppedEvtMsg) {
+    val ev = new StopRecordingVoiceRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setRecordingTimestamp(msg.body.timestamp)
+    ev.setFilename(msg.body.stream)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) {
+    val ev = new EditCaptionHistoryRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStartIndex(msg.body.startIndex)
+    ev.setEndIndex(msg.body.endIndex)
+    ev.setLocale(msg.body.locale)
+    ev.setLocaleCode(msg.body.localeCode)
+    ev.setText(msg.body.text)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
+    val ev = new DeskshareStartRtmpRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStreamPath(msg.body.stream)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) {
+    val ev = new DeskshareStopRtmpRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStreamPath(msg.body.stream)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
 
   /*
-  private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
-    if (msg.recorded) {
-      if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.DRAW_START_STATUS)) {
-
-        val event = new ModifyTextWhiteboardRecordEvent()
-        event.setMeetingId(msg.meetingID)
-        event.setTimestamp(TimestampGenerator.generateTimestamp())
-        event.setPresentation(getPresentationId(msg.whiteboardId))
-        event.setPageNumber(getPageNum(msg.whiteboardId))
-        event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.annotationInfo))
-        record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-      } else if ((msg.shape.shapeType == WhiteboardKeyUtil.POLL_RESULT_TYPE)) {
-        val event = new AddShapeWhiteboardRecordEvent()
-        event.setMeetingId(msg.meetingID)
-        event.setTimestamp(TimestampGenerator.generateTimestamp())
-        event.setPresentation(getPresentationId(msg.whiteboardId))
-        event.setPageNumber(getPageNum(msg.whiteboardId))
-        event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.annotationInfo))
-        record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-      } else {
-        val event = new AddShapeWhiteboardRecordEvent()
-        event.setMeetingId(msg.meetingID)
-        event.setTimestamp(TimestampGenerator.generateTimestamp())
-        event.setPresentation(getPresentationId(msg.whiteboardId))
-        event.setPageNumber(getPageNum(msg.whiteboardId))
-        event.setWhiteboardId(msg.whiteboardId)
-        event.addAnnotation(JavaConverters.mapAsJavaMap(msg.shape.annotationInfo))
-        record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-      }
-    }
-
-  }
-
-  private def handleCursorPositionUpdatedEvent(msg: CursorPositionUpdatedEvent) {
-    if (msg.recorded) {
-      val event = new CursorUpdateRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setUserId(msg.requesterID)
-      event.setXPercent(msg.xPercent)
-      event.setYPercent(msg.yPercent)
-
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
-  }
-
-  private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
-    if (msg.recorded) {
-      val event = new ClearPageWhiteboardRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setPresentation(getPresentationId(msg.whiteboardId))
-      event.setPageNumber(getPageNum(msg.whiteboardId))
-      event.setWhiteboardId(msg.whiteboardId)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
-
-  }
-
-  private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
-    if (msg.recorded) {
-      val event = new UndoShapeWhiteboardRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp())
-      event.setPresentation(getPresentationId(msg.whiteboardId))
-      event.setPageNumber(getPageNum(msg.whiteboardId))
-      event.setWhiteboardId(msg.whiteboardId)
-      event.setShapeId(msg.shapeId)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-    }
-
-  }
-  */
-
-  /*
-  private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
-    if (msg.recorded) {
-      val ev = new EditCaptionHistoryRecordEvent()
-      ev.setTimestamp(TimestampGenerator.generateTimestamp())
-      ev.setMeetingId(msg.meetingID)
-      ev.setStartIndex(msg.startIndex.toString)
-      ev.setEndIndex(msg.endIndex.toString)
-      ev.setLocale(msg.locale)
-      ev.setLocaleCode(msg.localeCode)
-      ev.setText(msg.text)
-      record(msg.meetingID, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-    }
-  }
-  */
-  /*
-  private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
-    val event = new DeskShareStartRTMPRecordEvent()
-    event.setMeetingId(msg.conferenceName)
-    event.setStreamPath(msg.streamPath)
-    event.setTimestamp(TimestampGenerator.generateTimestamp())
-
-    record(msg.conferenceName, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-  }
-
-  private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
-    val event = new DeskShareStopRTMPRecordEvent()
-    event.setMeetingId(msg.conferenceName)
-    event.setStreamPath(msg.streamPath)
-    event.setTimestamp(TimestampGenerator.generateTimestamp())
-
-    record(msg.conferenceName, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-  }
-
   private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
-    val event = new DeskShareNotifyViewersRTMPRecordEvent()
-    event.setMeetingId(msg.meetingID)
-    event.setStreamPath(msg.streamPath)
-    event.setBroadcasting(msg.broadcasting)
-    event.setTimestamp(TimestampGenerator.generateTimestamp())
+    val ev = new DeskShareNotifyViewersRTMPRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStreamPath(msg.streamPath)
+    ev.setBroadcasting(msg.broadcasting)
 
-    record(msg.meetingID, JavaConverters.mapAsScalaMap(event.toMap).toMap)
-  }*/
+    record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
+  }
+  */
+
+  private def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg) {
+    val ev = new RecordStatusRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setUserId(msg.body.setBy)
+    ev.setRecordingStatus(msg.body.recording)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleEndAndKickAllSysMsg(msg: EndAndKickAllSysMsg): Unit = {
+    val ev = new EndAndKickAllRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
 }

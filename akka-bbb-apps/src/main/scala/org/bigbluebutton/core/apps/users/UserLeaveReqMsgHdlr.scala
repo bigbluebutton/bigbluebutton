@@ -28,6 +28,12 @@ trait UserLeaveReqMsgHdlr {
 
       if (u.presenter) {
         automaticallyAssignPresenter(outGW, liveMeeting)
+
+        // request screenshare to end
+        screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, liveMeeting.props.screenshareProps.screenshareConf)
+
+        // request ongoing poll to end
+        handleStopPollReqMsg(u.intId)
       }
     }
 
