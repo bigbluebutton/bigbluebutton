@@ -13,11 +13,11 @@ trait SyncWhiteboardAccessRespMsgHdlr {
 
     def broadcastEvent(multiUser: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, props.meetingProp.intId, "nodeJSapp")
-      val envelope = BbbCoreEnvelope(GetWhiteboardAccessRespMsg.NAME, routing)
-      val header = BbbClientMsgHeader(GetWhiteboardAccessRespMsg.NAME, props.meetingProp.intId, "nodeJSapp")
+      val envelope = BbbCoreEnvelope(SyncGetWhiteboardAccessRespMsg.NAME, routing)
+      val header = BbbClientMsgHeader(SyncGetWhiteboardAccessRespMsg.NAME, props.meetingProp.intId, "nodeJSapp")
 
-      val body = GetWhiteboardAccessRespMsgBody(multiUser)
-      val event = GetWhiteboardAccessRespMsg(header, body)
+      val body = SyncGetWhiteboardAccessRespMsgBody(multiUser)
+      val event = SyncGetWhiteboardAccessRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
 
