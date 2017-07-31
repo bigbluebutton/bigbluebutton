@@ -25,6 +25,7 @@
     "app.userlist.menu.kickUser.label": "Исключить участника",
     "app.userlist.menu.muteUserAudio.label": "Выключить микрофон у участника",
     "app.userlist.menu.unmuteUserAudio.label": "Включить микрофон у участника",
+    "app.userlist.userAriaLabel": "user : {0}  role: {1}  person: {2}  status: {3}",
     "app.chat.Label": "Чат",
     "app.presentation.presentationToolbar.prevSlideLabel": "Предыдущий слайд",
     "app.presentation.presentationToolbar.prevSlideDescrip": "Перейти к предыдущему слайду",
@@ -33,6 +34,7 @@
     "app.presentation.presentationToolbar.skipSlideLabel": "Пропустить слайд",
     "app.presentation.presentationToolbar.skipSlideDescrip": "Перейти к определенному слайду",
     "app.presentation.presentationToolbar.zoomDescrip": "Изменить масштабирование презентации",
+    "app.failedMessage": "Apologies, trouble connecting to the server.",
     "app.connectingMessage": "Подключение...",
     "app.waitingMessage": "Соединение потеряно. Попытка переподключения через {0} секунд...",
     "app.navBar.settingsDropdown.optionsLabel": "Опции",
@@ -67,6 +69,7 @@
     "app.submenu.closedCaptions.fontColorLabel": "Цвет шрифта",
     "app.submenu.participants.muteAllLabel": "Выключить микрофоны у всех кроме ведущего",
     "app.submenu.participants.lockAllLabel": "Блокировать всех участников",
+    "app.submenu.participants.lockItemLabel": "Participants {0}",
     "app.submenu.participants.lockMicDesc": "Отключает микрофон у всех блокированных участников",
     "app.submenu.participants.lockCamDesc": "Отключает веб-камеру у всех блокированных участников",
     "app.submenu.participants.lockPublicChatDesc": "Отключает общий чат для всех блокированных участников",
@@ -94,6 +97,7 @@
     "app.audioNotification.closeLabel": "Закрыть",
     "app.breakoutJoinConfirmation.title": "Присоединиться к комнате групповой работы",
     "app.breakoutJoinConfirmation.confirmLabel": "Присоединиться",
+    "app.breakoutJoinConfirmation.confirmDesc": "Join you to the Breakout Room",
     "app.breakoutJoinConfirmation.dismissLabel": "Отмена",
     "app.breakoutWillCloseMessage": "Время вышло. Комната групповой работы скоро закроется.",
     "app.calculatingBreakoutTimeRemaining": "Подсчёт оставшегося времени...",
@@ -105,5 +109,5 @@
     "app.audio.listenOnly.closeLabel": "Закрыть",
     "app.error.kicked": "Вас исключили из конференции",
     "app.dropdown.close": "Закрыть",
-    "app.error.500": "Упс, что-то пошло не так"
+    "app.error.500": "Упс, что-то пошло не так",
 }

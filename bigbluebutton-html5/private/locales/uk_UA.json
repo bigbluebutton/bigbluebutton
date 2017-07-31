@@ -8,6 +8,7 @@
     "app.userlist.locked": "Блокований",
     "app.userlist.Label": "Лист учасників",
     "app.chat.submitLabel": "Надіслати повідомлення",
+    "app.chat.inputLabel": "Message input for chat {0}",
     "app.chat.inputPlaceholder": "Повідомлення {0}",
     "app.chat.titlePublic": "Загальний чат",
     "app.chat.titlePrivate": "Приватний чат з {0}",
@@ -33,6 +34,7 @@
     "app.navBar.settingsDropdown.aboutLabel": "Про програму",
     "app.navBar.settingsDropdown.leaveSessionLabel": "Вихід",
     "app.navBar.settingsDropdown.settingsDesc": "Змінити загальні настройки",
+    "app.navBar.settingsDropdown.aboutDesc": "Show information about the client",
     "app.navBar.settingsDropdown.leaveSessionDesc": "Залишити конференцію",
     "app.leaveConfirmation.title": "Залишити сесію",
     "app.leaveConfirmation.message": "Ви впевнені, що хочете залишити цю конференцію?",
@@ -45,5 +47,5 @@
     "app.actionsBar.muteLabel": "Вимкнути мікрофон",
     "app.actionsBar.unmuteLabel": "Увімкнути мікрофон",
     "app.actionsBar.camOffLabel": "Вимкнути камеру",
-    "app.error.kicked": "Ви були виключени з конференції"
+    "app.error.kicked": "Ви були виключени з конференції",
 }
