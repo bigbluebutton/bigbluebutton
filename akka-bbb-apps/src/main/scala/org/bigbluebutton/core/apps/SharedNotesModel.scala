@@ -6,13 +6,13 @@ import scala.collection._
 import scala.collection.immutable.List
 import scala.collection.mutable.HashMap
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs.Note
 import org.bigbluebutton.common2.msgs.NoteReport
 
-class SharedNotesModel {
+class SharedNotesModel extends SystemConfiguration {
   val MAIN_NOTE_ID = "MAIN_NOTE"
   val SYSTEM_ID = "SYSTEM"
-  val MAX_UNDO_STACK_SIZE = 30
 
   private val patcher = new diff_match_patch()
 
@@ -62,7 +62,7 @@ class SharedNotesModel {
       undoPatches = (patcher.custom_patch_make(result(0).toString(), document), patchToApply) :: undoPatches
       redoPatches = List[(String, String)]()
 
-      if (undoPatches.size > MAX_UNDO_STACK_SIZE) {
+      if (undoPatches.size > maxNumberOfUndos) {
         undoPatches = undoPatches.dropRight(1)
       }
     }
@@ -72,7 +72,7 @@ class SharedNotesModel {
     (patchCounter, patchToApply, !undoPatches.isEmpty, !redoPatches.isEmpty)
   }
 
-  def createNote(noteName: String = ""): String = {
+  def createNote(noteName: String = ""): (String, Boolean) = {
     var noteId = 0
     if (removedNotes.isEmpty) {
       notesCounter += 1
@@ -83,12 +83,13 @@ class SharedNotesModel {
     }
     notes += (noteId.toString -> new Note(noteName, "", 0, List[(String, String)](), List[(String, String)]()))
 
-    noteId.toString
+    (noteId.toString, isNotesLimit)
   }
 
-  def destroyNote(noteId: String) {
+  def destroyNote(noteId: String): Boolean = {
     removedNotes += noteId.toInt
     notes -= noteId
+    isNotesLimit
   }
 
   def notesReport: HashMap[String, NoteReport] = {
@@ -105,6 +106,10 @@ class SharedNotesModel {
       case Some(note) => Some(noteToReport(note))
       case None       => None
     }
+  }
+
+  def isNotesLimit: Boolean = {
+    notes.size >= maxNumberOfNotes
   }
 
   private def noteToReport(note: Note): NoteReport = {
