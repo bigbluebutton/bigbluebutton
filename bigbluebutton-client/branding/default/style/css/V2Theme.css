@@ -664,13 +664,12 @@ layout|BroadcastButton {
 //------------------------------
 */
 
-.lockSettingsDefaultLabelStyle {
-	fontSize : 14;
+views|LockSettings {
+	headerHeight : 0;
 }
 
-.lockSettingsWindowTitleStyle {
-	fontSize   : 18;
-	fontWeight : bold;
+.lockSettingsDefaultLabelStyle {
+	fontSize : 14;
 }
 
 /*
@@ -1083,14 +1082,14 @@ mx|TitleWindow {
 	roundedBottomCorners    : true;
 	dropShadowEnabled       : true;
 	shadowDistance          : 0;
-	titleStyleName          : "titleWindowStyle";
+	borderThickness         : 1;
+	paddingTop              : 5;
 }
 
 .titleWindowStyle {
 	color      : #05172A;
 	fontSize   : 24;
 	textAlign  :center;
-	paddingTop : 40;
 }
 
 /*

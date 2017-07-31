@@ -23,8 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/" 
 				width="600" height="380" 
 				creationComplete="onCreationComplete()" 
-				layout="absolute" showCloseButton="false"
-				title="{ResourceUtil.getInstance().getString('bbb.micSettings.title')}"
+				showCloseButton="false"
 				close="onCancelClicked()">
 	
 	<fx:Declarations>
@@ -253,12 +252,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 	
-	<mx:LinkButton toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
-				   styleName="helpLinkButtonStyle" 
-				   top="0" right="0"
-				   click="onHelpButtonClicked()"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
-	
+	<mx:Canvas id="cnvTitle" width="100%">
+		<mx:TextArea borderSkin="{null}"
+					 editable="false"
+					 text="{ResourceUtil.getInstance().getString('bbb.micSettings.title')}"
+					 styleName="titleWindowStyle"
+					 width="100%"
+					 left="0"/>
+		<mx:LinkButton toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
+					   styleName="helpLinkButtonStyle" 
+					   top="0" right="0"
+					   click="onHelpButtonClicked()"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
+	</mx:Canvas>
+
 	<mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
 		<mx:VBox includeIn="connecting" width="100%" height="100%" verticalAlign="middle">
 			<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">

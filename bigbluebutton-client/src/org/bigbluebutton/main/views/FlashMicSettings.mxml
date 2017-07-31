@@ -23,9 +23,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/" 
 				xmlns:common="org.bigbluebutton.common.*"
 				width="600" height="390"
-				verticalScrollPolicy="off" layout="absolute"
+				verticalScrollPolicy="off"
 				creationComplete="onCreationComplete()" 
-				title="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}"
 				showCloseButton="false" 
 				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
@@ -164,10 +163,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         micActivityTimer.start();          
       }
       
-      private function onCreationComplete():void {
-        LOGGER.debug("onCreationComplete. Seeting state to [flashMicSettingsTest]");
-        microphoneList = Media.getMicrophoneNames();
-        setupForMicLoopbackTest();
+			private function onCreationComplete():void {
+				LOGGER.debug("onCreationComplete. Seeting state to [flashMicSettingsTest]");
+				microphoneList = Media.getMicrophoneNames();
+				setupForMicLoopbackTest();
 			}						
 
       private function setupForMicLoopbackTest():void {        
@@ -340,8 +339,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
 	<fx:Declarations>
-	  <common:TabIndexer startIndex="1"
-						 tabIndices="{[helpButton, comboMicList, micRecordVolume, micLevel, echoTestText, yesButton, noButton, echoTestButton, playButton, cancelBtn]}"/>
+	  <common:TabIndexer id="tabIndexer" startIndex="1"
+						 tabIndices="{[audioSettingText, helpButton, comboMicList, micRecordVolume, micLevel, echoTestText, yesButton, noButton, echoTestButton, playButton, cancelBtn]}"/>
 	</fx:Declarations>
 	
   <mx:states>
@@ -351,12 +350,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:State name="connecting" />
   </mx:states>
 	
-	<mx:LinkButton toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
-				   styleName="helpLinkButtonStyle"
-				   top="0" right="0"
-				   click="onHelpButtonClicked()" id="helpButton"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
-
+	
+	<!-- Audio Settings Title and help button -->
+	<mx:Canvas width="100%" id="flashMicSettingsTitle">
+		<mx:TextArea borderSkin="{null}"
+					 text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}"
+					 editable="false" styleName="titleWindowStyle" id="audioSettingText"
+					 width="100%" />
+		<mx:LinkButton toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
+					   styleName="helpLinkButtonStyle"
+					   top="0" right="0"
+					   click="onHelpButtonClicked()" id="helpButton"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
+	</mx:Canvas>
+	
 	<mx:VBox id="mainContainer" width="100%" height="100%" verticalAlign="bottom" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">          
         <!-- Audio Settings Title and help button -->
         <mx:HBox width="100%" id="displayMicNextToThis">
