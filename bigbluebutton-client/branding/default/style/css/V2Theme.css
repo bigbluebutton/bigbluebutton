@@ -1141,7 +1141,6 @@ users|StatusItemRenderer {
 	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Moderator");
 	iconModeratorOnly  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ListenOnly");
 	iconMoodRaiseHand  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
-	iconMood           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
 	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
 	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
 	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
@@ -1206,19 +1205,14 @@ users|EmojiGrid {
 users|MoodMenu {
 	iconMoodRaiseHand   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
 	iconMoodApplause    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
-	iconMoodAgree       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
-	iconMoodDisagree    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
-	/* FIXME - start*/
-	iconMoodSpeakFaster : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	iconMoodSpeakSlower : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	iconMoodSpeakLouder : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Speak_Louder");
-	iconMoodSpeakSofter : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
-	/* FIXME - end */
-	iconMoodBeRightBack : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodThumbsUp    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
+	iconMoodThumbsDown  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
+	iconMoodAway        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
 	iconMoodHappy       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
-	iconMoodClear       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Clear");
-	iconMoodNeutral     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodSad         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodNeutral     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
 	iconMoodConfused    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+	iconMoodNone        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_None");
 }
 
 /*

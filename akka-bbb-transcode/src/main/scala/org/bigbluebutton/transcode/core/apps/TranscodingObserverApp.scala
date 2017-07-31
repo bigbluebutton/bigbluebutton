@@ -3,7 +3,7 @@ package org.bigbluebutton.transcode.core.apps
 import akka.actor.ActorRef
 import org.bigbluebutton.transcode.core.TranscodingActor
 import org.bigbluebutton.transcode.api._
-import org.bigbluebutton.common.messages.Constants
+import org.bigbluebutton.transcode.util.Constants
 import org.bigbluebutton.transcode.core.ffmpeg.FFmpegConstants
 import scala.collection.JavaConversions._
 
@@ -41,14 +41,14 @@ trait TranscodingObserverApp {
     log.info("\n  > Transcoder with id = {} started", msg.getTranscoderId())
     val params = new scala.collection.mutable.HashMap[String, String]
     params += Constants.OUTPUT -> msg.getOutput()
-    messageSenderActor ! new StartTranscoderReply(msg.getMeetingId(), msg.getTranscoderId(), params)
+    messageSenderActor ! new StartTranscoderReply(msg.getMeetingId(), msg.getTranscoderId(), params.toMap)
   }
 
   def handleUpdateVideoTranscoderReply(msg: UpdateVideoTranscoderReply) = {
     log.info("\n  > Transcoder with id = {} updated", msg.getTranscoderId())
     val params = new scala.collection.mutable.HashMap[String, String]
     params += Constants.OUTPUT -> msg.getOutput()
-    messageSenderActor ! new UpdateTranscoderReply(msg.getMeetingId(), msg.getTranscoderId(), params)
+    messageSenderActor ! new UpdateTranscoderReply(msg.getMeetingId(), msg.getTranscoderId(), params.toMap)
   }
 
   def handleDestroyVideoTranscoderReply(msg: DestroyVideoTranscoderReply) = {
@@ -60,7 +60,7 @@ trait TranscodingObserverApp {
     log.info("\n  > Transcoder with id = {} restarted", msg.getTranscoderId())
     val params = new scala.collection.mutable.HashMap[String, String]
     params += Constants.OUTPUT -> msg.getOutput()
-    messageSenderActor ! new TranscoderStatusUpdate(msg.getMeetingId(), msg.getTranscoderId(), params)
+    messageSenderActor ! new TranscoderStatusUpdate(msg.getMeetingId(), msg.getTranscoderId(), params.toMap)
   }
 
   def handleStartVideoProbingReply(msg: StartVideoProbingReply) = {
@@ -70,7 +70,7 @@ trait TranscodingObserverApp {
         val params = new scala.collection.mutable.HashMap[String, String]
         params += Constants.WIDTH_RATIO -> result.getOrElse(FFmpegConstants.WIDTH, "")
         params += Constants.HEIGHT_RATIO -> result.getOrElse(FFmpegConstants.HEIGHT, "")
-        messageSenderActor ! new StartProbingReply(msg.getMeetingId(), msg.getTranscoderId(), params)
+        messageSenderActor ! new StartProbingReply(msg.getMeetingId(), msg.getTranscoderId(), params.toMap)
       case _ => log.debug("Could not send ffprobe reply : failed to get the new resolution");
     }
   }

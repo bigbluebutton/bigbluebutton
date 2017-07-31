@@ -1,7 +1,6 @@
 package org.bigbluebutton.transcode.core
 
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.transcode.core.ffmpeg.FFmpegUtils
 
 class TranscodersService {}
 

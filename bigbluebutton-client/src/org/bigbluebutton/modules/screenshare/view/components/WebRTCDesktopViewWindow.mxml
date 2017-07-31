@@ -293,6 +293,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function fitWindowToVideo():void {
+				// throws exception in race conditon where video is null
+				// check first
+				if (this.video == null) {
+					return;
+				}
+
 				video.width = videoWidth;
 				videoHolder.width = videoWidth;
 				video.height = videoHeight;

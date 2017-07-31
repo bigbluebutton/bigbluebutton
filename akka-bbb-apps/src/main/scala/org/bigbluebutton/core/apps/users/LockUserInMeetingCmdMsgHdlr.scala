@@ -9,7 +9,7 @@ trait LockUserInMeetingCmdMsgHdlr {
 
   val outGW: OutMsgRouter
 
-  def handle(msg: LockUserInMeetingCmdMsg) {
+  def handleLockUserInMeetingCmdMsg(msg: LockUserInMeetingCmdMsg) {
 
     def build(meetingId: String, userId: String, lockedBy: String, locked: Boolean): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
