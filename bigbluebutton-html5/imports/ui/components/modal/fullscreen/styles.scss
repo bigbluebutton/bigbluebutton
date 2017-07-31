@@ -40,7 +40,8 @@
 }
 
 .dismiss,
-.confirm {
+.confirm,
+.others {
   @extend %btn;
 }
 
@@ -50,4 +51,8 @@
 .confirm {
   color: $color-white !important;
   background-color: $color-link !important;
+}
+
+.others{
+  margin-left: 20%;
 }

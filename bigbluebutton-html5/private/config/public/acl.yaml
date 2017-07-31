@@ -24,6 +24,7 @@ acl:
       - 'kickUser'
       - 'muteUser'
       - 'unmuteUser'
+      - 'endMeeting'
   presenter:
     methods:
       - 'assignPresenter'

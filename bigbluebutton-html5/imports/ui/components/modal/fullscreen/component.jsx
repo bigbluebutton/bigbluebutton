@@ -4,6 +4,7 @@ import ModalBase, { withModalState } from '../base/component';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
 import cx from 'classnames';
+import userListService from '../../user-list/service';
 
 const propTypes = {
   title: PropTypes.string.isRequired,
@@ -29,6 +30,10 @@ const defaultProps = {
     label: 'Cancel',
     description: 'Disregards changes and closes the modal',
   },
+  others: {
+    label: 'others',
+    description: 'Other option is displayed',
+  },
 };
 
 class ModalFullscreen extends Component {
@@ -42,6 +47,7 @@ class ModalFullscreen extends Component {
       title,
       confirm,
       dismiss,
+      others,
       className,
       modalisOpen,
       ...otherProps,
@@ -72,6 +78,14 @@ class ModalFullscreen extends Component {
         </header>
         <div className={styles.content}>
           {this.props.children}
+          { userListService.getCurrentUser().isModerator && title == 'Leave Session' ?
+            <Button
+              className={styles.others}
+              label={others.label}
+              onClick={this.handleAction.bind(this, 'others')}
+              aria-describedby={'modalOthersDescription'} />
+              : null
+            }
         </div>
         <div id="modalDismissDescription" hidden>{dismiss.description}</div>
         <div id="modalConfirmDescription" hidden>{confirm.description}</div>
