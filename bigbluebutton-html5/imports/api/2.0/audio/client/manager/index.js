@@ -1,4 +1,3 @@
-import Auth from '/imports/ui/services/auth';
 import BaseAudioBridge from '../bridge/base';
 import VertoBridge from '../bridge/verto';
 import SIPBridge from '../bridge/sip';
@@ -68,7 +67,7 @@ class AudioManager {
 
   init(userData) {
     // this check ensures changing locales will not rerun init
-    if (this.currentState !== undefined) {
+    if (this.currentState != undefined) {
       return;
     }
     const MEDIA_CONFIG = Meteor.settings.public.media;
@@ -88,7 +87,7 @@ class AudioManager {
 
     callbackToAudioBridge = function (message) {
       switch (message.status) {
-        case 'failed': {
+        case 'failed':
           this.currentState = this.callStates.init;
           const audioFailed = new CustomEvent('bbb.webrtc.failed', {
             detail: {
@@ -98,8 +97,7 @@ class AudioManager {
           });
           window.dispatchEvent(audioFailed);
           break;
-        }
-        case 'mediafail': {
+        case 'mediafail':
           const mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
             detail: {
               status: 'MediaFailed',
@@ -107,9 +105,8 @@ class AudioManager {
           });
           window.dispatchEvent(mediaFailed);
           break;
-        }
         case 'mediasuccess':
-        case 'started': {
+        case 'started':
           const connected = new CustomEvent('bbb.webrtc.connected', {
             detail: {
               status: 'started',
@@ -117,7 +114,6 @@ class AudioManager {
           });
           window.dispatchEvent(connected);
           break;
-        }
       }
     };
   }
@@ -132,26 +128,17 @@ class AudioManager {
   }
 
   joinAudio(listenOnly) {
-    AudioManager.fetchServers().then(({ error, stunServers, turnServers }) => {
-      console.log(error);
-      if (error) {
-        // We need to alert the user about this problem by some gui message.
-        console.error("Couldn't fetch the stuns/turns servers!");
-        AudioManager.stunTurnServerFail();
-        return;
-      }
-
-      if (listenOnly || this.microphoneLockEnforced) {
-        this.isListenOnly = true;
-        this.bridge.joinListenOnly(stunServers, turnServers, callbackToAudioBridge.bind(this));
-        // TODO: remove line below after echo test implemented, use webRTCCallStarted instead
-        this.currentState = this.callStates.inListenOnly;
-      } else {
-        this.bridge.joinMicrophone(stunServers, turnServers, callbackToAudioBridge.bind(this));
-        // TODO: remove line below after echo test implemented, use webRTCCallStarted instead
-        this.currentState = this.callStates.inConference;
-      }
-    });
+    if (listenOnly || this.microphoneLockEnforced) {
+      this.isListenOnly = true;
+      this.bridge.joinListenOnly(callbackToAudioBridge.bind(this));
+      // TODO: remove line below after echo test implemented
+      this.currentState = this.callStates.inListenOnly;
+    } else {
+      this.isListenOnly = false;
+      this.bridge.joinMicrophone(callbackToAudioBridge.bind(this));
+      // TODO: remove line below after echo test implemented
+      this.currentState = this.callStates.inConference;
+    }
   }
 
   transferToConference() {
@@ -198,38 +185,6 @@ class AudioManager {
     // this.bridge.getActiveMic();
   }
 
-  stunTurnServerFail() {
-    const audioFailed = new CustomEvent('bbb.webrtc.failed', {
-      detail: {
-        status: 'Failed',
-        errorCode: AudioErrorCodes.CODE_1009,
-      },
-    });
-    window.dispatchEvent(audioFailed);
-  }
-
-  // We use on the SIP an String Array, while in the server, it comes as
-  // an Array of objects, we need to map from Array<Object> to Array<String>
-  static mapToArray({ response, stunServers, turnServers }) {
-    const promise = new Promise((resolve) => {
-      if (response) {
-        resolve({ error: 404, stunServers: [], turnServers: [] });
-      }
-      resolve({
-        stunServers: stunServers.map(server => server.url),
-        turnServers: turnServers.map(server => server.url),
-      });
-    });
-    return promise;
-  }
-
-  static fetchServers() {
-    const url = `/bigbluebutton/api/stuns?sessionToken=${Auth.sessionToken}`;
-
-    return fetch(url)
-      .then(response => response.json())
-      .then(json => AudioManager.mapToArray(json));
-  }
 }
 
 const AudioManagerSingleton = new AudioManager();
