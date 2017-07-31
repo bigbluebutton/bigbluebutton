@@ -315,7 +315,11 @@ class MeetingActor(
     // switch user presenter status for old and new presenter
     usersApp.handleAssignPresenterReqMsg(msg)
 
-    // TODO stop current screen sharing session (initiated by the old presenter)
+    // request screenshare to end
+    screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
+      liveMeeting.props.voiceProp.voiceConf,
+      liveMeeting.props.screenshareProps.screenshareConf
+    )
 
   }
 
