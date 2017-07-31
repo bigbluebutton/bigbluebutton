@@ -346,6 +346,7 @@ class MeetingActor(
     state = newState
     expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
     val (newState2, expireReason2) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
+    state = newState2
     expireReason2 foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
   }
 
@@ -356,7 +357,7 @@ class MeetingActor(
   def startRecordingIfAutoStart() {
     if (props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
       props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
-      log.info("Auto start recording. meetingId={}", props.meetingProp.intId)
+
       MeetingStatus2x.recordingStarted(liveMeeting.status)
 
       def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
