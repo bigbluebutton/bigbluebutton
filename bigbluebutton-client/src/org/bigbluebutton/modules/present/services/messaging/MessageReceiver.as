@@ -178,7 +178,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handlePresentationPageGeneratedEvtMsg(msg:Object):void {
-      dispatcher.dispatchEvent(new ConversionUpdateEvent(msg.body.numPages, msg.body.pagesDone));
+      dispatcher.dispatchEvent(new ConversionUpdateEvent(msg.body.numberOfPages, msg.body.pagesCompleted));
     }
     
     private function handlePresentationPageCountErrorEvtMsg(msg:Object):void {
