@@ -13,8 +13,8 @@ export default createContainer((params) => {
   const { joined, listenOnly } = voiceUser;
 
   return {
-    joined,
-    listenOnly,
+    isInAudio: joined,
+    isInListenOnly: listenOnly,
     handleJoinAudio: params.handleJoinAudio,
     handleCloseAudio: params.handleCloseAudio,
   };

@@ -24,10 +24,10 @@ export default createContainer(() => {
   }
 
   const data = {
-    joined,
-    muted,
+    isInAudio: joined,
+    isMuted: muted,
     callback,
-    talking,
+    isTalking: talking,
   };
   return data;
 }, MuteAudioContainer);

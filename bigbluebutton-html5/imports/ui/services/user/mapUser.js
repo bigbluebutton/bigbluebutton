@@ -6,10 +6,10 @@ const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
 const mapUser = (user) => {
   const userId = Auth.userID;
-  const voiceUser = VoiceUsers.findOne({ intId: userId });
-  const { muted, joined, talking, listenOnly } = voiceUser;
+  const voiceUser = VoiceUsers.findOne({ intId: user.userid });
+  const { muted, talking, listenOnly } = voiceUser;
 
-  const mapedUser = {
+  const mappedUser = {
     id: user.userid,
     name: user.name,
     emoji: {
@@ -19,7 +19,7 @@ const mapUser = (user) => {
     isPresenter: user.presenter,
     isModerator: user.role === ROLE_MODERATOR,
     isCurrent: user.userid === userId,
-    isVoiceUser: joined,
+    isVoiceUser: listenOnly || talking,
     isMuted: muted,
     isTalking: talking,
     isListenOnly: listenOnly,
@@ -29,7 +29,7 @@ const mapUser = (user) => {
     isLocked: user.locked,
   };
 
-  return mapedUser;
+  return mappedUser;
 };
 
 export default mapUser;
