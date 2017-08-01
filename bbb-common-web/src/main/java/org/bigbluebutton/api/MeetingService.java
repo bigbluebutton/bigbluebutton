@@ -367,16 +367,6 @@ public class MeetingService implements MessageListener {
 
         r.setPlaybacks(plays);
 
-        ArrayList<Download> downloads = new ArrayList<Download>();
-
-        if (r.getDownloadFormat() != null) {
-          downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
-            r.getDownloadMd5(), r.getDownloadKey(),
-            r.getDownloadSize(),
-            getDurationRecording(r.getEndTime(), r.getStartTime())));
-        }
-        r.setDownloads(downloads);
-
         map.put(r.getId(), r);
       } else {
         Recording rec = map.get(r.getId());
@@ -385,18 +375,10 @@ public class MeetingService implements MessageListener {
             getDurationRecording(r.getPlaybackDuration(), r.getEndTime(), r.getStartTime()),
             r.getPlaybackSize(), r.getProcessingTime(), r.getPlaybackExtensions()));
         }
-        if (r.getDownloadFormat() != null) {
-          rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(), r.getDownloadMd5(),
-            r.getDownloadKey(), r.getDownloadSize(), getDurationRecording(r.getEndTime(), r.getStartTime())));
-        }
       }
     }
 
     return map;
-  }
-
-  private int getDurationRecording(String end, String start) {
-    return getDurationRecording("", end, start);
   }
 
   private int getDurationRecording(String playbackDuration, String end,
