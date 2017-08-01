@@ -13,7 +13,7 @@ Logger = require("./logger")
 module.exports = class WebHooks
 
   constructor: ->
-    @subscriberEvents = redis.createClient()
+    @subscriberEvents = config.redis.pubSubClient
 
   start: ->
     @_subscribeToEvents()
