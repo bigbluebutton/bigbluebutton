@@ -29,8 +29,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
 				showCloseButton="true"
-                initialize="initData();">
-
+				close="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
+                initialize="initData()"
+				creationComplete="onCreationComplete(event)">
+	
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatch" />
 		<mate:Listener type="{UploadProgressEvent.UPLOAD_PROGRESS_UPDATE}" method="handleUploadProgressUpdate" />
@@ -52,6 +54,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Script>
     <![CDATA[
 		import mx.collections.ArrayCollection;
+		import mx.core.mx_internal;
+		import mx.events.FlexEvent;
 		import mx.utils.StringUtil;
 		
 		import org.as3commons.lang.StringUtils;
@@ -59,6 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
 		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
 		import org.bigbluebutton.modules.present.events.ConversionPageCountError;
@@ -80,6 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.model.PresentationModel;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
+		use namespace mx_internal;
       
 		private static const LOGGER:ILogger = getClassLogger(FileUploadWindow);      
         
@@ -96,15 +102,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       override public function move(x:Number, y:Number):void{
         return;
       }
-      
-      private function initData():void {
-		  presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-        presentationNamesAC = PresentationModel.getInstance().getPresentations();
-        if (presentationNamesAC.length <= 0) {
-          selectFile();
-        }
-      }
-            
+
+		protected function onCreationComplete(event:FlexEvent):void
+		{
+			this.mx_internal::closeButton.toolTip = ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip');
+		}
+		
+			private function initData():void {
+				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
+				presentationNamesAC = PresentationModel.getInstance().getPresentations();
+				if (presentationNamesAC.length <= 0) {
+					selectFile();
+				}
+			}
+
       private function handleThumbnailsProgressEvent(event:CreatingThumbnailsEvent):void {	
         genThumbDots = ".";
 
@@ -155,11 +166,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         fileFormatHintLbl.visible = false;
         fileFormatHintLbl.includeInLayout = false;
 		
-		    uploadedFilesList.enabled = false;
+	    uploadedFilesList.enabled = false;
 
         progressReportBox.visible = true;
         progressBar.visible = true;
-        okCancelBtn.visible = true;
         
         disableClosing();
         
@@ -265,19 +275,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function displayAlert(error:String, message:String = null):void {
-        var okLabel:String = ResourceUtil.getInstance().getString('bbb.presentation.ok');
         progressBar.setStyle("color", 0xFF0000);
         progressBar.label = error;
 		if (!StringUtils.isEmpty(message)) {
 		  progressBar.label += message;	
 		}
-		// FIXME : to be localised
-        okCancelBtn.label = "Ok";
       }
 
       private function enableControls():void {
-        okCancelBtn.visible = true;
-        okCancelBtn.enabled = true;
+        enableClosing();
         selectBtn.enabled = true;
         uploadBtn.enabled = true;
         lblFileName.enabled = true;			
@@ -291,19 +297,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
-        okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
         enableClosing();
+		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.presId));
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
 
-      private function disableClosing():void {
-        okCancelBtn.enabled = false;
-      }
-      
-      private function enableClosing():void {
-        okCancelBtn.enabled = true;
-      }
-		
+			private function disableClosing():void {
+				showCloseButton = false;
+			}
+
+			private function enableClosing():void {
+				showCloseButton = true;
+			}
+
 		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
 			for(var i:int = 0; i < presentationNamesAC.length; i++) {
 				if(e.presentationName == presentationNamesAC.getItemAt(i).id) {
@@ -312,7 +318,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		}
-  ]]>
+		
+	]]>
 
   </fx:Script>
 
@@ -350,12 +357,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
     </mx:Canvas>
-    <mx:Canvas width="100%" height="100%">
-      <mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
-                 styleName="presentationUploadCancelButtonStyle" right="5" bottom="15"
-                 click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}"/>
-    </mx:Canvas>	
   </mx:VBox>
 
 </mx:TitleWindow> 

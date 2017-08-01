@@ -1,24 +1,21 @@
 package org.bigbluebutton.core.running
 
-import akka.actor.ActorContext
-import akka.event.Logging
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.InternalEventBus
-import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 
-class MeetingExpiryTrackerHelper(
-    val liveMeeting: LiveMeeting,
-    val outGW:       OutMsgRouter,
-    val eventBus:    InternalEventBus
-)(implicit val context: ActorContext) extends HandlerHelpers {
+trait MeetingExpiryTrackerHelper extends HandlerHelpers {
 
-  val log = Logging(context.system, getClass)
+  def processMeetingExpiryAudit(
+    outGW:       OutMsgRouter,
+    eventBus:    InternalEventBus,
+    liveMeeting: LiveMeeting,
+    state:       MeetingState2x
+  ): (MeetingState2x, Option[String]) = {
+    val nowInMs = TimeUtil.timeNowInMs()
 
-  def processMeetingExpiryAudit(state: MeetingState2x): MeetingState2x = {
-    val nowInSeconds = TimeUtil.timeNowInSeconds()
-
-    val (expired, reason) = MeetingExpiryTracker.hasMeetingExpired(state, nowInSeconds)
+    val (expired, reason) = state.expiryTracker.hasMeetingExpired(nowInMs)
     if (expired) {
       for {
         expireReason <- reason
@@ -27,33 +24,36 @@ class MeetingExpiryTrackerHelper(
       }
     }
 
-    state
+    (state, reason)
   }
 
-  def processMeetingInactivityAudit(state: MeetingState2x): MeetingState2x = {
+  def processMeetingInactivityAudit(
+    outGW:       OutMsgRouter,
+    eventBus:    InternalEventBus,
+    liveMeeting: LiveMeeting,
+    state:       MeetingState2x
+  ): (MeetingState2x, Option[String]) = {
 
-    val nowInSeconds = TimeUtil.timeNowInSeconds()
-    if (!MeetingInactivityTracker.hasRecentActivity(state, nowInSeconds)) {
-      if (MeetingInactivityTracker.isMeetingInactive(state, nowInSeconds)) {
-        sendEndMeetingDueToExpiry(MeetingEndReason.ENDED_DUE_TO_INACTIVITY, eventBus, outGW, liveMeeting)
-        state
+    val nowInMs = TimeUtil.timeNowInMs()
+    if (!state.inactivityTracker.hasRecentActivity(nowInMs)) {
+      if (state.inactivityTracker.isMeetingInactive(nowInMs)) {
+        val expireReason = MeetingEndReason.ENDED_DUE_TO_INACTIVITY
+        sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting)
+        (state, Some(expireReason))
       } else {
-        if (!MeetingInactivityTracker.warningHasBeenSent(state)) {
-          warnOfMeetingInactivity(nowInSeconds, state)
-          MeetingInactivityTracker.setWarningSentAndTimestamp(state, nowInSeconds)
+        if (!state.inactivityTracker.warningSent) {
+          val timeLeftSeconds = TimeUtil.millisToSeconds(state.inactivityTracker.timeLeftInMs(nowInMs))
+          val event = buildMeetingInactivityWarningEvtMsg(liveMeeting.props.meetingProp.intId, timeLeftSeconds)
+          outGW.send(event)
+          val tracker = state.inactivityTracker.setWarningSentAndTimestamp(nowInMs)
+          (state.update(tracker), None)
         } else {
-          state
+          (state, None)
         }
       }
     } else {
-      state
+      (state, None)
     }
-  }
-
-  def warnOfMeetingInactivity(nowInSeconds: Long, state: MeetingState2x): Unit = {
-    val timeLeftSeconds = MeetingInactivityTracker.timeLeftInSeconds(state, nowInSeconds)
-    val event = buildMeetingInactivityWarningEvtMsg(liveMeeting.props.meetingProp.intId, timeLeftSeconds)
-    outGW.send(event)
   }
 
   def buildMeetingInactivityWarningEvtMsg(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {

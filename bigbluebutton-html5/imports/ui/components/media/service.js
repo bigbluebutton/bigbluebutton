@@ -1,5 +1,5 @@
 import Presentations from '/imports/api/2.0/presentations';
-import { isVideoBroadcasting } from '../deskshare/service';
+import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
@@ -16,7 +16,7 @@ function shouldShowWhiteboard() {
   return true;
 }
 
-function shouldShowDeskshare() {
+function shouldShowScreenshare() {
   return isVideoBroadcasting();
 }
 
@@ -27,6 +27,6 @@ function shouldShowOverlay() {
 export default {
   getPresentationInfo,
   shouldShowWhiteboard,
-  shouldShowDeskshare,
+  shouldShowScreenshare,
   shouldShowOverlay,
 };

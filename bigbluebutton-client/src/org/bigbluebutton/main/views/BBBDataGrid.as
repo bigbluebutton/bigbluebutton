@@ -17,18 +17,18 @@
  *
  */
 package org.bigbluebutton.main.views {
-    import mx.controls.DataGrid;
-
-    public class BBBDataGrid extends DataGrid {
-        // This function needs to be overridden to avoid finding any
-        // first comumn value that starts the typed letter.
-        // It will make hotkeys work correctly gtriki (12 feb, 2017)
-        override protected function findKey(eventCode:int):Boolean {
-            if (eventCode >= 33 && eventCode <= 126) {
-                return false;
-            } else {
-				return super.findKey(eventCode);
-            }
-        }
+  import mx.controls.DataGrid;
+  
+  public class BBBDataGrid extends DataGrid {
+    // This function needs to be overridden to avoid finding any
+    // first comumn value that starts the typed letter.
+    // It will make hotkeys work correctly gtriki (12 feb, 2017)
+    override protected function findKey(eventCode:int):Boolean {
+      if (eventCode >= 33 && eventCode <= 126) {
+        return false;
+      } else {
+        return super.findKey(eventCode);
+      }
     }
+  }
 }

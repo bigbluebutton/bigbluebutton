@@ -6,6 +6,7 @@ import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
+import { initBBB } from '/imports/api/2.0/bbb';
 import IntlStartup from './intl';
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
@@ -34,6 +35,8 @@ class Base extends Component {
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.updateErrorState = this.updateErrorState.bind(this);
+
+    initBBB();
   }
 
   updateLoadingState(loading = false) {
@@ -84,8 +87,9 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
-  'users2x', 'users', 'chat', 'chat2x', 'cursor', 'cursor2x', 'deskshare', 'meetings', 'meetings2x',
-  'polls', 'polls2x', 'presentations', 'presentations2x', 'shapes', 'shapes2x', 'slides', 'slides2x', 'captions', 'captions2x', 'breakouts', 'breakouts2x',
+  'users2x', 'users', 'chat', 'chat2x', 'cursor', 'cursor2x', 'screenshare', 'meetings', 'meetings2x',
+  'polls', 'polls2x', 'presentations', 'presentations2x', 'shapes', 'shapes2x', 'slides', 'slides2x', 'captions',
+  'captions2x', 'breakouts', 'breakouts2x', 'voiceUsers',
 ];
 
 const BaseContainer = createContainer(({ params }) => {

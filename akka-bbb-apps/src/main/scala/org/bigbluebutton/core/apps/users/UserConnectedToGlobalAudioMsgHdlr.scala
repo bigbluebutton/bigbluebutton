@@ -18,7 +18,7 @@ trait UserConnectedToGlobalAudioMsgHdlr {
       val envelope = BbbCoreEnvelope(UserJoinedVoiceConfToClientEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserJoinedVoiceConfToClientEvtMsg.NAME, props.meetingProp.intId, vu.intId)
 
-      val body = UserJoinedVoiceConfToClientEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId,
+      val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.intId,
         callingWith = vu.callingWith, callerName = vu.callerName,
         callerNum = vu.callerNum, muted = true, talking = false, listenOnly = true)
       val event = UserJoinedVoiceConfToClientEvtMsg(header, body)

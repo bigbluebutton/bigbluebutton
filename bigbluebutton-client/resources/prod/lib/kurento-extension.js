@@ -19,7 +19,9 @@ Kurento = function (
   this.extensionInstalled = false;
   this.screenConstraints = {};
   this.mediaCallback = null;
-  voiceBridge += "-DESKSHARE";
+
+  this.voiceBridge = voiceBridge;
+  this.internalMeetingId = internalMeetingId;
 
   this.vid_width = window.screen.width;
   this.vid_height = window.screen.height;
@@ -29,7 +31,6 @@ Kurento = function (
 
   this.renderTag = 'remote-media';
 
-  this.destination_number = internalMeetingId;
   this.caller_id_name = conferenceUsername;
   this.caller_id_number = conferenceUsername;
   this.pingInterval;
@@ -200,9 +201,10 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
 
   var message = {
     id : 'presenter',
-    presenterId : kurentoHandler.sessid,
+    type: 'screenshare',
+    internalMeetingId: kurentoHandler.internalMeetingId,
+    voiceBridge: kurentoHandler.voiceBridge,
     callerName : kurentoHandler.caller_id_name,
-    voiceBridge : kurentoHandler.destination_number,
     sdpOffer : offerSdp,
     vh: kurentoHandler.vid_height,
     vw: kurentoHandler.vid_width
@@ -253,7 +255,8 @@ Kurento.prototype.onIceCandidate = function(candidate) {
 
   var message = {
     id : 'onIceCandidate',
-    presenterId : kurentoHandler.sessid,
+    type: 'screenshare',
+    voiceBridge: kurentoHandler.voiceBridge,
     candidate : candidate
   }
   console.log("this object " + JSON.stringify(this, null, 2));
@@ -294,9 +297,10 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   }
   var message = {
     id : 'viewer',
-    presenterId : kurentoHandler.sessid,
+    type: 'screenshare',
+    internalMeetingId: kurentoHandler.internalMeetingId,
+    voiceBridge: kurentoHandler.voiceBridge,
     callerName : kurentoHandler.caller_id_name,
-    voiceBridge : kurentoHandler.destination_number,
     sdpOffer : offerSdp
   };
 
@@ -307,9 +311,10 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
 Kurento.prototype.ping = function() {
    var message = {
     id : 'ping',
-    presenterId : kurentoHandler.sessid,
+    type: 'screenshare',
+    internalMeetingId: kurentoHandler.internalMeetingId,
+    voiceBridge: kurentoHandler.voiceBridge,
     callerName : kurentoHandler.caller_id_name,
-    voiceBridge : kurentoHandler.destination_number,
   };
 
   kurentoHandler.sendMessage(message);
@@ -319,7 +324,8 @@ Kurento.prototype.stop = function() {
   if (this.webRtcPeer) {
     var message = {
       id : 'stop',
-      presenterId : kurentoHandler.sessId,
+      type : 'screenshare',
+      voiceBridge: kurentoHandler.voiceBridge
     }
     kurentoHandler.sendMessage(message);
     kurentoHandler.disposeScreenShare();

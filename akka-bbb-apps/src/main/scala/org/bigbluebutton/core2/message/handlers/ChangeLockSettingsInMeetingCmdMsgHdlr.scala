@@ -9,7 +9,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr {
 
   val outGW: OutMsgRouter
 
-  def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg) {
+  def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
     val settings = Permissions(
       disableCam = msg.body.disableCam,
       disableMic = msg.body.disableMic,
@@ -23,32 +23,49 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr {
     if (!liveMeeting.permissionsEqual(settings)) {
       liveMeeting.newPermissions(settings)
 
-      def build(meetingId: String, userId: String, settings: Permissions, setBy: String): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-        val envelope = BbbCoreEnvelope(LockSettingsInMeetingChangedEvtMsg.NAME, routing)
-        val body = LockSettingsInMeetingChangedEvtMsgBody(
-          disableCam = settings.disableCam,
-          disableMic = settings.disableMic, disablePrivChat = settings.disablePrivChat,
-          disablePubChat = settings.disablePubChat, lockedLayout = settings.lockedLayout,
-          lockOnJoin = settings.lockOnJoin, lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
-          setBy
-        )
-        val header = BbbClientMsgHeader(LockSettingsInMeetingChangedEvtMsg.NAME, meetingId, userId)
-        val event = LockSettingsInMeetingChangedEvtMsg(header, body)
+      val routing = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        props.meetingProp.intId,
+        msg.body.setBy
+      )
+      val envelope = BbbCoreEnvelope(
+        LockSettingsInMeetingChangedEvtMsg.NAME,
+        routing
+      )
+      val body = LockSettingsInMeetingChangedEvtMsgBody(
+        disableCam = settings.disableCam,
+        disableMic = settings.disableMic,
+        disablePrivChat = settings.disablePrivChat,
+        disablePubChat = settings.disablePubChat,
+        lockedLayout = settings.lockedLayout,
+        lockOnJoin = settings.lockOnJoin,
+        lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
+        msg.body.setBy
+      )
+      val header = BbbClientMsgHeader(
+        LockSettingsInMeetingChangedEvtMsg.NAME,
+        props.meetingProp.intId,
+        msg.body.setBy
+      )
 
-        BbbCommonEnvCoreMsg(envelope, event)
-      }
+      outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
 
-      val event = build(props.meetingProp.intId, msg.body.setBy, settings, msg.body.setBy)
-      outGW.send(event)
-
-      /**
-       * outGW.send(new NewPermissionsSetting(props.meetingProp.intId, msg.setByUser,
-       * MeetingStatus2x.getPermissions(liveMeeting.status),
-       * Users2x.findAll(liveMeeting.users2x))
-       *
-       * handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
-       */
+      processLockLayout(settings.lockedLayout, msg.body.setBy)
     }
+  }
+
+  def processLockLayout(lock: Boolean, setBy: String): Unit = {
+
+    liveMeeting.lockLayout(lock)
+
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, setBy)
+    val envelope = BbbCoreEnvelope(LockLayoutEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(LockLayoutEvtMsg.NAME, liveMeeting.props.meetingProp.intId, setBy)
+    val body = LockLayoutEvtMsgBody(setBy, lock, affectedUsers)
+    val event = LockLayoutEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+
+    outGW.send(msgEvent)
+
   }
 }

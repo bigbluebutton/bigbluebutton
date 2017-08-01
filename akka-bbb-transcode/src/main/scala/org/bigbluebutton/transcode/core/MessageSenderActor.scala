@@ -1,21 +1,12 @@
 package org.bigbluebutton.transcode.core
 
 import akka.actor.Actor
-import akka.actor.ActorContext
 import akka.actor.ActorLogging
 import akka.actor.Props
 import org.bigbluebutton.transcode.api._
 import org.bigbluebutton.endpoint.redis.RedisPublisher
-
-import collection.JavaConverters._
-import scala.collection.JavaConversions._
-
-import org.bigbluebutton.common.messages.StartTranscoderReplyMessage
-import org.bigbluebutton.common.messages.StopTranscoderReplyMessage
-import org.bigbluebutton.common.messages.TranscoderStatusUpdateMessage
-import org.bigbluebutton.common.messages.UpdateTranscoderReplyMessage
-import org.bigbluebutton.common.messages.StartProbingReplyMessage
-import org.bigbluebutton.common.messages.MessagingConstants
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.util.JsonUtil
 
 object MessageSenderActor {
   def props(msgSender: RedisPublisher): Props =
@@ -24,6 +15,9 @@ object MessageSenderActor {
 
 class MessageSenderActor(val msgSender: RedisPublisher)
     extends Actor with ActorLogging {
+
+  val fromBbbTranscodeRedisChannel = "bigbluebutton:from-bbb-transcode:system"
+  val routing = collection.immutable.HashMap("sender" -> "bbb-transcode")
 
   def receive = {
     case msg: StartTranscoderReply => handleStartTranscoderReply(msg)
@@ -35,31 +29,58 @@ class MessageSenderActor(val msgSender: RedisPublisher)
   }
 
   private def handleStartTranscoderReply(msg: StartTranscoderReply) {
-    System.out.println("Sending StartTranscoderReplyMessage. Params: [\n"
+    System.out.println("Sending StartTranscoderSysRespMsg. Params: [\n"
       + "meetingId = " + msg.meetingId + "\n"
       + "transcoderId = " + msg.transcoderId + "\n"
       + "params = " + msg.params.mkString(", ") + "\n]\n")
-
-    val str = new StartTranscoderReplyMessage(msg.meetingId, msg.transcoderId, msg.params)
-    msgSender.publish(MessagingConstants.FROM_BBB_TRANSCODE_SYSTEM_CHAN, str.toJson())
+    val header = BbbCoreHeaderWithMeetingId(StartTranscoderSysRespMsg.NAME, msg.meetingId)
+    val body = StartTranscoderSysRespMsgBody(msg.transcoderId, msg.params)
+    val envelope = BbbCoreEnvelope(StartTranscoderSysRespMsg.NAME, routing)
+    val evt = new StartTranscoderSysRespMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, evt)
+    val json = JsonUtil.toJson(msgEvent)
+    msgSender.publish(fromBbbTranscodeRedisChannel, json)
   }
 
   private def handleStopTranscoderReply(msg: StopTranscoderReply) {
-    System.out.println("Sending StopTranscoderReplyMessage. Params: [\n"
+    System.out.println("Sending StopTranscoderSysRespMsg. Params: [\n"
       + "meetingId = " + msg.meetingId + "\n"
       + "transcoderId = " + msg.transcoderId + "\n]\n")
-    val str = new StopTranscoderReplyMessage(msg.meetingId, msg.transcoderId)
-    msgSender.publish(MessagingConstants.FROM_BBB_TRANSCODE_SYSTEM_CHAN, str.toJson())
+    val header = BbbCoreHeaderWithMeetingId(StopTranscoderSysRespMsg.NAME, msg.meetingId)
+    val body = StopTranscoderSysRespMsgBody(msg.transcoderId)
+    val envelope = BbbCoreEnvelope(StopTranscoderSysRespMsg.NAME, routing)
+    val evt = new StopTranscoderSysRespMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, evt)
+    val json = JsonUtil.toJson(msgEvent)
+    msgSender.publish(fromBbbTranscodeRedisChannel, json)
   }
 
   private def handleUpdateTranscoderReply(msg: UpdateTranscoderReply) {
-    System.out.println("Sending UpdateTranscoderReplyMessage. Params: [\n"
+    System.out.println("Sending UpdateTranscoderSysRespMsg. Params: [\n"
       + "meetingId = " + msg.meetingId + "\n"
       + "transcoderId = " + msg.transcoderId + "\n"
       + "params = " + msg.params.mkString(", ") + "\n]\n")
+    val header = BbbCoreHeaderWithMeetingId(UpdateTranscoderSysRespMsg.NAME, msg.meetingId)
+    val body = UpdateTranscoderSysRespMsgBody(msg.transcoderId, msg.params)
+    val envelope = BbbCoreEnvelope(UpdateTranscoderSysRespMsg.NAME, routing)
+    val evt = new UpdateTranscoderSysRespMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, evt)
+    val json = JsonUtil.toJson(msgEvent)
+    msgSender.publish(fromBbbTranscodeRedisChannel, json)
+  }
 
-    val str = new UpdateTranscoderReplyMessage(msg.meetingId, msg.transcoderId, msg.params)
-    msgSender.publish(MessagingConstants.FROM_BBB_TRANSCODE_SYSTEM_CHAN, str.toJson())
+  private def handleStartProbingReply(msg: StartProbingReply) {
+    System.out.println("Sending StartProbingSysRespMsg. Params: [\n"
+      + "meetingId = " + msg.meetingId + "\n"
+      + "transcoderId = " + msg.transcoderId + "\n"
+      + "params = " + msg.params.mkString(", ") + "\n]\n")
+    val header = BbbCoreHeaderWithMeetingId(StartProbingSysRespMsg.NAME, msg.meetingId)
+    val body = StartProbingSysRespMsgBody(msg.transcoderId, msg.params)
+    val envelope = BbbCoreEnvelope(StartProbingSysRespMsg.NAME, routing)
+    val evt = new StartProbingSysRespMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, evt)
+    val json = JsonUtil.toJson(msgEvent)
+    msgSender.publish(fromBbbTranscodeRedisChannel, json)
   }
 
   private def handleTranscoderStatusUpdate(msg: TranscoderStatusUpdate) {
@@ -68,17 +89,8 @@ class MessageSenderActor(val msgSender: RedisPublisher)
       + "transcoderId = " + msg.transcoderId + "\n"
       + "params = " + msg.params.mkString(", ") + "\n]\n")
 
+    /* TODO: Check if this is really needed
     val str = new TranscoderStatusUpdateMessage(msg.meetingId, msg.transcoderId, msg.params)
-    msgSender.publish(MessagingConstants.FROM_BBB_TRANSCODE_SYSTEM_CHAN, str.toJson())
+    msgSender.publish(MessagingConstants.FROM_BBB_TRANSCODE_SYSTEM_CHAN, str.toJson())*/
   }
-
-  private def handleStartProbingReply(msg: StartProbingReply) {
-    System.out.println("Sending StartProbingReplyMessage. Params: [\n"
-      + "meetingId = " + msg.meetingId + "\n"
-      + "transcoderId = " + msg.transcoderId + "\n"
-      + "params = " + msg.params.mkString(", ") + "\n]\n")
-    val str = new TranscoderStatusUpdateMessage(msg.meetingId, msg.transcoderId, msg.params)
-    msgSender.publish(MessagingConstants.FROM_BBB_TRANSCODE_SYSTEM_CHAN, str.toJson())
-  }
-
 }

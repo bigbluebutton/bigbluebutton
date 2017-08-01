@@ -551,9 +551,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:Text styleName="desktopShareTextStyle" width="100%"
                   text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.commonHelpText.text')}" />
         <mx:LinkButton id="helpButton"
-                       height="22"
-                       label="?"
-                       styleName="micSettingsWindowHelpButtonStyle"
+                       styleName="helpLinkButtonStyle"
                        right="0"
                        click="onHelpButtonClicked()"
                        toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.helpButton.toolTip')}"

@@ -146,10 +146,10 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildDisconnectAllClientsSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+  def buildDisconnectAllClientsSysMsg(meetingId: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(DisconnectAllClientsSysMsg.NAME, routing)
-    val body = DisconnectAllClientsSysMsgBody(meetingId)
+    val body = DisconnectAllClientsSysMsgBody(meetingId, reason)
     val header = BbbCoreHeaderWithMeetingId(DisconnectAllClientsSysMsg.NAME, meetingId)
     val event = DisconnectAllClientsSysMsg(header, body)
 
@@ -176,11 +176,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildDisconnectClientSysMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+  def buildDisconnectClientSysMsg(meetingId: String, userId: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
     val envelope = BbbCoreEnvelope(DisconnectClientSysMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(DisconnectClientSysMsg.NAME, meetingId)
-    val body = DisconnectClientSysMsgBody(meetingId, userId)
+    val body = DisconnectClientSysMsgBody(meetingId, userId, reason)
     val event = DisconnectClientSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
@@ -234,6 +234,16 @@ object MsgBuilder {
 
     val body = BreakoutRoomEndedEvtMsgBody(meetingId, breakoutRoomId)
     val event = BreakoutRoomEndedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStopMeetingTranscodersSysCmdMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StopMeetingTranscodersSysCmdMsg.NAME, routing)
+    val body = StopMeetingTranscodersSysCmdMsgBody()
+    val header = BbbCoreHeaderWithMeetingId(StopMeetingTranscodersSysCmdMsg.NAME, meetingId)
+    val event = StopMeetingTranscodersSysCmdMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

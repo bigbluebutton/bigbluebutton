@@ -2,12 +2,12 @@ package org.bigbluebutton.core.running
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, RecordingStatusChanged }
+import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.{ MeetingState2x }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
 
 trait HandlerHelpers extends SystemConfiguration {
 
@@ -50,26 +50,38 @@ trait HandlerHelpers extends SystemConfiguration {
 
         val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
         outGW.send(event)
-        startRecordingIfAutoStart2x(liveMeeting)
-
-        if (!state.expiryTracker.userHasJoined) {
-          MeetingExpiryTracker.setUserHasJoined(state)
-        } else {
-          state
+        startRecordingIfAutoStart2x(outGW, liveMeeting)
+        if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+          automaticallyAssignPresenter(outGW, liveMeeting)
         }
-
+        state.update(state.expiryTracker.setUserHasJoined())
       case None =>
         state
     }
   }
 
-  def startRecordingIfAutoStart2x(liveMeeting: LiveMeeting): Unit = {
+  def startRecordingIfAutoStart2x(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     if (liveMeeting.props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
 
       MeetingStatus2x.recordingStarted(liveMeeting.status)
-      //     outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record,
-      //       "system", MeetingStatus2x.isRecording(liveMeeting.status)))
+
+      def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
+        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+        val envelope = BbbCoreEnvelope(RecordingStatusChangedEvtMsg.NAME, routing)
+        val body = RecordingStatusChangedEvtMsgBody(recording, userId)
+        val header = BbbClientMsgHeader(RecordingStatusChangedEvtMsg.NAME, meetingId, userId)
+        val event = RecordingStatusChangedEvtMsg(header, body)
+
+        BbbCommonEnvCoreMsg(envelope, event)
+      }
+
+      val event = buildRecordingStatusChangedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)
+      )
+      outGW.send(event)
+
     }
   }
 

@@ -13,6 +13,7 @@ trait WhiteboardApp2x
     with ModifyWhiteboardAccessPubMsgHdlr
     with GetWhiteboardAccessReqMsgHdlr
     with SendWhiteboardAnnotationPubMsgHdlr
+    with SyncWhiteboardAccessRespMsgHdlr
     with GetWhiteboardAnnotationsReqMsgHdlr {
   this: MeetingActor =>
 

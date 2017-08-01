@@ -22,6 +22,8 @@ import '/imports/api/2.0/presentations/server';
 import '/imports/api/2.0/slides/server';
 import '/imports/api/2.0/breakouts/server';
 import '/imports/api/2.0/chat/server';
+import '/imports/api/2.0/screenshare/server';
+import '/imports/api/2.0/voice-users/server';
 
 // Commons
 import '/imports/api/log-client/server';

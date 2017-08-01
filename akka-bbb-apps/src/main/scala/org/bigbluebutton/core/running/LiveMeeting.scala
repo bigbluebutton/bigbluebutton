@@ -11,13 +11,11 @@ class LiveMeeting(
     val status:           MeetingStatus2x,
     val screenshareModel: ScreenshareModel,
     val chatModel:        ChatModel,
-    val layoutModel:      LayoutModel,
     val layouts:          Layouts,
     val registeredUsers:  RegisteredUsers,
     val polls:            Polls, // 2x
     val wbModel:          WhiteboardModel,
     val presModel:        PresentationModel,
-    val breakoutRooms:    BreakoutRooms,
     val captionModel:     CaptionModel,
     val notesModel:       SharedNotesModel,
     val webcams:          Webcams,

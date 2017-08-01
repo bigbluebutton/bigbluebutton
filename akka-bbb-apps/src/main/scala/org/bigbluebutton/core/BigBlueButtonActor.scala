@@ -150,8 +150,11 @@ class BigBlueButtonActor(
       context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
         // Disconnect all clients
 
-        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingId)
+        val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingId, "meeting-destroyed")
         m2.outMsgRouter.send(disconnectEvnt)
+
+        val stopTranscodersCmd = MsgBuilder.buildStopMeetingTranscodersSysCmdMsg(msg.meetingId)
+        m2.outMsgRouter.send(stopTranscodersCmd)
 
         log.info("Destroyed meetingId={}", msg.meetingId)
         val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.meetingId)

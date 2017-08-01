@@ -1,7 +1,9 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.BreakoutRooms
+import org.bigbluebutton.core.api.EndBreakoutRoomInternalMsg
+import org.bigbluebutton.core.bus.BigBlueButtonEvent
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait EndAllBreakoutRoomsMsgHdlr {
@@ -9,24 +11,16 @@ trait EndAllBreakoutRoomsMsgHdlr {
 
   val outGW: OutMsgRouter
 
-  def handleEndAllBreakoutRoomsMsg(msg: EndAllBreakoutRoomsMsg): Unit = {
+  def handleEndAllBreakoutRoomsMsg(msg: EndAllBreakoutRoomsMsg, state: MeetingState2x): MeetingState2x = {
 
-    def broadcastEvent(msg: EndAllBreakoutRoomsMsg): Unit = {
-
-      log.info("EndAllBreakoutRooms event received for meetingId={}", props.meetingProp.intId)
-
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
-      val envelope = BbbCoreEnvelope(EndBreakoutRoomEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(EndBreakoutRoomEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
-
-      BreakoutRooms.getRooms(liveMeeting.breakoutRooms).foreach { room =>
-        val body = EndBreakoutRoomEvtMsgBody(room.id)
-        val event = EndBreakoutRoomEvtMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        outGW.send(msgEvent)
+    for {
+      model <- state.breakout
+    } yield {
+      model.rooms.values.foreach { room =>
+        eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id)))
       }
     }
 
-    broadcastEvent(msg)
+    state.update(None)
   }
 }
