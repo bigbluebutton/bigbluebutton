@@ -9,12 +9,6 @@ const createVertoUserName = () => {
 };
 
 export default class VertoScreenshareBridge {
-  constructor() {
-    // TODO - this info must be set in the call manager
-    window.BBB = {};
-    window.BBB.getSessionToken = callback => callback(Auth.sessionToken);
-  }
-
   vertoWatchVideo() {
     window.vertoWatchVideo(
       'screenshareVideo',
