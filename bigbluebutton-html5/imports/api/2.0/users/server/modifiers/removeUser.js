@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Users from '/imports/api/2.0/users';
 import Logger from '/imports/startup/server/logger';
+import removeVoiceUser from '/imports/api/2.0/voice-users/server/modifiers/removeVoiceUser';
 
 const CLIENT_TYPE_HTML = 'HTML5';
 
@@ -24,6 +25,12 @@ export default function removeUser(meetingId, userId) {
       'user.role': 'VIEWER',
     },
   };
+
+  removeVoiceUser(meetingId, {
+    voiceConf: '',
+    voiceUserId: '',
+    intId: userId,
+  });
 
   const cb = (err) => {
     if (err) {

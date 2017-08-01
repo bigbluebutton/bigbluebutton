@@ -58,7 +58,6 @@ export default function addUser(meetingId, user) {
       'user.emoji': user.emoji,
       'user.presenter': user.presenter,
       'user.locked': user.locked,
-      'user.listenOnly': user.listenOnly,
     },
   };
 
