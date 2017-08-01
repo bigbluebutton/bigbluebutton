@@ -40,6 +40,10 @@ class BBB {
   webRTCCallStarted(inEchoTest) {
     AudioManager.webRTCCallStarted(inEchoTest);
   }
+
+  getSessionToken(callback) {
+    callback(Auth.sessionToken);
+  }
 }
 
 export const initBBB = () => {

@@ -1,6 +1,6 @@
-import BaseAudioBridge from './base';
-
 import { makeCall } from '/imports/ui/services/api';
+
+import BaseAudioBridge from './base';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const MEDIA_CONFIG = Meteor.settings.public.media;
@@ -13,18 +13,18 @@ export default class SIPBridge extends BaseAudioBridge {
     this.userData = userData;
   }
 
-  joinListenOnly(callbackFromManager) {
+  joinListenOnly(stunServers, turnServers, callbackFromManager) {
     makeCall('listenOnlyToggle', true);
-    this._joinVoiceCallSIP({ isListenOnly: true }, callbackFromManager);
+    this._joinVoiceCallSIP({ isListenOnly: true }, stunServers, turnServers, callbackFromManager);
   }
 
-  joinMicrophone(callbackFromManager) {
-    this._joinVoiceCallSIP({ isListenOnly: false }, callbackFromManager);
+  joinMicrophone(stunServers, turnServers, callbackFromManager) {
+    this._joinVoiceCallSIP({ isListenOnly: false }, stunServers, turnServers, callbackFromManager);
   }
 
   // Periodically check the status of the WebRTC call, when a call has been established attempt to
   // hangup, retry if a call is in progress, send the leave voice conference message to BBB
-  exitAudio(isListenOnly, afterExitCall = () => {}) {
+  exitAudio(isListenOnly, afterExitCall = () => { }) {
     // To be called when the hangup is confirmed
     const hangupCallback = function () {
       console.log(`Exited Voice Conference, listenOnly=${isListenOnly}`);
@@ -40,7 +40,7 @@ export default class SIPBridge extends BaseAudioBridge {
     triedHangup = false;
 
     // function to initiate call
-    const checkToHangupCall = ((context, afterExitCall = () => {}) => {
+    const checkToHangupCall = ((context, afterExitCall = () => { }) => {
       // if an attempt to hang up the call is made when the current session is not yet finished,
       // the request has no effect keep track in the session if we haven't tried a hangup
       if (window.getCallStatus() != null && !triedHangup) {
@@ -66,7 +66,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   // join the conference. If listen only send the request to the server
-  _joinVoiceCallSIP(options, callbackFromManager) {
+  _joinVoiceCallSIP(options, stunServers, turnServers, callbackFromManager) {
     const extension = this.userData.voiceBridge;
     console.log(options);
 
@@ -76,8 +76,8 @@ export default class SIPBridge extends BaseAudioBridge {
     };
 
     const stunsAndTurns = {
-      stun: this.userData.stuns,
-      turn: this.userData.turns,
+      stun: stunServers,
+      turn: turnServers,
     };
 
     callIntoConference(extension, callbackFromManager, options.isListenOnly, stunsAndTurns);
