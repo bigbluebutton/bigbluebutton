@@ -12,6 +12,7 @@ acl:
       - 'slides'
       - 'captions'
       - 'breakouts'
+      - 'voiceUsers'
     methods:
       - 'listenOnlyToggle'
       - 'userLogout'

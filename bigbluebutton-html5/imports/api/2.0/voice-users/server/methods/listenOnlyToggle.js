@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/2.0/meetings';
-import Users from '/imports/api/2.0/users';
+import VoiceUsers from '/imports/api/2.0/voice-users';
 
 export default function listenOnlyToggle(credentials, isJoining = true) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -23,13 +23,13 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
     EVENT_NAME = 'UserDisconnectedFromGlobalAudioMsg';
   }
 
-  const User = Users.findOne({
-    userId: requesterUserId,
+  const VoiceUser = VoiceUsers.findOne({
+    intId: requesterUserId,
   });
 
   const Meeting = Meetings.findOne({ meetingId });
 
-  if (!User) {
+  if (!VoiceUser) {
     throw new Meteor.Error(
       'user-not-found', 'You need a valid user to be able to toggle audio');
   }
@@ -43,10 +43,10 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
 
   const payload = {
     userId: requesterUserId,
-    name: User.user.name,
+    name: VoiceUser.callerName,
   };
 
-  Logger.verbose(`User '${requesterUserId}' ${isJoining
+  Logger.verbose(`VoiceUser '${requesterUserId}' ${isJoining
     ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);

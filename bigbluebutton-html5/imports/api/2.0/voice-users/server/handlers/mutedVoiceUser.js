@@ -3,9 +3,9 @@ import { check } from 'meteor/check';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
 
 export default function handleVoiceUpdate({ body }, meetingId) {
-  const user = body;
+  const voiceUser = body;
 
-  check(user, Object);
+  check(meetingId, String);
 
-  return updateVoiceUser(meetingId, user);
+  return updateVoiceUser(meetingId, voiceUser);
 }
