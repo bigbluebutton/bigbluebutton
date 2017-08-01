@@ -1,4 +1,4 @@
-import VoiceUser from '/imports/api/2.0/voice-users';
+import VoiceUsers from '/imports/api/2.0/voice-users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
@@ -12,7 +12,7 @@ function voiceUser(credentials) {
 
   Logger.info(`Publishing Voice User for ${meetingId} ${requesterUserId}`);
 
-  return VoiceUser.find({ meetingId });
+  return VoiceUsers.find({ meetingId });
 }
 
 function publish(...args) {

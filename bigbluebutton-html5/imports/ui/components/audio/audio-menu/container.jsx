@@ -1,24 +1,20 @@
 import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import Users from '/imports/api/2.0/users';
+import VoiceUsers from '/imports/api/2.0/voice-users';
 import Auth from '/imports/ui/services/auth/index';
 import JoinAudioOptions from './component';
 
-class JoinAudioOptionsContainer extends React.Component {
-
-  render() {
-    return (
-      <JoinAudioOptions {...this.props} />
-    );
-  }
-}
+const JoinAudioOptionsContainer = props => (<JoinAudioOptions {...props} />);
 
 export default createContainer((params) => {
-  const user = Users.findOne({ userId: Auth.userID }).user;
+  const userId = Auth.userID;
+  const voiceUser = VoiceUsers.findOne({ intId: userId });
+
+  const { joined, listenOnly } = voiceUser;
 
   return {
-    isInAudio: user.voiceUser.joined,
-    isInListenOnly: user.listenOnly,
+    joined,
+    listenOnly,
     handleJoinAudio: params.handleJoinAudio,
     handleCloseAudio: params.handleCloseAudio,
   };

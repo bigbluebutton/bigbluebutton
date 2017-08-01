@@ -16,9 +16,6 @@ export default function removeUser(meetingId, userId) {
   const modifier = {
     $set: {
       'user.connection_status': 'offline',
-      'user.voiceUser.talking': false,
-      'user.voiceUser.joined': false,
-      'user.voiceUser.muted': false,
       'user.time_of_joining': 0,
       'user.listenOnly': false,
       'user.validated': false,
@@ -28,14 +25,12 @@ export default function removeUser(meetingId, userId) {
     },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Removing user from collection: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Removed ${CLIENT_TYPE_HTML} user id=${userId} meeting=${meetingId}`);
-    }
+    return Logger.info(`Removed ${CLIENT_TYPE_HTML} user id=${userId} meeting=${meetingId}`);
   };
 
   return Users.update(selector, modifier, cb);

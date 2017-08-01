@@ -1,6 +1,6 @@
 import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import VoiceUser from '/imports/api/2.0/voice-users';
+import VoiceUsers from '/imports/api/2.0/voice-users';
 import flat from 'flat';
 
 export default function removeVoiceUser(meetingId, voiceUser) {
@@ -10,6 +10,7 @@ export default function removeVoiceUser(meetingId, voiceUser) {
     voiceUserId: String,
     talking: Match.Maybe(Boolean),
     muted: Match.Maybe(Boolean),
+    voiceConf: String,
   });
 
   const selector = {
@@ -32,5 +33,5 @@ export default function removeVoiceUser(meetingId, voiceUser) {
     return Logger.verbose(`Add voice user=${voiceUser.intId} meeting=${meetingId}`);
   };
 
-  return VoiceUser.update(selector, modifier, cb);
+  return VoiceUsers.update(selector, modifier, cb);
 }

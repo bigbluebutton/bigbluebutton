@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
+import addVoiceUser from '/imports/api/2.0/voice-users/server/modifiers/addVoiceUser';
 
 export default function addUser(meetingId, user) {
   check(user, Object);
@@ -58,19 +59,20 @@ export default function addUser(meetingId, user) {
       'user.presenter': user.presenter,
       'user.locked': user.locked,
       'user.listenOnly': user.listenOnly,
-
-      // default values for voiceUser and webcam
-      'user.webcam_stream': [],
-      'user.voiceUser.web_userid': false,
-      'user.voiceUser.callernum': false,
-      'user.voiceUser.userid': false,
-      'user.voiceUser.talking': false,
-      'user.voiceUser.joined': false,
-      'user.voiceUser.callername': false,
-      'user.voiceUser.locked': false,
-      'user.voiceUser.muted': false,
     },
   };
+
+  addVoiceUser(meetingId, {
+    voiceUserId: '',
+    intId: userId,
+    callerName: user.name,
+    callerNum: '',
+    muted: false,
+    talking: false,
+    callingWith: '',
+    listenOnly: false,
+    voiceConf: '',
+  });
 
   const cb = (err, numChanged) => {
     if (err) {
