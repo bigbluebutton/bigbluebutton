@@ -13,9 +13,11 @@ export default function removeVoiceUser(meetingId, voiceUser) {
     voiceConf: String,
   });
 
+  const { intId } = voiceUser;
+
   const selector = {
     meetingId,
-    intId: voiceUser.intId,
+    intId,
   };
 
   const modifier = {
@@ -27,10 +29,10 @@ export default function removeVoiceUser(meetingId, voiceUser) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Update voiceUser=${voiceUser.intId}: ${err}`);
+      return Logger.error(`Update voiceUser=${intId}: ${err}`);
     }
 
-    return Logger.verbose(`Update voiceUser=${voiceUser.intId} meeting=${meetingId}`);
+    return Logger.verbose(`Update voiceUser=${intId} meeting=${meetingId}`);
   };
 
   return VoiceUsers.update(selector, modifier, cb);
