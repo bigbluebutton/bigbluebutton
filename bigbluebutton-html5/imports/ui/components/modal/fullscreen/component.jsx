@@ -89,6 +89,7 @@ class ModalFullscreen extends Component {
         </div>
         <div id="modalDismissDescription" hidden>{dismiss.description}</div>
         <div id="modalConfirmDescription" hidden>{confirm.description}</div>
+        <div id="modalOthersDescription" hidden>{others.description}</div>
       </ModalBase>
     );
   }
