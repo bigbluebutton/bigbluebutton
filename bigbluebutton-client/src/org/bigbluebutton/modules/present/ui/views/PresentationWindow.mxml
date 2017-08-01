@@ -92,6 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.events.VotePollEvent;
 			import org.bigbluebutton.modules.polling.views.PollChoicesModal;
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
+			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -343,7 +344,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 slideView.visible = true;
                 var page : Page = PresentationModel.getInstance().getCurrentPage();
                 if (page != null) {
-                    displaySlideNumber(page.num);
+                    displaySlideNumber(page.num); 
                 }
 
                 if (UsersUtil.amIPresenter()) {
