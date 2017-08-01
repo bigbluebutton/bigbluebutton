@@ -263,10 +263,13 @@ class UserListItem extends Component {
         <span className={styles.userNameMain}>
           {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
         </span>
-        <span className={styles.userNameSub}>
-          {userNameSub
-            .reduce((prev, curr) => [prev, ' | ', curr])}
-        </span>
+        {
+          userNameSub ?
+            <span className={styles.userNameSub}>
+              {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
+            </span>
+          : null
+        }
       </div>
     );
   }
