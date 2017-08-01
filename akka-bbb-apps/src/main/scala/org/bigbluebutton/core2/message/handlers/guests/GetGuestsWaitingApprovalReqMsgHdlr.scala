@@ -1,16 +1,15 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.GetGuestsWaitingApprovalReqMsg
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.GuestsWaiting
-import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait GetGuestsWaitingApprovalReqMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleGetGuestsWaitingApprovalReqMsg(msg: GetGuestsWaitingApprovalReqMsg): Unit = {
     val guests = GuestsWaiting.findAll(liveMeeting.guestsWaiting)
@@ -20,7 +19,7 @@ trait GetGuestsWaitingApprovalReqMsgHdlr extends HandlerHelpers {
       guests
     )
 
-    Sender.send(outGW, event)
+    outGW.send(event)
 
   }
 

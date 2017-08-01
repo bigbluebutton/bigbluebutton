@@ -1,14 +1,14 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait BroadcastLayoutMsgHdlr {
   this: LayoutApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleBroadcastLayoutMsg(msg: BroadcastLayoutMsg): Unit = {
     Layouts.setCurrentLayout(msg.body.layout)

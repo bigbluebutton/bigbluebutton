@@ -1,93 +1,17 @@
 package org.bigbluebutton.core.running
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.RecordingStatusChanged
-import org.bigbluebutton.core.{ MessageRecorder, OutMessageGateway }
+import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg }
+import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
+import org.bigbluebutton.core.domain.{ MeetingState2x }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender, UserJoinedMeetingEvtMsgBuilder }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
 
-trait HandlerHelpers {
+trait HandlerHelpers extends SystemConfiguration {
 
-  def validateTokenFailed(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
-                          valid: Boolean, waitForApproval: Boolean): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(
-      meetingId,
-      userId, authToken, valid, waitForApproval
-    )
-    Sender.send(outGW, event)
-
-    // TODO: Should disconnect user here.
-  }
-
-  def sendValidateAuthTokenRespMsg(outGW: OutMessageGateway, meetingId: String, userId: String, authToken: String,
-                                   valid: Boolean, waitForApproval: Boolean): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(
-      meetingId,
-      userId, authToken, valid, waitForApproval
-    )
-    Sender.send(outGW, event)
-  }
-
-  def userValidatedButNeedToWaitForApproval(outGW: OutMessageGateway, liveMeeting: LiveMeeting,
-                                            user: RegisteredUser): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
-    sendValidateAuthTokenRespMsg(outGW, meetingId, user.id, user.authToken, valid = true, waitForApproval = false)
-
-    val guest = GuestWaiting(user.id, user.name, user.role)
-    addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
-    notifyModeratorsOfGuestWaiting(outGW, Vector(guest), liveMeeting.users2x, meetingId)
-  }
-
-  def addGuestToWaitingForApproval(guest: GuestWaiting, guestsWaitingList: GuestsWaiting): Unit = {
-    GuestsWaiting.add(guestsWaitingList, guest)
-  }
-
-  def userValidatedAndNoNeedToWaitForApproval(
-    outGW:       OutMessageGateway,
-    liveMeeting: LiveMeeting,
-    user:        RegisteredUser
-  ): Unit = {
-
-    println("**************** userValidatedAndNoNeedToWaitForApproval")
-
-    val meetingId = liveMeeting.props.meetingProp.intId
-    sendValidateAuthTokenRespMsg(outGW, meetingId,
-      userId = user.id, authToken = user.authToken, valid = true, waitForApproval = false)
-
-    // TODO: REMOVE Temp only so we can implement user handling in client. (ralam june 21, 2017)
-
-    sendAllUsersInMeeting(outGW, user.id, liveMeeting)
-    sendAllVoiceUsersInMeeting(outGW, user.id, liveMeeting.voiceUsers, meetingId)
-    sendAllWebcamStreams(outGW, user.id, liveMeeting.webcams, meetingId)
-    userJoinMeeting(outGW, user.authToken, liveMeeting)
-    if (!Users2x.hasPresenter(liveMeeting.users2x)) {
-      automaticallyAssignPresenter(outGW, liveMeeting)
-    }
-  }
-
-  def notifyModeratorsOfGuestWaiting(outGW: OutMessageGateway, guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
-    val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
-    mods foreach { m =>
-      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
-      Sender.send(outGW, event)
-    }
-  }
-
-  def sendAllUsersInMeeting(outGW: OutMessageGateway, requesterId: String, liveMeeting: LiveMeeting): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
-    val users = Users2x.findAll(liveMeeting.users2x)
-    val webUsers = users.map { u =>
-      WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
-        guest = u.guest, authed = u.authed, waitingForAcceptance = u.waitingForAcceptance, emoji = u.emoji,
-        locked = u.locked, presenter = u.presenter, avatar = u.avatar)
-    }
-
-    val event = MsgBuilder.buildGetUsersMeetingRespMsg(meetingId, requesterId, webUsers)
-    Sender.send(outGW, event)
-  }
-
-  def sendAllWebcamStreams(outGW: OutMessageGateway, requesterId: String, webcams: Webcams, meetingId: String): Unit = {
+  def sendAllWebcamStreams(outGW: OutMsgRouter, requesterId: String, webcams: Webcams, meetingId: String): Unit = {
     val streams = org.bigbluebutton.core.models.Webcams.findAll(webcams)
     val webcamStreams = streams.map { u =>
       val msVO = MediaStreamVO(id = u.stream.id, url = u.stream.url, userId = u.stream.userId,
@@ -97,27 +21,15 @@ trait HandlerHelpers {
     }
 
     val event = MsgBuilder.buildGetWebcamStreamsMeetingRespMsg(meetingId, requesterId, webcamStreams)
-    Sender.send(outGW, event)
+    outGW.send(event)
   }
 
-  def sendAllVoiceUsersInMeeting(outGW: OutMessageGateway, requesterId: String,
-                                 voiceUsers: VoiceUsers,
-                                 meetingId:  String): Unit = {
-
-    val vu = VoiceUsers.findAll(voiceUsers).map { u =>
-      VoiceConfUser(intId = u.intId, voiceUserId = u.voiceUserId, callingWith = u.callingWith, callerName = u.callerName,
-        callerNum = u.callerNum, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
-    }
-
-    val event = MsgBuilder.buildGetVoiceUsersMeetingRespMsg(meetingId, requesterId, vu)
-    Sender.send(outGW, event)
-  }
-
-  def userJoinMeeting(outGW: OutMessageGateway, authToken: String, liveMeeting: LiveMeeting): Unit = {
-    for {
+  def userJoinMeeting(outGW: OutMsgRouter, authToken: String,
+                      liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+    val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
-      val userState = UserState(
+      UserState(
         intId = regUser.id,
         extId = regUser.externId,
         name = regUser.name,
@@ -130,28 +42,50 @@ trait HandlerHelpers {
         locked = false,
         avatar = regUser.avatarURL
       )
+    }
 
-      Users2x.add(liveMeeting.users2x, userState)
+    nu match {
+      case Some(newUser) =>
+        Users2x.add(liveMeeting.users2x, newUser)
 
-      val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, userState)
-      Sender.send(outGW, event)
-
-      MessageRecorder.record(outGW, liveMeeting.props.recordProp.record, event.core)
-      startRecordingIfAutoStart2x(liveMeeting)
+        val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
+        outGW.send(event)
+        startRecordingIfAutoStart2x(outGW, liveMeeting)
+        if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+          automaticallyAssignPresenter(outGW, liveMeeting)
+        }
+        state.update(state.expiryTracker.setUserHasJoined())
+      case None =>
+        state
     }
   }
 
-  def startRecordingIfAutoStart2x(liveMeeting: LiveMeeting): Unit = {
+  def startRecordingIfAutoStart2x(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     if (liveMeeting.props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
 
       MeetingStatus2x.recordingStarted(liveMeeting.status)
-      //     outGW.send(new RecordingStatusChanged(props.meetingProp.intId, props.recordProp.record,
-      //       "system", MeetingStatus2x.isRecording(liveMeeting.status)))
+
+      def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
+        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+        val envelope = BbbCoreEnvelope(RecordingStatusChangedEvtMsg.NAME, routing)
+        val body = RecordingStatusChangedEvtMsgBody(recording, userId)
+        val header = BbbClientMsgHeader(RecordingStatusChangedEvtMsg.NAME, meetingId, userId)
+        val event = RecordingStatusChangedEvtMsg(header, body)
+
+        BbbCommonEnvCoreMsg(envelope, event)
+      }
+
+      val event = buildRecordingStatusChangedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)
+      )
+      outGW.send(event)
+
     }
   }
 
-  def automaticallyAssignPresenter(outGW: OutMessageGateway, liveMeeting: LiveMeeting): Unit = {
+  def automaticallyAssignPresenter(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
     for {
       moderator <- Users2x.findModerator(liveMeeting.users2x)
@@ -161,8 +95,109 @@ trait HandlerHelpers {
     }
   }
 
-  def sendPresenterAssigned(outGW: OutMessageGateway, meetingId: String, intId: String, name: String, assignedBy: String): Unit = {
+  def sendPresenterAssigned(outGW: OutMsgRouter, meetingId: String, intId: String, name: String, assignedBy: String): Unit = {
     def event = MsgBuilder.buildPresenterAssignedEvtMsg(meetingId, intId, name, assignedBy)
     outGW.send(event)
+  }
+
+  def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String): Unit = {
+    def buildMeetingEndingEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+      val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
+      val body = MeetingEndingEvtMsgBody(meetingId, reason)
+      val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
+      val event = MeetingEndingEvtMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    val endingEvent = buildMeetingEndingEvtMsg(liveMeeting.props.meetingProp.intId)
+
+    // Broadcast users the meeting will end
+    outGW.send(endingEvent)
+
+    MeetingStatus2x.meetingHasEnded(liveMeeting.status)
+
+    def buildMeetingEndedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+      val envelope = BbbCoreEnvelope(MeetingEndedEvtMsg.NAME, routing)
+      val body = MeetingEndedEvtMsgBody(meetingId)
+      val header = BbbCoreBaseHeader(MeetingEndedEvtMsg.NAME)
+      val event = MeetingEndedEvtMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    val endedEvnt = buildMeetingEndedEvtMsg(liveMeeting.props.meetingProp.intId)
+    outGW.send(endedEvnt)
+  }
+
+  def destroyMeeting(eventBus: InternalEventBus, meetingId: String): Unit = {
+    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, new DestroyMeetingInternalMsg(meetingId)))
+  }
+
+  def notifyParentThatBreakoutEnded(eventBus: InternalEventBus, liveMeeting: LiveMeeting): Unit = {
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      eventBus.publish(BigBlueButtonEvent(
+        liveMeeting.props.breakoutProps.parentId,
+        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)
+      ))
+    }
+  }
+
+  def ejectAllUsersFromVoiceConf(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf)
+    outGW.send(event)
+  }
+
+  def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    endMeeting(outGW, liveMeeting, reason)
+    notifyParentThatBreakoutEnded(eventBus, liveMeeting)
+    ejectAllUsersFromVoiceConf(outGW, liveMeeting)
+    destroyMeeting(eventBus, liveMeeting.props.meetingProp.intId)
+  }
+
+  def sendEndMeetingDueToExpiry2(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+
+    val endMeetingEvt = buildMeetingEndingEvtMsg(reason, meetingId)
+    outGW.send(endMeetingEvt)
+
+    val endedEvt = buildMeetingEndedEvtMsg(meetingId)
+    outGW.send(endedEvt)
+
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      eventBus.publish(BigBlueButtonEvent(
+        liveMeeting.props.breakoutProps.parentId,
+        new BreakoutRoomEndedInternalMsg(meetingId)
+      ))
+    }
+
+    val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(meetingId, liveMeeting.props.voiceProp.voiceConf)
+    outGW.send(event)
+
+    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, new DestroyMeetingInternalMsg(meetingId)))
+
+    MeetingStatus2x.meetingHasEnded(liveMeeting.status)
+  }
+
+  def buildMeetingEndingEvtMsg(reason: String, meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(MeetingEndingEvtMsg.NAME, routing)
+    val body = MeetingEndingEvtMsgBody(meetingId, reason)
+    val header = BbbClientMsgHeader(MeetingEndingEvtMsg.NAME, meetingId, "not-used")
+    val event = MeetingEndingEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingEndedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingEndedEvtMsg.NAME, routing)
+    val body = MeetingEndedEvtMsgBody(meetingId)
+    val header = BbbCoreBaseHeader(MeetingEndedEvtMsg.NAME)
+    val event = MeetingEndedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
   }
 }

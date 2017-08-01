@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.sharednotes
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait GetSharedNotesPubMsgHdlr {
   this: SharedNotesApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleGetSharedNotesPubMsg(msg: GetSharedNotesPubMsg): Unit = {
 

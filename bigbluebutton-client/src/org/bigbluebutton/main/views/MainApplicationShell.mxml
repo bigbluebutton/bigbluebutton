@@ -31,7 +31,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:api="org.bigbluebutton.main.api.*"
 		xmlns:common="org.bigbluebutton.common.*"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		backgroundColor="white" styleName="mainVBox"
 		creationComplete="initializeShell()"
 		addedToStage="onAddedToStage()"
 		verticalGap="0">
@@ -79,7 +78,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
 		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
 		<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
-		<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
+		<mate:Listener type="{NewGuestWaitingEvent.NEW_GUEST_WAITING}" method="refreshGuestView" />
 		<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
 		<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
 		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
@@ -109,7 +108,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -119,6 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
@@ -131,7 +130,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
-			import org.bigbluebutton.main.events.RefreshGuestEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.Guest;
 			import org.bigbluebutton.main.model.ImageLoader;
@@ -146,6 +144,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -154,7 +153,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
-			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;
@@ -168,9 +166,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
 			
-			[Bindable] private var fullscreen_icon:Class = images.full_screen;
-			[Bindable] private var logs_icon:Class = images.table;
-
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			
@@ -184,15 +179,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var layoutOptions:LayoutOptions;
 			[Bindable] private var brandingOptions:BrandingOptions;
+			[Bindable] private var usersOptions:UsersOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
 			[Bindable] private var _showToolbar:Boolean = true;
-			private const DEFAULT_TOOLBAR_HEIGHT:Number = 32;
+			private const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
 			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
 			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
-			[Bindable] private var footerHeight:Number = 24;
+			[Bindable] private var footerHeight:Number = 60;
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
@@ -221,7 +217,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function initOptions(e:Event):void {
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
-
+				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
+				
 				updateCopyrightText();
 				loadBackground();
 
@@ -428,7 +425,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var appHeight:Number = parentApplication.height;
 				
 				mdiCanvas.width = appWidth;
-				mdiCanvas.height = appHeight - (_showFooter? footerHeight: 0) - (_showToolbar? toolbarHeight: 0);
+				mdiCanvas.height = appHeight - (_showFooter ? footerHeight: 0) - (_showToolbar ? toolbarHeight: 0);
 				updateCanvasBackgroundDimensions();
 			}
 			
@@ -483,11 +480,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					LOGGER.debug("Switching to full screen");
-					fullscreen_icon = images.exit_full_screen;
+					fullScreenBtn.styleName = "exitFullScreenButton"
 					hideToolbars();
 				} else {
 					LOGGER.debug("Switching to normal screen");
-					fullscreen_icon = images.full_screen;
+					fullScreenBtn.styleName = "fullScreenButton"
 					showToolbars();
 				}
 			}			
@@ -499,9 +496,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			private function refreshGuestView(evt:RefreshGuestEvent):void {
+			private function refreshGuestView(evt:NewGuestWaitingEvent):void {
 				// do not show the guest window if the user isn't moderator or if he's waiting for acceptance
-				if (!UsersUtil.amIModerator() || UsersUtil.amIWaitingForAcceptance()) {
+				if (!UsersUtil.amIModerator() || UsersUtil.amIWaitingForAcceptance() && usersOptions.enableGuestUI) {
 					closeGuestWindow();
 					return;
 				}
@@ -513,7 +510,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;
 					guestWindow.y = 20;
 				}
-				guestWindow.refreshGuestView(evt.listOfGuests);
+				guestWindow.refreshGuestView();
 			}
 
 			public function removeGuestWindow(evt:BBBEvent):void {
@@ -1029,14 +1026,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   paddingTop="{toolbarPaddingTop}"
 					   updateComplete="updateToolbarHeight()"
 					   paddingBottom="0" />
-					   
-	<views:MainCanvas id="mdiCanvas" 
-					  horizontalScrollPolicy="off" 
-					  verticalScrollPolicy="off" 
-					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
-					  width="100%" >
+				
+	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
+	<views:MainCanvas id="mdiCanvas"
+					  horizontalScrollPolicy="off"
+					  verticalScrollPolicy="off"
+					  styleName="mdiCanvasStyle"
+					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
+					  height="150"
+					  width="100%">
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
-		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
@@ -1058,24 +1058,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				visible="{isTunneling}"
 				includeInLayout="{isTunneling}" />
 		<views:WarningButton id="warningBtn" 
-				width="23"
-				height="20"/>
+				width="30"
+				height="30"/>
 		<views:LanguageSelector id="langSelector" 
 				visible="false" 
-				height="20"
+				height="30"
 				width="180"
-				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle"/>
+				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 		<mx:Button
-				width="20"
-				height="20"
+				width="30"
+				height="30"
 				visible="{layoutOptions.showLogButton}"
 				includeInLayout="{layoutOptions.showLogButton}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
 				id="logBtn"
-				icon="{logs_icon}"
+				styleName="logsButton"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
-		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
+		<mx:Button width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
 	</mx:ControlBar>
 </mx:VBox>

@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.caption
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait UpdateCaptionOwnerPubMsgHdlr {
   this: CaptionApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleUpdateCaptionOwnerPubMsg(msg: UpdateCaptionOwnerPubMsg): Unit = {
     updateCaptionOwner(msg.body.locale, msg.body.localeCode, msg.body.ownerId).foreach(f => {

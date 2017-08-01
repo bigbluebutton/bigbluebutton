@@ -30,19 +30,28 @@
         DESKSHARE_RTMP_BROADCAST_STOPPED: "deskshare_rtmp_broadcast_stopped_message",
 
         //Message identifiers 2x
-        DESKSHARE_RTMP_BROADCAST_STARTED_2x: "DeskshareRtmpBroadcastStartedVoiceConfEvtMsg",
-        DESKSHARE_RTMP_BROADCAST_STOPPED_2x: "DeskshareRtmpBroadcastStoppedVoiceConfEvtMsg",
+        SCREENSHARE_RTMP_BROADCAST_STARTED_2x: "ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg",
+        SCREENSHARE_RTMP_BROADCAST_STOPPED_2x: "ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg",
+        START_TRANSCODER_REQ_2x: "StartTranscoderSysReqMsg",
+        START_TRANSCODER_RESP_2x: "StartTranscoderSysRespMsg",
+        STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
+        STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
 
         // Redis messages fields
-        //  Transcoder
+        //  Transcoder 1x
         USER_ID : "user_id",
         OPTIONS: "options",
         VOICE_CONF_ID : "voice_conf_id",
         TRANSCODER_ID : "transcoder_id",
 
-        //  Screenshare
+        // Transcoder 2x
+        USER_ID_2x : "userId",
+        TRANSCODER_ID_2x : "transcoderId",
+        MEETING_ID_2x: "meetingId",
+
+        //  Screenshare 2x
         CONFERENCE_NAME: "voiceConf",
-        SCREENSHARE_CONF: "deskshareConf",
+        SCREENSHARE_CONF: "screenshareConf",
         STREAM_URL: "stream",
         TIMESTAMP: "timestamp",
         VIDEO_WIDTH: "vidWidth",

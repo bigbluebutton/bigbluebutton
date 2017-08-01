@@ -1,16 +1,15 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.{ GuestApprovedVO, GuestsWaitingApprovedMsg }
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.{ GuestsWaiting, RegisteredUsers, Roles, Users2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleGuestsWaitingApprovedMsg(msg: GuestsWaitingApprovedMsg): Unit = {
     msg.body.guests foreach { g =>
@@ -35,7 +34,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
         g.intId, guest.approved, approvedBy
       )
 
-      Sender.send(outGW, event)
+      outGW.send(event)
 
     }
   }
@@ -47,7 +46,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
         liveMeeting.props.meetingProp.intId,
         m.intId, guests, approvedBy
       )
-      Sender.send(outGW, event)
+      outGW.send(event)
     }
   }
 }

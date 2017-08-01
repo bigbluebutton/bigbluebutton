@@ -30,7 +30,7 @@ class BreakoutRoomsUtilSpec extends UnitSpec {
     params += "password" -> BreakoutRoomsUtil.urlEncode("mp")
     params += "redirect" -> BreakoutRoomsUtil.urlEncode("true")
 
-    val result = BreakoutRoomsUtil.createBaseString(params)
+    val result = BreakoutRoomsUtil.createBaseString(params.toMap)
     assert(result == baseString)
   }
 

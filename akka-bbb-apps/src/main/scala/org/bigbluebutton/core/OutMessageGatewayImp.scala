@@ -7,29 +7,21 @@ import org.bigbluebutton.core.bus._
 
 object OutMessageGatewayImp {
   def apply(
-    outgoingEventBus: OutgoingEventBus,
-    outBus2:          OutEventBus2,
-    recordBus:        RecordingEventBus
+    outBus2: OutEventBus2
   ) =
-    new OutMessageGatewayImp(outgoingEventBus, outBus2, recordBus)
+    new OutMessageGatewayImp(outBus2)
 }
 
 class OutMessageGatewayImp(
-  outgoingEventBus: OutgoingEventBus,
-  outBus2:          OutEventBus2,
-  recordBus:        RecordingEventBus
+  outBus2: OutEventBus2
 ) extends OutMessageGateway
     with SystemConfiguration {
-
-  def send1(msg: IOutMessage) {
-    outgoingEventBus.publish(BigBlueButtonOutMessage(outMessageChannel, msg))
-  }
 
   def send(msg: BbbCommonEnvCoreMsg): Unit = {
     outBus2.publish(BbbOutMessage(outBbbMsgMsgChannel, msg))
   }
 
-  def record(msg: BbbCoreMsg): Unit = {
-    recordBus.publish(BbbRecordMessage(recordServiceMessageChannel, msg))
+  def record(msg: BbbCommonEnvCoreMsg): Unit = {
+    outBus2.publish(BbbOutMessage(recordServiceMessageChannel, msg))
   }
 }

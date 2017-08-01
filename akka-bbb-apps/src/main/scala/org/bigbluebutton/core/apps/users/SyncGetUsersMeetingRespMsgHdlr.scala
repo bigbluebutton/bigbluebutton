@@ -1,15 +1,14 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait SyncGetUsersMeetingRespMsgHdlr {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSyncGetUsersMeetingRespMsg(): Unit = {
     log.debug("Handling SyncGetUsersMeetingRespMsg")

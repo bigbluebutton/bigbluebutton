@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.running
 
 import akka.actor.ActorContext
-import org.bigbluebutton.common2.domain.{ DefaultProps }
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
@@ -10,38 +10,39 @@ import org.bigbluebutton.core2.MeetingStatus2x
 
 object RunningMeeting {
   def apply(props: DefaultProps, outGW: OutMessageGateway,
-            eventBus: IncomingEventBus)(implicit context: ActorContext) =
+            eventBus: InternalEventBus)(implicit context: ActorContext) =
     new RunningMeeting(props, outGW, eventBus)(context)
 }
 
-class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
-                     val eventBus: IncomingEventBus)(implicit val context: ActorContext) {
+class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
+                     eventBus: InternalEventBus)(implicit val context: ActorContext) {
 
-  val chatModel = new ChatModel()
-  val layoutModel = new LayoutModel()
-  val layouts = new Layouts()
-  val wbModel = new WhiteboardModel()
-  val presModel = new PresentationModel()
-  val breakoutRooms = new BreakoutRooms()
-  val captionModel = new CaptionModel()
-  val notesModel = new SharedNotesModel()
-  val registeredUsers = new RegisteredUsers
-  val meetingStatux2x = new MeetingStatus2x
-  val webcams = new Webcams
-  val voiceUsers = new VoiceUsers
-  val users2x = new Users2x
-  val polls2x = new Polls
-  val guestsWaiting = new GuestsWaiting
-  val deskshareModel = new ScreenshareModel
+  private val chatModel = new ChatModel()
+  private val layoutModel = new LayoutModel()
+  private val layouts = new Layouts()
+  private val wbModel = new WhiteboardModel()
+  private val presModel = new PresentationModel()
+  private val captionModel = new CaptionModel()
+  private val notesModel = new SharedNotesModel()
+  private val registeredUsers = new RegisteredUsers
+  private val meetingStatux2x = new MeetingStatus2x
+  private val webcams = new Webcams
+  private val voiceUsers = new VoiceUsers
+  private val users2x = new Users2x
+  private val polls2x = new Polls
+  private val guestsWaiting = new GuestsWaiting
+  private val deskshareModel = new ScreenshareModel
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
-    registeredUsers, polls2x, wbModel, presModel, breakoutRooms, captionModel,
+  private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
+    registeredUsers, polls2x, wbModel, presModel, captionModel,
     notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 
-  val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outGW, liveMeeting), props.meetingProp.intId)
+  val outMsgRouter = new OutMsgRouter(props.recordProp.record, outGW)
+
+  val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outMsgRouter, liveMeeting), props.meetingProp.intId)
 
 }

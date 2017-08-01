@@ -102,6 +102,13 @@ case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: Record
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
 
 /**
+  * Sent by user to get status of screenshare (meant for late joiners).
+  */
+object GetScreenshareStatusReqMsg { val NAME = "GetScreenshareStatusReqMsg" }
+case class GetScreenshareStatusReqMsg(header: BbbClientMsgHeader, body: GetScreenshareStatusReqMsgBody) extends StandardMsg
+case class GetScreenshareStatusReqMsgBody(requestedBy: String)
+
+/**
   * Sent from client about a user changing emoji.
   */
 object ChangeUserEmojiCmdMsg { val NAME = "ChangeUserEmojiCmdMsg" }
@@ -166,6 +173,14 @@ case class UserLockedInMeetingEvtMsg(header: BbbClientMsgHeader, body: UserLocke
 case class UserLockedInMeetingEvtMsgBody(userId: String, locked: Boolean, lockedBy: String)
 
 /**
+  * Sent by client to lock users.
+  */
+object LockUsersInMeetingCmdMsg { val NAME = "LockUsersInMeetingCmdMsg" }
+case class LockUsersInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUsersInMeetingCmdMsgBody) extends StandardMsg
+case class LockUsersInMeetingCmdMsgBody(lock: Boolean, lockedBy: String, except: Vector[String])
+
+
+/**
   * Sent by client to check if meeting is locked.
   */
 object IsMeetingLockedReqMsg { val NAME = "IsMeetingLockedReqMsg" }
@@ -192,6 +207,23 @@ case class LockSettingsInMeetingChangedEvtMsg(header: BbbClientMsgHeader,
 case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
                                               disablePubChat: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                               lockOnJoinConfigurable: Boolean, setBy: String)
+
+/**
+  * Sent by client to query the lock settings.
+  */
+object GetLockSettingsReqMsg { val NAME = "GetLockSettingsReqMsg" }
+case class GetLockSettingsReqMsg(header: BbbClientMsgHeader, body: GetLockSettingsReqMsgBody) extends StandardMsg
+case class GetLockSettingsReqMsgBody(requesterId: String)
+
+/**
+  * Response to the query for lock settings.
+  */
+object GetLockSettingsRespMsg { val NAME = "GetLockSettingsRespMsg" }
+case class GetLockSettingsRespMsg(header: BbbClientMsgHeader, body: GetLockSettingsRespMsgBody) extends BbbCoreMsg
+case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
+                                      disablePubChat: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                      lockOnJoinConfigurable: Boolean)
+
 
 /**
   * Sent from client to logout and end meeting.

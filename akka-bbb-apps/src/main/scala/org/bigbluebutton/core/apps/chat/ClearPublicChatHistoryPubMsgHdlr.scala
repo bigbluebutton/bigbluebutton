@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.chat
 
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ChatModel
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait ClearPublicChatHistoryPubMsgHdlr {
   this: ChatApp2x =>
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleClearPublicChatHistoryPubMsg(msg: ClearPublicChatHistoryPubMsg): Unit = {
     def broadcastEvent(msg: ClearPublicChatHistoryPubMsg): Unit = {

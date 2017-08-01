@@ -44,46 +44,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_INSTALL}" method="displayInstall" />
 		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_RETRY}" method="displayRetry" />
 		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_FALLBACK}" method="displayFallback" />
+		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_VIDEO_LOADING}" method="displayLoadingScreen" />
 	</fx:Declarations>
 
 	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.core.Options;
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import flash.external.ExternalInterface;
+			
 			import mx.core.UIComponent;
-
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
-			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
-			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
+			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
+			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
+			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
+			import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
+			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
-			import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
-			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.main.api.JSLog;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopPublishWindow);
 
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
 			private static const VID_WIDTH_PAD:Number = 6;
-
-			private var images:Images = new Images();
-			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 
 			private var connection:NetConnection;
 			private var uri:String;
@@ -124,6 +122,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ExternalInterface.addCallback("isNotIncognito", isNotIncognito);
 					ExternalInterface.call("checkIfIncognito", "isIncognito", "isNotIncognito");
 				}
+			}
+
+			private function displayLoadingScreen(e:Event):void {
+				setCurrentState("displayLoadingScreen");
 			}
 
 			private function onInstallButtonClicked():void {
@@ -343,7 +345,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				streaming = false;
 				captureHeight = Capabilities.screenResolutionY;
 				captureWidth = Capabilities.screenResolutionX;
-				ns.close();
+				if (ns != null) {
+					ns.close();
+				}
 			}
 
 			private function onAsyncError(e:AsyncErrorEvent):void{
@@ -426,6 +430,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:State name="displayInstall" />
 		<mx:State name="displayRetry" />
 		<mx:State name="displayFallback" />
+		<mx:State name="displayLoadingScreen" />
 	</dspub:states>
 
 	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
@@ -470,6 +475,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 			<mx:HBox width="100%" height="100%" horizontalAlign="center">
 				<mx:Button id="btnFallback" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCUseJavaButton.label')}" visible="true" enabled="true" click="onFallbackButtonClicked()" />
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox includeIn="displayLoadingScreen" width="100%" height="100%" horizontalAlign="center">
+			<mx:HBox width="100%" height="100%" horizontalAlign="center">
+				<mx:Text fontSize="16" width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCVideoLoading.label')}" />
 			</mx:HBox>
 		</mx:VBox>
 	</mx:VBox>

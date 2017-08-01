@@ -15,7 +15,7 @@ import org.bigbluebutton.transcode.core.ffmpeg.FFmpegConstants;
 import org.bigbluebutton.transcode.core.ffmpeg.FFmpegUtils;
 import org.bigbluebutton.transcode.core.processmonitor.ProcessMonitor;
 import org.bigbluebutton.transcode.core.processmonitor.ProcessMonitorObserver;
-import org.bigbluebutton.common.messages.Constants;
+import org.bigbluebutton.transcode.util.Constants;
 
 import akka.actor.UntypedActor;
 import akka.actor.ActorRef;

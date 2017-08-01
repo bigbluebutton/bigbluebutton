@@ -8,7 +8,11 @@ package org.bigbluebutton.modules.users.views
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.model.users.VoiceUser2x;
+  import org.bigbluebutton.main.events.StartedViewingWebcamEvent;
+  import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
+  import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+  import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.users.views.model.BBBUser2x;
   import org.bigbluebutton.modules.users.views.model.BBBVoiceUser2x;
   
@@ -86,15 +90,14 @@ package org.bigbluebutton.modules.users.views
       users.refresh();
     }
     
-    private function getWebcamStreamsForUser(userId: String): String {
+    private function getWebcamStreamsForUser(userId: String): Array {
       var streamIds: Array = LiveMeeting.inst().webcams.getStreamIdsForUser(userId);
-      var streams:String = "";
-      for each(var stream:String in streamIds) {
-        streams = streams + stream + "|";
-      }
-      //Remove last |
-      streams = streams.slice(0, streams.length-1);
-      return streams;
+      return streamIds;
+    }
+    
+    private function getWebcamStreamsViewingForUser(userId: String): Array {
+        var streamIds: Array = LiveMeeting.inst().webcams.getStreamIdsIAmViewingForUser(userId);
+        return streamIds;
     }
     
     private function addUser(users: ArrayCollection, user: User2x):void {
@@ -107,7 +110,8 @@ package org.bigbluebutton.modules.users.views
       buser.locked = user.locked;
       buser.emojiStatus = user.emoji;
       buser.presenter = user.presenter;
-      buser.streamName = getWebcamStreamsForUser(buser.userId);
+      buser.streams = getWebcamStreamsForUser(buser.userId);
+      buser.viewedStream = getWebcamStreamsViewingForUser(buser.userId);
       
       buser.inVoiceConf = false;
       
@@ -131,7 +135,6 @@ package org.bigbluebutton.modules.users.views
       var user: User2x = UsersUtil.getUser(event.userID);
       if (user != null) {
         addUser(users, user);
-        trace("!!!!!!!!!!!!!!!********* " + user.name + " " + user.presenter + " ********!!!!!!!!");
         users.refresh();
       }
     }
@@ -148,17 +151,13 @@ package org.bigbluebutton.modules.users.views
         
         // We want to remove the user if it's already in the collection and re-add it.
         removeUser(user.userId, users);
-        trace("Adding User joined to voice conference " + user.name + " id=" + user.userId);
         users.addItem(user);
       }
     }
     
-
-    
     public function handleUserJoinedVoiceConfEvent(userId: String):void {
       var webUser: BBBUser2x = findUser(userId);
       if (webUser != null) {
-        trace("User joined to voice conference " + webUser.name + " id=" + webUser.userId);
         addVoiceUserToWebUser(webUser);
       } else {
         var vu: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
@@ -174,7 +173,6 @@ package org.bigbluebutton.modules.users.views
       if (user != null) {
         removeVoiceFromWebUser(users, user);
       } else {
-          //removeVoiceOnlyUser(users, vu);
           removeUser(userId, users);
       }
       users.refresh();
@@ -246,6 +244,7 @@ package org.bigbluebutton.modules.users.views
       var user: BBBUser2x = findUser(userId);
       if (user != null) {
         user.talking = talking;
+        if (user.muted && talking) user.talking = false;
       }
       users.refresh();
     }
@@ -254,6 +253,49 @@ package org.bigbluebutton.modules.users.views
       var user: BBBUser2x = findUser(userId);
       if (user != null) {
         user.muted = muted;
+        if (muted) user.talking = false;
+      }
+      users.refresh();
+    }
+    
+    
+    private function refreshWebcamStreamsInfo(userId: String): void {
+        var user: BBBUser2x = findUser(userId);
+        if (user != null) {
+            user.streams = getWebcamStreamsForUser(user.userId);
+            user.viewedStream = getWebcamStreamsViewingForUser(user.userId);
+        }
+        users.refresh();
+    }
+    
+    public function handleStoppedViewingWebcamEvent(event: StoppedViewingWebcamEvent): void {
+        refreshWebcamStreamsInfo(event.webcamUserID);
+    }
+    
+    public function handleStartedViewingWebcamEvent(event: StartedViewingWebcamEvent): void {
+        refreshWebcamStreamsInfo(event.webcamUserID);
+    }
+    
+    public function handleStreamStartedEvent(event: StreamStartedEvent): void {
+        refreshWebcamStreamsInfo(event.userID);
+    }
+    
+    public function handleStreamStoppedEvent(event: StreamStoppedEvent): void {
+        refreshWebcamStreamsInfo(event.userId);
+    }
+    
+    public function handleMadePresenterEvent(userId: String): void {
+      var user: BBBUser2x = findUser(userId);
+      if (user != null) {
+        user.presenter = true;
+      }
+      users.refresh();
+    }
+    
+    public function handleMadeVieweEvent(userId: String): void {
+      var user: BBBUser2x = findUser(userId);
+      if (user != null) {
+        user.presenter = false;
       }
       users.refresh();
     }

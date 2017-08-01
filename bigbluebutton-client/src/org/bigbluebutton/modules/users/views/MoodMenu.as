@@ -19,7 +19,7 @@
 package org.bigbluebutton.modules.users.views {
 
 	import com.asfusion.mate.events.Dispatcher;
-	
+
 	import mx.collections.ArrayCollection;
 	import mx.containers.VBox;
 	import mx.controls.Button;
@@ -28,30 +28,17 @@ package org.bigbluebutton.modules.users.views {
 	import mx.events.FlexMouseEvent;
 	import mx.events.MenuEvent;
 	import mx.managers.PopUpManager;
-	import org.bigbluebutton.common.Images;
+
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.views.WellPositionedMenu;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class MoodMenu extends VBox {
-		private const MOODS:Array = [
-				"raiseHand",
-				"applause",
-				"agree",
-				"disagree",
-				"speakFaster",
-				"speakSlower",
-				"speakLouder",
-				"speakSofter",
-				"beRightBack",
-				"happy",
-				"sad",
-				"clear"];
+		private const MOODS:Array = ["raiseHand", "happy", "neutral", "sad", "confused", "away", "thumbsUp", "thumbsDown", "applause", "none"];
 
 		private var dispatcher:Dispatcher;
-
-		private var images:Images;
 
 		private var menu:Menu;
 
@@ -64,7 +51,6 @@ package org.bigbluebutton.modules.users.views {
 
 		public function MoodMenu() {
 			dispatcher = new Dispatcher();
-			images = new Images();
 			addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler, false, 0, true);
 			this.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
@@ -79,14 +65,11 @@ package org.bigbluebutton.modules.users.views {
 		private function drawMoodMenu():void {
 			var moods:ArrayCollection = new ArrayCollection();
 			for each (var mood:String in MOODS) {
-				if (mood == "clear" && UsersUtil.myEmoji() == "none") {
+				if (mood == "none" && UsersUtil.myEmoji() == "none") {
 					continue;
 				}
 
-				var item:Object = {
-					label: ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + mood),
-					icon: images["mood_" + mood]
-				};
+				var item:Object = {label: ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + mood), icon: getStyle("iconMood" + StringUtils.capitalize(mood))};
 
 				moods.addItem(item);
 			}
@@ -96,7 +79,7 @@ package org.bigbluebutton.modules.users.views {
 
 		protected function buttonMouseEventHandler(event:MenuEvent):void {
 			var mood:String = MOODS[event.index];
-			if (mood == "clear") {
+			if (mood == "none") {
 				dispatcher.dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none"));
 			} else {
 				var e:EmojiStatusEvent = new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, mood);

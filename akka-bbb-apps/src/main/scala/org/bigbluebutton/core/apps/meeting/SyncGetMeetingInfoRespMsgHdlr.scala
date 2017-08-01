@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.meeting
 
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait SyncGetMeetingInfoRespMsgHdlr {
 
-  val outGW: OutMessageGateway
+  val outGW: OutMsgRouter
 
   def handleSyncGetMeetingInfoRespMsg(props: DefaultProps): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, props.meetingProp.intId, "nodeJSapp")

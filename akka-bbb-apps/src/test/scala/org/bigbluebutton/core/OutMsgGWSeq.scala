@@ -5,17 +5,13 @@ import org.bigbluebutton.core.api.IOutMessage
 class OutMsgGWSeq extends OutMessageGateway {
   val msgs = new collection.mutable.Queue[BbbCoreMsg]
 
-  override def send1(msg: IOutMessage): Unit = {
-
-  }
-
   override def send(msg: BbbCommonEnvCoreMsg): Unit = {
     println(" Adding message " + msg)
     msgs += msg.core
     println(" Adding message length " + msgs.length)
   }
 
-  override def record(msg: BbbCoreMsg): Unit = {
+  override def record(msg: BbbCommonEnvCoreMsg): Unit = {
 
   }
 }

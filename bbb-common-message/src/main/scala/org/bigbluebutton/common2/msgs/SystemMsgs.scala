@@ -59,7 +59,7 @@ case class MeetingEndedEvtMsgBody(meetingId: String)
 object MeetingEndingEvtMsg { val NAME = "MeetingEndingEvtMsg"}
 case class MeetingEndingEvtMsg(header: BbbClientMsgHeader,
                               body: MeetingEndingEvtMsgBody) extends BbbCoreMsg
-case class MeetingEndingEvtMsgBody(meetingId: String)
+case class MeetingEndingEvtMsgBody(meetingId: String, reason: String)
 
 
 /**

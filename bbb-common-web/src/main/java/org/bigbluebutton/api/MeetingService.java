@@ -884,8 +884,6 @@ public class MeetingService implements MessageListener {
           processStunTurnInfoRequested((StunTurnInfoRequested) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
-        } else if (message instanceof EndBreakoutRoom) {
-          processEndBreakoutRoom((EndBreakoutRoom) message);
         }
       }
     };
