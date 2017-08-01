@@ -51,7 +51,9 @@ trait HandlerHelpers extends SystemConfiguration {
         val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
         outGW.send(event)
         startRecordingIfAutoStart2x(outGW, liveMeeting)
-
+        if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+          automaticallyAssignPresenter(outGW, liveMeeting)
+        }
         state.update(state.expiryTracker.setUserHasJoined())
       case None =>
         state

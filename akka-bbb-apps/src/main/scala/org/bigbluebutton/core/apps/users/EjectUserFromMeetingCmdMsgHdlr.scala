@@ -27,7 +27,10 @@ trait EjectUserFromMeetingCmdMsgHdlr {
         " userId=" + msg.body.userId)
 
       // send a system message to force disconnection
-      val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, user.intId)
+      val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        user.intId, "eject-user"
+      )
       outGW.send(ejectFromMeetingSystemEvent)
       log.info("Ejecting user from meeting (system msg).  meetingId=" + liveMeeting.props.meetingProp.intId +
         " userId=" + msg.body.userId)

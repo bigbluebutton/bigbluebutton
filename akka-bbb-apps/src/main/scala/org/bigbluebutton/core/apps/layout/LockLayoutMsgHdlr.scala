@@ -23,14 +23,14 @@ trait LockLayoutMsgHdlr {
       outGW.send(msgEvent)
     }
 
-    Layouts.applyToViewersOnly(msg.body.viewersOnly)
+    Layouts.applyToViewersOnly(liveMeeting.layouts, msg.body.viewersOnly)
     liveMeeting.lockLayout(msg.body.lock)
     broadcastEvent(msg)
 
     for {
       newLayout <- msg.body.layout
     } yield {
-      Layouts.setCurrentLayout(newLayout)
+      Layouts.setCurrentLayout(liveMeeting.layouts, newLayout, msg.header.userId)
       sendBroadcastLayoutEvtMsg(msg.header.userId)
     }
   }

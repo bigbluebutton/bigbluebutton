@@ -173,7 +173,6 @@ package org.bigbluebutton.modules.users.views
       if (user != null) {
         removeVoiceFromWebUser(users, user);
       } else {
-          //removeVoiceOnlyUser(users, vu);
           removeUser(userId, users);
       }
       users.refresh();
