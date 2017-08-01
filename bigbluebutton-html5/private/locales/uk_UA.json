@@ -1,5 +1,4 @@
 {
-    "app.home.greeting": "Ласкаво просимо {0}! Ваша презентація почнеться найближчим часом... ",
     "app.userlist.usersTitle": "Користувачі",
     "app.userlist.participantsTitle": "Учасники",
     "app.userlist.messagesTitle": "Повідомлення",
@@ -8,15 +7,7 @@
     "app.userlist.locked": "Блокований",
     "app.userlist.Label": "Лист учасників",
     "app.chat.submitLabel": "Надіслати повідомлення",
-    "app.chat.inputLabel": "Message input for chat {0}",
-    "app.chat.inputPlaceholder": "Повідомлення {0}",
     "app.chat.titlePublic": "Загальний чат",
-    "app.chat.titlePrivate": "Приватний чат з {0}",
-    "app.chat.partnerDisconnected": "{0} покинув конференцію",
-    "app.chat.closeChatLabel": "Закрити {0}",
-    "app.chat.hideChatLabel": "Приховати {0}",
-    "app.userlist.chatlistitem.unreadSingular": "{0} Нове повідомлення",
-    "app.userlist.chatlistitem.unreadPlural": "{0} Нових повідомленнь",
     "app.userlist.menu.chat.label": "Чат",
     "app.userlist.menu.clearStatus.label": "Очистити статус",
     "app.userlist.menu.makePresenter.label": "Зробити ведучим",
@@ -47,5 +38,6 @@
     "app.actionsBar.muteLabel": "Вимкнути мікрофон",
     "app.actionsBar.unmuteLabel": "Увімкнути мікрофон",
     "app.actionsBar.camOffLabel": "Вимкнути камеру",
-    "app.error.kicked": "Ви були виключени з конференції",
+    "app.error.kicked": "Ви були виключени з конференції"
 }
+
