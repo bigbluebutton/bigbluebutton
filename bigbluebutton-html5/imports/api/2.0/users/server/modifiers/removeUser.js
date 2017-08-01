@@ -18,7 +18,6 @@ export default function removeUser(meetingId, userId) {
     $set: {
       'user.connection_status': 'offline',
       'user.time_of_joining': 0,
-      'user.listenOnly': false,
       'user.validated': false,
       'user.emoji': 'none',
       'user.presenter': false,
