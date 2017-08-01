@@ -55,16 +55,16 @@ package org.bigbluebutton.modules.users.views.model
     public function set hasStream(s:Boolean):void {
       throw new Error("hasStream cannot be set. It is derived directly from streamName");
     }
-    
-    private var _viewingStream:Array = new Array();
+    [Bindable]
+    public var viewingStream:Array = new Array();
     
     public function isViewingAllStreams():Boolean {
-      return _viewingStream.length == _streamNames.length;
+      return viewingStream.length == _streamNames.length;
     }
     
     public function set viewedStream(streamIds: Array): void {
         if (streamIds != null) {
-            _viewingStream = streamIds;
+            viewingStream = streamIds;
         }
     }
     
@@ -85,9 +85,6 @@ package org.bigbluebutton.modules.users.views.model
     public function set streams(streamIds:Array):void {
       if (streamIds != null) {
           _streamNames = streamIds;
-//        for each(var streamId:String in _streamNames) {
-//          sharedWebcam(streamId);
-//        }
       }
     }
     
