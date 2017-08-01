@@ -19,8 +19,6 @@ trait SetCurrentPresentationPubMsgHdlr {
       val event = SetCurrentPresentationEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
-
-      //record(event)
     }
 
     for {

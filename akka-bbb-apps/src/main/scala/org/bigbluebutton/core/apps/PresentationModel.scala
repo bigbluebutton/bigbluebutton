@@ -56,11 +56,10 @@ class PresentationModel {
     })
 
     presentations.get(presId) match {
-      case Some(pres) => {
+      case Some(pres) =>
         val cp = pres.copy(current = true)
         savePresentation(cp)
         Some(cp)
-      }
       case None => None
     }
   }
@@ -98,17 +97,14 @@ class PresentationModel {
 
   private def makePageCurrent(pres: Presentation, pageId: String): Option[Presentation] = {
     pres.pages.get(pageId) match {
-      case Some(newCurPage) => {
+      case Some(newCurPage) =>
         val page = newCurPage.copy(current = true)
         val newPages = pres.pages + (page.id -> page)
         val newPres = pres.copy(pages = newPages)
         Some(newPres)
-        //        println("Making page[" + page.id + "] current[" + page.current + "]")
-      }
-      case None => {
-        //        println("Could not find page[" + page + "] in presentation [" + pres.id + "]")
+      case None =>
         None
-      }
+
     }
   }
 
