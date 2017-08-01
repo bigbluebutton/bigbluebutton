@@ -1825,7 +1825,8 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId());
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
+              true /* default presentation */ );
     } else {
       log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
@@ -1836,11 +1837,12 @@ class ApiController {
           // need to iterate over presentation files and process them
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId());
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), true /* default presentation */);
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
-              processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf.getInternalId());
+              processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+                      conf.getInternalId(), true /* default presentation */);
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
@@ -1850,7 +1852,7 @@ class ApiController {
     }
   }
 
-  def processDocumentFromRawBytes(bytes, presFilename, meetingId) {
+  def processDocumentFromRawBytes(bytes, presFilename, meetingId, current) {
     def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
     def presId = Util.generatePresentationId(presFilename)
@@ -1864,12 +1866,12 @@ class ApiController {
       fos.flush()
       fos.close()
 
-      processUploadedFile(meetingId, presId, presFilename, pres);
+      processUploadedFile(meetingId, presId, presFilename, pres, current);
     }
 
   }
 
-  def downloadAndProcessDocument(address, meetingId) {
+  def downloadAndProcessDocument(address, meetingId, current) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
     String presFilename = address.tokenize("/")[-1];
     def filenameExt = FilenameUtils.getExtension(presFilename);
@@ -1883,7 +1885,7 @@ class ApiController {
 
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
         def pres = new File(newFilePath)
-        processUploadedFile(meetingId, presId, presFilename, pres);
+        processUploadedFile(meetingId, presId, presFilename, pres, current);
       } else {
         log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
       }
@@ -1891,9 +1893,9 @@ class ApiController {
   }
 
 
-  def processUploadedFile(meetingId, presId, filename, presFile) {
+  def processUploadedFile(meetingId, presId, filename, presFile, current) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
-    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseUrl);
+    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseUrl, current);
     uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }

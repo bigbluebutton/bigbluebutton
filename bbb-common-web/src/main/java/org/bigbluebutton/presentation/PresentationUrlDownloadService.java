@@ -59,9 +59,9 @@ public class PresentationUrlDownloadService {
     }
 
     public void processUploadedFile(String meetingId, String presId,
-            String filename, File presFile) {
+            String filename, File presFile, Boolean current) {
         UploadedPresentation uploadedPres = new UploadedPresentation(meetingId,
-                presId, filename, presentationBaseURL);
+                presId, filename, presentationBaseURL, current);
         uploadedPres.setUploadedFile(presFile);
         processUploadedPresentation(uploadedPres);
     }
@@ -145,7 +145,7 @@ public class PresentationUrlDownloadService {
 
         processUploadedFile(destinationMeetingId, presId, "default-"
                 + presentationSlide.toString() + "." + filenameExt,
-                newPresentation);
+                newPresentation, true);
     }
 
     public String generatePresentationId(String name) {

@@ -18,7 +18,5 @@ trait NewPresentationMsgHdlr {
     val event = NewPresentationEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
     outGW.send(msgEvent)
-
-    //record(event)
   }
 }

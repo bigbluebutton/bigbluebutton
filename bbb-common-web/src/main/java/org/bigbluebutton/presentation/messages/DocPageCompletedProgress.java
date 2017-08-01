@@ -11,11 +11,12 @@ public class DocPageCompletedProgress implements IDocConversionMsg {
   public final String key;
   public final Integer numPages;
   public final String presBaseUrl;
+  public final Boolean current;
 
   public DocPageCompletedProgress(String meetingId, String presId, String presInstance,
                                   String filename, String uploaderId, String authzToken,
                                   Boolean downloadable, String key,
-                                  Integer numPages, String presBaseUrl) {
+                                  Integer numPages, String presBaseUrl, Boolean current) {
     this.meetingId = meetingId;
     this.presId = presId;
     this.presInstance = presInstance;
@@ -26,5 +27,6 @@ public class DocPageCompletedProgress implements IDocConversionMsg {
     this.key = key;
     this.numPages = numPages;
     this.presBaseUrl = presBaseUrl;
+    this.current = current;
   }
 }
