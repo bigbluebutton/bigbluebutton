@@ -92,6 +92,8 @@ class RedisRecorderActor(val system: ActorSystem)
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
+
+      case _                                        => // message not to be recorded.
     }
   }
 
