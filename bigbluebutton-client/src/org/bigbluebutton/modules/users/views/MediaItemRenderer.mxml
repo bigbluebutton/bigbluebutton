@@ -344,12 +344,12 @@
 			}
 		]]>
 	</fx:Script>
-	<mx:Canvas id="webcamCanvas" width="20" height="20" visible="{webcamImg.visible || webcamBtn.visible}" includeInLayout="{webcamCanvas.visible}">
+	<mx:Canvas id="webcamCanvas" width="28" height="20" visible="{webcamImg.visible || webcamBtn.visible}" includeInLayout="{webcamCanvas.visible}">
 		<mx:Image id="webcamImg" visible="false" source="{getStyle('iconWebcam')}"
 				  horizontalCenter="0" verticalCenter="0"
 				  toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
 		<mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{getStyle('iconWebcam')}"
-				   width="20" height="20" horizontalCenter="0" verticalCenter="0"
+				   width="28" height="20" horizontalCenter="0" verticalCenter="0"
 				   enabled="true" click="viewCamera()"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
 	</mx:Canvas>
