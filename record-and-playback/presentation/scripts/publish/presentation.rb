@@ -717,62 +717,73 @@ def processSlideEvents
     if(node[:timestamp].to_f > $rec_events.last[:stop_timestamp].to_f)
       next
     end
+
     eventname = node['eventname']
+    slide_timestamp =  node[:timestamp]
+    slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
+    orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
+
     if eventname == "SharePresentationEvent"
       $presentation_name = node.xpath(".//presentationName")[0].text()
+      slide_number = $presentation_current_slide[$presentation_name].to_i
+      BigBlueButton.logger.info("Switching to presentation #{$presentation_name}, saved slide is #{slide_number}")
+
+    elsif eventname == 'GotoSlide'
+      slide_number = node.xpath(".//slide")[0].text().to_i
+      BigBlueButton.logger.info("Switching to slide #{slide_number} in presentation #{$presentation_name}")
+
+    elsif eventname == "DeskshareStartedEvent"
+      deskshare_slide = true
+      slide_number = -1
+      BigBlueButton.logger.info("Started deskshare; slide area is cleared")
+
+    elsif eventname == "DeskshareStoppedEvent"
+      deskshare_slide = false
+      slide_number = $presentation_current_slide[$presentation_name].to_i
+      BigBlueButton.logger.info("Stopped deskshare; restoring slide #{slide_number} in presentation #{$presentation_name}")
+
     else
+      BigBlueButton.logger.warn("Unhandled event #{eventname} in processSlideEvents")
+      next
+    end
 
-      slide_timestamp = node[:timestamp]
-      if eventname == "DeskshareStartedEvent"
-        deskshare_slide = true
-        slide_number = -1
-      elsif eventname == "DeskshareStoppedEvent"
-        deskshare_slide = false
-        # TODO: Watch out for NPE
-        slide_number = getLastProcessedSlide(index).xpath(".//slide")[0].text().to_i
+    slide_number = slide_number < 0 ? 0 : slide_number
+    $presentation_current_slide[$presentation_name] = slide_number
+    slide_src = deskshare_slide ?
+        "presentation/deskshare/slide-1.png" :
+        "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
+    txt_file_path = deskshare_slide ?
+        "presentation/deskshare/slide-1.txt" :
+        "presentation/#{$presentation_name}/textfiles/slide-#{slide_number + 1}.txt"
+    slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
+    image_url = "#{$process_dir}/#{slide_src}"
+
+    if !File.exist?(image_url)
+      BigBlueButton.logger.warn("Missing image file #{slide_src}!")
+      # Emergency last-ditch blank image creation
+      if deskshare_slide
+        FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
+        command = "convert -size 1280x720 xc:transparent -background transparent #{image_url}"
       else
-        slide_number = node.xpath(".//slide")[0].text().to_i
+        FileUtils.mkdir_p("#{$process_dir}/presentation/#{$presentation_name}")
+        command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_url}"
       end
+      BigBlueButton.execute(command)
+    end
 
-      slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
-      orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
+    slide_size = FastImage.size(image_url)
+    if (index + 1 < $slides_events.length)
+      slide_end = ( translateTimestamp($slides_events[index + 1][:timestamp]) / 1000 ).round(1)
+      orig_slide_end = ( $slides_events[index + 1][:timestamp].to_f / 1000 ).round(1)
+    else
+      slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
+      orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
+    end
 
-      slide_number = slide_number < 0 ? 0 : slide_number
-      slide_src = deskshare_slide ?
-          "presentation/deskshare/slide-1.png" :
-          "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
-      txt_file_path = deskshare_slide ?
-          "presentation/deskshare/slide-1.txt" :
-          "presentation/#{$presentation_name}/textfiles/slide-#{slide_number + 1}.txt"
-      slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
-      image_url = "#{$process_dir}/#{slide_src}"
-
-      if !File.exist?(image_url)
-        BigBlueButton.logger.warn("Missing image file #{slide_src}!")
-        # Emergency last-ditch blank image creation
-        if deskshare_slide
-          FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
-          command = "convert -size 1280x720 xc:transparent -background transparent #{image_url}"
-        else
-          FileUtils.mkdir_p("#{$process_dir}/presentation/#{$presentation_name}")
-          command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_url}"
-        end
-        BigBlueButton.execute(command)
-      end
-
-      slide_size = FastImage.size(image_url)
-      if (index + 1 < $slides_events.length)
-        slide_end = ( translateTimestamp($slides_events[index + 1][:timestamp]) / 1000 ).round(1)
-        orig_slide_end = ( $slides_events[index + 1][:timestamp].to_f / 1000 ).round(1)
-      else
-        slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
-        orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
-      end
-
-      if slide_start == slide_end
-        BigBlueButton.logger.info("Slide is never displayed (slide_start = slide_end), so it won't be included in the svg")
-        next
-      end
+    if slide_start == slide_end
+      BigBlueButton.logger.info("Slide is never displayed (slide_start = slide_end), so it won't be included in the svg")
+      next
+    end
 
       BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
       # Is this a new image or one previously viewed?
@@ -781,23 +792,15 @@ def processSlideEvents
         $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end], $presentation_name, slide_number]
         $global_slide_count = $global_slide_count + 1
       else
-        # If not, append new in and out times to the old entry
-        # But if the previous slide_end is equal to the current slide_start, we just pop the previous slide_end and push the current one
-        # It will avoid the duplication of the thumbnails on the playback
-        if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].last == slide_start)
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].pop
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-        else
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-        end
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
+        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
       end
-
-      $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
-      puts "#{slide_src} : #{slide_start} -> #{slide_end}"
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
     end
+
+    $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
+    puts "#{slide_src} : #{slide_start} -> #{slide_end}"
   end
 end
 
@@ -1067,6 +1070,7 @@ $prev_time = "NaN"
 
 $ss = {}
 $clearPageTimes = {}
+$presentation_current_slide = {}
 $slides_compiled = {}
 $slides_raw = {}
 $undos = {}
