@@ -395,6 +395,10 @@ mx|Button {
 //------------------------------
 */
 
+users|BreakoutRoomSettings {
+	headerHeight : 0;
+}
+
 users|RoomActionsRenderer {
 	paddingLeft     : 5;
 	paddingRight    : 5;
@@ -1124,11 +1128,13 @@ mx|ToolTip {
 */
 
 users|UsersWindow {
-	iconAudioMuted : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
-	iconAudio      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
-	iconLock       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
-	iconMood       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
-	iconSettings   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconAudioMuted  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
+	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
+	iconLock        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
+	iconMood        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconClearStatus : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ClearStatus");
+	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Rooms");
 }
 
 users|StatusItemRenderer {
