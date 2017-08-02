@@ -27,5 +27,5 @@ class Layouts {
   private var setByUser: String = "system";
   private var currentLayout = "";
   // this is not being set by the client, and we need to apply the layouts to all users, not just viewers, so will keep the default value of this as false
-  private var affectViewersOnly = false
+  private var affectViewersOnly = true
 }
