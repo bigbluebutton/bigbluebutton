@@ -69,7 +69,7 @@ public class SwfSlidesGenerationProgressNotifier {
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
-      pres.getNumberOfPages(), generateBasePresUrl(pres));
+      pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent());
     messagingService.sendDocConversionMsg(progress);
   }
 

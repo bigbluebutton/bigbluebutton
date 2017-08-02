@@ -18,7 +18,7 @@ trait UserDisconnectedFromGlobalAudioMsgHdlr {
       val envelope = BbbCoreEnvelope(UserLeftVoiceConfToClientEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserLeftVoiceConfToClientEvtMsg.NAME, props.meetingProp.intId, vu.intId)
 
-      val body = UserLeftVoiceConfToClientEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId)
+      val body = UserLeftVoiceConfToClientEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.intId)
 
       val event = UserLeftVoiceConfToClientEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

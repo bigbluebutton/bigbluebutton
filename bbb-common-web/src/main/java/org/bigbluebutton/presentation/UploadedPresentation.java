@@ -31,14 +31,15 @@ public final class UploadedPresentation {
   private String conversionStatus;
   private final String baseUrl;
   private boolean isDownloadable = false;
+  private boolean current = false;
 
-  public UploadedPresentation(String meetingId, String id, String name,
-      String baseUrl) {
+  public UploadedPresentation(String meetingId, String id, String name, String baseUrl, Boolean current) {
     this.meetingId = meetingId;
     this.id = id;
     this.name = name;
     this.baseUrl = baseUrl;
     this.isDownloadable = false;
+    this.current = current;
   }
 
   public File getUploadedFile() {
@@ -95,5 +96,13 @@ public final class UploadedPresentation {
 
   public void setDownloadable() {
     this.isDownloadable = true;
+  }
+
+  public boolean isCurrent() {
+    return current;
+  }
+
+  public void setCurrent(Boolean value) {
+    this.current = value;
   }
 }

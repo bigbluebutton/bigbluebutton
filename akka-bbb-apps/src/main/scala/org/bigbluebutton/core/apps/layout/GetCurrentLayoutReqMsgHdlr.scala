@@ -20,9 +20,9 @@ trait GetCurrentLayoutReqMsgHdlr {
       val header = BbbClientMsgHeader(GetCurrentLayoutRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
       val body = GetCurrentLayoutRespMsgBody(
-        Layouts.getCurrentLayout(),
+        Layouts.getCurrentLayout(liveMeeting.layouts),
         MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
-        Layouts.getLayoutSetter()
+        Layouts.getLayoutSetter(liveMeeting.layouts)
       )
       val event = GetCurrentLayoutRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

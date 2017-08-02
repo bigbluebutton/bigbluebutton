@@ -4,8 +4,6 @@ import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
 
-import listenOnlyToggle from './listenOnlyToggle';
-
 const OFFLINE_CONNECTION_STATUS = 'offline';
 
 export default function userLeaving(credentials, userId) {
@@ -32,10 +30,6 @@ export default function userLeaving(credentials, userId) {
 
   if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
     return null;
-  }
-
-  if (User.user.listenOnly) {
-    listenOnlyToggle(credentials, false);
   }
 
   if (User.validated) {

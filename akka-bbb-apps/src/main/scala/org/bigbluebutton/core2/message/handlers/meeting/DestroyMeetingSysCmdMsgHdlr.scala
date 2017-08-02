@@ -34,7 +34,7 @@ trait DestroyMeetingSysCmdMsgHdlr {
     ))
 
     // send a system message to force disconnection
-    outGW.send(MsgBuilder.buildDisconnectAllClientsSysMsg(liveMeeting.props.meetingProp.intId))
+    outGW.send(MsgBuilder.buildDisconnectAllClientsSysMsg(liveMeeting.props.meetingProp.intId, "meeting-destroyed"))
     log.info("Disconnect all users from meeting (system msg).  meetingId=" + liveMeeting.props.meetingProp.intId)
   }
 

@@ -10,18 +10,20 @@ trait CreateSharedNoteReqMsgHdlr {
 
   def handleCreateSharedNoteReqMsg(msg: CreateSharedNoteReqMsg): Unit = {
 
-    def broadcastEvent(msg: CreateSharedNoteReqMsg, noteId: String): Unit = {
+    def broadcastEvent(msg: CreateSharedNoteReqMsg, noteId: String, isNotesLimit: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(CreateSharedNoteRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(CreateSharedNoteRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = CreateSharedNoteRespMsgBody(noteId, msg.body.noteName)
+      val body = CreateSharedNoteRespMsgBody(noteId, msg.body.noteName, isNotesLimit)
       val event = CreateSharedNoteRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
     }
 
-    val noteId = liveMeeting.notesModel.createNote(msg.body.noteName)
-    broadcastEvent(msg, noteId)
+    if (!liveMeeting.notesModel.isNotesLimit) {
+      val (noteId, isNotesLimit) = liveMeeting.notesModel.createNote(msg.body.noteName)
+      broadcastEvent(msg, noteId, isNotesLimit)
+    }
   }
 }

@@ -155,8 +155,6 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
       var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
       
-      LOGGER.debug("Adding presentation name=" + presVO.name);
-      
       service.addPresentation(presVO);
       
       var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);
@@ -178,11 +176,10 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handlePresentationPageGeneratedEvtMsg(msg:Object):void {
-      dispatcher.dispatchEvent(new ConversionUpdateEvent(msg.body.numPages, msg.body.pagesDone));
+      dispatcher.dispatchEvent(new ConversionUpdateEvent(msg.body.numberOfPages, msg.body.pagesCompleted));
     }
     
     private function handlePresentationPageCountErrorEvtMsg(msg:Object):void {
-      LOGGER.debug("handlePageCountExceededUpdateMessageCallback " + msg);
       dispatcher.dispatchEvent(new ConversionPageCountMaxed(msg.body.maxNumberPages as Number));
     }
     

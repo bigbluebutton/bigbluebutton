@@ -773,7 +773,7 @@ $Id: $
                click="endAllBreakoutRoomsHandler(event)" width="100%"/>
   </mx:VBox>
   
-  <mx:ControlBar width="100%">
+  <mx:ControlBar width="100%" horizontalAlign="right">
     <mx:Button id="emojiStatusBtn" icon="{getStyle('iconMood')}" width="30" height="30"
                accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
                toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()" />

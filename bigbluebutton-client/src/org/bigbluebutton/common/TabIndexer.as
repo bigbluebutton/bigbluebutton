@@ -16,65 +16,63 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.common
-{
+package org.bigbluebutton.common {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+
 	import mx.core.Container;
 	import mx.core.IMXMLObject;
 	import mx.core.UIComponent;
+	import mx.core.UITextField;
 	import mx.events.FlexEvent;
-	public class TabIndexer extends EventDispatcher implements IMXMLObject
-	{
+
+	public class TabIndexer extends EventDispatcher implements IMXMLObject {
 		private var _document:Container;
+
 		private var _id:String;
+
 		private var _ready:Boolean;
+
 		private var _startIndex:int;
+
 		private var _tabIndices:Array;
 
 		/**
 		 * @inheritDoc
 		 */
-		public function initialized(document:Object, id:String):void
-		{
-			_id=id;
-			_document=document as Container;
+		public function initialized(document:Object, id:String):void {
+			_id = id;
+			_document = document as Container;
 			_document.addEventListener(FlexEvent.CREATION_COMPLETE, documentCreationCompleteHandler, false, 0, true);
 		}
 
-		[Bindable(event="startIndexChange")]
+		[Bindable(event = "startIndexChange")]
 		/**
 		 * tabIndex value of the first element.
 		 */
-		public function get startIndex():int
-		{
+		public function get startIndex():int {
 			return _startIndex;
 		}
 
-		public function set startIndex(value:int):void
-		{
-			if (_startIndex !== value)
-			{
-				_startIndex=value;
+		public function set startIndex(value:int):void {
+			if (_startIndex !== value) {
+				_startIndex = value;
 				dispatchEvent(new Event("startIndexChange"));
 				indexTabs();
 			}
 		}
 
-		[Bindable(event="tabIndicesChange")]
+		[Bindable(event = "tabIndicesChange")]
 		/**
 		 * An array containing tab indexable properties to index. Tab indexing will use array order.
 		 */
-		public function get tabIndices():Array
-		{
+		public function get tabIndices():Array {
 			return _tabIndices;
 		}
 
-		public function set tabIndices(value:Array):void
-		{
-			if (_tabIndices !== value)
-			{
-				_tabIndices=value;
+		public function set tabIndices(value:Array):void {
+			if (_tabIndices !== value) {
+				_tabIndices = value;
 				dispatchEvent(new Event("tabIndicesChange"));
 				indexTabs();
 			}
@@ -83,15 +81,12 @@ package org.bigbluebutton.common
 		/**
 		 * Runs a tab indexation on document components contained in tabIndices Array.
 		 */
-		protected function indexTabs():void
-		{
-			if (_ready)
-			{
-				for (var i:int=0; i < tabIndices.length; i++)
-				{
-					if (_tabIndices[i] != null)
-					{
-						UIComponent(_tabIndices[i]).tabIndex=startIndex + i;
+		protected function indexTabs():void {
+			if (_ready && tabIndices) {
+				for (var i:int = 0; i < tabIndices.length; i++) {
+					if (_tabIndices[i] != null && (_tabIndices[i] is UIComponent || _tabIndices[i] is UITextField)) {
+						_tabIndices[i]["tabEnabled"] = true;
+						_tabIndices[i]["tabIndex"] = startIndex + i;
 					}
 				}
 			}
@@ -104,10 +99,9 @@ package org.bigbluebutton.common
 		 * @param event CREATION_COMPLETE event of the document
 		 *
 		 */
-		private function documentCreationCompleteHandler(event:FlexEvent):void
-		{
+		private function documentCreationCompleteHandler(event:FlexEvent):void {
 			_document.removeEventListener(FlexEvent.CREATION_COMPLETE, documentCreationCompleteHandler, false);
-			_ready=true;
+			_ready = true;
 			indexTabs();
 		}
 	}

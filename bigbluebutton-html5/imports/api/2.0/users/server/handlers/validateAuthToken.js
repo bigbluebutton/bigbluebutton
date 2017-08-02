@@ -6,6 +6,8 @@ import Users from '/imports/api/2.0/users';
 import addChat from '/imports/api/2.0/chat/server/modifiers/addChat';
 import clearUserSystemMessages from '/imports/api/2.0/chat/server/modifiers/clearUserSystemMessages';
 
+import userJoin from '../methods/userJoin';
+
 const addWelcomeChatMessage = (meetingId, userId) => {
   const CHAT_CONFIG = Meteor.settings.public.chat;
 
@@ -40,6 +42,11 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
   // If we dont find the user on our collection is a flash user and we can skip
   if (!User) return;
+
+  // Publish user join message
+  if (valid && !waitForApproval) {
+    userJoin(meetingId, userId, User.authToken);
+  }
 
   // User already flagged so we skip
   if (User.validated === valid) return;
