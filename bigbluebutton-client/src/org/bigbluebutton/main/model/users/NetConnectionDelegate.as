@@ -158,7 +158,7 @@ package org.bigbluebutton.main.model.users
 
         public function onMessageFromServer2x(messageName:String, msg:String):void {
           if (messageName != "SendCursorPositionEvtMsg") {
-            LOGGER.info("onMessageFromServer2x - " + msg);
+            LOGGER.debug("onMessageFromServer2x - " + msg);
           }
             
             var map:Object = JSON.parse(msg);  
@@ -178,10 +178,6 @@ package org.bigbluebutton.main.model.users
           } else {
             LOGGER.debug("Ignoring message=[{0}] as our token hasn't been validated yet.", [messageName]);
           } 
-
-            //var tokenValid: Boolean = body.valid as Boolean;
-            //var userId: String = body.userId as String;
-            //trace("onMessageFromServer - " + tokenValid);
         }
 
         public function onMessageFromServer(messageName:String, msg:Object):void {
