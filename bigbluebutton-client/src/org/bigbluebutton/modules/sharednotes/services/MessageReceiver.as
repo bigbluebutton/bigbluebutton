@@ -106,6 +106,7 @@ package org.bigbluebutton.modules.sharednotes.services
     private function handleGetSharedNotesEvtMsg(msg: Object):void {
       var currentDocumentEvent:CurrentDocumentEvent = new CurrentDocumentEvent();
       currentDocumentEvent.document = msg.body.notesReport as Object;
+      currentDocumentEvent.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(currentDocumentEvent);
     }
 
@@ -113,12 +114,14 @@ package org.bigbluebutton.modules.sharednotes.services
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = msg.body.noteId as String;
       e.payload.noteName = msg.body.noteName as String;
+      e.payload.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(e);
     }
 
     private function handleDestroySharedNoteRespMsg(msg: Object):void {
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = msg.body.noteId as String;
+      e.payload.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(e);
     }
 

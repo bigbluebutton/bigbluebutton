@@ -39,7 +39,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   public void processDocument(UploadedPresentation pres) {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
     log.info("Start presentation conversion. meetingId=" + pres.getMeetingId()
-        + " presId=" + pres.getId() + " name=" + pres.getName());
+        + " presId=" + pres.getId() + " name=" + pres.getName() + " current=" + pres.isCurrent());
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();

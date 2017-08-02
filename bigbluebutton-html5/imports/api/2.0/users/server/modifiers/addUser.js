@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
 import flat from 'flat';
+import addVoiceUser from '/imports/api/2.0/voice-users/server/modifiers/addVoiceUser';
 
 export default function addUser(meetingId, user) {
   check(meetingId, String);
@@ -63,6 +64,18 @@ export default function addUser(meetingId, user) {
       flat(user),
     ),
   };
+
+  addVoiceUser(meetingId, {
+    voiceUserId: '',
+    intId: userId,
+    callerName: user.name,
+    callerNum: '',
+    muted: false,
+    talking: false,
+    callingWith: '',
+    listenOnly: false,
+    voiceConf: '',
+  });
 
   const cb = (err, numChanged) => {
     if (err) {

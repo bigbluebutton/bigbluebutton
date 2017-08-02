@@ -92,6 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.events.VotePollEvent;
 			import org.bigbluebutton.modules.polling.views.PollChoicesModal;
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
+			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -343,7 +344,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 slideView.visible = true;
                 var page : Page = PresentationModel.getInstance().getCurrentPage();
                 if (page != null) {
-                    displaySlideNumber(page.num);
+                    displaySlideNumber(page.num); 
                 }
 
                 if (UsersUtil.amIPresenter()) {
@@ -813,7 +814,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
 
-	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="2" paddingBottom="2">
+	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">
 		<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
 				click="onPollStartButtonClicked()" includeInLayout="{pollStartBtn.visible}"/>

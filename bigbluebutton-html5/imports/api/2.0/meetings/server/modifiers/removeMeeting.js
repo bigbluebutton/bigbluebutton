@@ -10,6 +10,7 @@ import clearPolls from '/imports/api/2.0/polls/server/modifiers/clearPolls';
 import clearCursor from '/imports/api/2.0/cursor/server/modifiers/clearCursor';
 import clearCaptions from '/imports/api/2.0/captions/server/modifiers/clearCaptions';
 import clearPresentations from '/imports/api/2.0/presentations/server/modifiers/clearPresentations';
+import clearVoiceUsers from '/imports/api/2.0/voice-users/server/modifiers/clearVoiceUsers';
 
 export default function removeMeeting(meetingId) {
   return Meetings.remove({ meetingId }, () => {
@@ -22,6 +23,7 @@ export default function removeMeeting(meetingId) {
     clearAnnotations(meetingId);
     clearSlides(meetingId);
     clearUsers(meetingId);
+    clearVoiceUsers(meetingId);
 
     return Logger.info(`Cleared Meetings with id ${meetingId}`);
   });

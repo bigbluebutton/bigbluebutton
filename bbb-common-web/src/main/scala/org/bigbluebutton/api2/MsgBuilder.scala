@@ -73,7 +73,8 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
     val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl)
-    val presentation = PresentationVO(msg.presId, msg.filename, current=true, pages.values.toVector, msg.downloadable)
+    val presentation = PresentationVO(msg.presId, msg.filename,
+      current=msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue())
 
     val body = PresentationConversionCompletedSysPubMsgBody(messageKey = msg.key,
       code = msg.key, presentation)
@@ -85,7 +86,7 @@ object MsgBuilder {
     var pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
-      val num = i;
+      val num = i
       val current = if (i == 1) true else false
       val thumbnail = presBaseUrl + "/thumbnail/" + i
       val swfUri = presBaseUrl + "/slide/" + i
@@ -93,7 +94,7 @@ object MsgBuilder {
       val txtUri = presBaseUrl + "/textfiles/" + i
       val svgUri = presBaseUrl + "/svg/" + i
 
-      val p = new PageVO(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
+      val p = PageVO(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
         txtUri = txtUri, svgUri = svgUri,
         current = current)
       pages += p.id -> p

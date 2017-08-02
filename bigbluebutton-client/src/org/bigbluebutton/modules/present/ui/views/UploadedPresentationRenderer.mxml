@@ -22,7 +22,6 @@
 		private var globalDispatch:Dispatcher = new Dispatcher();
       
       private function showPresentation():void {
-        LOGGER.debug("FileUploadWindow::showPresentation() {0}", [data.id]);   
         var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
         globalDispatch.dispatchEvent(changePresCommand);
         

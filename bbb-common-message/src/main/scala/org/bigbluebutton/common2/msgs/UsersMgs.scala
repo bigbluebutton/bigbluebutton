@@ -258,16 +258,15 @@ object GetUsersMeetingRespMsg {
   }
 
 }
-
-object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg"}
-case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg
-case class SyncGetUsersMeetingRespMsgBody(users: Vector[WebUser])
-
 case class GetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetUsersMeetingRespMsgBody) extends BbbCoreMsg
 case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])
 case class WebUser(intId: String, extId: String, name: String, role: String,
                    guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
                    presenter: Boolean, avatar: String)
+
+object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg"}
+case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg
+case class SyncGetUsersMeetingRespMsgBody(users: Vector[WebUser])
 
 object GetVoiceUsersMeetingRespMsg {
   val NAME = "GetVoiceUsersMeetingRespMsg"

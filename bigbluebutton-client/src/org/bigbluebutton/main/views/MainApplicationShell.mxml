@@ -1058,16 +1058,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				visible="{isTunneling}"
 				includeInLayout="{isTunneling}" />
 		<views:WarningButton id="warningBtn" 
-				width="23"
-				height="20"/>
+				width="30"
+				height="30"/>
 		<views:LanguageSelector id="langSelector" 
 				visible="false" 
-				height="20"
+				height="30"
 				width="180"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 		<mx:Button
-				width="20"
-				height="20"
+				width="30"
+				height="30"
 				visible="{layoutOptions.showLogButton}"
 				includeInLayout="{layoutOptions.showLogButton}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
@@ -1075,6 +1075,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				styleName="logsButton"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
-		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
+		<mx:Button width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
 	</mx:ControlBar>
 </mx:VBox>

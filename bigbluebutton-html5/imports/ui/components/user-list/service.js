@@ -3,39 +3,16 @@ import Chat from '/imports/api/2.0/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
+import mapUser from '/imports/ui/services/user/mapUser';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const USER_CONFIG = Meteor.settings.public.user;
-const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
-
-/* TODO: Same map is done in the chat/service we should share this someway */
-
-const mapUser = user => ({
-  id: user.userId,
-  name: user.name,
-  emoji: {
-    status: user.emoji,
-    changedAt: user.emojiTime,
-  },
-  isPresenter: user.presenter,
-  isModerator: user.role === ROLE_MODERATOR,
-  isCurrent: user.userId === Auth.userID,
-  isVoiceUser: false, // FIXME user.voiceUser.joined,
-  isMuted: false, // FIXME user.voiceUser.muted,
-  isTalking: false, // FIXME user.voiceUser.talking,
-  isListenOnly: user.listenOnly,
-  isSharingWebcam: 0, // FIXME user.webcam_stream.length,
-  isPhoneUser: user.phoneUser,
-  isOnline: user.connectionStatus === 'online',
-  isLocked: user.locked,
-});
 
 const mapOpenChats = (chat) => {
   const currentUserId = Auth.userID;
