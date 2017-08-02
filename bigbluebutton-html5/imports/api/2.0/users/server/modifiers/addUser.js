@@ -71,6 +71,7 @@ export default function addUser(meetingId, user) {
     callingWith: '',
     listenOnly: false,
     voiceConf: '',
+    joined: false,
   });
 
   const cb = (err, numChanged) => {
