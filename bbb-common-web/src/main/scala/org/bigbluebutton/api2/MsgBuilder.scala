@@ -20,7 +20,7 @@ object MsgBuilder {
   def buildEndMeetingSysCmdMsg(msg: EndMeetingMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(EndMeetingSysCmdMsg.NAME, routing)
-    val header = BbbCoreBaseHeader(EndMeetingSysCmdMsg.NAME)
+    val header = BbbClientMsgHeader(EndMeetingSysCmdMsg.NAME, msg.meetingId, "not-used")
     val body = EndMeetingSysCmdMsgBody(msg.meetingId)
     val req = EndMeetingSysCmdMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
