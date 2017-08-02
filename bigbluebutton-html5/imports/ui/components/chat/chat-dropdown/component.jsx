@@ -10,7 +10,6 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Chats from '/imports/api/2.0/chat';
 import Acl from '/imports/startup/acl';
@@ -117,7 +116,7 @@ class ChatDropdown extends Component {
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
           key={_.uniqueId('action-item-')}
-          onClick={() => makeCall('clearPublicChatHistory')}
+          onClick={ChatService.clearPublicChatHistory}
         />
         : null),
     ]);

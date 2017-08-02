@@ -1,11 +1,9 @@
 import Chats from '/imports/api/2.0/chat';
 import Users from '/imports/api/2.0/users';
-
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import mapUser from '/imports/ui/services/user/mapUser';
-
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
@@ -191,6 +189,8 @@ const updateUnreadMessage = (receiverID, timestamp) => {
   return UnreadMessages.update(chatType, timestamp);
 };
 
+const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
+
 const closePrivateChat = (chatID) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
@@ -237,4 +237,5 @@ export default {
   sendMessage,
   closePrivateChat,
   exportChat,
+  clearPublicChatHistory,
 };
