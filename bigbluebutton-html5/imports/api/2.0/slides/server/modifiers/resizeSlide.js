@@ -6,20 +6,20 @@ export default function resizeSlide(meetingId, slide) {
   check(meetingId, String);
 
   const { presentationId } = slide;
-  const { pageId } = slide;
+  const { pageId, widthRatio, heightRatio, xOffset, yOffset } = slide;
 
   const selector = {
     meetingId,
     presentationId,
-    'slide.id': pageId,
+    id: pageId,
   };
 
   const modifier = {
     $set: {
-      'slide.width_ratio': slide.widthRatio,
-      'slide.height_ratio': slide.heightRatio,
-      'slide.x_offset': slide.xOffset,
-      'slide.y_offset': slide.yOffset,
+      widthRatio,
+      heightRatio,
+      xOffset,
+      yOffset,
     },
   };
 

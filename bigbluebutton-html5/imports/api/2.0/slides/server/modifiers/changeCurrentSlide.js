@@ -11,10 +11,10 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
     selector: {
       meetingId,
       presentationId,
-      'slide.current': true,
+      current: true,
     },
     modifier: {
-      $set: { 'slide.current': false },
+      $set: { current: false },
     },
     callback: (err) => {
       if (err) {
@@ -29,10 +29,10 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
     selector: {
       meetingId,
       presentationId,
-      'slide.id': slideId,
+      id: slideId,
     },
     modifier: {
-      $set: { 'slide.current': true },
+      $set: { current: true },
     },
     callback: (err) => {
       if (err) {

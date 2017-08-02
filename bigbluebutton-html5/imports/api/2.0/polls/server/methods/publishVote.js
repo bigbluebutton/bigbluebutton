@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import Polls from '/imports/api/2.0/polls';
 import Logger from '/imports/startup/server/logger';
 
-export default function publishVote(credentials, pollId, pollAnswerId) { // TODO discuss location
+export default function publishVote(credentials, id, pollAnswerId) { // TODO discuss location
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RespondToPollReqMsg';
@@ -13,8 +13,8 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
   const currentPoll = Polls.findOne({
     users: requesterUserId,
     meetingId,
-    'poll.answers.id': pollAnswerId,
-    'poll.id': pollId,
+    'answers.id': pollAnswerId,
+    id,
   });
 
   check(meetingId, String);
@@ -24,7 +24,7 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
 
   const payload = {
     requesterId: requesterUserId,
-    pollId: currentPoll.poll.id,
+    pollId: currentPoll.id,
     questionId: 0,
     answerId: pollAnswerId,
   };
@@ -38,7 +38,7 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
   const selector = {
     users: requesterUserId,
     meetingId,
-    'poll.answers.id': pollAnswerId,
+    'answers.id': pollAnswerId,
   };
 
   const modifier = {
@@ -53,7 +53,7 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
     }
 
     return Logger.info(`Updating Polls2x collection (meetingId: ${meetingId},
-                                            pollId: ${currentPoll.poll.id}!)`);
+                                            pollId: ${currentPoll.id}!)`);
   };
 
   Polls.update(selector, modifier, cb);

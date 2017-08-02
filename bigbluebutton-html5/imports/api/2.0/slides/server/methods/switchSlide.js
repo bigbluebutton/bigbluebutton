@@ -7,8 +7,8 @@ import RedisPubSub from '/imports/startup/server/redis2x';
 export default function switchSlide(credentials, slideNumber) {
   const REDIS_CONFIG = Meteor.settings.redis;
 
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.presentation;
-  const EVENT_NAME = 'go_to_slide';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'SetCurrentPagePubMsg';
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -17,10 +17,12 @@ export default function switchSlide(credentials, slideNumber) {
   check(requesterToken, String);
   check(slideNumber, Number);
 
-  const Presentation = Presentations.findOne({
+  const selector = {
     meetingId,
-    'presentation.current': true,
-  });
+    current: true,
+  };
+
+  const Presentation = Presentations.findOne(selector);
 
   if (!Presentation) {
     throw new Meteor.Error(
@@ -29,8 +31,8 @@ export default function switchSlide(credentials, slideNumber) {
 
   const Slide = Slides.findOne({
     meetingId,
-    presentationId: Presentation.presentation.id,
-    'slide.num': parseInt(slideNumber, 2),
+    presentationId: Presentation.id,
+    num: slideNumber,
   });
 
   if (!Slide) {
@@ -38,10 +40,12 @@ export default function switchSlide(credentials, slideNumber) {
       'slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
   }
 
+  const header = { name: EVENT_NAME, meetingId, userId: requesterUserId };
+
   const payload = {
-    page: Slide.slide.id,
-    meeting_id: meetingId,
+    pageId: Slide.id,
+    presentationId: Presentation.id,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

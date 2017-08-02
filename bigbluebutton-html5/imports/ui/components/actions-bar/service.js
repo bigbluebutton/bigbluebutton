@@ -4,7 +4,7 @@ import Users from '/imports/api/2.0/users';
 
 const isUserPresenter = () => Users.findOne({
   userId: Auth.userID,
-}).user.presenter;
+}).presenter;
 
 export default {
   isUserPresenter,

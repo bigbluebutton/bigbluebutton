@@ -17,7 +17,7 @@ const getClosedCaptionLocales = () => {
 const getUserRoles = () => {
   const user = Users.findOne({
     userId: Auth.userID,
-  }).user;
+  });
 
   return user.role;
 };

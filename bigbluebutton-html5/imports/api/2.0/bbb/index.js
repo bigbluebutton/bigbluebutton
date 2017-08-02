@@ -11,7 +11,7 @@ class BBB {
   }
 
   getUsername() {
-    return Users.findOne({ userId: this.getUserId() }).user.name;
+    return Users.findOne({ userId: this.getUserId() }).name;
   }
 
   getExtension() {
