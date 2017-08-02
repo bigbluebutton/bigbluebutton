@@ -1,7 +1,7 @@
 import Slides from '/imports/api/2.0/slides';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import clearAnnotationsWhiteboard from '/imports/api/2.0/annotation/server/modifiers/clearAnnotationsWhiteboard';
+import clearAnnotationsWhiteboard from '/imports/api/2.0/annotations/server/modifiers/clearAnnotationsWhiteboard';
 
 export default function clearSlidesPresentation(meetingId, presentationId) {
   check(meetingId, String);

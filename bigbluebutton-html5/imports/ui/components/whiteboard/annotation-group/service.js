@@ -1,4 +1,4 @@
-import Annotations from '/imports/api/2.0/annotation';
+import Annotations from '/imports/api/2.0/annotations';
 
 const getCurrentAnnotations = (whiteboardId) => {
   if (!whiteboardId) {

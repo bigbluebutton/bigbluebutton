@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Annotations from '/imports/api/2.0/annotation';
+import Annotations from '/imports/api/2.0/annotations';
 import Logger from '/imports/startup/server/logger';
 
 export default function removeAnnotation(meetingId, whiteboardId, shapeId) {

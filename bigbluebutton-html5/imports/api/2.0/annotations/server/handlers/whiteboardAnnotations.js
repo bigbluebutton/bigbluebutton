@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { check } from 'meteor/check';
-import Annotations from '/imports/api/2.0/annotation';
+import Annotations from '/imports/api/2.0/annotations';
 import addAnnotation from '../modifiers/addAnnotation';
 import removeAnnotation from '../modifiers/removeAnnotation';
 

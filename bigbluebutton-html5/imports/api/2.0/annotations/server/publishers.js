@@ -1,4 +1,4 @@
-import Annotations from '/imports/api/2.0/annotation';
+import Annotations from '/imports/api/2.0/annotations';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
@@ -21,4 +21,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.annotations', boundAnnotations)(args);
 }
 
-Meteor.publish('annotation', publish);
+Meteor.publish('annotations', publish);
