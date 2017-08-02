@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import mx.managers.CursorManager;
 	
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
@@ -101,12 +101,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
 			
 			var stpl:Listener = new Listener();
-			stpl.type = MadePresenterEvent.SWITCH_TO_PRESENTER_MODE;
-			stpl.method = onSwitchToPresenterEvent;
-			
-			var stvl:Listener = new Listener();
-			stvl.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
-			stvl.method = onSwitchToViewerEvent;
+			stpl.type = SwitchedPresenterEvent.SWITCHED_PRESENTER;
+			stpl.method = onSwitchedPresenterEvent;
 			
 			presenterChange(UsersUtil.amIPresenter(), UsersUtil.getPresenterUserID());
 			
@@ -353,12 +349,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			setWhiteboardInteractable();
 		}
 		
-		private function onSwitchToPresenterEvent(e:MadePresenterEvent):void {
-			presenterChange(true, e.userID);
-		}
-		
-		private function onSwitchToViewerEvent(e:MadePresenterEvent):void {
-			presenterChange(false, e.userID);
+		private function onSwitchedPresenterEvent(e:SwitchedPresenterEvent):void {
+			presenterChange(e.amIPresenter, e.newPresenterUserID);
 		}
 		
 		private function onUserLeftEvent(e:UserLeftEvent):void {
