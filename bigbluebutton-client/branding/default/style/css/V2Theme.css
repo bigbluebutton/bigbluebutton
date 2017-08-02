@@ -1,5 +1,6 @@
 @namespace mx "library://ns.adobe.com/flex/mx";
 @namespace flexlib "http://code.google.com/p/flexlib/";
+@namespace flexlibcontainers "flexlib.mdi.containers.*";
 @namespace users "org.bigbluebutton.modules.users.views.*";
 @namespace poll "org.bigbluebutton.modules.polling.views.*";
 @namespace whiteboard "org.bigbluebutton.modules.whiteboard.views.*";
@@ -42,8 +43,8 @@ global {
 	selectionColor    : #1070D7;
 	textSelectedColor : #FFFFFF;
 	focusColor        : #1070D7;
-	rollOverColor     : #DBE4ED;
-	textRollOverColor : #1070D7;
+	rollOverColor     : #0A5EAC;
+	textRollOverColor : #FFFFFF;
 }
 
 .defaultShellStyle {
@@ -708,7 +709,7 @@ flexlib|MDIWindow {
 	/*None of the following properties are overridden by the MDIWindow class*/
 	backgroundSize       : "100%";
 
-	headerHeight         : 40;
+	headerHeight         : 30;
 
 	cornerRadius         : 4;
 	dropShadowEnabled    : false;
@@ -732,6 +733,11 @@ flexlib|MDIWindow {
 	paddingRight         : 0;
 
 	showHeaderSeparator  : true;
+}
+
+flexlibcontainers|MDIWindowControlsContainer {
+	paddingRight  : 12;
+	horizontalGap : 12;
 }
 
 .mdiMaximizeButtonStyle {
@@ -867,7 +873,7 @@ mx|Panel {
 */
 
 presentation|UploadedPresentationRenderer {
-	iconSave : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_Disabled");
+	iconSave : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
 }
 
 .presentationWindowControlsStyle {
@@ -1087,9 +1093,9 @@ mx|TitleWindow {
 }
 
 .titleWindowStyle {
-	color      : #05172A;
-	fontSize   : 24;
-	textAlign  :center;
+	color     : #05172A;
+	fontSize  : 24;
+	textAlign : center;
 }
 
 /*
