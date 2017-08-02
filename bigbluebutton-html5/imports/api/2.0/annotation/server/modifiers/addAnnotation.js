@@ -1,7 +1,6 @@
 import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Annotations from '/imports/api/2.0/annotation';
-import flat from 'flat';
 
 const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
@@ -45,6 +44,8 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     position: Number,
   });
 
+  const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
+
   const selector = {
     meetingId,
     id: annotation.id,
@@ -52,27 +53,30 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
   };
 
   const modifier = {
-    $set: Object.assign(
-      { whiteboardId },
-      { meetingId },
-      flat(annotation, { safe: true }),
-    ),
+    $set: {
+      whiteboardId,
+      meetingId,
+      id,
+      status,
+      annotationType,
+      annotationInfo,
+      wbId,
+      position,
+    },
   };
 
   const shapeType = annotation.annotationType;
 
   switch (shapeType) {
     case ANNOTATION_TYPE_TEXT:
-      modifier.$set = Object.assign(modifier.$set, {
-        'annotationInfo.text': annotation.annotationInfo.text.replace(/[\r]/g, '\n'),
-      });
+      modifier.$set.annotationInfo.text = annotation.annotationInfo.text.replace(/[\r]/g, '\n');
       break;
     case ANNOTATION_TYPE_PENCIL:
       // On the draw_end he send us all the points, we don't need to push, we can simple
       // set the new points.
       if (annotation.status !== 'DRAW_END') {
         // We don't want it to be update twice.
-        delete modifier.$set['annotationInfo.points'];
+        delete modifier.$set.annotationInfo;
         modifier.$push = { 'annotationInfo.points': { $each: annotation.annotationInfo.points } };
       }
       break;
