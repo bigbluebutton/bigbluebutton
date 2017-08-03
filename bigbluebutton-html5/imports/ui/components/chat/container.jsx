@@ -39,7 +39,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
   let chatName = title;
 
   if (chatID === PUBLIC_CHAT_KEY) {
-    messages = ChatService.getPublicMessages();
+    messages = ChatService.reducedPublicMessages((ChatService.getPublicMessages()));
   } else {
     messages = ChatService.getPrivateMessages(chatID);
   }

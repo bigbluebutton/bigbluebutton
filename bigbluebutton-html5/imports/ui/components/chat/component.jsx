@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from 'react-router';
-import styles from './styles';
 import { defineMessages, injectIntl } from 'react-intl';
+import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
+import ChatDropdownContainer from './chat-dropdown/component';
 import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -19,79 +20,78 @@ const intlMessages = defineMessages({
   },
 });
 
-class Chat extends Component {
-  constructor(props) {
-    super(props);
-  }
+const Chat = (props) => {
+  const {
+    chatID,
+    chatName,
+    title,
+    messages,
+    scrollPosition,
+    hasUnreadMessages,
+    lastReadMessageTime,
+    partnerIsLoggedOut,
+    isChatLocked,
+    minMessageLength,
+    maxMessageLength,
+    actions,
+    intl,
+    } = props;
 
-  render() {
-    const {
-      chatID,
-      chatName,
-      title,
-      messages,
-      scrollPosition,
-      hasUnreadMessages,
-      lastReadMessageTime,
-      partnerIsLoggedOut,
-      isChatLocked,
-      minMessageLength,
-      maxMessageLength,
-      actions,
-      intl,
-    } = this.props;
+  return (
+    <div className={styles.chat}>
 
-    return (
-      <div className={styles.chat}>
+      <header className={styles.header}>
+        <div className={styles.title}>
+          <Link
+            to="/users"
+            role="button"
+            aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
+          >
+            <Icon iconName="left_arrow" /> {title}
+          </Link>
+        </div>
+        <div className={styles.closeIcon}>
+          {
+            ((chatID === 'public') ?
+              null :
+              <Link
+                to="/users"
+                role="button"
+                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+              >
+                <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
+              </Link>)
+          }{
+            ((chatID === 'public') ?
+              <ChatDropdownContainer />
+              :
+              null)
+          }
+        </div>
+      </header>
 
-        <header className={styles.header}>
-          <div className={styles.title}>
-            <Link
-              to="/users"
-              role="button"
-              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            >
-              <Icon iconName="left_arrow" /> {title}
-            </Link>
-          </div>
-          <div className={styles.closeIcon}>
-            {
-              ((this.props.chatID == 'public') ?
-                null :
-                <Link
-                  to="/users"
-                  role="button"
-                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                >
-                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
-                </Link>)
-            }
-          </div>
-        </header>
-
-        <MessageList
-          chatId={chatID}
-          messages={messages}
-          id={ELEMENT_ID}
-          scrollPosition={scrollPosition}
-          hasUnreadMessages={hasUnreadMessages}
-          handleScrollUpdate={actions.handleScrollUpdate}
-          handleReadMessage={actions.handleReadMessage}
-          lastReadMessageTime={lastReadMessageTime}
-          partnerIsLoggedOut={partnerIsLoggedOut}
-        />
-        <MessageForm
-          disabled={isChatLocked}
-          chatAreaId={ELEMENT_ID}
-          chatTitle={title}
-          chatName={chatName}
-          minMessageLength={minMessageLength}
-          maxMessageLength={maxMessageLength}
-          handleSendMessage={actions.handleSendMessage}
-        />
-      </div>
-    );
-  }
-}
+      <MessageList
+        chatId={chatID}
+        messages={messages}
+        id={ELEMENT_ID}
+        scrollPosition={scrollPosition}
+        hasUnreadMessages={hasUnreadMessages}
+        handleScrollUpdate={actions.handleScrollUpdate}
+        handleReadMessage={actions.handleReadMessage}
+        lastReadMessageTime={lastReadMessageTime}
+        partnerIsLoggedOut={partnerIsLoggedOut}
+      />
+      <MessageForm
+        disabled={isChatLocked}
+        chatAreaId={ELEMENT_ID}
+        chatTitle={title}
+        chatName={chatName}
+        minMessageLength={minMessageLength}
+        maxMessageLength={maxMessageLength}
+        handleSendMessage={actions.handleSendMessage}
+      />
+    </div>
+  );
+};
 
 export default injectIntl(Chat);

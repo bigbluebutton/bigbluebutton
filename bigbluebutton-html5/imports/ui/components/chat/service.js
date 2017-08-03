@@ -1,11 +1,9 @@
 import Chats from '/imports/api/2.0/chat';
 import Users from '/imports/api/2.0/users';
-
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import mapUser from '/imports/ui/services/user/mapUser';
-
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
@@ -82,17 +80,8 @@ const reduceMessages = (previous, current) => {
   return previous.concat(reducedMessages);
 };
 
-const getPublicMessages = () => {
-  const publicMessages = Chats.find({
-    'message.toUsername': { $in: [PUBLIC_CHAT_USERNAME, SYSTEM_CHAT_TYPE] },
-  }, {
-    sort: ['message.fromTime'],
-  }).fetch();
-
-  return publicMessages
-    .reduce(reduceMessages, [])
-    .map(mapMessage);
-};
+const reducedPublicMessages = publicMessages =>
+  (publicMessages.reduce(reduceMessages, []).map(mapMessage));
 
 const getPrivateMessages = (userID) => {
   const messages = Chats.find({
@@ -191,6 +180,8 @@ const updateUnreadMessage = (receiverID, timestamp) => {
   return UnreadMessages.update(chatType, timestamp);
 };
 
+const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
+
 const closePrivateChat = (chatID) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
@@ -201,7 +192,41 @@ const closePrivateChat = (chatID) => {
   }
 };
 
+// We decode to prevent HTML5 escaped characters.
+const htmlDecode = (input) => {
+  const e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes[0].nodeValue;
+};
+
+const formatTime = time => (time <= 9 ? `0${time}` : time);
+
+// Export the chat as [Hour:Min] user : message
+const exportChat = messageList => (
+  messageList.map(({ message }) => {
+    const date = new Date(message.fromTime);
+    const hour = formatTime(date.getHours());
+    const min = formatTime(date.getMinutes());
+    const hourMin = `${hour}:${min}`;
+    if (message.fromUserId === SYSTEM_CHAT_TYPE) {
+      return `[${hourMin}] ${message.message}`;
+    }
+    return `[${hourMin}] ${message.fromUsername}: ${htmlDecode(message.message)}`;
+  }).join('\n')
+);
+
+const getPublicMessages = () => {
+  const publicMessages = Chats.find({
+    'message.toUsername': { $in: [PUBLIC_CHAT_USERNAME, SYSTEM_CHAT_TYPE] },
+  }, {
+    sort: ['message.fromTime'],
+  }).fetch();
+
+  return publicMessages;
+};
+
 export default {
+  reducedPublicMessages,
   getPublicMessages,
   getPrivateMessages,
   getUser,
@@ -213,4 +238,6 @@ export default {
   updateUnreadMessage,
   sendMessage,
   closePrivateChat,
+  exportChat,
+  clearPublicChatHistory,
 };
