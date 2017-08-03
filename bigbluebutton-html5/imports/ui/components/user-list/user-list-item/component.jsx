@@ -364,7 +364,7 @@ class UserListItem extends Component {
             >
               {user.emoji.status !== 'none' ?
                 <Icon iconName={normalizeEmojiName(user.emoji.status)} /> :
-                user.name.slice(0, 2)}
+                user.name.toLowerCase().slice(0, 2)}
             </UserAvatar>
           </div>
           {this.renderUserName()}

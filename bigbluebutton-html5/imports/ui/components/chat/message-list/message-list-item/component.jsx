@@ -135,7 +135,7 @@ export default class MessageListItem extends Component {
               color={user.color}
               moderator={user.isModerator}
             >
-              {user.name.slice(0, 2)}
+              {user.name.toLowerCase().slice(0, 2)}
             </UserAvatar>
           </div>
           <div className={styles.content}>
