@@ -74,7 +74,8 @@ class PresentationController {
          }
 
          def presentationBaseUrl = presentationService.presentationBaseUrl
-         UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename, presentationBaseUrl);
+         UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId,
+                 presFilename, presentationBaseUrl, false /* default presentation */);
 
          if(isDownloadable) {
            log.debug "@Setting file to be downloadable..."

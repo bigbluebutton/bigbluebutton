@@ -72,20 +72,20 @@
 			private var options:UsersOptions;
 			private var myMenu:Menu = null;
 			
-			private function onCreationComplete():void{
-				refreshRole(UsersUtil.amIModerator());
-				
-				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
-				
-        		BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
-				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
-				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
-				BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
-				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
-        		BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
-                
-				options = Options.getOptions(UsersOptions) as UsersOptions;
-			}
+      private function onCreationComplete():void{
+        refreshRole(UsersUtil.amIModerator());
+        
+        this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+        
+        BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
+        BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
+        BindingUtils.bindSetter(updateButtons, muteInd, "visible");
+        BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
+        BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
+        BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
+        
+        options = Options.getOptions(UsersOptions) as UsersOptions;
+      }
 			
 			private function dataChangeHandler(e:Event):void {
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves

@@ -4,6 +4,7 @@ import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
+import mapUser from '/imports/ui/services/user/mapUser';
 
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
@@ -22,27 +23,6 @@ const ScrollCollection = new Mongo.Collection(null);
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
-/* TODO: Same map is done in the user-list/service we should share this someway */
-
-const mapUser = user => ({
-  id: user.userid,
-  name: user.name,
-  emoji: {
-    status: user.emoji,
-    changedAt: user.set_emoji_time,
-  },
-  color: user.color,
-  isPresenter: user.presenter,
-  isModerator: user.role === 'MODERATOR',
-  isCurrent: user.userid === Auth.userID,
-  isVoiceUser: user.voiceUser.joined,
-  isOnline: user.connection_status === 'online',
-  isMuted: user.voiceUser.muted,
-  isListenOnly: user.listenOnly,
-  isSharingWebcam: user.webcam_stream.length,
-  isLocked: user.locked,
-});
-
 const getUser = (userID) => {
   const user = Users.findOne({ userId: userID });
 
@@ -50,7 +30,7 @@ const getUser = (userID) => {
     return null;
   }
 
-  return mapUser(user.user);
+  return mapUser(user);
 };
 
 const mapMessage = (messagePayload) => {
@@ -138,7 +118,7 @@ const isChatLocked = (receiverID) => {
   /* meeting.roomLockSettings || {
     disablePublicChat: false,
     disablePrivateChat: false,
-  };*/
+  }; */
 
   if (!currentUser.isLocked || currentUser.isPresenter) {
     return false;

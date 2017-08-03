@@ -32,6 +32,8 @@
 		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
 		<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
 		<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+		<mate:Listener type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteCreated"/>
+		<mate:Listener type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteDestroyed"/>
 		<mate:Listener type="{ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW}" method="focusWindow" />
 	</fx:Declarations>
 
@@ -79,6 +81,7 @@
 			protected var _noteName:String = "";
 
 			[Bindable] private var options:SharedNotesOptions;
+			[Bindable] private var _isNotesLimit:Boolean = true;
 
 			private var sendUpdateTimer:Timer;
 			private var getDocumentTimer:Timer = new Timer(5000);
@@ -156,12 +159,13 @@
 				return _noteId;
 			}
 
-			public function addRemoteDocument(notes:Object):void{
+			public function addRemoteDocument(notes:Object, isNotesLimit:Boolean):void{
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
 				_lastPatch = note["patchCounter"];
 				richTextEditor.htmlText = _document;
+				_isNotesLimit = isNotesLimit;
 				if (!this.enabled) this.enabled = true;
 				updateTitle();
 				updateUndoRedoButtons(note["undo"], note["redo"]);
@@ -237,6 +241,14 @@
 					if (!richTextEditor.textArea.editable) richTextEditor.textArea.editable = true;
 					updateUndoRedoButtons(e.payload.note["undo"], e.payload.note["redo"]);
 				}
+			}
+
+			private function handleNoteCreated(e:SharedNotesEvent):void {
+				_isNotesLimit = e.payload.isNotesLimit;
+			}
+
+			private function handleNoteDestroyed(e:SharedNotesEvent):void {
+				_isNotesLimit = e.payload.isNotesLimit;
 			}
 
 			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
@@ -484,7 +496,10 @@
 						width="26"
 						height="26"
 						click="btnNew_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+						enabled="{!_isNotesLimit}"
+						toolTip="{_isNotesLimit ?
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.toolTip') :
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
 				<mx:Button id="btnFormat"
 						styleName="sharedNotesFormatButtonStyle"
 						width="26" height="26"

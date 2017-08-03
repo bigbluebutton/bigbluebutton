@@ -26,6 +26,9 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
   def send(channel: String, envelope: BbbCoreEnvelope, msg: BbbCoreMsg): Unit = {
     val event = BbbMsgEvent(channel, BbbCommonEnvCoreMsg(envelope, msg))
     publish(event)
+
+    val analyticsEvent = BbbMsgEvent(analyticsChannel, BbbCommonEnvCoreMsg(envelope, msg))
+    publish(analyticsEvent)
   }
 
   def routeGenericMsg[B <: StandardMsg](envelope: BbbCoreEnvelope, jsonNode: JsonNode)(implicit tag: TypeTag[B]): Unit = {

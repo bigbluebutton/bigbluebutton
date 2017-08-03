@@ -173,6 +173,8 @@ class MeetingActor(
     state = state.update(tracker)
 
     msg.core match {
+      case m: EndMeetingSysCmdMsg => handleEndMeeting(m)
+
       // Users
       case m: ValidateAuthTokenReqMsg =>
         state = usersApp.handleValidateAuthTokenReqMsg(m, state)
@@ -303,6 +305,9 @@ class MeetingActor(
     // sync all presentations
     presentationApp2x.handleSyncGetPresentationInfoRespMsg()
 
+    // sync access of whiteboard (multi user)
+    handleSyncWhiteboardAccessRespMsg()
+
     // TODO send all chat
     // TODO send all lock settings
     // TODO send all screen sharing info
@@ -315,7 +320,11 @@ class MeetingActor(
     // switch user presenter status for old and new presenter
     usersApp.handleAssignPresenterReqMsg(msg)
 
-    // TODO stop current screen sharing session (initiated by the old presenter)
+    // request screenshare to end
+    screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
+      liveMeeting.props.voiceProp.voiceConf,
+      liveMeeting.props.screenshareProps.screenshareConf
+    )
 
   }
 
@@ -339,6 +348,7 @@ class MeetingActor(
     state = newState
     expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
     val (newState2, expireReason2) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
+    state = newState2
     expireReason2 foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
   }
 
@@ -349,7 +359,7 @@ class MeetingActor(
   def startRecordingIfAutoStart() {
     if (props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
       props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
-      log.info("Auto start recording. meetingId={}", props.meetingProp.intId)
+
       MeetingStatus2x.recordingStarted(liveMeeting.status)
 
       def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {

@@ -1,6 +1,7 @@
 package org.bigbluebutton.common2.msgs
 
-case class AnnotationVO(id: String, status: String, annotationType: String, annotationInfo: scala.collection.immutable.Map[String, Object], wbId: String, userId: String, position: Int)
+case class AnnotationVO(id: String, status: String, annotationType: String,
+                        annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
 
   object ClearWhiteboardEvtMsg {
     val NAME = "ClearWhiteboardEvtMsg"
@@ -114,4 +115,6 @@ case class AnnotationVO(id: String, status: String, annotationType: String, anno
 
   case class UndoWhiteboardPubMsgBody(whiteboardId: String)
 
-
+  object SyncGetWhiteboardAccessRespMsg { val NAME = "SyncGetWhiteboardAccessRespMsg" }
+  case class SyncGetWhiteboardAccessRespMsg(header: BbbClientMsgHeader, body: SyncGetWhiteboardAccessRespMsgBody) extends BbbCoreMsg
+  case class SyncGetWhiteboardAccessRespMsgBody(multiUser: Boolean)

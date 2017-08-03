@@ -12,7 +12,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg): Unit = {
-    log.warning("Received user joined voice conference " + msg)
+    log.info("Received user joined voice conference " + msg)
 
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(
@@ -25,7 +25,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
         liveMeeting.props.meetingProp.intId, voiceUserState.intId
       )
 
-      val body = UserJoinedVoiceConfToClientEvtMsgBody(intId = voiceUserState.intId, voiceUserId = voiceUserState.voiceUserId,
+      val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf = msg.body.voiceConf, intId = voiceUserState.intId, voiceUserId = voiceUserState.voiceUserId,
         callerName = voiceUserState.callerName, callerNum = voiceUserState.callerNum, muted = voiceUserState.muted,
         talking = voiceUserState.talking, callingWith = voiceUserState.callingWith, listenOnly = voiceUserState.listenOnly)
 
@@ -48,7 +48,8 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
   }
 
   def startRecordingVoiceConference() {
-    if (VoiceUsers.findAll(liveMeeting.voiceUsers) == 1 &&
+    val numVoiceUsers = VoiceUsers.findAll(liveMeeting.voiceUsers).length
+    if (numVoiceUsers == 1 &&
       liveMeeting.props.recordProp.record &&
       !MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
       MeetingStatus2x.startRecordingVoice(liveMeeting.status)
@@ -57,6 +58,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
 
       val event = buildStartRecordingVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf)
       outGW.send(event)
+    } else {
+      log.info("Not recording audio as numVoiceUsers={} and isRecording={} and recordProp={}", numVoiceUsers,
+        MeetingStatus2x.isVoiceRecording(liveMeeting.status), liveMeeting.props.recordProp.record)
     }
   }
 

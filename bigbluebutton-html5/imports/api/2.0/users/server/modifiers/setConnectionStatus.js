@@ -22,7 +22,7 @@ export default function setConnectionStatus(meetingId, userId, status = 'online'
 
   const modifier = {
     $set: {
-      'user.connection_status': status,
+      connectionStatus: status,
     },
   };
 

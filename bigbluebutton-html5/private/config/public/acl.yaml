@@ -8,10 +8,11 @@ acl:
       - 'polls'
       - 'chat'
       - 'presentations'
-      - 'shapes'
+      - 'annotations'
       - 'slides'
       - 'captions'
       - 'breakouts'
+      - 'voiceUsers'
     methods:
       - 'listenOnlyToggle'
       - 'userLogout'
@@ -28,4 +29,3 @@ acl:
     methods:
       - 'assignPresenter'
       - 'switchSlide'
-      - 'switchSlideMessage'

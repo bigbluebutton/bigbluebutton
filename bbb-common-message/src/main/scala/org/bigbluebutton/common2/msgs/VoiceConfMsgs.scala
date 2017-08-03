@@ -224,7 +224,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   */
   object UserJoinedVoiceConfToClientEvtMsg { val NAME = "UserJoinedVoiceConfToClientEvtMsg" }
   case class UserJoinedVoiceConfToClientEvtMsg(header: BbbClientMsgHeader, body: UserJoinedVoiceConfToClientEvtMsgBody) extends BbbCoreMsg
-  case class UserJoinedVoiceConfToClientEvtMsgBody(intId: String, voiceUserId: String, callerName: String,
+  case class UserJoinedVoiceConfToClientEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, callerName: String,
                                                    callerNum: String, muted: Boolean,
                                                    talking: Boolean, callingWith: String, listenOnly: Boolean)
 
@@ -241,14 +241,14 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   */
   object UserLeftVoiceConfToClientEvtMsg { val NAME = "UserLeftVoiceConfToClientEvtMsg" }
   case class UserLeftVoiceConfToClientEvtMsg(header: BbbClientMsgHeader, body: UserLeftVoiceConfToClientEvtMsgBody) extends BbbCoreMsg
-  case class UserLeftVoiceConfToClientEvtMsgBody(intId: String, voiceUserId: String)
+  case class UserLeftVoiceConfToClientEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String)
 
 /**
   * Sent to client that user has been muted in the voice conference.
   */
   object UserMutedVoiceEvtMsg { val NAME = "UserMutedVoiceEvtMsg" }
   case class UserMutedVoiceEvtMsg(header: BbbClientMsgHeader, body: UserMutedVoiceEvtMsgBody) extends BbbCoreMsg
-  case class UserMutedVoiceEvtMsgBody(intId: String, voiceUserId: String, muted: Boolean)
+  case class UserMutedVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, muted: Boolean)
 
 /**
   * Received from FS that user has been muted in voice conference.
@@ -265,7 +265,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
 
   object UserTalkingVoiceEvtMsg { val NAME = "UserTalkingVoiceEvtMsg" }
   case class UserTalkingVoiceEvtMsg(header: BbbClientMsgHeader, body: UserTalkingVoiceEvtMsgBody) extends BbbCoreMsg
-  case class UserTalkingVoiceEvtMsgBody(intId: String, voiceUserId: String, talking: Boolean)
+  case class UserTalkingVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, talking: Boolean)
 
 /**
   * Received from FS that user is talking in voice conference.

@@ -15,8 +15,8 @@ export default function handleEmojiStatus({ body }, meetingId) {
 
   const modifier = {
     $set: {
-      'user.set_emoji_time': (new Date()).getTime(),
-      'user.emoji': emoji,
+      emojiTime: (new Date()).getTime(),
+      emoji,
     },
   };
 

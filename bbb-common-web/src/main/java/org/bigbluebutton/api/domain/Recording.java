@@ -39,7 +39,6 @@ public class Recording {
 	private String rawSize;
 	private Map<String, String> metadata = new TreeMap<String, String>();
 	private List<Playback> playbacks=new ArrayList<Playback>();
-	private ArrayList<Download> downloads=new ArrayList<Download>();
 	
 	//TODO: 
 	private String state;
@@ -124,11 +123,6 @@ public class Recording {
 				size = size.add(new BigInteger(p.getSize()));
 			}
 		}
-		for (Download p: downloads) {
-			if (p.getSize().length() > 0) {
-				size = size.add(new BigInteger(p.getSize()));
-			}
-		}
 		return size.toString();
 	}
 
@@ -138,46 +132,6 @@ public class Recording {
 
 	public void setRawSize(String rawSize) {
 		this.rawSize = rawSize;
-	}
-
-	public String getDownloadLink() {
-		return downloadLink;
-	}
-
-	public void setDownloadLink(String downloadLink) {
-		this.downloadLink = downloadLink;
-	}
-
-	public String getDownloadFormat() {
-		return downloadFormat;
-	}
-
-	public void setDownloadFormat(String downloadFormat) {
-		this.downloadFormat = downloadFormat;
-	}
-
-	public String getDownloadMd5() {
-		return downloadMd5;
-	}
-
-	public void setDownloadMd5(String downloadMd5) {
-		this.downloadMd5 = downloadMd5;
-	}
-
-	public String getDownloadKey() {
-		return downloadKey;
-	}
-
-	public void setDownloadKey(String downloadKey) {
-		this.downloadKey = downloadKey;
-	}
-
-	public String getDownloadSize() {
-		return downloadSize;
-	}
-
-	public void setDownloadSize(String downloadSize) {
-		this.downloadSize = downloadSize;
 	}
 
 	public String getPlaybackLink() {
@@ -266,14 +220,6 @@ public class Recording {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public ArrayList<Download> getDownloads() {
-		return downloads;
-	}
-
-	public void setDownloads(ArrayList<Download> downloads) {
-		this.downloads = downloads;
 	}
 
 	public List<Playback> getPlaybacks() {

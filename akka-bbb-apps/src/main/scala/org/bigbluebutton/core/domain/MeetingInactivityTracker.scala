@@ -46,7 +46,7 @@ case class MeetingExpiryTracker(
     if (!userHasJoined) {
       copy(userHasJoined = true, lastUserLeftOnInMs = None)
     } else {
-      this
+      copy(lastUserLeftOnInMs = None)
     }
   }
 

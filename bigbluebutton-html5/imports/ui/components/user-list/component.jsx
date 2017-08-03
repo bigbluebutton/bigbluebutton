@@ -296,7 +296,7 @@ class UserList extends Component {
           !this.state.compact ?
             <div className={styles.smallTitle} role="banner">
               {intl.formatMessage(intlMessages.usersTitle)}
-            &nbsp;({users.length})
+              &nbsp;({users.length})
           </div> : <hr className={styles.separator} />
         }
         <div

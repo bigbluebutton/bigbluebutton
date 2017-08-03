@@ -24,7 +24,7 @@ trait UserMutedInVoiceConfEvtMsgHdlr {
         liveMeeting.props.meetingProp.intId, vu.intId
       )
 
-      val body = UserMutedVoiceEvtMsgBody(intId = vu.intId, voiceUserId = vu.intId, vu.muted)
+      val body = UserMutedVoiceEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.intId, vu.muted)
 
       val event = UserMutedVoiceEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

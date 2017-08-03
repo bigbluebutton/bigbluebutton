@@ -6,15 +6,15 @@ const unassignCurrentPresenter = (meetingId, presenterId) => {
   const selector = {
     meetingId,
     userId: { $ne: presenterId },
-    'user.presenter': true,
+    presenter: true,
   };
 
   const modifier = {
     $set: {
-      'user.presenter': false,
+      presenter: false,
     },
     $pop: {
-      'user.roles': 'presenter',
+      roles: 'presenter',
     },
   };
 
@@ -41,10 +41,10 @@ export default function handlePresenterAssigned({ body }, meetingId) {
 
   const modifier = {
     $set: {
-      'user.presenter': true,
+      presenter: true,
     },
     $push: {
-      'user.roles': 'presenter',
+      roles: 'presenter',
     },
   };
 
