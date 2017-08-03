@@ -30,11 +30,6 @@ $number-of-vertical-main-toolbar-buttons: 5;
 
 .toolbarWrapper {
   width: 100%;
-  height: calc((
-    #{$toolbar-button-height} +
-    #{$toolbar-button-margin-top} +
-    #{$toolbar-button-margin-bottom}) * #{$number-of-vertical-main-toolbar-buttons}
-  );
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -1,6 +1,8 @@
 import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
-
+import Users from '/imports/api/2.0/users';
+import Auth from '/imports/ui/services/auth';
+import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
 
 const actions = {
   undoAnnotation: (whiteboardId) => {
@@ -11,53 +13,56 @@ const actions = {
     makeCall('clearWhiteboard', whiteboardId);
   },
 
+  changeWhiteboardMode: (multiUser) => {
+    makeCall('changeWhiteboardAccess', multiUser);
+  },
+
   setWhiteboardToolbarValues: (tool, thickness, color, fontSize, textShape) => {
-    let drawSettings = {
+    const drawSettings = {
       whiteboardAnnotationTool: tool,
       whiteboardAnnotationThickness: thickness,
       whiteboardAnnotationColor: color,
       textFontSize: fontSize,
-      textShape: textShape,
+      textShape,
     };
     Storage.setItem('drawSettings', JSON.stringify(drawSettings));
   },
 
   setTool: (tool) => {
-    let drawSettings = Storage.getItem('drawSettings');
-    if(drawSettings) {
+    const drawSettings = Storage.getItem('drawSettings');
+    if (drawSettings) {
       drawSettings.whiteboardAnnotationTool = tool;
       Storage.setItem('drawSettings', JSON.stringify(drawSettings));
     }
-
   },
 
   setThickness: (thickness) => {
-    let drawSettings = Storage.getItem('drawSettings');
-    if(drawSettings) {
+    const drawSettings = Storage.getItem('drawSettings');
+    if (drawSettings) {
       drawSettings.whiteboardAnnotationThickness = thickness;
       Storage.setItem('drawSettings', JSON.stringify(drawSettings));
     }
   },
 
   setColor: (color) => {
-    let drawSettings = Storage.getItem('drawSettings');
-    if(drawSettings) {
+    const drawSettings = Storage.getItem('drawSettings');
+    if (drawSettings) {
       drawSettings.whiteboardAnnotationColor = color;
       Storage.setItem('drawSettings', JSON.stringify(drawSettings));
     }
   },
 
   setFontSize: (fontSize) => {
-    let drawSettings = Storage.getItem('drawSettings');
-    if(drawSettings) {
+    const drawSettings = Storage.getItem('drawSettings');
+    if (drawSettings) {
       drawSettings.textFontSize = fontSize;
       Storage.setItem('drawSettings', JSON.stringify(drawSettings));
     }
   },
 
   setTextShapeObject: (textShape) => {
-    let drawSettings = Storage.getItem('drawSettings');
-    if(drawSettings) {
+    const drawSettings = Storage.getItem('drawSettings');
+    if (drawSettings) {
       drawSettings.textShape = textShape;
       Storage.setItem('drawSettings', JSON.stringify(drawSettings));
     }
@@ -65,13 +70,37 @@ const actions = {
 };
 
 const getTextShapeActiveId = () => {
-  let drawSettings = Storage.getItem('drawSettings');
-  if(drawSettings) {
+  const drawSettings = Storage.getItem('drawSettings');
+  if (drawSettings) {
     return drawSettings.textShape.textShapeActiveId;
   }
+
+  return '';
+};
+
+const getMultiUserStatus = () => {
+  const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
+
+  if (data) {
+    return data.multiUser;
+  }
+
+  return false;
+};
+
+const isPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID });
+
+  if (currentUser && currentUser.user) {
+    return currentUser.user.presenter;
+  }
+
+  return false;
 };
 
 export default {
   actions,
   getTextShapeActiveId,
+  getMultiUserStatus,
+  isPresenter,
 };
