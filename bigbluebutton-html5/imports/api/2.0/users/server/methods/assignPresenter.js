@@ -33,7 +33,7 @@ export default function assignPresenter(credentials, userId) {
 
   const payload = {
     newPresenterId: userId,
-    newPresenterName: User.user.name,
+    newPresenterName: User.name,
     assignedBy: requesterUserId,
     requesterId: requesterUserId,
   };

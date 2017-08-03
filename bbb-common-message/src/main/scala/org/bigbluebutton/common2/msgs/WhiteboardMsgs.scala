@@ -1,6 +1,7 @@
 package org.bigbluebutton.common2.msgs
 
-case class AnnotationVO(id: String, status: String, annotationType: String, annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
+case class AnnotationVO(id: String, status: String, annotationType: String,
+                        annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
 
   object ClearWhiteboardEvtMsg {
     val NAME = "ClearWhiteboardEvtMsg"

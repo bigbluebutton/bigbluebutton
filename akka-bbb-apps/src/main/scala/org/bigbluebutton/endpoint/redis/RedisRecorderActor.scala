@@ -92,6 +92,8 @@ class RedisRecorderActor(val system: ActorSystem)
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
+
+      case _                                        => // message not to be recorded.
     }
   }
 
@@ -120,6 +122,10 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setOriginalFilename(msg.body.presentation.name)
 
     record(msg.header.meetingId, ev.toMap)
+
+    if (msg.body.presentation.current) {
+      recordSharePresentationEvent(msg.header.meetingId, msg.body.presentation.id)
+    }
   }
 
   private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {
@@ -152,12 +158,16 @@ class RedisRecorderActor(val system: ActorSystem)
   }
 
   private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
+    recordSharePresentationEvent(msg.header.meetingId, msg.body.presentationId)
+  }
+
+  private def recordSharePresentationEvent(meetingId: String, presentationId: String) {
     val ev = new SharePresentationRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setPresentationName(msg.body.presentationId)
+    ev.setMeetingId(meetingId)
+    ev.setPresentationName(presentationId)
     ev.setShare(true)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(meetingId, ev.toMap)
   }
 
   private def getPageNum(id: String): Integer = {

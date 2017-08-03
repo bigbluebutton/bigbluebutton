@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import clearUsers from '/imports/api/2.0/users/server/modifiers/clearUsers';
 import clearChats from '/imports/api/2.0/chat/server/modifiers/clearChats';
 import clearBreakouts from '/imports/api/2.0/breakouts/server/modifiers/clearBreakouts';
-import clearShapes from '/imports/api/2.0/shapes/server/modifiers/clearShapes';
+import clearAnnotations from '/imports/api/2.0/annotations/server/modifiers/clearAnnotations';
 import clearSlides from '/imports/api/2.0/slides/server/modifiers/clearSlides';
 import clearPolls from '/imports/api/2.0/polls/server/modifiers/clearPolls';
 import clearCursor from '/imports/api/2.0/cursor/server/modifiers/clearCursor';
@@ -20,7 +20,7 @@ export default function removeMeeting(meetingId) {
     clearPresentations(meetingId);
     clearBreakouts(meetingId);
     clearPolls(meetingId);
-    clearShapes(meetingId);
+    clearAnnotations(meetingId);
     clearSlides(meetingId);
     clearUsers(meetingId);
     clearVoiceUsers(meetingId);

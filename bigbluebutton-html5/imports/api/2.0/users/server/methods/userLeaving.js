@@ -28,7 +28,7 @@ export default function userLeaving(credentials, userId) {
       'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
   }
 
-  if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
+  if (User.connectionStatus === OFFLINE_CONNECTION_STATUS) {
     return null;
   }
 

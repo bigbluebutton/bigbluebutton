@@ -133,20 +133,19 @@ const sortChats = (a, b) => {
 };
 
 const userFindSorting = {
-  'user.set_emoji_time': 1,
-  'user.role': 1,
-  'user.phone_user': 1,
-  'user._sort_name': 1,
-  'user.userid': 1,
+  emojiTime: 1,
+  role: 1,
+  phoneUser: 1,
+  sortName: 1,
+  userId: 1,
 };
 
 const getUsers = () => {
   const users = Users
-    .find({ 'user.connection_status': 'online' }, userFindSorting)
+    .find({ connectionStatus: 'online' }, userFindSorting)
     .fetch();
 
   return users
-    .map(u => u.user)
     .map(mapUser)
     .sort(sortUsers);
 };
@@ -164,8 +163,7 @@ const getOpenChats = (chatID) => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-    .find({ 'user.userid': { $in: openChats } })
-    .map(u => u.user)
+    .find({ userId: { $in: openChats } })
     .map(mapUser)
     .map((op) => {
       const openChat = op;
@@ -207,9 +205,9 @@ const getOpenChats = (chatID) => {
 
 const getCurrentUser = () => {
   const currentUserId = Auth.userID;
-  const currentUser = Users.findOne({ 'user.userid': currentUserId });
+  const currentUser = Users.findOne({ userId: currentUserId });
 
-  return (currentUser) ? mapUser(currentUser.user) : null;
+  return (currentUser) ? mapUser(currentUser) : null;
 };
 
 export default {

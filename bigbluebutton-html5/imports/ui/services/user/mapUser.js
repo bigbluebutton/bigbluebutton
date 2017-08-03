@@ -6,26 +6,26 @@ const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
 const mapUser = (user) => {
   const userId = Auth.userID;
-  const voiceUser = VoiceUsers.findOne({ intId: user.userid });
+  const voiceUser = VoiceUsers.findOne({ intId: user.userId });
   const { muted, talking, listenOnly } = voiceUser;
 
   const mappedUser = {
-    id: user.userid,
+    id: user.userId,
     name: user.name,
     emoji: {
       status: user.emoji,
-      changedAt: user.set_emoji_time,
+      changedAt: user.emojiTime,
     },
     isPresenter: user.presenter,
     isModerator: user.role === ROLE_MODERATOR,
-    isCurrent: user.userid === userId,
+    isCurrent: user.userId === userId,
     isVoiceUser: listenOnly || talking,
     isMuted: muted,
     isTalking: talking,
     isListenOnly: listenOnly,
     isSharingWebcam: 0,
     isPhoneUser: user.phone_user,
-    isOnline: user.connection_status === 'online',
+    isOnline: user.connectionStatus === 'online',
     isLocked: user.locked,
   };
 

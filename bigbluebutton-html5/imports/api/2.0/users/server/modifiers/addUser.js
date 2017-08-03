@@ -1,11 +1,25 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
+import flat from 'flat';
 import addVoiceUser from '/imports/api/2.0/voice-users/server/modifiers/addVoiceUser';
 
 export default function addUser(meetingId, user) {
-  check(user, Object);
   check(meetingId, String);
+
+  check(user, {
+    intId: String,
+    extId: String,
+    name: String,
+    role: String,
+    guest: Boolean,
+    authed: Boolean,
+    waitingForAcceptance: Boolean,
+    emoji: String,
+    presenter: Boolean,
+    locked: Boolean,
+    avatar: String,
+  });
 
   const userId = user.intId;
   check(userId, String);
@@ -42,23 +56,13 @@ export default function addUser(meetingId, user) {
   userRoles = userRoles.filter(Boolean);
 
   const modifier = {
-    $set: {
-      meetingId,
-      userId,
-      'user.connection_status': 'online',
-      'user.userid': userId,
-      'user.extId': user.extId,
-      'user.role': user.role,
-      'user.roles': userRoles,
-      'user.name': user.name,
-      'user._sort_name': user.name.trim().toLowerCase(),
-      'user.avatarURL': user.avatar,
-      'user.set_emoji_time': user.set_emoji_time || (new Date()).getTime(),
-      'user.joiningTime': (new Date()).getTime(),
-      'user.emoji': user.emoji,
-      'user.presenter': user.presenter,
-      'user.locked': user.locked,
-    },
+    $set: Object.assign(
+      { meetingId },
+      { connectionStatus: 'online' },
+      { roles: userRoles },
+      { sortName: user.name.trim().toLowerCase() },
+      flat(user),
+    ),
   };
 
   addVoiceUser(meetingId, {

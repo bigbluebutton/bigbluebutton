@@ -7,8 +7,59 @@ import initializeCursor from '/imports/api/1.1/cursor/server/modifiers/initializ
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
 
-  check(meeting, Object);
   check(meetingId, String);
+  check(meeting, {
+    breakoutProps: {
+      sequence: Number,
+      breakoutRooms: Array,
+      parentId: String,
+    },
+    meetingProp: {
+      intId: String,
+      extId: String,
+      isBreakout: Boolean,
+      name: String,
+    },
+    usersProp: {
+      webcamsOnlyForModerator: Boolean,
+      guestPolicy: String,
+      maxUsers: Number,
+    },
+    durationProps: {
+      createdTime: Number,
+      duration: Number,
+      createdDate: String,
+      maxInactivityTimeoutMinutes: Number,
+      warnMinutesBeforeMax: Number,
+      meetingExpireIfNoUserJoinedInMinutes: Number,
+      meetingExpireWhenLastUserLeftInMinutes: Number,
+    },
+    welcomeProp: {
+      welcomeMsg: String,
+      modOnlyMessage: String,
+      welcomeMsgTemplate: String,
+    },
+    recordProp: {
+      allowStartStopRecording: Boolean,
+      autoStartRecording: Boolean,
+      record: Boolean,
+    },
+    password: {
+      viewerPass: String,
+      moderatorPass: String,
+    },
+    voiceProp: {
+      voiceConf: String,
+      dialNumber: String,
+      telVoice: String,
+    },
+    screenshareProps: {
+      red5ScreenshareIp: String,
+      red5ScreenshareApp: String,
+      screenshareConf: String,
+    },
+    metadataProp: Object,
+  });
 
   const selector = {
     meetingId,
@@ -17,7 +68,7 @@ export default function addMeeting(meeting) {
   const modifier = {
     $set: Object.assign(
       { meetingId },
-      flat(meeting),
+      flat(meeting, { safe: true }),
     ),
   };
 

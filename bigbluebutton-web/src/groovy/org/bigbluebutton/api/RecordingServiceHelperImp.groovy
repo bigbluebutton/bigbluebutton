@@ -102,16 +102,6 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     }
                 }
             }
-            if ( info.getDownloadFormat() == null ) {
-                builder.download()
-            } else {
-                builder.download {
-                    builder.format(info.getDownloadFormat())
-                    builder.link(info.getDownloadLink())
-                    builder.md5(info.getDownloadMd5())
-                    builder.key(info.getDownloadKey())
-                }
-            }
             Map<String,String> metainfo = info.getMetadata();
             builder.meta{
                 metainfo.keySet().each { key ->
@@ -170,15 +160,6 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             extensions.add( new Extension(extension.name(), extensionPropertiesToMap(extension)) )
         }
         r.setPlaybackExtensions(extensions)
-
-        //Add download
-        if ( !rec.download.text().equals("") ) {
-            r.setDownloadFormat(rec.download.format.text());
-            r.setDownloadLink(rec.download.link.text());
-            r.setDownloadMd5(rec.download.md5.text());
-            r.setDownloadKey(rec.download.key.text());
-            r.setDownloadSize(rec.download.size.text());
-        }
 
         //Add metadata
         Map<String, String> meta = new HashMap<String, String>();

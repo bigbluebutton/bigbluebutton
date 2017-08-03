@@ -19,6 +19,9 @@
 
 package org.bigbluebutton.core.record.events
 
+import scala.collection.immutable.List
+import scala.collection.JavaConverters._
+
 class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
   import AddShapeWhiteboardRecordEvent._
 
@@ -37,6 +40,8 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
       if (f._1 == "points") {
         f._2 match {
           case f2: List[_] => eventMap.put("dataPoints", pointsToString(f2))
+          case f2: java.util.ArrayList[_] =>
+            eventMap.put("dataPoints", pointsToString(f2.asScala.toList))
         }
       } else {
         eventMap.put(f._1, f._2.toString)

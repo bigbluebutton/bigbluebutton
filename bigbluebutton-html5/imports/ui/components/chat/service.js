@@ -28,7 +28,7 @@ const getUser = (userID) => {
     return null;
   }
 
-  return mapUser(user.user);
+  return mapUser(user);
 };
 
 const mapMessage = (messagePayload) => {
