@@ -728,7 +728,7 @@ def processSlideEvents
       slide_number = $presentation_current_slide[$presentation_name].to_i
       BigBlueButton.logger.info("Switching to presentation #{$presentation_name}, saved slide is #{slide_number}")
 
-    elsif eventname == 'GotoSlide'
+    elsif eventname == 'GotoSlideEvent'
       slide_number = node.xpath(".//slide")[0].text().to_i
       BigBlueButton.logger.info("Switching to slide #{slide_number} in presentation #{$presentation_name}")
 
