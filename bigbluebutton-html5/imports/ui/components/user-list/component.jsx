@@ -174,18 +174,18 @@ class UserList extends Component {
     return (
       <div className={styles.header}>
         {
-          !this.state.compact && false ?
+          !this.state.compact ?
             <div className={styles.headerTitle} role="banner">
               {intl.formatMessage(intlMessages.participantsTitle)}
             </div> : null
         }
-        <Button
+        {/* <Button
           label={intl.formatMessage(intlMessages.toggleCompactView)}
           hideLabel
           icon={!this.state.compact ? 'left_arrow' : 'right_arrow'}
           className={styles.btnToggle}
           onClick={this.handleToggleCompactView}
-        />
+        /> */}
       </div>
     );
   }
