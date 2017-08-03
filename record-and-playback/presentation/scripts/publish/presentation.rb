@@ -373,21 +373,21 @@ def storePencilShape
       # BBB 2.0 recording, we have a path with commands that has to be converted to SVG path
       $shapeCommands.each do |command|
         case command
-        when 1 # MOVE_TO
+        when '1' # MOVE_TO
           x = dataPoints.shift.to_f / 100 * $vbox_width
           y = dataPoints.shift.to_f / 100 * $vbox_height
           path.push("M #{x} #{y}")
-        when 2 # LINE_TO
+        when '2' # LINE_TO
           x = dataPoints.shift.to_f / 100 * $vbox_width
           y = dataPoints.shift.to_f / 100 * $vbox_height
           path.push("L #{x} #{y}")
-        when 3 # Q_CURVE_TO
+        when '3' # Q_CURVE_TO
           cx1 = dataPoints.shift.to_f / 100 * $vbox_width
           cy1 = dataPoints.shift.to_f / 100 * $vbox_height
           x = dataPoints.shift.to_f / 100 * $vbox_width
           y = dataPoints.shift.to_f / 100 * $vbox_height
           path.push("Q #{cx1} #{cy2}, #{x} #{y}")
-        when 4 # C_CURVE_TO
+        when '4' # C_CURVE_TO
           cx1 = dataPoints.shift.to_f / 100 * $vbox_width
           cy1 = dataPoints.shift.to_f / 100 * $vbox_height
           cx2 = dataPoints.shift.to_f / 100 * $vbox_width
