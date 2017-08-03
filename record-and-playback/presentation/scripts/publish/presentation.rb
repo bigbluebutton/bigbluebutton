@@ -797,10 +797,10 @@ def processSlideEvents
     end
     $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
     $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
-  end
 
-  $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
-  puts "#{slide_src} : #{slide_start} -> #{slide_end}"
+    $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
+    puts "#{slide_src} : #{slide_start} -> #{slide_end}"
+  end
 end
 
 def processShapesAndClears
