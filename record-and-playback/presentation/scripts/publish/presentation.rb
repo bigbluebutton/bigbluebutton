@@ -785,23 +785,22 @@ def processSlideEvents
       next
     end
 
-      BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
-      # Is this a new image or one previously viewed?
-      if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
-        # If it is, add it to the list with all the data.
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end], $presentation_name, slide_number]
-        $global_slide_count = $global_slide_count + 1
-      else
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-      end
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
+    BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
+    # Is this a new image or one previously viewed?
+    if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
+      # If it is, add it to the list with all the data.
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end], $presentation_name, slide_number]
+      $global_slide_count = $global_slide_count + 1
+    else
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
     end
-
-    $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
-    puts "#{slide_src} : #{slide_start} -> #{slide_end}"
+    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
+    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
   end
+
+  $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
+  puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 end
 
 def processShapesAndClears
