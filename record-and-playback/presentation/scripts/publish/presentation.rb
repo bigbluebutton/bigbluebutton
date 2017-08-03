@@ -939,6 +939,11 @@ def processShapesAndClears
                 end
               end
 
+              if $version_atleast_2_0
+                # Shape thickness is now calculated as a fraction of page width
+                $shapeThickness = $shapeThickness.to_f * $vbox_width
+              end
+
               case $shapeType
                 when 'pencil'
                   storePencilShape()
@@ -1179,9 +1184,9 @@ begin
         $meeting_start = @doc.xpath("//event")[0][:timestamp]
         $meeting_end = @doc.xpath("//event").last()[:timestamp]
 
-        ## These $version variables are not used anywere in this code ##
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
         $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
+        $version_atleast_2_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
         BigBlueButton.logger.info("Creating metadata.xml")
 
         # Get the real-time start and end timestamp
