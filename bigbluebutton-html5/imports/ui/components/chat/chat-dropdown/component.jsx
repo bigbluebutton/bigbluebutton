@@ -11,7 +11,6 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Auth from '/imports/ui/services/auth';
-import Chats from '/imports/api/2.0/chat';
 import Acl from '/imports/startup/acl';
 import ChatService from './../service';
 import styles from './styles';
@@ -35,22 +34,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_USERNAME = CHAT_CONFIG.public_username;
-const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
-
 class ChatDropdown extends Component {
-
-  static getPublicMessages() {
-    const publicMessages = Chats.find({
-      'message.toUsername': { $in: [PUBLIC_CHAT_USERNAME, SYSTEM_CHAT_TYPE] },
-    }, {
-      sort: ['message.fromTime'],
-    }).fetch();
-
-    return ChatService.exportChat(publicMessages).join('\n');
-  }
-
   constructor(props) {
     super(props);
 
@@ -64,7 +48,7 @@ class ChatDropdown extends Component {
 
   componentDidMount() {
     this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatDropdown.getPublicMessages(),
+      text: () => ChatService.exportChat(ChatService.getPublicMessages()),
     });
   }
 
@@ -101,7 +85,8 @@ class ChatDropdown extends Component {
           const mimeType = 'text/plain';
 
           link.setAttribute('download', 'chat.txt');
-          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8, ${encodeURIComponent(ChatDropdown.getPublicMessages())}`);
+          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8, 
+            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicMessages()))}`);
           link.click();
         }}
       />),

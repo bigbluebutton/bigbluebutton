@@ -80,17 +80,8 @@ const reduceMessages = (previous, current) => {
   return previous.concat(reducedMessages);
 };
 
-const getPublicMessages = () => {
-  const publicMessages = Chats.find({
-    'message.toUsername': { $in: [PUBLIC_CHAT_USERNAME, SYSTEM_CHAT_TYPE] },
-  }, {
-    sort: ['message.fromTime'],
-  }).fetch();
-
-  return publicMessages
-    .reduce(reduceMessages, [])
-    .map(mapMessage);
-};
+const reducedPublicMessages = publicMessages =>
+  (publicMessages.reduce(reduceMessages, []).map(mapMessage));
 
 const getPrivateMessages = (userID) => {
   const messages = Chats.find({
@@ -221,10 +212,21 @@ const exportChat = messageList => (
       return `[${hourMin}] ${message.message}`;
     }
     return `[${hourMin}] ${message.fromUsername}: ${htmlDecode(message.message)}`;
-  })
+  }).join('\n')
 );
 
+const getPublicMessages = () => {
+  const publicMessages = Chats.find({
+    'message.toUsername': { $in: [PUBLIC_CHAT_USERNAME, SYSTEM_CHAT_TYPE] },
+  }, {
+    sort: ['message.fromTime'],
+  }).fetch();
+
+  return publicMessages;
+};
+
 export default {
+  reducedPublicMessages,
   getPublicMessages,
   getPrivateMessages,
   getUser,
