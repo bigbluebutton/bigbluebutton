@@ -46,7 +46,7 @@ dependencies {
   providedCompile 'org.slf4j:log4j-over-slf4j:1.7.21@jar' 
   providedCompile 'org.slf4j:jcl-over-slf4j:1.7.21@jar'
   providedCompile 'org.slf4j:jul-to-slf4j:1.7.21@jar'
-  providedCompile 'org.slf4j:slf4j-api:1.7.21@jar'
+  providedCompile 'org.slf4j:slf4j-api:1.7.23@jar'
   	
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
@@ -63,7 +63,8 @@ dependencies {
    compile 'com.google.code.gson:gson:2.5'
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
-  compile 'org.bigbluebutton:bbb-common-message:0.0.18-SNAPSHOT'
+  compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'
+  compile 'org.bigbluebutton:bbb-apps-common_2.12:0.0.1-SNAPSHOT'
 }
 
 test {

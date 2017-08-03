@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# BlueButton open source conferencing system - http://www.bigbluebutton.org/
+# BlueButton open source conferencing system - http://www.bigbluebutton.org/   
 #
 # Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 #
@@ -292,7 +292,7 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	/etc/init.d/monit stop
 
@@ -325,6 +325,13 @@ stop_bigbluebutton () {
         if [ -f /etc/init.d/bbb-fsesl-akka ]; then
                 /etc/init.d/bbb-fsesl-akka stop
         fi
+
+        if [ -f /etc/init/bbb-transcode-akka.conf ]; then
+                service bbb-transcode-akka stop
+        fi
+        if [ -f /etc/init.d/bbb-transcode-akka ]; then
+                /etc/init.d/bbb-transcode-akka stop
+        fi
    fi
 }
 
@@ -337,7 +344,7 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	$FREESWITCH_INIT_D start
 	
@@ -389,6 +396,13 @@ start_bigbluebutton () {
         fi
         if [ -f /etc/init.d/bbb-fsesl-akka ]; then
                 /etc/init.d/bbb-fsesl-akka start
+        fi
+
+        if [ -f /etc/init/bbb-transcode-akka.conf ]; then
+                service bbb-transcode-akka start
+        fi
+        if [ -f /etc/init.d/bbb-transcode-akka ]; then
+                /etc/init.d/bbb-transcode-akka start
         fi
 
 
@@ -453,7 +467,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-fsesl-akka"
+	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
@@ -617,6 +631,9 @@ while [ $# -gt 0 ]; do
 			echo
 			echo "       URL: $BBB_WEB_URL/bigbluebutton/"
 			echo "    Secret: $SECRET"
+			echo
+			echo "      Link to the API-Mate:"
+			echo "      http://mconf.github.io/api-mate/#server=$BBB_WEB_URL/bigbluebutton/&sharedSecret=$SECRET"
 			echo
 			exit 0
 		fi
@@ -1334,21 +1351,6 @@ check_state() {
 		fi
 	fi
 
-        if grep -q removeMeetingWhenEnded=false $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties; then
-                echo "# Warning: In"
-                echo "#"
-                echo "#    $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
-                echo "#"
-                echo "# detected the setting"
-                echo "#"
-                echo "#    removeMeetingWhenEnded=false"
-                echo "#"
-                echo "# You should set this value to true.  It enables bbb-web to immediately purge a meeting from"
-		echo "# memory when receiving an end API call.  Otherwise, users must wait about 2 minutes"
-		echo "# request before creating a meeting with the same meetingID but with different parameters."
-                echo
-        fi
-
         if (( $MEM < 3940 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
@@ -1588,6 +1590,7 @@ if [ $ZIP ]; then
 	tar rfh /tmp/$LOG_FILE.tar $SERVLET_LOGS			> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-apps-akka	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-transcode-akka	> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-fsesl-akka	> /dev/null 2>&1
 	tar rf  /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
 	if [ $DISTRIB_ID == "ubuntu" ]; then
@@ -1738,6 +1741,9 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
+	sudo sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
+				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl $PROTOCOL_HTTP://$HOST/screenshare
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL_HTTP://$HOST/screenshare/screenshare.jnlp
@@ -1885,6 +1891,10 @@ if [ $CLEAN ]; then
 	if [ -d /var/log/bbb-apps-akka ]; then
 		rm -f /var/log/bbb-apps-akka/*
         fi
+
+	if [ -d /var/log/bbb-transcode-akka ]; then
+		rm -f /var/log/bbb-transcode-akka/*
+	fi
 
 	start_bigbluebutton
 	check_state

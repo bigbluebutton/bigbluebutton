@@ -30,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
@@ -46,7 +45,7 @@ import com.google.gson.Gson;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-public class ConnectionInvokerService {
+public class ConnectionInvokerService implements IConnectionInvokerService {
   private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
 
   private final String CONN = "RED5-";
@@ -113,11 +112,156 @@ public class ConnectionInvokerService {
     } else if (message instanceof SharedObjectClientMessage) {
       sendSharedObjectMessage((SharedObjectClientMessage) message);
     } else if (message instanceof DisconnectClientMessage) {
-      handlDisconnectClientMessage((DisconnectClientMessage) message);
+      handleDisconnectClientMessage((DisconnectClientMessage) message);
     } else if (message instanceof DisconnectAllClientsMessage) {
       handleDisconnectAllClientsMessage((DisconnectAllClientsMessage) message);
     } else if (message instanceof DisconnectAllMessage) {
       handleDisconnectAllMessage((DisconnectAllMessage) message);
+    }
+
+    // New messages for 2.0
+    else if (message instanceof DirectToClientMsg) {
+      handleDirectToClientMsg((DirectToClientMsg) message);
+    } else if (message instanceof BroadcastToMeetingMsg) {
+      handleBroadcastToMeetingMsg((BroadcastToMeetingMsg) message);
+    }  else if (message instanceof CloseConnectionMsg) {
+      handleCloseConnectionMsg((CloseConnectionMsg) message);
+    } else if (message instanceof CloseMeetingAllConnectionsMsg) {
+      handleCloseMeetingAllConnectionsMsg((CloseMeetingAllConnectionsMsg) message);
+    }
+  }
+
+  private void handleCloseConnectionMsg(CloseConnectionMsg msg) {
+    if (log.isTraceEnabled()) {
+      log.trace("Handle direct message: " + msg.getMessageName() + " conn=" + msg.connId);
+    }
+
+    IScope meetingScope = getScope(msg.meetingId);
+    if (meetingScope != null) {
+      String connId = msg.connId;
+      IConnection conn = getConnectionWithConnId(meetingScope, connId);
+      if (conn != null) {
+        if (conn.isConnected()) {
+          log.info("Closing conn=[{}] from meeting=[{}]", msg.connId, msg.meetingId);
+          conn.close();
+        }
+      }
+    }
+  }
+
+  private void handleCloseMeetingAllConnectionsMsg(CloseMeetingAllConnectionsMsg msg) {
+    log.info("Disconnecting all clients for meeting {}", msg.meetingId);
+
+    IScope meetingScope = getScope(msg.meetingId);
+    if (meetingScope != null) {
+      Set<IConnection> conns = meetingScope.getClientConnections();
+
+      for (IConnection conn : conns) {
+        if (conn.isConnected()) {
+          conn.close();
+        }
+      }
+    }
+  }
+
+  private void handleDirectToClientMsg(DirectToClientMsg msg) {
+    if (log.isTraceEnabled()) {
+      log.trace("Handle direct message: " + msg.messageName + " msg=" + msg.json);
+    }
+
+    final String connId = msg.connId;
+    Runnable sender = new Runnable() {
+      public void run() {
+        IScope meetingScope = getScope(msg.meetingId);
+        if (meetingScope != null) {
+
+          IConnection conn = getConnectionWithConnId(meetingScope, connId);
+          if (conn != null) {
+            if (conn.isConnected()) {
+              List<Object> params = new ArrayList<Object>();
+              params.add(msg.messageName);
+              params.add(msg.json);
+
+              if (log.isTraceEnabled()) {
+                log.debug("Send direct message: " + msg.messageName + " msg=" + msg.json);
+              }
+
+              ServiceUtils.invokeOnConnection(conn, "onMessageFromServer2x", params.toArray());
+            }
+          } else {
+              log.info("Cannot send message=[" + msg.messageName + "] to [" + connId
+                     + "] as no such session on meeting=[" + msg.meetingId + "]");
+          }
+        }
+      }
+    };
+
+    /**
+     * We need to add a way to cancel sending when the thread is blocked.
+     * Red5 uses a semaphore to guard the rtmp connection and we've seen
+     * instances where our thread is blocked preventing us from sending messages
+     * to other connections. (ralam nov 19, 2015)
+     */
+    long endNanos = System.nanoTime() + SEND_TIMEOUT;
+    Future<?> f = runExec.submit(sender);
+    try {
+      // Only wait for the remaining time budget
+      long timeLeft = endNanos - System.nanoTime();
+      f.get(timeLeft, TimeUnit.NANOSECONDS);
+    } catch (ExecutionException e) {
+      log.warn("ExecutionException while sending direct message on connection[" + connId + "]");
+      log.warn("ExcecutionException cause: " + e.getMessage());
+    } catch (InterruptedException e) {
+      log.warn("Interrupted exception while sending direct message on connection[" + connId + "]");
+      Thread.currentThread().interrupt();
+    } catch (TimeoutException e) {
+      log.warn("Timeout exception while sending direct message on connection[" + connId + "]");
+      f.cancel(true);
+    }
+  }
+
+  private void handleBroadcastToMeetingMsg(final BroadcastToMeetingMsg msg) {
+    if (log.isTraceEnabled()) {
+      log.trace("Handle broadcast message: " + msg.messageName + " msg=" + msg.json);
+    }
+
+    Runnable sender = new Runnable() {
+      public void run() {
+        IScope meetingScope = getScope(msg.meetingId);
+        if (meetingScope != null) {
+          List<Object> params = new ArrayList<Object>();
+          params.add(msg.messageName);
+          params.add(msg.json);
+
+          if (log.isTraceEnabled()) {
+            log.trace("Broadcast message: " + msg.messageName + " msg=" + msg.json);
+          }
+
+          ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer2x", params.toArray(), null);
+        }
+      }
+    };
+
+    /**
+     * We need to add a way to cancel sending when the thread is blocked.
+     * Red5 uses a semaphore to guard the rtmp connection and we've seen
+     * instances where our thread is blocked preventing us from sending messages
+     * to other connections. (ralam nov 19, 2015)
+     */
+    long endNanos = System.nanoTime() + SEND_TIMEOUT;
+    Future<?> f = runExec.submit(sender);
+    try {
+      // Only wait for the remaining time budget
+      long timeLeft = endNanos - System.nanoTime();
+      f.get(timeLeft, TimeUnit.NANOSECONDS);
+    } catch (ExecutionException e) {
+      log.warn("ExecutionException while sending broadcast message: " + msg.messageName + " msg=" + msg.json);
+    } catch (InterruptedException e) {
+      log.warn("Interrupted exception while sending broadcast message: " + msg.messageName + " msg=" + msg.json);
+      Thread.currentThread().interrupt();
+    } catch (TimeoutException e) {
+      log.warn("Timeout exception while sending broadcast message: " + msg.messageName + " msg=" + msg.json);
+      f.cancel(true);
     }
   }
 
@@ -133,7 +277,7 @@ public class ConnectionInvokerService {
           log.info("Disconnecting client=[{}] as bbb-apps isn't running.", connId);
           conn.close();
         }
-      }	
+      }
     }
   }
 
@@ -148,11 +292,11 @@ public class ConnectionInvokerService {
           log.info("Disconnecting client=[{}] from meeting=[{}]", connId, msg.getMeetingId());
           conn.close();
         }
-      }	
+      }
     }
   }
   
-  private void handlDisconnectClientMessage(DisconnectClientMessage msg) {
+  private void handleDisconnectClientMessage(DisconnectClientMessage msg) {
     IScope meetingScope = getScope(msg.getMeetingId());
     if (meetingScope != null) {
       String userId = msg.getUserId();
@@ -185,6 +329,9 @@ public class ConnectionInvokerService {
       String json = gson.toJson(msg.getMessage());
       log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
     }
+    Gson gson = new Gson();
+    String json = gson.toJson(msg.getMessage());
+    System.out.println("Handle direct message: " + msg.getMessageName() + " msg=" + json);
 
     final String userId = msg.getUserID();
     Runnable sender = new Runnable() {
@@ -204,7 +351,9 @@ public class ConnectionInvokerService {
                 String json = gson.toJson(msg.getMessage());
                 log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
               }
-
+              Gson gson = new Gson();
+              String json = gson.toJson(msg.getMessage());
+              System.out.println("Send direct message: " + msg.getMessageName() + " msg=" + json);
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             }
           } else {
@@ -232,7 +381,7 @@ public class ConnectionInvokerService {
       log.warn("ExcecutionException cause: " + e.getMessage());
     } catch (InterruptedException e) {        
       log.warn("Interrupted exception while sending direct message on connection[" + userId + "]");
-      Thread.currentThread().interrupt();         
+      Thread.currentThread().interrupt();
     } catch (TimeoutException e) {               
       log.warn("Timeout exception while sending direct message on connection[" + userId + "]");
       f.cancel(true);     
@@ -263,7 +412,7 @@ public class ConnectionInvokerService {
           ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer", params.toArray(), null);
         }
       }
-    };	
+    };
     
     /**
      * We need to add a way to cancel sending when the thread is blocked.
@@ -274,18 +423,30 @@ public class ConnectionInvokerService {
     long endNanos = System.nanoTime() + SEND_TIMEOUT;     
     Future<?> f = runExec.submit(sender);
     try {         
-    	// Only wait for the remaining time budget         
-    	long timeLeft = endNanos - System.nanoTime();         
-    	f.get(timeLeft, TimeUnit.NANOSECONDS);   
-    } catch (ExecutionException e) {       
-    	log.warn("ExecutionException while sending broadcast message[" + msg.getMessageName() + "]");
-    } catch (InterruptedException e) {        
-    	log.warn("Interrupted exception while sending broadcast message[" + msg.getMessageName() + "]");
-    	Thread.currentThread().interrupt();         
+      // Only wait for the remaining time budget
+      long timeLeft = endNanos - System.nanoTime();
+      f.get(timeLeft, TimeUnit.NANOSECONDS);
+    } catch (ExecutionException e) {
+      log.warn("ExecutionException while sending broadcast message[" + msg.getMessageName() + "]");
+    } catch (InterruptedException e) {
+      log.warn("Interrupted exception while sending broadcast message[" + msg.getMessageName() + "]");
+      Thread.currentThread().interrupt();
     } catch (TimeoutException e) {               
-    	log.warn("Timeout exception while sending broadcast message[" + msg.getMessageName() + "]");
-    	f.cancel(true);     
+      log.warn("Timeout exception while sending broadcast message[" + msg.getMessageName() + "]");
+      f.cancel(true);
     } 
+  }
+
+  private IConnection getConnectionWithConnId(IScope scope, String connId) {
+    for (IConnection conn : scope.getClientConnections()) {
+      String connID = (String) conn.getSessionId();
+      if (connID != null && connID.equals(connId)) {
+        return conn;
+      }
+    }
+
+    log.warn("Failed to get connection for connId = " + connId);
+    return null;
   }
 
   private IConnection getConnection(IScope scope, String userID) {

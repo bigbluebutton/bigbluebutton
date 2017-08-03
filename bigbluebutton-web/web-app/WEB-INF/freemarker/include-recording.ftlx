@@ -48,7 +48,6 @@
         <type>${pb.getFormat()}</type>
         <url>${pb.getLink()}</url>
         <processingTime>${pb.getProcessingTime()?c}</processingTime>
-
         <#if pb.getDuration() == 0>
             <length>${r.calculateDuration()?c}</length>
         <#else>

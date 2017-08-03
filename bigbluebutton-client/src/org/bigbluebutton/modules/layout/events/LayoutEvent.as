@@ -22,16 +22,23 @@ package org.bigbluebutton.modules.layout.events
 
   public class LayoutEvent extends Event
   {
+    public static const SYNC_LAYOUT_EVENT:String = 'SYNC_LAYOUT_EVENT';
     public static const BROADCAST_LAYOUT_EVENT:String = 'BROADCAST_LAYOUT_EVENT';
+    public static const LOCK_LAYOUT_EVENT:String = 'LOCK_LAYOUT_EVENT';
+    public static const UNLOCK_LAYOUT_EVENT:String = 'UNLOCK_LAYOUT_EVENT';
     public static const STOP_LAYOUT_MODULE_EVENT:String = 'STOP_LAYOUT_MODULE_EVENT';
     public static const VIEW_INITIALIZED_EVENT:String = 'VIEW_INITIALIZED_EVENT';
 
     public static const SAVE_LAYOUTS_EVENT:String = 'SAVE_LAYOUTS_EVENT';
+    public static const SAVE_LAYOUTS_WINDOW_EVENT:String = 'SAVE_LAYOUTS_WINDOW_EVENT';
     public static const LOAD_LAYOUTS_EVENT:String = 'LOAD_LAYOUTS_EVENT';
     public static const ADD_CURRENT_LAYOUT_EVENT:String = 'ADD_CURRENT_LAYOUT_EVENT';
     public static const FILE_LOADED_SUCCESSFULLY_EVENT:String = 'FILE_LOADED_SUCCESSFULLY_EVENT';
     public static const APPLY_DEFAULT_LAYOUT_EVENT:String = 'APPLY_DEFAULT_LAYOUT_EVENT';
     public static const INVALIDATE_LAYOUT_EVENT:String = 'INVALIDATE_LAYOUT_EVENT';
+
+    public var layoutName:String = "";
+    public var overwrite:Boolean = false;
 
     public function LayoutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
     {

@@ -1,19 +1,10 @@
 package org.bigbluebutton.core
 
-import akka.actor.ActorRef
-import akka.actor.ActorContext
-import org.bigbluebutton.core.bus.OutgoingEventBus
-import org.bigbluebutton.core.bus.BigBlueButtonOutMessage
-import org.bigbluebutton.core.api.IOutMessage
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg }
 
-object OutMessageGateway {
-  def apply(outgoingEventBus: OutgoingEventBus) =
-    new OutMessageGateway(outgoingEventBus)
-}
+trait OutMessageGateway {
 
-class OutMessageGateway(outgoingEventBus: OutgoingEventBus) {
+  def send(msg: BbbCommonEnvCoreMsg): Unit
 
-  def send(msg: IOutMessage) {
-    outgoingEventBus.publish(BigBlueButtonOutMessage("outgoingMessageChannel", msg))
-  }
+  def record(msg: BbbCommonEnvCoreMsg): Unit
 }

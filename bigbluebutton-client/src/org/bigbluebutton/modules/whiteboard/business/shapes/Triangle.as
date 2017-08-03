@@ -18,42 +18,35 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import org.bigbluebutton.modules.whiteboard.models.Annotation;
-	
+	import flash.display.CapsStyle;
+	import flash.display.JointStyle;
+
 	public class Triangle extends DrawObject
 	{
-		
-		public function Triangle(id:String, type:String, status:String)
-		{
-            super(id, type, status);
+		public function Triangle(id:String, type:String, status:String, userId:String) {
+			super(id, type, status, userId);
 		}
 		
-		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		override protected function makeGraphic():void {
+			this.graphics.clear();
 //			LogUtil.debug("Drawing TRIANGLE");
-			var ao:Object = a.annotation;
 			
-			if (!ao.fill)
-				this.graphics.lineStyle(ao.thickness * zoom, ao.color, ao.transparency ? 0.6 : 1.0);
-			else this.graphics.lineStyle(ao.thickness * zoom, ao.color);
+			this.graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color, _ao.transparency ? 0.6 : 1.0, false, "normal", CapsStyle.NONE, JointStyle.MITER, 8);
 			
-			var arrayEnd:Number = (ao.points as Array).length;
-			var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
-			var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
-			var triangleWidth:Number = denormalize((ao.points as Array)[arrayEnd-2], parentWidth) - startX;
-			var triangleHeight:Number = denormalize((ao.points as Array)[arrayEnd-1], parentHeight) - startY;
+			var arrayEnd:Number = (_ao.points as Array).length;
+			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);
+			var startY:Number = denormalize((_ao.points as Array)[1], _parentHeight);
+			var triangleWidth:Number = denormalize((_ao.points as Array)[arrayEnd-2], _parentWidth) - startX;
+			var triangleHeight:Number = denormalize((_ao.points as Array)[arrayEnd-1], _parentHeight) - startY;
 			
 //			LogUtil.debug(startX + " " + startY + " " + triangleWidth + " " + triangleHeight);
 			
-			if (ao.fill) this.graphics.beginFill(ao.fillColor, ao.transparency ? 0.6 : 1.0);
+			if (_ao.fill) this.graphics.beginFill(_ao.fillColor, _ao.transparency ? 0.6 : 1.0);
 			
 			this.graphics.moveTo(startX+triangleWidth/2, startY); 
 			this.graphics.lineTo(startX+triangleWidth, startY+triangleHeight); 
 			this.graphics.lineTo(startX, triangleHeight+startY); 
 			this.graphics.lineTo(startX+triangleWidth/2, startY);
 		}
-		
-		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-			draw(a, parentWidth, parentHeight, zoom);
-		}					
 	}
 }

@@ -31,7 +31,7 @@ class RecordingServiceTest extends UnitSpec {
     val recordingDir = new File(destDir.getPath() + File.separatorChar + recordingId)
 
     val publishedDir = new File("target/recording/published")
-    RecordingService.publishRecording(publishedDir, recordingId, recordingDir)
+    RecordingService.publishRecording(publishedDir, recordingId, recordingDir, "presentation")
 
     assert(true)
   }
@@ -50,7 +50,7 @@ class RecordingServiceTest extends UnitSpec {
     val unpublishedDir = new File("target/recording/unpublished")
     if (unpublishedDir.exists()) FileUtils.deleteDirectory(unpublishedDir)
 
-    RecordingService.unpublishRecording(unpublishedDir, recordingId, recordingDir)
+    RecordingService.unpublishRecording(unpublishedDir, recordingId, recordingDir, "presentation")
 
     assert(unpublishedDir.exists())
   }
@@ -69,7 +69,7 @@ class RecordingServiceTest extends UnitSpec {
     val deletedDir = new File("target/recording/deleted")
     if (deletedDir.exists()) FileUtils.deleteDirectory(deletedDir)
 
-    RecordingService.deleteRecording(deletedDir, recordingId, recordingDir)
+    RecordingService.deleteRecording(deletedDir, recordingId, recordingDir, "presentation")
 
     assert(deletedDir.exists())
   }

@@ -11,9 +11,11 @@ package org.bigbluebutton.modules.videoconf.views
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
-  import org.bigbluebutton.core.model.VideoProfile;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.core.model.VideoProfile;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.StartedViewingWebcamEvent;
   import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
   import org.bigbluebutton.main.views.VideoWithWarnings;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -125,13 +127,29 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     private function stopViewing():void {
+        // Store that I stopped viewing this streamId;
+        var myUserId: String = UsersUtil.getMyUserID();
+        LiveMeeting.inst().webcams.stoppedViewingStream(myUserId, _streamName);
+        
       var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
-      stopEvent.webcamUserID = user.userID;
+      stopEvent.webcamUserID = user.intId;
       stopEvent.streamName = _streamName;
       _dispatcher.dispatchEvent(stopEvent); 
-      user.removeViewingStream(_streamName);
+      
     }
 
+    private function startedViewing():void {
+        // Store that I started viewing this streamId;
+        var myUserId: String = UsersUtil.getMyUserID();
+        LiveMeeting.inst().webcams.startedViewingStream(myUserId, _streamName);
+        
+        var startEvent:StartedViewingWebcamEvent = new StartedViewingWebcamEvent();
+        startEvent.webcamUserID = user.intId;
+        startEvent.streamName = _streamName;
+        _dispatcher.dispatchEvent(startEvent); 
+        
+    }
+    
     private function stopPublishing():void {
       var e:StopBroadcastEvent = new StopBroadcastEvent();
       e.stream = _streamName;
@@ -183,7 +201,8 @@ package org.bigbluebutton.modules.videoconf.views
       
       _ns.play(streamName);
 
-      user.addViewingStream(streamName);
+      startedViewing();
+      
       invalidateDisplayList();
     }
 

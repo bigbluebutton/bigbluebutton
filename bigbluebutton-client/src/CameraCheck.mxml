@@ -20,10 +20,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
-                creationComplete="onCreationComplete()"
+<mx:Application xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				creationComplete="onCreationComplete()"
                 pageTitle="CameraCheck" width="600" height="400" layout="absolute">	
-  <mx:Script>
+  <fx:Script>
     <![CDATA[    
       import mx.core.UIComponent;
       import mx.utils.URLUtil;
@@ -176,6 +177,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       
     ]]>
-  </mx:Script>
+  </fx:Script>
   
 </mx:Application>
