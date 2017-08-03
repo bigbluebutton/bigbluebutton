@@ -174,7 +174,7 @@ class UserList extends Component {
     return (
       <div className={styles.header}>
         {
-          !this.state.compact ?
+          !this.state.compact && false ?
             <div className={styles.headerTitle} role="banner">
               {intl.formatMessage(intlMessages.participantsTitle)}
             </div> : null
