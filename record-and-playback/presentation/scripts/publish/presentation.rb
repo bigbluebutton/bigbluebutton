@@ -353,12 +353,72 @@ end
 def storePencilShape
   $pencil_count = $pencil_count + 1 # always update the line count!
   $global_shape_count += 1
-  $xml.g(:class => :shape, :id=>"draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape =>"line#{$pencil_count}", :style => "stroke:\##{$colour_hex}; stroke-linejoin: round; stroke-linecap: round; stroke-width:#{$shapeThickness}; fill: none; visibility:hidden; ") do
-    points = "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width},#{(($shapeDataPoints[1].to_f)/100)*$vbox_height}"
-    for i in (1...($shapeDataPoints.length/2)) do
-      points += " #{(($shapeDataPoints[i*2].to_f)/100)*$vbox_width},#{(($shapeDataPoints[(i*2)+1].to_f)/100)*$vbox_height}"
+
+  if $shapeDataPoints.length == 2
+    # Degenerate path, draw a circle (point) instead
+    $xml.g(class: :shape,
+           id: "draw#{$global_shape_count}",
+           timestamp: $shapeCreationTime, undo: $shapeUndoTime,
+           shape: "line#{$pencil_count}",
+           style: "stroke:none;fill:##{$color_hex};visibility:hidden") do
+      $xml.circle(cx: $shapeDataPoints[0].to_f / 100 * $vbox_width,
+                  cy: $shapeDataPoints[1].to_f / 100 * $vbox_height,
+                  r: $shapeThickness)
     end
-    $xml.polyline(:points => points)
+  else
+    path = []
+    dataPoints = $shapeDataPoints.dup
+
+    if $shapeCommand
+      # BBB 2.0 recording, we have a path with commands that has to be converted to SVG path
+      $shapeCommand.each do |command|
+        case command
+        when 1 # MOVE_TO
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("M #{x} #{y}")
+        when 2 # LINE_TO
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("L #{x} #{y}")
+        when 3 # Q_CURVE_TO
+          cx1 = dataPoints.shift.to_f / 100 * $vbox_width
+          cy1 = dataPoints.shift.to_f / 100 * $vbox_height
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("Q #{cx1} #{cy2}, #{x} #{y}")
+        when 4 # C_CURVE_TO
+          cx1 = dataPoints.shift.to_f / 100 * $vbox_width
+          cy1 = dataPoints.shift.to_f / 100 * $vbox_height
+          cx2 = dataPoints.shift.to_f / 100 * $vbox_width
+          cy2 = dataPoints.shift.to_f / 100 * $vbox_height
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("C #{cx1} #{cy1}, #{cx2} #{cy2}, #{x} #{y}")
+        else
+          raise "Unknown pencil command: #{command}"
+        end
+      end
+    else
+      x = dataPoints.shift.to_f / 100 * $vbox_width
+      y = dataPoints.shift.to_f / 100 * $vbox_height
+      path.push("M #{x} #{y}")
+      while dataPoints.length > 0
+        x = dataPoints.shift.to_f / 100 * $vbox_width
+        y = dataPoints.shift.to_f / 100 * $vbox_height
+        path.push("L #{x} #{y}")
+      end
+    end
+
+    path = path.join(" ")
+
+    $xml.g(class: :shape,
+           id: "draw#{$global_shape_count}",
+           timestamp: $shapeCreationTime, undo: $shapeUndoTime,
+           shape: "line#{$pencil_count}",
+           style: "stroke:##{$colour_hex}; stroke-linejoin: round; stroke-linecap: round; stroke-width: #{$shapeThickness}; fill: none; visibility:hidden") do
+      $xml.path(d: path)
+    end
   end
 end
 
@@ -877,7 +937,16 @@ def processShapesAndClears
               $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 
               case $shapeType
-                when 'pencil', 'rectangle', 'ellipse', 'triangle', 'line'
+                when 'pencil'
+                  $shapeThickness = shape.xpath(".//thickness")[0].text()
+                  colour = shape.xpath(".//color")[0].text()
+                  command = shape.at_xpath('.//command')
+                  if command
+                    $shapeCommand = command.text().split(',')
+                  else
+                    $shapeCommand = nil
+                  end
+                when 'rectangle', 'ellipse', 'triangle', 'line'
                   $shapeThickness = shape.xpath(".//thickness")[0].text()
                   colour = shape.xpath(".//color")[0].text()
                 when 'text'
