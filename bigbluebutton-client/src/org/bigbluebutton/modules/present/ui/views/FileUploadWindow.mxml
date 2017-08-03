@@ -358,7 +358,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
                  editable="false" styleName="titleWindowStyle"
                  width="100%"/>
-    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingRight="5" paddingTop="0" verticalAlign="middle"> 
+	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
+	  <mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
+		  <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
+		</mx:Box>
+	</mx:Box>
+    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle"> 
       <mx:Label id="lblFileName" truncateToFit="true" width="{fileUploadBox.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
 	  <mx:Button id="selectBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
@@ -371,17 +376,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
       <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="{presentOptions.enableDownload}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
     </mx:Box>
-    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
+    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle" visible="false"/>
       <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
                       styleName="presentationUploadProgressBarStyle" labelPlacement="center" width="100%" visible="false"/>
     </mx:HBox>
-	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
-		<mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
-	        <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
-		</mx:Box>
-    </mx:Box>
+
     <mx:Canvas width="100%" height="145" verticalScrollPolicy="off">
       <mx:List height="142" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"

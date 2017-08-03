@@ -989,6 +989,15 @@ presentation|UploadedPresentationRenderer {
 	color : #2A2D33;
 }
 
+
+.presentationDownloadShowButtonStyle {
+	/* Normal state */
+	borderStyle       : none;
+	borderThickness   : 0;
+	color             : #1070D7;
+	textDecoration    : underline;
+}
+
 .presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
 	backgroundColor   : #CDD4DB;
 	dropShadowEnabled : false;
