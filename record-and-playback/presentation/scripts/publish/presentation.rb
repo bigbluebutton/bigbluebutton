@@ -942,7 +942,7 @@ def processShapesAndClears
                   colour = shape.xpath(".//color")[0].text()
                   commands = shape.at_xpath('.//commands')
                   if commands
-                    $shapeCommands = command.text().split(',')
+                    $shapeCommands = commands.text().split(',')
                   else
                     $shapeCommands = nil
                   end
