@@ -369,9 +369,9 @@ def storePencilShape
     path = []
     dataPoints = $shapeDataPoints.dup
 
-    if $shapeCommand
+    if $shapeCommands
       # BBB 2.0 recording, we have a path with commands that has to be converted to SVG path
-      $shapeCommand.each do |command|
+      $shapeCommands.each do |command|
         case command
         when 1 # MOVE_TO
           x = dataPoints.shift.to_f / 100 * $vbox_width
@@ -940,11 +940,11 @@ def processShapesAndClears
                 when 'pencil'
                   $shapeThickness = shape.xpath(".//thickness")[0].text()
                   colour = shape.xpath(".//color")[0].text()
-                  command = shape.at_xpath('.//command')
-                  if command
-                    $shapeCommand = command.text().split(',')
+                  commands = shape.at_xpath('.//commands')
+                  if commands
+                    $shapeCommands = command.text().split(',')
                   else
-                    $shapeCommand = nil
+                    $shapeCommands = nil
                   end
                 when 'rectangle', 'ellipse', 'triangle', 'line'
                   $shapeThickness = shape.xpath(".//thickness")[0].text()
