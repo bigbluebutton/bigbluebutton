@@ -940,8 +940,8 @@ def processShapesAndClears
               end
 
               if $version_atleast_2_0
-                # Shape thickness is now calculated as a fraction of page width
-                $shapeThickness = $shapeThickness.to_f * $vbox_width
+                # Shape thickness is now calculated as a percentage of page width
+                $shapeThickness = $shapeThickness.to_f * $vbox_width / 100.0
               end
 
               case $shapeType
