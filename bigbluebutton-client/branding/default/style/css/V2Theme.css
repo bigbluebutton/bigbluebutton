@@ -877,7 +877,8 @@ mx|Panel {
 */
 
 presentation|UploadedPresentationRenderer {
-	iconSave : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
+	iconSave      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
+	iconSaveWhite : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File_White");
 }
 
 .presentationWindowControlsStyle {
@@ -953,19 +954,31 @@ presentation|UploadedPresentationRenderer {
 	color : #2A2D33;
 }
 
-presentation|FileUploadWindow {
-	iconGo         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
-	titleStyleName : "presentationFileUploadWindowTitleStyle";
+.uploadFileButton {
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
 }
 
-.presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
-	fontSize   : 18;
-	fontWeight : bold;
+.uploadFileButton {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
 }
 
-.presentationNamesLabelStyle {
-	fontSize   : 14;
-	fontWeight : bold;
+.presentationNameLabelOver {
+	color    : #FFFFFF;
+	fontSize : 14;
+}
+
+.presentationNameLabelUp {
+	color    : #05172A;
+	fontSize : 14;
 }
 
 .presentationUploadChooseFileButtonStyle {

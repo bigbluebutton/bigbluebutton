@@ -21,64 +21,68 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
-	xmlns:fx="http://ns.adobe.com/mxml/2009"
-    xmlns:mate="http://mate.asfusion.com/"
-	layout="absolute"
-    width="580"
-    styleName="presentationFileUploadWindowStyle"
-    initialize="initData();">
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				layout="absolute"
+				width="580"
+				initialize="initData();">
 
 	<fx:Declarations>
-	  <mate:Dispatcher id="globalDispatch"/>
+		<mate:Dispatcher id="globalDispatch" />
 	</fx:Declarations>
 
-  <fx:Script>
-    <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      import mx.collections.ArrayCollection;
-      import org.bigbluebutton.modules.present.events.DownloadEvent;
-      import org.bigbluebutton.modules.present.model.PresentationModel;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import mx.collections.ArrayCollection;
+			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.model.PresentationModel;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      [Bindable] private var downloadablePresentations:ArrayCollection;
+			[Bindable]
+			private var downloadablePresentations:ArrayCollection;
 
-      override public function move(x:Number, y:Number):void
-      {
-        return;
-      }
+			override public function move(x:Number, y:Number):void {
+				return;
+			}
 
-      private function initData():void {
-        downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
-      }
-    ]]>
+			private function initData():void {
+				downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
+			}
+		]]>
 
-  </fx:Script>
+	</fx:Script>
 
-  <mx:VBox width="100%" height="100%">
-    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="0"/>
-    <mx:Canvas width="100%" height="205" verticalScrollPolicy="off">
-      <mx:List id="presentationNamesList"
-          alternatingItemColors="[#EFEFEF, #FEFEFE]"
-          allowMultipleSelection="false"
-          width="100%"
-          height="202"
-          left="5"
-          top="5"
-          right="5"
-          bottom="5"
-          itemRenderer="org.bigbluebutton.modules.present.ui.views.DownloadPresentationRenderer"
-          dragEnabled="false"
-          dataProvider="{downloadablePresentations}">
-      </mx:List>
-    </mx:Canvas>
-    <mx:Canvas width="100%" height="48">
-      <mx:Button id="okCancelBtn"
-          label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
-          styleName="presentationUploadCancelButtonStyle"
-          right="5"
-          bottom="15"
-          click="globalDispatch.dispatchEvent(new DownloadEvent(DownloadEvent.CLOSE_DOWNLOAD_WINDOW))"
-          toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}"/>
-    </mx:Canvas>
-  </mx:VBox>
+	<mx:VBox width="100%"
+			 height="100%">
+		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}"
+				  styleName="presentationUploadTitleStyle"
+				  paddingBottom="0" />
+		<mx:Canvas width="100%"
+				   height="100%"
+				   verticalScrollPolicy="off">
+			<mx:List id="presentationNamesList"
+					 alternatingItemColors="[#EFEFEF, #FEFEFE]"
+					 allowMultipleSelection="false"
+					 width="100%"
+					 height="202"
+					 left="5"
+					 top="5"
+					 right="5"
+					 bottom="5"
+					 itemRenderer="org.bigbluebutton.modules.present.ui.views.DownloadPresentationRenderer"
+					 dragEnabled="false"
+					 dataProvider="{downloadablePresentations}">
+			</mx:List>
+		</mx:Canvas>
+		<mx:Canvas width="100%">
+			<mx:Button id="okCancelBtn"
+					   label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
+					   styleName="presentationUploadCancelButtonStyle"
+					   right="5"
+					   bottom="15"
+					   click="globalDispatch.dispatchEvent(new DownloadEvent(DownloadEvent.CLOSE_DOWNLOAD_WINDOW))"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}" />
+		</mx:Canvas>
+	</mx:VBox>
 </mx:TitleWindow>
