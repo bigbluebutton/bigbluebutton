@@ -387,7 +387,7 @@ $Id: $
       
       private function openSettings():void {
         paramsMenuData = [];
-        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), handler: resetEmojiStatuses});
+        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: getStyle('iconClearStatus'), handler: resetEmojiStatuses});
         
         if (!roomMuted) {
           paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
@@ -400,7 +400,7 @@ $Id: $
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: getStyle('iconLock'), handler: lockSettings});
         if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {
           if (breakoutRoomsList.length == 0) {
-            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), icon: getStyle('iconRooms'), handler: breakoutRooms});
           } else {
             paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.sendBreakoutRoomsInvitations'), handler: sendBreakoutRoomsInvitations});
           }

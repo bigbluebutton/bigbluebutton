@@ -22,7 +22,8 @@ package org.bigbluebutton.modules.sharednotes.maps
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import mx.binding.utils.BindingUtils;
-	import mx.utils.ObjectUtil;	
+	import mx.utils.ObjectUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -64,7 +65,7 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 
 		private function openAdditionalNotesSet(numAdditionalSharedNotes:Number):void {
-			var extraNotes = numAdditionalSharedNotes - numExistentsAdditionalNotes();
+			var extraNotes : Number = numAdditionalSharedNotes - numExistentsAdditionalNotes();
 			if (extraNotes > 0) {
 				var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT);
 				e.payload.numAdditionalSharedNotes = extraNotes;

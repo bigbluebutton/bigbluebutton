@@ -190,24 +190,33 @@
     				dispatchEvent(e);
                 }
         	}
-			
-			private function emojiBtnClicked() : void {
+
+			private function emojiBtnClicked():void {
 				if (data.hasEmojiStatus) {
 					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", data.userId));
-        }
+				}
 			}
-			
+
 			// Need to refresh the roleBtn toolTip text on locale change
 			private function localeChanged(e:Event):void {
 				updateButtons();
 			}
 		]]>
 	</fx:Script>
-	<mx:Image id="emojiImg" visible="true" includeInLayout="{emojiImg.visible}" />
-	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
 	
-	<mx:Image id="roleImg" visible="true" width="20" height="20" includeInLayout="{roleImg.visible}" />
-	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
+	<mx:Canvas id="emojiCanvas" width="20" height="20" visible="{emojiImg.visible || emojiBtn.visible}" includeInLayout="{emojiCanvas.visible}">
+		<mx:Image id="emojiImg" visible="true" includeInLayout="{emojiImg.visible}" horizontalCenter="0" verticalCenter="0"/>
+		<mx:Button id="emojiBtn" visible="false" enabled="false"
+				   width="20" height="20" horizontalCenter="0" verticalCenter="0"
+				   click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
+	</mx:Canvas>
+	
+	<mx:Canvas id="roleCanvas" width="20" height="20" visible="{roleImg.visible || roleBtn.visible}" includeInLayout="{roleCanvas.visible}">
+		<mx:Image id="roleImg" visible="true" includeInLayout="{roleImg.visible}" horizontalCenter="0" verticalCenter="0"/>
+		<mx:Button id="roleBtn" visible="false" enabled="false"
+				   width="20" height="20" horizontalCenter="0" verticalCenter="0"
+				   click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
+	</mx:Canvas>
 	
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="presenterInd" includeInLayout="false" visible="{data.presenter}" />

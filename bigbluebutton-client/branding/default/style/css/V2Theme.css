@@ -1,5 +1,6 @@
 @namespace mx "library://ns.adobe.com/flex/mx";
 @namespace flexlib "http://code.google.com/p/flexlib/";
+@namespace flexlibcontainers "flexlib.mdi.containers.*";
 @namespace users "org.bigbluebutton.modules.users.views.*";
 @namespace poll "org.bigbluebutton.modules.polling.views.*";
 @namespace whiteboard "org.bigbluebutton.modules.whiteboard.views.*";
@@ -42,8 +43,8 @@ global {
 	selectionColor    : #1070D7;
 	textSelectedColor : #FFFFFF;
 	focusColor        : #1070D7;
-	rollOverColor     : #DBE4ED;
-	textRollOverColor : #1070D7;
+	rollOverColor     : #0A5EAC;
+	textRollOverColor : #FFFFFF;
 }
 
 .defaultShellStyle {
@@ -394,6 +395,10 @@ mx|Button {
 //------------------------------
 */
 
+users|BreakoutRoomSettings {
+	headerHeight : 0;
+}
+
 users|RoomActionsRenderer {
 	paddingLeft     : 5;
 	paddingRight    : 5;
@@ -708,7 +713,7 @@ flexlib|MDIWindow {
 	/*None of the following properties are overridden by the MDIWindow class*/
 	backgroundSize       : "100%";
 
-	headerHeight         : 40;
+	headerHeight         : 30;
 
 	cornerRadius         : 4;
 	dropShadowEnabled    : false;
@@ -732,6 +737,11 @@ flexlib|MDIWindow {
 	paddingRight         : 0;
 
 	showHeaderSeparator  : true;
+}
+
+flexlibcontainers|MDIWindowControlsContainer {
+	paddingRight  : 12;
+	horizontalGap : 12;
 }
 
 .mdiMaximizeButtonStyle {
@@ -867,7 +877,8 @@ mx|Panel {
 */
 
 presentation|UploadedPresentationRenderer {
-	iconSave : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_Disabled");
+	iconSave      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
+	iconSaveWhite : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File_White");
 }
 
 .presentationWindowControlsStyle {
@@ -943,19 +954,31 @@ presentation|UploadedPresentationRenderer {
 	color : #2A2D33;
 }
 
-presentation|FileUploadWindow {
-	iconGo         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
-	titleStyleName : "presentationFileUploadWindowTitleStyle";
+.uploadFileButton {
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
 }
 
-.presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
-	fontSize   : 18;
-	fontWeight : bold;
+.uploadFileButton {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
 }
 
-.presentationNamesLabelStyle {
-	fontSize   : 14;
-	fontWeight : bold;
+.presentationNameLabelOver {
+	color    : #FFFFFF;
+	fontSize : 14;
+}
+
+.presentationNameLabelUp {
+	color    : #05172A;
+	fontSize : 14;
 }
 
 .presentationUploadChooseFileButtonStyle {
@@ -964,6 +987,15 @@ presentation|FileUploadWindow {
 
 .presentationUploadShowButtonStyle {
 	color : #2A2D33;
+}
+
+
+.presentationDownloadShowButtonStyle {
+	/* Normal state */
+	borderStyle       : none;
+	borderThickness   : 0;
+	color             : #1070D7;
+	textDecoration    : underline;
 }
 
 .presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
@@ -1087,9 +1119,9 @@ mx|TitleWindow {
 }
 
 .titleWindowStyle {
-	color      : #05172A;
-	fontSize   : 24;
-	textAlign  :center;
+	color     : #05172A;
+	fontSize  : 24;
+	textAlign : center;
 }
 
 /*
@@ -1118,11 +1150,13 @@ mx|ToolTip {
 */
 
 users|UsersWindow {
-	iconAudioMuted : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
-	iconAudio      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
-	iconLock       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
-	iconMood       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
-	iconSettings   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconAudioMuted  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
+	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
+	iconLock        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
+	iconMood        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconClearStatus : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ClearStatus");
+	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Rooms");
 }
 
 users|StatusItemRenderer {
