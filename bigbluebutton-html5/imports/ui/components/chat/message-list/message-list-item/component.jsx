@@ -140,7 +140,7 @@ export default class MessageListItem extends Component {
           </div>
           <div className={styles.content}>
             <div className={styles.meta}>
-              <div className={!user.isOnline ? styles.name : styles.logout}>
+              <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
                 {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
               </div>

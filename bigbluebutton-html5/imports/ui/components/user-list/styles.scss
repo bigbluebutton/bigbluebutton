@@ -78,17 +78,17 @@ $user-icons-color-hover: $color-gray;
 
 .header {
   @extend %flex-column;
-  justify-content: center;
+  justify-content: left;
   flex-grow: 0;
   display: flex;
   flex-direction: row;
-  padding: 0 $sm-padding-x;
-  margin: $lg-padding-x 0;
+  padding: 0 $md-padding-x;
+  margin: $md-padding-x 0;
 }
 
 .headerTitle {
   flex: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
   color: $color-heading;
 }
@@ -135,10 +135,11 @@ $user-icons-color-hover: $color-gray;
 
 .smallTitle {
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   padding: 0 $sm-padding-x;
   margin: 0 0 ($lg-padding-x / 2) 0;
+  color: $color-gray-light;
 }
 
 .scrollableList {

@@ -146,12 +146,14 @@ class MessageForm extends Component {
             onKeyDown={this.handleMessageKeyDown}
           />
           <Button
+            hideLabel
+            circle
             className={styles.sendButton}
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
             disabled={disabled}
             label={intl.formatMessage(messages.submitLabel)}
-            hideLabel
+            color="primary"
             icon="send"
             onClick={() => null}
           />

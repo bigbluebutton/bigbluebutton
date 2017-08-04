@@ -54,19 +54,18 @@ class Chat extends Component {
               <Icon iconName="left_arrow" /> {title}
             </Link>
           </div>
-          <div className={styles.closeIcon}>
-            {
-              ((this.props.chatID == 'public') ?
-                null :
-                <Link
-                  to="/users"
-                  role="button"
-                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                >
-                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
-                </Link>)
-            }
-          </div>
+          {
+            this.props.chatID !== 'public' ?
+              <Link
+                to="/users"
+                role="button"
+                className={styles.closeIcon}
+                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+              >
+                <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
+              </Link> :
+              null
+          }
         </header>
 
         <MessageList

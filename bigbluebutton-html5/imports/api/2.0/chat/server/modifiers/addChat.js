@@ -17,8 +17,19 @@ const parseMessage = (message) => {
   return parsedMessage;
 };
 
-export default function addChat(meetingId, message) {
-  check(message, {
+const chatType = (userName) => {
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+
+  const typeByUser = {
+    [CHAT_CONFIG.system_username]: CHAT_CONFIG.type_system,
+    [CHAT_CONFIG.public_username]: CHAT_CONFIG.type_public,
+  };
+
+  return userName in typeByUser ? typeByUser[userName] : CHAT_CONFIG.type_private;
+};
+
+export default function addChat(meetingId, chat) {
+  check(chat, {
     message: String,
     fromColor: String,
     toUserId: String,
@@ -29,25 +40,22 @@ export default function addChat(meetingId, message) {
     fromTimezoneOffset: Match.Maybe(Number),
   });
 
-  const parsedMessage = message;
-  parsedMessage.message = parseMessage(message.message);
-
-  const fromUserId = message.fromUserId;
-  const toUserId = message.toUserId;
-
-  check(fromUserId, String);
-  check(toUserId, String);
-
-  const selector = Object.assign(
-    { meetingId },
-    flat(message),
-  );
+  const selector = {
+    meetingId,
+    fromTime: chat.fromTime,
+    fromUserId: chat.fromUserId,
+    toUserId: chat.toUserId,
+  };
 
   const modifier = {
-    $set: {
-      meetingId,
-      message: flat(parsedMessage, { safe: true }),
-    },
+    $set: Object.assign(
+      flat(chat, { safe: true }),
+      {
+        meetingId,
+        message: parseMessage(chat.message),
+        type: chatType(chat.toUsername),
+      },
+    ),
   };
 
   const cb = (err, numChanged) => {
@@ -56,8 +64,13 @@ export default function addChat(meetingId, message) {
     }
 
     const { insertedId } = numChanged;
-    const to = message.toUsername || 'PUBLIC';
-    return Logger.info(`Added chat id=${insertedId} from=${message.fromUsername} to=${to}`);
+    const to = chat.toUsername || 'PUBLIC';
+
+    if (insertedId) {
+      return Logger.info(`Added chat from=${chat.fromUsername} to=${to} time=${chat.fromTime}`);
+    }
+
+    return Logger.info(`Upserted chat from=${chat.fromUsername} to=${to} time=${chat.fromTime}`);
   };
 
   return Chat.upsert(selector, modifier, cb);
