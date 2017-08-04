@@ -989,13 +989,12 @@ presentation|UploadedPresentationRenderer {
 	color : #2A2D33;
 }
 
-
 .presentationDownloadShowButtonStyle {
 	/* Normal state */
-	borderStyle       : none;
-	borderThickness   : 0;
-	color             : #1070D7;
-	textDecoration    : underline;
+	borderStyle     : none;
+	borderThickness : 0;
+	color           : #1070D7;
+	textDecoration  : underline;
 }
 
 .presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
@@ -1356,12 +1355,12 @@ whiteboard|WhiteboardToolbar {
 }
 
 whiteboard|WhiteboardCanvas {
-	iconEllipse   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Ellipse");
-	iconRectangle : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Rectangle");
-	iconTriangle  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Triangle");
-	iconPencil    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Pencil");
-	iconLine      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Line");
-	iconText      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Text");
+	iconEllipse   : Embed("assets/images/ellipse.png");
+	iconRectangle : Embed("assets/images/square.png");
+	iconTriangle  : Embed("assets/images/triangle.png");
+	iconPencil    : Embed("assets/images/pencil.png");
+	iconLine      : Embed("assets/images/line.png");
+	iconText      : Embed("assets/images/text.png");
 }
 
 .colorPickerStyle {
