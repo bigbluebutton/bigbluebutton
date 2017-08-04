@@ -1,32 +1,38 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-
+import PropTypes from 'prop-types';
 import Service from './service';
 import Audio from './component';
 import AudioModal from './audio-modal/component';
 
-class AudioContainer extends Component {
-  render() {
-    return (
-      <Audio {...this.props}>
-        {this.props.children}
-      </Audio>
-    );
-  }
-}
+const propTypes = {
+  children: PropTypes.element,
+};
 
-let didMountedAutoJoin = false;
+const defaultProps = {
+  children: null,
+};
+
+const AudioContainer = props =>
+  (<Audio {...props}>
+    {props.children}
+  </Audio>
+  );
 
 export default withModalMounter(createContainer(({ mountModal }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
+  const { autoJoinAudio } = APP_CONFIG;
+
   return {
     init: () => {
       Service.init();
-      if (didMountedAutoJoin) return;
+      if (!autoJoinAudio) return;
       mountModal(<AudioModal handleJoinListenOnly={Service.joinListenOnly} />);
-      didMountedAutoJoin = true;
     },
   };
 }, AudioContainer));
+
+AudioContainer.propTypes = propTypes;
+AudioContainer.defaultProps = defaultProps;
