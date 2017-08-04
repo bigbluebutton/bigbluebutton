@@ -11,7 +11,6 @@ export default function muteToggle(credentials, userId) {
 
   check(meetingId, String);
   check(requesterUserId, String);
-  check(requesterUserId, String);
 
   const header = {
     name: EVENT_NAME,
