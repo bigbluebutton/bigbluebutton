@@ -57,6 +57,10 @@ trait UserLeaveReqMsgHdlr {
       }
     }
 
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      updateParentMeetingWithUsers()
+    }
+
     if (Users2x.numUsers(liveMeeting.users2x) == 0) {
       val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInMs())
       state.update(tracker)
