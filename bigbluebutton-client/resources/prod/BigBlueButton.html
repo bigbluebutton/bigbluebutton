@@ -30,7 +30,8 @@
       // Workaround Flash hang in Firefox 55 / 56
       // See https://bugzilla.mozilla.org/show_bug.cgi?id=1360666
       document.addEventListener('visibilitychange', function() {
-        if ((navigator.userAgent.indexOf("Firefox/55") != -1) || (navigator.userAgent.indexOf("Firefox/56") != -1)) {
+        if (((navigator.userAgent.indexOf("Firefox/55") != -1) || (navigator.userAgent.indexOf("Firefox/56") != -1))
+          && (navigator.userAgent.indexOf("Win64; x64") == -1) ) {
           if(document.visibilityState == 'visible') {
             document.getElementById("content").style.height = "99%";
             setTimeout(function(){ document.getElementById("content").style.height = "100%"; }, 500);
