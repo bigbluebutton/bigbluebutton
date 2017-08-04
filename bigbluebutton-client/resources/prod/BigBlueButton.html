@@ -25,6 +25,20 @@
 
     <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
+
+    <script type="text/javascript">
+      // Workaround Flash hang in Firefox 55 / 56
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1360666
+      document.addEventListener('visibilitychange', function() {
+        if ((navigator.userAgent.indexOf("Firefox/55") != -1) || (navigator.userAgent.indexOf("Firefox/56") != -1)) {
+          if(document.visibilityState == 'visible') {
+            document.getElementById("content").style.height = "99%";
+            setTimeout(function(){ document.getElementById("content").style.height = "100%"; }, 500);
+          }
+        }
+      });
+    </script>
+
     <script type="text/javascript">
       // Check for Firefox 41.0.1/2 to workaround Flash hang
       // See https://bugzilla.mozilla.org/show_bug.cgi?id=1210665
