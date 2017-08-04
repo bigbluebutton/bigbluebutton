@@ -14,8 +14,44 @@ const propTypes = {
   users: PropTypes.array.isRequired,
 };
 
-const defaultProps = {
-};
+const intlMessages = defineMessages({
+  usersTitle: {
+    id: 'app.userlist.usersTitle',
+    description: 'Title for the Header',
+  },
+  messagesTitle: {
+    id: 'app.userlist.messagesTitle',
+    description: 'Title for the messages list',
+  },
+  participantsTitle: {
+    id: 'app.userlist.participantsTitle',
+    description: 'Title for the Users list',
+  },
+  ChatLabel: {
+    id: 'app.userlist.menu.chat.label',
+    description: 'Save the changes and close the settings menu',
+  },
+  ClearStatusLabel: {
+    id: 'app.userlist.menu.clearStatus.label',
+    description: 'Clear the emoji status of this user',
+  },
+  MakePresenterLabel: {
+    id: 'app.userlist.menu.makePresenter.label',
+    description: 'Set this user to be the presenter in this meeting',
+  },
+  KickUserLabel: {
+    id: 'app.userlist.menu.kickUser.label',
+    description: 'Forcefully remove this user from the meeting',
+  },
+  MuteUserAudioLabel: {
+    id: 'app.userlist.menu.muteUserAudio.label',
+    description: 'Forcefully mute this user',
+  },
+  UnmuteUserAudioLabel: {
+    id: 'app.userlist.menu.unmuteUserAudio.label',
+    description: 'Forcefully unmute this user',
+  },
+});
 
 const listTransition = {
   enter: styles.enter,
@@ -48,7 +84,7 @@ class UserList extends Component {
   rovingIndex(event, listType) {
     const { users, openChats } = this.props;
 
-    let active = document.activeElement;
+    const active = document.activeElement;
     let list;
     let items;
     let numberOfItems;
@@ -57,7 +93,7 @@ class UserList extends Component {
       active.tabIndex = -1;
       items.childNodes[this.focusedItemIndex].tabIndex = 0;
       items.childNodes[this.focusedItemIndex].focus();
-    }
+    };
 
     switch (listType) {
       case 'users':
@@ -105,10 +141,10 @@ class UserList extends Component {
   componentDidMount() {
     if (!this.state.compact) {
       this._msgsList.addEventListener('keydown',
-        event => this.rovingIndex(event, "messages"));
+        event => this.rovingIndex(event, 'messages'));
 
       this._usersList.addEventListener('keydown',
-        event => this.rovingIndex(event, "users"));
+        event => this.rovingIndex(event, 'users'));
     }
   }
 
@@ -167,8 +203,8 @@ class UserList extends Component {
         >
           <CSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
+            transitionAppear
+            transitionEnter
             transitionLeave={false}
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
@@ -226,12 +262,12 @@ class UserList extends Component {
       },
       mute: {
         label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => makeCall('muteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => makeCall('unmuteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_on',
       },
     };
@@ -252,9 +288,9 @@ class UserList extends Component {
         >
           <CSSTransitionGroup
             transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
-            transitionLeave={true}
+            transitionAppear
+            transitionEnter
+            transitionLeave
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
@@ -282,45 +318,6 @@ class UserList extends Component {
     );
   }
 }
-
-const intlMessages = defineMessages({
-  usersTitle: {
-    id: 'app.userlist.usersTitle',
-    description: 'Title for the Header',
-  },
-  messagesTitle: {
-    id: 'app.userlist.messagesTitle',
-    description: 'Title for the messages list',
-  },
-  participantsTitle: {
-    id: 'app.userlist.participantsTitle',
-    description: 'Title for the Users list',
-  },
-  ChatLabel: {
-    id: 'app.userlist.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
-  },
-  ClearStatusLabel: {
-    id: 'app.userlist.menu.clearStatus.label',
-    description: 'Clear the emoji status of this user',
-  },
-  MakePresenterLabel: {
-    id: 'app.userlist.menu.makePresenter.label',
-    description: 'Set this user to be the presenter in this meeting',
-  },
-  KickUserLabel: {
-    id: 'app.userlist.menu.kickUser.label',
-    description: 'Forcefully remove this user from the meeting',
-  },
-  MuteUserAudioLabel: {
-    id: 'app.userlist.menu.muteUserAudio.label',
-    description: 'Forcefully mute this user',
-  },
-  UnmuteUserAudioLabel: {
-    id: 'app.userlist.menu.unmuteUserAudio.label',
-    description: 'Forcefully unmute this user',
-  },
-});
 
 UserList.propTypes = propTypes;
 export default withRouter(injectIntl(UserList));
