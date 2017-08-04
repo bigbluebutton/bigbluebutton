@@ -85,11 +85,6 @@ mx|Application {
 	paddingTop    : 8;
 }
 
-.webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
-	fontSize  : 24;
-	textAlign : center;
-}
-
 .btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
@@ -1022,6 +1017,12 @@ poll|PollChoicesModal {
 	fontSize     : 14;
 	paddingLeft  : 16;
 	paddingRight : 16;
+}
+
+poll|PollResultsModal {
+	verticalGap : 15;
+	horizontalAlign : center;
+	verticalAlign : middle;
 }
 
 .pollResondersLabelStyle {
