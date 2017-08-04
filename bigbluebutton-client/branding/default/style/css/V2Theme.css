@@ -1363,6 +1363,14 @@ whiteboard|WhiteboardCanvas {
 	iconText      : Embed("assets/images/text.png");
 }
 
+whiteboard|WhiteboardTextToolbar {
+	backgroundColor : #FFFFFF;
+	paddingBottom : 3;
+	paddingLeft : 3;
+	paddingRight : 3;
+	paddingTop : 3;
+}
+
 .colorPickerStyle {
 	backgroundColor           : #E5E6E7;
 	columnCount               : 13;
