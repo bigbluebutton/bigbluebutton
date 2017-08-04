@@ -1020,9 +1020,9 @@ poll|PollChoicesModal {
 }
 
 poll|PollResultsModal {
-	verticalGap : 15;
+	verticalGap     : 15;
 	horizontalAlign : center;
-	verticalAlign : middle;
+	verticalAlign   : middle;
 }
 
 .pollResondersLabelStyle {
@@ -1366,10 +1366,10 @@ whiteboard|WhiteboardCanvas {
 
 whiteboard|WhiteboardTextToolbar {
 	backgroundColor : #FFFFFF;
-	paddingBottom : 3;
-	paddingLeft : 3;
-	paddingRight : 3;
-	paddingTop : 3;
+	paddingBottom   : 3;
+	paddingLeft     : 3;
+	paddingRight    : 3;
+	paddingTop      : 3;
 }
 
 .colorPickerStyle {
@@ -1392,9 +1392,12 @@ whiteboard|WhiteboardTextToolbar {
 .whiteboardCircleButtonStyle, .whiteboardTriangleButtonStyle, .whiteboardLineButtonStyle,
 .whiteboardTextButtonStyle, .whiteboardClearButtonStyle, .whiteboardUndoButtonStyle {
 	/* Normal state */
-	borderStyle     : none;
-	borderThickness : 0;
-	cornerRadius    : 0;
+	borderStyle           : none;
+	borderThickness       : 0;
+	cornerRadius          : 0;
+	fillColorSelectedUp   : #E2E4E8;
+	fillColorSelectedOver : #E2E4E8;
+	fillColorSelectedDown : #E2E4E8;
 }
 
 .whiteboardPanZoomButtonStyle {
