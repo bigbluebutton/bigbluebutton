@@ -157,7 +157,11 @@ package org.bigbluebutton.main.model.users
         }
 
         public function onMessageFromServer2x(messageName:String, msg:String):void {
-          if (messageName != "SendCursorPositionEvtMsg") {
+          if (messageName != "SendCursorPositionEvtMsg" &&
+            messageName != "UpdateBreakoutUsersEvtMsg" &&
+            messageName != "BreakoutRoomsTimeRemainingUpdateEvtMsg" &&
+            messageName != "UserTalkingVoiceEvtMsg" &&
+            messageName != "MeetingTimeRemainingUpdateEvtMsg") {
             LOGGER.debug("onMessageFromServer2x - " + msg);
           }
             
@@ -167,8 +171,6 @@ package org.bigbluebutton.main.model.users
             
             var msgName: String = header.name
              
-            LOGGER.debug("authTokenValid=" + LiveMeeting.inst().me.authTokenValid + " messageName=" + messageName);
-            
           if (!LiveMeeting.inst().me.authTokenValid && (messageName == "ValidateAuthTokenRespMsg")) {
             handleValidateAuthTokenReply2x(body)
           } else if (messageName == "validateAuthTokenTimedOut") {
