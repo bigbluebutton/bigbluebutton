@@ -20,6 +20,8 @@ const AudioContainer = props =>
   </Audio>
   );
 
+let didMountedAutoJoin = false;
+
 export default withModalMounter(createContainer(({ mountModal }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
@@ -28,8 +30,9 @@ export default withModalMounter(createContainer(({ mountModal }) => {
   return {
     init: () => {
       Service.init();
-      if (!autoJoinAudio) return;
+      if (!autoJoinAudio || didMountedAutoJoin) return;
       mountModal(<AudioModal handleJoinListenOnly={Service.joinListenOnly} />);
+      didMountedAutoJoin = true;
     },
   };
 }, AudioContainer));
