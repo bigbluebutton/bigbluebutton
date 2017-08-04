@@ -20,6 +20,10 @@
   & + .item {
     margin-bottom: $line-height-computed * 1.5;
   }
+
+  .message {
+    color: $color-heading;
+  }
 }
 
 .avatarWrapper {
