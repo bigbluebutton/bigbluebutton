@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.api
 
 import org.bigbluebutton.common2.msgs.BreakoutUserVO
-import org.bigbluebutton.core.domain.BreakoutUser
+import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
@@ -58,7 +58,9 @@ case class SendBreakoutUsersAuditInternalMsg(parentId: String, breakoutId: Strin
  * @param breakoutId
  * @param users
  */
-case class BreakoutRoomUsersUpdateInternalMsg(parentId: String, breakoutId: String, users: Vector[BreakoutUser]) extends InMessage
+case class BreakoutRoomUsersUpdateInternalMsg(parentId: String, breakoutId: String,
+                                              users:      Vector[BreakoutUser],
+                                              voiceUsers: Vector[BreakoutVoiceUser]) extends InMessage
 
 /**
  * Sent by parent meeting to breakout room to end breakout room.

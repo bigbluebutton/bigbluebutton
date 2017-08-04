@@ -67,7 +67,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-      LOGGER.debug(" received message " + messageName);
+      //LOGGER.debug(" received message " + messageName);
       
       switch (messageName) {
         case "GetUsersMeetingRespMsg":
