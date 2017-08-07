@@ -114,27 +114,26 @@ module BigBlueButton
           "single_step": false
         }
 
-        case @step_name
-        when "archive"
-          @logger.info("Enqueueing sanity worker with #{opts.inspect}")
-          ::Resque.enqueue(BigBlueButton::Resque::SanityWorker, opts)
+        # get the steps from the properties files
+        props = BigBlueButton.read_props
+        next_step = props['steps'][@step_name]
 
-        when "sanity"
-          # find all processing scripts available, schedule one worker for each
-          glob = File.join(File.expand_path('../../process', __FILE__), "*.rb")
-          Dir.glob(glob).sort.each do |process_script|
-            match2 = /([^\/]*).rb$/.match(process_script)
-            format_name = match2[1]
+        # get the target format only if it's a hash
+        # e.g. { presentation: "publish:presentation", video: "publish:video" }
+        next_step = next_step[@format_name] if next_step && next_step.kind_of?(Hash)
+        # make it always an array e.g. [ "process:presentation" ]
+        next_step = [next_step] if next_step && !next_step.kind_of?(Array)
 
-            opts["format_name"] = format_name
-            @logger.info("Enqueueing process worker with #{opts.inspect}")
-            ::Resque.enqueue(BigBlueButton::Resque::ProcessWorker, opts)
+        if next_step.nil?
+          @logger.info("No next step for #{@step_name}, will not schedule anything")
+        else
+          next_step.each do |step|
+            step_name, step_format = step.split(":") # e.g. "process:presentation"
+            opts["format_name"] = step_format unless step_format.nil?
+
+            @logger.info("Enqueueing #{step_name} worker with #{opts.inspect}")
+            ::Resque.enqueue(Object.const_get("BigBlueButton::Resque::#{step_name.capitalize}Worker"), opts)
           end
-
-        when "process"
-          opts["format_name"] = @format_name
-          @logger.info("Enqueueing publish worker with #{opts.inspect}")
-          ::Resque.enqueue(BigBlueButton::Resque::PublishWorker, opts)
         end
       end
 
