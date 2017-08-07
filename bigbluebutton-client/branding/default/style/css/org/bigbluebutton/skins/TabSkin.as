@@ -63,55 +63,6 @@ package org.bigbluebutton.skins {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class methods
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 *  @private
-		 *  Several colors used for drawing are calculated from the base colors
-		 *  of the component (themeColor, borderColor and fillColors).
-		 *  Since these calculations can be a bit expensive,
-		 *  we calculate once per color set and cache the results.
-		 */
-		private static function calcDerivedStyles(themeColor:uint, borderColor:uint, falseFillColor0:uint, falseFillColor1:uint, fillColor0:uint, fillColor1:uint):Object {
-			var key:String = HaloColors.getCacheKey(themeColor, borderColor, falseFillColor0, falseFillColor1, fillColor0, fillColor1);
-
-			if (!cache[key]) {
-				var o:Object = cache[key] = {};
-
-				// Cross-component styles.
-				HaloColors.addHaloColors(o, themeColor, fillColor0, fillColor1);
-
-				// Tab-specific styles.
-				o.borderColorDrk1 = ColorUtil.adjustBrightness2(borderColor, 10);
-				o.falseFillColorBright1 = ColorUtil.adjustBrightness(falseFillColor0, 15);
-				o.falseFillColorBright2 = ColorUtil.adjustBrightness(falseFillColor1, 15);
-			}
-
-			return cache[key];
-		}
-
-		//--------------------------------------------------------------------------
-		//
-		//  Constructor
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 *  Constructor.
-		 *
-		 *  @langversion 3.0
-		 *  @playerversion Flash 9
-		 *  @playerversion AIR 1.1
-		 *  @productversion Flex 3
-		 */
-		public function TabSkin() {
-			super();
-		}
-
-		//--------------------------------------------------------------------------
-		//
 		//  Overridden properties
 		//
 		//--------------------------------------------------------------------------
