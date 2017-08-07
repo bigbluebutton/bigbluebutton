@@ -148,7 +148,7 @@ mx|ApplicationControlBar {
 }
 
 .darkControlBarStyle {
-	color : #FFFFFF;
+	color : #42444C;
 }
 
 .bandwidthButtonStyle {
@@ -518,6 +518,7 @@ views|ClientStatusItemRenderer {
 }
 
 .chatMessageListStyle {
+	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
 	selectionColor : #CED4DB;
 }
@@ -1096,6 +1097,26 @@ sharednotes|SharedNotesRichTextEditor {
 
 .sharedNotesFormatButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Format_Text");
+}
+
+/*
+//------------------------------
+//  SuperTabNavigator
+//------------------------------
+*/
+
+flexlib|SuperTabNavigator {
+	borderColor : #CDD4DB;
+}
+
+mx|Tab {
+	fillColorUp       : #E8EFF3;
+	fillColorOver     : #CDD4DB;
+	fillColorDown     : #ACB2B7;
+	fillColorDisabled : #F0F2F6;
+	cornerRadius      : 0;
+	borderColor       : #CDD4DB;
+	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
 }
 
 /*
