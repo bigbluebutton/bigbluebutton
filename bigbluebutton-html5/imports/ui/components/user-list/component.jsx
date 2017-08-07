@@ -113,14 +113,11 @@ class UserList extends Component {
     }
   }
 
-<<<<<<< HEAD
   componentWillUnmount() {
     this._msgsList.removeEventListener('keypress', (event) => {}, false);
     this._usersList.removeEventListener('keypress', (event) => {}, false);
   }
-
-=======
->>>>>>> bbb/bbb-2x-mconf
+  
   render() {
     return (
       <div className={styles.userList}>

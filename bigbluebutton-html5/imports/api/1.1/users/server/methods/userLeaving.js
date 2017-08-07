@@ -3,8 +3,8 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Users from './../../';
+import Meetings from '/imports/api/1.1/meetings';
 
 import setConnectionStatus from '../modifiers/setConnectionStatus';
 import listenOnlyToggle from './listenOnlyToggle';

@@ -88,50 +88,42 @@ class AudioSettings extends React.Component {
           <div className={styles.audioNote}>
             {intl.formatMessage(intlMessages.descriptionLabel)}
           </div>
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.micSourceLabel)}
-                  <DeviceSelector
-                    value={this.state.inputDeviceId}
-                    className={styles.select}
-                    kind="audioinput"
-                    onChange={this.handleInputChange}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.speakerSourceLabel)}
-                  <DeviceSelector
-                    value={this.state.outputDeviceId}
-                    className={styles.select}
-                    kind="audiooutput"
-                    onChange={this.handleOutputChange}
-                  />
-                </label>
-              </div>
+        </div>
+        <div className={styles.row}>
+          <div className={styles.col}>
+            <div className={styles.formElement}>
+              <label className={cx(styles.label, styles.labelSmall)}>
+                {intl.formatMessage(intlMessages.micSourceLabel)}
+              </label>
+              <DeviceSelector
+                value={this.state.inputDeviceId}
+                className={styles.select}
+                kind="audioinput"
+                onChange={this.handleInputChange} />
             </div>
           </div>
-
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.streamVolumeLabel)}
-                  <AudioStreamVolume
-                    deviceId={this.state.inputDeviceId}
-                    className={styles.audioMeter}
-                  />
-                </label>
-              </div>
+          <div className={styles.col}>
+            <div className={styles.formElement}>
+              <label className={cx(styles.label, styles.labelSmall)}>
+                {intl.formatMessage(intlMessages.speakerSourceLabel)}
+              </label>
+              <DeviceSelector
+                  value={this.state.outputDeviceId}
+                  className={styles.select}
+                  kind="audiooutput"
+                  onChange={this.handleOutputChange} />
             </div>
-            <div className={styles.col}>
-              <label className={styles.label}> </label>
-              <AudioTestContainer />
+          </div>
+        </div>
+        <div className={styles.row}>
+          <div className={styles.col}>
+            <div className={styles.formElement}>
+              <label className={cx(styles.label, styles.labelSmall)}>
+                {intl.formatMessage(intlMessages.streamVolumeLabel)}
+              </label>
+              <AudioStreamVolume
+                deviceId={this.state.inputDeviceId}
+                className={styles.audioMeter} />
             </div>
           </div>
           <div className={styles.col}>
