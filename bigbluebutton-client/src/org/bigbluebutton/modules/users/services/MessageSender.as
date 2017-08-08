@@ -143,11 +143,11 @@ package org.bigbluebutton.modules.users.services
 			}, JSON.stringify(message));
 		}
 		
-		public function listenInOnBreakout(fomMeetingId:String, toMeetingId:String, userId:String):void {
+		public function listenInOnBreakout(fromMeetingId:String, toMeetingId:String, userId:String):void {
       var message:Object = {
         header: {name: "TransferUserToMeetingRequestMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {fomMeetingId: fomMeetingId, toMeetingId: toMeetingId, userId: UsersUtil.getMyUserID()}
+        body: {fromMeetingId: fromMeetingId, toMeetingId: toMeetingId, userId: UsersUtil.getMyUserID()}
       };
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();

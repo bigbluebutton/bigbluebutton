@@ -1,8 +1,8 @@
 @import "/imports/ui/stylesheets/variables/_all";
-@import "/imports/ui/stylesheets/mixins/_scrollable";
 
 .btn {
-  margin: 0;
+  flex: 0 0;
+  margin-left: $sm-padding-x / 2;
 
   i{
   color: black !important;

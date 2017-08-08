@@ -16,8 +16,8 @@ export default function clearUserSystemMessages(meetingId, userId) {
 
   const selector = {
     meetingId,
-    'message.fromUserId': CHAT_CONFIG.type_system,
-    'message.toUserId': userId,
+    fromUserId: CHAT_CONFIG.type_system,
+    toUserId: userId,
   };
 
   return Chat.remove(selector, Logger.info(`Removing system messages from: (${userId})`));

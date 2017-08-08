@@ -85,11 +85,6 @@ mx|Application {
 	paddingTop    : 8;
 }
 
-.webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
-	fontSize  : 24;
-	textAlign : center;
-}
-
 .btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
@@ -153,7 +148,7 @@ mx|ApplicationControlBar {
 }
 
 .darkControlBarStyle {
-	color : #FFFFFF;
+	color : #42444C;
 }
 
 .bandwidthButtonStyle {
@@ -473,6 +468,13 @@ views|ClientStatusItemRenderer {
 //------------------------------
 */
 
+chat|AddChatTabBox {
+	verticalGap  : 20;
+	paddingLeft  : 20;
+	paddingRight : 20;
+	paddingTop   : 20;
+}
+
 .chatControlBarSendButtonStyle {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
 	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
@@ -516,15 +518,63 @@ views|ClientStatusItemRenderer {
 }
 
 .chatOptionsLabel {
-	fontSize          : 12;
-	color             : #000000;
-	textRollOverColor : #000000;
-	textSelectedColor : #000000;
+	fontSize : 14;
 }
 
 .chatMessageListStyle {
+	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
 	selectionColor : #CED4DB;
+}
+
+/*
+//------------------------------
+//  CheckBox
+//------------------------------
+*/
+
+mx|CheckBox {
+	borderColor : #4E5A66;
+	iconColor   : #1070D7;
+	fillColors  : #FFFFFF, #FFFFFF;
+}
+
+/*
+//------------------------------
+//  ColorPicker
+//------------------------------
+*/
+
+.chatColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 12;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
+.notesColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 12;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
 }
 
 /*
@@ -785,6 +835,18 @@ flexlibcontainers|MDIWindowControlsContainer {
 	backgroundAlpha : 1;
 }
 
+.videoDockStyleFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444C;
+	backgroundColor: #42444C;
+}
+
+.videoDockStyleNoFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444C;
+	backgroundColor: #42444C;
+}
+
 /*
 //------------------------------
 //  MicSettings
@@ -989,13 +1051,12 @@ presentation|UploadedPresentationRenderer {
 	color : #2A2D33;
 }
 
-
 .presentationDownloadShowButtonStyle {
 	/* Normal state */
-	borderStyle       : none;
-	borderThickness   : 0;
-	color             : #1070D7;
-	textDecoration    : underline;
+	borderStyle     : none;
+	borderThickness : 0;
+	color           : #1070D7;
+	textDecoration  : underline;
 }
 
 .presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
@@ -1010,7 +1071,7 @@ presentation|UploadedPresentationRenderer {
 }
 
 .presentationSlideViewStyle {
-	backgroundColor : #8A9AA7;
+	backgroundColor : #FFFFFF;
 }
 
 /*
@@ -1023,6 +1084,12 @@ poll|PollChoicesModal {
 	fontSize     : 14;
 	paddingLeft  : 16;
 	paddingRight : 16;
+}
+
+poll|PollResultsModal {
+	verticalGap     : 15;
+	horizontalAlign : center;
+	verticalAlign   : middle;
 }
 
 .pollResondersLabelStyle {
@@ -1043,6 +1110,18 @@ mx|ProgressBar {
 	borderColor : #CDD4DB;
 	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
 	trackSkin   : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+}
+
+/*
+//------------------------------
+//  RadioButton
+//------------------------------
+*/
+
+mx|RadioButton {
+	borderColor : #4E5A66;
+	iconColor   : #1070D7;
+	fillColors  : #FFFFFF, #FFFFFF;
 }
 
 /*
@@ -1096,6 +1175,26 @@ sharednotes|SharedNotesRichTextEditor {
 
 .sharedNotesFormatButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Format_Text");
+}
+
+/*
+//------------------------------
+//  SuperTabNavigator
+//------------------------------
+*/
+
+flexlib|SuperTabNavigator {
+	borderColor : #CDD4DB;
+}
+
+mx|Tab {
+	fillColorUp       : #E8EFF3;
+	fillColorOver     : #CDD4DB;
+	fillColorDown     : #ACB2B7;
+	fillColorDisabled : #F0F2F6;
+	cornerRadius      : 0;
+	borderColor       : #CDD4DB;
+	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
 }
 
 /*
@@ -1356,12 +1455,20 @@ whiteboard|WhiteboardToolbar {
 }
 
 whiteboard|WhiteboardCanvas {
-	iconEllipse   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Ellipse");
-	iconRectangle : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Rectangle");
-	iconTriangle  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Triangle");
-	iconPencil    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Pencil");
-	iconLine      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Line");
-	iconText      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Text");
+	iconEllipse   : Embed("assets/images/ellipse.png");
+	iconRectangle : Embed("assets/images/square.png");
+	iconTriangle  : Embed("assets/images/triangle.png");
+	iconPencil    : Embed("assets/images/pencil.png");
+	iconLine      : Embed("assets/images/line.png");
+	iconText      : Embed("assets/images/text.png");
+}
+
+whiteboard|WhiteboardTextToolbar {
+	backgroundColor : #FFFFFF;
+	paddingBottom   : 3;
+	paddingLeft     : 3;
+	paddingRight    : 3;
+	paddingTop      : 3;
 }
 
 .colorPickerStyle {
@@ -1384,9 +1491,12 @@ whiteboard|WhiteboardCanvas {
 .whiteboardCircleButtonStyle, .whiteboardTriangleButtonStyle, .whiteboardLineButtonStyle,
 .whiteboardTextButtonStyle, .whiteboardClearButtonStyle, .whiteboardUndoButtonStyle {
 	/* Normal state */
-	borderStyle     : none;
-	borderThickness : 0;
-	cornerRadius    : 0;
+	borderStyle           : none;
+	borderThickness       : 0;
+	cornerRadius          : 0;
+	fillColorSelectedUp   : #E2E4E8;
+	fillColorSelectedOver : #E2E4E8;
+	fillColorSelectedDown : #E2E4E8;
 }
 
 .whiteboardPanZoomButtonStyle {

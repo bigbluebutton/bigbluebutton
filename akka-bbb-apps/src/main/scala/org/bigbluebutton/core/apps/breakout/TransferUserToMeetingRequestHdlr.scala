@@ -13,14 +13,38 @@ trait TransferUserToMeetingRequestHdlr {
 
   def handleTransferUserToMeetingRequestMsg(msg: TransferUserToMeetingRequestMsg, state: MeetingState2x): MeetingState2x = {
 
-    for {
-      model <- state.breakout
-      to <- getVoiceConf(msg.body.toMeetingId, model)
-      from <- getVoiceConf(msg.body.fromMeetingId, model)
-      voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
-    } yield {
-      val event = buildTransferUserToVoiceConfSysMsg(from, to, voiceUser.voiceUserId)
-      outGW.send(event)
+    if (msg.body.fromMeetingId == liveMeeting.props.meetingProp.intId) {
+      // want to transfer from parent meeting to breakout
+      for {
+        model <- state.breakout
+        to <- getVoiceConf(msg.body.toMeetingId, model)
+        from <- getVoiceConf(msg.body.fromMeetingId, model)
+        voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
+      } yield {
+        val event = buildTransferUserToVoiceConfSysMsg(from, to, voiceUser.voiceUserId)
+        outGW.send(event)
+      }
+    } else {
+
+      for {
+        model <- state.breakout
+        room <- model.find(msg.body.fromMeetingId)
+      } yield {
+        room.voiceUsers.foreach { vu =>
+          log.info(" ***** Breakout voice user={} userId={}", vu, msg.body.userId)
+        }
+      }
+
+      for {
+        model <- state.breakout
+        to <- getVoiceConf(msg.body.toMeetingId, model)
+        from <- getVoiceConf(msg.body.fromMeetingId, model)
+        room <- model.find(msg.body.fromMeetingId)
+        voiceUser <- room.voiceUsers.find(p => p.id == msg.body.userId)
+      } yield {
+        val event = buildTransferUserToVoiceConfSysMsg(from, to, voiceUser.voiceUserId)
+        outGW.send(event)
+      }
     }
 
     state

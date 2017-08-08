@@ -223,7 +223,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			} else if(toolType == AnnotationType.TRIANGLE) {
 				CursorManager.setCursor(getStyle("iconTriangle"));
 			} else if(toolType == AnnotationType.PENCIL) {
-				CursorManager.setCursor(getStyle("iconPencil"));
+				CursorManager.setCursor(getStyle("iconPencil"), 2, -2, -22);
 			} else if(toolType == AnnotationType.LINE) {
 				CursorManager.setCursor(getStyle("iconLine"));
 			} else if(toolType == AnnotationType.TEXT) {

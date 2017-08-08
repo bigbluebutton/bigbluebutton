@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
-import ChatDropdownContainer from './chat-dropdown/component';
+import ChatDropdown from './chat-dropdown/component';
 import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -39,7 +39,6 @@ const Chat = (props) => {
 
   return (
     <div className={styles.chat}>
-
       <header className={styles.header}>
         <div className={styles.title}>
           <Link
@@ -50,26 +49,19 @@ const Chat = (props) => {
             <Icon iconName="left_arrow" /> {title}
           </Link>
         </div>
-        <div className={styles.closeIcon}>
-          {
-            ((chatID === 'public') ?
-              null :
-              <Link
-                to="/users"
-                role="button"
-                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-              >
-                <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
-              </Link>)
-          }{
-            ((chatID === 'public') ?
-              <ChatDropdownContainer />
-              :
-              null)
-          }
-        </div>
+        {
+          chatID !== 'public' ?
+            <Link
+              to="/users"
+              role="button"
+              className={styles.closeIcon}
+              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+            >
+              <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
+            </Link> :
+            <ChatDropdown />
+        }
       </header>
-
       <MessageList
         chatId={chatID}
         messages={messages}

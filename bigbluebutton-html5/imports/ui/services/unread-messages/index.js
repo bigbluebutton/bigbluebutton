@@ -32,18 +32,18 @@ class UnreadMessagesTracker {
 
   count(chatID) {
     const filter = {
-      'message.fromTime': {
+      fromTime: {
         $gt: this.get(chatID),
       },
-      'message.fromUserId': { $ne: Auth.userID },
+      fromUserId: { $ne: Auth.userID },
     };
 
     // Minimongo does not support $eq. See https://github.com/meteor/meteor/issues/4142
     if (chatID === PUBLIC_CHAT_USERID) {
-      filter['message.toUserId'] = { $not: { $ne: chatID } };
+      filter.toUserId = { $not: { $ne: chatID } };
     } else {
-      filter['message.toUserId'] = { $not: { $ne: Auth.userID } };
-      filter['message.fromUserId'].$not = { $ne: chatID };
+      filter.toUserId = { $not: { $ne: Auth.userID } };
+      filter.fromUserId.$not = { $ne: chatID };
     }
 
     return Chats.find(filter).count();

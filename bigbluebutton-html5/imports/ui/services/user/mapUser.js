@@ -12,6 +12,8 @@ const mapUser = (user) => {
   const mappedUser = {
     id: user.userId,
     name: user.name,
+    color: user.color,
+    avatar: user.avatar,
     emoji: {
       status: user.emoji,
       changedAt: user.emojiTime,

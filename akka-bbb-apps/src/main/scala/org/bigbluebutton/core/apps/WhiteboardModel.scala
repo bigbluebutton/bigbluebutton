@@ -131,7 +131,7 @@ class WhiteboardModel {
         val pathData = BezierWrapper.lineSimplifyAndCurve(oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
         //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
 
-        val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asInstanceOf[Object]) + ("commands" -> pathData.commands.asInstanceOf[Object])
+        val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
         val updatedAnnotation = annotation.copy(position = oldAnnotation.position, annotationInfo = updatedAnnotationData)
 
         val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: usersAnnotations.tail))
