@@ -133,8 +133,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
 				// FIXME : chceck dark layout is still working
 				if(e.layoutID != "bbb.layout.name.videochat"){
-					setStyle("styleNameFocus", "videoDockStyleFocus");
-					setStyle("styleNameNoFocus", "videoDockStyleNoFocus");
+					setStyle("styleNameFocus", "mdiWindowFocus");
+					setStyle("styleNameNoFocus", "mdiWindowNoFocus");
 					showControls = true;
 					this.title = ResourceUtil.getInstance().getString("bbb.videodock.title");
 				} else {

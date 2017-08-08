@@ -835,6 +835,18 @@ flexlibcontainers|MDIWindowControlsContainer {
 	backgroundAlpha : 1;
 }
 
+.videoDockStyleFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444C;
+	backgroundColor: #42444C;
+}
+
+.videoDockStyleNoFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444C;
+	backgroundColor: #42444C;
+}
+
 /*
 //------------------------------
 //  MicSettings
