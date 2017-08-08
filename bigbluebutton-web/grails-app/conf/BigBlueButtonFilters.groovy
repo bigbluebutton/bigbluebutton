@@ -27,13 +27,13 @@ class BigBlueButtonFilters {
   	  	response.setHeader("Access-Control-Allow-Origin", "${grailsApplication.config.accessControlAllowOrigin}")
   	  }
   	}
-//  	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|enter|signOut)') {
-//  		before = {
-//  			if (keepAliveService.isDown()) {
-//  				response.sendError(503, "BigBlueButton")
-//					return false
-//  			}
-//  		}
-//  	}
+  	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|enter|signOut)') {
+  		before = {
+  			if (keepAliveService.isDown()) {
+				render(view: "error")
+				return false
+  			}
+  		}
+  	}
   }
 }
