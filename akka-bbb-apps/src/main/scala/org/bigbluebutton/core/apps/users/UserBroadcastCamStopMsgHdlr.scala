@@ -10,23 +10,31 @@ trait UserBroadcastCamStopMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleUserBroadcastCamStopMsg(msg: UserBroadcastCamStopMsg): Unit = {
-
-    def broadcastEvent(msg: UserBroadcastCamStopMsg): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
-      val envelope = BbbCoreEnvelope(UserBroadcastCamStoppedEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UserBroadcastCamStoppedEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
-
-      val body = UserBroadcastCamStoppedEvtMsgBody(msg.header.userId, msg.body.stream)
-      val event = UserBroadcastCamStoppedEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-    }
-
     for {
-      uvo <- Webcams.removeWebcamBroadcastStream(liveMeeting.webcams, msg.body.stream)
+      _ <- Webcams.removeWebcamBroadcastStream(liveMeeting.webcams, msg.body.stream)
     } yield {
-      broadcastEvent(msg)
+      broadcastUserBroadcastCamStoppedEvtMsg(msg.body.stream, msg.header.userId)
 
     }
+  }
+
+  def handleUserBroadcastCamStopMsg(userId: String): Unit = {
+    for {
+      uvo <- Webcams.findWebcamsForUser(liveMeeting.webcams, userId)
+      _ <- Webcams.removeWebcamBroadcastStream(liveMeeting.webcams, uvo.streamId)
+    } yield {
+      broadcastUserBroadcastCamStoppedEvtMsg(uvo.streamId, userId)
+    }
+  }
+
+  def broadcastUserBroadcastCamStoppedEvtMsg(streamId: String, userId: String): Unit = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, userId)
+    val envelope = BbbCoreEnvelope(UserBroadcastCamStoppedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(UserBroadcastCamStoppedEvtMsg.NAME, props.meetingProp.intId, userId)
+
+    val body = UserBroadcastCamStoppedEvtMsgBody(userId, streamId)
+    val event = UserBroadcastCamStoppedEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msgEvent)
   }
 }
