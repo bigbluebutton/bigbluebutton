@@ -468,6 +468,13 @@ views|ClientStatusItemRenderer {
 //------------------------------
 */
 
+chat|AddChatTabBox {
+	verticalGap  : 20;
+	paddingLeft  : 20;
+	paddingRight : 20;
+	paddingTop   : 20;
+}
+
 .chatControlBarSendButtonStyle {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
 	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
@@ -511,16 +518,63 @@ views|ClientStatusItemRenderer {
 }
 
 .chatOptionsLabel {
-	fontSize          : 12;
-	color             : #000000;
-	textRollOverColor : #000000;
-	textSelectedColor : #000000;
+	fontSize          : 14;
 }
 
 .chatMessageListStyle {
 	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
 	selectionColor : #CED4DB;
+}
+
+/*
+//------------------------------
+//  CheckBox
+//------------------------------
+*/
+
+mx|CheckBox {
+	borderColor : #4E5A66;
+	iconColor   : #1070D7;
+	fillColors  : #FFFFFF, #FFFFFF;
+}
+
+/*
+//------------------------------
+//  ColorPicker
+//------------------------------
+*/
+
+.chatColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 12;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
+.notesColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 12;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
 }
 
 /*
@@ -1044,6 +1098,18 @@ mx|ProgressBar {
 	borderColor : #CDD4DB;
 	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
 	trackSkin   : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+}
+
+/*
+//------------------------------
+//  RadioButton
+//------------------------------
+*/
+
+mx|RadioButton {
+	borderColor : #4E5A66;
+	iconColor   : #1070D7;
+	fillColors  : #FFFFFF, #FFFFFF;
 }
 
 /*
