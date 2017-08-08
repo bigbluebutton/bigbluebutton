@@ -11,7 +11,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 object Polls {
 
   def handleStartPollReqMsg(userId: String, pollId: String, pollType: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
-    println("Received StartPollReqMsg for pollType=[" + pollType + "]")
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
       for {
         poll <- PollFactory.createPoll(pollId, pollType, numRespondents, None)
@@ -402,7 +401,6 @@ object PollFactory {
   }
 
   private def createQuestion(qType: String, answers: Option[Seq[String]]): Option[Question] = {
-    println("**** Creating quesion")
 
     val qt = qType.toUpperCase()
     var questionOption: Option[Question] = None

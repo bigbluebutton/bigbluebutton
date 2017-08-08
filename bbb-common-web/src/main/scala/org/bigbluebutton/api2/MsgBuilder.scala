@@ -46,6 +46,15 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildCheckAlivePingSysMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(CheckAlivePingSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(CheckAlivePingSysMsg.NAME)
+    val body = CheckAlivePingSysMsgBody(system, timestamp)
+    val req = CheckAlivePingSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPresentationPageGeneratedPubMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationPageGeneratedSysPubMsg.NAME, routing)
