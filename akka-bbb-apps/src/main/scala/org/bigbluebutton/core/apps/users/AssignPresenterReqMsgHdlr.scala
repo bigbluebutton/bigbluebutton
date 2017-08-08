@@ -12,7 +12,7 @@ trait AssignPresenterReqMsgHdlr {
 
   def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg) {
 
-    def broadcastPresenterChange(oldPres: UserState, newPres: UserState): Unit = {
+    def broadcastOldPresenterChange(oldPres: UserState): Unit = {
       // unassign old presenter
       val routingUnassign = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
@@ -26,7 +26,9 @@ trait AssignPresenterReqMsgHdlr {
       val eventUnassign = PresenterUnassignedEvtMsg(headerUnassign, bodyUnassign)
       val msgEventUnassign = BbbCommonEnvCoreMsg(envelopeUnassign, eventUnassign)
       outGW.send(msgEventUnassign)
+    }
 
+    def broadcastNewPresenterChange(newPres: UserState): Unit = {
       // set new presenter
       val routingAssign = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
@@ -44,11 +46,16 @@ trait AssignPresenterReqMsgHdlr {
 
     for {
       oldPres <- Users2x.findPresenter(this.liveMeeting.users2x)
-      newPres <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.newPresenterId)
     } yield {
       Users2x.makeNotPresenter(this.liveMeeting.users2x, oldPres.intId)
+      broadcastOldPresenterChange(oldPres)
+    }
+
+    for {
+      newPres <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.newPresenterId)
+    } yield {
       Users2x.makePresenter(this.liveMeeting.users2x, newPres.intId)
-      broadcastPresenterChange(oldPres, newPres)
+      broadcastNewPresenterChange(newPres)
     }
   }
 

@@ -2,12 +2,16 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.api.{ BreakoutRoomUsersUpdateInternalMsg, SendBreakoutUsersAuditInternalMsg }
+import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
+import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait BreakoutHdlrHelpers extends SystemConfiguration {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
+  val eventBus: InternalEventBus
 
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String, breakoutId: String) {
     for {
@@ -46,5 +50,20 @@ trait BreakoutHdlrHelpers extends SystemConfiguration {
     val msgEvent = build(meetingId, breakoutId, userId, redirectJoinURL, noRedirectJoinURL)
     outGW.send(msgEvent)
 
+  }
+
+  def updateParentMeetingWithUsers(): Unit = {
+
+    val users = Users2x.findAll(liveMeeting.users2x)
+    val breakoutUsers = users map { u => new BreakoutUser(u.extId, u.name) }
+
+    val voiceUsers = VoiceUsers.findAll(liveMeeting.voiceUsers)
+    val breakoutVoiceUsers = voiceUsers map { vu => BreakoutVoiceUser(vu.intId, vu.intId, vu.voiceUserId) }
+
+    eventBus.publish(BigBlueButtonEvent(
+      liveMeeting.props.breakoutProps.parentId,
+      new BreakoutRoomUsersUpdateInternalMsg(liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId,
+        breakoutUsers, breakoutVoiceUsers)
+    ))
   }
 }

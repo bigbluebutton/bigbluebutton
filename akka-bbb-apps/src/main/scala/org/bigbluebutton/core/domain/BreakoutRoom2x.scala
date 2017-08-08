@@ -9,6 +9,7 @@ case class BreakoutRoom2x(
     voiceConf:     String,
     assignedUsers: Vector[String],
     users:         Vector[BreakoutUser],
+    voiceUsers:    Vector[BreakoutVoiceUser],
     startedOn:     Option[Long],
     started:       Boolean
 ) {
@@ -16,3 +17,4 @@ case class BreakoutRoom2x(
 }
 
 case class BreakoutUser(id: String, name: String)
+case class BreakoutVoiceUser(id: String, extId: String, voiceUserId: String)

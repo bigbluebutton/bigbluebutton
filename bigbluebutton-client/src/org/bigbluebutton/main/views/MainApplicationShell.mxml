@@ -93,8 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.TextEvent;
 			import flash.geom.Point;
 			import flash.net.navigateToURL;
-			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			import flash.utils.setTimeout;
 			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
@@ -103,6 +102,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
+			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -774,23 +775,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
                 if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
-                    var chromeWebcmPermissionImg : ChromeWebcamPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, ChromeWebcamPermissionImage, false) as ChromeWebcamPermissionImage;
-                    if (chromeWebcmPermissionImg) {
-                        chromeWebcmPermissionImg.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-                            var point1:Point = new Point();
-                            // Calculate position of TitleWindow in Application's coordinates.
-                            point1.x = width / 2;
-                            point1.y = height / 2;
-                            if (Capabilities.os.indexOf("Mac") >= 0) {
-                                chromeWebcmPermissionImg.x = (mdiCanvas.width - chromeWebcmPermissionImg.width);
-                            } else {
-                                chromeWebcmPermissionImg.x = 20;
-                            }
-                            chromeWebcmPermissionImg.y = 20;
-                        });
-                    }
+					// Show ChromeWebcmPermissionImg component after showing the webcam window due event listeners registration order
+                    setTimeout(showChromeWebcmPermissionImg, 100);
                 }
             }
+			
+			private function showChromeWebcmPermissionImg() : void {
+				var chromeWebcmPermissionImg : ChromeWebcamPermissionImage = PopUpUtil.createNonModelPopUp(mdiCanvas, ChromeWebcamPermissionImage, false) as ChromeWebcamPermissionImage;
+				if (chromeWebcmPermissionImg) {
+					chromeWebcmPermissionImg.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+						var point1:Point = new Point();
+						// Calculate position of TitleWindow in Application's coordinates.
+						point1.x = width / 2;
+						point1.y = height / 2;
+						if (Capabilities.os.indexOf("Mac") >= 0) {
+							chromeWebcmPermissionImg.x = (mdiCanvas.width - chromeWebcmPermissionImg.width);
+						} else {
+							chromeWebcmPermissionImg.x = 20;
+						}
+						chromeWebcmPermissionImg.y = 20;
+					});
+				}
+			}
 
             private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
                 showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));

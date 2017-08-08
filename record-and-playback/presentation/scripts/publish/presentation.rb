@@ -353,12 +353,72 @@ end
 def storePencilShape
   $pencil_count = $pencil_count + 1 # always update the line count!
   $global_shape_count += 1
-  $xml.g(:class => :shape, :id=>"draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape =>"line#{$pencil_count}", :style => "stroke:\##{$colour_hex}; stroke-linejoin: round; stroke-linecap: round; stroke-width:#{$shapeThickness}; fill: none; visibility:hidden; ") do
-    points = "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width},#{(($shapeDataPoints[1].to_f)/100)*$vbox_height}"
-    for i in (1...($shapeDataPoints.length/2)) do
-      points += " #{(($shapeDataPoints[i*2].to_f)/100)*$vbox_width},#{(($shapeDataPoints[(i*2)+1].to_f)/100)*$vbox_height}"
+
+  if $shapeDataPoints.length == 2
+    # Degenerate path, draw a circle (point) instead
+    $xml.g(class: :shape,
+           id: "draw#{$global_shape_count}",
+           timestamp: $shapeCreationTime, undo: $shapeUndoTime,
+           shape: "line#{$pencil_count}",
+           style: "stroke:none;fill:##{$color_hex};visibility:hidden") do
+      $xml.circle(cx: $shapeDataPoints[0].to_f / 100 * $vbox_width,
+                  cy: $shapeDataPoints[1].to_f / 100 * $vbox_height,
+                  r: $shapeThickness)
     end
-    $xml.polyline(:points => points)
+  else
+    path = []
+    dataPoints = $shapeDataPoints.dup
+
+    if $shapeCommands
+      # BBB 2.0 recording, we have a path with commands that has to be converted to SVG path
+      $shapeCommands.each do |command|
+        case command
+        when '1' # MOVE_TO
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("M #{x} #{y}")
+        when '2' # LINE_TO
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("L #{x} #{y}")
+        when '3' # Q_CURVE_TO
+          cx1 = dataPoints.shift.to_f / 100 * $vbox_width
+          cy1 = dataPoints.shift.to_f / 100 * $vbox_height
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("Q #{cx1} #{cy2}, #{x} #{y}")
+        when '4' # C_CURVE_TO
+          cx1 = dataPoints.shift.to_f / 100 * $vbox_width
+          cy1 = dataPoints.shift.to_f / 100 * $vbox_height
+          cx2 = dataPoints.shift.to_f / 100 * $vbox_width
+          cy2 = dataPoints.shift.to_f / 100 * $vbox_height
+          x = dataPoints.shift.to_f / 100 * $vbox_width
+          y = dataPoints.shift.to_f / 100 * $vbox_height
+          path.push("C #{cx1} #{cy1}, #{cx2} #{cy2}, #{x} #{y}")
+        else
+          raise "Unknown pencil command: #{command}"
+        end
+      end
+    else
+      x = dataPoints.shift.to_f / 100 * $vbox_width
+      y = dataPoints.shift.to_f / 100 * $vbox_height
+      path.push("M #{x} #{y}")
+      while dataPoints.length > 0
+        x = dataPoints.shift.to_f / 100 * $vbox_width
+        y = dataPoints.shift.to_f / 100 * $vbox_height
+        path.push("L #{x} #{y}")
+      end
+    end
+
+    path = path.join(" ")
+
+    $xml.g(class: :shape,
+           id: "draw#{$global_shape_count}",
+           timestamp: $shapeCreationTime, undo: $shapeUndoTime,
+           shape: "line#{$pencil_count}",
+           style: "stroke:##{$colour_hex}; stroke-linejoin: round; stroke-linecap: round; stroke-width: #{$shapeThickness}; fill: none; visibility:hidden") do
+      $xml.path(d: path)
+    end
   end
 end
 
@@ -728,7 +788,7 @@ def processSlideEvents
       slide_number = $presentation_current_slide[$presentation_name].to_i
       BigBlueButton.logger.info("Switching to presentation #{$presentation_name}, saved slide is #{slide_number}")
 
-    elsif eventname == 'GotoSlide'
+    elsif eventname == 'GotoSlideEvent'
       slide_number = node.xpath(".//slide")[0].text().to_i
       BigBlueButton.logger.info("Switching to slide #{slide_number} in presentation #{$presentation_name}")
 
@@ -785,19 +845,18 @@ def processSlideEvents
       next
     end
 
-      BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
-      # Is this a new image or one previously viewed?
-      if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
-        # If it is, add it to the list with all the data.
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end], $presentation_name, slide_number]
-        $global_slide_count = $global_slide_count + 1
-      else
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-      end
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
+    BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
+    # Is this a new image or one previously viewed?
+    if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
+      # If it is, add it to the list with all the data.
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end], $presentation_name, slide_number]
+      $global_slide_count = $global_slide_count + 1
+    else
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
     end
+    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
+    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
 
     $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
     puts "#{slide_src} : #{slide_start} -> #{slide_end}"
@@ -878,7 +937,16 @@ def processShapesAndClears
               $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 
               case $shapeType
-                when 'pencil', 'rectangle', 'ellipse', 'triangle', 'line'
+                when 'pencil'
+                  $shapeThickness = shape.xpath(".//thickness")[0].text()
+                  colour = shape.xpath(".//color")[0].text()
+                  commands = shape.at_xpath('.//commands')
+                  if commands
+                    $shapeCommands = commands.text().split(',')
+                  else
+                    $shapeCommands = nil
+                  end
+                when 'rectangle', 'ellipse', 'triangle', 'line'
                   $shapeThickness = shape.xpath(".//thickness")[0].text()
                   colour = shape.xpath(".//color")[0].text()
                 when 'text'
@@ -938,6 +1006,11 @@ def processShapesAndClears
                   $vbox_width = size[0]
                   $vbox_height = size[1]
                 end
+              end
+
+              if $version_atleast_2_0
+                # Shape thickness is now calculated as a percentage of page width
+                $shapeThickness = $shapeThickness.to_f * $vbox_width / 100.0
               end
 
               case $shapeType
@@ -1180,9 +1253,9 @@ begin
         $meeting_start = @doc.xpath("//event")[0][:timestamp]
         $meeting_end = @doc.xpath("//event").last()[:timestamp]
 
-        ## These $version variables are not used anywere in this code ##
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
         $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
+        $version_atleast_2_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
         BigBlueButton.logger.info("Creating metadata.xml")
 
         # Get the real-time start and end timestamp

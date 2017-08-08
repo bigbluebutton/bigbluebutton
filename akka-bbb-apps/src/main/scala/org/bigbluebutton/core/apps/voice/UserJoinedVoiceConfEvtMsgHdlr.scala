@@ -1,11 +1,12 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUser2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
-trait UserJoinedVoiceConfEvtMsgHdlr {
+trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
@@ -43,6 +44,10 @@ trait UserJoinedVoiceConfEvtMsgHdlr {
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 
     broadcastEvent(voiceUserState)
+
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      updateParentMeetingWithUsers()
+    }
 
     startRecordingVoiceConference()
   }

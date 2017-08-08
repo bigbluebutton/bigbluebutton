@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
   import org.bigbluebutton.core.events.NewGuestWaitingEvent;
   import org.bigbluebutton.core.events.UserEmojiChangedEvent;
   import org.bigbluebutton.core.events.UserStatusChangedEvent;
@@ -67,7 +68,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-      LOGGER.debug(" received message " + messageName);
+      //LOGGER.debug(" received message " + messageName);
       
       switch (messageName) {
         case "GetUsersMeetingRespMsg":
@@ -730,8 +731,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleMeetingTimeRemainingUpdateEvtMsg(msg:Object):void {
-      var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
-      e.durationInMinutes = msg.body.timeLeftInSec;
+      var e:MeetingTimeRemainingEvent = new MeetingTimeRemainingEvent(msg.body.timeLeftInSec);
       dispatcher.dispatchEvent(e);
     }
     

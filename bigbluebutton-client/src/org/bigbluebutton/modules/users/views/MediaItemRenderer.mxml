@@ -344,37 +344,48 @@
 			}
 		]]>
 	</fx:Script>
+	<mx:Canvas id="webcamCanvas" width="28" height="20" visible="{webcamImg.visible || webcamBtn.visible}" includeInLayout="{webcamCanvas.visible}">
+		<mx:Image id="webcamImg" visible="false" source="{getStyle('iconWebcam')}"
+				  horizontalCenter="0" verticalCenter="0"
+				  toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
+		<mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{getStyle('iconWebcam')}"
+				   width="28" height="20" horizontalCenter="0" verticalCenter="0"
+				   enabled="true" click="viewCamera()"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
+	</mx:Canvas>
 	
-	<mx:Image id="webcamImg" visible="false" source="{getStyle('iconWebcam')}"
-				width="20" height="20"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
-    <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{getStyle('iconWebcam')}"
-              width="20" height="20" enabled="true" click="viewCamera()"
-              toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
-	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="20" height="20" />
-	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{getStyle('iconAudio')}"
-				width="20" height="20" click="toggleMuteState()"
-				mouseOver="muteMouseOverHandler()"
-				mouseOut="muteMouseOutHandler()"
-				toolTip="{data.muted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
-	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="20" height="20" />
-	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
-				width="20" height="20" click="toggleLockState()"
-				mouseOver="lockMouseOverHandler()"
-				mouseOut="lockMouseOutHandler()"
-				toolTip="{data.locked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+	<mx:Canvas id="muteCanvas" width="20" height="20" visible="{muteImg.visible || muteBtn.visible}" includeInLayout="{muteCanvas.visible}">
+		<mx:Image id="muteImg" visible="false" includeInLayout="true"
+				  horizontalCenter="0" verticalCenter="0" />
+		<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{getStyle('iconAudio')}"
+				   width="20" height="20"  horizontalCenter="0" verticalCenter="0"
+				   click="toggleMuteState()"
+				   mouseOver="muteMouseOverHandler()"
+				   mouseOut="muteMouseOutHandler()"
+				   toolTip="{data.muted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
+	</mx:Canvas>
+	
+	<mx:Canvas id="lockCanvas" width="20" height="20" visible="{lockImg.visible || lockBtn.visible}" includeInLayout="{lockCanvas.visible}">
+		<mx:Image id="lockImg" visible="false" includeInLayout="false"
+				  horizontalCenter="0" verticalCenter="0" />
+		<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
+				   width="20" height="20" horizontalCenter="0" verticalCenter="0" click="toggleLockState()"
+				   mouseOver="lockMouseOverHandler()"
+				   mouseOut="lockMouseOutHandler()"
+				   toolTip="{data.locked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+		</mx:Canvas>
 	<mx:Button id="settingsBtn"
-			visible="false"
-			width="20"
-			height="20"
-			click="openSettings()"
-			icon="{getStyle('iconSettings')}"
-			toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}"/>
+			   visible="false"
+			   width="20"
+			   height="20"
+			   click="openSettings()"
+			   icon="{getStyle('iconSettings')}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}"/>
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.muted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.inVoiceConf}" />
 	<mx:Image id="userLockedInd" includeInLayout="false" visible="{data.locked}" />
-  <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
-  <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
-  <mx:Image id="listenOnlyInd" includeInLayout="false" visible="{data.listenOnly}" />
+	<mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
+	<mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
+	<mx:Image id="listenOnlyInd" includeInLayout="false" visible="{data.listenOnly}" />
 </mx:HBox>

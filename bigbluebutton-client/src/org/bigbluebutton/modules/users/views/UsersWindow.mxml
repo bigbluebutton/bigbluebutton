@@ -86,6 +86,7 @@ $Id: $
       import org.bigbluebutton.common.IBbbModuleWindow;
       import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.BreakoutTimerUtil;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.KeyboardUtil;
       import org.bigbluebutton.core.PopUpUtil;
@@ -387,7 +388,7 @@ $Id: $
       
       private function openSettings():void {
         paramsMenuData = [];
-        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), handler: resetEmojiStatuses});
+        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: getStyle('iconClearStatus'), handler: resetEmojiStatuses});
         
         if (!roomMuted) {
           paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
@@ -400,7 +401,7 @@ $Id: $
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: getStyle('iconLock'), handler: lockSettings});
         if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {
           if (breakoutRoomsList.length == 0) {
-            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), icon: getStyle('iconRooms'), handler: breakoutRooms});
           } else {
             paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.sendBreakoutRoomsInvitations'), handler: sendBreakoutRoomsInvitations});
           }
@@ -448,7 +449,7 @@ $Id: $
       }
       
       private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void {
-        TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
+        BreakoutTimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
       }
       
       private function breakoutRoomsListChangeListener(event:CollectionEvent):void {
