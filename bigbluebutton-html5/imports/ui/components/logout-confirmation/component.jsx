@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import { makeCall } from '/imports/ui/services/api';
+import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import Auth from '/imports/ui/services/auth';
+import userListService from '../user-list/service';
+import styles from './styles.scss';
 
 const intlMessages = defineMessages({
   title: {
@@ -41,6 +44,20 @@ const intlMessages = defineMessages({
 });
 
 class LeaveConfirmation extends Component {
+
+  endMeeting() {
+    const { intl } = this.props;
+
+    return (
+      <Button
+        className={styles.endMeeting}
+        label={intl.formatMessage(intlMessages.endMeetingLabel)}
+        onClick={() => makeCall('endMeeting', Auth.credentials)}
+        aria-describedby={'modalEndMeetingDesc'}
+      />
+    );
+  }
+
   render() {
     const { intl, router } = this.props;
 
@@ -57,13 +74,13 @@ class LeaveConfirmation extends Component {
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
-        others={{
-          callback: () => makeCall('endMeeting', Auth.credentials),
-          label: intl.formatMessage(intlMessages.endMeetingLabel),
-          description: intl.formatMessage(intlMessages.endMeetingDesc),
-        }}
       >
         {intl.formatMessage(intlMessages.message)}
+        {
+          userListService.getCurrentUser().isModerator ?
+            this.endMeeting() : null
+        }
+        <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>
       </Modal>
     );
   }

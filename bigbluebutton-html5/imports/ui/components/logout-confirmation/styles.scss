@@ -1,0 +1,10 @@
+@import "../../stylesheets/variables/_all";
+
+%btn {
+  flex: 0 1 48%;
+}
+
+.endMeeting {
+  @extend %btn;
+  margin-left: 20%;
+}
