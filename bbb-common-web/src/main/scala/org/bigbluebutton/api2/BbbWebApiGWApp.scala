@@ -152,6 +152,9 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
   }
 
   def sendKeepAlive(system: String, timestamp: java.lang.Long): Unit = {
+    val event = MsgBuilder.buildCheckAlivePingSysMsg(system, timestamp.longValue())
+    println(event)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
   }
 

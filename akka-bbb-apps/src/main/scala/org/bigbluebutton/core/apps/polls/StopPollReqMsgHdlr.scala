@@ -9,7 +9,7 @@ trait StopPollReqMsgHdlr {
 
   val outGW: OutMsgRouter
 
-  def broadcastEvent(requesterId: String, stoppedPollId: String): Unit = {
+  def broadcastPollStoppedEvtMsg(requesterId: String, stoppedPollId: String): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, requesterId)
     val envelope = BbbCoreEnvelope(PollStoppedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(PollStoppedEvtMsg.NAME, props.meetingProp.intId, requesterId)
@@ -24,7 +24,7 @@ trait StopPollReqMsgHdlr {
     for {
       stoppedPollId <- Polls.handleStopPollReqMsg(msg.header.userId, liveMeeting)
     } yield {
-      broadcastEvent(msg.header.userId, stoppedPollId)
+      broadcastPollStoppedEvtMsg(msg.header.userId, stoppedPollId)
     }
   }
 
@@ -32,7 +32,7 @@ trait StopPollReqMsgHdlr {
     for {
       stoppedPollId <- Polls.handleStopPollReqMsg(requesterId, liveMeeting)
     } yield {
-      broadcastEvent(requesterId, stoppedPollId)
+      broadcastPollStoppedEvtMsg(requesterId, stoppedPollId)
     }
   }
 

@@ -48,6 +48,10 @@ class ReceivedJsonMsgHandlerActor(
     //   log.debug("Route envelope name " + envelope.name)
 
     envelope.name match {
+      // System
+      case CheckAlivePingSysMsg.NAME =>
+        route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
