@@ -134,7 +134,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:TextArea borderSkin="{null}" verticalScrollPolicy="off" 
 					 editable="false" id="windowTitle"
 					 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
-					 styleName="micSettingsWindowTitleStyle"
+					 styleName="titleWindowStyle"
 					 width="100%" />
 		<mx:Box width="100%" height="56"
 				verticalAlign="middle" horizontalAlign="center"

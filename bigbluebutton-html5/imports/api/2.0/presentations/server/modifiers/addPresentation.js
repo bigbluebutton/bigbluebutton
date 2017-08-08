@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/2.0/presentations';
 import Logger from '/imports/startup/server/logger';
+import flat from 'flat';
 
 import addSlide from '/imports/api/2.0/slides/server/modifiers/addSlide';
 
@@ -15,21 +16,36 @@ const addSlides = (meetingId, presentationId, slides) => {
 };
 
 export default function addPresentation(meetingId, presentation) {
-  check(presentation, Object);
+  check(presentation, {
+    id: String,
+    name: String,
+    current: Boolean,
+    pages: [{
+      id: String,
+      num: Number,
+      thumbUri: String,
+      swfUri: String,
+      txtUri: String,
+      svgUri: String,
+      current: Boolean,
+      xOffset: Number,
+      yOffset: Number,
+      widthRatio: Number,
+      heightRatio: Number,
+    }],
+    downloadable: Boolean,
+  });
 
   const selector = {
     meetingId,
-    'presentation.id': presentation.id,
+    id: presentation.id,
   };
 
   const modifier = {
-    $set: {
-      meetingId,
-      'presentation.id': presentation.id,
-      'presentation.name': presentation.name,
-      'presentation.current': presentation.current,
-      'presentation.downloadable': presentation.downloadable,
-    },
+    $set: Object.assign(
+      { meetingId },
+      flat(presentation, { safe: true }),
+    ),
   };
 
   const cb = (err, numChanged) => {

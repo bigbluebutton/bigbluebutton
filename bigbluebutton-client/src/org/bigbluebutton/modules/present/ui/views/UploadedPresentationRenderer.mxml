@@ -1,54 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:fx="http://ns.adobe.com/mxml/2009"
-		 width="90%" 
-		 verticalScrollPolicy="off" 
-		 horizontalScrollPolicy="off" 
-		 toolTip="{data as String}" 
+		 xmlns:mate="http://mate.asfusion.com/"
+		 width="90%"
+		 paddingLeft="12"
+		 paddingRight="12"
+		 verticalScrollPolicy="off"
+		 horizontalScrollPolicy="off"
+		 toolTip="{data as String}"
 		 verticalAlign="middle">
-  <fx:Script>
-    <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
-		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-		import org.bigbluebutton.modules.present.events.UploadEvent;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-		private static const LOGGER:ILogger = getClassLogger(UploadedPresentationRenderer);      
 
-		private var globalDispatch:Dispatcher = new Dispatcher();
-      
-      private function showPresentation():void {
-        LOGGER.debug("FileUploadWindow::showPresentation() {0}", [data.id]);   
-        var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
-        globalDispatch.dispatchEvent(changePresCommand);
-        
-        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-      }
-      
-      private function deletePresentation():void {
-		  LOGGER.debug("FileUploadWindow.mxml::deletePresentation() {0}", [data.id]);
+	<fx:Declarations>
+		<mate:Listener type="{PresentationRollEvent.PRESENTATION_ROLL_OVER}"
+					   method="onRollOver" />
+		<mate:Listener type="{PresentationRollEvent.PRESENTATION_ROLL_OUT}"
+					   method="onRollOut" />
+		<mate:Listener type="{PresentationRollEvent.PRESENTATION_SELECT}"
+					   method="onSelect" />
+	</fx:Declarations>
 
-        var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
-        rEvent.presentationName = data.id as String;
-        dispatchEvent(rEvent);
-      }
-    ]]>
-  </fx:Script>
-  <mx:Label id="presentationNameLabel" width="{this.width-isDownloadable.width-showBtn.width-deleteBtn.width-30}" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
-  <mx:Image id="isDownloadable" visible="{data.downloadable as Boolean}"
-			 source="{getStyle('iconSave')}"
-             toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}"
-             verticalAlign="middle" />
-  <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
-             styleName="presentationUploadShowButtonStyle" height="26"
-             click="showPresentation()" enabled="{!data.current}"/>
-  <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
-             styleName="presentationUploadDeleteButtonStyle"
-             click="deletePresentation()" visible="{String(data.name) != 'default.pdf'}"/>
-  
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+			import org.bigbluebutton.modules.present.events.PresentationRollEvent;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private static const LOGGER:ILogger = getClassLogger(UploadedPresentationRenderer);
+
+			private var globalDispatch:Dispatcher = new Dispatcher();
+
+			[Bindable]
+			private var rolledOver:Boolean = false;
+
+			[Bindable]
+			private var selected:Boolean = false;
+
+
+			private function showPresentation():void {
+				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
+				globalDispatch.dispatchEvent(changePresCommand);
+
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			}
+
+			private function deletePresentation():void {
+				LOGGER.debug("FileUploadWindow.mxml::deletePresentation() {0}", [data.id]);
+
+				var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
+				rEvent.presentationName = data.id as String;
+				dispatchEvent(rEvent);
+			}
+
+			private function onRollOver(e:PresentationRollEvent):void {
+				if (e.presentationId == data.id) {
+					rolledOver = true;
+				} else {
+					rolledOver = false;
+				}
+			}
+
+			private function onRollOut(e:PresentationRollEvent):void {
+				rolledOver = false;
+			}
+
+			private function onSelect(e:PresentationRollEvent):void {
+				if (e.presentationId == data.id) {
+					selected = true;
+				} else {
+					selected = false;
+				}
+			}
+		]]>
+	</fx:Script>
+	<mx:Label id="presentationNameLabel"
+			  width="{this.width-isDownloadable.width-showBtn.width-deleteBtn.width-30}"
+			  text="{data.name as String}"
+			  styleName="{rolledOver || selected ? 'presentationNameLabelOver' : 'presentationNameLabelUp'}" />
+	<mx:Image id="isDownloadable"
+			  visible="{data.downloadable as Boolean}"
+			  source="{rolledOver || selected ? getStyle('iconSaveWhite') : getStyle('iconSave')}"
+			  toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}"
+			  verticalAlign="middle" />
+	<mx:Button id="showBtn"
+			   label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}"
+			   styleName="presentationUploadShowButtonStyle"
+			   height="26"
+			   click="showPresentation()"
+			   enabled="{!data.current}" />
+	<mx:Button id="deleteBtn"
+			   label=""
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}"
+			   styleName="presentationUploadDeleteButtonStyle"
+			   click="deletePresentation()"
+			   visible="{String(data.name) != 'default.pdf'}" />
+
 </mx:HBox>

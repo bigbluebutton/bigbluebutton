@@ -19,6 +19,9 @@
 
 package org.bigbluebutton.core.record.events
 
+import scala.collection.immutable.List
+import scala.collection.JavaConverters._
+
 class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
   import AddShapeWhiteboardRecordEvent._
 
@@ -32,11 +35,19 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
     eventMap.put(SHAPE_ID, id)
   }
 
+  def setPosition(position: Int) {
+    eventMap.put(POSITION, position.toString)
+  }
+
   def addAnnotation(annotation: Map[String, Any]) {
     annotation.foreach(f => {
       if (f._1 == "points") {
         f._2 match {
-          case f2: List[_] => eventMap.put("dataPoints", pointsToString(f2))
+          case f2: List[_] => eventMap.put(POINTS, listToString(f2))
+        }
+      } else if (f._1 == "commands") {
+        f._2 match {
+          case f2: List[_] => eventMap.put(COMMANDS, listToString(f2))
         }
       } else {
         eventMap.put(f._1, f._2.toString)
@@ -44,12 +55,15 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
     })
   }
 
-  private def pointsToString(points: List[_]): String = {
-    points.map(f => f.toString).mkString(",")
+  private def listToString(list: List[_]): String = {
+    list.map(f => f.toString).mkString(",")
   }
 }
 
 object AddShapeWhiteboardRecordEvent {
   protected final val USER_ID = "userId"
   protected final val SHAPE_ID = "shapeId"
+  protected final val POSITION = "position"
+  protected final val POINTS = "dataPoints"
+  protected final val COMMANDS = "commands"
 }

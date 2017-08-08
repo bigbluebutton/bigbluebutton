@@ -23,8 +23,8 @@ case class DestroyMeetingSysCmdMsgBody(meetingId: String)
 * Sent by bbb-web
 */
 object EndMeetingSysCmdMsg { val NAME = "EndMeetingSysCmdMsg" }
-case class EndMeetingSysCmdMsg(header: BbbCoreBaseHeader,
-                                body: EndMeetingSysCmdMsgBody) extends BbbCoreMsg
+case class EndMeetingSysCmdMsg(header: BbbClientMsgHeader,
+                                body: EndMeetingSysCmdMsgBody) extends StandardMsg
 case class EndMeetingSysCmdMsgBody(meetingId: String)
 
 

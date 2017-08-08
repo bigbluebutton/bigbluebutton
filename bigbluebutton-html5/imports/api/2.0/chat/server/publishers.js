@@ -19,13 +19,13 @@ function chat(credentials) {
   return Chat.find({
     $or: [
       {
-        'message.toUsername': PUBLIC_CHAT_USERNAME,
+        toUsername: PUBLIC_CHAT_USERNAME,
         meetingId,
       }, {
-        'message.fromUserId': requesterUserId,
+        fromUserId: requesterUserId,
         meetingId,
       }, {
-        'message.toUserId': requesterUserId,
+        toUserId: requesterUserId,
         meetingId,
       },
     ],

@@ -343,7 +343,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 slideView.visible = true;
                 var page : Page = PresentationModel.getInstance().getCurrentPage();
                 if (page != null) {
-                    displaySlideNumber(page.num);
+                    displaySlideNumber(page.num); 
                 }
 
                 if (UsersUtil.amIPresenter()) {
@@ -473,7 +473,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				addContextMenuItems();
 				
-				updateDownloadBtnTooltip();
 				setPollMenuData();
 			}
 			
@@ -762,27 +761,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 
-				downloadPres.visible = presentOptions.enableDownload;
 				var downloadablePresentations:ArrayCollection = PresentationModel.getInstance().getDownloadablePresentations();
-				if (downloadablePresentations.length > 0) {
+				if (presentOptions.enableDownload && downloadablePresentations.length > 0) {
 					LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-					downloadPres.enabled = true;
+					downloadPres.visible = true;
 				} else {
 					LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-					downloadPres.enabled = false;
+					downloadPres.visible = false;
 				}
-				updateDownloadBtnTooltip();
 			}
 
-			private function updateDownloadBtnTooltip():void {
-				if (downloadPres == null) {
-					return;
-				}
-
-				const res:String = downloadPres.enabled? "bbb.presentation.downloadPresBtn.toolTip": "bbb.presentation.downloadPresBtn.disabledToolTip";
-				downloadPres.toolTip = ResourceUtil.getInstance().getString(res);
-			}
-			
 			public function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void {
 				var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
 				addUIEvent.component = wt;
@@ -820,9 +808,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<poll:QuickPollButton id="quickPollBtn" height="30"
 				click="quickPollClicked(event)"
 				includeInLayout="{quickPollBtn.visible}" />
-		<mx:Button id="downloadPres" visible="{presentOptions.enableDownload}"
+		<mx:Button id="downloadPres" visible="false"
 				includeInLayout="{downloadPres.visible}" height="30"
 				styleName="presentationDownloadButtonStyle"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
 				click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
 		<mx:HBox id="presenterControls" height="100%" width="100%" paddingTop="0" visible="false" includeInLayout="false" horizontalAlign="left" verticalAlign="top">
 			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"

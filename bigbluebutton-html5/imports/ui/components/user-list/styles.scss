@@ -4,10 +4,11 @@
 /* Variables
  * ==========
  */
+
 $unread-messages-bg: $color-danger;
 
-$user-list-bg: $color-white;
-$user-list-text: $color-gray-dark;
+$user-list-bg: #F3F6F9;
+$user-list-text: $color-gray;
 
 $list-item-bg-hover: darken($user-list-bg, 7%);
 
@@ -77,15 +78,39 @@ $user-icons-color-hover: $color-gray;
 
 .header {
   @extend %flex-column;
-  justify-content: center;
+  justify-content: left;
   flex-grow: 0;
+  display: flex;
+  flex-direction: row;
+  padding: 0 $md-padding-x;
+  margin: $md-padding-x 0;
 }
 
 .headerTitle {
-  font-size: 1.05rem;
+  flex: 0;
+  font-size: 1rem;
   font-weight: 600;
-  padding: 0 $sm-padding-x;
-  margin: $lg-padding-x 0;
+  color: $color-heading;
+}
+
+.btnToggle {
+  flex: 0;
+  padding: 0;
+  margin: 0;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: right;
+
+  & > i {
+    color: $color-heading;
+    text-align: right;
+  }
+
+  &:hover, &:focus, &:active {
+    background-color: transparent;
+  }
 }
 
 .content {
@@ -109,12 +134,12 @@ $user-icons-color-hover: $color-gray;
 }
 
 .smallTitle {
-  color: $color-heading;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
   text-transform: uppercase;
   padding: 0 $sm-padding-x;
   margin: 0 0 ($lg-padding-x / 2) 0;
+  color: $color-gray-light;
 }
 
 .scrollableList {

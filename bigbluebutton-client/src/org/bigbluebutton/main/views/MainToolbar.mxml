@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
-    <mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
+    <mate:Listener type="{MeetingTimeRemainingEvent.TIME_REMAINING}" method="handleRemainingTimeUpdate" />
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
@@ -63,6 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.CloseEvent;
       import mx.events.ToolTipEvent;
       import mx.managers.PopUpManager;
+      
       import org.as3commons.lang.StringUtils;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
@@ -73,6 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.TimerUtil;
       import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
       import org.bigbluebutton.core.model.Config;
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -190,12 +192,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-      private function handleRemainingTimeUpdate(e:BreakoutRoomEvent):void {
+      private function handleRemainingTimeUpdate(e:MeetingTimeRemainingEvent):void {
         if (! timeRemaining.visible) {
           timeRemaining.visible = true;
           timeRemainingLabel.visible = true;
         }
-        TimerUtil.setCountDownTimer(timeRemaining, e.durationInMinutes);
+        TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec);
       }
       
       private function retrieveMeetingName(e:ConferenceCreatedEvent):void {

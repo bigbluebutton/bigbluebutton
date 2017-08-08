@@ -20,8 +20,6 @@ trait PresentationConversionCompletedPubMsgHdlr {
       val event = PresentationConversionCompletedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
-
-      //record(event)
     }
 
     val pages = new collection.mutable.HashMap[String, PageVO]
@@ -34,8 +32,6 @@ trait PresentationConversionCompletedPubMsgHdlr {
 
     val pres = new Presentation(msg.body.presentation.id, msg.body.presentation.name, msg.body.presentation.current,
       pages.toMap, msg.body.presentation.downloadable)
-
-    log.debug("PresentationConversionCompletedPubMsg name={}", pres.name)
 
     presentationConversionCompleted(pres)
     broadcastEvent(msg)

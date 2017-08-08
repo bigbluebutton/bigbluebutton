@@ -1,7 +1,7 @@
 import flat from 'flat';
 import Chat from '/imports/api/2.0/chat';
 import Logger from '/imports/startup/server/logger';
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import { BREAK_LINE } from '/imports/utils/lineEndings';
 
 const parseMessage = (message) => {
@@ -17,28 +17,45 @@ const parseMessage = (message) => {
   return parsedMessage;
 };
 
-export default function addChat(meetingId, message) {
-  const parsedMessage = message;
-  parsedMessage.message = parseMessage(message.message);
+const chatType = (userName) => {
+  const CHAT_CONFIG = Meteor.settings.public.chat;
 
-  const fromUserId = message.fromUserId;
-  const toUserId = message.toUserId;
+  const typeByUser = {
+    [CHAT_CONFIG.system_username]: CHAT_CONFIG.type_system,
+    [CHAT_CONFIG.public_username]: CHAT_CONFIG.type_public,
+  };
 
-  check(fromUserId, String);
-  check(toUserId, String);
+  return userName in typeByUser ? typeByUser[userName] : CHAT_CONFIG.type_private;
+};
+
+export default function addChat(meetingId, chat) {
+  check(chat, {
+    message: String,
+    fromColor: String,
+    toUserId: String,
+    toUsername: String,
+    fromUserId: String,
+    fromUsername: Match.Maybe(String),
+    fromTime: Number,
+    fromTimezoneOffset: Match.Maybe(Number),
+  });
 
   const selector = {
     meetingId,
-    'message.fromTime': parsedMessage.fromTime,
-    'message.fromUserId': parsedMessage.fromUserId,
-    'message.toUserId': parsedMessage.toUserId,
+    fromTime: chat.fromTime,
+    fromUserId: chat.fromUserId,
+    toUserId: chat.toUserId,
   };
 
   const modifier = {
-    $set: {
-      meetingId,
-      message: flat(parsedMessage),
-    },
+    $set: Object.assign(
+      flat(chat, { safe: true }),
+      {
+        meetingId,
+        message: parseMessage(chat.message),
+        type: chatType(chat.toUsername),
+      },
+    ),
   };
 
   const cb = (err, numChanged) => {
@@ -47,8 +64,13 @@ export default function addChat(meetingId, message) {
     }
 
     const { insertedId } = numChanged;
-    const to = message.toUsername || 'PUBLIC';
-    return Logger.info(`Added chat id=${insertedId} from=${message.fromUsername} to=${to}`);
+    const to = chat.toUsername || 'PUBLIC';
+
+    if (insertedId) {
+      return Logger.info(`Added chat from=${chat.fromUsername} to=${to} time=${chat.fromTime}`);
+    }
+
+    return Logger.info(`Upserted chat from=${chat.fromUsername} to=${to} time=${chat.fromTime}`);
   };
 
   return Chat.upsert(selector, modifier, cb);

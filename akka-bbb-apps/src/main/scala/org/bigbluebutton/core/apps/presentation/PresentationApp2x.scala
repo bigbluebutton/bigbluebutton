@@ -29,6 +29,11 @@ class PresentationApp2x(
     presentations.foreach(presentation => {
       liveMeeting.presModel.addPresentation(presentation)
     })
+
+    liveMeeting.presModel.getCurrentPresentation() match {
+      case Some(p) => // do nothing
+      case None    => setCurrentPresentation(presentations.head.id)
+    }
   }
 
   def presentationConversionCompleted(presentation: Presentation) {

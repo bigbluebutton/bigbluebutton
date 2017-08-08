@@ -12,7 +12,7 @@ object BreakoutModel {
     voiceConf:     String,
     assignedUsers: Vector[String]
   ): BreakoutRoom2x = {
-    new BreakoutRoom2x(id, externalId, name, parentId, sequence, voiceConf, assignedUsers, Vector(), None, false)
+    new BreakoutRoom2x(id, externalId, name, parentId, sequence, voiceConf, assignedUsers, Vector(), Vector(), None, false)
   }
 
 }

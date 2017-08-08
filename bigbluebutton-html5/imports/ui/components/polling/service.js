@@ -7,12 +7,12 @@ const mapPolls = function () {
     return { pollExists: false };
   }
 
-  const amIRequester = poll.requester != 'userId';
+  const amIRequester = poll.requester !== 'userId';
 
   return {
     poll: {
-      answers: poll.poll.answers,
-      pollId: poll.poll.id,
+      answers: poll.answers,
+      pollId: poll.id,
     },
     pollExists: true,
     amIRequester,

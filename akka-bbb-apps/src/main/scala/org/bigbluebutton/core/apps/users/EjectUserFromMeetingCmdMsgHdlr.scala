@@ -50,6 +50,10 @@ trait EjectUserFromMeetingCmdMsgHdlr {
         outGW.send(ejectFromVoiceEvent)
         log.info("Ejecting user from voice.  meetingId=" + liveMeeting.props.meetingProp.intId + " userId=" + vu.intId)
       }
+
+      if (user.presenter) {
+        automaticallyAssignPresenter(outGW, liveMeeting)
+      }
     }
   }
 

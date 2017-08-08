@@ -171,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Label id="lblSelect" styleName="chatOptionsLabel"
 			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
 			  visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
-    <mx:List id="usersList" height="50%" width="50%" dataProvider="{users}" dragEnabled="false" 
+    <mx:List id="usersList" height="50%" width="100%" dataProvider="{users}" dragEnabled="false" 
              visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
              itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
              labelField="name"
@@ -181,10 +181,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
     <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
     <mx:HBox width="100%">
-        <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
+        <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" width="100%"/>
         <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
                      selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
     </mx:HBox>
-	<mx:CheckBox id="chatNoiseCheckBox"  label="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" labelPlacement="left" 
-				 change="changeChatNoise()" styleName="chatOptionsLabel" />
+	<mx:HBox width="100%">
+		<mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" width="100%"/>
+		<mx:CheckBox id="chatNoiseCheckBox" change="changeChatNoise()" />
+	</mx:HBox>
 </mx:VBox>

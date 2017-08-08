@@ -173,6 +173,8 @@ class MeetingActor(
     state = state.update(tracker)
 
     msg.core match {
+      case m: EndMeetingSysCmdMsg => handleEndMeeting(m)
+
       // Users
       case m: ValidateAuthTokenReqMsg =>
         state = usersApp.handleValidateAuthTokenReqMsg(m, state)
