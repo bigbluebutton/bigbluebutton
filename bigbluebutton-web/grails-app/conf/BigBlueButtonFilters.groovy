@@ -30,7 +30,7 @@ class BigBlueButtonFilters {
   	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|enter|signOut)') {
   		before = {
   			if (keepAliveService.isDown()) {
-				render(view: "error")
+				render(view: "error", status: 503)
 				return false
   			}
   		}
