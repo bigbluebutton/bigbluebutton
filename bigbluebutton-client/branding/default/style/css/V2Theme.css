@@ -518,7 +518,7 @@ chat|AddChatTabBox {
 }
 
 .chatOptionsLabel {
-	fontSize          : 14;
+	fontSize : 14;
 }
 
 .chatMessageListStyle {
@@ -1059,7 +1059,7 @@ presentation|UploadedPresentationRenderer {
 }
 
 .presentationSlideViewStyle {
-	backgroundColor : #8A9AA7;
+	backgroundColor : #FFFFFF;
 }
 
 /*

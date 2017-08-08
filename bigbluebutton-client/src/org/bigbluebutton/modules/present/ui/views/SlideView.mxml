@@ -20,19 +20,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx" 
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx"
 		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
-	xmlns:local="*"
-	xmlns:fimage="org.bigbluebutton.common.model.*"
-  width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
-	x="{slideModel.viewportX}" y="{slideModel.viewportY}"
-  creationComplete="onCreationComplete()" 
-	verticalScrollPolicy="off" 
-	horizontalScrollPolicy="off"
-	styleName="presentationSlideViewStyle"
-  xmlns:views="org.bigbluebutton.modules.present.views.*">
-     
+		   xmlns:local="*"
+		   xmlns:fimage="org.bigbluebutton.common.model.*"
+		   width="{slideModel.viewportW}"
+		   height="{slideModel.viewportH}"
+		   x="{slideModel.viewportX}"
+		   y="{slideModel.viewportY}"
+		   creationComplete="onCreationComplete()"
+		   verticalScrollPolicy="off"
+		   horizontalScrollPolicy="off"
+		   styleName="presentationSlideViewStyle"
+		   xmlns:views="org.bigbluebutton.modules.present.views.*">
+
 	<fx:Declarations>
 	  <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
 	  <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
@@ -428,15 +430,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</fx:Script>
-	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" 
+	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}"
                            x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
-		                   creationComplete="listenForSlideLoadedCompleteEvent()" 
-                           styleName="presentationSlideViewStyle" 
-                           scaleContent="false" 
-                           showBusyCursor="true" 
+		                   creationComplete="listenForSlideLoadedCompleteEvent()"
+                           styleName="presentationSlideViewStyle"
+                           scaleContent="false"
+                           showBusyCursor="true"
                            completeEffect="Fade" />
    <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" 
     	              visible="false" width="100%" height="100" 
-                      y="{this.height - 100}" change="changeSlide()" />
+                      bottom="0" change="changeSlide()" />
 
 </mx:Canvas>
