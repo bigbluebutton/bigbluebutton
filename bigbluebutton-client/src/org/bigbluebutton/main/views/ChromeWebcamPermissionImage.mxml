@@ -61,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 editable="false"
 					 selectable="false"
 					 text="{ResourceUtil.getInstance().getString('bbb.webcamPermissions.chrome.title')}"
-					 styleName="webcamSettingsWindowTitleStyle"
+					 styleName="titleWindowStyle"
 					 width="400"
 					 left="0"/>
 		<mx:HBox width="100%">      

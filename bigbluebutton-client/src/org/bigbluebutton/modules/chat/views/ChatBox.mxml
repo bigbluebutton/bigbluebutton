@@ -29,25 +29,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          click="setMessageRead()" verticalScrollPolicy="off"
          creationComplete="onCreationComplete()">
   
-    <fx:Style>
-    .chatColorPickerStyle {
-      backgroundColor:#E5E6E7;
-      columnCount:12;
-      horizontalGap:0;
-      previewHeight:22;
-      previewWidth:45;
-      swatchGridBackgroundColor:#000000;
-      swatchGridBorderSize:0;
-      swatchHeight:60;
-      swatchHighlightColor:#FFFFFF;
-      swatchHighlightSize:1;
-      swatchWidth:12;
-      textFieldWidth:72;
-      verticalGap:0;
-    }
-    
-  </fx:Style>
-  
   <fx:Declarations>
     <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
     <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
@@ -81,7 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.events.LockControlEvent;
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;

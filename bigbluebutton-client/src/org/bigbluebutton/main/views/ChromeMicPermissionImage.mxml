@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
      <mx:TextArea borderSkin="{null}"
                   editable="false"
                   text="{ResourceUtil.getInstance().getString('bbb.micPermissions.chrome.title')}"
-                  styleName="micSettingsWindowTitleStyle"
+                  styleName="titleWindowStyle"
                   width="400"
                   left="0"/>
     <mx:HBox width="100%">      
