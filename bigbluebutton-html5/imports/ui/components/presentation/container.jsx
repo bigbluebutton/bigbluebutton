@@ -1,24 +1,22 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import PresentationAreaService from './service';
 import PresentationArea from './component';
 
-class PresentationAreaContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <PresentationArea {...this.props}>
-        {this.props.children}
-      </PresentationArea>
-    );
-  }
-}
+const PresentationAreaContainer = ({ children, ...rest }) => (
+  <PresentationArea {...rest}>
+    {children}
+  </PresentationArea>
+  );
 
 export default createContainer(() => ({
   currentSlide: PresentationAreaService.getCurrentSlide(),
   userIsPresenter: PresentationAreaService.isPresenter(),
+  multiUser: PresentationAreaService.getMultiUserStatus(),
 }), PresentationAreaContainer);
+
+
+PresentationAreaContainer.propTypes = {
+  children: PropTypes.element,
+};

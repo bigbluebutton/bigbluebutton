@@ -215,7 +215,7 @@ export default class PresentationArea extends React.Component {
                   slideHeight={svgHeight}
                 />
               </g>
-              {this.props.userIsPresenter ?
+              {this.props.userIsPresenter || this.props.multiUser ?
                 <PresentationOverlayContainer
                   slideWidth={svgWidth}
                   slideHeight={svgHeight}
@@ -277,7 +277,7 @@ export default class PresentationArea extends React.Component {
           {this.state.showSlide ?
               this.renderPresentationArea()
             : null }
-          {this.props.userIsPresenter ?
+          {this.props.userIsPresenter || this.props.multiUser ?
               this.renderWhiteboardToolbar()
             : null }
         </div>
