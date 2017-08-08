@@ -16,9 +16,9 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 const mapOpenChats = (chat) => {
   const currentUserId = Auth.userID;
-  return chat.message.fromUserId !== currentUserId
-    ? chat.message.fromUserId
-    : chat.message.toUserId;
+  return chat.fromUserId !== currentUserId
+    ? chat.fromUserId
+    : chat.toUserId;
 };
 
 const sortUsersByName = (a, b) => {
@@ -152,7 +152,7 @@ const getUsers = () => {
 
 const getOpenChats = (chatID) => {
   let openChats = Chat
-    .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
+    .find({ type: PRIVATE_CHAT_TYPE })
     .fetch()
     .map(mapOpenChats);
 

@@ -48,6 +48,10 @@
   font-size: 175%;
 }
 
+.chatIcon {
+  flex: 0 0 2.2rem;
+}
+
 .chatName {
   @extend %flex-column;
   @extend %text-elipsis;
@@ -58,7 +62,7 @@
 .chatNameMain {
   @extend %no-margin;
   @extend %text-elipsis;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 400;
   margin-left: $sm-padding-x;
 }

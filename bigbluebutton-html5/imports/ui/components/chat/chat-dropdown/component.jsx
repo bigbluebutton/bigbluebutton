@@ -84,8 +84,8 @@ class ChatDropdown extends Component {
           const link = document.createElement('a');
           const mimeType = 'text/plain';
 
-          link.setAttribute('download', 'chat.txt');
-          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8, 
+          link.setAttribute('download', `public-chat-${Date.now()}.txt`);
+          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8,
             ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicMessages()))}`);
           link.click();
         }}
