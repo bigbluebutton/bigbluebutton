@@ -44,11 +44,12 @@ module BigBlueButton
           if step_succeeded
             @logger.info("Successfully sanity checked #{@meeting_id}")
             self.run_post_scripts(@post_scripts_path)
-            self.schedule_next_step unless @single_step
           else
             @logger.error("Sanity check failed on #{@meeting_id}")
             FileUtils.touch(@sanity_fail)
           end
+
+          step_succeeded
         end
       end
 

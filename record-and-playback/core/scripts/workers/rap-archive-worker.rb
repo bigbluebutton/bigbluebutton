@@ -47,12 +47,13 @@ module BigBlueButton
 
           if step_succeeded
             @logger.info("Successfully archived #{@meeting_id}")
-            self.schedule_next_step unless @single_step
           else
             @logger.error("Failed to archive #{@meeting_id}")
             FileUtils.touch(@archived_fail)
           end
           @logger.debug("Finished archive worker for #{@meeting_id}")
+
+          step_succeeded
         end
       end
 

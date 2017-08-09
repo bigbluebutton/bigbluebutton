@@ -59,8 +59,6 @@ module BigBlueButton
               IO.write("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}/processing_time", step_time)
 
               self.run_post_scripts(@post_scripts_path)
-
-              self.schedule_next_step unless @single_step
             else
               @logger.info("Process format failed for #{@meeting_id}/#{@format_name}")
               @logger.info("Process took #{step_time}ms")
@@ -71,6 +69,8 @@ module BigBlueButton
             @logger.warn("Processed recording found for #{@meeting_id}/#{@format_name}, but no process script exists")
             step_succeeded = true
           end
+
+          step_succeeded
         end
       end
 

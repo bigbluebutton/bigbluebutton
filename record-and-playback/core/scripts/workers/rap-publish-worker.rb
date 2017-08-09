@@ -64,6 +64,8 @@ module BigBlueButton
             @logger.info("Publish format failed for #{@meeting_id}/#{@format_name}")
             FileUtils.touch(@published_fail)
           end
+
+          step_succeeded
         end
       end
 

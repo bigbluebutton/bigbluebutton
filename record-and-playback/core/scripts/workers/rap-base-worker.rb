@@ -37,8 +37,10 @@ module BigBlueButton
 
       def perform
         @logger.info("Started worker #{@step_name} for #{@meeting_id}")
-        yield
-        @logger.info("Ended worker #{@step_name} for #{@meeting_id}")
+        success = yield
+        @logger.info("Ended worker #{@step_name} for #{@meeting_id} with result #{success}")
+
+        self.schedule_next_step if success && !@single_step
 
       rescue Exception => e
         @logger.error(e.message)
