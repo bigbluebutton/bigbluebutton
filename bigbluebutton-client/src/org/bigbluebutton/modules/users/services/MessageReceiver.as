@@ -48,6 +48,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
@@ -186,6 +187,8 @@ package org.bigbluebutton.modules.users.services
         case "guest_access_denied":
           handleGuestAccessDenied(message);
           break;
+        case "UserRoleChangedEvtMsg":
+          handleUserRoleChangedEvtMsg(message);
       }
     }
     
@@ -805,6 +808,21 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.getMyUserID() == map.userId) {
         dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
       }
+    }
+
+    public function handleUserRoleChangedEvtMsg(msg:Object):void {
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var userId: String = body.userId as String;
+      var role: String = body.role as String;
+
+      LiveMeeting.inst().users.setRoleForUser(userId, role);
+      if (UsersUtil.isMe(userId)) {
+        LiveMeeting.inst().me.role = role;
+        dispatcher.dispatchEvent(new ChangeMyRole(role));
+      }
+
+      dispatcher.dispatchEvent(new UserStatusChangedEvent(userId));
     }
   }
 }
