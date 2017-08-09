@@ -71,7 +71,7 @@ package org.bigbluebutton.core {
 				logData.option = name;
 				logData.tags = ["options", "config", "xml"];
 				logData.message = "Parsing XML options";
-				LOGGER.info(JSON.stringify(logData));
+				//LOGGER.info(JSON.stringify(logData));
 				for each (var att:XML in vxml.@*) {
 					var property:String = att.name().localName;
 					if (property != "name" && this.hasOwnProperty(property)) {
