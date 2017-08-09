@@ -9,9 +9,6 @@ export class Acl {
   }
 
   can(permission, credentials) {
-
-    return true; // TODO !!!! REMOVE THIS
-
     check(permission, String);
     const permissions = this.getPermissions(credentials);
 
@@ -55,7 +52,7 @@ export class Acl {
     const containRole = Acl.containsRole(user);
 
     if (containRole) {
-      const roles = user.user.roles;
+      const roles = user.roles;
       let permissions = {};
 
       roles.forEach((role) => {
@@ -69,7 +66,6 @@ export class Acl {
 
   static containsRole(user) {
     return Match.test(user, Object) &&
-        Match.test(user.user, Object) &&
-        Match.test(user.user.roles, Array);
+        Match.test(user.roles, Array);
   }
 }

@@ -23,11 +23,10 @@ package org.bigbluebutton.modules.classyaudio.managers
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
-	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.PushToTalkEvent;
@@ -130,7 +129,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 		
 		private function muteIfNotPresenter(e:Event = null):void{
-			if (UserManager.getInstance().getConference().amIPresenter){
+			if (UsersUtil.amIPresenter){
 				streamManager.unmute();
 			} else {
 				streamManager.mute();

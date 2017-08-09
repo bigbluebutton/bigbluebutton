@@ -83,11 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<EventHandlers type="{WhiteboardCursorEvent.SEND_CURSOR_POSITION}" >
 			<MethodInvoker generator="{WhiteboardService}" method="sendCursorPosition" arguments="{event}" />
 		</EventHandlers>
-		
-		<EventHandlers type="{GetWhiteboardShapesCommand.GET_SHAPES}" >
-			<MethodInvoker generator="{WhiteboardService}" method="getAnnotationHistory" arguments="{event}" />
-		</EventHandlers>
-	
+
 	  <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
 	    <MethodInvoker generator="{WhiteboardManager}" method="removeAnnotationsHistory" />
 	  </EventHandlers>

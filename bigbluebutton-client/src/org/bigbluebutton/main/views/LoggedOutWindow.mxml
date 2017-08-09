@@ -37,7 +37,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ExitApplicationEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -90,7 +89,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function setReason(reason:String):void {
-				LOGGER.debug("Received ConnectionFailedEvent with reason: " + reason);
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["connection"];
+        logData.message = "User logged out.";
+        logData.reason = reason;
+        LOGGER.info(JSON.stringify(logData));
+        
 				switch (reason) {
 					case ConnectionFailedEvent.APP_SHUTDOWN:
 						message = ResourceUtil.getInstance().getString('bbb.logout.appshutdown');

@@ -1,11 +1,13 @@
 package org.bigbluebutton.api2.bus
 
 import org.bigbluebutton.api.IReceivedOldMessageHandler
+import org.bigbluebutton.api.messaging.messages.IMessage
 
 
 class OldMessageReceivedGW(handler: IReceivedOldMessageHandler) {
 
-  def handle(pattern: String, channel: String, msg: String): Unit = {
-    handler.handleMessage(pattern, channel, msg)
+  def handle(msg: IMessage): Unit = {
+    handler.handleMessage(msg)
   }
+
 }

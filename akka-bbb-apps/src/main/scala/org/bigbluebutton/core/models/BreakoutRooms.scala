@@ -1,11 +1,16 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.messages.breakoutrooms.{ BreakoutRoomVO, BreakoutUserVO }
+import org.bigbluebutton.common2.msgs.{ BreakoutRoomVO, BreakoutUserVO }
 
 object BreakoutRooms {
+  def breakoutRoomsStartedOn(status: BreakoutRooms) = status.breakoutRoomsStartedOn
+  def breakoutRoomsStartedOn(status: BreakoutRooms, startedOn: Long) = status.breakoutRoomsStartedOn = startedOn
+
+  def breakoutRoomsdurationInMinutes(status: BreakoutRooms) = status.breakoutRoomsdurationInMinutes
+  def breakoutRoomsdurationInMinutes(status: BreakoutRooms, duration: Int) = status.breakoutRoomsdurationInMinutes = duration
 
   def newBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, voiceConfId: String,
-    assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
+                      assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
     val brvo = new BreakoutRoomVO(id, externalMeetingId, name, parentRoomId, sequence, voiceConfId, assignedUsers, Vector())
     breakoutRooms.add(brvo)
     Some(brvo)
@@ -16,7 +21,7 @@ object BreakoutRooms {
   }
 
   def getRoomWithExternalId(breakoutRooms: BreakoutRooms, externalId: String): Option[BreakoutRoomVO] = {
-    breakoutRooms.rooms.values find (r => r.externalMeetingId == externalId)
+    breakoutRooms.rooms.values find (r => r.externalId == externalId)
   }
 
   def getRooms(breakoutRooms: BreakoutRooms): Array[BreakoutRoomVO] = {
@@ -42,11 +47,13 @@ object BreakoutRooms {
   }
 
   def removeRoom(breakoutRooms: BreakoutRooms, id: String) {
-    breakoutRooms.remove(id);
+    breakoutRooms.remove(id)
   }
 }
 
 class BreakoutRooms {
+  private var breakoutRoomsStartedOn: Long = 0
+  private var breakoutRoomsdurationInMinutes: Int = 0
 
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoomVO]
 

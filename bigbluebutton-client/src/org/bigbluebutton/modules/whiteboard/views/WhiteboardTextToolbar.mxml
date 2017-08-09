@@ -21,10 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:HBox xmlns="flexlib.containers.*" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC"
-	cornerRadius="5" borderStyle="solid"
-	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0"
-	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*"
+	xmlns:mate="http://mate.asfusion.com/" visible="false" alpha="0"
+	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*"
 	creationComplete="onCreationComplete()">
 	
 	<fx:Declarations>

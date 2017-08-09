@@ -28,7 +28,6 @@ package org.bigbluebutton.modules.sharednotes.maps
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
@@ -53,12 +52,12 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 
 		public function addRemoteDocuments(e:CurrentDocumentEvent):void {
-			window.addRemoteDocument(e.document);
+			window.addRemoteDocument(e.document, e.isNotesLimit);
 			for(var id:String in e.document){
 				LOGGER.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);
 				if (id != window.noteId && !windows.hasOwnProperty(id)) {
 					createAdditionalNotes(id, "");
-					windows[id].addRemoteDocument(e.document);
+					windows[id].addRemoteDocument(e.document, e.isNotesLimit);
 				}
 			}
 
@@ -66,9 +65,12 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 
 		private function openAdditionalNotesSet(numAdditionalSharedNotes:Number):void {
-			var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT);
-			e.payload.numAdditionalSharedNotes = numAdditionalSharedNotes;
-			globalDispatcher.dispatchEvent(e);
+			var extraNotes : Number = numAdditionalSharedNotes - numExistentsAdditionalNotes();
+			if (extraNotes > 0) {
+				var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT);
+				e.payload.numAdditionalSharedNotes = extraNotes;
+				globalDispatcher.dispatchEvent(e);
+			}
 		}
 
 		public function addMainWindow():void {
@@ -126,6 +128,12 @@ package org.bigbluebutton.modules.sharednotes.maps
 			var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			closeEvent.window = window;
 			globalDispatcher.dispatchEvent(closeEvent);
+		}
+
+		private function numExistentsAdditionalNotes():Number {
+			var notesCounter:Number = 0;
+			for (var noteId:String in windows) notesCounter++;
+			return notesCounter;
 		}
 	}
 }

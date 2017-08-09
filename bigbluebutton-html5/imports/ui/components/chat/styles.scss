@@ -2,7 +2,7 @@
 
 .chat {
   background-color: #fff;
-  padding: $sm-padding-x;
+  padding: $md-padding-x;
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -11,33 +11,29 @@
 }
 
 .header {
-  margin-top: $lg-padding-x - $sm-padding-x;
-  margin-bottom: $lg-padding-x;
-
+  margin-bottom: $md-padding-x;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: left;
+  flex-shrink: 0;
 
   a {
     text-decoration: none;
+    display: block;
+  }
+
+  [class^="icon-bbb-"],
+  [class*=" icon-bbb-"] {
+    font-size: 85%;
   }
 }
 
 .title {
   @extend %text-elipsis;
-  width: 90%;
-
-  > [class^="icon-bbb-"],
-  > [class*=" icon-bbb-"] {
-    font-size: 85%;
-  }
+  flex: 1;
 }
 
 .closeIcon {
-  position: relative;
-}
-
-[class='icon-bbb-left_arrow'],
-[class='icon-bbb-close']{
-  padding-bottom: 5px;
+  flex: 0 0;
+  margin-left: $sm-padding-x / 2;
 }

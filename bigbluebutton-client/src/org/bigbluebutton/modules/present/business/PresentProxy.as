@@ -21,8 +21,8 @@ package org.bigbluebutton.modules.present.business
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.TimerEvent;
-	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
@@ -45,6 +45,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.model.Presentation;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.services.PresentationService;
+	import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
 	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
@@ -105,34 +106,37 @@ package org.bigbluebutton.modules.present.business
     public function handleChangePresentationCommand(cmd:ChangePresentationCommand):void {
       var pres:Presentation = PresentationModel.getInstance().getPresentation(cmd.presId);
       if (pres != null) {
-        sender.sharePresentation(true, pres.id);
+        sender.sharePresentation(pres.id);
       }
     }
+    
     public function handleGoToPageCommand(cmd:GoToPageCommand):void {
-      var page:Page = PresentationModel.getInstance().getPage(cmd.pageId);
-      if (page != null) {
-        sender.goToPage(page.id);
+      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getSpecificPageIds(cmd.pageId);
+      if (pageChangeVO != null) {
+        LOGGER.debug("Going to page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
+      } else {
+        LOGGER.debug("Could not go to selected page. Might not exist or is already current");
       }
     }
     
     public function handleGoToPreviousPageCommand(cmd:GoToPrevPageCommand):void {
-      var page:Page = PresentationModel.getInstance().getPrevPage(cmd.curPageId);
-      if (page != null) {
-        LOGGER.debug("Going to prev page[{0}] from page[{1}]", [page.id, cmd.curPageId]);
-        sender.goToPage(page.id);
+      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getPrevPageIds();
+      if (pageChangeVO != null) {
+        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
       } else {
-        LOGGER.debug("Could not find pervious page. Current page [{0}]", [cmd.curPageId]);
+        LOGGER.debug("Could not find previous page to change to");
       }
     }
     
     public function handleGoToNextPageCommand(cmd:GoToNextPageCommand):void {
-      LOGGER.debug("Go to next page. Current page [{0}]", [cmd.curPageId]);
-      var page:Page = PresentationModel.getInstance().getNextPage(cmd.curPageId);
-      if (page != null) {
-        LOGGER.debug("Going to next page[{0}] from page[{1}]", [page.id, cmd.curPageId]);
-        sender.goToPage(page.id);
+      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getNextPageIds();
+      if (pageChangeVO != null) {
+        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
       } else {
-        LOGGER.debug("Could not find next page. Current page [{0}]", [cmd.curPageId]);
+        LOGGER.debug("Could not find previous page to change to");
       }
     }
 				
@@ -162,15 +166,6 @@ package org.bigbluebutton.modules.present.business
 			var req:URLRequest = new URLRequest(downloadUri);
 			navigateToURL(req,"_blank");
 		}
-
-		/**
-		 * To to the specified slide 
-		 * @param e - The event which holds the slide number
-		 * 
-		 */		
-		public function gotoSlide(e:PresenterCommands):void{
-     // sender.gotoSlide(e.slideNumber);
-		}
 				
 		/**
 		 * Loads a presentation from the server. creates a new PresentationService class 
@@ -196,29 +191,11 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function sharePresentation(e:PresenterCommands):void{
-
-      		sender.sharePresentation(e.share, e.presentationName);
-      
-			var timer:Timer = new Timer(3000, 1);
-			timer.addEventListener(TimerEvent.TIMER, sendViewerNotify);
-			timer.start();
+      		sender.sharePresentation(e.presentationName);
 		}
 		
 		public function removePresentation(e:RemovePresentationEvent):void {
 			sender.removePresentation(e.presentationName);
-		}
-		
-		private function sendViewerNotify(e:TimerEvent):void{
-//			sender.gotoSlide(0);
-		}
-			
-		/**
-		 * Move the slide within the presentation window 
-		 * @param e
-		 * 
-		 */		
-		public function moveSlide(e:PresenterCommands):void{
-			sender.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 		
 		/**
@@ -227,7 +204,12 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void{
-      		sender.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+			var currentPresentation:Presentation = PresentationModel.getInstance().getCurrentPresentation();
+      if (currentPresentation == null) return;
+      
+			var currentPage:Page = PresentationModel.getInstance().getCurrentPage();
+			
+			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 	}
 }

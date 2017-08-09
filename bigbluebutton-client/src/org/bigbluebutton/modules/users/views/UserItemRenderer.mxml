@@ -22,10 +22,13 @@
 
 <mx:Box xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		styleName="{data.breakoutRooms.length > 0 ? 'itemRendererDisabled' : 'itemRendererDefault'}"
+		width="100%"
 		verticalScrollPolicy="off"
 		horizontalScrollPolicy="off">
+
 	<mx:Label id="nameLabel"
+			  width="100%"
 			  text="{data.name}"
-			  color="{data.breakoutRooms.length > 0 ? 0xcccccc : 0x000000}"
 			  toolTip="{data.name}" />
 </mx:Box>

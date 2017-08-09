@@ -88,54 +88,6 @@ export default class MessageListItem extends Component {
     return !nextState.preventRender && nextState.pendingChanges;
   }
 
-  render() {
-    const {
-      user,
-      messages,
-      time,
-    } = this.props;
-
-    const dateTime = new Date(time);
-
-    if (!user) {
-      return this.renderSystemMessage();
-    }
-
-    return (
-      <div className={styles.item}>
-        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
-          <div className={styles.avatar}>
-            <UserAvatar user={user} />
-          </div>
-          <div className={styles.content}>
-            <div className={styles.meta}>
-              <div className={!user.isOnline ? styles.name : styles.logout}>
-                <span>{user.name}</span>
-                {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
-              </div>
-              <time className={styles.time} dateTime={dateTime}>
-                <FormattedTime value={dateTime} />
-              </time>
-            </div>
-            <div className={styles.messages}>
-              {messages.map((message, i) => (
-                <Message
-                  className={styles.message}
-                  key={message.id}
-                  text={message.text}
-                  time={message.time}
-                  chatAreaId={this.props.chatAreaId}
-                  lastReadMessageTime={this.props.lastReadMessageTime}
-                  handleReadMessage={this.props.handleReadMessage}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   renderSystemMessage() {
     const {
       messages,
@@ -155,6 +107,60 @@ export default class MessageListItem extends Component {
                 handleReadMessage={this.props.handleReadMessage}
               />
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const {
+      user,
+      messages,
+      time,
+    } = this.props;
+
+    const dateTime = new Date(time);
+
+    if (!user) {
+      return this.renderSystemMessage();
+    }
+
+    return (
+      <div className={styles.item}>
+        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+          <div className={styles.avatarWrapper}>
+            <UserAvatar
+              className={styles.avatar}
+              color={user.color}
+              moderator={user.isModerator}
+            >
+              {user.name.toLowerCase().slice(0, 2)}
+            </UserAvatar>
+          </div>
+          <div className={styles.content}>
+            <div className={styles.meta}>
+              <div className={user.isOnline ? styles.name : styles.logout}>
+                <span>{user.name}</span>
+                {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
+              </div>
+              <time className={styles.time} dateTime={dateTime}>
+                <FormattedTime value={dateTime} />
+              </time>
+            </div>
+            <div className={styles.messages}>
+              {messages.map(message => (
+                <Message
+                  className={styles.message}
+                  key={message.id}
+                  text={message.text}
+                  time={message.time}
+                  chatAreaId={this.props.chatAreaId}
+                  lastReadMessageTime={this.props.lastReadMessageTime}
+                  handleReadMessage={this.props.handleReadMessage}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

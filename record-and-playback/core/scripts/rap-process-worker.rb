@@ -27,7 +27,7 @@ def process_archived_meetings(recording_dir)
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/processed")
-  sanity_done_files.each do |sanity_done|
+  sanity_done_files.sort{ |a,b| BigBlueButton.done_to_timestamp(a) <=> BigBlueButton.done_to_timestamp(b) }.each do |sanity_done|
     match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
 

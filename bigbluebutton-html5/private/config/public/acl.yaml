@@ -3,28 +3,30 @@ acl:
     subscriptions:
       - 'users'
       - 'cursor'
-      - 'deskshare'
+      - 'screenshare'
       - 'meetings'
       - 'polls'
       - 'chat'
       - 'presentations'
-      - 'shapes'
+      - 'annotations'
       - 'slides'
       - 'captions'
       - 'breakouts'
+      - 'voiceUsers'
     methods:
       - 'listenOnlyToggle'
       - 'userLogout'
       - 'setEmojiStatus'
+      - 'toggleSelfVoice'
       - 'publishVote'
       - 'sendChat'
   moderator:
     methods:
+      - 'assignPresenter'
       - 'kickUser'
-      - 'muteUser'
-      - 'unmuteUser'
+      - 'toggleVoice'
+      - 'clearPublicChatHistory'
   presenter:
     methods:
       - 'assignPresenter'
       - 'switchSlide'
-      - 'switchSlideMessage'

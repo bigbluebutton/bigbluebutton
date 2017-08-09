@@ -1,31 +1,31 @@
 package org.bigbluebutton.core.models
 
 object Layouts {
-  private var setByUser: String = "system";
-  private var currentLayout = "";
-  // this is not being set by the client, and we need to apply the layouts to all users, not just viewers, so will keep the default value of this as false
-  private var affectViewersOnly = false
-
-  def setCurrentLayout(layout: String) {
-    currentLayout = layout
+  def setCurrentLayout(instance: Layouts, layout: String, setBy: String) {
+    instance.currentLayout = layout
+    instance.setByUser = setBy;
   }
 
-  def getCurrentLayout(): String = {
-    currentLayout
+  def getCurrentLayout(instance: Layouts): String = {
+    instance.currentLayout
   }
 
-  def applyToViewersOnly(viewersOnly: Boolean) {
-    affectViewersOnly = viewersOnly
+  def applyToViewersOnly(instance: Layouts, viewersOnly: Boolean) {
+    instance.affectViewersOnly = viewersOnly
   }
 
-  def doesLayoutApplyToViewersOnly(): Boolean = {
-    affectViewersOnly
+  def doesLayoutApplyToViewersOnly(instance: Layouts): Boolean = {
+    instance.affectViewersOnly
   }
 
-  def getLayoutSetter(): String = {
-    setByUser
+  def getLayoutSetter(instance: Layouts): String = {
+    instance.setByUser
   }
 }
 
 class Layouts {
+  private var setByUser: String = "system";
+  private var currentLayout = "";
+  // this is not being set by the client, and we need to apply the layouts to all users, not just viewers, so will keep the default value of this as false
+  private var affectViewersOnly = true
 }

@@ -1,5 +1,7 @@
-@import "../../../stylesheets/variables/_all";
-@import "../../../stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+
+$padding: $md-padding-x;
 
 .messageListWrapper {
   display: flex;
@@ -9,10 +11,10 @@
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-right: 12px;
-  padding-bottom: 12px;
-  margin-right: -0.75rem;
-  margin-bottom: -0.75rem;
+  padding-right: $padding;
+  padding-bottom: $padding;
+  margin-right: -$padding;
+  margin-bottom: -$padding;
 }
 
 .messageList {
@@ -20,10 +22,10 @@
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  margin-right: -$sm-padding-x;
-  padding-right: $sm-padding-x;
+  margin-right: -$padding;
+  padding-right: $padding;
   padding-top: 0;
-  padding-bottom: $sm-padding-x;
+  padding-bottom: $padding;
 }
 
 .unreadButton {

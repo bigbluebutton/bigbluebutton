@@ -284,23 +284,22 @@
     <fx:Script>
     <![CDATA[
 
-    import org.as3commons.logging.api.ILogger;
-    import org.as3commons.logging.api.getClassLogger;
-
     import flash.events.Event;
+    import flash.events.FocusEvent;
+    import flash.events.KeyboardEvent;
+    import flash.events.MouseEvent;
     import flash.events.TextEvent;
-    import flash.events.ContextMenuEvent;
-    import flash.ui.ContextMenuItem;
-    import flash.net.FileReference;
-    import flash.text.*;
-
-    import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
-
+    import flash.text.TextFormat;
+    
     import mx.collections.ArrayCollection;
     import mx.controls.textClasses.TextRange;
-    import mx.core.mx_internal;
     import mx.core.IUITextField;
     import mx.core.UITextFormat;
+    import mx.core.mx_internal;
+    
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
     use namespace mx_internal;
 
     private static const LOGGER:ILogger = getClassLogger(SharedNotesRichTextEditor);
@@ -1303,17 +1302,17 @@
                 <mx:Button id="boldButton"
                         width="20"
                         toggle="true"
-                        icon="@Embed('assets/icon_style_bold.png')"
+                        icon="{getStyle('iconBold')}"
                         click="setTextStyles('bold', event.currentTarget.selected);"/>
                 <mx:Button id="italicButton"
                         width="20"
                         toggle="true"
-                        icon="@Embed('assets/icon_style_italic.png')"
+                        icon="{getStyle('iconItalic')}"
                         click="setTextStyles('italic', event.currentTarget.selected);"/>
                 <mx:Button id="underlineButton"
                         width="20"
                         toggle="true"
-                        icon="@Embed('assets/icon_style_underline.png')"
+                        icon="{getStyle('iconUnderline')}"
                         click="setTextStyles('underline', event.currentTarget.selected);"/>
             </mx:HBox>
             <mx:ColorPicker id="colorPicker"
@@ -1326,17 +1325,17 @@
                     itemClick="setTextStyles('align', ToggleButtonBar(event.currentTarget).dataProvider.getItemAt(ToggleButtonBar(event.currentTarget).selectedIndex).action);">
                 <mx:dataProvider>
                     <fx:Array>
-                        <fx:Object icon="@Embed('assets/icon_align_left.png')" action="left"/>
-                        <fx:Object icon="@Embed('assets/icon_align_center.png')" action="center"/>
-                        <fx:Object icon="@Embed('assets/icon_align_right.png')" action="right"/>
-                        <fx:Object icon="@Embed('assets/icon_align_justify.png')" action="justify"/>
+                        <fx:Object icon="{getStyle('iconAlignLeft')}" action="left"/>
+                        <fx:Object icon="{getStyle('iconAlignCenter')}" action="center"/>
+                        <fx:Object icon="{getStyle('iconAlignRight')}" action="right"/>
+                        <fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/>
                     </fx:Array>
                 </mx:dataProvider>
             </mx:ToggleButtonBar>
             <mx:Button id="bulletButton"
                     width="20"
                     toggle="true"
-                    icon="@Embed('assets/icon_bullet.png')"
+                    icon="{getStyle('iconBullet')}"
                     click="setTextStyles('bullet', event.currentTarget.selected);" />
             <mx:VRule height="{linkTextInput.height}"/>
             <mx:TextInput id="linkTextInput"

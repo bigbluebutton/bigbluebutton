@@ -5,7 +5,8 @@ import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
 import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
 import scala.collection.JavaConverters._
-import org.bigbluebutton.common2.domain.AnnotationProps
+import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 
 class WhiteboardModel {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -25,14 +26,14 @@ class WhiteboardModel {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(wbId, 0, new HashMap[String, List[AnnotationProps]]())
+    new Whiteboard(wbId, 0, new HashMap[String, List[AnnotationVO]]())
   }
 
-  private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationProps] = {
-    wb.annotationsMap.get(id).getOrElse(List[AnnotationProps]())
+  private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {
+    wb.annotationsMap.get(id).getOrElse(List[AnnotationVO]())
   }
 
-  def addAnnotation(wbId: String, userId: String, annotation: AnnotationProps): AnnotationProps = {
+  def addAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
     val wb = getWhiteboard(wbId)
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
     val rtnAnnotation = cleansePointsInAnnotation(annotation).copy(position = wb.annotationCount)
@@ -45,7 +46,7 @@ class WhiteboardModel {
     rtnAnnotation
   }
 
-  def updateAnnotation(wbId: String, userId: String, annotation: AnnotationProps): AnnotationProps = {
+  def updateAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
     val wb = getWhiteboard(wbId)
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
@@ -63,7 +64,7 @@ class WhiteboardModel {
     }
   }
 
-  def updateAnnotationPencil(wbId: String, userId: String, annotation: AnnotationProps): AnnotationProps = {
+  def updateAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
     val wb = getWhiteboard(wbId)
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
@@ -97,8 +98,8 @@ class WhiteboardModel {
     }
   }
 
-  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationProps): AnnotationProps = {
-    var rtnAnnotation: AnnotationProps = annotation
+  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+    var rtnAnnotation: AnnotationVO = annotation
 
     val wb = getWhiteboard(wbId)
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
@@ -130,7 +131,7 @@ class WhiteboardModel {
         val pathData = BezierWrapper.lineSimplifyAndCurve(oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
         //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
 
-        val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asInstanceOf[Object]) + ("commands" -> pathData.commands.asInstanceOf[Object])
+        val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
         val updatedAnnotation = annotation.copy(position = oldAnnotation.position, annotationInfo = updatedAnnotationData)
 
         val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: usersAnnotations.tail))
@@ -146,7 +147,7 @@ class WhiteboardModel {
     rtnAnnotation
   }
 
-  def getHistory(wbId: String): Array[AnnotationProps] = {
+  def getHistory(wbId: String): Array[AnnotationVO] = {
     val wb = getWhiteboard(wbId)
     wb.annotationsMap.values.flatten.toArray.sortBy(_.position);
   }
@@ -165,7 +166,7 @@ class WhiteboardModel {
         }
       } else {
         if (wb.annotationsMap.nonEmpty) {
-          val newWb = wb.copy(annotationsMap = new HashMap[String, List[AnnotationProps]]())
+          val newWb = wb.copy(annotationsMap = new HashMap[String, List[AnnotationVO]]())
           saveWhiteboard(newWb)
           cleared = Some(true)
         }
@@ -174,8 +175,8 @@ class WhiteboardModel {
     cleared
   }
 
-  def undoWhiteboard(wbId: String, userId: String): Option[AnnotationProps] = {
-    var last: Option[AnnotationProps] = None
+  def undoWhiteboard(wbId: String, userId: String): Option[AnnotationVO] = {
+    var last: Option[AnnotationVO] = None
     val wb = getWhiteboard(wbId)
 
     if (_multiUser) {
@@ -202,7 +203,7 @@ class WhiteboardModel {
     last
   }
 
-  private def removeHeadAnnotation(wb: Whiteboard, key: String, list: List[AnnotationProps]): Whiteboard = {
+  private def removeHeadAnnotation(wb: Whiteboard, key: String, list: List[AnnotationVO]): Whiteboard = {
     val newAnnotationsMap = if (list.tail == Nil) wb.annotationsMap - key else wb.annotationsMap + (key -> list.tail)
     wb.copy(annotationsMap = newAnnotationsMap)
   }
@@ -215,19 +216,18 @@ class WhiteboardModel {
     _multiUser
   }
 
-  def cleansePointsInAnnotation(ann: AnnotationProps): AnnotationProps = {
+  def cleansePointsInAnnotation(ann: AnnotationVO): AnnotationVO = {
     var updatedAnnotationInfo = ann.annotationInfo
     ann.annotationInfo.get("points").foreach(points =>
-      updatedAnnotationInfo = (ann.annotationInfo + ("points" -> convertListNumbersToFloat(points.asInstanceOf[List[_]])))
-    )
+      updatedAnnotationInfo = (ann.annotationInfo + ("points" -> convertListNumbersToFloat(points.asInstanceOf[List[_]]))))
     ann.copy(annotationInfo = updatedAnnotationInfo)
   }
 
   def convertListNumbersToFloat(list: List[_]): List[Float] = {
     list.map {
       case f: Double => f.toFloat
-      case f: Float => f
-      case f: Int => f.toFloat
+      case f: Float  => f
+      case f: Int    => f.toFloat
     }.asInstanceOf[List[Float]]
   }
 }

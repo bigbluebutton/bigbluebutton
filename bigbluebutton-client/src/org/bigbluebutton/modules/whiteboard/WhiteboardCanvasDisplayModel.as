@@ -18,26 +18,14 @@
  */
 package org.bigbluebutton.modules.whiteboard
 {
-  import flash.display.DisplayObject;
-  import flash.events.Event;
-  import flash.events.FocusEvent;
-  import flash.events.KeyboardEvent;
-  import flash.ui.Keyboard;
-  import flash.utils.Dictionary;
-  
+  import flash.display.DisplayObject; 
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.main.events.MadePresenterEvent;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
@@ -212,6 +200,7 @@ package org.bigbluebutton.modules.whiteboard
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
+				if (userName == null) userName = "Unknown";
 				var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
 				wbCanvas.addCursor(newCursor);
 				

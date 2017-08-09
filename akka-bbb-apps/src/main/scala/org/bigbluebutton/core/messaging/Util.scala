@@ -18,8 +18,10 @@ object Util {
     header
   }
 
-  def buildJson(header: java.util.HashMap[String, Any],
-    payload: java.util.HashMap[String, Any]): String = {
+  def buildJson(
+    header:  java.util.HashMap[String, Any],
+    payload: java.util.HashMap[String, Any]
+  ): String = {
 
     val message = new java.util.HashMap[String, java.util.HashMap[String, Any]]()
     message.put(Constants.HEADER, header)

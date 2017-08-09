@@ -5,20 +5,15 @@
 		showCloseButton="false"
 		xmlns:mate="http://mate.asfusion.com/"
 		minWidth="250"
-		creationComplete="init()"
-		title="{ResourceUtil.getInstance().getString('bbb.settings.title')}" >
+		creationComplete="init()" >
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.ItemClickEvent;
-			import mx.managers.PopUpManager;
 			import mx.core.UIComponent;
-
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
+			import mx.managers.PopUpManager;
+			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.events.SettingsComponentEvent;
 
 			private function init():void {
 				this.x = (this.parent.width - this.width) / 2;
@@ -49,7 +44,12 @@
 
 		]]>
 	</fx:Script>
-	<mx:VBox id="addedComponents" height="100%" />
+	<mx:TextArea borderSkin="{null}"
+				 text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
+				 editable="false" styleName="titleWindowStyle"
+				 width="100%" />
+	
+	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 
 	<mx:ControlBar width="100%" horizontalAlign="center">
 		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" width="100" click="onOkClicked()"/>

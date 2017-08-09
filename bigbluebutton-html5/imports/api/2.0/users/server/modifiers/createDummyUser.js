@@ -1,15 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Users2x from '/imports/api/2.0/users';
+import Users from '/imports/api/2.0/users';
 
 export default function createDummyUser2x(meetingId, userId, authToken) {
-  console.error(`create dummy user2x ${meetingId} ${userId} ${authToken}`);
   check(meetingId, String);
   check(userId, String);
   check(authToken, String);
 
-  const User = Users2x.findOne({ meetingId, userId });
+  const User = Users.findOne({ meetingId, userId });
   if (User) {
     throw new Meteor.Error('existing-user', 'Tried to create a dummy user for an existing user');
   }
@@ -30,5 +29,5 @@ export default function createDummyUser2x(meetingId, userId, authToken) {
     Logger.info(`Created dummy user 2x id=${userId} token=${authToken} meeting=${meetingId}`);
   };
 
-  return Users2x.insert(doc, cb);
+  return Users.insert(doc, cb);
 }

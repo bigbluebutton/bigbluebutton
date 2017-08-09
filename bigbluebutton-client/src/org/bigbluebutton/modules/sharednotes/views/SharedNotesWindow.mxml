@@ -32,6 +32,9 @@
 		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
 		<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
 		<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+		<mate:Listener type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteCreated"/>
+		<mate:Listener type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteDestroyed"/>
+		<mate:Listener type="{ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW}" method="focusWindow" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -57,6 +60,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.main.views.WellPositionedMenu;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
@@ -73,10 +77,11 @@
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 			private var _lastPatch:Number = 0;
-			protected var _noteId:String="MAIN_WINDOW";
+			protected var _noteId:String = "MAIN_NOTE";
 			protected var _noteName:String = "";
 
 			[Bindable] private var options:SharedNotesOptions;
+			[Bindable] private var _isNotesLimit:Boolean = true;
 
 			private var sendUpdateTimer:Timer;
 			private var getDocumentTimer:Timer = new Timer(5000);
@@ -107,7 +112,7 @@
 
 				updateTitle();
 
-				if (noteId == "MAIN_WINDOW") {
+				if (noteId == "MAIN_NOTE") {
 					this.enabled = false;
 					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
 					getDocumentTimer.start();
@@ -115,7 +120,7 @@
 			}
 
 			private function gotCurrentDocument():void {
-				if(noteId == "MAIN_WINDOW"){
+				if(noteId == "MAIN_NOTE"){
 					getDocumentTimer.stop();
 				}
 			}
@@ -143,7 +148,7 @@
 			}
 
 			private function updateRoleDependentProperties(role:String):void {
-				if(noteId == "MAIN_WINDOW"){
+				if(noteId == "MAIN_NOTE"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
 				} else {
 					showCloseButton = role == Role.MODERATOR;
@@ -154,12 +159,13 @@
 				return _noteId;
 			}
 
-			public function addRemoteDocument(notes:Object):void{
+			public function addRemoteDocument(notes:Object, isNotesLimit:Boolean):void{
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
 				_lastPatch = note["patchCounter"];
 				richTextEditor.htmlText = _document;
+				_isNotesLimit = isNotesLimit;
 				if (!this.enabled) this.enabled = true;
 				updateTitle();
 				updateUndoRedoButtons(note["undo"], note["redo"]);
@@ -237,9 +243,15 @@
 				}
 			}
 
+			private function handleNoteCreated(e:SharedNotesEvent):void {
+				_isNotesLimit = e.payload.isNotesLimit;
+			}
+
+			private function handleNoteDestroyed(e:SharedNotesEvent):void {
+				_isNotesLimit = e.payload.isNotesLimit;
+			}
+
 			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
-				btnUndo.styleName = undo ? "sharedNotesEnabledUndoButtonStyle" : "sharedNotesDisabledUndoButtonStyle";
-				btnRedo.styleName = redo ? "sharedNotesEnabledRedoButtonStyle" : "sharedNotesDisabledRedoButtonStyle";
 				btnUndo.enabled = undo;
 				btnRedo.enabled = redo;
 			}
@@ -435,6 +447,12 @@
 			public function handleResizableStatus(value:Boolean):void {
 				this.resizable = value;
 			}
+			
+			private function focusWindow(e:ShortcutEvent):void {
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
+			}
 
 		]]>
 	</fx:Script>
@@ -457,7 +475,7 @@
 		<mx:HBox width="100%" paddingTop="0">
 			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
 				<mx:Button id="btnUndo"
-						styleName="sharedNotesDisabledUndoButtonStyle"
+						styleName="sharedNotesUndoButtonStyle"
 						width="26"
 						height="26"
 						click="btnUndo_clickHandler(event)"
@@ -465,7 +483,7 @@
 						enabled="false"
 						visible="true"/>
 				<mx:Button id="btnRedo"
-						styleName="sharedNotesDisabledRedoButtonStyle"
+						styleName="sharedNotesRedoButtonStyle"
 						width="26"
 						height="26"
 						click="btnRedo_clickHandler(event)"
@@ -478,7 +496,10 @@
 						width="26"
 						height="26"
 						click="btnNew_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+						enabled="{!_isNotesLimit}"
+						toolTip="{_isNotesLimit ?
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.toolTip') :
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
 				<mx:Button id="btnFormat"
 						styleName="sharedNotesFormatButtonStyle"
 						width="26" height="26"

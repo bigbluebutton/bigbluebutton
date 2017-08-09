@@ -5,7 +5,7 @@
 	<property name="DEBUG" value="true" />
 	<property name="BUILD_ENV" value="DEV" />
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
-	<property name="themeFile" value="BBBDefault.css" />
+	<property name="themeFile" value="V2Theme.css" />
 	<property name="BASE_DIR" value="${basedir}" />
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
 

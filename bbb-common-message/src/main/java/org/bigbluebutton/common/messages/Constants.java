@@ -127,13 +127,6 @@ public class Constants {
   public static final String PERM_LOCK_ON_JOIN               = "lockOnJoin";
   public static final String PERM_LOCK_ON_JOIN_CONFIG        = "lockOnJoinConfigurable";
   public static final String ENABLED                         = "enabled";
-  public static final String START_INDEX                     = "start_index";
-  public static final String END_INDEX                       = "end_index";
-  public static final String LOCALE                          = "locale";
-  public static final String LOCALE_CODE                      = "locale_code";
-  public static final String TEXT                            = "text";
-  public static final String OWNER_ID                        = "owner_id";
-  public static final String CAPTION_HISTORY                 = "caption_history";
   public static final String AVATAR_URL                      = "avatarURL";
   public static final String STUNS                           = "stuns";
   public static final String TURNS                           = "turns";
@@ -145,16 +138,6 @@ public class Constants {
   public static final String WAITING_FOR_ACCEPTANCE          = "waiting_for_acceptance";
   public static final String DOWNLOADABLE                    = "downloadable";
   public static final String GUEST_POLICY                    = "guest_policy";
-  public static final String NOTE_ID                         = "note_id";
-  public static final String PATCH                           = "patch";
-  public static final String PATCH_ID                        = "patch_id";
-  public static final String NOTE_NAME                       = "note_name";
-  public static final String NOTES                           = "notes";
-  public static final String ADDITIONAL_NOTES_SET_SIZE       = "additional_notes_set_size";
   public static final String SET_BY                          = "set_by";
-  public static final String UNDO                            = "undo";
-  public static final String REDO                            = "redo";
-  public static final String OPERATION                       = "operation";
-  public static final String NOTE                            = "note";
   public static final String METADATA                        = "metadata";
 }

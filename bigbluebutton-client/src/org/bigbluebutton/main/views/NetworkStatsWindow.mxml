@@ -38,16 +38,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flash.utils.Timer;
 			
-			import mx.core.IFlexDisplayObject;
-			import mx.effects.Fade;
-			import mx.events.EffectEvent;
-			import mx.managers.PopUpManager;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.core.services.BandwidthMonitor;
 			import org.bigbluebutton.main.model.NetworkStatsData;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -56,9 +49,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			private var _updateTimer:Timer = new Timer(1000);
-
-			private var _images:Images = new Images();
-			[Bindable] private var _refreshIcon:Class = _images.refreshSmall;
 
 			private function onCreationComplete():void {
 				this.windowControls.maximizeRestoreBtn.visible = false;
@@ -109,7 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.current')}: "/><mx:Label id="labelCurrentDownload" fontWeight="bold" text="-"/></mx:HBox>
 			<mx:HBox visible="false" includeInLayout="false" horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.available')}: "/><mx:Label id="labelAvailableDownload" fontWeight="bold" text="-"/></mx:HBox>
 			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.latency')}: "/><mx:Label id="labelDownloadLatency" fontWeight="bold" text="-"/></mx:HBox>
-			<mx:HBox horizontalGap="0" width="100%" ><mx:Spacer width="100%"/><mx:Button id="labelRefresh" icon="{_refreshIcon}" width="16" height="16" click="runBandwidthMeasurement()" /></mx:HBox>
+			<mx:HBox horizontalGap="0" width="100%" ><mx:Spacer width="100%"/><mx:Button id="labelRefresh" icon="{getStyle('iconRefresh')}" width="16" height="16" click="runBandwidthMeasurement()" /></mx:HBox>
 		</mx:VBox>
 	</mx:Panel>
 

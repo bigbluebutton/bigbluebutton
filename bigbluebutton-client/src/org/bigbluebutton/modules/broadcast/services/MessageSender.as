@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.broadcast.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
-  import org.bigbluebutton.core.managers.UserManager;
 
   public class MessageSender {
 	  private static const LOGGER:ILogger = getClassLogger(MessageSender);

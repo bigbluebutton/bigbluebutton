@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.sharednotes.events
 	{
 		public static const CURRENT_DOCUMENT:String = 'CURRENT_DOCUMENT';
 		public var document:Object;
+		public var isNotesLimit:Boolean;
 
 		public function CurrentDocumentEvent(type:String = CURRENT_DOCUMENT, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

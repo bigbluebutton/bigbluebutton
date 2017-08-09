@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.models
 
-import java.util.ArrayList
-import com.google.gson.Gson
 import org.bigbluebutton.common2.domain._
+import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
@@ -11,7 +11,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 object Polls {
 
   def handleStartPollReqMsg(userId: String, pollId: String, pollType: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
-    println("Received StartPollReqMsg for pollType=[" + pollType + "]")
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
       for {
         poll <- PollFactory.createPoll(pollId, pollType, numRespondents, None)
@@ -25,7 +24,7 @@ object Polls {
       page <- lm.presModel.getCurrentPage()
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
-      numRespondents: Int = Users.numUsers(lm.users) - 1 // subtract the presenter
+      numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
 
       poll <- createPoll(stampedPollId, numRespondents)
       simplePoll <- getSimplePoll(poll.id, lm.polls)
@@ -45,22 +44,29 @@ object Polls {
     }
   }
 
-  def handleShowPollResultReqMsg(requesterId: String, pollId: String, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
-    //    def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Unit = {
-    //      for {
-    //        page <- lm.presModel.getCurrentPage()
-    //        pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
-    //        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId, requesterId, -1)
-    //      } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(props.meetingProp.intId, requesterId, annotation))
-    //    }
+  def handleShowPollResultReqMsg(requesterId: String, pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO, AnnotationVO)] = {
+    def updateWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
+      lm.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
+    }
+
+    def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
+      for {
+        page <- lm.presModel.getCurrentPage()
+      } yield {
+        val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
+        val updatedShape = shape + ("whiteboardId" -> pageId)
+        val annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, updatedShape, pageId, requesterId, -1)
+        updateWhiteboardAnnotation(annotation)
+      }
+    }
 
     for {
       result <- getSimplePollResult(pollId, lm.polls)
       shape = pollResultToWhiteboardShape(result)
+      annot <- send(result, shape)
     } yield {
-      //      send(result, shape)
       showPollResult(pollId, lm.polls)
-      result
+      (result, annot)
     }
   }
 
@@ -94,20 +100,20 @@ object Polls {
   }
 
   def handleRespondToPollReqMsg(requesterId: String, pollId: String, questionId: Int, answerId: Int,
-    lm: LiveMeeting): Option[(String, String, SimplePollResultOutVO)] = {
+                                lm: LiveMeeting): Option[(String, String, SimplePollResultOutVO)] = {
 
     for {
-      curPres <- Users.getCurrentPresenter(lm.users)
+      curPres <- Users2x.findPresenter(lm.users2x)
       poll <- getSimplePollResult(pollId, lm.polls)
       pvo <- handleRespondToPoll(poll, requesterId, pollId, questionId, answerId, lm)
     } yield {
-      (curPres.id, pollId, pvo)
+      (curPres.intId, pollId, pvo)
     }
 
   }
 
   def handleStartCustomPollReqMsg(requesterId: String, pollId: String, pollType: String,
-    answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
+                                  answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
       for {
@@ -122,7 +128,7 @@ object Polls {
       page <- lm.presModel.getCurrentPage()
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
-      numRespondents: Int = Users.numUsers(lm.users) - 1 // subtract the presenter
+      numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
       poll <- createPoll(stampedPollId, numRespondents)
       simplePoll <- getSimplePoll(stampedPollId, lm.polls)
     } yield {
@@ -135,7 +141,7 @@ object Polls {
   // Helper methods:
   //
   private def handleRespondToPoll(poll: SimplePollResultOutVO, requesterId: String, pollId: String, questionId: Int,
-    answerId: Int, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
+                                  answerId: Int, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
     /*
    * Hardcode to zero as we are assuming the poll has only one question.
    * Our data model supports multiple question polls but for this
@@ -153,8 +159,8 @@ object Polls {
     }
 
     for {
-      user <- Users.findWithId(requesterId, lm.users)
-      responder = new Responder(user.id, user.name)
+      user <- Users2x.findWithIntId(lm.users2x, requesterId)
+      responder = new Responder(user.intId, user.name)
       updatedPoll <- storePollResult(responder)
     } yield {
       updatedPoll
@@ -164,34 +170,25 @@ object Polls {
 
   private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
-    shape += "num_respondents" -> new Integer(result.numRespondents)
-    shape += "num_responders" -> new Integer(result.numResponders)
-    shape += "type" -> "poll_result"
+    shape += "numRespondents" -> new Integer(result.numRespondents)
+    shape += "numResponders" -> new Integer(result.numResponders)
+    shape += "type" -> WhiteboardKeyUtil.POLL_RESULT_TYPE
     shape += "id" -> result.id
-    shape += "status" -> "DRAW_END"
+    shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
-    val answers = new ArrayBuffer[java.util.HashMap[String, Object]]
+    var answers = new ArrayBuffer[SimpleVoteOutVO]
     result.answers.foreach(ans => {
-      val amap = new java.util.HashMap[String, Object]()
-      amap.put("id", ans.id: java.lang.Integer)
-      amap.put("key", ans.key)
-      amap.put("num_votes", ans.numVotes: java.lang.Integer)
-      answers += amap
+      answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
     })
 
-    val gson = new Gson()
-    shape += "result" -> gson.toJson(answers.toArray)
+    shape += "result" -> answers
 
     // Hardcode poll result display location for now to display result
     // in bottom-right corner.
-    val display = new ArrayList[Double]()
     val shapeHeight = 6.66 * answers.size
-    display.add(66.0)
-    display.add(100 - shapeHeight)
-    display.add(34.0)
-    display.add(shapeHeight)
+    val mapA = List(66.toFloat, 100 - shapeHeight, 34.toFloat, shapeHeight)
 
-    shape += "points" -> display
+    shape += "points" -> mapA
     shape.toMap
   }
 
@@ -404,7 +401,6 @@ object PollFactory {
   }
 
   private def createQuestion(qType: String, answers: Option[Seq[String]]): Option[Question] = {
-    println("**** Creating quesion")
 
     val qt = qType.toUpperCase()
     var questionOption: Option[Question] = None
@@ -565,9 +561,7 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
   }
 
   def getResponders(): Array[Responder] = {
-    var r = new Array[Responder](responders.length)
-    responders.copyToArray(r)
-    return r
+    return responders.toArray
   }
 
   def toSimpleAnswerOutVO(): SimpleAnswerOutVO = {

@@ -8,7 +8,7 @@ import setEmojiStatus from './methods/setEmojiStatus';
 import validateAuthToken from './methods/validateAuthToken';
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.methods(mapToAcl(['methods.kickUser', 'methods.listenOnlyToggle', 'methods.userLogout',
+Meteor.methods(/*mapToAcl(['methods.kickUser', 'methods.listenOnlyToggle', 'methods.userLogout',
   'methods.assignPresenter', 'methods.setEmojiStatus', 'methods.muteUser', 'methods.unmuteUser',
   ], {
     kickUser,
@@ -18,6 +18,6 @@ Meteor.methods(mapToAcl(['methods.kickUser', 'methods.listenOnlyToggle', 'method
     setEmojiStatus,
     muteUser: (...args) => muteToggle(...args, true),
     unmuteUser: (...args) => muteToggle(...args, false),
-  }));
+  })*/);
 
 Meteor.methods({ validateAuthToken });

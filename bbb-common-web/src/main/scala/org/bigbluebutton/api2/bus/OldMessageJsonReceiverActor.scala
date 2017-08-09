@@ -9,6 +9,6 @@ object OldMessageJsonReceiverActor{
 class OldMessageJsonReceiverActor(gw: OldMessageReceivedGW) extends Actor with ActorLogging {
 
   def receive = {
-    case msg: OldReceivedJsonMessage => gw.handle(msg.pattern, msg.channel, msg.msg)
+    case msg: OldReceivedJsonMessage => //gw.handle(msg.pattern, msg.channel, msg.msg)
   }
 }

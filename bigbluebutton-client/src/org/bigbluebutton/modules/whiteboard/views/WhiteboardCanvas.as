@@ -30,16 +30,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import mx.containers.Canvas;
 	import mx.managers.CursorManager;
 	
-	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
-	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
@@ -58,13 +54,6 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private var graphicObjectHolder:Canvas = new Canvas();
 		private var cursorObjectHolder:Canvas = new Canvas();
 		
-		private var images:Images = new Images();
-		[Bindable] private var pencil_icon:Class = images.pencil_icon;
-		[Bindable] private var rectangle_icon:Class = images.square_icon;
-		[Bindable] private var triangle_icon:Class = images.triangle_icon;
-		[Bindable] private var ellipse_icon:Class = images.circle_icon;
-		[Bindable] private var line_icon:Class = images.line_icon;
-		[Bindable] private var text_icon:Class = images.text_icon;
 		private var toolType:String = AnnotationType.PENCIL;
 		private var whiteboardEnabled:Boolean = false;
 		private var currentWhiteboardId:String;
@@ -112,12 +101,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
 			
 			var stpl:Listener = new Listener();
-			stpl.type = MadePresenterEvent.SWITCH_TO_PRESENTER_MODE;
-			stpl.method = onSwitchToPresenterEvent;
-			
-			var stvl:Listener = new Listener();
-			stvl.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
-			stvl.method = onSwitchToViewerEvent;
+			stpl.type = SwitchedPresenterEvent.SWITCHED_PRESENTER;
+			stpl.method = onSwitchedPresenterEvent;
 			
 			presenterChange(UsersUtil.amIPresenter(), UsersUtil.getPresenterUserID());
 			
@@ -232,17 +217,17 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private function setCursor(toolType:String):void {
 			if(toolType == AnnotationType.ELLIPSE) {
-				CursorManager.setCursor(ellipse_icon);
+				CursorManager.setCursor(getStyle("iconEllipse"));
 			} else if(toolType == AnnotationType.RECTANGLE) {
-				CursorManager.setCursor(rectangle_icon);
+				CursorManager.setCursor(getStyle("iconRectangle"));
 			} else if(toolType == AnnotationType.TRIANGLE) {
-				CursorManager.setCursor(triangle_icon);
+				CursorManager.setCursor(getStyle("iconTriangle"));
 			} else if(toolType == AnnotationType.PENCIL) {
-				CursorManager.setCursor(pencil_icon, 2, -2, -22);
+				CursorManager.setCursor(getStyle("iconPencil"), 2, -2, -22);
 			} else if(toolType == AnnotationType.LINE) {
-				CursorManager.setCursor(line_icon);
+				CursorManager.setCursor(getStyle("iconLine"));
 			} else if(toolType == AnnotationType.TEXT) {
-				CursorManager.setCursor(text_icon);
+				CursorManager.setCursor(getStyle("iconText"));
 			} 
 		}
 		
@@ -364,12 +349,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			setWhiteboardInteractable();
 		}
 		
-		private function onSwitchToPresenterEvent(e:MadePresenterEvent):void {
-			presenterChange(true, e.userID);
-		}
-		
-		private function onSwitchToViewerEvent(e:MadePresenterEvent):void {
-			presenterChange(false, e.userID);
+		private function onSwitchedPresenterEvent(e:SwitchedPresenterEvent):void {
+			presenterChange(e.amIPresenter, e.newPresenterUserID);
 		}
 		
 		private function onUserLeftEvent(e:UserLeftEvent):void {

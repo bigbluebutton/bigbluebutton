@@ -1,20 +1,19 @@
 <?xml version="1.0" ?>
 <config>
     <localeversion suppressWarning="false">0.9.0</localeversion>
-    <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
     <porttest host="HOST" application="video/portTest" timeout="10000"/>    
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf?v=VERSION" />
-    <branding logo="logo.png" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://www.bigbluebutton.org&quot; target=&quot;_blank&quot;&gt;http://www.bigbluebutton.org&lt;/a&gt;&lt;/u&gt;" background="" toolbarColor="" toolbarColorAlphas="" />
+    <skinning enabled="true" url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
+    <branding logo="logo.swf" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://www.bigbluebutton.org&quot; target=&quot;_blank&quot;&gt;http://www.bigbluebutton.org&lt;/a&gt;&lt;/u&gt;" background="" toolbarColor="" />
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="true"
+            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="false"
             showRecordingNotification="true" logoutOnStopRecording="false"/>
     <meeting muteOnStart="false" />
     <breakoutRooms enabled="true" record="false" />
@@ -45,7 +44,7 @@
 		<module name="ScreenshareModule"
 			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
-			showButton="false"
+			showButton="true"
 			tryWebRTCFirst="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
@@ -119,7 +118,7 @@
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
-			enableEdit="true"
+			enableEdit="false"
 		/>
 
 		<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=VERSION"

@@ -67,7 +67,9 @@ class ChatListItem extends Component {
         tabIndex={tabIndex}
       >
         <div className={styles.chatListItemLink}>
-          {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
+          <div className={styles.chatIcon}>
+            {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
+          </div>
           <div className={styles.chatName}>
             {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
           </div>
@@ -89,7 +91,15 @@ class ChatListItem extends Component {
   }
 
   renderChatAvatar() {
-    return <UserAvatar user={this.props.chat} />;
+    const user = this.props.chat;
+    return (
+      <UserAvatar
+        moderator={user.isModerator}
+        color={user.color}
+      >
+        {user.name.toLowerCase().slice(0, 2)}
+      </UserAvatar>
+    );
   }
 
   renderChatIcon() {
