@@ -262,9 +262,7 @@ package org.bigbluebutton.util.i18n
 		 */        
 		private function handleResourceNotLoaded(event:ResourceEvent):void{
 			LOGGER.debug("Resource locale [" + preferredLocale + "] could not be loaded.");
-			resourceManager.localeChain = [MASTER_LOCALE];
-			preferredLocale = MASTER_LOCALE;
-			update();
+			changeLocale(MASTER_LOCALE);
 		}
 		
 		public function update():void{
