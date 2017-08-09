@@ -17,14 +17,14 @@ acl:
       - 'listenOnlyToggle'
       - 'userLogout'
       - 'setEmojiStatus'
+      - 'toggleSelfVoice'
       - 'publishVote'
       - 'sendChat'
   moderator:
     methods:
       - 'assignPresenter'
       - 'kickUser'
-      - 'muteUser'
-      - 'unmuteUser'
+      - 'toggleVoice'
       - 'clearPublicChatHistory'
   presenter:
     methods:
