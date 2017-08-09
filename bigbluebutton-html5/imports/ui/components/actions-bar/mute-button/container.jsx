@@ -13,15 +13,7 @@ export default createContainer(() => {
 
   const { muted, joined, talking } = voiceUser;
 
-  let callback = () => { };
-
-  if (joined && !muted) {
-    callback = () => makeCall('muteUser', userId);
-  }
-
-  if (joined && muted) {
-    callback = () => makeCall('unmuteUser', userId);
-  }
+  const callback = () => makeCall('toggleSelfVoice');
 
   const data = {
     isInAudio: joined,
