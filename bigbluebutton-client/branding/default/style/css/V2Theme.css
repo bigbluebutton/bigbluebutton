@@ -1210,20 +1210,26 @@ flexlib|SuperTabNavigator {
 }
 
 mx|Tab, .defaultTabStyle {
+	borderColor       : #CDD4DB;
 	color             : #2A2D33;
 	cornerRadius      : 0;
-	borderColor       : #CDD4DB;
 	fillColorUp       : #E8EFF3;
 	fillColorOver     : #CDD4DB;
 	fillColorDown     : #ACB2B7;
 	fillColorDisabled : #F0F2F6;
+	iconVisible       : false;
+	paddingBottom     : 0;
+	paddingTop        : 0;
+	textIndent        : 4;
 	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
 }
 
 .highlightedTabStyle {
-	fillColorUp : #DA3900;
-	color       : #FFFFFF;
+	color       : #DF2721;
+	iconColor   : #DF2721;
+	iconVisible : true;
 }
+
 
 /*
 //------------------------------
