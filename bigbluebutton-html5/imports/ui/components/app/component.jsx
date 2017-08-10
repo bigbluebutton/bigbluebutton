@@ -62,7 +62,7 @@ class App extends Component {
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
 
-    IosHandler.sendCallParametersREMOVETHIS();
+    IosHandler.sendCallParameters();
     window.addEventListener('requestBreakoutRooms',
     (e) => {
       IosHandler.updateBreakoutRooms(this.props.breakoutIds);

@@ -130,10 +130,6 @@ class UserList extends Component {
       this.focusList(list);
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> bbb/bbb-2x-mconf
     if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.ARROW_SPACE].includes(event.keyCode)) {
       active.firstChild.click();
     }
@@ -172,23 +168,11 @@ class UserList extends Component {
     }
   }
 
-<<<<<<< HEAD
   componentWillUnmount() {
     this._msgsList.removeEventListener('keypress', (event) => {}, false);
     this._usersList.removeEventListener('keypress', (event) => {}, false);
   }
 
-  render() {
-    return (
-      <div className={styles.userList}>
-        {this.renderHeader()}
-        {this.renderContent()}
-      </div>
-    );
-  }
-
-=======
->>>>>>> bbb/bbb-2x-mconf
   renderHeader() {
     const { intl } = this.props;
 

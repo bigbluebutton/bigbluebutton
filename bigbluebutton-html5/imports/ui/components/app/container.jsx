@@ -94,11 +94,11 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
     removed(old) {
       const {
-        meetingID,
+        meetingID
       } = Auth;
 
       Auth.clearCredentials().then(() => {
-        if (window.navigator.userAgent === 'BigBlueButton') {
+        if(window.navigator.userAgent === 'BigBlueButton') {
           iosHandler.leaveRoom();
         } else {
           window.close;
@@ -106,8 +106,6 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       });
     },
   });
-
-  window.bks = Breakouts;
 
   return {
     breakoutIds: getBreakoutIds(),

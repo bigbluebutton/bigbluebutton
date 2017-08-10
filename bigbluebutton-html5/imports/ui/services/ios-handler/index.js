@@ -77,7 +77,7 @@ class IosHandler {
     return this.postMessage(message);
   }
 
-  sendCallParametersREMOVETHIS() {
+  sendCallParameters() {
     console.log('if ios app will send parameters from call');
     if (this.isIosApp) {
       console.log(AudioManager);
