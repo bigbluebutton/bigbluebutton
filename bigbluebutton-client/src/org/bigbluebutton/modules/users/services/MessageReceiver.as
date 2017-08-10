@@ -348,6 +348,12 @@ package org.bigbluebutton.modules.users.services
       
       LOGGER.debug("USER JOINED = " + JSON.stringify(user2x));
 
+      var oldUser: User2x = LiveMeeting.inst().users.getUser(intId);
+      var wasPresenterBefore: Boolean = false;
+      if (oldUser != null && oldUser.presenter) {
+        wasPresenterBefore = true;
+      }
+
       // remove remaining instance of the user before adding
       LiveMeeting.inst().users.remove(intId);
       LiveMeeting.inst().users.add(user2x);
@@ -355,10 +361,22 @@ package org.bigbluebutton.modules.users.services
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user2x.intId;
       dispatcher.dispatchEvent(joinEvent);
+
+      if (UsersUtil.isMe(intId) && wasPresenterBefore != presenter) {
+        UsersUtil.setUserAsPresent(intId, false);
+        sendSwitchedPresenterEvent(false, intId);
+
+        var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+        e.userID = intId;
+        e.presenterName = name;
+        e.assignedBy = intId;
+        dispatcher.dispatchEvent(e);
+        dispatcher.dispatchEvent(new UserStatusChangedEvent(intId));
+      }
     }
     
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {
-      var body: Object = msg.body as Object
+      var body: Object = msg.body as Object;
       var users: Array = body.users as Array;
       LOGGER.debug("Num USERs = " + users.length);
       
