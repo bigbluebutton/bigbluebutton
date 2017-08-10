@@ -173,7 +173,7 @@ class MeetingActor(
     state = state.update(tracker)
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg => handleEndMeeting(m)
+      case m: EndMeetingSysCmdMsg => handleEndMeeting(m, state)
 
       // Users
       case m: ValidateAuthTokenReqMsg =>
@@ -187,12 +187,13 @@ class MeetingActor(
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-      case m: LogoutAndEndMeetingCmdMsg      => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg      => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg       => usersApp.handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg       => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg          => handleChangeUserEmojiCmdMsg(m)
       case m: EjectUserFromMeetingCmdMsg     => usersApp.handleEjectUserFromMeetingCmdMsg(m)
       case m: GetUsersMeetingReqMsg          => usersApp.handleGetUsersMeetingReqMsg(m)
+      case m: ChangeUserRoleCmdMsg           => usersApp.handleChangeUserRoleCmdMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg       => handleSendCursorPositionPubMsg(m)

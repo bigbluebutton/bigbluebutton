@@ -37,14 +37,10 @@
 */
 
 global {
-	fontFamily        : "Source Sans Pro", Arial, sans-serif;
-	fontSize          : 13;
-	color             : #2A2D33;
-	selectionColor    : #1070D7;
-	textSelectedColor : #FFFFFF;
-	focusColor        : #1070D7;
-	rollOverColor     : #0A5EAC;
-	textRollOverColor : #FFFFFF;
+	fontFamily : "Source Sans Pro", Arial, sans-serif;
+	fontSize   : 13;
+	color      : #2A2D33;
+	focusColor : #1070D7;
 }
 
 .defaultShellStyle {
@@ -218,7 +214,8 @@ mx|ApplicationControlBar {
 }
 
 .voiceConfInactiveButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off_Disabled");
 }
 
 .webcamDefaultButtonStyle {
@@ -231,11 +228,13 @@ mx|ApplicationControlBar {
 }
 
 .webcamOnButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
 }
 
 .webcamOffButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off_Disabled");
 }
 
 .deskshareDefaultButtonStyle {
@@ -275,7 +274,8 @@ mx|ApplicationControlBar {
 }
 
 .muteMeOnButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
 }
 
 .muteMeOffButtonStyle {
@@ -671,12 +671,38 @@ mx|DataGrid {
 //------------------------------
 */
 
+views|BBBSettings {
+	headerHeight : 0;
+}
+
 .allowButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Allow");
 }
 
 .denyButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deny");
+}
+
+/*
+//------------------------------
+//  Item renderers
+//------------------------------
+*/
+
+.itemRendererDefault {
+	color : #2A2D33;
+}
+
+.itemRendererOver {
+	color : #FFFFFF;
+}
+
+.itemRendererSeleted {
+	color : #FFFFFF;
+}
+
+.itemRendererDisabled {
+	color : #F0F2F6;
 }
 
 /*
@@ -836,15 +862,15 @@ flexlibcontainers|MDIWindowControlsContainer {
 }
 
 .videoDockStyleFocusChatLayout {
-	borderStyle : none;
-	borderColor: #42444C;
-	backgroundColor: #42444C;
+	borderStyle     : none;
+	borderColor     : #42444C;
+	backgroundColor : #42444C;
 }
 
 .videoDockStyleNoFocusChatLayout {
-	borderStyle : none;
-	borderColor: #42444C;
-	backgroundColor: #42444C;
+	borderStyle     : none;
+	borderColor     : #42444C;
+	backgroundColor : #42444C;
 }
 
 /*
@@ -1187,14 +1213,25 @@ flexlib|SuperTabNavigator {
 	borderColor : #CDD4DB;
 }
 
-mx|Tab {
+mx|Tab, .defaultTabStyle {
+	borderColor       : #CDD4DB;
+	color             : #2A2D33;
+	cornerRadius      : 0;
 	fillColorUp       : #E8EFF3;
 	fillColorOver     : #CDD4DB;
 	fillColorDown     : #ACB2B7;
 	fillColorDisabled : #F0F2F6;
-	cornerRadius      : 0;
-	borderColor       : #CDD4DB;
+	iconVisible       : false;
+	paddingBottom     : 0;
+	paddingTop        : 0;
+	textIndent        : 4;
 	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
+}
+
+.highlightedTabStyle {
+	color       : #DF2721;
+	iconColor   : #DF2721;
+	iconVisible : true;
 }
 
 /*
@@ -1331,8 +1368,8 @@ users|MoodMenu {
 	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
 	iconMoodAway       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
 	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
-	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
-	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
+	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
+	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
 	iconMoodConfused   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
 	iconMoodNone       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_None");
 }

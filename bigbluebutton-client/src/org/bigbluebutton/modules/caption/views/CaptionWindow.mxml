@@ -212,11 +212,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				captionTabs.addChildAt(textTab, 0);
 			}
 			
-			private function onTabChange():void {
-				var tab:Button = captionTabs.getTabAt(captionTabs.selectedIndex);
-				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
-			}
-			
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
@@ -257,7 +252,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Box width="100%" height="100%" horizontalAlign="left">
 		<containers:SuperTabNavigator id="captionTabs"
 									  width="100%" height="100%" minTabWidth="20"
-									  dragEnabled="false" popUpButtonPolicy="off" 
-									  change="onTabChange()"/>
+									  dragEnabled="false" popUpButtonPolicy="off"/>
 	</mx:Box>
 </CustomMdiWindow>

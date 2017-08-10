@@ -47,6 +47,52 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case TransferUserToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
 
+      //==================================================================
+      // Send chat, presentation, and whiteboard in different channels so as not to
+      // flood other applications (e.g. bbb-web) with unnecessary messages
+
+      // Whiteboard
+      case SendWhiteboardAnnotationEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+      case SendCursorPositionEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+      case ClearWhiteboardEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+      case UndoWhiteboardEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+
+      // Chat
+      case SendPublicMessageEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsChatRedisChannel, json)
+      case ClearPublicChatHistoryEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsChatRedisChannel, json)
+
+      // Presentation
+      case PresentationConversionCompletedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case SetCurrentPageEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case ResizeAndMovePageEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case RemovePresentationEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case SetCurrentPresentationEvtMsg.NAME =>
+
+      // Breakout
+      case UpdateBreakoutUsersEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case BreakoutRoomsListEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case BreakoutRoomJoinURLEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case BreakoutRoomStartedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case MeetingTimeRemainingUpdateEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      //==================================================================
+
       case _ => msgSender.send(fromAkkaAppsRedisChannel, json)
     }
   }

@@ -38,6 +38,7 @@
 			allowKickUser="true"
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
+			enableGuestUI="false"
 			baseTabIndex="301"
 		/>
 

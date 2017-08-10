@@ -92,6 +92,13 @@ object Users2x {
     }
   }
 
+  def isPresenter(intId: String, users: Users2x): Boolean = {
+    findWithIntId(users, intId) match {
+      case Some(u) => u.presenter
+      case None    => false
+    }
+  }
+
   def findPresenter(users: Users2x): Option[UserState] = {
     users.toVector.find(u => u.presenter)
   }

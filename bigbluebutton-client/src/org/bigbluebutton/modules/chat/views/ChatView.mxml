@@ -238,8 +238,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chatBox:ChatBox = getChatBoxForUser(userid);
 				var tabIndex:int = getTabIndexFor(chatBox);
 				var tab:Button = chatTabs.getTabAt(tabIndex);
-				tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
-				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
+				tab.styleName = "highlightedTabStyle";
 				
 				// An event to change the accessibilityDescription of the given chat tab to <existing label> + "NEW MESSAGE" should go here.
 				// However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
@@ -251,7 +250,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onTabNavChange():void{
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
-				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+				tab.styleName = "defaultTabStyle";
 				
 				// An event to remove the "NEW MESSAGE" notification from the accessibilityDescription of the given chat tab (if it exists) should go here.
 				// However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.

@@ -17,6 +17,7 @@ acl:
       - 'listenOnlyToggle'
       - 'userLogout'
       - 'setEmojiStatus'
+      - 'toggleSelfVoice'
       - 'publishVote'
       - 'sendChat'
   moderator:
@@ -26,6 +27,7 @@ acl:
       - 'muteUser'
       - 'unmuteUser'
       - 'endMeeting'
+      - 'toggleVoice'
       - 'clearPublicChatHistory'
   presenter:
     methods:
