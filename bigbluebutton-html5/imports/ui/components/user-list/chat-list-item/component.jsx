@@ -14,11 +14,11 @@ const intlMessages = defineMessages({
     description: 'title for public chat',
   },
   unreadPlural: {
-    id: 'app.userlist.chatlistitem.unreadPlural',
+    id: 'app.userList.chatListItem.unreadPlural',
     description: 'singular aria label for new message',
   },
   unreadSingular: {
-    id: 'app.userlist.chatlistitem.unreadSingular',
+    id: 'app.userList.chatListItem.unreadSingular',
     description: 'plural aria label for new messages',
   },
 });

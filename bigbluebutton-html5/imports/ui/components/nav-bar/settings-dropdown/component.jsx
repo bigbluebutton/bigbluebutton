@@ -55,12 +55,12 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
   },
-  exitFullScreenDesc: {
-    id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
+  exitFullscreenDesc: {
+    id: 'app.navBar.settingsDropdown.exitFullscreenDesc',
     description: 'Describes exit fullscreen option',
   },
-  exitFullScreenLabel: {
-    id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
+  exitFullscreenLabel: {
+    id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
 });
@@ -97,8 +97,8 @@ class SettingsDropdown extends Component {
     let fullScreenIcon = 'fullscreen';
 
     if (isFullScreen) {
-      fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
-      fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+      fullScreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
+      fullScreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullScreenIcon = 'exit_fullscreen';
     }
 
