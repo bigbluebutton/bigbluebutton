@@ -2,7 +2,8 @@
 <mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:mate="http://mate.asfusion.com/"
-		width="400" >
+		horizontalGap="30"
+		width="400">
 
 	<fx:Declarations>
 		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="refreshGuestPolicy"/>
@@ -81,10 +82,9 @@
 			}
 		]]>
 	</fx:Script>
-	<mx:VBox width="30%">
+	<mx:VBox width="30%" horizontalAlign="right">
 		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.guests.Management')}"/>
 	</mx:VBox>
-	<mx:Spacer width="30" />
 	<mx:VBox width="70%">
 		<mx:RadioButtonGroup id="guestManagement" itemClick="handleGuestClick(event);"/>
 		<mx:RadioButton groupName="guestManagement"

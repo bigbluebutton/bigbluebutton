@@ -51,9 +51,8 @@
 	
 	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 
-	<mx:ControlBar width="100%" horizontalAlign="center">
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" width="100" click="onOkClicked()"/>
-		<mx:Spacer width="10"/>
-		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" width="100" click="onCancelClicked()"/>
+	<mx:ControlBar width="100%" horizontalAlign="right">
+		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" click="onOkClicked()"/>
+		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" click="onCancelClicked()"/>
 	</mx:ControlBar>
 </mx:TitleWindow>
