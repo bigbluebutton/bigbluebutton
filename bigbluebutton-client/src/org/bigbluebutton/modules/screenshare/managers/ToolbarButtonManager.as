@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.screenshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -48,7 +49,6 @@ package org.bigbluebutton.modules.screenshare.managers
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = button;
 				event.module="DeskShare";
-				//event.tabIndex = 0;
 				globalDispatcher.dispatchEvent(event);	
 				buttonShownOnToolbar = true;	
 				button.enabled = true;		
