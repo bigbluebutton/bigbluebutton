@@ -29,8 +29,11 @@ trait SendTimeRemainingUpdateHdlr {
         BbbCommonEnvCoreMsg(envelope, event)
       }
 
-      val event = buildMeetingTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, timeRemaining.toInt)
-      outGW.send(event)
+      if (timeRemaining > 0) {
+        val event = buildMeetingTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, timeRemaining.toInt)
+        outGW.send(event)
+      }
+
     }
 
     state
