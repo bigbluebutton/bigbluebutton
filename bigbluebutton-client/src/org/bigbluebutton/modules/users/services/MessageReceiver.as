@@ -347,9 +347,11 @@ package org.bigbluebutton.modules.users.services
       user2x.avatar = avatar;
       
       LOGGER.debug("USER JOINED = " + JSON.stringify(user2x));
-      
+
+      // remove remaining instance of the user before adding
+      LiveMeeting.inst().users.remove(intId);
       LiveMeeting.inst().users.add(user2x);
-      
+
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user2x.intId;
       dispatcher.dispatchEvent(joinEvent);
