@@ -37,10 +37,10 @@
 */
 
 global {
-	fontFamily        : "Source Sans Pro", Arial, sans-serif;
-	fontSize          : 13;
-	color             : #2A2D33;
-	focusColor        : #1070D7;
+	fontFamily : "Source Sans Pro", Arial, sans-serif;
+	fontSize   : 13;
+	color      : #2A2D33;
+	focusColor : #1070D7;
 }
 
 .defaultShellStyle {
@@ -667,6 +667,10 @@ mx|DataGrid {
 //------------------------------
 */
 
+views|BBBSettings {
+	headerHeight : 0;
+}
+
 .allowButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Allow");
 }
@@ -1205,14 +1209,20 @@ flexlib|SuperTabNavigator {
 	borderColor : #CDD4DB;
 }
 
-mx|Tab {
+mx|Tab, .defaultTabStyle {
+	color             : #2A2D33;
+	cornerRadius      : 0;
+	borderColor       : #CDD4DB;
 	fillColorUp       : #E8EFF3;
 	fillColorOver     : #CDD4DB;
 	fillColorDown     : #ACB2B7;
 	fillColorDisabled : #F0F2F6;
-	cornerRadius      : 0;
-	borderColor       : #CDD4DB;
 	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
+}
+
+.highlightedTabStyle {
+	fillColorUp : #DA3900;
+	color       : #FFFFFF;
 }
 
 /*
