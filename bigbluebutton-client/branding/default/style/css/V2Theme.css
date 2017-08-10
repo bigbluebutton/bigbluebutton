@@ -214,7 +214,8 @@ mx|ApplicationControlBar {
 }
 
 .voiceConfInactiveButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off_Disabled");
 }
 
 .webcamDefaultButtonStyle {
@@ -227,11 +228,13 @@ mx|ApplicationControlBar {
 }
 
 .webcamOnButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
 }
 
 .webcamOffButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off_Disabled");
 }
 
 .deskshareDefaultButtonStyle {
@@ -271,7 +274,8 @@ mx|ApplicationControlBar {
 }
 
 .muteMeOnButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
 }
 
 .muteMeOffButtonStyle {
@@ -1229,7 +1233,6 @@ mx|Tab, .defaultTabStyle {
 	iconColor   : #DF2721;
 	iconVisible : true;
 }
-
 
 /*
 //------------------------------
