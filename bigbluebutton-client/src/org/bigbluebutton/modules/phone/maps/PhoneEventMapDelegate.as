@@ -20,7 +20,7 @@
 
 package org.bigbluebutton.modules.phone.maps {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.modules.phone.models.PhoneOptions;
@@ -50,17 +50,19 @@ package org.bigbluebutton.modules.phone.maps {
 				phoneButton.toggle = true;
 				muteMeButton.toggle = true;
 
-				// Use the GLobal Dispatcher so that this message will be heard by the
+				// Use the Global Dispatcher so that this message will be heard by the
 				// main application.		   	
-				var eventPhone:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-				eventPhone.button = phoneButton;
-				globalDispatcher.dispatchEvent(eventPhone);
-				buttonOpen = true;
-
 				var eventMute:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				eventMute.button = muteMeButton;
+				eventMute.module = "Microphone";
 				globalDispatcher.dispatchEvent(eventMute);
-				buttonOpen = true;
+				buttonOpen = true
+				
+				var eventPhone:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+				eventPhone.button = phoneButton;
+				eventPhone.module = "Microphone";
+				globalDispatcher.dispatchEvent(eventPhone);
+				buttonOpen = true;;
 			}
 		}
 

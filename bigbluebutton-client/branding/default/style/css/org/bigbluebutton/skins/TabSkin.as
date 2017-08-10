@@ -38,15 +38,14 @@
 
 package org.bigbluebutton.skins {
 	import flash.display.DisplayObjectContainer;
+	import flash.display.Graphics;
 	import flash.utils.describeType;
 	import flash.utils.getQualifiedClassName;
 
 	import mx.core.EdgeMetrics;
 	import mx.core.UIComponent;
 	import mx.skins.Border;
-	import mx.skins.halo.HaloColors;
 	import mx.styles.IStyleClient;
-	import mx.utils.ColorUtil;
 
 	public class TabSkin extends Border {
 
@@ -128,6 +127,9 @@ package org.bigbluebutton.skins {
 			var fillColorOver:uint = getStyle("fillColorOver");
 			var fillColorDown:uint = getStyle("fillColorDown");
 			var fillColorDisabled:uint = getStyle("fillColorDisabled");
+
+			var iconVisible:uint = getStyle("iconVisible");
+			var iconColor:uint = getStyle("iconColor");
 
 			var parentedByTabNavigator:Boolean = parent != null && parent.parent != null && parent.parent.parent != null && isTabNavigator(parent.parent.parent);
 
@@ -227,7 +229,16 @@ package org.bigbluebutton.skins {
 					break;
 				}
 			}
+
+			if (iconVisible) {
+				// Draw the icon
+				graphics.beginFill(iconColor, 1);
+				graphics.drawCircle(10, (h / 2) - 1.5, 3);
+				graphics.endFill();
+			}
+
 		}
+
 
 		private static var tabnavs:Object = {};
 
