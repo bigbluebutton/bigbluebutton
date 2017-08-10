@@ -114,7 +114,12 @@ case class MeetingIsActiveEvtMsg(header: BbbClientMsgHeader,
 case class MeetingIsActiveEvtMsgBody(meetingId: String)
 
 
-  case class AkkaAppsCheckAliveReqBody(timestamp: Long)
-  case class AkkaAppsCheckAliveReqMsg(header: BbbCoreHeader, body: AkkaAppsCheckAliveReqBody)
-  case class AkkaAppsCheckAliveReq(envelope: BbbCoreEnvelope, msg: AkkaAppsCheckAliveReqMsg) extends BbbCoreMsg
+object CheckAlivePingSysMsg { val NAME = "CheckAlivePingSysMsg" }
+case class CheckAlivePingSysMsg(header: BbbCoreBaseHeader,
+                                 body: CheckAlivePingSysMsgBody) extends BbbCoreMsg
+case class CheckAlivePingSysMsgBody(system: String, timestamp: Long)
 
+object CheckAlivePongSysMsg { val NAME = "CheckAlivePongSysMsg" }
+case class CheckAlivePongSysMsg(header: BbbCoreBaseHeader,
+                                body: CheckAlivePongSysMsgBody) extends BbbCoreMsg
+case class CheckAlivePongSysMsgBody(system: String, timestamp: Long)

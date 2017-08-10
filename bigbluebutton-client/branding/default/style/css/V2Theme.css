@@ -40,11 +40,7 @@ global {
 	fontFamily        : "Source Sans Pro", Arial, sans-serif;
 	fontSize          : 13;
 	color             : #2A2D33;
-	selectionColor    : #1070D7;
-	textSelectedColor : #FFFFFF;
 	focusColor        : #1070D7;
-	rollOverColor     : #0A5EAC;
-	textRollOverColor : #FFFFFF;
 }
 
 .defaultShellStyle {
@@ -681,6 +677,28 @@ mx|DataGrid {
 
 /*
 //------------------------------
+//  Item renderers
+//------------------------------
+*/
+
+.itemRendererDefault {
+	color : #2A2D33;
+}
+
+.itemRendererOver {
+	color : #FFFFFF;
+}
+
+.itemRendererSeleted {
+	color : #FFFFFF;
+}
+
+.itemRendererDisabled {
+	color : #F0F2F6;
+}
+
+/*
+//------------------------------
 //  Layout
 //------------------------------
 */
@@ -836,15 +854,15 @@ flexlibcontainers|MDIWindowControlsContainer {
 }
 
 .videoDockStyleFocusChatLayout {
-	borderStyle : none;
-	borderColor: #42444C;
-	backgroundColor: #42444C;
+	borderStyle     : none;
+	borderColor     : #42444C;
+	backgroundColor : #42444C;
 }
 
 .videoDockStyleNoFocusChatLayout {
-	borderStyle : none;
-	borderColor: #42444C;
-	backgroundColor: #42444C;
+	borderStyle     : none;
+	borderColor     : #42444C;
+	backgroundColor : #42444C;
 }
 
 /*

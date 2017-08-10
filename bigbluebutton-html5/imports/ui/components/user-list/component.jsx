@@ -280,12 +280,12 @@ class UserList extends Component {
       },
       mute: {
         label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => makeCall('muteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => makeCall('unmuteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_on',
       },
     };
@@ -335,7 +335,7 @@ class UserList extends Component {
       </div>
     );
   }
-
+  
   render() {
     return (
       <div className={styles.userList}>

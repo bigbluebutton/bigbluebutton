@@ -49,7 +49,7 @@ package org.bigbluebutton.util
 						
 			for (var i:int = 0; i < params.length; i++) {
 				var tempA:Array = params[i].split("=");
-				LOGGER.debug("{0} {1}", [String(tempA[0]).toUpperCase(), String(tempA[1]).toUpperCase()]);
+				//LOGGER.debug("{0} {1}", [String(tempA[0]).toUpperCase(), String(tempA[1]).toUpperCase()]);
 
 				if (String(tempA[0]).toUpperCase() == key.toUpperCase()) {
 					value = String(tempA[1])

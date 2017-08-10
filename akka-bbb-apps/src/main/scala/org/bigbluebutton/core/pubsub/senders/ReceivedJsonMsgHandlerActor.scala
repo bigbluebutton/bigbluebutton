@@ -48,6 +48,10 @@ class ReceivedJsonMsgHandlerActor(
     //   log.debug("Route envelope name " + envelope.name)
 
     envelope.name match {
+      // System
+      case CheckAlivePingSysMsg.NAME =>
+        route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
@@ -144,6 +148,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
       case ChangeUserEmojiCmdMsg.NAME =>
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+      case ChangeUserRoleCmdMsg.NAME =>
+        routeGenericMsg[ChangeUserRoleCmdMsg](envelope, jsonNode)
 
       // Whiteboard
       case SendCursorPositionPubMsg.NAME =>
