@@ -1,6 +1,9 @@
+import { getMultiUserStatus } from '/imports/api/common/server/helpers';
 import RedisPubSub from '/imports/startup/server/redis2x';
+import Acl from '/imports/startup/acl';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+
 
 export default function publishCursorUpdate(credentials, coordinates) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -17,16 +20,21 @@ export default function publishCursorUpdate(credentials, coordinates) {
     yPercent: Number,
   });
 
-  const header = {
-    name: EVENT_NAME,
-    userId: requesterUserId,
-    meetingId,
-  };
+  if (Acl.can('methods.moveCursor', credentials) || getMultiUserStatus(meetingId)) {
+    const header = {
+      name: EVENT_NAME,
+      userId: requesterUserId,
+      meetingId,
+    };
 
-  const payload = {
-    xPercent: coordinates.xPercent,
-    yPercent: coordinates.yPercent,
-  };
+    const payload = {
+      xPercent: coordinates.xPercent,
+      yPercent: coordinates.yPercent,
+    };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+    return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  }
+  throw new Meteor.Error(
+      'not-allowed', `User ${requesterUserId} is not allowed to move the cursor`,
+    );
 }

@@ -1,10 +1,9 @@
-import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server';
-import { BREAK_LINE, CARRIAGE_RETURN, NEW_LINE } from '/imports/utils/lineEndings.js';
+import { BREAK_LINE, CARRIAGE_RETURN, NEW_LINE } from '/imports/utils/lineEndings';
+import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
 
 export function appendMessageHeader(eventName, messageObj) {
-  let header;
-  header = {
+  const header = {
     timestamp: new Date().getTime(),
     name: eventName,
   };
@@ -13,7 +12,7 @@ export function appendMessageHeader(eventName, messageObj) {
 }
 
 export const indexOf = [].indexOf || function (item) {
-  for (let i = 0, l = this.length; i < l; i++) {
+  for (let i = 0, l = this.length; i < l; i += 1) {
     if (i in this && this[i] === item) {
       return i;
     }
@@ -37,4 +36,14 @@ export const translateHTML5ToFlash = function (message) {
 
 export const inReplyToHTML5Client = function (arg) {
   return arg.routing.userId === 'nodeJSapp';
+};
+
+export const getMultiUserStatus = (meetingId) => {
+  const data = WhiteboardMultiUser.findOne({ meetingId });
+
+  if (data) {
+    return data.multiUser;
+  }
+
+  return false;
 };
