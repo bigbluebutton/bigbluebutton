@@ -88,7 +88,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   });
 
   // Close the widow when the current breakout room ends
-  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+  Breakouts.find({ breakoutId: Auth.meetingID }).observeChanges({
     removed() {
       Auth.clearCredentials().then(window.close);
     },

@@ -14,7 +14,7 @@ const getFontSize = () => {
 
 function meetingIsBreakout() {
   const breakouts = Breakouts.find().fetch();
-  return (breakouts && breakouts.some(b => b.breakoutMeetingId === Auth.meetingID));
+  return (breakouts && breakouts.some(b => b.breakoutId === Auth.meetingID));
 }
 
 export {
