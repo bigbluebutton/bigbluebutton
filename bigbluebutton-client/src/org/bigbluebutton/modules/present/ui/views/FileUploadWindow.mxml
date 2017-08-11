@@ -282,13 +282,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
       }
 
-      private function displayAlert(error:String, message:String = null):void {
-        progressBar.setStyle("color", 0xFF0000);
-        progressBar.label = error;
-		if (!StringUtils.isEmpty(message)) {
-		  progressBar.label += message;	
-		}
-      }
+			private function displayAlert(error:String, message:String = null):void {
+				progressBar.setStyle("color", 0xFF0000);
+				progressBar.label = error;
+				if (!StringUtils.isEmpty(message)) {
+					progressBar.label += message;
+				}
+			}
 
       private function enableControls():void {
         enableClosing();
@@ -311,11 +311,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
 			private function disableClosing():void {
-				showCloseButton = false;
+				this.closeButton.enabled = false;
 			}
 
 			private function enableClosing():void {
-				showCloseButton = true;
+				this.closeButton.enabled = true;
 			}
 
 		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
