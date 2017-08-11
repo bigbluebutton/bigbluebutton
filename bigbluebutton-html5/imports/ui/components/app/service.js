@@ -1,6 +1,6 @@
-import Breakouts from '/imports/api/1.1/breakouts';
+import Breakouts from '/imports/api/2.0/breakouts';
 import Settings from '/imports/ui/services/settings';
-import Auth from '/imports/ui/services/auth/index.js';
+import Auth from '/imports/ui/services/auth/index';
 
 const getCaptionsStatus = () => {
   const ccSettings = Settings.cc;

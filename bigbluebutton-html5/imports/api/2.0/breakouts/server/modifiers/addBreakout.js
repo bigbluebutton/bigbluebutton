@@ -4,15 +4,21 @@ import Breakouts from '/imports/api/2.0/breakouts';
 import flat from 'flat';
 
 export default function addBreakout(breakout) {
-  const {
-    breakoutMeetingId,
-    parentId,
-    name,
-  } = breakout;
+  check(breakout, {
+    breakoutMeetingId: String,
+    name: String,
+    parentId: String,
+    sequence: Number,
+    durationInMinutes: Number,
+    moderatorPassword: String,
+    voiceConfId: String,
+    viewerPassword: String,
+    sourcePresentationId: String,
+    sourcePresentationSlide: Number,
+    record: Boolean,
+  });
 
-  check(breakoutMeetingId, String);
-  check(parentId, String);
-  check(name, String);
+  const { breakoutMeetingId } = breakout;
 
   const selector = { breakoutMeetingId };
 
