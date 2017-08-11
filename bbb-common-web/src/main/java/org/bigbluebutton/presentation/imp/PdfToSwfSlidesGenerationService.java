@@ -101,6 +101,15 @@ public class PdfToSwfSlidesGenerationService {
     if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION) {
       builder.messageKey(ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
 
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Failed to determine number of pages.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.warn("-- analytics -- " + logStr);
+
       DocPageCountFailed progress = new DocPageCountFailed(pres.getMeetingId(),
         pres.getId(), pres.getId(),
         pres.getName(), "notUsedYet", "notUsedYet",
@@ -112,6 +121,17 @@ public class PdfToSwfSlidesGenerationService {
       builder.numberOfPages(e.getPageCount());
       builder.maxNumberPages(e.getMaxNumberOfPages());
       builder.messageKey(ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY);
+
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("pageCount", e.getPageCount());
+      logData.put("maxNumPages", e.getMaxNumberOfPages());
+      logData.put("message", "Number of pages exceeeded.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.warn("-- analytics -- " + logStr);
 
       DocPageCountExceeded  progress = new DocPageCountExceeded(pres.getMeetingId(),
         pres.getId(), pres.getId(),
@@ -180,11 +200,11 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("page", slide.getPageNumber());
-
+        logData.put("message", "ExecutionException while converting page.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
+        log.warn("-- analytics -- " + logStr);
 
-        log.warn("ExecutionException while converting page: data={}", logStr);
         log.error(e.getMessage());
       } catch (InterruptedException e) {
         Map<String, Object> logData = new HashMap<String, Object>();
@@ -192,11 +212,11 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("page", slide.getPageNumber());
-
+        logData.put("message", "InterruptedException while converting page");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
+        log.warn("-- analytics -- " + logStr);
 
-        log.warn("InterruptedException while converting page: data={}", logStr);
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
         Map<String, Object> logData = new HashMap<String, Object>();
@@ -204,11 +224,11 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("page", slide.getPageNumber());
-
+        logData.put("message", "TimeoutException while converting page");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
+        log.warn("-- analytics -- " + logStr);
 
-        log.warn("TimeoutException while converting page: data={}", logStr);
         f.cancel(true);
       }
 
@@ -219,10 +239,10 @@ public class PdfToSwfSlidesGenerationService {
       logData.put("filename", pres.getName());
       logData.put("page", slide.getPageNumber());
       logData.put("conversionTime(sec)", (pageConvEnd - pageConvStart) / 1000);
+      logData.put("message", "Page conversion duration(sec)");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-
-      log.debug("Page conversion duration(sec): data={}", logStr);
+      log.info("-- analytics -- " + logStr);
 
     }
 
@@ -235,11 +255,11 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
-
+        logData.put("page", slide.getPageNumber());
+        logData.put("message", "Creating blank slide");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-
-        log.warn("Creating blank slide: data={}", logStr);
+        log.warn("-- analytics -- " + logStr);
 
         notifier.sendConversionUpdateMessage(slidesCompleted++, pres);
       }
@@ -251,10 +271,11 @@ public class PdfToSwfSlidesGenerationService {
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());
     logData.put("conversionTime(sec)", (presConvEnd - presConvStart) / 1000);
+    logData.put("message", "Presentation conversion duration (sec)");
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
+    log.info("-- analytics -- " + logStr);
 
-    log.debug("Presentation conversion duration (sec): data={}", logStr);
   }
 
   private List<PdfToSwfSlide> setupSlides(UploadedPresentation pres,
