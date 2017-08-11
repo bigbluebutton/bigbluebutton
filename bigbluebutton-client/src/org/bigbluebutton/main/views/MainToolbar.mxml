@@ -530,9 +530,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:VRule styleName="toolbarSeparator" height="10" />
 	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
 	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center">
-		<mx:HBox id="addedBtnsMicrophone"/>
-		<mx:HBox id="addedBtnsWebcam"/>
-		<mx:HBox id="addedBtnsDeskShare"/>
+		<mx:HBox id="addedBtnsMicrophone" />
+		<mx:HBox id="addedBtnsWebcam" />
+		<mx:HBox id="addedBtnsDeskShare" />
 	</mx:HBox>
   <mx:Label id="timeRemainingLabel" visible="false"
             text="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}:"
