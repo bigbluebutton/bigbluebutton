@@ -25,8 +25,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   def userJoinedVoiceConf(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
     callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean, avatarURL: String) {
-    println("******** FreeswitchConferenceService received voiceUserJoined vui=[" +
-      userId + "] wui=[" + voiceUserId + "]")
 
     val header = BbbCoreVoiceConfHeader(UserJoinedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserJoinedVoiceConfEvtMsgBody(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum,
@@ -42,7 +40,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def userLeftVoiceConf(voiceConfId: String, voiceUserId: String) {
-    println("******** FreeswitchConferenceService received voiceUserLeft vui=[" + voiceUserId + "] conference=[" + voiceConfId + "]")
 
     val header = BbbCoreVoiceConfHeader(UserLeftVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserLeftVoiceConfEvtMsgBody(voiceConfId, voiceUserId)
@@ -61,7 +58,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def userMutedInVoiceConf(voiceConfId: String, voiceUserId: String, muted: java.lang.Boolean) {
-    println("******** FreeswitchConferenceService received voiceUserMuted vui=[" + voiceUserId + "] muted=[" + muted + "]")
 
     val header = BbbCoreVoiceConfHeader(UserMutedInVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserMutedInVoiceConfEvtMsgBody(voiceConfId, voiceUserId, muted.booleanValue())
@@ -76,7 +72,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def userTalkingInVoiceConf(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
-    println("******** FreeswitchConferenceService received voiceUserTalking vui=[" + voiceUserId + "] talking=[" + talking + "]")
 
     val header = BbbCoreVoiceConfHeader(UserTalkingInVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserTalkingInVoiceConfEvtMsgBody(voiceConfId, voiceUserId, talking.booleanValue())
@@ -91,7 +86,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def deskShareStarted(voiceConfId: String, callerIdNum: String, callerIdName: String) {
-    println("******** FreeswitchConferenceService send deskShareStarted to BBB " + voiceConfId)
 
     val header = BbbCoreVoiceConfHeader(ScreenshareStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
@@ -106,7 +100,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def deskShareEnded(voiceConfId: String, callerIdNum: String, callerIdName: String) {
-    println("******** FreeswitchConferenceService send deskShareStopped to BBB " + voiceConfId)
 
     val header = BbbCoreVoiceConfHeader(ScreenshareStoppedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
@@ -121,7 +114,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def deskShareRTMPBroadcastStarted(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
-    println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStarted to BBB " + voiceConfId)
 
     val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
@@ -138,7 +130,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
-    println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStopped to BBB " + voiceConfId)
 
     val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,

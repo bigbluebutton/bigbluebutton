@@ -143,24 +143,18 @@ public class FreeswitchApplication {
       public void run() {
         if (command instanceof GetAllUsersCommand) {
           GetAllUsersCommand cmd = (GetAllUsersCommand) command;
-          System.out.println("Sending PopulateRoomCommand for conference = [" + cmd.getRoom() + "]");
           manager.getUsers(cmd);
         } else if (command instanceof MuteUserCommand) {
           MuteUserCommand cmd = (MuteUserCommand) command;
-          System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
           manager.mute(cmd);
         } else if (command instanceof EjectUserCommand) {
           EjectUserCommand cmd = (EjectUserCommand) command;
-          System.out.println("Sending EjectParticipantCommand for conference = [" + cmd.getRoom() + "]");
           manager.eject(cmd);
         } else if (command instanceof EjectAllUsersCommand) {
           EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
-          System.out.println("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
           manager.ejectAll(cmd);
         } else if (command instanceof TransferUserToMeetingCommand) {
           TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
-          System.out.println("Sending TransferUsetToMeetingCommand for conference = ["
-            + cmd.getRoom() + "]");
           manager.tranfer(cmd);
         } else if (command instanceof RecordConferenceCommand) {
           manager.record((RecordConferenceCommand) command);

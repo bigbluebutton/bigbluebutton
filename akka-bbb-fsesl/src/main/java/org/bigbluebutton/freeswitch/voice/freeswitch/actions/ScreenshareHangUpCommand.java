@@ -29,7 +29,6 @@ public class ScreenshareHangUpCommand extends FreeswitchCommand {
     }
 
     public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
-        System.out.println("\nScreenshareHangUpCommand\n");
     }
 }
 
