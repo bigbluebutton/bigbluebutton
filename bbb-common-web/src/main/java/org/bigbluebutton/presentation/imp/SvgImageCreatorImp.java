@@ -1,7 +1,10 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.google.gson.Gson;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -74,7 +77,17 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     if (done) {
       return true;
     }
-    log.warn("Failed to create svg images: " + COMMAND);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", pres.getMeetingId());
+    logData.put("presId", pres.getId());
+    logData.put("filename", pres.getName());
+    logData.put("message", "Failed to create svg images.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+    log.warn("-- analytics -- " + logStr);
+
     return false;
   }
 
