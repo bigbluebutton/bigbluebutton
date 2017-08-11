@@ -501,8 +501,6 @@ public class ParamsProcessorUtil {
 		try {
 			HttpGet httpget = new HttpGet(url);
 
-			System.out.println("Executing request " + httpget.getRequestLine());
-
 			// Create a custom response handler
 			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 
@@ -520,8 +518,6 @@ public class ParamsProcessorUtil {
 			};
 
 			String responseBody = httpclient.execute(httpget, responseHandler);
-			System.out.println("----------------------------------------");
-			System.out.println(responseBody);
 			configXML = responseBody;
 		} catch(IOException ex) {
 			// IOException

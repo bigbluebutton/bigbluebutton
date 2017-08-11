@@ -18,7 +18,6 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW,
   val log = Logging(system, getClass)
 
 
-  println("*********** meetingManagerChannel = " + meetingManagerChannel)
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val msgFromClientEventBus = new MsgFromClientEventBus

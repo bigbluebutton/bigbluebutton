@@ -53,6 +53,5 @@ public class ScreenshareBroadcastRTMPCommand extends FreeswitchCommand {
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 		//Test for Known Conference
-		System.out.println("\nScreenshareBroadcastRTMPCommand\n");
 	}
 }
