@@ -33,6 +33,10 @@ module BigBlueButton
       def self.perform(*args)
         worker = self.new(*args)
         worker.perform
+
+        # remove all workers that are not working anymore,
+        # a simple form of garbage collection
+        prune_dead_workers
       end
 
       def perform
