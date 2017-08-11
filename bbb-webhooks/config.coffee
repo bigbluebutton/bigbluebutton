@@ -5,7 +5,7 @@ config = require("./config_local")
 
 # BigBlueButton configs
 config.bbb or= {}
-config.bbb.sharedSecret or= "33e06642a13942004fd83b3ba6e4104a"
+config.bbb.sharedSecret or= "ac8821d35c447bb3b959ca8fa05b1d3f"
 config.bbb.apiPath or= "/bigbluebutton/api"
 
 # Web server configs
@@ -16,6 +16,8 @@ config.server.port or= 3005
 config.hooks or= {}
 config.hooks.pchannel or= "bigbluebutton:*"
 config.hooks.meetingsChannel or= "bigbluebutton:from-bbb-apps:meeting"
+# IP where aggr will be hosted
+config.hooks.aggr or= []
 
 # Filters to the events we want to generate callback calls for
 config.hooks.events or= [
@@ -77,10 +79,11 @@ config.api.responses.failure = (key, msg) ->
 config.api.responses.checksumError =
   config.api.responses.failure("checksumError", "You did not pass the checksum security check.")
 
-config.api.responses.createSuccess = (id) ->
+config.api.responses.createSuccess = (id, permanent) ->
   "<response> \
      <returncode>SUCCESS</returncode> \
      <hookID>#{id}</hookID> \
+     <permanentHook>#{permanent}</permanentHook> \
    </response>"
 config.api.responses.createFailure =
   config.api.responses.failure("createHookError", "An error happened while creating your hook. Check the logs.")

@@ -37,6 +37,8 @@ module.exports = class Hook
     @queue = []
     @emitter = null
     @redisClient = redis.createClient()
+    @permanent = false
+    @backupURL = []
 
   save: (callback) ->
     @redisClient.hmset config.redis.keys.hook(@id), @toRedis(), (error, reply) =>
@@ -77,13 +79,17 @@ module.exports = class Hook
   toRedis: ->
     r =
       "hookID": @id,
-      "callbackURL": @callbackURL
+      "callbackURL": @callbackURL,
+      "permanent": @permanent
+      "backupURL": @backupURL
     r.externalMeetingID = @externalMeetingID if @externalMeetingID?
     r
 
   fromRedis: (redisData) ->
     @id = parseInt(redisData.hookID)
     @callbackURL = redisData.callbackURL
+    @permanent = redisData.permanent
+    @backupURL = redisData.backupURL
     if redisData.externalMeetingID?
       @externalMeetingID = redisData.externalMeetingID
     else
@@ -94,38 +100,47 @@ module.exports = class Hook
   _processQueue: ->
     message = @queue[0]
     return if not message? or @emitter?
-
-    @emitter = new CallbackEmitter(@callbackURL, message)
-    @emitter.start()
+    # Add params so emitter will 'know' when a hook is permanent and have backupURLs
+    @emitter = new CallbackEmitter(@callbackURL, message, @backupURL)
+    @emitter.start(@permanent)
 
     @emitter.on "success", =>
       delete @emitter
       @queue.shift() # pop the first message just sent
       @_processQueue() # go to the next message
 
-    # gave up trying to perform the callback, remove the hook forever
+    # gave up trying to perform the callback, remove the hook forever if the hook's not permanent (emmiter will validate that)
     @emitter.on "stopped", (error) =>
       Logger.warn "Hook: too many failed attempts to perform a callback call, removing the hook for", @callbackURL
       @destroy()
 
   @addSubscription = (callbackURL, meetingID=null, callback) ->
-    hook = Hook.findByCallbackURLSync(callbackURL)
+    #Since we can pass a list of URLs to serve as backup for the permanent hook, we need to check that
+    firstURL = if callbackURL instanceof Array then callbackURL[0] else callbackURL
+
+    hook = Hook.findByCallbackURLSync(firstURL)
     if hook?
       callback?(new Error("There is already a subscription for this callback URL"), hook)
     else
-      msg = "Hook: adding a hook with callback URL [#{callbackURL}]"
+      msg = "Hook: adding a hook with callback URL [#{firstURL}]"
       msg += " for the meeting [#{meetingID}]" if meetingID?
       Logger.info msg
 
       hook = new Hook()
       hook.id = nextID++
-      hook.callbackURL = callbackURL
+      hook.callbackURL = firstURL
       hook.externalMeetingID = meetingID
+      hook.permanent = if firstURL in config.hooks.aggr then true else false
+      # Create backup URLs list
+      backupURLs = if callbackURL instanceof Array then callbackURL else null
+      backupURLs.push(firstURL); backupURLs.shift() if backupURLs?
+      hook.backupURL = backupURLs
+      Logger.info "Hook: Backup URLs:", hook.backupURL
       hook.save (error, hook) -> callback?(error, hook)
 
   @removeSubscription = (hookID, callback) ->
     hook = Hook.getSync(hookID)
-    if hook?
+    if hook? and not hook.permanent
       msg = "Hook: removing the hook with callback URL [#{hook.callbackURL}]"
       msg += " for the meeting [#{hook.externalMeetingID}]" if hook.externalMeetingID?
       Logger.info msg
@@ -181,11 +196,17 @@ module.exports = class Hook
   # Calls `callback()` when done.
   @resync = (callback) ->
     client = redis.createClient()
+    # Remove previous permanent hook (always ID = 1)
+    client.srem config.redis.keys.hooks, 1, (error, reply) =>
+      Logger.info "Error removing ID from list", error if error?
+      client.del config.redis.keys.hook(1), (error) =>
+        Logger.error "Hook: error removing hook from redis!", error if error?
+
     tasks = []
 
     client.smembers config.redis.keys.hooks, (error, hooks) =>
       Logger.error "Hook: error getting list of hooks from redis", error if error?
-
+      Logger.info "Hook: getting list of hooks from redis" if not error
       hooks.forEach (id) =>
         tasks.push (done) =>
           client.hgetall config.redis.keys.hook(id), (error, hookData) ->

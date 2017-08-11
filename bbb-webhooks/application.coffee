@@ -17,4 +17,5 @@ module.exports = class Application
     Hook.initialize =>
       IDMapping.initialize =>
         @webServer.start(config.server.port)
+        @webServer.createPermanent()
         @webHooks.start()

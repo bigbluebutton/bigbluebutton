@@ -48,10 +48,19 @@ module.exports = class WebServer
         if error? # the only error for now is for duplicated callbackURL
           msg = config.api.responses.createDuplicated(hook.id)
         else if hook?
-          msg = config.api.responses.createSuccess(hook.id)
+          msg = config.api.responses.createSuccess(hook.id, hook.permanent)
         else
           msg = config.api.responses.createFailure
         respondWithXML(res, msg)
+  # Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
+  createPermanent: ->
+    Hook.addSubscription config.hooks.aggr, null, (error, hook) ->
+      if error? # there probably won't be any errors here
+        Logger.info "Duplicated hook", error
+      else if hook?
+        Logger.info "Permanent hook created successfully"
+      else
+        Logger.info "Error creating permanent hook"
 
   _destroy: (req, res, next) ->
     urlObj = url.parse(req.url, true)
@@ -88,6 +97,7 @@ module.exports = class WebServer
       msg +=   "<hookID>#{hook.id}</hookID>"
       msg +=   "<callbackURL><![CDATA[#{hook.callbackURL}]]></callbackURL>"
       msg +=   "<meetingID><![CDATA[#{hook.externalMeetingID}]]></meetingID>" unless hook.isGlobal()
+      msg +=   "<permanentHook>#{hook.permanent}</permanentHook>"
       msg += "</hook>"
     msg += "</hooks></response>"
 

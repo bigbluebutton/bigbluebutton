@@ -14,13 +14,15 @@ Utils = require("./utils")
 # to perform the callback.
 module.exports = class CallbackEmitter extends EventEmitter
 
-  constructor: (@callbackURL, @message) ->
+  constructor: (@callbackURL, @message, @backupURL) ->
     @nextInterval = 0
     @timestap = 0
+    @permanent = false
 
-  start: ->
+  start: (permanent) ->
     @timestamp = new Date().getTime()
     @nextInterval = 0
+    @permanent = permanent
     @_scheduleNext 0
 
   _scheduleNext: (timeout) ->
@@ -40,8 +42,11 @@ module.exports = class CallbackEmitter extends EventEmitter
 
           # no intervals anymore, time to give up
           else
-            @nextInterval = 0
-            @emit "stopped"
+            @nextInterval = if not @permanent then 0 else 8 # Reset interval to permanent hooks
+            # If a hook has backup URLs for the POSTS, use them after a few failed attempts
+            if @backupURL? and @permanent then @backupURL.push(@backupURL[0]); @backupURL.shift(); @callbackURL = @backupURL[0]
+            @_scheduleNext(interval) if @permanent
+            @emit "stopped" if not @permanent
 
     , timeout)
 
