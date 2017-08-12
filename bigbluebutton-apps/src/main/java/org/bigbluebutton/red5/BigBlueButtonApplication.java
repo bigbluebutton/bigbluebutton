@@ -155,11 +155,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		}
 
 		Boolean guest  = false;
-		if (params.length >= 9 && ((Boolean) params[9])) {
+		if (params.length >= 8 && ((Boolean) params[8])) {
 			guest = true;
 		}
 
-		String authToken = ((String) params[10]).toString();
+		String authToken = ((String) params[9]).toString();
 
 		String userId = internalUserID;
 		String sessionId = Red5.getConnectionLocal().getSessionId();

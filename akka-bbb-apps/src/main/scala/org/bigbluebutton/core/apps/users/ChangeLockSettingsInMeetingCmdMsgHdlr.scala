@@ -1,8 +1,10 @@
-package org.bigbluebutton.core2.message.handlers
+package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.Permissions
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait ChangeLockSettingsInMeetingCmdMsgHdlr {
   this: MeetingActor =>
@@ -20,8 +22,10 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr {
       lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable
     )
 
-    if (!liveMeeting.permissionsEqual(settings)) {
-      liveMeeting.newPermissions(settings)
+    if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
+      MeetingStatus2x.initializePermissions(liveMeeting.status)
+
+      MeetingStatus2x.setPermissions(liveMeeting.status, settings)
 
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
@@ -49,23 +53,6 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr {
       )
 
       outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
-
-      processLockLayout(settings.lockedLayout, msg.body.setBy)
     }
-  }
-
-  def processLockLayout(lock: Boolean, setBy: String): Unit = {
-
-    liveMeeting.lockLayout(lock)
-
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, setBy)
-    val envelope = BbbCoreEnvelope(LockLayoutEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(LockLayoutEvtMsg.NAME, liveMeeting.props.meetingProp.intId, setBy)
-    val body = LockLayoutEvtMsgBody(setBy, lock, affectedUsers)
-    val event = LockLayoutEvtMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-
-    outGW.send(msgEvent)
-
   }
 }

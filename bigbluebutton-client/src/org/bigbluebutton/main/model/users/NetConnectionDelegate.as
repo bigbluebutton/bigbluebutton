@@ -41,7 +41,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
-	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.options.ApplicationOptions;
@@ -433,13 +432,12 @@ package org.bigbluebutton.main.model.users
                 var muteOnStart: Boolean = LiveMeeting.inst().meeting.muteOnStart;
                 var guest: Boolean = LiveMeeting.inst().me.guest;
                 var authToken: String = LiveMeeting.inst().me.authToken;
-                var lockSettings: LockSettingsVO = LiveMeeting.inst().meetingStatus.lockSettings;
                 
                 _netConnection.connect(bbbAppsUrl, username, role,
                                         intMeetingId, voiceConf, 
                                         recorded, extUserId,
                                         intUserId, muteOnStart,
-                                        lockSettings.toMap(), guest, authToken);
+                                        guest, authToken);
                    
             } catch(e:ArgumentError) {
                 // Invalid parameters.
