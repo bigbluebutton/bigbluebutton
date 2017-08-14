@@ -115,19 +115,26 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("numObjectTags", pHandler.numberOfPlacements());
       logData.put("numTextTags", pHandler.numberOfTextTags());
       logData.put("numImageTags", pHandler.numberOfImageTags());
+      logData.put("message", "Potential problem with generated SWF");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.warn("Potential problem with generated SWF: data={}", logStr);
+      log.warn("-- analytics -- " + logStr);
 
       File tempPng = null;
-      String basePresentationame = FilenameUtils
-          .getBaseName(presentation.getName());
+      String basePresentationame = FilenameUtils.getBaseName(presentation.getName());
       try {
         tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
       } catch (IOException ioException) {
         // We should never fall into this if the server is correctly configured
-        log.error("Unable to create temporary files");
+        logData = new HashMap<String, Object>();
+        logData.put("meetingId", pres.getMeetingId());
+        logData.put("presId", pres.getId());
+        logData.put("filename", pres.getName());
+        logData.put("message", "Unable to create temporary files");
+        gson = new Gson();
+        logStr = gson.toJson(logData);
+        log.error("-- analytics -- " + logStr);
       }
 
       long pdfStart = System.currentTimeMillis();
@@ -149,9 +156,8 @@ public class Pdf2SwfPageConverter implements PageConverter {
         log.error(e.getMessage());
       }
 
-      long pdfEnd = System.currentTimeMillis();
-      log.debug("pdftocairo conversion duration: {} sec",
-          (pdfEnd - pdfStart) / 1000);
+      //long pdfEnd = System.currentTimeMillis();
+      //log.debug("pdftocairo conversion duration: {} sec", (pdfEnd - pdfStart) / 1000);
 
       long png2swfStart = System.currentTimeMillis();
 
@@ -170,9 +176,8 @@ public class Pdf2SwfPageConverter implements PageConverter {
         log.error(e.getMessage());
       }
 
-      long png2swfEnd = System.currentTimeMillis();
-      log.debug("SwfTools conversion duration: {} sec",
-          (png2swfEnd - png2swfStart) / 1000);
+      //long png2swfEnd = System.currentTimeMillis();
+      //log.debug("SwfTools conversion duration: {} sec",          (png2swfEnd - png2swfStart) / 1000);
 
       // Delete the temporary PNG and PDF files after finishing the image
       // conversion
@@ -188,16 +193,23 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("filename", pres.getName());
       logData.put("page", page);
       logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
-
+      logData.put("message", "Problem page conversion overall duration.");
       logStr = gson.toJson(logData);
-
-      log.debug("Problem page conversion overall duration: {} sec",
-          (convertEnd - convertStart) / 1000);
+      log.info("-- analytics -- " + logStr);
 
       if (doneSwf && destFile.exists()) {
         return true;
       } else {
-        log.warn("Failed to convert: " + destFile + " does not exist.");
+        logData = new HashMap<String, Object>();
+        logData.put("meetingId", pres.getMeetingId());
+        logData.put("presId", pres.getId());
+        logData.put("filename", pres.getName());
+        logData.put("page", page);
+        logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
+        logData.put("message", "Failed to convert: " + destFile + " does not exist.");
+        logStr = gson.toJson(logData);
+        log.warn("-- analytics -- " + logStr);
+
         return false;
       }
     }

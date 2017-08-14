@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
@@ -40,8 +41,14 @@ public class Office2PdfPageConverter implements PageConverter {
 
     try {
       connection.connect();
-
-      log.debug("Converting " + presentationFile.getAbsolutePath() + " to " + output.getAbsolutePath());
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Converting Office doc to PDF.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.info("-- analytics -- " + logStr);
 
       DefaultDocumentFormatRegistry registry = new DefaultDocumentFormatRegistry();
       OpenOfficeDocumentConverter converter = new OpenOfficeDocumentConverter(connection, registry);
@@ -58,12 +65,28 @@ public class Office2PdfPageConverter implements PageConverter {
       if (output.exists()) {
         return true;
       } else {
-        log.warn("Failed to convert: " + output.getAbsolutePath() + " does not exist.");
+        logData = new HashMap<String, Object>();
+        logData.put("meetingId", pres.getMeetingId());
+        logData.put("presId", pres.getId());
+        logData.put("filename", pres.getName());
+        logData.put("message", "Failed to convert Office doc to PDF.");
+        gson = new Gson();
+        logStr = gson.toJson(logData);
+        log.warn("-- analytics -- " + logStr);
+
         return false;
       }
 
     } catch(Exception e) {
-      log.error("Exception: Failed to convert " + output.getAbsolutePath());
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Failed to convert Office doc to PDF.");
+      logData.put("exception", e.getMessage());
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.error("-- analytics -- " + logStr);
       return false;
     }
   }

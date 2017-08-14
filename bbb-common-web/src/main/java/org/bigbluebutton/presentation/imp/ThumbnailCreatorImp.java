@@ -21,9 +21,12 @@ package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.ThumbnailCreator;
@@ -85,7 +88,15 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     if (done) {
       return true;
     } else {
-      log.warn("Failed to create thumbnails: " + COMMAND);
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Failed to create thumbnails.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.warn("-- analytics -- " + logStr);
     }
 
     return false;

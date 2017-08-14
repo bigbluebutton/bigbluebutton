@@ -33,9 +33,6 @@ public class PageExtractorImp implements PageExtractor {
   public boolean extractPage(File presentationFile, File output, int page) {
     String COMMAND = "pdfseparate -f " + page + " -l " + page + SPACE
         + presentationFile.getAbsolutePath() + SPACE + output.getAbsolutePath();
-
-    log.info("Extracting page {} for document {}", page,
-        presentationFile.getAbsolutePath());
     return new ExternalProcessExecutor().exec(COMMAND, 60000);
   }
 }

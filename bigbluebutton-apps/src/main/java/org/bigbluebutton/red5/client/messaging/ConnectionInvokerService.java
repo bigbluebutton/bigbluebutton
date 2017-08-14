@@ -331,7 +331,6 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     }
     Gson gson = new Gson();
     String json = gson.toJson(msg.getMessage());
-    System.out.println("Handle direct message: " + msg.getMessageName() + " msg=" + json);
 
     final String userId = msg.getUserID();
     Runnable sender = new Runnable() {
@@ -353,7 +352,6 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
               }
               Gson gson = new Gson();
               String json = gson.toJson(msg.getMessage());
-              System.out.println("Send direct message: " + msg.getMessageName() + " msg=" + json);
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             }
           } else {

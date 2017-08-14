@@ -120,10 +120,8 @@ public class ConnectionManager {
 	}
 
 	public void mute(MuteUserCommand mpc) {
-		System.out.println("Got mute request from FSApplication.");
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("Issuing command to FS ESL.");
 			c.sendAsyncApiCommand(mpc.getCommand(), mpc.getCommandArgs());
 		}
 	}
@@ -161,7 +159,6 @@ public class ConnectionManager {
 	public void broadcastRTMP(ScreenshareBroadcastRTMPCommand rtmp) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("ConnectionManager: send to FS: broadcastRTMP "  + rtmp.getCommandArgs());
 			EslMessage response = c.sendSyncApiCommand(rtmp.getCommand(), rtmp.getCommandArgs());
 			rtmp.handleResponse(response, conferenceEventListener);
 		}
@@ -170,7 +167,6 @@ public class ConnectionManager {
 	public void hangUp(ScreenshareHangUpCommand huCmd) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("ConnectionManager: send to FS: hangUp " + huCmd.getCommandArgs());
 			EslMessage response = c.sendSyncApiCommand(huCmd.getCommand(), huCmd.getCommandArgs());
 			huCmd.handleResponse(response, conferenceEventListener);
 		}

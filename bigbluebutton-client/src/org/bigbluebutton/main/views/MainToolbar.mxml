@@ -67,7 +67,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.as3commons.lang.StringUtils;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.IBbbToolbarComponent;
       import org.bigbluebutton.common.events.SettingsComponentEvent;
       import org.bigbluebutton.common.events.ToolbarButtonEvent;
       import org.bigbluebutton.core.BBB;
@@ -78,7 +77,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.model.Config;
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.events.ConfigLoadedEvent;
       import org.bigbluebutton.main.events.LogoutEvent;
       import org.bigbluebutton.main.events.NetworkStatsEvent;
@@ -348,43 +346,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Find out how to import accessibility into custom components; even though the ToolbarButtons are buttons, they don't seem to have a tabIndex
 				if (event.location == ToolbarButtonEvent.TOP_TOOLBAR) {
 					var index:int;
-					var added:int = 0;
-					//*var localButton:UIComponent;
 					if (event.module == "DeskShare"){
-						index = 0;
+						addedBtnsDeskShare.addChild(event.button as UIComponent);
 					}
 					else if (event.module == "Microphone"){
-						index = 1;
+						addedBtnsMicrophone.addChild(event.button as UIComponent);
 					}
 					else if (event.module == "Webcam"){
-						index = 2;
+						addedBtnsWebcam.addChild(event.button as UIComponent);
 					}
 					
-					//localButton = event.button as UIComponent;
-					//(localButton as Button).tabIndex = baseIndex + numButtons;
-					//addedBtns.addChild(localButton);*/
-					
-					
-					addedBtns.addChild(event.button as UIComponent);
-					// Won't work quite like this: addedBtns.addChildAt(event.button as UIComponent, index);					
 					numButtons++;
-					realignButtons();
+					(event.button as UIComponent).tabIndex = quickLinksIndexer.startIndex + 5;
 				}
 			}
 			
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				if (addedBtns.contains(event.button as UIComponent))
-					addedBtns.removeChild(event.button as UIComponent);
+				if (addedBtnsDeskShare.contains(event.button as UIComponent))
+					addedBtnsDeskShare.removeChild(event.button as UIComponent);
+				if (addedBtnsMicrophone.contains(event.button as UIComponent))
+					addedBtnsMicrophone.removeChild(event.button as UIComponent);
+				if (addedBtnsWebcam.contains(event.button as UIComponent))
+					addedBtnsWebcam.removeChild(event.button as UIComponent);
 			}
 			
-			private function realignButtons():void{
-				for each (var button:UIComponent in addedBtns.getChildren()){
-					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
-					
-					button.tabIndex = quickLinksIndexer.startIndex + 5;
-				}
-			}
-						
 			private function handleConfigLoadedEvent(e:ConfigLoadedEvent):void{
 				var config:Config = BBB.getConfigManager().config;
 				var shortcutKeysOptions : ShortcutKeysOptions = Options.getOptions(ShortcutKeysOptions) as ShortcutKeysOptions;
@@ -544,7 +529,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>
 	<mx:VRule styleName="toolbarSeparator" height="10" />
 	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
-	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center"/>
+	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center">
+		<mx:HBox id="addedBtnsMicrophone" />
+		<mx:HBox id="addedBtnsWebcam" />
+		<mx:HBox id="addedBtnsDeskShare" />
+	</mx:HBox>
   <mx:Label id="timeRemainingLabel" visible="false"
             text="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}:"
             toolTip="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}"/>

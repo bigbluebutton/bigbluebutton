@@ -33,7 +33,6 @@ public class MeetingMessageReceiver implements MessageHandler {
 	
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
-		    System.out.println("Meeting message: " + channel + " " + message);
 
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
