@@ -812,7 +812,7 @@ flexlib|MDIWindow {
 	paddingLeft          : 0;
 	paddingRight         : 0;
 	paddingTop           : 0;
-	
+
 	borderThicknessRight : 0;
 	borderThicknessLeft  : 0;
 
@@ -1345,7 +1345,8 @@ users|NameItemRenderer {
 
 .usersGridStyle {
 	borderStyle    : none;
-	selectionColor : #F0F2F6;
+	selectionColor : #FFFFFF;
+	rollOverColor  : #FFFFFF;
 }
 
 users|EmojiGrid {
