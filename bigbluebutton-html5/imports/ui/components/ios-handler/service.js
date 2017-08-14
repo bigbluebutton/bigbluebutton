@@ -8,8 +8,7 @@ export const withIosHandler = (ComponentToWrap, handlers) =>
 
       Object.keys(handlers).forEach(k => {
         this[k] = (parameters) => {
-          console.log(parameters);
-          super[k](parameters);
+          if (super[k]) super[k](parameters);
           IosHandler[handlers[k]](parameters);
         }
       })
