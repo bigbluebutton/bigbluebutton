@@ -9,6 +9,6 @@ package org.bigbluebutton.core.model
     public var isMeetingMuted: Boolean = false;
     public var guestPolicy: String = "ASK_MODERATOR";
     public var guestPolicySetBy: String = null;
-    public var lockSettings:LockSettingsVO;
+    public var lockSettings:LockSettingsVO = new LockSettingsVO();
   }
 }

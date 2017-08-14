@@ -45,13 +45,12 @@ package org.bigbluebutton.modules.screenshare.managers
 			
 			if ((button != null) && (!buttonShownOnToolbar)) {
 				button = new ToolbarButton();
-				/* Test */ //button.tabIndex=4;
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = button;
 				event.module="DeskShare";
-				globalDispatcher.dispatchEvent(event);	
-				buttonShownOnToolbar = true;	
-				button.enabled = true;		
+				globalDispatcher.dispatchEvent(event);
+				buttonShownOnToolbar = true;
+				button.enabled = true;
 			}
 		}
 			
@@ -59,8 +58,8 @@ package org.bigbluebutton.modules.screenshare.managers
 			if (buttonShownOnToolbar) {
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
 				event.button = button;
-				globalDispatcher.dispatchEvent(event);	
-				buttonShownOnToolbar = false;			
+				globalDispatcher.dispatchEvent(event);
+				buttonShownOnToolbar = false;
 			}
 		}
 		//OLD - CAN BE DELETED				

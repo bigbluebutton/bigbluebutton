@@ -39,7 +39,7 @@ trait HandlerHelpers extends SystemConfiguration {
         waitingForAcceptance = regUser.waitingForAcceptance,
         emoji = "none",
         presenter = false,
-        locked = false,
+        locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL
       )
     }
@@ -91,7 +91,7 @@ trait HandlerHelpers extends SystemConfiguration {
       moderator <- Users2x.findModerator(liveMeeting.users2x)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {
-      sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.name)
+      sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
     }
   }
 

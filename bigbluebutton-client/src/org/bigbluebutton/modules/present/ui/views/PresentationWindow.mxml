@@ -31,7 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
-	horizontalScrollPolicy="off" 
+	horizontalScrollPolicy="off"
 	showControls="true" resize="resizeHandler()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow,org.bigbluebutton.modules.whiteboard.views.IWhiteboardReceiver"
 	initialize="init()"
@@ -790,7 +790,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</fx:Script>
-	
+
 	<fx:Declarations>
 		<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
 				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
@@ -799,32 +799,38 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	</fx:Declarations>
 
-	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
+	<mx:Canvas width="100%" height="100%" styleName="slideViewBackground" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
+	</mx:Canvas>
 
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">
-		<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
-				click="onPollStartButtonClicked()" includeInLayout="{pollStartBtn.visible}"/>
-		<poll:QuickPollButton id="quickPollBtn" height="30"
-				click="quickPollClicked(event)"
-				includeInLayout="{quickPollBtn.visible}" />
-		<mx:Button id="downloadPres" visible="false"
-				includeInLayout="{downloadPres.visible}" height="30"
-				styleName="presentationDownloadButtonStyle"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
-				click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
-		<mx:HBox id="presenterControls" height="100%" width="100%" paddingTop="0" visible="false" includeInLayout="false" horizontalAlign="left" verticalAlign="top">
+		<!-- Presentation Actions -->
+		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="bottom" horizontalAlign="left">
+			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
+					   click="onPollStartButtonClicked()" includeInLayout="{pollStartBtn.visible}"/>
+			<poll:QuickPollButton id="quickPollBtn" height="30"
+								  click="quickPollClicked(event)"
+								  includeInLayout="{quickPollBtn.visible}" />
+			<mx:Button id="downloadPres" visible="false"
+					   includeInLayout="{downloadPres.visible}" height="30"
+					   styleName="presentationDownloadButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
+					   click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
 			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
 					   click="onUploadButtonClicked()"/>
-			<mx:Spacer width="100%" id="spacer1"/>
+		</mx:HBox>
+
+		<mx:HBox id="presenterControls" width="30%" height="100%" paddingTop="0" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">
 			<mx:Button id="backButton" visible="false" height="30" styleName="presentationBackButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="goToPreviousSlide()"/>
 			<mx:Button id="btnSlideNum" visible="false" height="30" click="showThumbnails()"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"/>
 			<mx:Button id="forwardButton" visible="false" height="30" styleName="presentationForwardButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="goToNextSlide()"/>
-			<mx:Spacer width="50%" id="spacer3"/>
+		</mx:HBox>
+		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="middle" horizontalAlign="right">
 			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
 						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
 						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
@@ -836,8 +842,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Button id="btnFitToPage" visible="false" height="30" styleName="presentationFitToPageButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 					   click="onFitToPage(true)"/>
-			<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
-			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>
 		<mx:HBox id="pollVoteBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" />
     </mx:ControlBar>

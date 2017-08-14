@@ -141,14 +141,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				BindingUtils.bindSetter(refreshModeratorButtonsVisibility, LiveMeeting.inst().meeting, "recorded");
 			}
-      
-      private function checkAccessiblity(e:TimerEvent):void {
-        // remove the quick links if there's no screen reader active
-        if (!Accessibility.active) {
-          quickLinks.removeAllChildren();
-        }
-      }
-      
+
+			private function checkAccessiblity(e:TimerEvent):void {
+				// remove the quick links if there's no screen reader active
+				if (!Accessibility.active) {
+					quickLinks.removeAllChildren();
+				} else {
+					quickLinks.includeInLayout = true;
+				}
+			}
+
       private function onQuickLinkClicked(window:String):void {
         var dispatcher:Dispatcher = new Dispatcher();
         switch(window) {
@@ -505,70 +507,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
 
-    
-    <mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
-    <mx:HBox id="quickLinks" width="1" includeInLayout="false">
-        <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
-                       accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
-                       height="30" styleName="quickWindowLinkStyle" />
-        <mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
-                       accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
-                       height="30" styleName="quickWindowLinkStyle" />
-        <mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
-                       accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
-                       height="30" styleName="quickWindowLinkStyle" />
-        <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
-                       accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
-                       height="30" styleName="quickWindowLinkStyle" />
-		<mx:LinkButton id="captionLinkBtn" click="onQuickLinkClicked('caption')" label="{ResourceUtil.getInstance().getString('bbb.caption.quickLink.label')}" 
-					   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
-					   height="30" styleName="quickWindowLinkStyle" />
-		<mx:LinkButton id="sharedNotesLinkBtn" click="onQuickLinkClicked('sharedNotes')" label="{ResourceUtil.getInstance().getString('bbb.sharedNotes.quickLink.label')}" 
-					   accessibilityDescription="{sharedNotesLinkBtn.label}" toolTip="{sharedNotesLinkBtn.label}"
-					   height="30" styleName="quickWindowLinkStyle" />
-    </mx:HBox>
-	<mx:VRule styleName="toolbarSeparator" height="10" />
-	<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" />
-	<mx:HBox id="addedBtns" width="100%" horizontalAlign="center">
-		<mx:HBox id="addedBtnsMicrophone"/>
-		<mx:HBox id="addedBtnsWebcam"/>
-		<mx:HBox id="addedBtnsDeskShare"/>
-	</mx:HBox>
-  <mx:Label id="timeRemainingLabel" visible="false"
-            text="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}:"
-            toolTip="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}"/>
-  <mx:Label id="timeRemaining" visible="false"
-            text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
-            toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
-	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
-	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
-  
-	<mx:Button
-			id="bbbSettings"
-			visible="{showGuestSettingsButton}"
-			includeInLayout="{showGuestSettingsButton}"
-			toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
-			click="onSettingsButtonClick()"
-			styleName="settingsButtonStyle"
-			height="30"
-	/>
-<!--
-  <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
--->
-	<mx:Button
-			id="btnNetwork"
-			styleName="bandwidthButtonStyle"
-			toolTip="dummy text"
-			click="onNetStatsButtonClick()"
-			visible="{toolbarOptions.showNetworkMonitor}"
-			includeInLayout="{toolbarOptions.showNetworkMonitor}"/>
-	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
-             click="onShortcutButtonClick()" height="30" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>
-	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" click="onHelpButtonClicked()" height="30" 
-                   styleName="helpLinkButtonStyle"
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
-	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="30"/>
+	<mx:VBox id="mainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="middle">
+		<!-- Top bar -->
+		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off">
+			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
+				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
+				<mx:VRule styleName="toolbarSeparator" height="10" />
+				<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" width="100%" truncateToFit="true"/>
+			</mx:HBox>
+			<mx:HBox id="actionBox" width="30%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
+				<mx:HBox id="addedBtnsMicrophone" />
+				<mx:HBox id="addedBtnsWebcam" />
+				<mx:HBox id="addedBtnsDeskShare" />
+			</mx:HBox>
+			<mx:HBox id="rightBox" width="40%" horizontalAlign="right" verticalAlign="middle" horizontalScrollPolicy="off">
+				<mx:Label id="timeRemainingLabel" visible="false" includeInLayout="{timeRemainingLabel.visible}"
+						  text="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}:"
+						  toolTip="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}"/>
+				<mx:Label id="timeRemaining" visible="false" includeInLayout="{timeRemaining.visible}"
+						  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
+						  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
+				<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
+				<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
+				
+				<mx:Button
+					id="bbbSettings"
+					visible="{showGuestSettingsButton}"
+					includeInLayout="{showGuestSettingsButton}"
+					toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
+					click="onSettingsButtonClick()"
+					styleName="settingsButtonStyle"
+					height="30"
+					/>
+				<!--
+				<mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
+				-->
+				<mx:Button
+					id="btnNetwork"
+					styleName="bandwidthButtonStyle"
+					toolTip="dummy text"
+					click="onNetStatsButtonClick()"
+					visible="{toolbarOptions.showNetworkMonitor}"
+					includeInLayout="{toolbarOptions.showNetworkMonitor}"/>
+				<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
+						   click="onShortcutButtonClick()" height="30" 
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>
+				<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" click="onHelpButtonClicked()" height="30" 
+							   styleName="helpLinkButtonStyle"
+							   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
+							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
+				<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="30"/>
+			</mx:HBox>
+		</mx:HBox>
+
+		<!-- Accessibilty Quick Links -->
+		<mx:HBox id="quickLinks" includeInLayout="false" width="100%" horizontalAlign="center">
+			<mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
+						   accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
+						   height="30" styleName="quickWindowLinkStyle" />
+			<mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
+						   accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
+						   height="30" styleName="quickWindowLinkStyle" />
+			<mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
+						   accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
+						   height="30" styleName="quickWindowLinkStyle" />
+			<mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
+						   accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
+						   height="30" styleName="quickWindowLinkStyle" />
+			<mx:LinkButton id="captionLinkBtn" click="onQuickLinkClicked('caption')" label="{ResourceUtil.getInstance().getString('bbb.caption.quickLink.label')}" 
+						   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
+						   height="30" styleName="quickWindowLinkStyle" />
+			<mx:LinkButton id="sharedNotesLinkBtn" click="onQuickLinkClicked('sharedNotes')" label="{ResourceUtil.getInstance().getString('bbb.sharedNotes.quickLink.label')}" 
+						   accessibilityDescription="{sharedNotesLinkBtn.label}" toolTip="{sharedNotesLinkBtn.label}"
+						   height="30" styleName="quickWindowLinkStyle" />
+		</mx:HBox>
+	</mx:VBox>
+
 </mx:ApplicationControlBar>

@@ -38,10 +38,10 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.connection.messages.ValidateAuthTokenReqMsg;
 	import org.bigbluebutton.core.connection.messages.ValidateAuthTokenReqMsgBody;
 	import org.bigbluebutton.core.events.TokenValidEvent;
+	import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
-	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.options.ApplicationOptions;
@@ -137,15 +137,19 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
             
             if (tokenValid) {
-                LiveMeeting.inst().me.authTokenValid = true;
-                if (waitForApproval) {
-                  var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
-                  dispatcher.dispatchEvent(waitCommand);
+              LiveMeeting.inst().me.authTokenValid = true;
+              if (waitForApproval) {
+                var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
+                dispatcher.dispatchEvent(waitCommand);
+              } else {
+                LiveMeeting.inst().me.waitingForApproval = false;
+                if (reconnecting) {
+                  dispatcher.dispatchEvent(new TokenValidReconnectEvent());
                 } else {
-                  LiveMeeting.inst().me.waitingForApproval = false;
                   dispatcher.dispatchEvent(new TokenValidEvent());
-                  sendConnectionSuccessEvent(userId);
                 }
+                sendConnectionSuccessEvent(userId);
+              }
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
             }
@@ -433,13 +437,12 @@ package org.bigbluebutton.main.model.users
                 var muteOnStart: Boolean = LiveMeeting.inst().meeting.muteOnStart;
                 var guest: Boolean = LiveMeeting.inst().me.guest;
                 var authToken: String = LiveMeeting.inst().me.authToken;
-                var lockSettings: LockSettingsVO = LiveMeeting.inst().meetingStatus.lockSettings;
                 
                 _netConnection.connect(bbbAppsUrl, username, role,
                                         intMeetingId, voiceConf, 
                                         recorded, extUserId,
                                         intUserId, muteOnStart,
-                                        lockSettings.toMap(), guest, authToken);
+                                        guest, authToken);
                    
             } catch(e:ArgumentError) {
                 // Invalid parameters.

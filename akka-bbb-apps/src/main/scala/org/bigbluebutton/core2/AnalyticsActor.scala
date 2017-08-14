@@ -71,6 +71,11 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
 
+      // Presentation
+      case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
+      case m: SetCurrentPresentationPubMsg => logMessage(msg)
+      case m: SetCurrentPresentationEvtMsg => logMessage(msg)
+
       case _ => // ignore message
     }
   }

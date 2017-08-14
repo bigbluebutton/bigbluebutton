@@ -48,7 +48,7 @@ class PresentationModel {
   }
 
   def setCurrentPresentation(presId: String): Option[Presentation] = {
-    getCurrentPresentation foreach (curPres => {
+    getPresentations foreach (curPres => {
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
         savePresentation(newPres)
