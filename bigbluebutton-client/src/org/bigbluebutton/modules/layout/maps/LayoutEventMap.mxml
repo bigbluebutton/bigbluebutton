@@ -31,8 +31,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
       import org.bigbluebutton.modules.layout.events.ConnectionEvent;
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
-      import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
       import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
       import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
       import org.bigbluebutton.modules.layout.events.StartLayoutModuleEvent;
@@ -85,15 +83,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    <EventHandlers type="{LayoutEvent.BROADCAST_LAYOUT_EVENT}">
 	      <MethodInvoker generator="{LayoutManager}" method="broadcastLayout" />
 	    </EventHandlers>
-	
-	  <EventHandlers type="{LayoutLockedEvent.LAYOUT_LOCKED}">
-	    <MethodInvoker generator="{LayoutManager}" method="handleLayoutLockedEvent" arguments="{event}" />
-	  </EventHandlers>
-	
-	  <EventHandlers type="{LockLayoutEvent.LOCK_LAYOUT}">
-	    <MethodInvoker generator="{LayoutService}" method="handleLockLayoutEvent" arguments="{event}" />
-	  </EventHandlers>
-	   
 	
 	  <EventHandlers type="{SyncLayoutEvent.SYNC_LAYOUT_EVENT}">
 	    <MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{event.layout}" />

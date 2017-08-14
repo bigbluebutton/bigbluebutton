@@ -222,8 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				updateCopyrightText();
 				loadBackground();
-
-				UsersUtil.configLockSettings();
+				
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;

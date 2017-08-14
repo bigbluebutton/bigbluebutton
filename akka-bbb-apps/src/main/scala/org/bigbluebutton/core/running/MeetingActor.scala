@@ -34,6 +34,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
+import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 
 object MeetingActor {
   def props(
@@ -240,7 +241,6 @@ class MeetingActor(
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
-      case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
 
       // Lock Settings
