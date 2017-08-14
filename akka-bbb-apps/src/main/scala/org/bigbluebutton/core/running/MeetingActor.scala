@@ -64,6 +64,7 @@ class MeetingActor(
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
+    with UserJoinMeetingAfterReconnectReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
     with UserConnectedToGlobalAudioMsgHdlr
     with UserDisconnectedFromGlobalAudioMsgHdlr
@@ -181,6 +182,8 @@ class MeetingActor(
         state = usersApp.handleValidateAuthTokenReqMsg(m, state)
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
+      case m: UserJoinMeetingAfterReconnectReqMsg =>
+        state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
       case m: UserBroadcastCamStartMsg  => handleUserBroadcastCamStartMsg(m)
