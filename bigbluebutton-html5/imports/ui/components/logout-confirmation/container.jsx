@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import { makeCall } from '/imports/ui/services/api';
-import Auth from '/imports/ui/services/auth';
 import userListService from '../user-list/service';
 import LogoutConfirmation from './component';
+import LogoutConfirmationService from './service';
 
 class LogoutConfirmationContainer extends Component {
     
@@ -19,13 +18,10 @@ class LogoutConfirmationContainer extends Component {
 }
 
 export default createContainer(() => {
-    
-  const isModerator = userListService.getCurrentUser().isModerator;
-  const endMeeting = () => makeCall('endMeeting', Auth.credentials);
-  
+
   return {
-    isModerator,
-    endMeeting,
+    isModerator: userListService.getCurrentUser().isModerator,
+    endMeeting: LogoutConfirmationService.endMeeting,
   };
 
 }, LogoutConfirmationContainer);

@@ -47,12 +47,12 @@ class LeaveConfirmation extends Component {
 
     return (
       isModerator ?
-      <Button
-        className={styles.endMeeting}
-        label={intl.formatMessage(intlMessages.endMeetingLabel)}
-        onClick={endMeeting}
-        aria-describedby={'modalEndMeetingDesc'}
-      /> : null
+        <Button
+          className={styles.endMeeting}
+          label={intl.formatMessage(intlMessages.endMeetingLabel)}
+          onClick={endMeeting}
+          aria-describedby={'modalEndMeetingDesc'}
+        /> : null
     );
   }
 
