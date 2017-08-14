@@ -1105,6 +1105,10 @@ presentation|UploadedPresentationRenderer {
 	backgroundColor : #FFFFFF;
 }
 
+.slideViewBackground {
+	backgroundColor : #4E5A66;
+}
+
 /*
 //------------------------------
 //  Poll
