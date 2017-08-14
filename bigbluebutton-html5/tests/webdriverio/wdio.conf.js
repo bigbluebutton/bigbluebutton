@@ -1,10 +1,17 @@
 exports.config = {
   specs: ['tests/webdriverio/specs/**/*.spec.js'],
-  capabilities: [
-    {
-      browserName: 'chrome',
+  capabilities: {
+    chromeBrowser: {
+      desiredCapabilities: {
+        browserName: 'chrome',
+      }
     },
-  ],
+    firefoxBrowser: {
+      desiredCapabilities: {
+        browserName: 'firefox'
+      }
+    }
+  },
   baseUrl: 'http://localhost:8080',
   framework: 'jasmine',
   reporters: ['spec', 'junit'],
