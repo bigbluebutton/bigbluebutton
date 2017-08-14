@@ -48,11 +48,6 @@ class BreakoutJoinConfirmation extends Component {
     // leave main room's audio when joining a breakout room
     AudioService.exitAudio();
     if (breakoutURL) {
-      console.log('krappaaaaaa', [
-        window.location.origin,
-        breakoutURL,
-      ].join(''));
-
       if(window.navigator.userAgent === 'BigBlueButton') {
         const url = [
           window.location.origin,

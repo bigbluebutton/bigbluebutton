@@ -168,11 +168,6 @@ class UserList extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this._msgsList.removeEventListener('keypress', (event) => {}, false);
-    this._usersList.removeEventListener('keypress', (event) => {}, false);
-  }
-
   renderHeader() {
     const { intl } = this.props;
 

@@ -6,11 +6,11 @@ export const withIosHandler = (ComponentToWrap, handlers) =>
     constructor(props) {
       super(props);
 
-      Object.keys(handlers).forEach(k => {
+      Object.keys(handlers).forEach((k) => {
         this[k] = (parameters) => {
           if (super[k]) super[k](parameters);
           IosHandler[handlers[k]](parameters);
-        }
-      })
+        };
+      });
     }
-  }
+  };
