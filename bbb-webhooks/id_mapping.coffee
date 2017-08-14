@@ -5,15 +5,15 @@ redis = require("redis")
 config = require("./config")
 Logger = require("./logger")
 
-# The database of mappings. Uses the externalID as key because it changes less than
-# the internal ID (e.g. the internalID can change for different meetings in the same
-# room). Used always from memory, but saved to redis for persistence.
+# The database of mappings. Uses the internal ID as key because it is unique
+# unlike the external ID.
+# Used always from memory, but saved to redis for persistence.
 #
 # Format:
 #   {
-#      externalMeetingID: {
+#      internalMeetingID: {
 #       id: @id
-#       externalMeetingID: @exnternalMeetingID
+#       externalMeetingID: @externalMeetingID
 #       internalMeetingID: @internalMeetingID
 #       lastActivity: @lastActivity
 #     }
@@ -40,8 +40,8 @@ module.exports = class IDMapping
       @redisClient.sadd config.redis.keys.mappings, @id, (error, reply) =>
         Logger.error "Hook: error saving mapping ID to the list of mappings!", error, reply if error?
 
-        db[@externalMeetingID] = this
-        callback?(error, db[@externalMeetingID])
+        db[@internalMeetingID] = this
+        callback?(error, db[@internalMeetingID])
 
   destroy: (callback) ->
     @redisClient.srem config.redis.keys.mappings, @id, (error, reply) =>
@@ -49,8 +49,8 @@ module.exports = class IDMapping
       @redisClient.del config.redis.keys.mapping(@id), (error) =>
         Logger.error "Hook: error removing mapping from redis!", error if error?
 
-        if db[@externalMeetingID]
-          delete db[@externalMeetingID]
+        if db[@internalMeetingID]
+          delete db[@internalMeetingID]
           callback?(error, true)
         else
           callback?(error, false)
@@ -83,23 +83,23 @@ module.exports = class IDMapping
       callback?(error, result)
 
   @removeMapping = (internalMeetingID, callback) ->
-    for external, mapping of db
+    for internal, mapping of db
       if mapping.internalMeetingID is internalMeetingID
         mapping.destroy (error, result) ->
           Logger.info "IDMapping: removing meeting mapping from the list #{external}:", mapping.print()
           callback?(error, result)
 
   @getInternalMeetingID = (externalMeetingID) ->
-    db[externalMeetingID].internalMeetingID
+    mapping = IDMapping.findByExternalMeetingID(externalMeetingID)
+    mapping?.internalMeetingID
 
   @getExternalMeetingID = (internalMeetingID) ->
-    mapping = IDMapping.findByInternalMeetingID(internalMeetingID)
-    mapping?.externalMeetingID
+    db[internalMeetingID].externalMeetingID
 
-  @findByInternalMeetingID = (internalMeetingID) ->
-    if internalMeetingID?
-      for external, mapping of db
-        if mapping.internalMeetingID is internalMeetingID
+  @findByExternalMeetingID = (externalMeetingID) ->
+    if externalMeetingID?
+      for internal, mapping of db
+        if mapping.externalMeetingID is externalMeetingID
           return mapping
     null
 
@@ -112,7 +112,7 @@ module.exports = class IDMapping
 
   # Sets the last activity of the mapping for `internalMeetingID` to now.
   @reportActivity = (internalMeetingID) ->
-    mapping = IDMapping.findByInternalMeetingID(internalMeetingID)
+    mapping = db[internalMeetingID]
     if mapping?
       mapping.lastActivity = new Date().getTime()
       mapping.save()
