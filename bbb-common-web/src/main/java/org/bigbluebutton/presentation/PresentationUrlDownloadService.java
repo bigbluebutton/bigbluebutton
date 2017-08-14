@@ -244,8 +244,6 @@ public class PresentationUrlDownloadService {
             };
             Future<File> future = httpclient.execute(HttpAsyncMethods.createGet(finalUrl), consumer, null);
             File result = future.get();
-            System.out.println("Response file length: " + result.length());
-            System.out.println("Shutting down");
             success = result.exists();
         } catch (java.lang.InterruptedException ex) {
 

@@ -20,7 +20,10 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.google.gson.Gson;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
@@ -39,7 +42,15 @@ public class Png2SwfPageConverter implements PageConverter {
     if (done && output.exists()) {
       return true;		
     } else {
-      log.warn("Failed to convert: " + output.getAbsolutePath() + " does not exist.");
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Failed to convert PNG doc to SWF.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.warn("-- analytics -- " + logStr);
+
       return false;
     }
   }

@@ -139,8 +139,6 @@ class ReceivedJsonMsgHandlerActor(
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>
         routeGenericMsg[GetCurrentLayoutReqMsg](envelope, jsonNode)
-      case LockLayoutMsg.NAME =>
-        routeGenericMsg[LockLayoutMsg](envelope, jsonNode)
       case BroadcastLayoutMsg.NAME =>
         routeGenericMsg[BroadcastLayoutMsg](envelope, jsonNode)
 
@@ -148,6 +146,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
       case ChangeUserEmojiCmdMsg.NAME =>
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+      case ChangeUserRoleCmdMsg.NAME =>
+        routeGenericMsg[ChangeUserRoleCmdMsg](envelope, jsonNode)
 
       // Whiteboard
       case SendCursorPositionPubMsg.NAME =>
@@ -236,8 +236,6 @@ class ReceivedJsonMsgHandlerActor(
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>
         routeGenericMsg[LockUserInMeetingCmdMsg](envelope, jsonNode)
-      case IsMeetingLockedReqMsg.NAME =>
-        routeGenericMsg[IsMeetingLockedReqMsg](envelope, jsonNode)
       case ChangeLockSettingsInMeetingCmdMsg.NAME =>
         routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
       case LockUsersInMeetingCmdMsg.NAME =>

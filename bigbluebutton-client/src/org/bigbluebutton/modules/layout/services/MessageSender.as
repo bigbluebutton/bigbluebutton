@@ -7,8 +7,6 @@ package org.bigbluebutton.modules.layout.services {
 	import org.bigbluebutton.core.connection.messages.layout.BroadcastLayoutMsgBody;
 	import org.bigbluebutton.core.connection.messages.layout.GetCurrentLayoutReqMsg;
 	import org.bigbluebutton.core.connection.messages.layout.GetCurrentLayoutReqMsgBody;
-	import org.bigbluebutton.core.connection.messages.layout.LockLayoutMsg;
-	import org.bigbluebutton.core.connection.messages.layout.LockLayoutMsgBody;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 
@@ -39,20 +37,6 @@ package org.bigbluebutton.modules.layout.services {
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["apps"];
 				logData.message = "Error occured broadcasting layout.";
-				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
-		}
-
-		public function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition = null):void {
-			var body:LockLayoutMsgBody = new LockLayoutMsgBody(lock, viewersOnly, layout != null ? layout.toXml().toXMLString() : null);
-			var message:LockLayoutMsg = new LockLayoutMsg(body);
-
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage2x(function(result:String):void { // On successful result
-			}, function(status:String):void { // status - On error occurred
-				var logData:Object = UsersUtil.initLogData();
-				logData.tags = ["apps"];
-				logData.message = "Error occured locking layout.";
 				LOGGER.info(JSON.stringify(logData));
 			}, JSON.stringify(message));
 		}

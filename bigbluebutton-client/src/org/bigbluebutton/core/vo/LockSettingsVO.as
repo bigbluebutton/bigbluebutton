@@ -20,21 +20,21 @@ package org.bigbluebutton.core.vo
 {
   public class LockSettingsVO
   {
-    private var lockOnJoinConfigurable:Boolean = true;
-    private var disableCam:Boolean = false;
-    private var disableMic:Boolean = false;
-    private var disablePrivateChat:Boolean = false;
-    private var disablePublicChat:Boolean = false;
-    private var lockedLayout:Boolean = false;
-    private var lockOnJoin:Boolean = false;
+    private var lockOnJoinConfigurable:Boolean;
+    private var disableCam:Boolean;
+    private var disableMic:Boolean;
+    private var disablePrivateChat:Boolean;
+    private var disablePublicChat:Boolean;
+    private var lockedLayout:Boolean;
+    private var lockOnJoin:Boolean;
     
-    public function LockSettingsVO(pDisableCam:Boolean, 
-                                   pDisableMic:Boolean, 
-                                   pDisablePrivateChat:Boolean, 
-                                   pDisablePublicChat:Boolean, 
-                                   pLockLayout: Boolean, 
-                                   pLockOnJoin:Boolean, 
-                                   pLockOnJoinConfigurable:Boolean)
+    public function LockSettingsVO(pDisableCam:Boolean=false,
+                                   pDisableMic:Boolean=false,
+                                   pDisablePrivateChat:Boolean=false,
+                                   pDisablePublicChat:Boolean=false,
+                                   pLockLayout: Boolean=false,
+                                   pLockOnJoin:Boolean=false,
+                                   pLockOnJoinConfigurable:Boolean=false)
     {
       this.disableCam = pDisableCam;
       this.disableMic = pDisableMic;

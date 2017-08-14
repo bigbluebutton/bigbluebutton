@@ -18,8 +18,8 @@
     <meeting muteOnStart="false" />
     <breakoutRooms enabled="true" record="false" />
     <logging enabled="true" target="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST/log" logPattern=".*"/>
-    <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
-          disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
+    <lock disableCam="false" disableMic="false" disablePrivateChat="false"
+          disablePublicChat="false" lockedLayout="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
             
 		<modules>
 		 
@@ -38,6 +38,7 @@
 			allowKickUser="true"
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
+			enableGuestUI="false"
 			baseTabIndex="301"
 		/>
 

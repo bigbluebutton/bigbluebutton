@@ -20,7 +20,6 @@ package org.bigbluebutton.modules.layout.services
 {
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
   public class LayoutService
@@ -37,15 +36,6 @@ package org.bigbluebutton.modules.layout.services
     public function broadcastLayout(layout:LayoutDefinition):void {
       LOGGER.debug("broadcast layout");
       sender.broadcastLayout(layout);
-    }
-		
-    private function handleLockLayoutEvent(e: LockLayoutEvent):void {
-      
-    }
-    
-    private function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition=null):void {
-      LOGGER.debug("lock layout");
-      sender.lockLayout(lock, viewersOnly, layout);
     }
   }
 }

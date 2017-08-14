@@ -67,6 +67,15 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: MeetingInactivityWarningEvtMsg => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg => logMessage(msg)
       case m: TransferUserToVoiceConfSysMsg => logMessage(msg)
+
+      // Breakout
+      case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
+
+      // Presentation
+      case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
+      case m: SetCurrentPresentationPubMsg => logMessage(msg)
+      case m: SetCurrentPresentationEvtMsg => logMessage(msg)
+
       case _ => // ignore message
     }
   }
