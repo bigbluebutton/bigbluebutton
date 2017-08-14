@@ -132,8 +132,8 @@ module.exports = class Hook
       hook.externalMeetingID = meetingID
       hook.permanent = if firstURL in config.hooks.aggr then true else false
       # Create backup URLs list
-      backupURLs = if callbackURL instanceof Array then callbackURL else null
-      backupURLs.push(firstURL); backupURLs.shift() if backupURLs?
+      backupURLs = if callbackURL instanceof Array then callbackURL else []
+      backupURLs.push(firstURL); backupURLs.shift()
       hook.backupURL = backupURLs
       Logger.info "Hook: Backup URLs:", hook.backupURL
       hook.save (error, hook) -> callback?(error, hook)
