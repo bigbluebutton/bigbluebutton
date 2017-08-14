@@ -29,6 +29,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.TokenValidEvent;
+	import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
@@ -148,7 +149,11 @@ package org.bigbluebutton.main.model.users
     public function tokenValidEventHandler(event: TokenValidEvent): void {
       sender.joinMeeting();
     }
-    
+
+    public function tokenValidReconnectEventHandler(event: TokenValidReconnectEvent): void {
+      sender.joinMeetingAfterReconnect();
+    }
+
 	public function logoutEndMeeting():void{
 		if (this.isModerator()) {
 			var myUserId: String = UsersUtil.getMyUserID();
@@ -187,6 +192,7 @@ package org.bigbluebutton.main.model.users
 				reconnecting = false;
 			} else {
         onAllowedToJoin();
+
       }
 		}
 

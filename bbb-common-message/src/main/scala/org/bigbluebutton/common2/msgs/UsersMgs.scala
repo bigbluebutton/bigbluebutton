@@ -238,6 +238,14 @@ object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
 case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
 
+/**
+  * Sent from Flash client to rejoin meeting after reconnection
+  */
+object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterReconnectReqMsg" }
+case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
+case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String)
+
+
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg
 case class UserLeaveReqMsgBody(userId: String, sessionId: String)

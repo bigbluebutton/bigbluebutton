@@ -73,11 +73,29 @@ package org.bigbluebutton.modules.users.services
       }, function(status:String):void { // status - On error occurred
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["apps"];
-        logData.message = "Error occurred assigning a presenter.";
+        logData.message = "Error occurred when user joining.";
         LOGGER.info(JSON.stringify(logData));
       }, JSON.stringify(message));
     }
-    
+
+    public function joinMeetingAfterReconnect(): void {
+      LOGGER.info("Sending JOIN MEETING AFTER RECONNECT message");
+
+      var message:Object = {
+        header: {name: "UserJoinMeetingAfterReconnectReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(function(result:String):void { // On successful result
+      }, function(status:String):void { // status - On error occurred
+          var logData:Object = UsersUtil.initLogData();
+          logData.tags = ["apps"];
+          logData.message = "Error occurred when user joining after reconnect.";
+          LOGGER.info(JSON.stringify(logData));
+      }, JSON.stringify(message));
+    }
+
     public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:String):void {
       var message:Object = {
         header: {name: "AssignPresenterReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
