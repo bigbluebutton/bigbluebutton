@@ -5,7 +5,7 @@ import ShapeGroupContainer from '/imports/ui/components/whiteboard/shape-group/c
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import PollingContainer from '/imports/ui/components/polling/container';
-import CursorContainer from './cursor/container';
+import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
@@ -208,7 +208,7 @@ export default class PresentationArea extends React.Component {
                   height={svgHeight}
                   whiteboardId={slideObj.id}
                 />
-                <CursorContainer
+                <CursorWrapperContainer
                   widthRatio={slideObj.width_ratio}
                   physicalWidthRatio={adjustedSizes.width / svgWidth}
                   slideWidth={svgWidth}
@@ -312,4 +312,7 @@ PresentationArea.propTypes = {
       txt_uri: PropTypes.string.isRequired,
     }).isRequired,
   }),
+
+  // current multi-user status
+  multiUser: PropTypes.bool.isRequired,
 };

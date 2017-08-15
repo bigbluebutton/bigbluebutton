@@ -1,12 +1,16 @@
 import Cursor from '/imports/api/2.0/cursor';
 import Users from '/imports/api/2.0/users';
 
-const getCurrentCursor = () => {
-  const user = Users.findOne({ 'user.presenter': true });
-  if (user) {
-    return Cursor.findOne({ userId: user.userId });
+const getCurrentCursor = (cursorId) => {
+  const cursor = Cursor.findOne({ _id: cursorId });
+  if (cursor) {
+    const { userId } = cursor;
+    const user = Users.findOne({ userId });
+    if (user) {
+      cursor.userName = user.user.name;
+      return cursor;
+    }
   }
-
   return false;
 };
 

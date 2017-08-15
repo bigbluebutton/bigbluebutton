@@ -5,34 +5,62 @@ import CursorService from './service';
 import Cursor from './component';
 
 
-const CursorContainer = ({ cursorX, cursorY, ...rest }) => {
-  if (cursorX > 0 && cursorY > 0) {
-    return (
-      <Cursor
-        cursorX={cursorX}
-        cursorY={cursorY}
-        {...rest}
-      />
-    );
+class CursorContainer extends Component {
+  constructor() {
+    super();
+    this.state = {
+      labelBoxWidth: 0,
+      labelBoxHeight: 0,
+    };
+    this.setLabelBoxDimensions = this.setLabelBoxDimensions.bind(this);
   }
-  return null;
-};
+
+  setLabelBoxDimensions(labelBoxWidth, labelBoxHeight) {
+    this.setState({
+      labelBoxWidth,
+      labelBoxHeight,
+    });
+  }
+
+  render() {
+    const { cursorX, cursorY } = this.props;
+
+    if (cursorX > 0 && cursorY > 0) {
+      return (
+        <Cursor
+          cursorX={cursorX}
+          cursorY={cursorY}
+          labelBoxWidth={this.state.labelBoxWidth}
+          labelBoxHeight={this.state.labelBoxHeight}
+          setLabelBoxDimensions={this.setLabelBoxDimensions}
+          {...this.props}
+        />
+      );
+    }
+    return null;
+  }
+
+}
 
 
-export default createContainer(() => {
-  const cursor = CursorService.getCurrentCursor();
+export default createContainer((params) => {
+  const { cursorId } = params;
 
+  const cursor = CursorService.getCurrentCursor(cursorId);
   let cursorX = -1;
   let cursorY = -1;
+  let userName = '';
 
   if (cursor) {
     cursorX = cursor.x;
     cursorY = cursor.y;
+    userName = cursor.userName;
   }
 
   return {
     cursorX,
     cursorY,
+    userName,
   };
 }, CursorContainer);
 
