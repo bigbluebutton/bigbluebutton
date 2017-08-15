@@ -21,17 +21,13 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class MessageReceiver implements IMessageListener
   {
 	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
-    
-        /* Injected by Mate */
-    public var whiteboardModel:WhiteboardModel;
     
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
@@ -70,22 +66,22 @@ package org.bigbluebutton.modules.whiteboard.services
     private function handleClearWhiteboardEvtMsg(message:Object):void {
       if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("fullClear") 
         && message.body.hasOwnProperty("userId")) {
-        whiteboardModel.clear(message.body.whiteboardId, message.body.fullClear, message.body.userId);
+        LiveMeeting.inst().whiteboardModel.clear(message.body.whiteboardId, message.body.fullClear, message.body.userId);
       }
     }
 
     private function handleUndoWhiteboardEvtMsg(message:Object):void {
       if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("annotationId")) {
-        whiteboardModel.removeAnnotation(message.body.whiteboardId, message.body.annotationId);
+        LiveMeeting.inst().whiteboardModel.removeAnnotation(message.body.whiteboardId, message.body.annotationId);
       }
     }
 
     private function handleModifyWhiteboardAccessEvtMsg(message:Object):void {
-      whiteboardModel.accessModified(message.body.multiUser);
+      LiveMeeting.inst().whiteboardModel.accessModified(message.body.multiUser);
     }
     
     private function handleGetWhiteboardAccessRespMsg(message:Object):void {
-      whiteboardModel.accessModified(message.body.multiUser);
+      LiveMeeting.inst().whiteboardModel.accessModified(message.body.multiUser);
     }
     
     private function handleSendWhiteboardAnnotationEvtMsg(message:Object):void {
@@ -94,7 +90,7 @@ package org.bigbluebutton.modules.whiteboard.services
       var annotation:Annotation = new Annotation(receivedAnnotation.id, receivedAnnotation.annotationType, receivedAnnotation.annotationInfo);
       annotation.status = receivedAnnotation.status;
       annotation.userId = receivedAnnotation.userId;
-      whiteboardModel.addAnnotation(annotation);
+      LiveMeeting.inst().whiteboardModel.addAnnotation(annotation);
     }
 
     private function handleGetWhiteboardAnnotationsRespMsg(message:Object):void {
@@ -110,7 +106,7 @@ package org.bigbluebutton.modules.whiteboard.services
         tempAnnotations.push(annotation);
       }
       
-      whiteboardModel.addAnnotationFromHistory(whiteboardId, tempAnnotations);
+      LiveMeeting.inst().whiteboardModel.addAnnotationFromHistory(whiteboardId, tempAnnotations);
     }
     
     private function handleSendCursorPositionEvtMsg(message:Object):void {
@@ -118,7 +114,7 @@ package org.bigbluebutton.modules.whiteboard.services
       var xPercent:Number = message.body.xPercent as Number;
 	  var yPercent:Number = message.body.yPercent as Number;
       
-      whiteboardModel.updateCursorPosition(userId, xPercent, yPercent);
+    LiveMeeting.inst().whiteboardModel.updateCursorPosition(userId, xPercent, yPercent);
     }
   }
 }

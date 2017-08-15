@@ -18,21 +18,18 @@
  */
 package org.bigbluebutton.modules.whiteboard.models
 {
+
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.EventDispatcher;
-	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.modules.present.model.Page;
-	import org.bigbluebutton.modules.present.model.PresentationModel;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 
 	public class WhiteboardModel extends EventDispatcher
@@ -42,12 +39,9 @@ package org.bigbluebutton.modules.whiteboard.models
 		
 		private var _multiUser:Boolean = false;
 
-    private var _dispatcher:IEventDispatcher;
-        
-    public function WhiteboardModel(dispatcher:IEventDispatcher) {
-      _dispatcher = dispatcher;
-    }		
-		
+    public var _dispatcher:Dispatcher = new Dispatcher();
+    
+
     private function getWhiteboard(id:String, requestHistory:Boolean=true):Whiteboard {
       var wb:Whiteboard;
       
@@ -113,7 +107,7 @@ package org.bigbluebutton.modules.whiteboard.models
 				if (removedAnnotation != null) {
 					var e:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.UNDO_ANNOTATION);
 					e.annotation = removedAnnotation;
-					dispatchEvent(e);
+          dispatchEvent(e);
 				}
 			}
 		}
