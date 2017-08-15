@@ -13,7 +13,8 @@ function breakouts(credentials) {
 
   return Breakouts.find({
     $or: [
-      { breakoutMeetingId: meetingId },
+      { breakoutId: meetingId },
+      { meetingId },
       {
         users: {
           $elemMatch: { userId: requesterUserId },

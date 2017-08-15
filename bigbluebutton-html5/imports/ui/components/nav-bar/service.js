@@ -1,5 +1,5 @@
 import Auth from '/imports/ui/services/auth';
-import Breakouts from '/imports/api/1.1/breakouts';
+import Breakouts from '/imports/api/2.0/breakouts';
 
 const getBreakouts = () => Breakouts.find().fetch();
 
@@ -7,18 +7,17 @@ const getBreakoutJoinURL = (breakout) => {
   const currentUserId = Auth.userID;
 
   if (breakout.users) {
-    const user = breakout.users.find(user => user.userId === currentUserId);
+    const user = breakout.users.find(u => u.userId === currentUserId);
+
     if (user) {
       const urlParams = user.urlParams;
       return [
         window.origin,
-        'html5client/join',
-        urlParams.meetingId,
-        urlParams.userId,
-        urlParams.authToken,
+        `html5client/join?sessionToken=${urlParams.sessionToken}`,
       ].join('/');
     }
   }
+  return '';
 };
 
 export default {
