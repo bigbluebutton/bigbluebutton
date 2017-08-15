@@ -1,6 +1,6 @@
 config = require("./config")
 Logger = require("./logger")
-
+IDMapping = require("./id_mapping")
 module.exports = class MessageMapping
 
   constructor: ->
@@ -64,8 +64,8 @@ module.exports = class MessageMapping
       "id": @mapInternalMessage(messageObj.header.name),
       "attributes":{
         "meeting":{
-          "internal-meeting-id": messageObj.payload.meeting_id
-          #"external-meeting-id": messageObj.payload.?
+          "internal-meeting-id": messageObj.payload.meeting_id,
+          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.payload.meeting_id)
         },
         "user":{
           "internal-user-id": messageObj.payload.user.userid,
@@ -83,7 +83,7 @@ module.exports = class MessageMapping
         "name": messageObj.payload.user.name,
         "role": messageObj.payload.user.role,
         "presenter": messageObj.payload.user.presenter,
-        #"sharing-mic"]: messageObj.payload.user. ?
+        "sharing-mic": messageObj.payload.user.voiceUser.joined
         "sharing-video": messageObj.payload.user.has_stream,
         "listening-only": messageObj.payload.user.listenOnly
       }
@@ -97,8 +97,8 @@ module.exports = class MessageMapping
       "id": @mapInternalMessage(messageObj.header.name),
       "attributes":{
         "meeting":{
-          "internal-meeting-id": messageObj.payload.meeting_id
-          #{}"external-meeting-id": messageObj.payload.?
+          "internal-meeting-id": messageObj.payload.meeting_id,
+          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.payload.meeting_id)
         },
         "chat-message":{
           "message": messageObj.payload.message.message,
