@@ -775,15 +775,15 @@ $Id: $
   </mx:VBox>
   
   <mx:ControlBar width="100%" horizontalAlign="right">
+	<mx:VBox>
+		  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
+		  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />
+	</mx:VBox>
     <mx:Button id="emojiStatusBtn" icon="{getStyle('iconMood')}" width="30" height="30"
                accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
                toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()" />
     <mx:Button id="settingsBtn" icon="{getStyle('iconSettings')}" width="30" height="30"
                toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" />
-    <mx:VBox>
-      <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
-      <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />
-    </mx:VBox>
   </mx:ControlBar>
   
 </mdi:CustomMdiWindow>
