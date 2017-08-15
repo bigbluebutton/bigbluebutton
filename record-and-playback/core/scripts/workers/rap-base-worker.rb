@@ -36,7 +36,7 @@ module BigBlueButton
 
         # remove all workers that are not working anymore,
         # a simple form of garbage collection
-        prune_dead_workers
+        ::Resque.workers.first.prune_dead_workers
       end
 
       def perform
