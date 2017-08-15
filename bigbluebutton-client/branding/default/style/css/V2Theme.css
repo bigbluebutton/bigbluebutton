@@ -421,6 +421,9 @@ users|RoomActionsRenderer {
 }
 
 .breakoutTipBox {
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
 	horizontalAlign : center;
 }
 
@@ -815,7 +818,7 @@ flexlib|MDIWindow {
 	paddingLeft          : 0;
 	paddingRight         : 0;
 	paddingTop           : 0;
-	
+
 	borderThicknessRight : 0;
 	borderThicknessLeft  : 0;
 
@@ -1091,10 +1094,9 @@ presentation|UploadedPresentationRenderer {
 }
 
 .presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
-	backgroundColor   : #CDD4DB;
-	dropShadowEnabled : false;
-	paddingLeft       : 10;
-	paddingRight      : 10;
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
 }
 
 .presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
@@ -1391,11 +1393,19 @@ users|MoodMenu {
 */
 
 videoconf|UserGraphicHolder {
+	backgroundColor    : #FFFFFF;
 	iconPresenter      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Presenter");
 	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Moderator");
 	iconClose          : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
 	iconFullScreen     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fullscreen_White");
 	iconExitFullScreen : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Exit_Fullscreen_White");
+}
+
+.userGraphicBackground {
+	backgroundColor : #FFFFFF;
+	borderStyle     : solid;
+	borderColor     : #000000;
+	borderThickness : 0;
 }
 
 .videoToolbarBackgroundTalkingStyle {
