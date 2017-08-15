@@ -62,6 +62,8 @@ class ReceivedJsonMsgHandlerActor(
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
+      case UserJoinMeetingAfterReconnectReqMsg.NAME =>
+        routeGenericMsg[UserJoinMeetingAfterReconnectReqMsg](envelope, jsonNode)
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
