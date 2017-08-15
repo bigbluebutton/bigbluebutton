@@ -277,7 +277,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:TextArea width="100%" borderSkin="{null}" editable="false"
                      id="textArea" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"
                      styleName="titleWindowStyle"/>
-        <mx:Canvas width="100%" styleName="breakoutTipBox" backgroundColor="0xcccccc">
+        <mx:Canvas width="100%" styleName="breakoutTipBox">
             <mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
         </mx:Canvas>
         
