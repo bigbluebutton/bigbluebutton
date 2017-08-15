@@ -1171,6 +1171,22 @@ views|ReconnectionPopup {
 
 /*
 //------------------------------
+//  Scrollbar
+//------------------------------
+*/
+
+mx|ScrollBar {
+	cornerRadius  : 4;
+	downArrowSkin : ClassReference(null);
+	thumbSkin     : ClassReference("org.bigbluebutton.skins.ScrollThumbSkin");
+	trackSkin     : ClassReference("org.bigbluebutton.skins.ScrollTrackSkin");
+	upArrowSkin   : ClassReference(null);
+	thumbColor    : #BBBDBF;
+	trackColor    : #F5F6F8;
+}
+
+/*
+//------------------------------
 //  SharedNotes
 //------------------------------
 */
