@@ -26,7 +26,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   implements="org.bigbluebutton.common.IBbbModuleWindow"
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:common="org.bigbluebutton.common.*"
-  backgroundColor="#C0C0C0"
   initialize="init()"
   creationComplete="onCreationComplete()"
   verticalScrollPolicy="off" horizontalScrollPolicy="off"

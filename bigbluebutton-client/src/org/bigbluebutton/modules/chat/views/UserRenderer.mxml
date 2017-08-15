@@ -33,6 +33,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             color="{data.me ? 0x003399 : 0x000000}"/>
   -->
   <mx:Label id="nameLabel" textAlign="left" text="{data.name}"
-            fontWeight="{'normal'}"
-            color="{0x000000}"/>
+            fontWeight="{'normal'}"/>
 </mx:HBox>
