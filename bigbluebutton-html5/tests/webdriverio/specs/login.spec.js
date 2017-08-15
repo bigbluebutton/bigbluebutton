@@ -18,16 +18,7 @@ describe('Landing page', function () {
 
   it('should allow user to login if the username is specified and the Join button is clicked',
     function () {
-      chromeBrowser.windowHandleSize({width: 1000, height: 600});
-      chromeBrowser.windowHandlePosition({x: 0, y: 650});
-
-      firefoxBrowser.windowHandleSize({width: 1000, height: 600});
-      firefoxBrowser.windowHandlePosition({x: 0, y: 0});
-
-      //////////
-
       LandingPage.open();
-      //LandingPage.usernameInputElement.waitForExist();
 
       chromeBrowser.setValue(LandingPage.usernameInputSelector, 'Maxim');
       firefoxBrowser.setValue(LandingPage.usernameInputSelector, 'Anton');
@@ -52,17 +43,16 @@ describe('Landing page', function () {
     });
 
     it('should allow user to login if the username is specified and then Enter key is pressed',
-      function () {
+      function () { // Chrome-only
         LandingPage.open();
 
         chromeBrowser.setValue(LandingPage.usernameInputSelector, 'Maxim');
-        firefoxBrowser.setValue(LandingPage.usernameInputSelector, 'Anton');
         LandingPage.joinWithEnterKey();
         chromeBrowser.waitForExist(LandingPage.loadedHomePageSelector, 5000);
       });
 
     it('should not allow user to login if the username is not specified (login using Enter key)',
-      function () {
+      function () { // Chrome-only
         LandingPage.open();
 
         // we intentionally don't enter username here
