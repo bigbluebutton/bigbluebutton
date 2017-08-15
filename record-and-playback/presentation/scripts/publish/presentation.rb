@@ -363,7 +363,7 @@ def storePencilShape
            style: "stroke:none;fill:##{$color_hex};visibility:hidden") do
       $xml.circle(cx: $shapeDataPoints[0].to_f / 100 * $vbox_width,
                   cy: $shapeDataPoints[1].to_f / 100 * $vbox_height,
-                  r: $shapeThickness)
+                  r: $shapeThickness / 2)
     end
   else
     path = []
