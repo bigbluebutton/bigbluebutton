@@ -7,6 +7,7 @@ config = require("./config")
 Hook = require("./hook")
 IDMapping = require("./id_mapping")
 Logger = require("./logger")
+MessageMapping = require("./messageMapping")
 
 # Web hooks will listen for events on redis coming from BigBlueButton and
 # perform HTTP calls with them to all registered hooks.
@@ -26,20 +27,22 @@ module.exports = class WebHooks
     @subscriberEvents.on "pmessage", (pattern, channel, message) =>
 
       processMessage = =>
-        if @_filterMessage(channel, message)
-          Logger.info "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
-          @_processEvent(message)
+        Logger.info "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
+        @_processEvent(message)
 
       try
-        message = JSON.parse(message)
-        if message?
-          id = message.payload?.meeting_id
+        error = message
+        messageMapped = new MessageMapping()
+        messageMapped.mapMessage(JSON.parse(message))
+        message = messageMapped.mappedObject
+        if not _.isEmpty(message)
+          id = message.data.attributes.meeting["internal-meeting-id"]
           IDMapping.reportActivity(id)
 
           # First treat meeting events to add/remove ID mappings
-          if message.header?.name is "meeting_created_message"
+          if message.data?.id is "meeting-created"
             Logger.info "WebHooks: got create message on meetings channel [#{channel}]", message
-            IDMapping.addOrUpdateMapping message.payload?.meeting_id, message.payload?.external_meeting_id, (error, result) ->
+            IDMapping.addOrUpdateMapping message.data.attributes.meeting["internal-meeting-id"], message.data.attributes.meeting["external-meeting-id"], (error, result) ->
               # has to be here, after the meeting was created, otherwise create calls won't generate
               # callback calls for meeting hooks
               processMessage()
@@ -55,18 +58,9 @@ module.exports = class WebHooks
             processMessage()
 
       catch e
-        Logger.error "WebHooks: error processing the message", message, ":", e
+        Logger.error "WebHooks: error processing the message", error, ":", e
 
     @subscriberEvents.psubscribe config.hooks.pchannel
-
-  # Returns whether the message read from redis should generate a callback
-  # call or not.
-  _filterMessage: (channel, message) ->
-    for event in config.hooks.events
-      if channel? and message.header?.name? and
-         event.channel.match(channel) and event.name.match(message.header?.name)
-          return true
-    false
 
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
@@ -78,7 +72,7 @@ module.exports = class WebHooks
 
     # filter the hooks that need to receive this event
     # only global hooks or hooks for this specific meeting
-    idFromMessage = message.payload?.meeting_id
+    idFromMessage = message.data?.attributes.meeting["internal-meeting-id"]
     if idFromMessage?
       eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
