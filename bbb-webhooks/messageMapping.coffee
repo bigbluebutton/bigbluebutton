@@ -34,8 +34,6 @@ module.exports = class MessageMapping
         "ts": messageObj.header.current_time
       }
     }
-    @mappedObject.data.attributes.meeting["external-meeting-id"] = messageObj.payload.external_meeting_id
-    @mappedObject.data.attributes.meeting["internal-meeting-id"] = messageObj.payload.meeting_id
     if messageObj.header.name is "meeting_created_message"
       @mappedObject.data.attributes = {
         "meeting":{
