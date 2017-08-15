@@ -5,6 +5,10 @@ let chai = require('chai');
 
 describe('Landing page', function () {
 
+  beforeEach(function () {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000; // default value is 10000
+  });
+
   it('should have correct title', function () {
     LandingPage.open();
 
