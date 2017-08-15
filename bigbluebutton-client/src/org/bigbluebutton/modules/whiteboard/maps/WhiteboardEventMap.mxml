@@ -89,19 +89,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  </EventHandlers>
 	  
 	    <Injectors target="{WhiteboardManager}">
-	        <ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	        <PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 	    </Injectors>	
 			
 		<Injectors target="{WhiteboardService}">
 			<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
 			<PropertyInjector targetKey="sender" source="{MessageSender}"/>
-	    <PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 		</Injectors>
 		
 		<Injectors target="{MessageReceiver}">
-			<ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
-			<PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 		</Injectors>
 	</fx:Declarations>
 </EventMap>

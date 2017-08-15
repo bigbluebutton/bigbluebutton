@@ -3,6 +3,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import flash.geom.Point;
 	import flash.utils.Timer;
 	
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 
 	public class CursorPositionListener {
@@ -14,8 +16,6 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private var _lastXPosition:Number;
 		private var _lastYPosition:Number;
 		
-		private var _amIPresenter:Boolean;
-		private var _multiUser:Boolean;
 		
 		public function CursorPositionListener(wbCanvas:WhiteboardCanvas, shapeFactory:ShapeFactory) {
 			_wbCanvas = wbCanvas;
@@ -29,17 +29,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		public function presenterChange(amIPresenter:Boolean):void {
-			_amIPresenter = amIPresenter;
 			verifyTimerState();
 		}
 		
 		public function multiUserChange(multiUser:Boolean):void {
-			_multiUser = multiUser;
 			verifyTimerState();
 		}
 		
 		private function verifyTimerState():void {
-			if (_amIPresenter || _multiUser) {
+			if (UsersUtil.amIPresenter() || LiveMeeting.inst().whiteboardModel.multiUser) {
 				startTimer();
 			} else {
 				stopTimer();

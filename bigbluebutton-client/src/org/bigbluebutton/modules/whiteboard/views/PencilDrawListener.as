@@ -21,14 +21,11 @@ package org.bigbluebutton.modules.whiteboard.views
   import flash.geom.Point;
   
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
   
   public class PencilDrawListener implements IDrawListener

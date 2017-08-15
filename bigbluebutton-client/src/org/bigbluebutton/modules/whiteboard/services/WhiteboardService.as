@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class WhiteboardService
   {
@@ -32,7 +31,6 @@ package org.bigbluebutton.modules.whiteboard.services
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
-    public var whiteboardModel:WhiteboardModel;
 
     public function getAnnotationHistory(cmd:GetWhiteboardShapesCommand):void
     {
