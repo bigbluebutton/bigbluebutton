@@ -270,17 +270,15 @@ mx|ApplicationControlBar {
 
 .muteMeDefaultButtonStyle {
 	glowFilterColor : #1070D7;
-	icon            : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
-	disabledIcon    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
+	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
 
 .muteMeOnButtonStyle {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
 }
 
 .muteMeOffButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
 }
 
 .quickWindowLinkStyle {
