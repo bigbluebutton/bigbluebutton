@@ -38,10 +38,11 @@
 */
 
 global {
-	fontFamily : "Source Sans Pro", Arial, sans-serif;
-	fontSize   : 13;
-	color      : #2A2D33;
-	focusColor : #1070D7;
+	fontFamily     : "Source Sans Pro", Arial, sans-serif;
+	fontSize       : 13;
+	color          : #2A2D33;
+	focusColor     : #1070D7;
+	selectionColor : #CFE2F7;
 }
 
 .defaultShellStyle {
@@ -1365,8 +1366,7 @@ users|NameItemRenderer {
 }
 
 .usersGridStyle {
-	borderStyle    : none;
-	selectionColor : #F0F2F6;
+	borderStyle : none;
 }
 
 users|EmojiGrid {

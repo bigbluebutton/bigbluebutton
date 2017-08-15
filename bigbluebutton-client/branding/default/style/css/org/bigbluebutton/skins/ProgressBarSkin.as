@@ -68,7 +68,7 @@ package org.bigbluebutton.skins {
 			graphics.clear();
 
 			// fill
-			drawRoundRect(0, 0, w, h, 7.5, barColor, 1);
+			drawRoundRect(1, 1, w - 2, h - 2, 7.5, barColor, 1);
 		}
 	}
 }
