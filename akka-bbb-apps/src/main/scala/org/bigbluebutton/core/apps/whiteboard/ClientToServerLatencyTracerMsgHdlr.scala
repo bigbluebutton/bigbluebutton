@@ -15,7 +15,7 @@ trait ClientToServerLatencyTracerMsgHdlr {
       val envelope = BbbCoreEnvelope(ServerToClientLatencyTracerMsg.NAME, routing)
       val header = BbbClientMsgHeader(ServerToClientLatencyTracerMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-      val body = ServerToClientLatencyTracerMsgBody(msg.body.timestamp, msg.body.prettyTimestamp, msg.body.tzOffset, msg.body.senderId)
+      val body = ServerToClientLatencyTracerMsgBody(msg.body.timestampUTC, msg.body.rtt, msg.body.senderId)
       val event = ServerToClientLatencyTracerMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
