@@ -255,6 +255,8 @@ class UserList extends Component {
       intl,
       makeCall,
       meeting,
+      getAvailableActions,
+      normalizeEmojiName,
     } = this.props;
 
     const userActions = {
@@ -326,6 +328,8 @@ class UserList extends Component {
                     currentUser={currentUser}
                     userActions={userActions}
                     meeting={meeting}
+                    getAvailableActions={getAvailableActions}
+                    normalizeEmojiName={normalizeEmojiName}
                   />
                 ))
               }
@@ -335,7 +339,7 @@ class UserList extends Component {
       </div>
     );
   }
-  
+
   render() {
     return (
       <div className={styles.userList}>

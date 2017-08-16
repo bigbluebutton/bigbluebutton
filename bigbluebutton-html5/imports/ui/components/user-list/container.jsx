@@ -16,6 +16,8 @@ const UserListContainer = (props) => {
     isBreakoutRoom,
     children,
     meeting,
+    getAvailableActions,
+    normalizeEmojiName,
     } = props;
 
   return (
@@ -28,6 +30,8 @@ const UserListContainer = (props) => {
       isBreakoutRoom={isBreakoutRoom}
       makeCall={makeCall}
       userActions={userActions}
+      getAvailableActions={getAvailableActions}
+      normalizeEmojiName={normalizeEmojiName}
     >
       {children}
     </UserList>
@@ -42,4 +46,6 @@ export default createContainer(({ params }) => ({
   openChat: params.chatID,
   userActions: Service.userActions,
   isBreakoutRoom: meetingIsBreakout(),
+  getAvailableActions: Service.getAvailableActions,
+  normalizeEmojiName: Service.normalizeEmojiName,
 }), UserListContainer);

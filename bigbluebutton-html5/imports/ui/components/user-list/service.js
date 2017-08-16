@@ -203,6 +203,28 @@ const getOpenChats = (chatID) => {
     .sort(sortChats);
 };
 
+const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
+  const hasAuthority = currentUser.isModerator || user.isCurrent;
+  const allowedToChatPrivately = !user.isCurrent;
+  const allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
+  const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+  const allowedToResetStatus = hasAuthority && user.emoji.status !== 'none';
+
+  // if currentUser is a moderator, allow kicking other users
+  const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+
+  const allowedToSetPresenter = currentUser.isModerator && !user.isPresenter;
+
+  return {
+    allowedToChatPrivately,
+    allowedToMuteAudio,
+    allowedToUnmuteAudio,
+    allowedToResetStatus,
+    allowedToKick,
+    allowedToSetPresenter,
+  };
+};
+
 const getCurrentUser = () => {
   const currentUserId = Auth.userID;
   const currentUser = Users.findOne({ userId: currentUserId });
@@ -210,8 +232,24 @@ const getCurrentUser = () => {
   return (currentUser) ? mapUser(currentUser) : null;
 };
 
+const normalizeEmojiName = (emoji) => {
+  const emojisNormalized = {
+    agree: 'thumbs_up',
+    disagree: 'thumbs_down',
+    thumbsUp: 'thumbs_up',
+    thumbsDown: 'thumbs_down',
+    raiseHand: 'hand',
+    away: 'time',
+    neutral: 'undecided',
+  };
+
+  return emoji in emojisNormalized ? emojisNormalized[emoji] : emoji;
+};
+
 export default {
   getUsers,
   getOpenChats,
   getCurrentUser,
+  getAvailableActions,
+  normalizeEmojiName,
 };
