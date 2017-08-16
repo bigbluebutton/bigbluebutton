@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import java.io.{ PrintWriter, StringWriter }
 
 import org.bigbluebutton.core.apps.users._
+import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 //import java.util.concurrent.TimeUnit
@@ -78,7 +79,8 @@ class MeetingActor(
     with SendTimeRemainingUpdateHdlr
     with SendBreakoutTimeRemainingMsgHdlr
     with ChangeLockSettingsInMeetingCmdMsgHdlr
-    with SyncGetMeetingInfoRespMsgHdlr {
+    with SyncGetMeetingInfoRespMsgHdlr
+    with ClientToServerLatencyTracerMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -207,6 +209,7 @@ class MeetingActor(
       case m: GetWhiteboardAccessReqMsg      => handleGetWhiteboardAccessReqMsg(m)
       case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
       case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
+      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
       case m: StartPollReqMsg                => handleStartPollReqMsg(m)

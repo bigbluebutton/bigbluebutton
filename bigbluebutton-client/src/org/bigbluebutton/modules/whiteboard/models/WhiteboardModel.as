@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.whiteboard.models
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
@@ -39,7 +40,36 @@ package org.bigbluebutton.modules.whiteboard.models
 		
 		private var _multiUser:Boolean = false;
 
-    public var _dispatcher:Dispatcher = new Dispatcher();
+    private var _dispatcher:Dispatcher = new Dispatcher();
+    
+    private var _lastTraceSentOn: Date = new Date();
+    private var _lastTraceReceivedOn: Date = new Date();
+    private var _roundTripTime: Number = 0;
+
+    public function sentLastTrace(date: Date):void {
+      _lastTraceSentOn = date;
+    }
+    
+    public function get lastTraceSentOn(): Date {
+      return _lastTraceSentOn;
+    }
+    
+    public function set lastTraceReceivedTimestamp(ts: Number): void {
+      var tsDate: Date = new Date(ts);
+      var now: Date = new Date();
+      _roundTripTime = (now.time - tsDate.time) / 1000;
+      
+      _dispatcher.dispatchEvent(new RoundTripLatencyReceivedEvent());
+    }
+    
+    public function get latencyInSec(): Number {
+      if (_lastTraceReceivedOn.time < _lastTraceSentOn.time) {
+        var now: Date = new Date();
+        return (now.time - _lastTraceSentOn.time) / 1000;
+      } else {
+        return (_lastTraceReceivedOn.time - _lastTraceSentOn.time) / 1000;
+      }
+    }
     
 
     private function getWhiteboard(id:String, requestHistory:Boolean=true):Whiteboard {

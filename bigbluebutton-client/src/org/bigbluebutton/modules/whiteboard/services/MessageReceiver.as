@@ -58,6 +58,9 @@ package org.bigbluebutton.modules.whiteboard.services
         case "SendCursorPositionEvtMsg":
           handleSendCursorPositionEvtMsg(message);
           break;
+        case "ServerToClientLatencyTracerMsg":
+          handleServerToClientLatencyTracerMsg(message);
+          break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
@@ -115,6 +118,13 @@ package org.bigbluebutton.modules.whiteboard.services
 	  var yPercent:Number = message.body.yPercent as Number;
       
     LiveMeeting.inst().whiteboardModel.updateCursorPosition(userId, xPercent, yPercent);
+    }
+    
+    private function handleServerToClientLatencyTracerMsg(message:Object):void {
+      var userId:String = message.body.senderId as String;
+      var timestamp:Number = message.body.timestamp as Number;
+      
+      LiveMeeting.inst().whiteboardModel.lastTraceReceivedTimestamp = timestamp;
     }
   }
 }
