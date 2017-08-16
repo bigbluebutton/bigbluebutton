@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
 import { injectIntl } from 'react-intl';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import _ from 'lodash';
-import UserActions from './user-actions/component';
 import UserListContent from './user-list-content/component';
-import styles from './styles.scss';
 
 const normalizeEmojiName = (emoji) => {
   const emojisNormalized = {
@@ -71,18 +69,30 @@ class UserListItem extends Component {
       allowedToKick,
       allowedToSetPresenter } = actions;
 
+
     return _.compact([
-      (allowedToChatPrivately ? <UserActions action={openChat} options={[router, user]} /> : null),
-      (allowedToMuteAudio ? <UserActions action={unmute} options={[user]} /> : null),
-      (allowedToUnmuteAudio ? <UserActions action={mute} options={[user]} /> : null),
-      (allowedToResetStatus ? <UserActions action={clearStatus} options={[user]} /> : null),
-      (allowedToSetPresenter ? <UserActions action={setPresenter} options={[user]} /> : null),
-      (allowedToKick ? <UserActions action={kick} options={[router, user]} /> : null),
+      (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
+      (allowedToMuteAudio ? this.renderUserAction(unmute, user) : null),
+      (allowedToUnmuteAudio ? this.renderUserAction(mute, user) : null),
+      (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
+      (allowedToSetPresenter ? this.renderUserAction(setPresenter, user) : null),
+      (allowedToKick ? this.renderUserAction(kick, user) : null),
     ]);
   }
 
-  getDropdownMenuParent() {
-    return findDOMNode(this.dropdown);
+
+  renderUserAction(action, ...parameters) {
+    const userAction = (
+      <DropdownListItem
+        key={_.uniqueId('action-item-')}
+        icon={action.icon}
+        label={action.label}
+        defaultMessage={action.label}
+        onClick={action.handler.bind(this, ...parameters)}
+      />
+    );
+
+    return userAction;
   }
 
   render() {

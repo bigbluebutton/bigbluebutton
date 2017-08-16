@@ -42,6 +42,18 @@ const messages = defineMessages({
 });
 
 class UserListContent extends Component {
+
+  /**
+   * Return true if the content fit on the screen, false otherwise.
+   *
+   * @param {number} contentOffSetTop
+   * @param {number} contentOffsetHeight
+   * @return True if the content fit on the screen, false otherwise.
+   */
+  static checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
+    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
+  }
+
   constructor(props) {
     super(props);
 
@@ -113,7 +125,8 @@ class UserListContent extends Component {
       };
 
       const isDropdownVisible =
-        this.checkIfDropdownIsVisible(dropdownContent.offsetTop, dropdownContent.offsetHeight);
+        UserListContent.checkIfDropdownIsVisible(dropdownContent.offsetTop,
+                                                 dropdownContent.offsetHeight);
 
       if (!isDropdownVisible) {
         const offsetPageTop =
@@ -128,42 +141,20 @@ class UserListContent extends Component {
   }
 
   /**
-   * Return true if the content fit on the screen, false otherwise.
-   *
-   * @param {number} contentOffSetTop
-   * @param {number} contentOffsetHeight
-   * @return True if the content fit on the screen, false otherwise.
-   */
-  checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
-    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
-  }
-
-  /**
   * Check if the dropdown is visible and is opened by the user
   *
   * @return True if is visible and opened by the user.
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
-    if (isActionsOpen && dropdownVisible) {
-      this.focusDropdown();
-    }
-    return isActionsOpen && !dropdownVisible;
-  }
-
-  focusDropdown() {
     const list = findDOMNode(this.list);
-    for (let i = 0; i < list.children.length; i++) {
-      if (list.children[i].getAttribute('role') === 'menuitem') {
-        list.children[i].focus();
-        break;
-      }
+
+    if (isActionsOpen && dropdownVisible) {
+      const childrens = [].slice.call(list.children);
+      childrens.find(child => child.getAttribute('role') === 'menuitem').focus();
     }
 
-    // The list children is a instance of HTMLCollection, there is no find, some, etc methods
-    /* const childrens = [].slice.call(list.children);
-
-    childrens.find(child => child.getAttribute('role') === 'menuitem').focus(); */
+    return isActionsOpen && !dropdownVisible;
   }
 
   render() {
