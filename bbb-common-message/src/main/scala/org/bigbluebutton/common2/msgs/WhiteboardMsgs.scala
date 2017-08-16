@@ -3,6 +3,15 @@ package org.bigbluebutton.common2.msgs
 case class AnnotationVO(id: String, status: String, annotationType: String,
                         annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
 
+object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }
+case class ClientToServerLatencyTracerMsg(header: BbbClientMsgHeader, body: ClientToServerLatencyTracerMsgBody) extends StandardMsg
+case class ClientToServerLatencyTracerMsgBody(timestamp: Long, prettyTimestamp: String, tzOffset: Long,  senderId: String)
+
+object ServerToClientLatencyTracerMsg { val NAME = "ServerToClientLatencyTracerMsg" }
+case class ServerToClientLatencyTracerMsg(header: BbbClientMsgHeader, body: ServerToClientLatencyTracerMsgBody) extends BbbCoreMsg
+case class ServerToClientLatencyTracerMsgBody(timestamp: Long, prettyTimestamp: String, tzOffset: Long, senderId: String)
+
+
   object ClearWhiteboardEvtMsg {
     val NAME = "ClearWhiteboardEvtMsg"
   }

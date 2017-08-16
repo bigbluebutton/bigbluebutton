@@ -166,6 +166,9 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+      case ClientToServerLatencyTracerMsg.NAME =>
+        log.info("-- trace --" + jsonNode.toString)
+        routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
 
       // Presentation
       case SetCurrentPresentationPubMsg.NAME =>
