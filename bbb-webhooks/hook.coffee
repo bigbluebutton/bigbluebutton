@@ -80,7 +80,7 @@ module.exports = class Hook
     r =
       "hookID": @id,
       "callbackURL": @callbackURL,
-      "permanent": @permanent
+      "permanent": @permanent,
       "backupURL": @backupURL
     r.externalMeetingID = @externalMeetingID if @externalMeetingID?
     r
@@ -127,10 +127,10 @@ module.exports = class Hook
       Logger.info msg
 
       hook = new Hook()
-      hook.id = nextID++
       hook.callbackURL = firstURL
       hook.externalMeetingID = meetingID
       hook.permanent = if firstURL in config.hooks.aggr then true else false
+      if hook.permanent then hook.id = 1;nextID++ else hook.id = nextID++
       # Create backup URLs list
       backupURLs = if callbackURL instanceof Array then callbackURL else []
       backupURLs.push(firstURL); backupURLs.shift()
@@ -140,7 +140,7 @@ module.exports = class Hook
 
   @removeSubscription = (hookID, callback) ->
     hook = Hook.getSync(hookID)
-    if hook? and not hook.permanent
+    if hook? and hook.permanent is "false" or hook.permanent is false
       msg = "Hook: removing the hook with callback URL [#{hook.callbackURL}]"
       msg += " for the meeting [#{hook.externalMeetingID}]" if hook.externalMeetingID?
       Logger.info msg
@@ -198,7 +198,7 @@ module.exports = class Hook
     client = redis.createClient()
     # Remove previous permanent hook (always ID = 1)
     client.srem config.redis.keys.hooks, 1, (error, reply) =>
-      Logger.info "Error removing ID from list", error if error?
+      Logger.error "Error removing ID from list", error if error?
       client.del config.redis.keys.hook(1), (error) =>
         Logger.error "Hook: error removing hook from redis!", error if error?
 
