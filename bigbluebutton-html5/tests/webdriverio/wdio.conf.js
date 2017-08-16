@@ -26,5 +26,10 @@ exports.config = {
       'tests/webdriverio/specs/login.spec.js',
     ],
   },
+  before: function() {
+    // make the properties that browsers share and the list of browserNames available:
+    browser.remotes = Object.keys(exports.config.capabilities);
+    browser.baseUrl = exports.config.baseUrl;
+  },
 };
 

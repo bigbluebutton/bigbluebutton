@@ -2,6 +2,7 @@
 
 let LandingPage = require('../pageobjects/landing.page');
 let chai = require('chai');
+let utils = require('../utils');
 
 describe('Landing page', function () {
 
@@ -11,9 +12,7 @@ describe('Landing page', function () {
 
   it('should have correct title', function () {
     LandingPage.open();
-
-    chai.expect(chromeBrowser.getTitle()).to.equal(LandingPage.title);
-    chai.expect(firefoxBrowser.getTitle()).to.equal(LandingPage.title);
+    utils.assertTitle(LandingPage.title);
   });
 
   it('should allow user to login if the username is specified and the Join button is clicked',
@@ -38,8 +37,7 @@ describe('Landing page', function () {
       browser.pause(5000); // amount of time we usually wait for the home page to appear
 
       // verify that we are still on the landing page
-      chai.expect(browser.getUrl().chromeBrowser).to.equal(LandingPage.url);
-      chai.expect(browser.getUrl().firefoxBrowser).to.equal(LandingPage.url);
+      utils.assertUrl(LandingPage.url);
     });
 
     it('should allow user to login if the username is specified and then Enter key is pressed',

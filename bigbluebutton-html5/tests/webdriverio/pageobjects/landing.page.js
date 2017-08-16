@@ -2,6 +2,7 @@
 
 let Page = require('./page');
 let pageObject = new Page();
+let chai = require('chai');
 
 class LandingPage extends Page {
   open() {
@@ -13,7 +14,7 @@ class LandingPage extends Page {
   }
 
   get url() {
-    return 'http://localhost:8080/demo/demoHTML5.jsp';
+    return `${browser.baseUrl}/demo/demoHTML5.jsp`;
   }
 
   // Username input field on the HTML5 client's landing page:
