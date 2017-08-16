@@ -18,9 +18,12 @@
  */
 package org.bigbluebutton.modules.whiteboard.services
 {
+  import com.asfusion.mate.events.Dispatcher;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.events.PerformRttTraceEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
@@ -29,6 +32,8 @@ package org.bigbluebutton.modules.whiteboard.services
   {
 	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
     
+  private var _dispatcher:Dispatcher = new Dispatcher();
+  
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
     }
@@ -60,6 +65,9 @@ package org.bigbluebutton.modules.whiteboard.services
           break;
         case "ServerToClientLatencyTracerMsg":
           handleServerToClientLatencyTracerMsg(message);
+          break;
+        case "DoLatencyTracerMsg":
+          handleDoLatencyTracerMsg(message);
           break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
@@ -122,9 +130,13 @@ package org.bigbluebutton.modules.whiteboard.services
     
     private function handleServerToClientLatencyTracerMsg(message:Object):void {
       var userId:String = message.body.senderId as String;
-      var timestamp:Number = message.body.timestamp as Number;
+      var timestamp:Number = message.body.timestampUTC as Number;
       
       LiveMeeting.inst().whiteboardModel.lastTraceReceivedTimestamp = timestamp;
+    }
+    
+    private function handleDoLatencyTracerMsg(message:Object):void {
+      _dispatcher.dispatchEvent(new PerformRttTraceEvent()); 
     }
   }
 }
