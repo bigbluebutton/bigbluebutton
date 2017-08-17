@@ -213,6 +213,7 @@ body {
   position: fixed;
   background: red;
   z-index: 10;
+  opacity: 0.6;
 }
 #main-section {
   padding: 10px 10px 25px 10px;
