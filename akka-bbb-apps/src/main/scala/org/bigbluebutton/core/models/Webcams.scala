@@ -12,8 +12,16 @@ object Webcams {
   def findAll(webcams: Webcams): Vector[WebcamStream] = webcams.toVector
 
   def addWebcamBroadcastStream(webcams: Webcams, webcamStream: WebcamStream): Option[WebcamStream] = {
-    webcams.save(webcamStream)
-    Some(webcamStream)
+
+    findWithStreamId(webcams, webcamStream.streamId) match {
+      case Some(p) => {
+        None
+      }
+      case None => {
+        webcams.save(webcamStream)
+        Some(webcamStream)
+      }
+    }
   }
 
   def removeWebcamBroadcastStream(webcams: Webcams, streamId: String): Option[WebcamStream] = {
