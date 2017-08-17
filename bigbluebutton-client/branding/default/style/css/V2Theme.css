@@ -971,9 +971,8 @@ mx|Panel {
 //------------------------------
 */
 
-presentation|UploadedPresentationRenderer {
-	iconSave      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
-	iconSaveWhite : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File_White");
+.presentationUploadDownloadButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
 }
 
 .presentationWindowControlsStyle {
@@ -993,7 +992,6 @@ presentation|UploadedPresentationRenderer {
 	textRollOverColor : #3F3F41;
 	textSelectedColor : #3F3F41;
 	borderColor       : #B9BABC;
-	cornerRadius      : 5;
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
 }
 
@@ -1066,12 +1064,7 @@ presentation|UploadedPresentationRenderer {
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
 }
 
-.presentationNameLabelOver {
-	color    : #FFFFFF;
-	fontSize : 14;
-}
-
-.presentationNameLabelUp {
+.presentationNameLabel {
 	color    : #05172A;
 	fontSize : 14;
 }
