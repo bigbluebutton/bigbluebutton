@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
@@ -40,6 +41,15 @@ const messages = defineMessages({
     description: 'aria label for each user in the userlist',
   },
 });
+
+const propTypes = {
+  compact: PropTypes.bool.isRequired,
+  user: PropTypes.object.isRequired,
+  intl: PropTypes.object.isRequired,
+  normalizeEmojiName: PropTypes.func.isRequired,
+  actions: PropTypes.array.isRequired,
+};
+
 
 class UserListContent extends Component {
 
@@ -108,7 +118,6 @@ class UserListContent extends Component {
     });
   }
 
-
   /**
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
@@ -126,7 +135,7 @@ class UserListContent extends Component {
 
       const isDropdownVisible =
         UserListContent.checkIfDropdownIsVisible(dropdownContent.offsetTop,
-                                                 dropdownContent.offsetHeight);
+          dropdownContent.offsetHeight);
 
       if (!isDropdownVisible) {
         const offsetPageTop =
@@ -159,19 +168,20 @@ class UserListContent extends Component {
 
   render() {
     const {
-    compact,
+      compact,
       user,
       intl,
       normalizeEmojiName,
       actions,
-  } = this.props;
+    } = this.props;
 
     const {
-    isActionsOpen,
+      isActionsOpen,
       dropdownVisible,
       dropdownDirection,
       dropdownOffset,
-  } = this.state;
+    } = this.state;
+
     const userItemContentsStyle = {};
 
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
@@ -276,4 +286,5 @@ class UserListContent extends Component {
   }
 }
 
+UserListContent.propTypes = propTypes;
 export default UserListContent;

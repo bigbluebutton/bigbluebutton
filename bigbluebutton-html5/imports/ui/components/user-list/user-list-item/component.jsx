@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { injectIntl } from 'react-intl';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import _ from 'lodash';
 import UserListContent from './user-list-content/component';
+import UserAction from './user-action/component';
 
 const normalizeEmojiName = (emoji) => {
   const emojisNormalized = {
@@ -32,14 +32,33 @@ const propTypes = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }).isRequired,
+
+  compact: PropTypes.bool.isRequired,
+  intl: PropTypes.object.isRequired,
+  userActions: PropTypes.object.isRequired,
+  router: PropTypes.object.isRequired,
+  isBreakoutRoom: PropTypes.bool.isRequired,
+  getAvailableActions: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   shouldShowActions: false,
+  isBreakoutRoom: false,
 };
 
 class UserListItem extends Component {
 
+  static createAction(action, ...options) {
+    return (
+      <UserAction
+        key={_.uniqueId('action-item-')}
+        icon={action.icon}
+        label={action.label}
+        handler={action.handler}
+        options={[...options]}
+      />
+    );
+  }
   getUsersActions() {
     const {
       currentUser,
@@ -69,30 +88,14 @@ class UserListItem extends Component {
       allowedToKick,
       allowedToSetPresenter } = actions;
 
-
     return _.compact([
-      (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
-      (allowedToMuteAudio ? this.renderUserAction(unmute, user) : null),
-      (allowedToUnmuteAudio ? this.renderUserAction(mute, user) : null),
-      (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
-      (allowedToSetPresenter ? this.renderUserAction(setPresenter, user) : null),
-      (allowedToKick ? this.renderUserAction(kick, user) : null),
+      (allowedToChatPrivately ? UserListItem.createAction(openChat, router, user) : null),
+      (allowedToMuteAudio ? UserListItem.createAction(unmute, user) : null),
+      (allowedToUnmuteAudio ? UserListItem.createAction(mute, user) : null),
+      (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
+      (allowedToSetPresenter ? UserListItem.createAction(setPresenter, user) : null),
+      (allowedToKick ? UserListItem.createAction(kick, user) : null),
     ]);
-  }
-
-
-  renderUserAction(action, ...parameters) {
-    const userAction = (
-      <DropdownListItem
-        key={_.uniqueId('action-item-')}
-        icon={action.icon}
-        label={action.label}
-        defaultMessage={action.label}
-        onClick={action.handler.bind(this, ...parameters)}
-      />
-    );
-
-    return userAction;
   }
 
   render() {

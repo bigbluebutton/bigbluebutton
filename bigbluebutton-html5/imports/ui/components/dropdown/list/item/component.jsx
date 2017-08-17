@@ -15,6 +15,7 @@ const defaultProps = {
   icon: '',
   label: '',
   description: '',
+  tabIndex: 0,
 };
 
 export default class DropdownListItem extends Component {

@@ -1,8 +1,9 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles';
 import cx from 'classnames';
+import UserAction from '/imports/ui/components/user-list/user-list-item/user-action/component';
 import KEY_CODES from '/imports/utils/keyCodes';
+import styles from './styles';
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';
@@ -10,14 +11,16 @@ import ListTitle from './title/component';
 const propTypes = {
   children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
     if (propValue[key].type !== ListItem &&
-        propValue[key].type !== ListSeparator &&
-        propValue[key].type !== ListTitle) {
+      propValue[key].type !== ListSeparator &&
+      propValue[key].type !== ListTitle &&
+      propValue[key].type !== UserAction) {
       return new Error(
         `Invalid prop \`${propFullName}\` supplied to` +
         ` \`${componentName}\`. Validation failed.`,
       );
     }
-  }),
+    return true;
+  }).isRequired,
 };
 
 export default class DropdownList extends Component {
@@ -29,36 +32,31 @@ export default class DropdownList extends Component {
     this.handleItemClick = this.handleItemClick.bind(this);
   }
 
-  componentDidMount() {
-    this._menu.addEventListener('keydown', event=>this.handleItemKeyDown(event));
-  }
-  
   componentWillMount() {
     this.setState({
       focusedIndex: 0,
     });
   }
-  
-  componentDidUpdate(prevProps, prevState) {
-    let { focusedIndex } = this.state;
 
-    this.menuRefs = [];
+  componentDidMount() {
+    this._menu.addEventListener('keydown', event => this.handleItemKeyDown(event));
+  }
 
-    for (let i = 0; i < (this._menu.children.length); i++) {
-      if (this._menu.children[i].getAttribute("role") === 'menuitem') {
-        this.menuRefs.push(this._menu.children[i]);
-      }
-    }
+  componentDidUpdate() {
+    const { focusedIndex } = this.state;
+
+    const childrens = [].slice.call(this._menu.children);
+    this.menuRefs = childrens.filter(child => child.getAttribute('role') === 'menuitem');
 
     const activeRef = this.menuRefs[focusedIndex];
-      
+
     if (activeRef) {
       activeRef.focus();
     }
   }
 
   handleItemKeyDown(event, callback) {
-    const { onActionsHide, getDropdownMenuParent, } = this.props;
+    const { getDropdownMenuParent } = this.props;
     let nextFocusedIndex = this.state.focusedIndex;
 
     if (KEY_CODES.ARROW_UP === event.which) {
@@ -68,7 +66,7 @@ export default class DropdownList extends Component {
 
       if (nextFocusedIndex < 0) {
         nextFocusedIndex = this.menuRefs.length - 1;
-      }else if (nextFocusedIndex > this.menuRefs.length - 1) {
+      } else if (nextFocusedIndex > this.menuRefs.length - 1) {
         nextFocusedIndex = 0;
       }
     }
@@ -90,30 +88,29 @@ export default class DropdownList extends Component {
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
       const { dropdownHide } = this.props;
-          
+
       event.stopPropagation();
       event.preventDefault();
-          
+
       dropdownHide();
       if (getDropdownMenuParent) {
         getDropdownMenuParent().focus();
       }
     }
 
-    this.setState({focusedIndex: nextFocusedIndex});
-    
+    this.setState({ focusedIndex: nextFocusedIndex });
+
     if (typeof callback === 'function') {
       callback(event);
     }
   }
 
   handleItemClick(event, callback) {
-    const { getDropdownMenuParent,  onActionsHide} = this.props;
-    const { dropdownHide } = this.props;
+    const { getDropdownMenuParent, onActionsHide, dropdownHide } = this.props;
 
-    if ( getDropdownMenuParent ) {
+    if (getDropdownMenuParent) {
       onActionsHide();
-    }else{
+    } else {
       this.setState({ focusedIndex: null });
       dropdownHide();
     }
@@ -127,7 +124,7 @@ export default class DropdownList extends Component {
     const { children, style, className } = this.props;
 
     const boundChildren = Children.map(children,
-      (item, i) => {
+      (item) => {
         if (item.type === ListSeparator) {
           return item;
         }
@@ -140,13 +137,13 @@ export default class DropdownList extends Component {
 
           onClick: (event) => {
             let { onClick } = item.props;
-            onClick = onClick ? onClick.bind(item) : null;
+            onClick = onClick ? () => onClick.call(item) : null;
             this.handleItemClick(event, onClick);
           },
 
           onKeyDown: (event) => {
             let { onKeyDown } = item.props;
-            onKeyDown = onKeyDown ? onKeyDown.bind(item) : null;
+            onKeyDown = onKeyDown ? () => onKeyDown.call(item) : null;
 
             this.handleItemKeyDown(event, onKeyDown);
           },
@@ -154,11 +151,16 @@ export default class DropdownList extends Component {
       });
 
     return (
-      <ul 
-        style={style} 
-        className={cx(styles.list, className)} 
-        role="menu" ref={(r) => this._menu = r}>
-          {boundChildren}
+      <ul
+        style={style}
+        className={cx(styles.list, className)}
+        role="menu"
+        ref={(r) => {
+          this._menu = r;
+          return r;
+        }}
+      >
+        {boundChildren}
       </ul>
     );
   }
