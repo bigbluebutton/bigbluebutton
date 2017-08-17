@@ -377,6 +377,7 @@ class MeetingActor(
     }
 
     if (now - lastRttTestSentOn > 60000) {
+      lastRttTestSentOn = now
       val event = buildDoLatencyTracerMsg(liveMeeting.props.meetingProp.intId)
       outGW.send(event)
     }

@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.model.users
 {
+  import flash.events.EventDispatcher;
   
-  public class User2x {
+  public class User2x extends EventDispatcher {
     public var intId: String;
     public var extId: String;
     public var name: String;
