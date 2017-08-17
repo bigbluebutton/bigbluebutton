@@ -80,9 +80,8 @@ FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 
 if [ -f /etc/redhat-release ]; then
-  echo "###"
   DISTRIB_ID=centos
-  SERVLET_LOGS=/usr/share/$SERVLET_CONTAINER/logs
+  SERVLET_LOGS=/usr/share/tomcat/logs
   FREESWITCH=freeswitch
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
   TOMCAT_USER=tomcat
@@ -90,7 +89,7 @@ if [ -f /etc/redhat-release ]; then
   REDIS_SERVICE=redis.service
 else
   . /etc/lsb-release    # Get value for DISTRIB_ID
-  SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
+  SERVLET_LOGS=/var/lib/tomcat7/logs
   FREESWITCH=freeswitch
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
   TOMCAT_USER=tomcat7
@@ -152,6 +151,12 @@ if LANG=c ifconfig | grep -q 'venet0:0'; then
 else
         # IP detection for et* and en* networks
 IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^wl.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^bo.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')"  | head -n1)
+fi
+
+if [ -z "$IP" ]; then
+  if [ -f /etc/redhat-release ]; then
+    IP=$(hostname -I | sed 's/ .*//g')
+  fi
 fi
 
 #
@@ -359,8 +364,8 @@ start_bigbluebutton () {
 
 	echo -n "Waiting for FreeSWITCH to start: "
 
-	if [ ! -z $FREESWITCH_ESL_IP ]; then
-		while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021 > /dev/null; do
+	if [[ ! -z $FREESWITCH_ESL_IP && $DISTRIB_ID != "centos" ]]; then
+		while ! nc -w 1 $FREESWITCH_ESL_IP 8021 > /dev/null; do
 			echo -n "."
 			sleep 1
 		done
@@ -1278,8 +1283,8 @@ check_state() {
 	#
 	# Check that BigBlueButton can connect to port 1935
 	#
-	if [ ! -z $NGINX_IP ]; then
-		if ! nc -z -w 3 $NGINX_IP 1935 > /dev/null; then
+	if [[ ! -z $NGINX_IP && $DISTRIB_ID != "centos" ]]; then
+		if ! nc -w 3 $NGINX_IP 1935 > /dev/null; then
 			echo "# Error: Unable to connect to port 1935 (RTMP) on $NGINX_IP"
 			echo 
 		fi
