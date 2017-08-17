@@ -84,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
       private function onCreationComplete():void {
-        multiUserBtn.enabled = multiUserBtn.visible = UsersUtil.amIPresenter();
+        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = UsersUtil.amIPresenter();
         
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
@@ -153,12 +153,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
-        multiUserBtn.enabled = multiUserBtn.visible = true;
+        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = true;
 				checkVisibility();
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
-        multiUserBtn.enabled = multiUserBtn.visible = false;
+        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = false;
 				checkToolReset();
 				checkVisibility();
 			}
