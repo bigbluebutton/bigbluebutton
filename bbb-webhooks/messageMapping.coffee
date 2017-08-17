@@ -139,6 +139,9 @@ module.exports = class MessageMapping
         "ts": messageObj.header.current_time
       }
     }
+    @mappedMessage = JSON.stringify(@mappedObject)
+    Logger.info "MessageMapping: Mapped message:", @mappedMessage
+
 
   mapInternalMessage: (message) ->
     mappedMsg = switch message
