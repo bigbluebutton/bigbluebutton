@@ -35,10 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
 			import org.bigbluebutton.modules.sharednotes.events.StopSharedNotesModuleEvent;
 			

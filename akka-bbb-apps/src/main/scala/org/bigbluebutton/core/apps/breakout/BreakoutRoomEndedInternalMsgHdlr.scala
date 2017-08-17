@@ -11,6 +11,8 @@ trait BreakoutRoomEndedInternalMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleBreakoutRoomEndedInternalMsg(msg: BreakoutRoomEndedInternalMsg, state: MeetingState2x): MeetingState2x = {
+    log.info("Received breakout room ended. breakoutId={}", msg.meetingId)
+
     // send out BreakoutRoomEndedEvtMsg to inform clients the breakout has ended
     outGW.send(MsgBuilder.buildBreakoutRoomEndedEvtMsg(liveMeeting.props.meetingProp.intId, "not-used",
       msg.meetingId))
@@ -21,7 +23,17 @@ trait BreakoutRoomEndedInternalMsgHdlr {
       breakoutModel.removeRoom(msg.meetingId)
     }
 
-    state.update(updatedModel)
+    updatedModel match {
+      case Some(model) =>
+        if (model.rooms.isEmpty) {
+          // All breakout rooms have ended
+          state.update(None)
+        } else {
+          state.update(Some(model))
+        }
+      case None =>
+        state
+    }
   }
 }
 

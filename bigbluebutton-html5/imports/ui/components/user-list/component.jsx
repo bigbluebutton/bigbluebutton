@@ -1,20 +1,26 @@
 import React, { Component } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import styles from './styles.scss';
 import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
-import UserListItem from './user-list-item/component.jsx';
-import ChatListItem from './chat-list-item/component.jsx';
+
 import KEY_CODES from '/imports/utils/keyCodes';
+import Button from '/imports/ui/components/button/component';
+
+import styles from './styles.scss';
+
+import UserListItem from './user-list-item/component';
+import ChatListItem from './chat-list-item/component';
 
 const propTypes = {
   openChats: PropTypes.array.isRequired,
   users: PropTypes.array.isRequired,
+  compact: PropTypes.bool,
 };
 
 const defaultProps = {
+  compact: false,
 };
 
 const listTransition = {
@@ -26,12 +32,57 @@ const listTransition = {
   leaveActive: styles.leaveActive,
 };
 
+const intlMessages = defineMessages({
+  usersTitle: {
+    id: 'app.userlist.usersTitle',
+    description: 'Title for the Header',
+  },
+  messagesTitle: {
+    id: 'app.userlist.messagesTitle',
+    description: 'Title for the messages list',
+  },
+  participantsTitle: {
+    id: 'app.userlist.participantsTitle',
+    description: 'Title for the Users list',
+  },
+  toggleCompactView: {
+    id: 'app.userlist.toggleCompactView.label',
+    description: 'Toggle user list view mode',
+  },
+  ChatLabel: {
+    id: 'app.userlist.menu.chat.label',
+    description: 'Save the changes and close the settings menu',
+  },
+  ClearStatusLabel: {
+    id: 'app.userlist.menu.clearStatus.label',
+    description: 'Clear the emoji status of this user',
+  },
+  MakePresenterLabel: {
+    id: 'app.userlist.menu.makePresenter.label',
+    description: 'Set this user to be the presenter in this meeting',
+  },
+  KickUserLabel: {
+    id: 'app.userlist.menu.kickUser.label',
+    description: 'Forcefully remove this user from the meeting',
+  },
+  MuteUserAudioLabel: {
+    id: 'app.userlist.menu.muteUserAudio.label',
+    description: 'Forcefully mute this user',
+  },
+  UnmuteUserAudioLabel: {
+    id: 'app.userlist.menu.unmuteUserAudio.label',
+    description: 'Forcefully unmute this user',
+  },
+});
+
 class UserList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       compact: this.props.compact,
     };
+
+    this.handleToggleCompactView = this.handleToggleCompactView.bind(this);
 
     this.rovingIndex = this.rovingIndex.bind(this);
     this.focusList = this.focusList.bind(this);
@@ -48,7 +99,7 @@ class UserList extends Component {
   rovingIndex(event, listType) {
     const { users, openChats } = this.props;
 
-    let active = document.activeElement;
+    const active = document.activeElement;
     let list;
     let items;
     let numberOfItems;
@@ -70,6 +121,7 @@ class UserList extends Component {
         items = this._msgItems;
         numberOfItems = openChats.length;
         break;
+      default: break;
     }
 
     if (event.keyCode === KEY_CODES.ESCAPE
@@ -85,7 +137,7 @@ class UserList extends Component {
     if (event.keyCode === KEY_CODES.ARROW_DOWN) {
       this.focusedItemIndex += 1;
 
-      if (this.focusedItemIndex == numberOfItems) {
+      if (this.focusedItemIndex === numberOfItems) {
         this.focusedItemIndex = 0;
       }
       focusElement();
@@ -100,6 +152,10 @@ class UserList extends Component {
 
       focusElement();
     }
+  }
+
+  handleToggleCompactView() {
+    this.setState({ compact: !this.state.compact });
   }
 
   componentDidMount() {
@@ -120,15 +176,6 @@ class UserList extends Component {
     window.dispatchEvent(new Event('resize'));
   }
 
-  render() {
-    return (
-      <div className={styles.userList}>
-        {this.renderHeader()}
-        {this.renderContent()}
-      </div>
-    );
-  }
-
   renderHeader() {
     const { intl } = this.props;
 
@@ -140,6 +187,13 @@ class UserList extends Component {
               {intl.formatMessage(intlMessages.participantsTitle)}
             </div> : null
         }
+        {/* <Button
+          label={intl.formatMessage(intlMessages.toggleCompactView)}
+          hideLabel
+          icon={!this.state.compact ? 'left_arrow' : 'right_arrow'}
+          className={styles.btnToggle}
+          onClick={this.handleToggleCompactView}
+        /> */}
       </div>
     );
   }
@@ -234,12 +288,12 @@ class UserList extends Component {
       },
       mute: {
         label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => makeCall('muteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => makeCall('unmuteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_on',
       },
     };
@@ -289,46 +343,18 @@ class UserList extends Component {
       </div>
     );
   }
+  
+  render() {
+    return (
+      <div className={styles.userList}>
+        {this.renderHeader()}
+        {this.renderContent()}
+      </div>
+    );
+  }
 }
 
-const intlMessages = defineMessages({
-  usersTitle: {
-    id: 'app.userlist.usersTitle',
-    description: 'Title for the Header',
-  },
-  messagesTitle: {
-    id: 'app.userlist.messagesTitle',
-    description: 'Title for the messages list',
-  },
-  participantsTitle: {
-    id: 'app.userlist.participantsTitle',
-    description: 'Title for the Users list',
-  },
-  ChatLabel: {
-    id: 'app.userlist.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
-  },
-  ClearStatusLabel: {
-    id: 'app.userlist.menu.clearStatus.label',
-    description: 'Clear the emoji status of this user',
-  },
-  MakePresenterLabel: {
-    id: 'app.userlist.menu.makePresenter.label',
-    description: 'Set this user to be the presenter in this meeting',
-  },
-  KickUserLabel: {
-    id: 'app.userlist.menu.kickUser.label',
-    description: 'Forcefully remove this user from the meeting',
-  },
-  MuteUserAudioLabel: {
-    id: 'app.userlist.menu.muteUserAudio.label',
-    description: 'Forcefully mute this user',
-  },
-  UnmuteUserAudioLabel: {
-    id: 'app.userlist.menu.unmuteUserAudio.label',
-    description: 'Forcefully unmute this user',
-  },
-});
-
 UserList.propTypes = propTypes;
+UserList.defaultProps = defaultProps;
+
 export default withRouter(injectIntl(UserList));

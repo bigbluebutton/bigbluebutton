@@ -25,25 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          verticalScrollPolicy="off"
          creationComplete="onCreationComplete()">
   
-  <fx:Style>
-    .notesColorPickerStyle {
-      backgroundColor:#E5E6E7;
-      columnCount:12;
-      horizontalGap:0;
-      previewHeight:22;
-      previewWidth:45;
-      swatchGridBackgroundColor:#000000;
-      swatchGridBorderSize:0;
-      swatchHeight:60;
-      swatchHighlightColor:#FFFFFF;
-      swatchHighlightSize:1;
-      swatchWidth:12;
-      textFieldWidth:72;
-      verticalGap:0;
-    }
-    
-  </fx:Style>
-   
   <fx:Script>
     <![CDATA[
       import com.adobe.utils.StringUtil;

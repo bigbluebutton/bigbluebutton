@@ -24,7 +24,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: MeetingCreatedEvtMsg => handleMeetingCreatedEvtMsg(m)
       case m: MeetingEndedEvtMsg => handleMeetingEndedEvtMsg(m)
       case m: MeetingDestroyedEvtMsg => handleMeetingDestroyedEvtMsg(m)
-      case m: PubSubPongSysRespMsg => handlePubSubPongSysRespMsg(m)
+      case m: CheckAlivePongSysMsg => handleCheckAlivePongSysMsg(m)
       case m: UserEmojiChangedEvtMsg => handleUserEmojiChangedEvtMsg(m)
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
       case m: UserLeftMeetingEvtMsg => handleUserLeftMeetingEvtMsg(m)
@@ -66,7 +66,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   }
 
-  def handlePubSubPongSysRespMsg(msg: PubSubPongSysRespMsg): Unit = {
+  def handleCheckAlivePongSysMsg(msg: CheckAlivePongSysMsg): Unit = {
     olgMsgGW.handle(new org.bigbluebutton.api.messaging.messages.KeepAliveReply(msg.body.system, msg.body.timestamp))
   }
 

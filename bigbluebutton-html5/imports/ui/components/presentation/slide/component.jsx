@@ -7,9 +7,12 @@ export default class Slide extends React.Component {
   }
 
   render() {
+
+    const imageUri = this.props.currentSlide.svgUri || this.props.currentSlide.pngUri;
+
     return (
       <g>
-        {this.props.slideHref ?
+        {imageUri ?
           //some pdfs lose a white background color during the conversion to svg
           //their background color is transparent
           //that's why we have a white rectangle covering the whole slide area by default
@@ -26,12 +29,12 @@ export default class Slide extends React.Component {
               y="0"
               width={this.props.svgWidth}
               height={this.props.svgHeight}
-              xlinkHref={this.props.slideHref}
+              xlinkHref={imageUri}
               strokeWidth="0.8"
               style={{ WebkitTapHighlightColor: 'transparent' }}
             />
           </g>
-        : null }
+          : null}
       </g>
     );
   }

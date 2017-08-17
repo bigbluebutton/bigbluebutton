@@ -8,7 +8,6 @@ import UserList from './component';
 
 const UserListContainer = (props) => {
   const {
-    compact,
     users,
     currentUser,
     openChats,
@@ -21,7 +20,6 @@ const UserListContainer = (props) => {
 
   return (
     <UserList
-      compact={compact}
       users={users}
       meeting={meeting}
       currentUser={currentUser}

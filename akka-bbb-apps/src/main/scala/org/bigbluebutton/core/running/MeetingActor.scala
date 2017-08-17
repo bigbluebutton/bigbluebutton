@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import java.io.{ PrintWriter, StringWriter }
 
 import org.bigbluebutton.core.apps.users._
+import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 //import java.util.concurrent.TimeUnit
@@ -34,6 +35,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
+import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 
 object MeetingActor {
   def props(
@@ -63,6 +65,7 @@ class MeetingActor(
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
+    with UserJoinMeetingAfterReconnectReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
     with UserConnectedToGlobalAudioMsgHdlr
     with UserDisconnectedFromGlobalAudioMsgHdlr
@@ -76,7 +79,8 @@ class MeetingActor(
     with SendTimeRemainingUpdateHdlr
     with SendBreakoutTimeRemainingMsgHdlr
     with ChangeLockSettingsInMeetingCmdMsgHdlr
-    with SyncGetMeetingInfoRespMsgHdlr {
+    with SyncGetMeetingInfoRespMsgHdlr
+    with ClientToServerLatencyTracerMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -124,6 +128,8 @@ class MeetingActor(
   )
 
   var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+
+  var lastRttTestSentOn = System.currentTimeMillis()
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -173,11 +179,15 @@ class MeetingActor(
     state = state.update(tracker)
 
     msg.core match {
+      case m: EndMeetingSysCmdMsg => handleEndMeeting(m, state)
+
       // Users
       case m: ValidateAuthTokenReqMsg =>
         state = usersApp.handleValidateAuthTokenReqMsg(m, state)
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
+      case m: UserJoinMeetingAfterReconnectReqMsg =>
+        state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
       case m: UserBroadcastCamStartMsg  => handleUserBroadcastCamStartMsg(m)
@@ -185,12 +195,13 @@ class MeetingActor(
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-      case m: LogoutAndEndMeetingCmdMsg      => usersApp.handleLogoutAndEndMeetingCmdMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg      => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg       => usersApp.handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg       => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg          => handleChangeUserEmojiCmdMsg(m)
       case m: EjectUserFromMeetingCmdMsg     => usersApp.handleEjectUserFromMeetingCmdMsg(m)
       case m: GetUsersMeetingReqMsg          => usersApp.handleGetUsersMeetingReqMsg(m)
+      case m: ChangeUserRoleCmdMsg           => usersApp.handleChangeUserRoleCmdMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg       => handleSendCursorPositionPubMsg(m)
@@ -200,6 +211,7 @@ class MeetingActor(
       case m: GetWhiteboardAccessReqMsg      => handleGetWhiteboardAccessReqMsg(m)
       case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
       case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
+      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
       case m: StartPollReqMsg                => handleStartPollReqMsg(m)
@@ -237,7 +249,6 @@ class MeetingActor(
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
-      case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
 
       // Lock Settings
@@ -348,6 +359,28 @@ class MeetingActor(
     val (newState2, expireReason2) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
     state = newState2
     expireReason2 foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+
+    sendRttTraceTest()
+  }
+
+  def sendRttTraceTest(): Unit = {
+    val now = System.currentTimeMillis()
+
+    def buildDoLatencyTracerMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+      val envelope = BbbCoreEnvelope(DoLatencyTracerMsg.NAME, routing)
+      val body = DoLatencyTracerMsgBody(now)
+      val header = BbbClientMsgHeader(DoLatencyTracerMsg.NAME, meetingId, "not-used")
+      val event = DoLatencyTracerMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    if (now - lastRttTestSentOn > 60000) {
+      val event = buildDoLatencyTracerMsg(liveMeeting.props.meetingProp.intId)
+      outGW.send(event)
+    }
+
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {

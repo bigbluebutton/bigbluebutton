@@ -17,8 +17,8 @@ const getSlideData = (params) => {
   });
 
   let userIsPresenter;
-  if (currentUser && currentUser.user) {
-    userIsPresenter = currentUser.user.presenter;
+  if (currentUser) {
+    userIsPresenter = currentUser.presenter;
   }
 
   // Get total number of slides in this presentation

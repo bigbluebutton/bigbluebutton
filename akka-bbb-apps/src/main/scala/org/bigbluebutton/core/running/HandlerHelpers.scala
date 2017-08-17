@@ -2,9 +2,9 @@ package org.bigbluebutton.core.running
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg }
+import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.domain.{ MeetingState2x }
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
@@ -39,7 +39,7 @@ trait HandlerHelpers extends SystemConfiguration {
         waitingForAcceptance = regUser.waitingForAcceptance,
         emoji = "none",
         presenter = false,
-        locked = false,
+        locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL
       )
     }
@@ -91,7 +91,7 @@ trait HandlerHelpers extends SystemConfiguration {
       moderator <- Users2x.findModerator(liveMeeting.users2x)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {
-      sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.name)
+      sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
     }
   }
 
@@ -148,6 +148,18 @@ trait HandlerHelpers extends SystemConfiguration {
   def ejectAllUsersFromVoiceConf(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf)
     outGW.send(event)
+  }
+
+  def endAllBreakoutRooms(eventBus: InternalEventBus, liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+    for {
+      model <- state.breakout
+    } yield {
+      model.rooms.values.foreach { room =>
+        eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.breakoutProps.parentId, room.id)))
+      }
+    }
+
+    state.update(None)
   }
 
   def sendEndMeetingDueToExpiry(reason: String, eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {

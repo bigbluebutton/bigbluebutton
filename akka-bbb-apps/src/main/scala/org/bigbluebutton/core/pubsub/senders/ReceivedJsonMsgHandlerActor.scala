@@ -48,6 +48,10 @@ class ReceivedJsonMsgHandlerActor(
     //   log.debug("Route envelope name " + envelope.name)
 
     envelope.name match {
+      // System
+      case CheckAlivePingSysMsg.NAME =>
+        route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
@@ -58,6 +62,8 @@ class ReceivedJsonMsgHandlerActor(
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
+      case UserJoinMeetingAfterReconnectReqMsg.NAME =>
+        routeGenericMsg[UserJoinMeetingAfterReconnectReqMsg](envelope, jsonNode)
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
@@ -135,8 +141,6 @@ class ReceivedJsonMsgHandlerActor(
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>
         routeGenericMsg[GetCurrentLayoutReqMsg](envelope, jsonNode)
-      case LockLayoutMsg.NAME =>
-        routeGenericMsg[LockLayoutMsg](envelope, jsonNode)
       case BroadcastLayoutMsg.NAME =>
         routeGenericMsg[BroadcastLayoutMsg](envelope, jsonNode)
 
@@ -144,6 +148,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
       case ChangeUserEmojiCmdMsg.NAME =>
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+      case ChangeUserRoleCmdMsg.NAME =>
+        routeGenericMsg[ChangeUserRoleCmdMsg](envelope, jsonNode)
 
       // Whiteboard
       case SendCursorPositionPubMsg.NAME =>
@@ -160,6 +166,9 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+      case ClientToServerLatencyTracerMsg.NAME =>
+        log.info("-- trace --" + jsonNode.toString)
+        routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
 
       // Presentation
       case SetCurrentPresentationPubMsg.NAME =>
@@ -216,6 +225,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
 
       // Meeting
+      case EndMeetingSysCmdMsg.NAME =>
+        routeGenericMsg[EndMeetingSysCmdMsg](envelope, jsonNode)
       case MeetingActivityResponseCmdMsg.NAME =>
         routeGenericMsg[MeetingActivityResponseCmdMsg](envelope, jsonNode)
       case LogoutAndEndMeetingCmdMsg.NAME =>
@@ -230,8 +241,6 @@ class ReceivedJsonMsgHandlerActor(
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>
         routeGenericMsg[LockUserInMeetingCmdMsg](envelope, jsonNode)
-      case IsMeetingLockedReqMsg.NAME =>
-        routeGenericMsg[IsMeetingLockedReqMsg](envelope, jsonNode)
       case ChangeLockSettingsInMeetingCmdMsg.NAME =>
         routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
       case LockUsersInMeetingCmdMsg.NAME =>

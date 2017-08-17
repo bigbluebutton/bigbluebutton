@@ -18,11 +18,14 @@
  */
 package org.bigbluebutton.core
 {
+  import com.asfusion.mate.events.Dispatcher;
+  
   import mx.collections.ArrayCollection;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Role;
+  import org.bigbluebutton.core.events.LockControlEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.model.users.VoiceUser2x;
@@ -318,19 +321,6 @@ package org.bigbluebutton.core
         LiveMeeting.inst().me.applyLockSettings();
     }
     
-    /**
-     * Read default lock settings from config.xml
-     * */
-    public static function configLockSettings():void {
-      var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
-      var lockSettings:LockSettingsVO = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, 
-        lockOptions.disablePrivateChat, lockOptions.disablePublicChat, 
-        lockOptions.lockedLayout, lockOptions.lockOnJoin, 
-        lockOptions.lockOnJoinConfigurable);
-      
-      setLockSettings(lockSettings);
-    }
-    
     public static function getLockSettings():LockSettingsVO {
       return LiveMeeting.inst().meetingStatus.lockSettings;
     }
@@ -338,7 +328,20 @@ package org.bigbluebutton.core
     public static function setLockSettings(lockSettings:LockSettingsVO):void {
       LiveMeeting.inst().meetingStatus.lockSettings = lockSettings;
       applyLockSettings();
-     }
+    }
+    
+    public static function lockSettingsNotInitialized():void {
+      var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
+      var lockSettings:LockSettingsVO = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic,
+        lockOptions.disablePrivateChat, lockOptions.disablePublicChat,
+        lockOptions.lockedLayout, lockOptions.lockOnJoin,
+        lockOptions.lockOnJoinConfigurable);
+      var event:LockControlEvent = new LockControlEvent(LockControlEvent.SAVE_LOCK_SETTINGS);
+      event.payload = lockSettings.toMap();
+      
+      var dispatcher:Dispatcher = new Dispatcher();
+      dispatcher.dispatchEvent(event);
+    }
     
     public static function getBreakoutRoom(id: String): BreakoutRoom {
       return LiveMeeting.inst().breakoutRooms.getBreakoutRoom(id);

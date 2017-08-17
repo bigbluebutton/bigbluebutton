@@ -20,6 +20,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
       for {
         expireReason <- reason
       } yield {
+        endAllBreakoutRooms(eventBus, liveMeeting, state)
         sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting)
       }
     }
@@ -38,6 +39,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     if (!state.inactivityTracker.hasRecentActivity(nowInMs)) {
       if (state.inactivityTracker.isMeetingInactive(nowInMs)) {
         val expireReason = MeetingEndReason.ENDED_DUE_TO_INACTIVITY
+        endAllBreakoutRooms(eventBus, liveMeeting, state)
         sendEndMeetingDueToExpiry(expireReason, eventBus, outGW, liveMeeting)
         (state, Some(expireReason))
       } else {

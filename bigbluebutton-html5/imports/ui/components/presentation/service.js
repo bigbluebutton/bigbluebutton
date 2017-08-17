@@ -5,7 +5,7 @@ import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 
 const getCurrentPresentation = () => Presentations.findOne({
-  'presentation.current': true,
+  current: true,
 });
 
 const getCurrentSlide = () => {
@@ -16,16 +16,16 @@ const getCurrentSlide = () => {
   }
 
   return Slides.findOne({
-    presentationId: currentPresentation.presentation.id,
-    'slide.current': true,
+    presentationId: currentPresentation.id,
+    current: true,
   });
 };
 
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID });
 
-  if (currentUser && currentUser.user) {
-    return currentUser.user.presenter;
+  if (currentUser) {
+    return currentUser.presenter;
   }
 
   return false;

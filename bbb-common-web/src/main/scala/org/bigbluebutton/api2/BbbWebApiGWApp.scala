@@ -24,7 +24,6 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
 
   val log = Logging(system, getClass)
 
-  println("*********** meetingManagerChannel = " + meetingManagerChannel)
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
@@ -141,17 +140,17 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
 
   def destroyMeeting (msg: DestroyMeetingMessage): Unit = {
     val event = MsgBuilder.buildDestroyMeetingSysCmdMsg(msg)
-    println(event)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
   def endMeeting(msg: EndMeetingMessage): Unit = {
     val event = MsgBuilder.buildEndMeetingSysCmdMsg(msg)
-    println(event)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
   def sendKeepAlive(system: String, timestamp: java.lang.Long): Unit = {
+    val event = MsgBuilder.buildCheckAlivePingSysMsg(system, timestamp.longValue())
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
   }
 
@@ -174,23 +173,18 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
   def sendDocConversionMsg(msg: IDocConversionMsg): Unit = {
    if (msg.isInstanceOf[DocPageGeneratedProgress]) {
       val event = MsgBuilder.buildPresentationPageGeneratedPubMsg(msg.asInstanceOf[DocPageGeneratedProgress])
-     println(event)
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[OfficeDocConversionProgress]) {
       val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[OfficeDocConversionProgress])
-     println(event)
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
-     println(event)
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCountFailed]) {
       val event = MsgBuilder.buildbuildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
-     println(event)
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCountExceeded]) {
       val event = MsgBuilder.buildPresentationPageCountExceededSysPubMsg(msg.asInstanceOf[DocPageCountExceeded])
-     println(event)
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }

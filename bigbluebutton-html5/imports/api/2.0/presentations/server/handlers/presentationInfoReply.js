@@ -13,10 +13,10 @@ export default function handlePresentationInfoReply({ body }, meetingId) {
 
   const presentationsToRemove = Presentations.find({
     meetingId,
-    'presentation.id': { $nin: presentationsIds },
+    id: { $nin: presentationsIds },
   }).fetch();
 
-  presentationsToRemove.forEach(p => removePresentation(meetingId, p.presentation.id));
+  presentationsToRemove.forEach(p => removePresentation(meetingId, p.id));
 
   const presentationsAdded = [];
   presentations.forEach((presentation) => {

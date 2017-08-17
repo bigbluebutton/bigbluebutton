@@ -18,9 +18,12 @@ export default function removeVoiceUser(meetingId, voiceUser) {
   };
 
   const modifier = {
-    muted: false,
-    talking: false,
-    listenOnly: false,
+    $set: {
+      muted: false,
+      talking: false,
+      listenOnly: false,
+      joined: false,
+    },
   };
 
   const cb = (err) => {

@@ -7,7 +7,7 @@ const getCurrentCursor = (cursorId) => {
     const { userId } = cursor;
     const user = Users.findOne({ userId });
     if (user) {
-      cursor.userName = user.user.name;
+      cursor.userName = user.name;
       return cursor;
     }
   }

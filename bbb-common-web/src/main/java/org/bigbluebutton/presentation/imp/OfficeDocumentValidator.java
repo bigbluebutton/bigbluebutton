@@ -3,7 +3,10 @@ package org.bigbluebutton.presentation.imp;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.google.gson.Gson;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FilenameUtils;
@@ -27,12 +30,20 @@ public class OfficeDocumentValidator {
       try {
         xmlSlideShow = new XMLSlideShow(
             new FileInputStream(pres.getUploadedFile()));
-        valid &= !embedsEmf(xmlSlideShow);
-        valid &= !containsTinyTileBackground(xmlSlideShow);
+        valid &= !embedsEmf(xmlSlideShow, pres);
+        valid &= !containsTinyTileBackground(xmlSlideShow, pres);
         // Close the resource once we finished reading it
         xmlSlideShow.close();
       } catch (IOException e) {
-        log.error("Cannot open PPTX file " + pres.getName());
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingId", pres.getMeetingId());
+        logData.put("presId", pres.getId());
+        logData.put("filename", pres.getName());
+        logData.put("message", "Cannot open PPTX file " + pres.getName());
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+        log.error("-- analytics -- " + logStr);
+
         valid = false;
       }
     }
@@ -45,13 +56,21 @@ public class OfficeDocumentValidator {
    * @param xmlSlideShow
    * @return
    */
-  private boolean embedsEmf(XMLSlideShow xmlSlideShow) {
+  private boolean embedsEmf(XMLSlideShow xmlSlideShow, UploadedPresentation pres) {
     EmfPredicate emfPredicate = new EmfPredicate();
     ArrayList<XSLFPictureData> embeddedEmfFiles = (ArrayList<XSLFPictureData>) CollectionUtils
         .select(xmlSlideShow.getPictureData(), emfPredicate);
     if (embeddedEmfFiles.size() > 0) {
-      log.warn(
-          "Found " + embeddedEmfFiles.size() + " EMF files in presentation.");
+
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Found " + embeddedEmfFiles.size() + " EMF files in presentation.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.warn("-- analytics -- " + logStr);
+
       return true;
     }
     return false;
@@ -63,12 +82,21 @@ public class OfficeDocumentValidator {
    * @param xmlSlideShow
    * @return
    */
-  private boolean containsTinyTileBackground(XMLSlideShow xmlSlideShow) {
+  private boolean containsTinyTileBackground(XMLSlideShow xmlSlideShow, UploadedPresentation pres) {
     TinyTileBackgroundPredicate tinyTileCondition = new TinyTileBackgroundPredicate();
     ArrayList<XSLFPictureData> tileImage = (ArrayList<XSLFPictureData>) CollectionUtils
         .select(xmlSlideShow.getPictureData(), tinyTileCondition);
     if (tileImage.size() > 0) {
-      log.warn("Found small background tile image.");
+
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Found small background tile image.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.warn("-- analytics -- " + logStr);
+
       return true;
     }
     return false;

@@ -104,12 +104,12 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   }
 
   @include mq($medium-up) {
-    flex: 0 20vw;
+    flex: 0 15vw;
     order: 1;
   }
 
   @include mq($xlarge-up) {
-    flex-basis: 15vw;
+    flex-basis: 10vw;
   }
 }
 

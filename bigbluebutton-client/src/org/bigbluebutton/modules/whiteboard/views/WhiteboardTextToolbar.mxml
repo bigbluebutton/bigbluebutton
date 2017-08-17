@@ -21,11 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:HBox xmlns="flexlib.containers.*" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC"
-	cornerRadius="5" borderStyle="solid"
-	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0"
-	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*"
-	creationComplete="onCreationComplete()">
+	xmlns:mate="http://mate.asfusion.com/" visible="false"
+	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*">
 	
 	<fx:Declarations>
 		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
@@ -56,35 +53,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var currentlySelectedTextObject:TextObject = null;	
 			private var containerToOverlay:MDIWindow;
-			private var normalAlpha:Number = 0.55;
-			private var focusedAlpha:Number = 1.0;
 			private var hasFocus:Boolean;
 			[Bindable] private var fontSizes:Array = ["12", "14", "16", "18", "22", "24", "32", "36"];
-			
-			private function onCreationComplete():void {
-				this.alpha = normalAlpha;
-				this.addEventListener(MouseEvent.ROLL_OVER, makeFocused);
-				this.addEventListener(MouseEvent.ROLL_OUT, makeDim);
-				
-				
-				/* WARNING: enabling the following code caused some nasty issues with  the whiteboard
-					It is kept here for reference
-				*/
-				/*this.textColor = ctextpik.selectedColor = 0x000000;
-				this.bgColor = cbackpik.selectedColor = 0x000000;
-				this.backgroundVisible = btnToggleBackground.selected = false;
-				this.textSizeMenu.label = "14";
-				this.textSize = Number(textSizeMenu.label);*/
-			}
-			
-			/* Following two methods are used for aesthetics when mouse hovers over TextToolbar and when it hovers out of it */
-			private function makeDim(event:MouseEvent):void {
-					this.alpha = normalAlpha;
-			}
-			
-			private function makeFocused(event:MouseEvent):void {
-					this.alpha = focusedAlpha;
-			}
 			
 			private function onFontSizeChange():void {
 				setTextSize(Number(textSizeMenu.selectedItem));
@@ -127,10 +97,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function disableTextToolbar(e:Event=null):void{
 				this.visible = false;
+				closeMenus()
 			}
 			
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
+				closeMenus();
 				parent.removeChild(this);
+			}
+			
+			private function closeMenus() : void {
+				ctextpik.close();
+				textSizeMenu.close();
 			}
 			
 			public function syncPropsWith(tobj:TextObject):void {
@@ -174,6 +151,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function adjustForZoom(x:Number, y:Number):void {
 				repositionToolbar();
 			}
+			
 		]]>
 	</fx:Script>
 

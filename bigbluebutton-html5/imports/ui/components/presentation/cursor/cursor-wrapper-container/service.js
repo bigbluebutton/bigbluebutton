@@ -13,14 +13,16 @@ const getMultiUserStatus = () => {
   return false;
 };
 
-const getPresenterCursorId = userId => Cursor.findOne({ userId }, { fields: { _id: 1 } });
+const getPresenterCursorId = userId => {
+  return Cursor.findOne({ userId }, { fields: { _id: 1 } });
+};
 
 const getCurrentCursorIds = () => {
   // object to return
   const data = {};
 
   // fetching the presenter's id
-  const user = Users.findOne({ 'user.presenter': true }, { fields: { userId: 1 } });
+  const user = Users.findOne({ 'presenter': true }, { fields: { userId: 1 } });
 
   if (user) {
     // fetching the presenter cursor id

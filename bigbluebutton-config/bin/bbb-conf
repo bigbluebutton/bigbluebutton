@@ -79,30 +79,28 @@ FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 
-if lsb_release -d | grep -q CentOS; then
+if [ -f /etc/redhat-release ]; then
+  echo "###"
   DISTRIB_ID=centos
   SERVLET_LOGS=/usr/share/$SERVLET_CONTAINER/logs
   FREESWITCH=freeswitch
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
   TOMCAT_USER=tomcat
+  TOMCAT_SERVICE=tomcat
+  REDIS_SERVICE=redis.service
 else
-  . /etc/lsb-release 
-  if [ "$DISTRIB_CODENAME" == "trusty" ]; then
-    SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
-    FREESWITCH=freeswitch
-    FREESWITCH_INIT_D="/etc/init.d/freeswitch"
-    TOMCAT_USER=tomcat7
-  else
-    SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
-    FREESWITCH=freeswitch
-    FREESWITCH_INIT_D="/etc/init.d/freeswitch"
-    TOMCAT_USER=tomcat7
+  . /etc/lsb-release    # Get value for DISTRIB_ID
+  SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
+  FREESWITCH=freeswitch
+  FREESWITCH_INIT_D="/etc/init.d/freeswitch"
+  TOMCAT_USER=tomcat7
+  TOMCAT_SERVICE=tomcat7
+  REDIS_SERVICE=redis-server.service
 
-    FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
-    FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
-    FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
-    FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
-  fi
+  FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
+  FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
+  FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
+  FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 fi
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
@@ -292,7 +290,11 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
+       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+          BBB_TRANSCODE_AKKA=bbb-transcode-akka
+       fi
+
+       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	/etc/init.d/monit stop
 
@@ -344,7 +346,11 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+          BBB_TRANSCODE_AKKA=bbb-transcode-akka
+       fi
+
+       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	$FREESWITCH_INIT_D start
 	
@@ -467,7 +473,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+	units="start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE libreoffice bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 

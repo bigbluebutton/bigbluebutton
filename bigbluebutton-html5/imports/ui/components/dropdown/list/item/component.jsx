@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from '../styles';
 import _ from 'lodash';
 import cx from 'classnames';
 import Icon from '/imports/ui/components/icon/component';
+import styles from '../styles';
 
 const propTypes = {
   icon: PropTypes.string,
@@ -12,6 +12,9 @@ const propTypes = {
 };
 
 const defaultProps = {
+  icon: '',
+  label: '',
+  description: '',
 };
 
 export default class DropdownListItem extends Component {
@@ -22,7 +25,6 @@ export default class DropdownListItem extends Component {
   }
 
   renderDefault() {
-    const children = [];
     const { icon, label } = this.props;
 
     return [
@@ -32,11 +34,12 @@ export default class DropdownListItem extends Component {
   }
 
   render() {
-    const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, separator, intl } = this.props;
+    const { id, label, description, children, injectRef, tabIndex, onClick, onKeyDown,
+      className, style } = this.props;
 
     return (
       <li
+        id={id}
         ref={injectRef}
         onClick={onClick}
         onKeyDown={onKeyDown}
@@ -52,8 +55,8 @@ export default class DropdownListItem extends Component {
         }
         {
           label ?
-          (<span id={this.labelID} key="labelledby" hidden>{label}</span>)
-          : null
+            (<span id={this.labelID} key="labelledby" hidden>{label}</span>)
+            : null
         }
         <span id={this.descID} key="describedby" hidden>{description}</span>
       </li>

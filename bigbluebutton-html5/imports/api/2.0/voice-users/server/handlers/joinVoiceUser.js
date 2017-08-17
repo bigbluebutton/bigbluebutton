@@ -4,6 +4,7 @@ import addVoiceUser from '../modifiers/addVoiceUser';
 
 export default function handleJoinVoiceUser({ body }, meetingId) {
   const voiceUser = body;
+  voiceUser.joined = true;
 
   check(meetingId, String);
 

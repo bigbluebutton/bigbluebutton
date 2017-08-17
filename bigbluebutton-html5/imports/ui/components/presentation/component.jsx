@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import ShapeGroupContainer from '/imports/ui/components/whiteboard/shape-group/container';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import PollingContainer from '/imports/ui/components/polling/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
+import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
@@ -92,8 +92,8 @@ export default class PresentationArea extends React.Component {
   }
 
   calculateSize() {
-    const originalWidth = this.props.currentSlide.slide.width;
-    const originalHeight = this.props.currentSlide.slide.height;
+    const originalWidth = this.props.currentSlide.width;
+    const originalHeight = this.props.currentSlide.height;
 
     let adjustedWidth;
     let adjustedHeight;
@@ -128,14 +128,14 @@ export default class PresentationArea extends React.Component {
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
     if (this.props.currentSlide &&
-        this.props.currentSlide.slide.width &&
-        this.props.currentSlide.slide.height) {
+        this.props.currentSlide.width &&
+        this.props.currentSlide.height) {
       // to control the size of the svg wrapper manually
       // and adjust cursor's thickness, so that svg didn't scale it automatically
       const adjustedSizes = this.calculateSize();
 
       // a reference to the slide object
-      const slideObj = this.props.currentSlide.slide;
+      const slideObj = this.props.currentSlide;
 
       // calculating the svg's coordinate system; we set it based on the slide's width/height ratio
       // the longest value becomes '1000' and the second is calculated accordingly to keep the ratio
@@ -153,10 +153,10 @@ export default class PresentationArea extends React.Component {
       }
 
       // calculating viewBox and offsets for the current presentation
-      const x = ((-slideObj.x_offset * 2) * svgWidth) / 100;
-      const y = ((-slideObj.y_offset * 2) * svgHeight) / 100;
-      const viewBoxWidth = (svgWidth * slideObj.width_ratio) / 100;
-      const viewBoxHeight = (svgHeight * slideObj.height_ratio) / 100;
+      const x = ((-slideObj.xOffset * 2) * svgWidth) / 100;
+      const y = ((-slideObj.yOffset * 2) * svgHeight) / 100;
+      const viewBoxWidth = (svgWidth * slideObj.widthRatio) / 100;
+      const viewBoxHeight = (svgHeight * slideObj.heightRatio) / 100;
 
       return (
         <div
@@ -199,17 +199,17 @@ export default class PresentationArea extends React.Component {
               <g clipPath="url(#viewBox)">
                 <Slide
                   id="slideComponent"
-                  slideHref={this.props.currentSlide.slide.img_uri}
+                  currentSlide={this.props.currentSlide}
                   svgWidth={svgWidth}
                   svgHeight={svgHeight}
                 />
-                <ShapeGroupContainer
+                <AnnotationGroupContainer
                   width={svgWidth}
                   height={svgHeight}
                   whiteboardId={slideObj.id}
                 />
                 <CursorWrapperContainer
-                  widthRatio={slideObj.width_ratio}
+                  widthRatio={slideObj.widthRatio}
                   physicalWidthRatio={adjustedSizes.width / svgWidth}
                   slideWidth={svgWidth}
                   slideHeight={svgHeight}
@@ -244,7 +244,7 @@ export default class PresentationArea extends React.Component {
     if (this.props.currentSlide) {
       return (
         <PresentationToolbarContainer
-          currentSlideNum={this.props.currentSlide.slide.num}
+          currentSlideNum={this.props.currentSlide.num}
           presentationId={this.props.currentSlide.presentationId}
         />
       );
@@ -257,13 +257,14 @@ export default class PresentationArea extends React.Component {
 
     return (
       <WhiteboardToolbarContainer
-        whiteboardId={this.props.currentSlide.slide.id}
+        whiteboardId={this.props.currentSlide.id}
         height={adjustedSizes.height}
       />
     );
   }
 
   render() {
+
     return (
       <div className={styles.presentationContainer}>
         <div
@@ -295,24 +296,22 @@ PresentationArea.propTypes = {
     // TODO don't need meetingId here
     meetingId: PropTypes.string,
     presentationId: PropTypes.string.isRequired,
-    slide: PropTypes.shape({
-      current: PropTypes.bool.isRequired,
-      height: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-      height_ratio: PropTypes.number.isRequired,
-      width_ratio: PropTypes.number.isRequired,
-      x_offset: PropTypes.number.isRequired,
-      y_offset: PropTypes.number.isRequired,
-      num: PropTypes.number.isRequired,
-      id: PropTypes.string.isRequired,
-      img_uri: PropTypes.string.isRequired,
-      // TODO we don't use any of thefollowing uris here
-      swf_uri: PropTypes.string.isRequired,
-      thumb_uri: PropTypes.string.isRequired,
-      txt_uri: PropTypes.string.isRequired,
-    }).isRequired,
+    current: PropTypes.bool.isRequired,
+    height: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    heightRatio: PropTypes.number.isRequired,
+    widthRatio: PropTypes.number.isRequired,
+    xOffset: PropTypes.number.isRequired,
+    yOffset: PropTypes.number.isRequired,
+    num: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
+    svgUri : PropTypes.string,
+    pngUri: PropTypes.string,
+    // TODO we don't use any of thefollowing uris here
+    swfUri: PropTypes.string.isRequired,
+    thumbUri: PropTypes.string.isRequired,
+    txtUri: PropTypes.string.isRequired,
   }),
-
   // current multi-user status
   multiUser: PropTypes.bool.isRequired,
 };

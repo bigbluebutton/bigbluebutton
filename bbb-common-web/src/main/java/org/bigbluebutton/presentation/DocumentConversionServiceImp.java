@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.presentation;
 
+import com.google.gson.Gson;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
@@ -26,6 +27,9 @@ import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
 import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
   private static Logger log = LoggerFactory
@@ -38,8 +42,17 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   public void processDocument(UploadedPresentation pres) {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
-    log.info("Start presentation conversion. meetingId=" + pres.getMeetingId()
-        + " presId=" + pres.getId() + " name=" + pres.getName());
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", pres.getMeetingId());
+    logData.put("presId", pres.getId());
+    logData.put("filename", pres.getName());
+    logData.put("current", pres.isCurrent());
+    logData.put("message", "Start presentation conversion.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+    log.info("-- analytics -- " + logStr);
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
@@ -65,9 +78,15 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       // TODO: error log
     }
 
-    log.info("End presentation conversion. meetingId=" + pres.getMeetingId()
-        + " presId=" + pres.getId() + " name=" + pres.getName());
-
+    logData = new HashMap<String, Object>();
+    logData.put("meetingId", pres.getMeetingId());
+    logData.put("presId", pres.getId());
+    logData.put("filename", pres.getName());
+    logData.put("current", pres.isCurrent());
+    logData.put("message", "End presentation conversion.");
+    gson = new Gson();
+    logStr = gson.toJson(logData);
+    log.info("-- analytics -- " + logStr);
   }
 
   public void setBbbWebApiGWApp(IBbbWebApiGWApp m) {

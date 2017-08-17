@@ -27,7 +27,7 @@ trait BreakoutRoomUsersUpdateMsgHdlr {
       model <- state.breakout
       room <- model.find(msg.breakoutId)
     } yield {
-      val updatedRoom = room.copy(users = msg.users)
+      val updatedRoom = room.copy(users = msg.users, voiceUsers = msg.voiceUsers)
       val msgEvent = broadcastEvent(updatedRoom)
       outGW.send(msgEvent)
       model.update(updatedRoom)

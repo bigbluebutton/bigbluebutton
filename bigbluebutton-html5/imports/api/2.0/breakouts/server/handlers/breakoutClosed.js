@@ -2,9 +2,9 @@ import { check } from 'meteor/check';
 import clearBreakouts from '../modifiers/clearBreakouts';
 
 export default function handleBreakoutClosed({ body }) {
-  const { breakoutMeetingId } = body;
+  const { breakoutId } = body;
 
-  check(breakoutMeetingId, String);
+  check(breakoutId, String);
 
-  return clearBreakouts(breakoutMeetingId);
+  return clearBreakouts(breakoutId);
 }

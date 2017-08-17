@@ -1,6 +1,19 @@
 package org.bigbluebutton.common2.msgs
 
-case class AnnotationVO(id: String, status: String, annotationType: String, annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
+case class AnnotationVO(id: String, status: String, annotationType: String,
+                        annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
+
+object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }
+case class ClientToServerLatencyTracerMsg(header: BbbClientMsgHeader, body: ClientToServerLatencyTracerMsgBody) extends StandardMsg
+case class ClientToServerLatencyTracerMsgBody(timestampUTC: Long, rtt: Long,  senderId: String)
+
+object ServerToClientLatencyTracerMsg { val NAME = "ServerToClientLatencyTracerMsg" }
+case class ServerToClientLatencyTracerMsg(header: BbbClientMsgHeader, body: ServerToClientLatencyTracerMsgBody) extends BbbCoreMsg
+case class ServerToClientLatencyTracerMsgBody(timestampUTC: Long, rtt: Long, senderId: String)
+
+object DoLatencyTracerMsg { val NAME = "DoLatencyTracerMsg" }
+case class DoLatencyTracerMsg(header: BbbClientMsgHeader, body: DoLatencyTracerMsgBody) extends BbbCoreMsg
+case class DoLatencyTracerMsgBody(timestampUTC: Long)
 
   object ClearWhiteboardEvtMsg {
     val NAME = "ClearWhiteboardEvtMsg"

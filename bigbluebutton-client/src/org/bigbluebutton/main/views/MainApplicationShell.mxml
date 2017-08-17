@@ -82,72 +82,77 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
 		<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
 		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
+    <mate:Listener type="{RoundTripLatencyReceivedEvent.ROUND_TRIP_LATENCY_RECEIVED}" method="handleRoundTripLatencyReceivedEvent"/>
+    
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			import flash.events.FullScreenEvent;
-			import flash.events.IOErrorEvent;
-			import flash.events.TextEvent;
-			import flash.geom.Point;
-			import flash.net.navigateToURL;
-			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
-			import mx.binding.utils.ChangeWatcher;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.core.FlexGlobals;
-			import mx.core.IFlexDisplayObject;
-			import mx.core.UIComponent;
-			import mx.events.FlexEvent;
-			
-			import org.as3commons.lang.StringUtils;
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.PopUpUtil;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
-			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-			import org.bigbluebutton.core.vo.LockSettingsVO;
-			import org.bigbluebutton.main.events.AppVersionEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.BreakoutRoomEvent;
-			import org.bigbluebutton.main.events.ClientStatusEvent;
-			import org.bigbluebutton.main.events.ConfigLoadedEvent;
-			import org.bigbluebutton.main.events.ExitApplicationEvent;
-			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
-			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.NetworkStatsEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.model.Guest;
-			import org.bigbluebutton.main.model.ImageLoader;
-			import org.bigbluebutton.main.model.options.BrandingOptions;
-			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
-			import org.bigbluebutton.main.model.options.LanguageOptions;
-			import org.bigbluebutton.main.model.options.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
-			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
-			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
-			import org.bigbluebutton.modules.phone.models.PhoneOptions;
-			import org.bigbluebutton.modules.users.model.UsersOptions;
-			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
-			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.Event;
+      import flash.events.FullScreenEvent;
+      import flash.events.IOErrorEvent;
+      import flash.events.TextEvent;
+      import flash.geom.Point;
+      import flash.net.navigateToURL;
+      import flash.utils.setTimeout;
+      
+      import mx.binding.utils.ChangeWatcher;
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.core.IFlexDisplayObject;
+      import mx.core.UIComponent;
+      import mx.events.FlexEvent;
+      
+      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+      
+      import org.as3commons.lang.StringUtils;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.common.IBbbModuleWindow;
+      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.PopUpUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.NewGuestWaitingEvent;
+      import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
+      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.core.vo.LockSettingsVO;
+      import org.bigbluebutton.main.events.AppVersionEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.BreakoutRoomEvent;
+      import org.bigbluebutton.main.events.ClientStatusEvent;
+      import org.bigbluebutton.main.events.ConfigLoadedEvent;
+      import org.bigbluebutton.main.events.ExitApplicationEvent;
+      import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+      import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+      import org.bigbluebutton.main.events.ModuleLoadEvent;
+      import org.bigbluebutton.main.events.NetworkStatsEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.model.Guest;
+      import org.bigbluebutton.main.model.ImageLoader;
+      import org.bigbluebutton.main.model.options.BrandingOptions;
+      import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
+      import org.bigbluebutton.main.model.options.LanguageOptions;
+      import org.bigbluebutton.main.model.options.LayoutOptions;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+      import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
+      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+      import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+      import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+      import org.bigbluebutton.modules.phone.models.PhoneOptions;
+      import org.bigbluebutton.modules.users.model.UsersOptions;
+      import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
+      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -221,8 +226,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				updateCopyrightText();
 				loadBackground();
-
-				UsersUtil.configLockSettings();
+				
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;
@@ -735,6 +739,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 PopUpUtil.createModalPopUp(mdiCanvas, AudioSelectionWindow, true);
             }
 
+            private function handleRoundTripLatencyReceivedEvent(event: RoundTripLatencyReceivedEvent): void {
+              rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
+            }
+      
             private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
                 var options:PhoneOptions = new PhoneOptions();
                 if (!options.showMicrophoneHint) return;
@@ -774,23 +782,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
                 if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
-                    var chromeWebcmPermissionImg : ChromeWebcamPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, ChromeWebcamPermissionImage, false) as ChromeWebcamPermissionImage;
-                    if (chromeWebcmPermissionImg) {
-                        chromeWebcmPermissionImg.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-                            var point1:Point = new Point();
-                            // Calculate position of TitleWindow in Application's coordinates.
-                            point1.x = width / 2;
-                            point1.y = height / 2;
-                            if (Capabilities.os.indexOf("Mac") >= 0) {
-                                chromeWebcmPermissionImg.x = (mdiCanvas.width - chromeWebcmPermissionImg.width);
-                            } else {
-                                chromeWebcmPermissionImg.x = 20;
-                            }
-                            chromeWebcmPermissionImg.y = 20;
-                        });
-                    }
+					// Show ChromeWebcmPermissionImg component after showing the webcam window due event listeners registration order
+                    setTimeout(showChromeWebcmPermissionImg, 100);
                 }
             }
+			
+			private function showChromeWebcmPermissionImg() : void {
+				var chromeWebcmPermissionImg : ChromeWebcamPermissionImage = PopUpUtil.createNonModelPopUp(mdiCanvas, ChromeWebcamPermissionImage, false) as ChromeWebcamPermissionImage;
+				if (chromeWebcmPermissionImg) {
+					chromeWebcmPermissionImg.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+						var point1:Point = new Point();
+						// Calculate position of TitleWindow in Application's coordinates.
+						point1.x = width / 2;
+						point1.y = height / 2;
+						if (Capabilities.os.indexOf("Mac") >= 0) {
+							chromeWebcmPermissionImg.x = (mdiCanvas.width - chromeWebcmPermissionImg.width);
+						} else {
+							chromeWebcmPermissionImg.x = 20;
+						}
+						chromeWebcmPermissionImg.y = 20;
+					});
+				}
+			}
 
             private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
                 showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
@@ -915,7 +928,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateToolbarHeight():void {
 				if (toolbarHeight != 0) {
-					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + 10);
+					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0 + 10);
 				}
 				calculateCanvasHeight();
 			}
@@ -1040,13 +1053,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="{footerHeight}" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >
+	<mx:ControlBar width="100%" height="{footerHeight}" styleName="defaultControlBarStyle" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >
 		<mx:Label
 				htmlText="{copyrightText}"
 				link="onFooterLinkClicked(event)"
 				id="copyrightLabel2" truncateToFit="true"
 				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
+    <mx:Label 
+      id="rttLabel"
+      text="RTT = 0ms"
+      visible="true"
+      includeInLayout="true" />
 		<mx:Label 
 				id="lblWebRTC"
 				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"

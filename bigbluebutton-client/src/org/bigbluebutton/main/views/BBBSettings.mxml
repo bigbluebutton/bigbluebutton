@@ -5,8 +5,7 @@
 		showCloseButton="false"
 		xmlns:mate="http://mate.asfusion.com/"
 		minWidth="250"
-		creationComplete="init()"
-		title="{ResourceUtil.getInstance().getString('bbb.settings.title')}" >
+		creationComplete="init()" >
 
 	<fx:Script>
 		<![CDATA[
@@ -45,11 +44,15 @@
 
 		]]>
 	</fx:Script>
-	<mx:VBox id="addedComponents" height="100%" />
+	<mx:TextArea borderSkin="{null}"
+				 text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
+				 editable="false" styleName="titleWindowStyle"
+				 width="100%" />
+	
+	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 
-	<mx:ControlBar width="100%" horizontalAlign="center">
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" width="100" click="onOkClicked()"/>
-		<mx:Spacer width="10"/>
-		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" width="100" click="onCancelClicked()"/>
+	<mx:ControlBar width="100%" horizontalAlign="right">
+		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" click="onOkClicked()"/>
+		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" click="onCancelClicked()"/>
 	</mx:ControlBar>
 </mx:TitleWindow>

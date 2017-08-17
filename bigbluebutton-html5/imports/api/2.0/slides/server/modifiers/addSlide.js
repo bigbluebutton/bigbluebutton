@@ -1,6 +1,7 @@
 import probe from 'probe-image-size';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import flat from 'flat';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Slides from '/imports/api/2.0/slides';
 import Logger from '/imports/startup/server/logger';
@@ -41,39 +42,35 @@ const fetchImageSizes = imageUri =>
 
 export default function addSlide(meetingId, presentationId, slide) {
   check(presentationId, String);
-  check(slide, Object);
+
+  check(slide, {
+    id: String,
+    num: Number,
+    thumbUri: String,
+    swfUri: String,
+    txtUri: String,
+    svgUri: String,
+    current: Boolean,
+    xOffset: Number,
+    yOffset: Number,
+    widthRatio: Number,
+    heightRatio: Number,
+  });
 
   const selector = {
     meetingId,
     presentationId,
-    'slide.id': slide.id,
+    id: slide.id,
   };
 
   const imageUri = slide.svgUri || slide.pngUri;
 
   const modifier = {
-    $set: {
-      meetingId,
-      presentationId,
-      slide: {
-        id: slide.id,
-        num: slide.num,
-        thumb_uri: slide.thumbUri,
-        swf_uri: slide.swfUri,
-        txt_uri: slide.txtUri,
-        // svgUri or pngUri is represented by imageUri
-        current: slide.current,
-        x_offset: slide.xOffset,
-        y_offset: slide.yOffset,
-        width_ratio: slide.widthRatio,
-        height_ratio: slide.heightRatio,
-        img_uri: imageUri,
-
-        // width and height are additionally calculated, they are not received
-        width: slide.width,
-        height: slide.height,
-      },
-    },
+    $set: Object.assign(
+      { meetingId },
+      { presentationId },
+      flat(slide, { safe: true }),
+    ),
   };
 
   const cb = (err, numChanged) => {
@@ -89,15 +86,13 @@ export default function addSlide(meetingId, presentationId, slide) {
       return Logger.info(`Added slide id=${slide.id} to presentation=${presentationId}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Upserted slide id=${slide.id} to presentation=${presentationId}`);
-    }
+    return Logger.info(`Upserted slide id=${slide.id} to presentation=${presentationId}`);
   };
 
   return fetchImageSizes(imageUri)
     .then(({ width, height }) => {
-      modifier.$set.slide.width = width;
-      modifier.$set.slide.height = height;
+      modifier.$set.width = width;
+      modifier.$set.height = height;
 
       return Slides.upsert(selector, modifier, cb);
     })

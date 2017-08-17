@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         xmlns:views="org.bigbluebutton.modules.videoconf.views.*"
         initialize="init()"
         creationComplete="onCreationComplete()"
-        backgroundColor="white" width="320" height="240"
+        width="320" height="240"
         mouseOver="onCanvasMouseOver()" mouseOut="onCanvasMouseOut()" >
 
 	<fx:Declarations>
@@ -44,6 +44,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.core.UIComponent;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.Options;
@@ -61,6 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.AddStaticComponent;
 			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+            private static const LOGGER:ILogger = getClassLogger(UserGraphicHolder);
 
             private var videoOptions:VideoConfOptions;
             
@@ -91,10 +95,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             protected function onCreationComplete():void {
-                // There must be a better way!
-                _newParent = parent.parent.parent.parent.parent;
+                _newParent = getBBBDisplayObjectContainer();
                 fullScreenIcon.source = getStyle("iconFullScreen");
 				closeIcon.source = getStyle("iconClose");
+            }
+
+            private function getBBBDisplayObjectContainer():DisplayObjectContainer {
+                var p:DisplayObjectContainer = parent;
+                var displayName:String = "";
+                while (p) {
+                    displayName = p.name;
+                    if (displayName.indexOf("BigBlueButton") >= 0) {
+                        return p;
+                    }
+                    p = p.parent;
+                }
+                LOGGER.warn("Could not get the correct DisplayObjectContainer");
+                return parent;
             }
 
             private function handleUserJoinedEvent(event:UserJoinedEvent):void {
@@ -377,6 +394,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
                     _newParent.addChildAt(this, 0);
 
+                    this.move(0, 0);
                     this.percentHeight = 100;
                     this.percentWidth = 100;
 

@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.models.Users2x
 
 trait SetCurrentPagePubMsgHdlr {
   this: PresentationApp2x =>
@@ -23,8 +24,10 @@ trait SetCurrentPagePubMsgHdlr {
       //record(event)
     }
 
-    if (setCurrentPage(msg.body.presentationId, msg.body.pageId)) {
-      broadcastEvent(msg)
+    if (Users2x.isPresenter(msg.header.userId, liveMeeting.users2x)) {
+      if (setCurrentPage(msg.body.presentationId, msg.body.pageId)) {
+        broadcastEvent(msg)
+      }
     }
   }
 }

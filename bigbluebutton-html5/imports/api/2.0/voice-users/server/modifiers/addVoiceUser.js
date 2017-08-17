@@ -15,6 +15,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
     callingWith: String,
     listenOnly: Boolean,
     voiceConf: String,
+    joined: Boolean, // This is a HTML5 only param.
   });
 
   const { intId } = voiceUser;

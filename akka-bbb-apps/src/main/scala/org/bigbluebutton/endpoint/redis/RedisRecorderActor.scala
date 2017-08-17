@@ -7,7 +7,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.StringOps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.record.events._
-import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
 object RedisRecorderActor {
   def props(system: ActorSystem): Props = Props(classOf[RedisRecorderActor], system)
@@ -92,6 +91,8 @@ class RedisRecorderActor(val system: ActorSystem)
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
+
+      case _                                        => // message not to be recorded.
     }
   }
 
@@ -120,6 +121,10 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setOriginalFilename(msg.body.presentation.name)
 
     record(msg.header.meetingId, ev.toMap)
+
+    if (msg.body.presentation.current) {
+      recordSharePresentationEvent(msg.header.meetingId, msg.body.presentation.id)
+    }
   }
 
   private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {
@@ -152,12 +157,16 @@ class RedisRecorderActor(val system: ActorSystem)
   }
 
   private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
+    recordSharePresentationEvent(msg.header.meetingId, msg.body.presentationId)
+  }
+
+  private def recordSharePresentationEvent(meetingId: String, presentationId: String) {
     val ev = new SharePresentationRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setPresentationName(msg.body.presentationId)
+    ev.setMeetingId(meetingId)
+    ev.setPresentationName(presentationId)
     ev.setShare(true)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(meetingId, ev.toMap)
   }
 
   private def getPageNum(id: String): Integer = {
@@ -186,29 +195,17 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handleSendWhiteboardAnnotationEvtMsg(msg: SendWhiteboardAnnotationEvtMsg) {
     val annotation = msg.body.annotation
 
-    if ((annotation.annotationType == WhiteboardKeyUtil.TEXT_TYPE) && (annotation.status != WhiteboardKeyUtil.DRAW_START_STATUS)) {
-      val ev = new ModifyTextWhiteboardRecordEvent()
-      ev.setMeetingId(msg.header.meetingId)
-      ev.setPresentation(getPresentationId(annotation.wbId))
-      ev.setPageNumber(getPageNum(annotation.wbId))
-      ev.setWhiteboardId(annotation.wbId)
-      ev.setUserId(annotation.userId)
-      ev.setAnnotationId(annotation.id)
-      ev.addAnnotation(annotation.annotationInfo)
+    val ev = new AddShapeWhiteboardRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(annotation.wbId))
+    ev.setPageNumber(getPageNum(annotation.wbId))
+    ev.setWhiteboardId(annotation.wbId)
+    ev.setUserId(annotation.userId)
+    ev.setAnnotationId(annotation.id)
+    ev.setPosition(annotation.position)
+    ev.addAnnotation(annotation.annotationInfo)
 
-      record(msg.header.meetingId, ev.toMap)
-    } else {
-      val ev = new AddShapeWhiteboardRecordEvent()
-      ev.setMeetingId(msg.header.meetingId)
-      ev.setPresentation(getPresentationId(annotation.wbId))
-      ev.setPageNumber(getPageNum(annotation.wbId))
-      ev.setWhiteboardId(annotation.wbId)
-      ev.setUserId(annotation.userId)
-      ev.setAnnotationId(annotation.id)
-      ev.addAnnotation(annotation.annotationInfo)
-
-      record(msg.header.meetingId, ev.toMap)
-    }
+    record(msg.header.meetingId, ev.toMap)
   }
 
   private def handleSendCursorPositionEvtMsg(msg: SendCursorPositionEvtMsg) {

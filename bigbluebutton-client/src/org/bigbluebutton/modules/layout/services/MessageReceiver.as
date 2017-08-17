@@ -1,9 +1,9 @@
 package org.bigbluebutton.modules.layout.services {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -12,7 +12,6 @@ package org.bigbluebutton.modules.layout.services {
 	import org.bigbluebutton.main.model.users.IMessageListener;
 	import org.bigbluebutton.modules.layout.events.LayoutEvent;
 	import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
-	import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
 	import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -37,9 +36,6 @@ package org.bigbluebutton.modules.layout.services {
 				case "BroadcastLayoutEvtMsg":
 					handleBroadcastLayoutEvtMsg(message);
 					break;
-				case "LockLayoutEvtMsg":
-					handleLockLayoutEvtMsg(message);
-					break;
 					/*
 				case "getCurrentLayoutResponse":
 					handleGetCurrentLayoutResponse(message);
@@ -61,13 +57,20 @@ package org.bigbluebutton.modules.layout.services {
 			_applyFirstLayoutTimer.start();
 		}
 
-		private function handleLockLayoutEvtMsg(message:Object):void {
-			if (message.body.hasOwnProperty("locked") && message.body.hasOwnProperty("setById"))
-				lockLayout(message.body.locked, message.body.setById);
-		}
-
 		private function handleBroadcastLayoutEvtMsg(message:Object):void {
-			handleSyncLayout(message.body);
+			var affectedUsers:Array = message.body.applyTo as Array;
+			var appliesToMe:Boolean = false;
+			var myUserId:String = UsersUtil.getMyUserID();
+			
+			for (var i:int = 0; i < affectedUsers.length; i++) {
+				if (affectedUsers[i] == myUserId) {
+					appliesToMe = true;
+					break;
+				}
+			}
+			
+			if (appliesToMe) 
+				handleSyncLayout(message.body);
 		}
 
 		/*
@@ -87,13 +90,12 @@ package org.bigbluebutton.modules.layout.services {
 		private function onReceivedFirstLayout(message:Object):void {
 			LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]);
 			trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "], moderator = [" + UsersUtil.amIModerator() + "]");
-			if (message.layout == "")
+			if (message.layout == "" || UsersUtil.amIModerator())
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 			else {
 				handleSyncLayout(message);
 			}
 
-			handleLayoutLocked(message);
 			_dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
 		}
 
@@ -118,16 +120,6 @@ package org.bigbluebutton.modules.layout.services {
 			redefineLayout.remote = true;
 
 			_dispatcher.dispatchEvent(redefineLayout);
-		}
-
-		private function handleLayoutLocked(message:Object):void {
-			if (message.hasOwnProperty("locked") && message.hasOwnProperty("setById"))
-				lockLayout(message.locked, message.setById);
-		}
-
-		private function lockLayout(locked:Boolean, setById:String):void {
-			LOGGER.debug("LayoutService: received locked layout message. locked = [{0}] by= [{1}]", [locked, setById]);
-			_dispatcher.dispatchEvent(new LayoutLockedEvent(locked, setById));
 		}
 	}
 }

@@ -8,7 +8,7 @@ acl:
       - 'polls'
       - 'chat'
       - 'presentations'
-      - 'shapes'
+      - 'annotations'
       - 'slides'
       - 'captions'
       - 'breakouts'
@@ -18,14 +18,15 @@ acl:
       - 'listenOnlyToggle'
       - 'userLogout'
       - 'setEmojiStatus'
+      - 'toggleSelfVoice'
       - 'publishVote'
       - 'sendChat'
   moderator:
     methods:
       - 'assignPresenter'
       - 'kickUser'
-      - 'muteUser'
-      - 'unmuteUser'
+      - 'toggleVoice'
+      - 'clearPublicChatHistory'
   presenter:
     methods:
       - 'assignPresenter'

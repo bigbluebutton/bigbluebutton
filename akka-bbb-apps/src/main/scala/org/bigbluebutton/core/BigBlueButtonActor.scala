@@ -72,7 +72,7 @@ class BigBlueButtonActor(
       case m: CreateMeetingReqMsg  => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg   => handleRegisterUserReqMsg(m)
       case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
-      case m: PubSubPingSysReqMsg  => handlePubSubPingSysReqMsg(m)
+      case m: CheckAlivePingSysMsg => handleCheckAlivePingSysMsg(m)
       case _                       => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
@@ -125,8 +125,8 @@ class BigBlueButtonActor(
     })
   }
 
-  private def handlePubSubPingSysReqMsg(msg: PubSubPingSysReqMsg): Unit = {
-    val event = MsgBuilder.buildPubSubPongSysRespMsg(msg.body.system, msg.body.timestamp)
+  private def handleCheckAlivePingSysMsg(msg: CheckAlivePingSysMsg): Unit = {
+    val event = MsgBuilder.buildCheckAlivePingSysMsg(msg.body.system, msg.body.timestamp)
     outGW.send(event)
   }
 

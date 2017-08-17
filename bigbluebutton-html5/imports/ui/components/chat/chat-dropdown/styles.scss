@@ -1,0 +1,19 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.btn {
+  flex: 0 0;
+  margin-left: $sm-padding-x / 2;
+
+  i{
+  color: black !important;
+  }
+
+  &:hover,
+  &:focus {
+    span {
+      background-color: transparent !important;
+      color: $color-white !important;
+      opacity: .75;
+    }
+  }
+}

@@ -8,11 +8,11 @@ const clearCurrentPresentation = (meetingId, presentationId) => {
   const selector = {
     meetingId,
     presentationId: { $ne: presentationId },
-    'presentation.current': true,
+    current: true,
   };
 
   const modifier = {
-    $set: { 'presentation.current': false },
+    $set: { current: false },
   };
 
   const cb = (err, numChanged) => {
