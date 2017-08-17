@@ -125,7 +125,7 @@ module.exports = class MessageMapping
     @mappedMessage = JSON.stringify(@mappedObject)
     Logger.info "MessageMapping: Mapped message:", @mappedMessage
 
-  rapTemplate(messageObj) ->
+  rapTemplate: (messageObj) ->
     @mappedObject.data = {
       "type": "event",
       "id": @mapInternalMessage(messageObj.header.name),
