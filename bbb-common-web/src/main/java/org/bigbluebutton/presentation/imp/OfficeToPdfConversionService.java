@@ -31,10 +31,24 @@ import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jodconverter.OfficeDocumentConverter;
+import org.jodconverter.office.DefaultOfficeManagerBuilder;
+import org.jodconverter.office.OfficeException;
+import org.jodconverter.office.OfficeManager;
+
 public class OfficeToPdfConversionService {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
 
   private OfficeDocumentValidator officeDocumentValidator;
+  private final OfficeManager officeManager;
+  private final OfficeDocumentConverter documentConverter;
+
+  public OfficeToPdfConversionService() {
+    final DefaultOfficeManagerBuilder configuration = new DefaultOfficeManagerBuilder();
+    configuration.setPortNumber(8100);
+    officeManager = configuration.build();
+    documentConverter = new OfficeDocumentConverter(officeManager);
+  }
 
   /*
    * Convert the Office document to PDF. If successful, update
@@ -97,8 +111,8 @@ public class OfficeToPdfConversionService {
 
   private boolean convertOfficeDocToPdf(UploadedPresentation pres,
       File pdfOutput) {
-    PageConverter converter = new Office2PdfPageConverter();
-    return converter.convert(pres.getUploadedFile(), pdfOutput, 0, pres);
+    Office2PdfPageConverter converter = new Office2PdfPageConverter();
+    return converter.convert(pres.getUploadedFile(), pdfOutput, 0, pres, documentConverter);
   }
 
   private void makePdfTheUploadedFileAndSetStepAsSuccess(UploadedPresentation pres, File pdf) {
@@ -108,5 +122,23 @@ public class OfficeToPdfConversionService {
 
   public void setOfficeDocumentValidator(OfficeDocumentValidator v) {
     officeDocumentValidator = v;
+  }
+
+  public void start() {
+    try {
+      officeManager.start();
+    } catch (OfficeException e) {
+      log.error(e.getMessage());
+    }
+
+  }
+
+  public void stop() {
+    try {
+      officeManager.stop();
+    } catch (OfficeException e) {
+      log.error(e.getMessage());
+    }
+
   }
 }
