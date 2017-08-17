@@ -81,7 +81,7 @@ function getImageAtTime(time) {
 	for (key in imageAtTime) {
 		if(imageAtTime.hasOwnProperty(key)) {
 			var arry = key.split(",");
-			if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+			if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) > curr_t)) {
 				return imageAtTime[key];
 			}
 		}
