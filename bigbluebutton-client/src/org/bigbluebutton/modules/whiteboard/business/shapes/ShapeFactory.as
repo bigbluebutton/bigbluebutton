@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       return _parentHeight;
     }
         
-    public function makeGraphicObject(a:Annotation, whiteboardModel:WhiteboardModel):GraphicObject{
+    public function makeGraphicObject(a:Annotation):GraphicObject{
         if (a.type == AnnotationType.PENCIL) {
             return new Pencil(a.id, a.type, a.status, a.userId);
         } else if (a.type == AnnotationType.RECTANGLE) {

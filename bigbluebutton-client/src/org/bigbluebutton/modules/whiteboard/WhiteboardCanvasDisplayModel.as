@@ -18,7 +18,8 @@
  */
 package org.bigbluebutton.modules.whiteboard
 {
-  import flash.display.DisplayObject; 
+  import flash.display.DisplayObject;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
@@ -42,7 +43,7 @@ package org.bigbluebutton.modules.whiteboard
     
     private var whiteboardModel:WhiteboardModel;
     private var wbCanvas:WhiteboardCanvas;  
-    private var _annotationsList:Array = new Array();
+    private var _annotationsMap:Object = new Object();
 	private var _cursors:Object = new Object();
     private var shapeFactory:ShapeFactory = new ShapeFactory();
     private var textUpdateListener:TextUpdateListener = new TextUpdateListener();
@@ -71,140 +72,96 @@ package org.bigbluebutton.modules.whiteboard
       var gobj:GraphicObject;
       switch (o.status) {
         case AnnotationStatus.DRAW_START:
-          createGraphic(o);
+          createGraphic(o, false);
           break;
         case AnnotationStatus.DRAW_UPDATE:
         case AnnotationStatus.DRAW_END:
-          for (var i:int = _annotationsList.length -1; i >= 0; i--) {
-            gobj = _annotationsList[i] as GraphicObject;
-            if (gobj != null && gobj.id == o.id) {
-              gobj.updateAnnotation(o);
-              return;
-            }
+          if (_annotationsMap.propertyIsEnumerable(o.id)) {
+            (_annotationsMap[o.id] as GraphicObject).updateAnnotation(o);
+          } else {
+            createGraphic(o, false);
           }
-          
-          createGraphic(o);
           break;
       }
     }
     
-	public function createGraphic(o:Annotation):void {
-		var gobj:GraphicObject = shapeFactory.makeGraphicObject(o, whiteboardModel);
-		if (gobj != null) {
-			gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-			wbCanvas.addGraphic(gobj as DisplayObject);
-			_annotationsList.push(gobj);
-			
-			if (o.type == AnnotationType.TEXT && 
-				o.status != AnnotationStatus.DRAW_END && 
-				o.userId == UsersUtil.getMyUserID()) {
-				textUpdateListener.newTextObject(gobj as TextObject);
-			}
-		}
-	}
-	
-    /* the following three methods are used to remove any GraphicObjects (and its subclasses) if the id of the object to remove is specified. The latter
-    two are convenience methods, the main one is the first of the three.
-    */
-    private function removeGraphic(id:String):void {
-      var gobjData:Array = getGobjInfoWithID(id);
-      var removeIndex:int = gobjData[0];
-      var gobjToRemove:GraphicObject = gobjData[1] as GraphicObject;
-      wbCanvas.removeGraphic(gobjToRemove as DisplayObject);
-      _annotationsList.splice(removeIndex, 1);
-      
-      if (gobjToRemove.toolType == WhiteboardConstants.TYPE_TEXT) {
-        textUpdateListener.removedTextObject(gobjToRemove as TextObject);
-      }
-    }
-    
-    /* returns an array of the GraphicObject that has the specified id,
-    and the index of that GraphicObject (if it exists, of course) 
-    */
-    private function getGobjInfoWithID(id:String):Array {  
-      var data:Array = new Array();
-      for(var i:int = 0; i < _annotationsList.length; i++) {
-        var currObj:GraphicObject = _annotationsList[i] as GraphicObject;
-        if(currObj.id == id) {
-          data.push(i);
-          data.push(currObj);
-          return data;
+    private function createGraphic(o:Annotation, fromHistory:Boolean):void {
+      var gobj:GraphicObject = shapeFactory.makeGraphicObject(o);
+      if (gobj != null) {
+        gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
+        wbCanvas.addGraphic(gobj as DisplayObject);
+        _annotationsMap[gobj.id] = gobj;
+        
+        if (!fromHistory &&
+            o.type == AnnotationType.TEXT &&
+            o.status != AnnotationStatus.DRAW_END &&
+            o.userId == UsersUtil.getMyUserID()) {
+          textUpdateListener.newTextObject(gobj as TextObject);
         }
       }
-      return null;
     }
     
-    private function removeLastGraphic():void {
-      var gobj:GraphicObject = _annotationsList.pop();
-      if (gobj.toolType == WhiteboardConstants.TYPE_TEXT) {
-		textUpdateListener.removedTextObject(gobj as TextObject);
+    private function removeGraphic(id:String):void {
+      if (_annotationsMap.propertyIsEnumerable(id)) {
+        var gobjToRemove:GraphicObject = _annotationsMap[id] as GraphicObject;
+        wbCanvas.removeGraphic(gobjToRemove as DisplayObject);
+        delete _annotationsMap[id];
+        
+        if (gobjToRemove.toolType == WhiteboardConstants.TYPE_TEXT) {
+          textUpdateListener.removedTextObject(gobjToRemove as TextObject);
+        }
       }
-      wbCanvas.removeGraphic(gobj as DisplayObject);
     }
     
     public function clearBoard(userId:String=null):void {
+      var gobj:GraphicObject;
+      
       if (userId) {
-        for (var i:Number = _annotationsList.length-1; i >= 0; i--){
-          var gobj:GraphicObject = _annotationsList[i] as GraphicObject;
+        for each (gobj in _annotationsMap){
           if (gobj.userId == userId) {
-            removeGraphic(_annotationsList[i].id);
+            removeGraphic(gobj.id);
           }
         }
       } else {
-        var numGraphics:int = this._annotationsList.length;
-        for (var j:Number = 0; j < numGraphics; j++){
-          removeLastGraphic();
+        for each (gobj in _annotationsMap){
+          removeGraphic(gobj.id);
         }
       }
     }
     
     public function undoAnnotation(annotation:Annotation):void {
-      if (this._annotationsList.length > 0) {
-        removeGraphic(annotation.id);
-      }
+      removeGraphic(annotation.id);
     }
         
     public function receivedAnnotationsHistory(wbId:String):void {
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
       for (var i:int = 0; i < annotations.length; i++) {
-        var an:Annotation = annotations[i] as Annotation;
-        var gobj:GraphicObject = shapeFactory.makeGraphicObject(an, whiteboardModel);
-        if (gobj != null) {
-          gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
-          wbCanvas.addGraphic(gobj as DisplayObject);
-          _annotationsList.push(gobj);
-        }
+        createGraphic(annotations[i], true);
       }
 	}
         
-        public function changeWhiteboard(wbId:String):void{
-            textUpdateListener.canvasMouseDown();
-            
-//            LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
-            clearBoard();
-            
-            var annotations:Array = whiteboardModel.getAnnotations(wbId);
-//            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
-            for (var i:int = 0; i < annotations.length; i++) {
-                var an:Annotation = annotations[i] as Annotation;
-                // LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
-                var gobj:GraphicObject = shapeFactory.makeGraphicObject(an, whiteboardModel);
-                if (gobj != null) {
-                    gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                    wbCanvas.addGraphic(gobj as DisplayObject);
-                    _annotationsList.push(gobj);
-                }
-            }
-        }
-		
+    public function changeWhiteboard(wbId:String):void{
+      textUpdateListener.canvasMouseDown();
+      
+      //LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
+      clearBoard();
+      
+      var annotations:Array = whiteboardModel.getAnnotations(wbId);
+      //LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
+      for (var i:int = 0; i < annotations.length; i++) {
+        createGraphic(annotations[i], true);
+      }
+    }
+    
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
-				if (userName == null) userName = "Unknown";
-				var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
-				wbCanvas.addCursor(newCursor);
-				
-				_cursors[userId] = newCursor;
+				if (userName) {
+					var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
+					wbCanvas.addCursor(newCursor);
+					
+					_cursors[userId] = newCursor;
+				}
 			} else {
 				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent);
 			}
@@ -225,22 +182,18 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
     
-    public function zoomCanvas(width:Number, height:Number):void{
+    public function zoomCanvas(width:Number, height:Number):void {
       shapeFactory.setParentDim(width, height);  
       this.width = width;
       this.height = height;
 
-      for (var i:int = 0; i < this._annotationsList.length; i++){
-          redrawGraphic(this._annotationsList[i] as GraphicObject, i);
+      for each (var gobj:GraphicObject in _annotationsMap) {
+        gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight);
       }
-	  
-	  for(var j:String in _cursors) {
-		  (_cursors[j] as WhiteboardCursor).updateParentSize(width, height);
-	  }
-    }
-  
-    private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
-      gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight);
+      
+      for(var j:String in _cursors) {
+        (_cursors[j] as WhiteboardCursor).updateParentSize(width, height);
+      }
     }
   }
 }
