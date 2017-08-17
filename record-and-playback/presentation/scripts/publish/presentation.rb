@@ -574,7 +574,6 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     slide = current_slide
   else
     slide = slide.text.to_i
-    # TODO double-check this version number
     slide -=1 unless $version_atleast_0_9_0
   end
 
@@ -696,6 +695,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
     slide = current_slide
   else
     slide = slide.text.to_i
+    slide -=1 unless $version_atleast_0_9_0
   end
   # Newer undo messages have the shape id, making this a lot easier
   shape_id = event.at_xpath('shapeId')
@@ -757,6 +757,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
     slide = current_slide
   else
     slide = slide.text.to_i
+    slide -=1 unless $version_atleast_0_9_0
   end
 
   # BigBlueButton 2.0 per-user clear features
