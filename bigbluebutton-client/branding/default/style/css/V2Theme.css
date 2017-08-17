@@ -1607,9 +1607,9 @@ whiteboard|WhiteboardTextToolbar {
 }
 
 .multiUserWhiteboardOnButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Multi_Whiteboard");
 }
 
 .multiUserWhiteboardOffButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Multi_Whiteboard");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard");
 }
