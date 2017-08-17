@@ -913,7 +913,7 @@ def processPresentation
     elsif eventname == 'AssignPresenterEvent'
       # Move cursor offscreen on presenter switch, it'll reappear if the new
       # presenter moves it
-      presenter = event.at_xpath('userId').text
+      presenter = event.at_xpath('userid').text
       cursor_visible = false
       cursor_changed = true
 
