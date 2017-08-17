@@ -32,7 +32,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator"/>
 
-    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService">
+    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"
+          init-method="start" destroy-method="stop">
         <property name="officeDocumentValidator" ref="officeDocumentValidator"/>
     </bean>
 
