@@ -267,6 +267,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
+				
+				// Show fullscreen button only on Firefox
+				var browser:Array = ExternalInterface.call("determineBrowser");
+				if (browser[0].toString().toLowerCase() == "firefox") {
+					fullScreenBtn.visible = fullScreenBtn.includeInLayout = true;
+				}
 			}
 			
 			// See this stackoverflow post for an explanation on why the size watching is done this way, https://stackoverflow.com/a/2141223
@@ -1093,6 +1099,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				styleName="logsButton"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
-		<mx:Button width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
+		<mx:Button id="fullScreenBtn" styleName="fullScreenButton"
+				   width="30" height="30"
+				   visible="false" includeInLayout="false"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}"
+				   click="toggleFullScreen()" />
 	</mx:ControlBar>
 </mx:VBox>

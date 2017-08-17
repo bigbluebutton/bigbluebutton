@@ -341,14 +341,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			dispatcher.dispatchEvent(rollEvent);
 		}
 		
-		protected function onItemClick(event:ListEvent):void
-		{
-			var item:IListItemRenderer = event.itemRenderer;
-			var presentation:Presentation = item.data as Presentation;
-			var rollEvent:PresentationRollEvent = new PresentationRollEvent(PresentationRollEvent.PRESENTATION_SELECT, presentation.id);
-			dispatcher.dispatchEvent(rollEvent);			
-		}
-		
 	]]>
 
   </fx:Script>
@@ -386,7 +378,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Canvas width="100%" height="145" verticalScrollPolicy="off">
       <mx:List height="142" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
-			   itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)" itemClick="onItemClick(event)"
+			   itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
     </mx:Canvas>
