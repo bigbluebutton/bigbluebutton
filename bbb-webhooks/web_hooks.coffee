@@ -65,18 +65,17 @@ module.exports = class WebHooks
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
   _processEvent: (message) ->
+    # Get all global hooks
     hooks = Hook.allGlobalSync()
 
-    # TODO: events that happen after the meeting ended will never trigger the hooks
-    # below, since the mapping is removed when the meeting ends
-
     # filter the hooks that need to receive this event
-    # only global hooks or hooks for this specific meeting
+    # add hooks that are registered for this specific meeting
     idFromMessage = message.data?.attributes.meeting["internal-meeting-id"]
     if idFromMessage?
       eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
-
-    hooks.forEach (hook) ->
+      
+    # Notify every hook asynchronously, if hook N fails, it won't block hook N+k from receiving its message
+    async.forEach hooks, (hook) ->
       Logger.info "WebHooks: enqueueing a message in the hook:", hook.callbackURL
       hook.enqueue message
