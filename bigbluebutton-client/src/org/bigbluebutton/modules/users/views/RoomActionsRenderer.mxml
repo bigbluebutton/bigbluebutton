@@ -29,9 +29,10 @@
       
       [Bindable]
       private var breakoutRoomsReady: Boolean = false;
-      
+            
       protected function onCreationCompleteHandler(event:FlexEvent):void {
         moderator = UsersUtil.amIModerator();
+        breakoutRoomsReady = LiveMeeting.inst().breakoutRooms.breakoutRoomsReady;
         
         this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
       }
