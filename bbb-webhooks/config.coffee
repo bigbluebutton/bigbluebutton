@@ -18,6 +18,7 @@ config.hooks.pchannel or= "bigbluebutton:*"
 config.hooks.meetingsChannel or= "bigbluebutton:from-bbb-apps:meeting"
 # IP where aggr will be hosted
 config.hooks.aggr or= []
+config.hooks.queueSize or= 10000
 
 # Retry intervals for failed attempts for perform callback calls.
 # In ms. Totals to around 5min.

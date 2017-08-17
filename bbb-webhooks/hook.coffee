@@ -72,12 +72,16 @@ module.exports = class Hook
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
   enqueue: (message) ->
-    Logger.info "Hook: enqueueing message", JSON.stringify(message)
-    # Add message to redis queue
-    @redisClient.rpush config.redis.keys.events(@id), JSON.stringify(message), (error,reply) =>
-      Logger.error "Hook: error pushing event to redis queue:", JSON.stringify(message), error if error?
-    @queue.push message
-    @_processQueue()
+    @redisClient.llen config.redis.keys.events(@id), (error, reply) =>
+      if reply < config.hooks.queueSize
+        Logger.info "Hook: enqueueing message", JSON.stringify(message)
+        # Add message to redis queue
+        @redisClient.rpush config.redis.keys.events(@id), JSON.stringify(message), (error,reply) =>
+        Logger.error "Hook: error pushing event to redis queue:", JSON.stringify(message), error if error?
+        @queue.push message
+        @_processQueue()
+      else
+        Logger.warn "Hook: queue size exceed, event", JSON.stringify(message)
 
   toRedis: ->
     r =
