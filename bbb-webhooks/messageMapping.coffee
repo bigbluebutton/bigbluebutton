@@ -9,6 +9,7 @@ module.exports = class MessageMapping
     @meetingEvents = ["meeting_created_message","meeting_destroyed_event"]
     @userEvents = ["meeting_destroyed_event","user_joined_message","user_left_message","user_listening_only","user_listening_only","user_joined_voice_message","user_left_voice_message"]
     @chatEvents = ["send_public_chat_message","send_private_chat_message"]
+    @rapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended"]
 
   # Map internal message based on it's type
   mapMessage: (messageObj) ->
@@ -18,6 +19,8 @@ module.exports = class MessageMapping
       @userTemplate(messageObj)
     else if messageObj.header?.name in @chatEvents
       @chatTemplate(messageObj)
+    else if messageObj.header?.name in @rapEvents
+      @rapTemplate(messageObj)
 
   # Map internal to external message for meeting information
   meetingTemplate: (messageObj) ->
@@ -122,6 +125,21 @@ module.exports = class MessageMapping
     @mappedMessage = JSON.stringify(@mappedObject)
     Logger.info "MessageMapping: Mapped message:", @mappedMessage
 
+  rapTemplate(messageObj) ->
+    @mappedObject.data = {
+      "type": "event",
+      "id": @mapInternalMessage(messageObj.header.name),
+      "attributes":{
+        "meeting":{
+          "internal-meeting-id": messageObj.payload.meeting_id,
+          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.payload.meeting_id)
+        }
+      },
+      "event":{
+        "ts": messageObj.header.current_time
+      }
+    }
+
   mapInternalMessage: (message) ->
     mappedMsg = switch message
       when "meeting_created_message" then "meeting-created"
@@ -134,4 +152,18 @@ module.exports = class MessageMapping
       when "user_left_voice_message" then "user-audio-voice-disabled"
       when "send_public_chat_message" then "chat-public-message-sent"
       when "send_private_chat_message" then "chat-private-message-sent"
+      when "archive_started" then "rap-archive-started"
+      when "archive_ended" then "rap-archive-ended"
+      when "sanity_started" then "rap-sanity-started"
+      when "sanity_ended" then "rap-sanity-ended"
+      when "post_archive_started" then "rap-post-archive-started"
+      when "post_archive_ended" then "rap-post-archive-ended"
+      when "process_started" then "rap-process-started"
+      when "process_ended" then "rap-process-ended"
+      when "post_process_started" then "rap-post-process-started"
+      when "post_process_ended" then "rap-post-process-ended"
+      when "publish_started" then "rap-publish-started"
+      when "publish_ended" then "rap-publish-ended"
+      when "post_publish_started" then "rap-post-publish-started"
+      when "post_publish_ended" then "rap-post-publish-ended"
     mappedMsg
