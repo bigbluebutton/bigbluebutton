@@ -1224,6 +1224,20 @@ sharednotes|SharedNotesRichTextEditor {
 
 /*
 //------------------------------
+//  Slider
+//------------------------------
+*/
+
+mx|Slider {
+	dataTipStyleName : "sliderDataTipStyleName";
+}
+
+.sliderDataTipStyleName {
+	color : #05172A;
+}
+
+/*
+//------------------------------
 //  SuperTabNavigator
 //------------------------------
 */
@@ -1509,6 +1523,7 @@ whiteboard|WhiteboardToolbar {
 	backgroundColor     : #CFD4DB;
 	borderColor         : #CFD4DB;
 	borderStyle         : solid;
+	horizontalAlign     : center;
 	borderThickness     : 1;
 	cornerRadius        : 4;
 	paddingBottom       : 0;
