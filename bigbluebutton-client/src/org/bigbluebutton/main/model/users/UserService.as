@@ -167,8 +167,10 @@ package org.bigbluebutton.main.model.users
     }
     
     public function disconnect(onUserAction:Boolean):void {
-      _connectionManager.disconnect(onUserAction);
+		if (_connectionManager) {
+	      _connectionManager.disconnect(onUserAction);
 		}
+	}
 
 		public function activityResponse():void {
 			sender.activityResponse();
