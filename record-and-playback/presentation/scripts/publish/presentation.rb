@@ -1214,7 +1214,7 @@ begin
 
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
         $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
-        $version_atleast_2_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
+        $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
         BigBlueButton.logger.info("Creating metadata.xml")
 
         # Get the real-time start and end timestamp
