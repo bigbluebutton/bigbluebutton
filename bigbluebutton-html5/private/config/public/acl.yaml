@@ -26,6 +26,7 @@ acl:
       - 'kickUser'
       - 'toggleVoice'
       - 'clearPublicChatHistory'
+      - 'changeRole'
   presenter:
     methods:
       - 'assignPresenter'
