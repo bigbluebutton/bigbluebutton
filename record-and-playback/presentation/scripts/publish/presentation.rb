@@ -800,6 +800,9 @@ def events_get_image_info(slide)
     slide[:src] = 'presentation/deskshare.png'
   elsif slide[:presentation] == ''
     slide[:src] = 'presentation/logo.png'
+  else
+    slide[:src] = "presentation/#{slide[:presentation]/slide-#{slide[:slide] + 1}.png"
+    slide[:text] = "presentation/#{slide[:presentation]/textfiles/slide-#{slide[:slide] + 1}.txt"
   end
   image_path = "#{$process_dir}/#{slide[:src]}"
   if !File.exist?(image_path)
@@ -819,7 +822,7 @@ end
 
 # Create the shapes.svg, cursors.xml, and panzooms.xml files used for
 # rendering the presentation area
-def processPresentation
+def processPresentation(package_dir)
   shapes_doc = Nokogiri::XML::Document.new()
   shapes_doc.create_internal_subset('svg', '-//W3C//DTD SVG 1.1//EN',
                              'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd')
@@ -952,8 +955,6 @@ def processPresentation
 
         BigBlueButton.logger.info("Presentation #{current_presentation} Slide #{current_slide} Deskshare #{deskshare}")
         slide = {
-          src: "presentation/#{current_presentation}/slide-#{current_slide + 1}.png",
-          text: "presentation/#{current_presentation}/textfiles/slide-#{current_slide + 1}.txt",
           presentation: current_presentation,
           slide: current_slide,
           in: timestamp,
@@ -1284,7 +1285,7 @@ begin
 
         processChatMessages()
 
-        processPresentation()
+        processPresentation(package_dir)
 
         processDeskshareEvents()
 
