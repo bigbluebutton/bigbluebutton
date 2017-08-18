@@ -799,20 +799,21 @@ def events_get_image_info(slide)
   if slide[:deskshare]
     slide[:src] = 'presentation/deskshare.png'
   elsif slide[:presentation] == ''
-    slide[:src] = 'logo.png'
+    slide[:src] = 'presentation/logo.png'
   end
-  if !File.exist?(slide[:src])
-    BigBlueButton.logger.warn("Missing image file #{slide[:src]}!")
+  image_path = "#{$process_dir}/#{slide[:src]}"
+  if !File.exist?(image_path)
+    BigBlueButton.logger.warn("Missing image file #{image_path}!")
     # Emergency last-ditch blank image creation
-    FileUtils.mkdir_p(File.dirname(slide[:src]))
+    FileUtils.mkdir_p(File.dirname(image_path))
     if slide[:deskshare]
-      command = "convert -size #{presentation_props['deskshare_output_width']}x#{presentation_props['deskshare_output_height']} xc:transparent -background transparent #{slide[:src]}"
+      command = "convert -size #{presentation_props['deskshare_output_width']}x#{presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
     else
-      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{slide[:src]}"
+      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_path}"
     end
     BigBlueButton.execute(command)
   end
-  slide[:width], slide[:height] = FastImage.size(slide[:src])
+  slide[:width], slide[:height] = FastImage.size(image_path)
   BigBlueButton.logger.info("Image size is #{slide[:width]}x#{slide[:height]}")
 end
 
