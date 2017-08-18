@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <config>
     <localeversion suppressWarning="false">0.9.0</localeversion>
+    <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
     <porttest host="HOST" application="video/portTest" timeout="10000"/>    
