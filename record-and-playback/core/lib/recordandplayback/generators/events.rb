@@ -292,6 +292,24 @@ module BigBlueButton
             }
           }
         when 'DeskshareStoppedEvent'
+          # Fill in the original/expected video duration when available
+          duration = event.at_xpath('duration')
+          if !duration.nil?
+            duration = duration.text.to_i
+            filename = event.at_xpath('file').text
+            filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+            deskshare_edl.each do |entry|
+              if !entry[:areas][:deskshare].nil?
+                entry[:areas][:deskshare].each do |file|
+                  if file[:filename] == filename
+                    file[:original_duration] = duration * 1000
+                  end
+                end
+              end
+            end
+          end
+
+          # Terminating entry
           deskshare_edl << {
             :timestamp => timestamp,
             :areas => { :deskshare => [] }
@@ -336,7 +354,8 @@ module BigBlueButton
           videos.each do |video|
             new_entry[:areas][area] << {
               :filename => video[:filename],
-              :timestamp => video[:timestamp] + offset
+              :timestamp => video[:timestamp] + offset,
+              :original_duration => video[:original_duration]
             }
           end
         end
