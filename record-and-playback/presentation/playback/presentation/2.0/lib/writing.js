@@ -474,18 +474,18 @@ function runPopcorn() {
             setViewBox(t);
             setSlideAspect(t,imageWidth,imageHeight);
 
-            if (getCursorAtTime(t) != null && getCursorAtTime(t) != undefined && !$('#slide').hasClass('no-background')) {
-              currentCursorVal = getCursorAtTime(t);
-              cursorShownAt = new Date().getTime();
-              showCursor(true);
+            currentCursorVal = getCursorAtTime(t);
+            if (currentCursorVal != null && currentCursorVal != undefined && !$('#slide').hasClass('no-background')) {
               // width and height are divided by 2 because that's the value used as a reference
               // when positions in cursor.xml is calculated
               var cursorX = parseFloat(currentCursorVal[0]) / (imageWidth/2);
               var cursorY = parseFloat(currentCursorVal[1]) / (imageHeight/2);
-              drawCursor(cursorX, cursorY);
-
-              // hide the cursor after 3s of inactivity
-            } else if (cursorShownAt < new Date().getTime() - 3000) {
+              if (cursorX > 0 && cursorY > 0) {
+                showCursor(true);
+                drawCursor(cursorX, cursorY);
+              } else {
+                showCursor(false);
+            } else {
               showCursor(false);
             }
 
@@ -628,7 +628,6 @@ var currentCursorVal;
 var imageAtTime = {};
 var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
-var cursorShownAt = 0;
 var deskshareTimes = [];
 var sharingDesktop = false;
 
