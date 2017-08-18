@@ -485,8 +485,7 @@ function runPopcorn() {
                 drawCursor(cursorX, cursorY);
               } else {
                 showCursor(false);
-            } else {
-              showCursor(false);
+              }
             }
 
             // store the current slide and adjust the size of the slides
