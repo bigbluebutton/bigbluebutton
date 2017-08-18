@@ -446,9 +446,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-                                        
+          updateCopyrightText();
+          
                     logData.localeVersion = localeVersion;
                     logData.tags = ["locale"];
+                    logData.appVersion = appVersion;
                     logData.message = "Received locale version from config.xml";
                     LOGGER.info(JSON.stringify(logData));
       
