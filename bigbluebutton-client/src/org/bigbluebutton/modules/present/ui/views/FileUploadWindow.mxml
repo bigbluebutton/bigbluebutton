@@ -374,7 +374,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  enabled="false"/>
     </mx:HBox>
     <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
-      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="{presentOptions.enableDownload}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
+      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="false" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
     </mx:Box>
     <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
