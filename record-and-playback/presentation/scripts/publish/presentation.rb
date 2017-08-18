@@ -801,8 +801,8 @@ def events_get_image_info(slide)
   elsif slide[:presentation] == ''
     slide[:src] = 'presentation/logo.png'
   else
-    slide[:src] = "presentation/#{slide[:presentation]/slide-#{slide[:slide] + 1}.png"
-    slide[:text] = "presentation/#{slide[:presentation]/textfiles/slide-#{slide[:slide] + 1}.txt"
+    slide[:src] = "presentation/#{slide[:presentation]}/slide-#{slide[:slide] + 1}.png"
+    slide[:text] = "presentation/#{slide[:presentation]}/textfiles/slide-#{slide[:slide] + 1}.txt"
   end
   image_path = "#{$process_dir}/#{slide[:src]}"
   if !File.exist?(image_path)
