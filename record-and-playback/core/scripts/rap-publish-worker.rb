@@ -22,6 +22,7 @@ require '../lib/recordandplayback'
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
+require 'custom_hash'
 
 def publish_processed_meetings(recording_dir)
   processed_done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
