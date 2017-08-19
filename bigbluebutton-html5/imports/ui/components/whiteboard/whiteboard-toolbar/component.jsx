@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
@@ -23,7 +22,7 @@ export default class WhiteboardToolbar extends Component {
       // variables to keep current selected draw settings
       annotationSelected: {
         icon: 'hand',
-        sessionValue: 'Hand',
+        sessionValue: 'hand',
       },
       thicknessSelected: {
         iconRadius: 4,
@@ -75,10 +74,9 @@ export default class WhiteboardToolbar extends Component {
     // to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
 
-    if (this.state.annotationSelected.sessionValue !== 'Text') {
+    if (this.state.annotationSelected.sessionValue !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
-      const node = findDOMNode(this.thicknessListIconRadius);
-      node.beginElement();
+      this.thicknessListIconRadius.beginElement();
     }
   }
 
@@ -109,27 +107,21 @@ export default class WhiteboardToolbar extends Component {
     // 1st case
     if (this.state.colorSelected !== prevState.colorSelected) {
       // 1st case a)
-      if (this.state.annotationSelected.sessionValue === 'Text') {
-        const node = findDOMNode(this.colorListIconColor);
-        node.beginElement();
+      if (this.state.annotationSelected.sessionValue === 'text') {
+        this.colorListIconColor.beginElement();
       // 1st case b)
       } else {
-        const node = findDOMNode(this.colorListIconColor);
-        const node2 = findDOMNode(this.thicknessListIconColor);
-        node.beginElement();
-        node2.beginElement();
+        this.colorListIconColor.beginElement();
+        this.thicknessListIconColor.beginElement();
       }
     // 2nd case
     } else if (this.state.thicknessSelected.iconRadius !== prevState.thicknessSelected.iconRadius) {
-      const node = findDOMNode(this.thicknessListIconRadius);
-      node.beginElement();
+      this.thicknessListIconRadius.beginElement();
       // 3rd case
-    } else if (this.state.annotationSelected.sessionValue !== 'Text' &&
-          prevState.annotationSelected.sessionValue === 'Text') {
-      const node = findDOMNode(this.thicknessListIconRadius);
-      const node2 = findDOMNode(this.thicknessListIconColor);
-      node.beginElement();
-      node2.beginElement();
+    } else if (this.state.annotationSelected.sessionValue !== 'text' &&
+          prevState.annotationSelected.sessionValue === 'text') {
+      this.thicknessListIconRadius.beginElement();
+      this.thicknessListIconColor.beginElement();
     }
 
     // 4th case, initial animation (just thickness) is triggered in componentDidMount
@@ -145,7 +137,7 @@ export default class WhiteboardToolbar extends Component {
   // close a current submenu (fires onBlur only, when you click anywhere on the screen)
   closeSubMenu() {
     // a separate case for the active text shape
-    if (this.state.annotationSelected.sessionValue === 'Text' && this.props.textShapeActiveId !== '') {
+    if (this.state.annotationSelected.sessionValue === 'text' && this.props.textShapeActiveId !== '') {
       return;
     }
 
@@ -180,7 +172,7 @@ export default class WhiteboardToolbar extends Component {
     };
 
     // to animate thickness icon properly when you switch the tool back from Text
-    if (annotation.sessionValue === 'Text') {
+    if (annotation.sessionValue === 'text') {
       obj.prevIconRadius = 0;
     }
 
@@ -367,7 +359,7 @@ export default class WhiteboardToolbar extends Component {
             : null }
           </div>
 
-          {this.state.annotationSelected.sessionValue === 'Text' ?
+          {this.state.annotationSelected.sessionValue === 'text' ?
             <div className={styles.buttonWrapper}>
               <Button
                 label="Thickness List"
@@ -536,13 +528,13 @@ WhiteboardToolbar.defaultProps = {
     { iconRadius: 2, sessionRadius: 1 },
   ],
   annotations: [
-    { icon: 'text_tool', sessionValue: 'Text' },
-    { icon: 'linte_tool', sessionValue: 'Line' },
-    { icon: 'circle_tool', sessionValue: 'Ellipse' },
-    { icon: 'triangle_tool', sessionValue: 'Triangle' },
-    { icon: 'rectangle_tool', sessionValue: 'Rectangle' },
-    { icon: 'pen_tool', sessionValue: 'Pencil' },
-    { icon: 'hand', sessionValue: 'Hand' },
+    { icon: 'text_tool', sessionValue: 'text' },
+    { icon: 'linte_tool', sessionValue: 'line' },
+    { icon: 'circle_tool', sessionValue: 'ellipse' },
+    { icon: 'triangle_tool', sessionValue: 'triangle' },
+    { icon: 'rectangle_tool', sessionValue: 'rectangle' },
+    { icon: 'pen_tool', sessionValue: 'pencil' },
+    { icon: 'hand', sessionValue: 'hand' },
   ],
   fontSizes: [
     { fontSize: 36 },

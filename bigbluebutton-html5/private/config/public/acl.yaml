@@ -35,3 +35,4 @@ acl:
       - 'undoAnnotation'
       - 'clearWhiteboard'
       - 'moveCursor'
+      - 'sendAnnotation'

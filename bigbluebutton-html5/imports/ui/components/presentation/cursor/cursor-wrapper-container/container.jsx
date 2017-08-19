@@ -27,21 +27,20 @@ const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest
         cursorId={presenterCursorId._id}
         {...rest}
       />
-      : null }
+        : null }
 
     {multiUserCursorIds && multiUserCursorIds.length > 0 ?
-        multiUserCursorIds.map(cursorId =>
-          (<CursorContainer
-            key={cursorId._id}
-            cursorId={cursorId._id}
-            presenter={false}
-            {...rest}
-          />),
-        )
-      : null }
+          multiUserCursorIds.map(cursorId =>
+            (<CursorContainer
+              key={cursorId._id}
+              cursorId={cursorId._id}
+              presenter={false}
+              {...rest}
+            />),
+          )
+        : null }
   </g>
-  );
-
+);
 
 export default createContainer(() => {
   const { presenterCursorId, multiUserCursorIds } = CursorWrapperService.getCurrentCursorIds();
@@ -60,4 +59,9 @@ CursorWrapperContainer.propTypes = {
   }),
   // Defines an optional array of cursors when multu-user whiteboard is on
   multiUserCursorIds: PropTypes.arrayOf(PropTypes.object),
+};
+
+CursorWrapperContainer.defaultProps = {
+  presenterCursorId: undefined,
+  multiUserCursorIds: undefined,
 };

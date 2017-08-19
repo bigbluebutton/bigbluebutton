@@ -7,8 +7,8 @@ const sendAnnotation = (annotation) => {
 };
 
 const getWhiteboardToolbarValues = () => {
-  let drawSettings = Storage.getItem('drawSettings');
-  if(drawSettings) {
+  const drawSettings = Storage.getItem('drawSettings');
+  if (drawSettings) {
     const {
       whiteboardAnnotationTool,
       whiteboardAnnotationThickness,
@@ -21,31 +21,36 @@ const getWhiteboardToolbarValues = () => {
       tool: whiteboardAnnotationTool,
       thickness: whiteboardAnnotationThickness,
       color: whiteboardAnnotationColor,
-      textFontSize: textFontSize,
+      textFontSize,
       textShapeValue: textShape.textShapeValue ? textShape.textShapeValue : '',
     };
   }
+  return undefined;
 };
 
 const resetTextShapeValue = () => {
-  let drawSettings = Storage.getItem('drawSettings');
-  if(drawSettings) {
+  const drawSettings = Storage.getItem('drawSettings');
+  if (drawSettings) {
     drawSettings.textShape.textShapeValue = '';
     Storage.setItem('drawSettings', JSON.stringify(drawSettings));
   }
 };
 
 const setTextShapeActiveId = (id) => {
-  let drawSettings = Storage.getItem('drawSettings');
-  if(drawSettings) {
-    drawSettings.textShape.textShapeActiveId = Auth.userID + '-' + id;
+  const drawSettings = Storage.getItem('drawSettings');
+  if (drawSettings) {
+    drawSettings.textShape.textShapeActiveId = `${Auth.userID}-${id}`;
     Storage.setItem('drawSettings', JSON.stringify(drawSettings));
   }
 };
+
+const getCurrentUserId = () => Auth.userID;
+
 
 export default {
   sendAnnotation,
   getWhiteboardToolbarValues,
   setTextShapeActiveId,
   resetTextShapeValue,
+  getCurrentUserId,
 };

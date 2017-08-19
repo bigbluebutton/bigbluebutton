@@ -229,6 +229,7 @@ export default class PresentationArea extends React.Component {
                     viewBoxY={y}
                     viewBoxWidth={viewBoxWidth}
                     viewBoxHeight={viewBoxHeight}
+                    physicalViewBoxWidth={adjustedSizes.width}
                   />
                 </PresentationOverlayContainer>
               : null }
@@ -264,7 +265,6 @@ export default class PresentationArea extends React.Component {
   }
 
   render() {
-
     return (
       <div className={styles.presentationContainer}>
         <div
@@ -305,7 +305,7 @@ PresentationArea.propTypes = {
     yOffset: PropTypes.number.isRequired,
     num: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
-    svgUri : PropTypes.string,
+    svgUri: PropTypes.string,
     pngUri: PropTypes.string,
     // TODO we don't use any of thefollowing uris here
     swfUri: PropTypes.string.isRequired,
@@ -314,4 +314,8 @@ PresentationArea.propTypes = {
   }),
   // current multi-user status
   multiUser: PropTypes.bool.isRequired,
+};
+
+PresentationArea.defaultProps = {
+  currentSlide: undefined,
 };

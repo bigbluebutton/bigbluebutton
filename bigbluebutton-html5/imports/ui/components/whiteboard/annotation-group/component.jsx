@@ -1,21 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import Ellipse from '../annotations/ellipse/component.jsx';
-import Line from '../annotations/line/component.jsx';
-import Poll from '../annotations/poll/component.jsx';
-import Rectangle from '../annotations/rectangle/component.jsx';
-import Text from '../annotations/text/container.jsx';
-import Triangle from '../annotations/triangle/component.jsx';
-import Pencil from '../annotations/pencil/component.jsx';
+import Ellipse from '../annotations/ellipse/component';
+import Line from '../annotations/line/component';
+import Poll from '../annotations/poll/component';
+import Rectangle from '../annotations/rectangle/component';
+import Text from '../annotations/text/container';
+import Triangle from '../annotations/triangle/component';
+import Pencil from '../annotations/pencil/component';
 
-const propTypes = {
-  // initial width and height of the slide are required to calculate the coordinates for each annotation
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-
-  // array of annotations, optional
-  annotations: PropTypes.array,
-};
 
 export default class AnnotationGroup extends React.Component {
   constructor(props) {
@@ -24,7 +16,7 @@ export default class AnnotationGroup extends React.Component {
   }
 
   renderAnnotation(annotation, width, height) {
-    let Component = this.props.annotationSelector[annotation.annotationType];
+    const Component = this.props.annotationSelector[annotation.annotationType];
 
     if (Component != null) {
       return (
@@ -36,12 +28,9 @@ export default class AnnotationGroup extends React.Component {
           slideHeight={height}
         />
       );
-    } else {
-      console.error('Unexpected shape type received: ' + annotation.annotationType);
-      return (
-        <g key={annotation.id}></g>
-      );
     }
+
+    return null;
   }
 
   render() {
@@ -53,16 +42,24 @@ export default class AnnotationGroup extends React.Component {
 
     return (
       <g>
-        {annotations ? annotations.map(annotation =>
-            this.renderAnnotation(annotation, width, height)
-          )
+        {annotations ?
+          annotations.map(annotation => this.renderAnnotation(annotation, width, height))
         : null }
       </g>
     );
   }
 }
 
-AnnotationGroup.propTypes = propTypes;
+AnnotationGroup.propTypes = {
+  // initial width and height of the slide are required
+  // to calculate the coordinates for each annotation
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+
+  // array of annotations, optional
+  annotations: PropTypes.arrayOf(PropTypes.object),
+  annotationSelector: PropTypes.objectOf(PropTypes.instanceOf(Function)).isRequired,
+};
 
 AnnotationGroup.defaultProps = {
   annotationSelector: {
