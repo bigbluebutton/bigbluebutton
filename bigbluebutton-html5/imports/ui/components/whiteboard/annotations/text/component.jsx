@@ -1,50 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
-import AnnotationHelpers from '../helpers.js';
+import AnnotationHelpers from '../helpers';
 
-export default class TextDrawComponent extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.handleFocus = this.handleFocus.bind(this);
-    this.handleOnBlur = this.handleOnBlur.bind(this);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.version != nextProps.version ||
-      this.props.isActive != nextProps.isActive;
-  }
-
-  componentDidMount() {
-    if(this.props.isActive && this.props.annotation.status != "textPublished") {
-      this.handleFocus();
-    }
-  }
-
-  getCoordinates() {
-    const x = this.props.annotation.x / 100 * this.props.slideWidth;
-    const y = this.props.annotation.y / 100 * this.props.slideHeight;
-    const width = this.props.annotation.textBoxWidth / 100 * this.props.slideWidth;
-    const height = this.props.annotation.textBoxHeight / 100 * this.props.slideHeight;
-    const fontColor = AnnotationHelpers.formatColor(this.props.annotation.fontColor);
-    const fontSize = this.props.annotation.fontSize;
-    const calcedFontSize = this.props.annotation.calcedFontSize / 100 * this.props.slideHeight;
-    const text = this.props.annotation.text;
-
-    return {
-      x,
-      y,
-      text,
-      width,
-      height,
-      fontSize,
-      fontColor,
-      calcedFontSize,
-    };
-  }
-
-  getViewerStyles(results) {
+export default class TextDrawComponent extends Component {
+  static getViewerStyles(results) {
     const styles = {
       WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
       pointerEvents: 'none',
@@ -68,25 +27,84 @@ export default class TextDrawComponent extends React.Component {
     return styles;
   }
 
-  getPresenterStyles(results) {
+  static getPresenterStyles(results) {
     const styles = {
       fontFamily: 'Arial',
       border: '1px solid black',
-      width: "100%",
-      height: "100%",
+      width: '100%',
+      height: '100%',
       resize: 'none',
       overflow: 'hidden',
       outline: 'none',
       color: results.fontColor,
       fontSize: results.calcedFontSize,
-      padding: "0",
+      padding: '0',
     };
 
     return styles;
   }
 
+  constructor() {
+    super();
+
+    this.handleFocus = this.handleFocus.bind(this);
+    this.handleOnBlur = this.handleOnBlur.bind(this);
+    this.onChangeHandler = this.onChangeHandler.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.isActive && this.props.annotation.status !== 'textPublished') {
+      this.handleFocus();
+    }
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.props.version !== nextProps.version ||
+      this.props.isActive !== nextProps.isActive;
+  }
+
+  onChangeHandler(event) {
+    this.props.setTextShapeValue(event.target.value);
+  }
+
+  getCoordinates() {
+    const { annotation, slideWidth, slideHeight } = this.props;
+
+    const x = (annotation.x / 100) * slideWidth;
+    const y = (annotation.y / 100) * slideHeight;
+    const width = (annotation.textBoxWidth / 100) * slideWidth;
+    const height = (annotation.textBoxHeight / 100) * slideHeight;
+    const fontColor = AnnotationHelpers.formatColor(annotation.fontColor);
+    const fontSize = annotation.fontSize;
+    const calcedFontSize = (annotation.calcedFontSize / 100) * slideHeight;
+    const text = annotation.text;
+
+    return {
+      x,
+      y,
+      text,
+      width,
+      height,
+      fontSize,
+      fontColor,
+      calcedFontSize,
+    };
+  }
+
+  handleOnBlur() {
+    // it'd be better to use ref to focus onBlur (handleFocus), but it doesn't want to work in FF
+    // so we are back to the old way of doing things, getElementById and setTimeout
+    const node = document.getElementById(this.props.annotation.id);
+    setTimeout(() => { node.focus(); }, 1);
+  }
+
+  handleFocus() {
+    // Explicitly focus the text input using the raw DOM API
+    this.textArea.focus();
+  }
+
   renderViewerTextShape(results) {
-    const styles = this.getViewerStyles(results);
+    const styles = TextDrawComponent.getViewerStyles(results);
 
     return (
       <g>
@@ -115,7 +133,7 @@ export default class TextDrawComponent extends React.Component {
   }
 
   renderPresenterTextShape(results) {
-    const styles = this.getPresenterStyles(results);
+    const styles = TextDrawComponent.getPresenterStyles(results);
 
     return (
       <g>
@@ -124,13 +142,13 @@ export default class TextDrawComponent extends React.Component {
           y={results.y}
           width={results.width}
           height={results.height}
-          style={{pointerEvents: 'none'}}
+          style={{ pointerEvents: 'none' }}
         >
           <textarea
             id={this.props.annotation.id}
             maxLength="1024"
             ref={(ref) => { this.textArea = ref; }}
-            onChange={this.onChangeHandler.bind(this)}
+            onChange={this.onChangeHandler}
             onBlur={this.handleOnBlur}
             style={styles}
           />
@@ -139,34 +157,38 @@ export default class TextDrawComponent extends React.Component {
     );
   }
 
-  onChangeHandler(event) {
-    this.props.setTextShapeValue(event.target.value);
-  }
-
-  handleOnBlur(event) {
-
-    // it'd be better to use ref to focus onBlur (handleFocus), but it doesn't want to work in FF
-    // so we are back to the old way of doing things, getElementById and setTimeout
-    let node = document.getElementById(this.props.annotation.id);
-    setTimeout(function() { node.focus(); }, 1);
-  }
-
-  handleFocus() {
-    // Explicitly focus the text input using the raw DOM API
-    this.textArea.focus();
-  }
-
   render() {
-    let results = this.getCoordinates();
+    const results = this.getCoordinates();
 
-    if(this.props.isActive && this.props.annotation.status != "textPublished") {
+    if (this.props.isActive && this.props.annotation.status !== 'textPublished') {
       return this.renderPresenterTextShape(results);
-    } else {
-      return this.renderViewerTextShape(results);
     }
+    return this.renderViewerTextShape(results);
   }
 }
 
-TextDrawComponent.defaultProps = {
-
+TextDrawComponent.propTypes = {
+  // Defines a version of the shape, so that we know if we need to update the component or not
+  version: PropTypes.number.isRequired,
+  // Defines an annotation object, which contains all the basic info we need to draw text shape
+  annotation: PropTypes.shape({
+    calcedFontSize: PropTypes.number.isRequired,
+    fontColor: PropTypes.number.isRequired,
+    fontSize: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
+    textBoxWidth: PropTypes.number.isRequired,
+    textBoxHeight: PropTypes.number.isRequired,
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+  }).isRequired,
+  // Defines the width of the slide (svg coordinate system), which needed in calculations
+  slideWidth: PropTypes.number.isRequired,
+  // Defines the height of the slide (svg coordinate system), which needed in calculations
+  slideHeight: PropTypes.number.isRequired,
+  // Defines a flag which indicates that this shape is currently used by a presenter to draw text
+  isActive: PropTypes.bool.isRequired,
+  // Defines a function that sends updates from the active text shape  to the server
+  setTextShapeValue: PropTypes.func.isRequired,
 };

@@ -1,27 +1,6 @@
-// applies zooming to the stroke thickness
-const zoomStroke = (thickness, widthRatio, heightRatio) => {
-  let ratio;
-
-  ratio = (widthRatio + heightRatio) / 2;
-  return thickness * 100 / ratio;
-};
-
-const formatColor = (color) => {
-  // let color = this.props.annotation.annotation.annotation.color;
-  if (!color) {
-    color = '0'; // default value
-  }
-
-  if (!color.toString().match(/\#.*/)) {
-    color = colourToHex(color);
-  }
-
-  return color;
-};
-
 const colourToHex = (value) => {
   let hex;
-  hex = parseInt(value).toString(16);
+  hex = parseInt(value, 10).toString(16);
   while (hex.length < 6) {
     hex = `0${hex}`;
   }
@@ -29,7 +8,23 @@ const colourToHex = (value) => {
   return `#${hex}`;
 };
 
-const getStrokeWidth = (thickness, slideWidth) => thickness * slideWidth / 100;
+const formatColor = (color) => {
+  let _color;
+
+  if (!color) {
+    _color = '0'; // default value
+  } else {
+    _color = color;
+  }
+
+  if (!_color.toString().match(/#.*/)) {
+    _color = colourToHex(_color);
+  }
+
+  return _color;
+};
+
+const getStrokeWidth = (thickness, slideWidth) => (thickness * slideWidth) / 100;
 
 export default {
   formatColor,

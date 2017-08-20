@@ -26,6 +26,8 @@ const activeTextShapeId = () => {
   if (drawSettings) {
     return drawSettings.textShape.textShapeActiveId;
   }
+
+  return undefined;
 };
 
 export default {

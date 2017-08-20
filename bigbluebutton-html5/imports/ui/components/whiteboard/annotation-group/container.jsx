@@ -5,22 +5,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import AnnotationGroupService from './service';
 import AnnotationGroup from './component';
 
-const propTypes = {
-  // the id is required to fetch the annotations
-  whiteboardId: PropTypes.string.isRequired,
-
-  // initial width and height of the slide are required to calculate the coordinates for each annotation
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-
-  // array of annotations, optional
-  annotations: PropTypes.array,
-};
-
-class AnnotationGroupContainer extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+class AnnotationGroupContainer extends Component {
 
   render() {
     return (
@@ -44,4 +29,11 @@ export default createContainer((params) => {
   };
 }, AnnotationGroupContainer);
 
-AnnotationGroupContainer.propTypes = propTypes;
+AnnotationGroupContainer.propTypes = {
+  // initial width and height of the slide; required to calculate the annotations' coordinates
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+
+  // array of annotations, optional
+  annotations: PropTypes.arrayOf(PropTypes.object),
+};

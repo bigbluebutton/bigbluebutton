@@ -52,20 +52,19 @@ export default class WhiteboardOverlay extends React.Component {
     const _drawsettings = prevProps.drawSettings;
     const _textShapeValue = prevProps.drawSettings.textShapeValue;
 
-    if(drawSettings.textFontSize != _drawsettings.textFontSize ||
+    if (drawSettings.textFontSize != _drawsettings.textFontSize ||
       drawSettings.color != _drawsettings.color ||
       drawSettings.textShapeValue != _textShapeValue) {
-
       const { getCurrentShapeId } = this.props.actions;
-      this.currentStatus = "textEdited";
+      this.currentStatus = 'textEdited';
 
       this.handleDrawText(
-        {x: this.currentX, y: this.currentY},
+        { x: this.currentX, y: this.currentY },
         this.currentWidth,
         this.currentHeight,
         this.currentStatus,
         getCurrentShapeId(),
-        drawSettings.textShapeValue
+        drawSettings.textShapeValue,
       );
     }
   }
@@ -80,29 +79,29 @@ export default class WhiteboardOverlay extends React.Component {
     this.sendLastMessage();
   }
 
-  //main mouse down handler
-  //calls a mouseDown<AnnotationName> handler based on the tool selected
+  // main mouse down handler
+  // calls a mouseDown<AnnotationName> handler based on the tool selected
   mouseDownHandler(event) {
     this.mouseDownText(event);
   }
 
-  //main mouse up handler
-  //calls a mouseUp<AnnotationName> handler based on the tool selected
+  // main mouse up handler
+  // calls a mouseUp<AnnotationName> handler based on the tool selected
   mouseUpHandler(event) {
     window.removeEventListener('mouseup', this.mouseUpHandler);
     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
     this.mouseUpText(event);
   }
 
-  //main mouse move handler
-  //calls a mouseMove<AnnotationName> handler based on the tool selected
+  // main mouse move handler
+  // calls a mouseMove<AnnotationName> handler based on the tool selected
   mouseMoveHandler(event) {
     this.mouseMoveText(event);
   }
 
   mouseDownText(event) {
     // if our current drawing state is not drawing the box and not writing the text
-    if(!this.state.isDrawing && !this.state.isWritingText) {
+    if (!this.state.isDrawing && !this.state.isWritingText) {
       window.addEventListener('mouseup', this.mouseUpHandler);
       window.addEventListener('mousemove', this.mouseMoveHandler, true);
 
@@ -118,19 +117,18 @@ export default class WhiteboardOverlay extends React.Component {
 
     // second case is when a user finished writing the text and publishes the final result
     } else {
-      //publishing the final shape and resetting the state
+      // publishing the final shape and resetting the state
       this.sendLastMessage();
     }
   }
 
   sendLastMessage() {
-
-    if(this.state.isWritingText) {
+    if (this.state.isWritingText) {
       const { getCurrentShapeId } = this.props.actions;
       this.currentStatus = 'textPublished';
 
       this.handleDrawText(
-        {x: this.currentX, y: this.currentY},
+        { x: this.currentX, y: this.currentY },
         this.currentWidth,
         this.currentHeight,
         this.currentStatus,
@@ -149,7 +147,7 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   resetState() {
-    //resetting the current state
+    // resetting the current state
     this.currentX = undefined;
     this.currentY = undefined;
     this.currentWidth = undefined;
@@ -171,19 +169,19 @@ export default class WhiteboardOverlay extends React.Component {
   mouseMoveText(event) {
     const { checkIfOutOfBounds, getTransformedSvgPoint } = this.props.actions;
 
-    //get the transformed svg coordinate
+    // get the transformed svg coordinate
     let transformedSvgPoint = getTransformedSvgPoint(event);
 
-    //check if it's out of bounds
+    // check if it's out of bounds
     transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
 
-    //check if we need to use initial or new coordinates for the top left corner of the rectangle
-    let x = transformedSvgPoint.x < this.initialX ? transformedSvgPoint.x : this.initialX;
-    let y = transformedSvgPoint.y < this.initialY ? transformedSvgPoint.y : this.initialY;
+    // check if we need to use initial or new coordinates for the top left corner of the rectangle
+    const x = transformedSvgPoint.x < this.initialX ? transformedSvgPoint.x : this.initialX;
+    const y = transformedSvgPoint.y < this.initialY ? transformedSvgPoint.y : this.initialY;
 
-    //calculating the width and height of the displayed text box
-    let width = transformedSvgPoint.x > this.initialX ? transformedSvgPoint.x - this.initialX : this.initialX - transformedSvgPoint.x;
-    let height = transformedSvgPoint.y > this.initialY ? transformedSvgPoint.y - this.initialY : this.initialY - transformedSvgPoint.y;
+    // calculating the width and height of the displayed text box
+    const width = transformedSvgPoint.x > this.initialX ? transformedSvgPoint.x - this.initialX : this.initialX - transformedSvgPoint.x;
+    const height = transformedSvgPoint.y > this.initialY ? transformedSvgPoint.y - this.initialY : this.initialY - transformedSvgPoint.y;
 
     this.setState({
       textBoxWidth: width,
@@ -195,9 +193,8 @@ export default class WhiteboardOverlay extends React.Component {
 
 
   mouseUpText(event) {
-    //TODO - find if the size is large enough to display the text area
-    if(this.state.isDrawing && !this.state.isWritingText) {
-
+    // TODO - find if the size is large enough to display the text area
+    if (this.state.isDrawing && !this.state.isWritingText) {
       const { generateNewShapeId, getCurrentShapeId } = this.props.actions;
 
       // coordinates and width/height of the textarea in percentages of the current slide
@@ -206,14 +203,14 @@ export default class WhiteboardOverlay extends React.Component {
       this.currentY = this.state.textBoxY / this.props.slideHeight * 100;
       this.currentWidth = this.state.textBoxWidth / this.props.slideWidth * 100;
       this.currentHeight = this.state.textBoxHeight / this.props.slideHeight * 100;
-      this.currentStatus = "textCreated";
+      this.currentStatus = 'textCreated';
       this.handleDrawText(
-        {x: this.currentX, y: this.currentY},
+        { x: this.currentX, y: this.currentY },
         this.currentWidth,
         this.currentHeight,
         this.currentStatus,
         generateNewShapeId(),
-        ""
+        '',
       );
 
       this.props.setTextShapeActiveId(getCurrentShapeId());
@@ -229,21 +226,20 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   handleDrawText(startPoint, width, height, status, id, text) {
-
-    let shape = {
+    const shape = {
       annotation: {
-        type: "text",
-        x: startPoint.x, //left corner
-        y: startPoint.y, //left corner
-        textBoxWidth: width, //width
-        textBoxHeight: height, //height
+        type: 'text',
+        x: startPoint.x, // left corner
+        y: startPoint.y, // left corner
+        textBoxWidth: width, // width
+        textBoxHeight: height, // height
         dataPoints: `${startPoint.x},${startPoint.y}`,
-        text: text,
+        text,
         fontSize: this.props.drawSettings.textFontSize,
         fontColor: this.props.drawSettings.color,
-        calcedFontSize: this.props.drawSettings.textFontSize / this.props.slideWidth * 100, //fontsize
-        status: status,
-        id: id,
+        calcedFontSize: this.props.drawSettings.textFontSize / this.props.slideWidth * 100, // fontsize
+        status,
+        id,
         whiteboardId: this.props.whiteboardId,
       },
       whiteboard_id: this.props.whiteboardId,
@@ -253,8 +249,7 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   render() {
-
-    let tool = this.props.drawSettings.tool;
+    const tool = this.props.drawSettings.tool;
     return (
       <div
         className={styles.text}
