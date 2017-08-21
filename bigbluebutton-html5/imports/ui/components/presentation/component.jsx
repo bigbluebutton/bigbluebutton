@@ -158,6 +158,9 @@ export default class PresentationArea extends React.Component {
       const viewBoxWidth = (svgWidth * slideObj.widthRatio) / 100;
       const viewBoxHeight = (svgHeight * slideObj.heightRatio) / 100;
 
+      // Uri for the slide
+      const imageUri = this.props.currentSlide.svgUri || this.props.currentSlide.pngUri;
+
       return (
         <div
           style={{
@@ -199,7 +202,7 @@ export default class PresentationArea extends React.Component {
               <g clipPath="url(#viewBox)">
                 <Slide
                   id="slideComponent"
-                  currentSlide={this.props.currentSlide}
+                  imageUri={imageUri}
                   svgWidth={svgWidth}
                   svgHeight={svgHeight}
                 />

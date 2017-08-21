@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import BaseButton from './base/component';
-import styles from './styles';
 import cx from 'classnames';
-
+import styles from './styles';
 import Icon from '../icon/component';
+import BaseButton from './base/component';
 
 const SIZES = [
   'jumbo', 'lg', 'md', 'sm',
@@ -87,13 +86,9 @@ const defaultProps = {
 };
 
 export default class Button extends BaseButton {
-  constructor(props) {
-    super(props);
-  }
 
   _getClassNames() {
     const {
-      icon,
       size,
       color,
       disabled,
@@ -103,7 +98,7 @@ export default class Button extends BaseButton {
       iconRight,
     } = this.props;
 
-    let propClassNames = {};
+    const propClassNames = {};
 
     propClassNames[styles.button] = true;
     propClassNames[styles[size]] = true;
@@ -118,7 +113,7 @@ export default class Button extends BaseButton {
   }
 
   render() {
-    let renderFuncName = this.props.circle ?
+    const renderFuncName = this.props.circle ?
       'renderCircle' : 'renderDefault';
 
     return this[renderFuncName]();
@@ -128,7 +123,7 @@ export default class Button extends BaseButton {
     const {
       className,
       iconRight,
-      ...otherProps,
+      ...otherProps
     } = this.props;
 
     const remainingProps = Object.assign({}, otherProps);
@@ -162,7 +157,7 @@ export default class Button extends BaseButton {
       className,
       size,
       iconRight,
-      ...otherProps,
+      ...otherProps
     } = this.props;
 
     const remainingProps = Object.assign({}, otherProps);
@@ -193,7 +188,7 @@ export default class Button extends BaseButton {
 
     if (iconName) {
       return (<Icon className={styles.icon} iconName={iconName} />);
-    } else if(customIcon) {
+    } else if (customIcon) {
       return customIcon;
     }
 
@@ -203,7 +198,7 @@ export default class Button extends BaseButton {
   renderLabel() {
     const { label, hideLabel } = this.props;
 
-    let classNames = {};
+    const classNames = {};
 
     classNames[styles.label] = true;
     classNames[styles.hideLabel] = hideLabel;

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 
 export default class Cursor extends Component {
 
@@ -88,8 +87,7 @@ export default class Cursor extends Component {
 
   componentDidMount() {
     // trigger initial animation on the cursor, otherwise it stays invisible until the next update
-    const node1 = findDOMNode(this.cursorCoordinatesRef);
-    node1.beginElement();
+    this.cursorCoordinatesRef.beginElement();
 
     // we need to find the BBox of the text, so that we could set a proper border box arount it
     this.calculateCursorLabelBoxDimensions();
@@ -104,21 +102,18 @@ export default class Cursor extends Component {
   }
 
   componentDidUpdate() {
-    const node1 = findDOMNode(this.cursorCoordinatesRef);
-    const node2 = findDOMNode(this.cursorRadiusRef);
-    node1.beginElement();
-    node2.beginElement();
+    this.cursorCoordinatesRef.beginElement();
+    this.cursorRadiusRef.beginElement();
   }
 
 
   // this function retrieves the text node, measures its BBox and sets the size for the outer box
   calculateCursorLabelBoxDimensions() {
-    const node2 = findDOMNode(this.cursorLabelRef);
     let labelBoxWidth = 0;
     let labelBoxHeight = 0;
 
-    if (node2) {
-      const { width, height } = node2.getBBox();
+    if (this.cursorLabelRef) {
+      const { width, height } = this.cursorLabelRef.getBBox();
 
       labelBoxWidth = Cursor.invertScale(width, this.props);
       labelBoxHeight = Cursor.invertScale(height, this.props);
@@ -222,11 +217,12 @@ Cursor.propTypes = {
 
   // Slide physical size to original size ratio
   physicalWidthRatio: PropTypes.number.isRequired,
+
   /**
-   * Defines the cursor radius
+   * Defines the cursor radius (not scaled)
    * @defaultValue 5
    */
-  radius: PropTypes.number,
+  radius: PropTypes.number.isRequired,
 
   cursorLabelBox: PropTypes.shape({
     labelBoxX: PropTypes.number.isRequired,
@@ -240,9 +236,6 @@ Cursor.propTypes = {
     textDX: PropTypes.number.isRequired,
     fontSize: PropTypes.number.isRequired,
   }),
-
-  // Defines the radius of the cursor (not scaled)
-  radius: PropTypes.number.isRequired,
 
   // Defines the id of the current cursor
   cursorId: PropTypes.string.isRequired,
