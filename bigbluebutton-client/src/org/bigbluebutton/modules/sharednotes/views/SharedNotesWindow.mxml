@@ -145,6 +145,8 @@
 				richTextEditor.bulletButton.visible = false;
 				richTextEditor.bulletButton.height = 0;
 				richTextEditor.bulletButton.width = 0;
+
+				richTextEditor.textArea.maxChars = options.maxNoteLength;
 			}
 
 			private function updateRoleDependentProperties(role:String):void {
@@ -422,6 +424,10 @@
 				return true;
 			}
 
+			public function throwPasteWarning(pasteLength:int):void {
+				Alert.show(ResourceUtil.getInstance().getString("bbb.caption.transcript.pastewarning.text", [options.maxPasteLength, pasteLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.pastewarning.title"), Alert.OK);
+			}
+
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
 				richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
@@ -491,6 +497,10 @@
 						enabled="false" visible="true"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
+				<mx:Label id="charRemain"
+						includeInLayout="true"
+						visible="{(options.maxNoteLength - richTextEditor.text.length) &lt; (options.maxNoteLength / 8)}"
+						text="{options.maxNoteLength - richTextEditor.text.length}"/>
 				<mx:Button id="btnNew"
 						styleName="sharedNotesNewButtonStyle"
 						width="26"

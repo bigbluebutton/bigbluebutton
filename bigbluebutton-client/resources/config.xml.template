@@ -130,6 +130,8 @@
 			toolbarVisibleByDefault="false"
 			showToolbarButton="true"
 			fontSize="12"
+			maxPasteLength="1024"
+			maxNoteLenght="5120"
 		/>
 
 <!--
