@@ -38,7 +38,7 @@ class AssignPresenterRecordEvent extends AbstractParticipantRecordEvent {
 }
 
 object AssignPresenterRecordEvent {
-  protected final val USER_ID = "userId"
+  protected final val USER_ID = "userid"
   protected final val NAME = "name"
   protected final val ASSIGNED_BY = "assignedBy"
 }

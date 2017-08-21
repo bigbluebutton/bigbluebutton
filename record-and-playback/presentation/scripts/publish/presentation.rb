@@ -29,6 +29,7 @@ require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
 
 
+# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 presentation_props = YAML::load(File.open('presentation.yml'))
 
@@ -37,8 +38,8 @@ presentation_props = YAML::load(File.open('presentation.yml'))
 $magic_mystery_number = 2
 
 def scaleToDeskshareVideo(width, height)
-  deskshare_video_height = 720.to_f
-  deskshare_video_width = 1280.to_f
+  deskshare_video_height = presentation_props['deskshare_output_height'].to_f
+  deskshare_video_width = presentation_props['deskshare_output_height'].to_f
 
   scale = [deskshare_video_width/width, deskshare_video_height/height]
   video_width = width * scale.min
@@ -48,14 +49,13 @@ def scaleToDeskshareVideo(width, height)
 end
 
 def getDeskshareVideoDimension(deskshare_stream_name)
-  video_width = 1280
-  video_height = 720
+  video_width = presentation_props['deskshare_output_height'].to_f
+  video_height = presentation_props['deskshare_output_height'].to_f
   deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
 
   if File.exist?(deskshare_video_filename)
-    video_width = BigBlueButton.get_video_width(deskshare_video_filename)
-    video_height = BigBlueButton.get_video_height(deskshare_video_filename)
-    video_width, video_height = scaleToDeskshareVideo(video_width, video_height)
+    video_info = BigBlueButton::EDL::Video.video_info(deskshare_video_filename)
+    video_width, video_height = scaleToDeskshareVideo(video_info[:width], video_info[:height])
   else
     BigBlueButton.logger.error("Could not find deskshare video: #{deskshare_video_filename}")
   end
@@ -799,20 +799,21 @@ def events_get_image_info(slide)
   if slide[:deskshare]
     slide[:src] = 'presentation/deskshare.png'
   elsif slide[:presentation] == ''
-    slide[:src] = 'logo.png'
+    slide[:src] = 'presentation/logo.png'
   end
-  if !File.exist?(slide[:src])
-    BigBlueButton.logger.warn("Missing image file #{slide[:src]}!")
+  image_path = "#{$process_dir}/#{slide[:src]}"
+  if !File.exist?(image_path)
+    BigBlueButton.logger.warn("Missing image file #{image_path}!")
     # Emergency last-ditch blank image creation
-    FileUtils.mkdir_p(File.dirname(slide[:src]))
+    FileUtils.mkdir_p(File.dirname(image_path))
     if slide[:deskshare]
-      command = "convert -size #{presentation_props['deskshare_output_width']}x#{presentation_props['deskshare_output_height']} xc:transparent -background transparent #{slide[:src]}"
+      command = "convert -size #{presentation_props['deskshare_output_width']}x#{presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
     else
-      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{slide[:src]}"
+      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_path}"
     end
     BigBlueButton.execute(command)
   end
-  slide[:width], slide[:height] = FastImage.size(slide[:src])
+  slide[:width], slide[:height] = FastImage.size(image_path)
   BigBlueButton.logger.info("Image size is #{slide[:width]}x#{slide[:height]}")
 end
 
@@ -1088,7 +1089,8 @@ def processDeskshareEvents
         start_timestamp = (translateTimestamp(event[:start_timestamp].to_f) / 1000).round(1)
         stop_timestamp = (translateTimestamp(event[:stop_timestamp].to_f) / 1000).round(1)
         if (start_timestamp != stop_timestamp)
-          if !BigBlueButton.is_video_valid?("#{$deskshare_dir}/#{event[:stream]}")
+          video_info = BigBlueButton::EDL::Video.video_info("#{$deskshare_dir}/#{event[:stream]}")
+          if !video_info[:video]
             BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
             next
           end
@@ -1124,8 +1126,6 @@ puts $playback
 begin
 
   if ($playback == "presentation")
-
-    # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 
     log_dir = bbb_props['log_dir']
 
