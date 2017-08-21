@@ -73,13 +73,14 @@ module.exports = class Hook
   # message might be processed instantly.
   enqueue: (message) ->
     @redisClient.llen config.redis.keys.events(@id), (error, reply) =>
-      if reply < config.hooks.queueSize
+      length = reply
+      if length < config.hooks.queueSize
         Logger.info "Hook: enqueueing message", JSON.stringify(message)
         # Add message to redis queue
         @redisClient.rpush config.redis.keys.events(@id), JSON.stringify(message), (error,reply) =>
         Logger.error "Hook: error pushing event to redis queue:", JSON.stringify(message), error if error?
-        @queue.push message
-        @_processQueue()
+        @queue.push JSON.stringify(message)
+        @_processQueue(length + 1)
       else
         Logger.warn "Hook: queue size exceed, event", JSON.stringify(message)
 
@@ -104,20 +105,27 @@ module.exports = class Hook
 
   # Gets the first message in the queue and start an emitter to send it. Will only do it
   # if there is no emitter running already and if there is a message in the queue.
-  _processQueue: ->
-    message = @queue[0]
-    return if not message? or @emitter?
+  _processQueue: (length) ->
+    # Will try to send up to 10 messages together if they're enqueued
+    lengthIn = if length > 10 then 10 else length
+    num = lengthIn + 1
+    # Concat messages
+    message = @queue.slice(0,lengthIn)
+    message = message.join(";")
+
+    return if not message? or @emitter? or length <= 0
     # Add params so emitter will 'know' when a hook is permanent and have backupURLs
     @emitter = new CallbackEmitter(@callbackURL, message, @backupURL)
     @emitter.start(@permanent)
 
     @emitter.on "success", =>
       delete @emitter
-      # Remove the sent message from redis
-      @redisClient.lpop config.redis.keys.events(@id), (error, reply) =>
-        Logger.error "Hook: error removing event from redis queue", error if error?
-      @queue.shift() # pop the first message just sent
-      @_processQueue() # go to the next message
+      while num -= 1
+        # Remove the sent message from redis
+        @redisClient.lpop config.redis.keys.events(@id), (error, reply) =>
+          Logger.error "Hook: error removing event from redis queue", error if error?
+        @queue.shift() # pop the first message just sent
+      @_processQueue(length - lengthIn) # go to the next message
 
     # gave up trying to perform the callback, remove the hook forever if the hook's not permanent (emmiter will validate that)
     @emitter.on "stopped", (error) =>
@@ -154,7 +162,7 @@ module.exports = class Hook
             hook.redisClient.lrange config.redis.keys.events(hook.id), 0, len, (error, elements) =>
               elements.forEach (element) =>
                 hook.queue.push element
-                hook._processQueue() if hook.queue.length > 0
+              hook._processQueue(length) if hook.queue.length > 0
       hook.save (error, hook) -> callback?(error, hook)
 
   @removeSubscription = (hookID, callback) ->
@@ -238,13 +246,12 @@ module.exports = class Hook
               client.llen config.redis.keys.events(hook.id), (error, len) =>
                 length = len
                 client.lrange config.redis.keys.events(hook.id), 0, len, (error, elements) =>
-                  Logger.info "elements:", hook.id, elements
                   elements.forEach (element) =>
                     hook.queue.push element
               # Persist hook to redis
               hook.save (error, hook) ->
                 nextID = hook.id + 1 if hook.id >= nextID
-                hook._processQueue() if hook.queue.length > 0
+                hook._processQueue(length) if hook.queue.length > 0
                 done(null, hook)
             else
               done(null, null)

@@ -54,7 +54,7 @@ module.exports = class CallbackEmitter extends EventEmitter
     # data to be sent
     # note: keep keys in alphabetical order
     data =
-      event: JSON.stringify(@message)
+      event: @message
       timestamp: @timestamp
 
     # calculate the checksum
