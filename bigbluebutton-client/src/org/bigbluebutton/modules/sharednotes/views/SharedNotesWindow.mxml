@@ -209,10 +209,11 @@
 							_document = result;
 //							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
+							/* This code is forcing resync and causing more problems then resolving
 							if (possiblePatchError()) {
 								syncNote();
 								return;
-							}
+							}*/
 						}
 						_lastPatch = e.patchId;
 						updateUndoRedoButtons(e.undo, e.redo);
