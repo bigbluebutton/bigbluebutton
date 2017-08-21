@@ -36,7 +36,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private var _nameTextField:TextField;
 		
-		public function WhiteboardCursor(userId:String, userName:String, x:Number, y:Number, parentWidth:Number, parentHeight:Number, isPresenter:Boolean) {
+    private var _showUser: Boolean = false;
+		public function WhiteboardCursor(userId:String, userName:String, x:Number, 
+                                     y:Number, parentWidth:Number, 
+                                     parentHeight:Number, 
+                                     isPresenter:Boolean,
+                                      showUser: Boolean) {
 			_userId = userId;
 			_userName = userName;
 			_origX = x;
@@ -66,14 +71,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			addChild(_nameTextField);
 			
+      _showUser = showUser;
 			drawCursor();
 			setPosition();
 		}
 		
-		public function updatePosition(x:Number, y:Number):void {
+		public function updatePosition(x:Number, y:Number, showUser: Boolean):void {
 			_origX = x;
 			_origY = y;
-			
+      _showUser = showUser;
 			setPosition();
 		}
 		
@@ -84,9 +90,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 			setPosition();
 		}
 		
-		public function updatePresenter(isPresenter:Boolean):void {
+		public function updatePresenter(isPresenter:Boolean, showUser: Boolean):void {
 			_isPresenter = isPresenter;
-			
+      _showUser = showUser;
 			drawCursor();
 		}
 		
@@ -98,7 +104,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 				hideCursor()
 			} else {
 				showCursor();
-			}	
+			}
+      _nameTextField.visible = _showUser;
 		}
 		
 		private function showCursor():void {
@@ -117,8 +124,11 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private function drawCursor():void {
 			var cursorColor:uint = (_isPresenter ? PRESENTER_COLOR : OTHER_COLOR);
 			
-			_nameTextField.textColor = cursorColor;
-			_nameTextField.borderColor = cursorColor;
+      _nameTextField.textColor = cursorColor;
+      _nameTextField.borderColor = cursorColor; 
+
+      _nameTextField.visible = _showUser;
+
 			
 			graphics.clear();
 			graphics.lineStyle(6, cursorColor, 0.6);
