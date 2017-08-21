@@ -265,7 +265,7 @@ class UserList extends Component {
       meeting,
     } = this.props;
 
-    const userActions = (name) => {
+    const userActions = (val) => {
       return {
         openChat: {
           label: intl.formatMessage(intlMessages.ChatLabel),
@@ -283,7 +283,7 @@ class UserList extends Component {
           icon: 'presentation',
         },
         kick: {
-          label: intl.formatMessage(intlMessages.KickUserLabel, { 0: name.name }),
+          label: intl.formatMessage(intlMessages.KickUserLabel, { 0: val.name }),
           handler: user => makeCall('kickUser', user.id),
           icon: 'circle_close',
         },
@@ -298,12 +298,12 @@ class UserList extends Component {
           icon: 'audio_on',
         },
         promote: {
-          label: intl.formatMessage(intlMessages.PromoteUserLabel, { 0: name.name }),
+          label: intl.formatMessage(intlMessages.PromoteUserLabel, { 0: val.name }),
           handler: user => makeCall('changeRole', user.id, 'MODERATOR'),
           icon: 'promote',
         },
         demote: {
-          label:  intl.formatMessage(intlMessages.DemoteUserLabel, { 0: name.name }),
+          label:  intl.formatMessage(intlMessages.DemoteUserLabel, { 0: val.name }),
           handler: user => makeCall('changeRole', user.id, 'VIEWER'),
           icon: 'user',
         },
