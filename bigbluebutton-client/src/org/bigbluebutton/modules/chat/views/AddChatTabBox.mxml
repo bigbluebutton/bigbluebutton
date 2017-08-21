@@ -39,6 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           import com.asfusion.mate.events.Dispatcher;
           
           import mx.collections.ArrayCollection;
+          import mx.controls.Alert;
+          import mx.events.CloseEvent;
           
           import org.as3commons.logging.api.ILogger;
           import org.as3commons.logging.api.getClassLogger;
@@ -53,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           import org.bigbluebutton.main.model.users.events.ChangeMyRole;
           import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
           import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+          import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
           import org.bigbluebutton.modules.chat.model.ChatOptions;
           import org.bigbluebutton.util.i18n.ResourceUtil;
             
@@ -63,7 +66,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
             
             [Bindable] public var chatOptions:ChatOptions;		
-            
+          [Bindable] private var clrBtnVisible:Boolean = false;
+          
+          private var globalDispatcher:Dispatcher = new Dispatcher();
+          
           private var handler: ChatWindowEventHandler = new ChatWindowEventHandler();
           
           private function handleUserLeftEvent(event: UserLeftEvent): void {
@@ -76,6 +82,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
           
             private function onCreationComplete():void{
+              clrBtnVisible = UsersUtil.amIModerator();
+              
               handler.populateAllUsers()
                 users = handler.users;
                 chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
@@ -151,6 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
 
           private function refreshRole(e:ChangeMyRole):void {
+            clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = clrBtnVisible = UsersUtil.amIModerator();
               refreshListStatus();
           }
 
@@ -161,6 +170,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             usersList.enabled = ! LiveMeeting.inst().me.disableMyPrivateChat;
           }
             
+          public function sendSaveEvent():void{
+            var saveEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT);
+            globalDispatcher.dispatchEvent(saveEvent);
+          }
+          
+          public function sendCopyEvent():void{
+            var copyEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT);
+            globalDispatcher.dispatchEvent(copyEvent);
+          }
+          
+          public function sendClearEvent():void{
+            var clearChatHistoryAlert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.text'),
+              ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.title'),
+              Alert.YES | Alert.NO, null, handleClearChatHistoryAlert, null, Alert.YES);
+          }
+          
+          private function handleClearChatHistoryAlert(e:CloseEvent):void {
+            if (e.detail == Alert.YES) {
+              var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT);
+              globalDispatcher.dispatchEvent(clearEvent);
+            }
+          }
         ]]>
     </fx:Script>
     
@@ -186,7 +217,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                      selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
     </mx:HBox>
 	<mx:HBox width="100%">
-		<mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" width="100%"/>
+		<mx:Label styleName="chatOptionsLabel" 
+              text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" 
+              width="100%"/>
 		<mx:CheckBox id="chatNoiseCheckBox" change="changeChatNoise()" />
 	</mx:HBox>
+  <mx:HBox width="100%">
+    <mx:Label styleName="publicChatOptionsLabel" 
+              text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.publicChatOptions')}" 
+              width="100%"/>
+    <mx:Button id="saveBtn"
+               styleName="chatSaveButtonStyle"
+               width="22"
+               height="22"
+               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}"
+               click="sendSaveEvent()"
+               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.accessibilityName')}"/>
+    
+    <mx:Button id="copyBtn"
+               styleName="chatCopyButtonStyle"
+               width="22"
+               height="22"
+               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}"
+               click="sendCopyEvent()"
+               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>
+    
+    <mx:Button id="clearBtn"
+               styleName="chatClearButtonStyle"
+               width="22"
+               height="22"
+               visible = "{clrBtnVisible}"
+               enabled = "{clrBtnVisible}"
+               includeInLayout = "{clrBtnVisible}"
+               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}"
+               click="sendClearEvent()"
+               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/>
+  </mx:HBox>
+
 </mx:VBox>
