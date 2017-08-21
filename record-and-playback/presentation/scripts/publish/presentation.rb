@@ -416,7 +416,7 @@ def svg_render_shape_poll(g, slide, shape)
           transform: "rotate(90, #{slide[:width]}, #{y})")
 end
 
-def svg_render_shape(canvas, slide, shape)
+def svg_render_shape(canvas, slide, shape, image_id)
   if shape[:in] == shape[:out]
     BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is never shown (duration rounds to 0)")
     return
@@ -432,7 +432,7 @@ def svg_render_shape(canvas, slide, shape)
 
   doc = canvas.document
   g = doc.create_element('g',
-          id: "draw#{shape[:shape_id]}", class: 'shape',
+          id: "image#{image_id}-draw#{shape[:shape_id]}", class: 'shape',
           timestamp: shape[:in], undo: (shape[:undo].nil? ? -1 : shape[:undo]))
 
   case shape[:type]
@@ -453,6 +453,8 @@ def svg_render_shape(canvas, slide, shape)
   else
     BigBlueButton.logger.warn("Ignoring unhandled shape type #{shape[:type]}")
   end
+
+  g[:shape] = "image#{image_id}-#{g[:shape]}"
 
   if g.element_children.length > 0
     canvas << g
@@ -494,7 +496,7 @@ def svg_render_image(svg, slide, shapes)
           image: "image#{image_id}", display: 'none')
 
   shapes.each do |shape|
-    svg_render_shape(canvas, slide, shape)
+    svg_render_shape(canvas, slide, shape, image_id)
   end
 
   if canvas.element_children.length > 0
