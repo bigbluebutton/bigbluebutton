@@ -748,7 +748,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function handleRoundTripLatencyReceivedEvent(event: RoundTripLatencyReceivedEvent): void {
-              rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
+           //   rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
             }
       
             private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
@@ -1068,11 +1068,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="copyrightLabel2" truncateToFit="true"
 				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
-    <mx:Label 
+    <!--mx:Label 
       id="rttLabel"
       text="RTT = 0ms"
       visible="true"
-      includeInLayout="true" />
+      includeInLayout="true" /-->
 		<mx:Label 
 				id="lblWebRTC"
 				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
