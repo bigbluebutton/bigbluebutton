@@ -139,6 +139,7 @@
   @extend %text-elipsis;
   cursor: default;
   min-width: 10vw;
+  max-width: 100%;
   overflow: visible;
 }
 
