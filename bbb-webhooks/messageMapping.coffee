@@ -58,7 +58,7 @@ module.exports = class MessageMapping
         "metadata": {}
       }
     @mappedMessage = JSON.stringify(@mappedObject)
-    Logger.info "MessageMapping: Mapped message:", @mappedMessage
+    Logger.info "[MessageMapping] Mapped message:", @mappedMessage
 
   # Map internal to external message for user information
   userTemplate: (messageObj) ->
@@ -95,7 +95,7 @@ module.exports = class MessageMapping
         "listening-only": messageObj.payload.user.listenOnly
       }
     @mappedMessage = JSON.stringify(@mappedObject)
-    Logger.info "MessageMapping: Mapped message:", @mappedMessage
+    Logger.info "[MessageMapping] Mapped message:", @mappedMessage
 
   # Map internal to external message for chat information
   chatTemplate: (messageObj) ->
@@ -127,7 +127,7 @@ module.exports = class MessageMapping
         "external-user-id": messageObj.payload.message.toUsername
       }
     @mappedMessage = JSON.stringify(@mappedObject)
-    Logger.info "MessageMapping: Mapped message:", @mappedMessage
+    Logger.info "[MessageMapping] Mapped message:", @mappedMessage
 
   rapTemplate: (messageObj) ->
     @mappedObject.data = {
@@ -144,7 +144,7 @@ module.exports = class MessageMapping
       }
     }
     @mappedMessage = JSON.stringify(@mappedObject)
-    Logger.info "MessageMapping: Mapped message:", @mappedMessage
+    Logger.info "[MessageMapping] Mapped message:", @mappedMessage
 
 
   mapInternalMessage: (message) ->

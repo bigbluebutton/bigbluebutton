@@ -36,7 +36,7 @@ module.exports = class CallbackEmitter extends EventEmitter
           # get the next interval we have to wait and schedule a new try
           interval = config.hooks.retryIntervals[@nextInterval]
           if interval?
-            Logger.warn "xx> Trying the callback again in #{interval/1000.0} secs"
+            Logger.warn "[Emitter] trying the callback again in #{interval/1000.0} secs"
             @nextInterval++
             @_scheduleNext(interval)
 
@@ -75,12 +75,10 @@ module.exports = class CallbackEmitter extends EventEmitter
 
     request requestOptions, (error, response, body) ->
       if error? or not (response?.statusCode >= 200 and response?.statusCode < 300)
-        Logger.warn "xx> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
-        Logger.warn "xx> Error:", error
-        Logger.warn "xx> Status:", response?.statusCode
+        Logger.warn "[Emitter] error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}", "error:", error, "status:", response?.statusCode
         callback error, false
       else
-        Logger.info "==> Successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
+        Logger.info "[Emitter] successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
         callback null, true
 
 # A simple string that identifies the event

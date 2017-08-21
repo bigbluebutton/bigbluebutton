@@ -22,12 +22,12 @@ module.exports = class WebHooks
   # Subscribe to the events on pubsub that might need to be sent in callback calls.
   _subscribeToEvents: ->
     @subscriberEvents.on "psubscribe", (channel, count) ->
-      Logger.info "WebHooks: subscribed to " + channel
+      Logger.info "[WebHooks] subscribed to:" + channel
 
     @subscriberEvents.on "pmessage", (pattern, channel, message) =>
 
       processMessage = =>
-        Logger.info "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
+        Logger.info "[WebHooks] processing message on [#{channel}]:", JSON.stringify(message)
         @_processEvent(message)
 
       try
@@ -41,7 +41,7 @@ module.exports = class WebHooks
 
           # First treat meeting events to add/remove ID mappings
           if message.data?.id is "meeting-created"
-            Logger.info "WebHooks: got create message on meetings channel [#{channel}]", message
+            Logger.info "[WebHooks] got create message on meetings channel [#{channel}]:", message
             IDMapping.addOrUpdateMapping message.data.attributes.meeting["internal-meeting-id"], message.data.attributes.meeting["external-meeting-id"], (error, result) ->
               # has to be here, after the meeting was created, otherwise create calls won't generate
               # callback calls for meeting hooks
@@ -50,7 +50,7 @@ module.exports = class WebHooks
           # TODO: Temporarily commented because we still need the mapping for recording events,
           #   after the meeting ended.
           # else if message.header?.name is "meeting_destroyed_event"
-          #   Logger.info "WebHooks: got destroy message on meetings channel [#{channel}]", message
+          #   Logger.info "[WebHooks] got destroy message on meetings channel [#{channel}]", message
           #   IDMapping.removeMapping message.payload?.meeting_id, (error, result) ->
           #     processMessage()
 
@@ -59,7 +59,7 @@ module.exports = class WebHooks
         else
           @_processRaw(raw)
       catch e
-        Logger.error "WebHooks: error processing the message", raw, ":", e
+        Logger.error "[WebHooks] error processing the message:", JSON.stringify(raw), ":", e
 
     @subscriberEvents.psubscribe config.hooks.pchannel
 
@@ -73,10 +73,9 @@ module.exports = class WebHooks
       eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
       hook = Hook.findByExternalMeetingIDSync(eMeetingID)
       hooks = hooks.concat(hook) if hook.getRaw
-
     # Notify the hooks that expect raw data
     async.forEach hooks, (hook) ->
-      Logger.info "WebHooks: enqueueing a message in the hook:", hook.callbackURL if hook.getRaw
+      Logger.info "[WebHooks] enqueueing a raw message in the hook:", hook.callbackURL if hook.getRaw
       hook.enqueue message if hook.getRaw
 
   # Processes an event received from redis. Will get all hook URLs that
@@ -94,5 +93,5 @@ module.exports = class WebHooks
 
     # Notify every hook asynchronously, if hook N fails, it won't block hook N+k from receiving its message
     async.forEach hooks, (hook) ->
-      Logger.info "WebHooks: enqueueing a message in the hook:", hook.callbackURL
+      Logger.info "[WebHooks] enqueueing a message in the hook:", hook.callbackURL
       hook.enqueue message

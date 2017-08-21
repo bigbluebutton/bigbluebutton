@@ -17,16 +17,15 @@ module.exports = class WebServer
   start: (port) ->
     @server = @app.listen(port)
     unless @server.address()?
-      Logger.error "Could not bind to port", port
-      Logger.error "Aborting."
+      Logger.error "[WebServer] aborting, could not bind to port", port,
       process.exit(1)
-    Logger.info "Server listening on port", port, "in", @app.settings.env.toUpperCase(), "mode"
+    Logger.info "[WebServer] listening on port", port, "in", @app.settings.env.toUpperCase(), "mode"
 
   _registerRoutes: ->
     # Request logger
     @app.all "*", (req, res, next) ->
       unless fromMonit(req)
-        Logger.info "<==", req.method, "request to", req.url, "from:", clientDataSimple(req)
+        Logger.info "[WebServer]", req.method, "request to", req.url, "from:", clientDataSimple(req)
       next()
 
     @app.get "/bigbluebutton/api/hooks/create", @_validateChecksum, @_create
@@ -57,11 +56,11 @@ module.exports = class WebServer
   createPermanent: ->
     Hook.addSubscription config.hooks.aggr, null, config.hooks.getRaw, (error, hook) ->
       if error? # there probably won't be any errors here
-        Logger.info "Duplicated hook", error
+        Logger.info "[WebServer] duplicated permanent hook", error
       else if hook?
-        Logger.info "Permanent hook created successfully"
+        Logger.info "[WebServer] permanent hook created successfully"
       else
-        Logger.info "Error creating permanent hook"
+        Logger.info "[WebServer] error creating permanent hook"
 
   _destroy: (req, res, next) ->
     urlObj = url.parse(req.url, true)
@@ -114,13 +113,13 @@ module.exports = class WebServer
     if checksum is Utils.checksumAPI(req.url, config.bbb.sharedSecret)
       next()
     else
-      Logger.info "checksum check failed, sending a checksumError response"
+      Logger.info "[WebServer] checksum check failed, sending a checksumError response"
       res.setHeader("Content-Type", "text/xml")
       res.send cleanupXML(config.api.responses.checksumError)
 
 respondWithXML = (res, msg) ->
   msg = cleanupXML(msg)
-  Logger.info "==> respond with:", msg
+  Logger.info "[WebServer] respond with:", msg
   res.setHeader("Content-Type", "text/xml")
   res.send msg
 

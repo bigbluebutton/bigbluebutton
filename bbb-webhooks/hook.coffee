@@ -43,18 +43,18 @@ module.exports = class Hook
 
   save: (callback) ->
     @redisClient.hmset config.redis.keys.hook(@id), @toRedis(), (error, reply) =>
-      Logger.error "Hook: error saving hook to redis!", error, reply if error?
+      Logger.error "[Hook] error saving hook to redis:", error, reply if error?
       @redisClient.sadd config.redis.keys.hooks, @id, (error, reply) =>
-        Logger.error "Hook: error saving hookID to the list of hooks!", error, reply if error?
+        Logger.error "[Hook] error saving hookID to the list of hooks:", error, reply if error?
 
         db[@id] = this
         callback?(error, db[@id])
 
   destroy: (callback) ->
     @redisClient.srem config.redis.keys.hooks, @id, (error, reply) =>
-      Logger.error "Hook: error removing hookID from the list of hooks!", error, reply if error?
+      Logger.error "[Hook] error removing hookID from the list of hooks:", error, reply if error?
       @redisClient.del config.redis.keys.hook(@id), (error) =>
-        Logger.error "Hook: error removing hook from redis!", error if error?
+        Logger.error "[Hook] error removing hook from redis:", error if error?
 
         if db[@id]
           delete db[@id]
@@ -76,14 +76,14 @@ module.exports = class Hook
     @redisClient.llen config.redis.keys.events(@id), (error, reply) =>
       length = reply
       if length < config.hooks.queueSize
-        Logger.info "Hook: enqueueing message", JSON.stringify(message)
+        Logger.info "[Hook] enqueueing message:", JSON.stringify(message)
         # Add message to redis queue
         @redisClient.rpush config.redis.keys.events(@id), JSON.stringify(message), (error,reply) =>
-        Logger.error "Hook: error pushing event to redis queue:", JSON.stringify(message), error if error?
+        Logger.error "[Hook] error pushing event to redis queue:", JSON.stringify(message), error if error?
         @queue.push JSON.stringify(message)
         @_processQueue(length + 1)
       else
-        Logger.warn "Hook: queue size exceed, event", JSON.stringify(message)
+        Logger.warn "[Hook] queue size exceed, event:", JSON.stringify(message)
 
   toRedis: ->
     r =
@@ -126,13 +126,13 @@ module.exports = class Hook
       while num -= 1
         # Remove the sent message from redis
         @redisClient.lpop config.redis.keys.events(@id), (error, reply) =>
-          Logger.error "Hook: error removing event from redis queue", error if error?
+          Logger.error "[Hook] error removing event from redis queue:", error if error?
         @queue.shift() # pop the first message just sent
       @_processQueue(length - lengthIn) # go to the next message
 
     # gave up trying to perform the callback, remove the hook forever if the hook's not permanent (emmiter will validate that)
     @emitter.on "stopped", (error) =>
-      Logger.warn "Hook: too many failed attempts to perform a callback call, removing the hook for", @callbackURL
+      Logger.warn "[Hook] too many failed attempts to perform a callback call, removing the hook for:", @callbackURL
       @destroy()
 
   @addSubscription = (callbackURL, meetingID=null, getRaw, callback) ->
@@ -143,8 +143,8 @@ module.exports = class Hook
     if hook?
       callback?(new Error("There is already a subscription for this callback URL"), hook)
     else
-      msg = "Hook: adding a hook with callback URL [#{firstURL}]"
-      msg += " for the meeting [#{meetingID}]" if meetingID?
+      msg = "[Hook] adding a hook with callback URL: [#{firstURL}],"
+      msg += " for the meeting: [#{meetingID}]" if meetingID?
       Logger.info msg
 
       hook = new Hook()
@@ -157,7 +157,7 @@ module.exports = class Hook
       backupURLs = if callbackURL instanceof Array then callbackURL else []
       backupURLs.push(firstURL); backupURLs.shift()
       hook.backupURL = backupURLs
-      Logger.info "Hook: Backup URLs", hook.backupURL
+      Logger.info "[Hook] Backup URLs:", hook.backupURL
       # Sync permanent queue
       if hook.permanent
         hook.redisClient.llen config.redis.keys.events(hook.id), (error, len) =>
@@ -172,8 +172,8 @@ module.exports = class Hook
   @removeSubscription = (hookID, callback) ->
     hook = Hook.getSync(hookID)
     if hook? and hook.permanent is "false" or hook.permanent is false
-      msg = "Hook: removing the hook with callback URL [#{hook.callbackURL}]"
-      msg += " for the meeting [#{hook.externalMeetingID}]" if hook.externalMeetingID?
+      msg = "[Hook] removing the hook with callback URL: [#{hook.callbackURL}],"
+      msg += " for the meeting: [#{hook.externalMeetingID}]" if hook.externalMeetingID?
       Logger.info msg
 
       hook.destroy (error, removed) -> callback?(error, removed)
@@ -229,19 +229,18 @@ module.exports = class Hook
     client = redis.createClient()
     # Remove previous permanent hook (always ID = 1)
     client.srem config.redis.keys.hooks, 1, (error, reply) =>
-      Logger.error "Error removing ID from list", error if error?
+      Logger.error "[Hook] error removing previous permanent hook from list:", error if error?
       client.del config.redis.keys.hook(1), (error) =>
-        Logger.error "Hook: error removing hook from redis!", error if error?
+        Logger.error "[Hook] error removing previous permanent hook from redis:", error if error?
 
     tasks = []
 
     client.smembers config.redis.keys.hooks, (error, hooks) =>
-      Logger.error "Hook: error getting list of hooks from redis", error if error?
-      Logger.info "Hook: getting list of hooks from redis" if not error
+      Logger.error "[Hook] error getting list of hooks from redis:", error if error?
       hooks.forEach (id) =>
         tasks.push (done) =>
           client.hgetall config.redis.keys.hook(id), (error, hookData) ->
-            Logger.error "Hook: error getting information for a hook from redis", error if error?
+            Logger.error "[Hook] error getting information for a hook from redis:", error if error?
 
             if hookData?
               hook = new Hook()
@@ -262,5 +261,5 @@ module.exports = class Hook
 
       async.series tasks, (errors, result) ->
         hooks = _.map(Hook.allSync(), (hook) -> "[#{hook.id}] #{hook.callbackURL}")
-        Logger.info "Hook: finished resync, hooks registered:", hooks
+        Logger.info "[Hook] finished resync, hooks registered:", hooks
         callback?()
