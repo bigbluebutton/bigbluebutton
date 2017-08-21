@@ -3,12 +3,26 @@ exports.config = {
   capabilities: {
     chromeBrowser: {
       desiredCapabilities: {
+        browserName: 'chrome'
+      }
+    },
+    chromeDevBrowser: {
+      desiredCapabilities: {
         browserName: 'chrome',
+        chromeOptions: {
+          binary: '/opt/google/chrome-unstable/google-chrome-unstable'
+        }
       }
     },
     firefoxBrowser: {
       desiredCapabilities: {
         browserName: 'firefox'
+      }
+    },
+    firefoxNightlyBrowser: {
+      desiredCapabilities: {
+        browserName: 'firefox',
+        firefox_binary: '/usr/lib/firefox-trunk/firefox-trunk'
       }
     }
   },
