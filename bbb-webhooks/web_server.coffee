@@ -40,11 +40,12 @@ module.exports = class WebServer
     urlObj = url.parse(req.url, true)
     callbackURL = urlObj.query["callbackURL"]
     meetingID = urlObj.query["meetingID"]
+    getRaw = urlObj.query["getRaw"]
 
     unless callbackURL?
       respondWithXML(res, config.api.responses.missingParamCallbackURL)
     else
-      Hook.addSubscription callbackURL, meetingID, (error, hook) ->
+      Hook.addSubscription callbackURL, meetingID, getRaw, (error, hook) ->
         if error? # the only error for now is for duplicated callbackURL
           msg = config.api.responses.createDuplicated(hook.id)
         else if hook?
@@ -54,7 +55,7 @@ module.exports = class WebServer
         respondWithXML(res, msg)
   # Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
   createPermanent: ->
-    Hook.addSubscription config.hooks.aggr, null, (error, hook) ->
+    Hook.addSubscription config.hooks.aggr, null, config.hooks.getRaw, (error, hook) ->
       if error? # there probably won't be any errors here
         Logger.info "Duplicated hook", error
       else if hook?
