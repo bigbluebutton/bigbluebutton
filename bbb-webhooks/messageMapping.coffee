@@ -7,7 +7,7 @@ module.exports = class MessageMapping
     @mappedObject = {}
     @mappedMessage = {}
     @meetingEvents = ["meeting_created_message","meeting_destroyed_event"]
-    @userEvents = ["meeting_destroyed_event","user_joined_message","user_left_message","user_listening_only","user_listening_only","user_joined_voice_message","user_left_voice_message"]
+    @userEvents = ["meeting_destroyed_event","user_joined_message","user_left_message","user_listening_only","user_joined_voice_message","user_left_voice_message"]
     @chatEvents = ["send_public_chat_message","send_private_chat_message"]
     @rapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended"]
 
@@ -62,6 +62,10 @@ module.exports = class MessageMapping
 
   # Map internal to external message for user information
   userTemplate: (messageObj) ->
+    # Specific verification for listen_only event
+    messageObj.header.name += if messageObj.payload.listen_only then "_true" else ""
+    userid = if messageObj.payload.user? then messageObj.payload.user.userid else messageObj.payload.userid
+    extid = if messageObj.payload.user? then messageObj.payload.user.extern_userid else ""
     @mappedObject.data = {
       "type": "event",
       "id": @mapInternalMessage(messageObj.header.name),
@@ -71,8 +75,8 @@ module.exports = class MessageMapping
           "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.payload.meeting_id)
         },
         "user":{
-          "internal-user-id": messageObj.payload.user.userid,
-          "external-user-id": messageObj.payload.user.extern_userid
+          "internal-user-id": userid,
+          "external-user-id": extid
         }
       },
       "event":{
@@ -149,7 +153,7 @@ module.exports = class MessageMapping
       when "meeting_destroyed_event" then "meeting-ended"
       when "user_joined_message" then "user-joined"
       when "user_left_message" then "user-left"
-      when "user_listening_only" then "user-audio-listen-only-enabled"
+      when "user_listening_only_true" then "user-audio-listen-only-enabled"
       when "user_listening_only" then "user-audio-listen-only-disabled"
       when "user_joined_voice_message" then "user-audio-voice-enabled"
       when "user_left_voice_message" then "user-audio-voice-disabled"
