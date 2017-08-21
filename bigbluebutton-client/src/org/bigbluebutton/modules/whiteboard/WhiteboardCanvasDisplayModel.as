@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.whiteboard
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
@@ -154,24 +155,30 @@ package org.bigbluebutton.modules.whiteboard
     }
     
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
+      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
+      
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
 				if (userName) {
-					var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
+					var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, 
+            xPercent, yPercent, shapeFactory.parentWidth, 
+            shapeFactory.parentHeight, presenterId == userId, showName);
 					wbCanvas.addCursor(newCursor);
 					
 					_cursors[userId] = newCursor;
 				}
 			} else {
-				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent);
+				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent, showName);
 			}
 		}
 		
 		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			this.presenterId = presenterId;
 			
+      
+      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
 			for(var j:String in _cursors) {
-				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId);
+				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId, showName);
 			}
 		}
 		
