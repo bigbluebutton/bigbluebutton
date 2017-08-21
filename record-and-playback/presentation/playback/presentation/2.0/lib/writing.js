@@ -476,11 +476,9 @@ function runPopcorn() {
 
             currentCursorVal = getCursorAtTime(t);
             if (currentCursorVal != null && currentCursorVal != undefined && !$('#slide').hasClass('no-background')) {
-              // width and height are divided by 2 because that's the value used as a reference
-              // when positions in cursor.xml is calculated
-              var cursorX = parseFloat(currentCursorVal[0]) / (imageWidth/2);
-              var cursorY = parseFloat(currentCursorVal[1]) / (imageHeight/2);
-              if (cursorX > 0 && cursorY > 0) {
+              var cursorX = parseFloat(currentCursorVal[0]);
+              var cursorY = parseFloat(currentCursorVal[1]);
+              if (cursorX >= 0 && cursorY >= 0) {
                 showCursor(true);
                 drawCursor(cursorX, cursorY);
               } else {

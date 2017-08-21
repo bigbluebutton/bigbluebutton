@@ -502,15 +502,7 @@ def svg_render_image(svg, slide, shapes)
   end
 end
 
-def panzooms_emit_event(rec, panzoom)
-  if panzoom[:in] == panzoom[:out]
-    BigBlueButton.logger.info("Panzoom: not emitting, duration rounds to 0")
-    return
-  end
-
-  doc = rec.document
-  event = doc.create_element('event', timestamp: panzoom[:in])
-
+def panzoom_viewbox(panzoom)
   if panzoom[:deskshare]
     panzoom[:x_offset] = 0.0
     panzoom[:y_offset] = 0.0
@@ -522,6 +514,20 @@ def panzooms_emit_event(rec, panzoom)
   y = (-panzoom[:y_offset] * $magic_mystery_number / 100.0 * panzoom[:height]).round(5)
   w = shape_scale_width(panzoom, panzoom[:width_ratio])
   h = shape_scale_height(panzoom, panzoom[:height_ratio])
+
+  return [x, y, w, h]
+end
+
+def panzooms_emit_event(rec, panzoom)
+  if panzoom[:in] == panzoom[:out]
+    BigBlueButton.logger.info("Panzoom: not emitting, duration rounds to 0")
+    return
+  end
+
+  doc = rec.document
+  event = doc.create_element('event', timestamp: panzoom[:in])
+
+  x, y, w, h = panzoom_viewbox(panzoom)
 
   viewbox = doc.create_element('viewBox')
   viewbox.content = "#{x} #{y} #{w} #{h}"
@@ -541,9 +547,24 @@ def cursors_emit_event(rec, cursor)
   doc = rec.document
   event = doc.create_element('event', timestamp: cursor[:in])
 
+  panzoom = cursor[:panzoom]
   if cursor[:visible]
-    x = (cursor[:x] / 100.0 * cursor[:width] / $magic_mystery_number).round(5)
-    y = (cursor[:y] / 100.0 * cursor[:height] / $magic_mystery_number).round(5)
+    if $version_atleast_2_0_0
+      # In BBB 2.0, the cursor now uses the same coordinate system as annotations
+      # Use the panzoom information to convert it to be relative to viewbox
+      x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * $magic_mystery_number / 100.0)) /
+           (panzoom[:width_ratio] / 100.0)).round(5)
+      y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * $magic_mystery_number / 100.0)) /
+           (panzoom[:height_ratio] / 100.0)).round(5)
+      if x < 0 or x > 1 or y < 0 or y > 1
+        x = -1.0
+        y = -1.0
+      end
+    else
+      # Cursor position is relative to the visible area
+      x = cursor[:x].round(5)
+      y = cursor[:y].round(5)
+    end
   else
     x = -1.0
     y = -1.0
@@ -923,8 +944,8 @@ def processPresentation(package_dir)
       cursor_changed = true
 
     elsif eventname == 'CursorMoveEvent'
-      cursor_x = event.at_xpath('xOffset').text.to_f * 100.0
-      cursor_y = event.at_xpath('yOffset').text.to_f * 100.0
+      cursor_x = event.at_xpath('xOffset').text.to_f
+      cursor_y = event.at_xpath('yOffset').text.to_f
       cursor_visible = true
       cursor_changed = true
 
@@ -947,6 +968,7 @@ def processPresentation(package_dir)
           slide[:slide] == current_slide and
           slide[:deskshare] == deskshare
         BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
+        slide_changed = false
       else
         if !slide.nil?
           slide[:out] = timestamp
@@ -978,6 +1000,7 @@ def processPresentation(package_dir)
           panzoom[:height] == slide[:height] and
           panzoom[:deskshare] == deskshare
         BigBlueButton.logger.info('Panzoom: skipping, no changes')
+        panzoom_changed = false
       else
         if !panzoom.nil?
           panzoom[:out] = timestamp
@@ -1005,26 +1028,24 @@ def processPresentation(package_dir)
         cursor_visible = false
       end
 
-      slide = slides.last
+      panzoom = panzooms.last
       cursor = cursors.last
       if !cursor.nil? and
           ((!cursor[:visible] and !cursor_visible) or
            (cursor[:x] == cursor_x and cursor[:y] == cursor_y)) and
-          cursor[:width] == slide[:width] * current_width_ratio / 100 and
-          cursor[:height] == slide[:height] * current_height_ratio / 100
+          !panzoom_changed
         BigBlueButton.logger.info('Cursor: skipping, no changes')
       else
         if !cursor.nil?
           cursor[:out] = timestamp
           cursors_emit_event(cursors_rec, cursor)
         end
-        BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{slide[:width]}x#{slide[:height]})")
+        BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{panzoom[:width]}x#{panzoom[:height]})")
         cursor = {
           visible: cursor_visible,
           x: cursor_x,
           y: cursor_y,
-          width: slide[:width] * current_width_ratio / 100,
-          height: slide[:height] * current_height_ratio / 100,
+          panzoom: panzoom,
           in: timestamp,
         }
         cursors << cursor
