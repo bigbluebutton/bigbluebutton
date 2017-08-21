@@ -31,7 +31,7 @@ module.exports = class WebHooks
         @_processEvent(message)
 
       try
-        error = message
+        raw = JSON.parse(message)
         messageMapped = new MessageMapping()
         messageMapped.mapMessage(JSON.parse(message))
         message = messageMapped.mappedObject
@@ -56,11 +56,28 @@ module.exports = class WebHooks
 
           else
             processMessage()
-
+        else
+          @_processRaw(raw)
       catch e
-        Logger.error "WebHooks: error processing the message", error, ":", e
+        Logger.error "WebHooks: error processing the message", raw, ":", e
 
     @subscriberEvents.psubscribe config.hooks.pchannel
+
+  # Send raw data to hooks that are not expecting mapped messages
+  _processRaw: (message) ->
+    hooks = Hook.allGlobalSync()
+
+    # Add hooks for the specific meeting that expect raw data
+    idFromMessage = message.payload?.meeting_id
+    if idFromMessage?
+      eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
+      hook = Hook.findByExternalMeetingIDSync(eMeetingID)
+      hooks = hooks.concat(hook) if hook.getRaw
+
+    # Notify the hooks that expect raw data
+    async.forEach hooks, (hook) ->
+      Logger.info "WebHooks: enqueueing a message in the hook:", hook.callbackURL if hook.getRaw
+      hook.enqueue message if hook.getRaw
 
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
@@ -74,7 +91,7 @@ module.exports = class WebHooks
     if idFromMessage?
       eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
-      
+
     # Notify every hook asynchronously, if hook N fails, it won't block hook N+k from receiving its message
     async.forEach hooks, (hook) ->
       Logger.info "WebHooks: enqueueing a message in the hook:", hook.callbackURL

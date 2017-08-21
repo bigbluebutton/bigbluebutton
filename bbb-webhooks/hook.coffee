@@ -39,6 +39,7 @@ module.exports = class Hook
     @redisClient = redis.createClient()
     @permanent = false
     @backupURL = []
+    @getRaw = false
 
   save: (callback) ->
     @redisClient.hmset config.redis.keys.hook(@id), @toRedis(), (error, reply) =>
@@ -89,7 +90,8 @@ module.exports = class Hook
       "hookID": @id,
       "callbackURL": @callbackURL,
       "permanent": @permanent,
-      "backupURL": @backupURL
+      "backupURL": @backupURL,
+      "getRaw": @getRaw
     r.externalMeetingID = @externalMeetingID if @externalMeetingID?
     r
 
@@ -98,6 +100,7 @@ module.exports = class Hook
     @callbackURL = redisData.callbackURL
     @permanent = redisData.permanent
     @backupURL = redisData.backupURL
+    @getRaw = redisData.getRaw
     if redisData.externalMeetingID?
       @externalMeetingID = redisData.externalMeetingID
     else
@@ -132,7 +135,7 @@ module.exports = class Hook
       Logger.warn "Hook: too many failed attempts to perform a callback call, removing the hook for", @callbackURL
       @destroy()
 
-  @addSubscription = (callbackURL, meetingID=null, callback) ->
+  @addSubscription = (callbackURL, meetingID=null, getRaw, callback) ->
     #Since we can pass a list of URLs to serve as backup for the permanent hook, we need to check that
     firstURL = if callbackURL instanceof Array then callbackURL[0] else callbackURL
 
@@ -147,6 +150,7 @@ module.exports = class Hook
       hook = new Hook()
       hook.callbackURL = firstURL
       hook.externalMeetingID = meetingID
+      hook.getRaw = getRaw
       hook.permanent = if firstURL in config.hooks.aggr then true else false
       if hook.permanent then hook.id = 1;nextID++ else hook.id = nextID++
       # Create backup URLs list
