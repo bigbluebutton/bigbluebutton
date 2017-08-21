@@ -130,7 +130,7 @@
 			enableMultipleNotes="true"
 			toolbarVisibleByDefault="false"
 			showToolbarButton="true"
-			fontSize="12"
+			fontSize="14"
 			maxPasteLength="1024"
 			maxNoteLenght="5120"
 		/>
