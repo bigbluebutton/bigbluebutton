@@ -19,8 +19,12 @@ describe('Landing page', function () {
     function () {
       LandingPage.open();
 
-      chromeBrowser.setValue(LandingPage.usernameInputSelector, 'Maxim');
-      firefoxBrowser.setValue(LandingPage.usernameInputSelector, 'Anton');
+      utils.setUsername(new Map([
+        ['chromeBrowser', 'Alex'],
+        ['chromeDevBrowser', 'Anton'],
+        ['firefoxBrowser', 'Danny'],
+        ['firefoxNightlyBrowser', 'Maxim']
+      ]));
 
       LandingPage.joinWithButtonClick();
       LandingPage.loadedHomePageElement.waitForExist(5000);
