@@ -18,6 +18,12 @@ package org.bigbluebutton.modules.sharednotes {
 		[Bindable]
 		public var fontSize:int = 10;
 
+		[Bindable]
+		public var maxPasteLength:int = 1024;
+
+		[Bindable]
+		public var maxNoteLength:int = 10240;
+
 		public function SharedNotesOptions() {
 			name = "SharedNotesModule";
 		}
