@@ -999,7 +999,7 @@ def processPresentation(package_dir)
     end
 
     # Perform cursor finalization
-    if cursor_changed
+    if cursor_changed or panzoom_changed
       unless cursor_x >= 0 and cursor_x <= 100 and
           cursor_y >= 0 and cursor_y <= 100
         cursor_visible = false
@@ -1009,7 +1009,9 @@ def processPresentation(package_dir)
       cursor = cursors.last
       if !cursor.nil? and
           ((!cursor[:visible] and !cursor_visible) or
-          (cursor[:x] == cursor_x and cursor[:y] == cursor_y))
+           (cursor[:x] == cursor_x and cursor[:y] == cursor_y)) and
+          cursor[:width] == slide[:width] * current_width_ratio / 100 and
+          cursor[:height] == slide[:height] * current_height_ratio / 100
         BigBlueButton.logger.info('Cursor: skipping, no changes')
       else
         if !cursor.nil?
@@ -1021,8 +1023,8 @@ def processPresentation(package_dir)
           visible: cursor_visible,
           x: cursor_x,
           y: cursor_y,
-          width: slide[:width],
-          height: slide[:height],
+          width: slide[:width] * current_width_ratio / 100,
+          height: slide[:height] * current_height_ratio / 100,
           in: timestamp,
         }
         cursors << cursor
