@@ -151,7 +151,7 @@
 				if(noteId == "MAIN_NOTE"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
 				} else {
-					showCloseButton = role == Role.MODERATOR;
+				//	showCloseButton = role == Role.MODERATOR;
 				}
 			}
 
