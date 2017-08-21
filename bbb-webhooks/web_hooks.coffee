@@ -28,7 +28,7 @@ module.exports = class WebHooks
 
       processMessage = =>
         Logger.info "[WebHooks] processing message on [#{channel}]:", JSON.stringify(message)
-        @_processEvent(message)
+        @_processEvent(message, raw)
 
       try
         raw = JSON.parse(message)
@@ -80,7 +80,7 @@ module.exports = class WebHooks
 
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
-  _processEvent: (message) ->
+  _processEvent: (message, raw) ->
     # Get all global hooks
     hooks = Hook.allGlobalSync()
 
@@ -93,5 +93,10 @@ module.exports = class WebHooks
 
     # Notify every hook asynchronously, if hook N fails, it won't block hook N+k from receiving its message
     async.forEach hooks, (hook) ->
-      Logger.info "[WebHooks] enqueueing a message in the hook:", hook.callbackURL
-      hook.enqueue message
+      Logger.info "[WebHooks] enqueueing a message in the hook:", hook.callbackURL if not hook.getRaw
+      hook.enqueue message if not hook.getRaw
+
+    sendRaw = hooks.some (hook) ->
+      return hook.getRaw
+    if sendRaw
+      @_processRaw(raw)
