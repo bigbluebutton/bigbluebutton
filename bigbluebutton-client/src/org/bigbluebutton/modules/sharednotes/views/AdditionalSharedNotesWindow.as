@@ -25,7 +25,7 @@ package org.bigbluebutton.modules.sharednotes.views
 			_noteId = n;
 			_windowName = "AdditionalSharedNotesWindow_" + noteId;
 
-			showCloseButton = UsersUtil.amIModerator();
+			//showCloseButton = UsersUtil.amIModerator();
 			width = 240;
 			height = 240;
 
