@@ -159,7 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         LOGGER.debug(" onCreationComplete. Apply lock settings");
         applyLockSettings();
         
-        chatToolbar.registerListeners(chatMessagesList);
+//        chatToolbar.registerListeners(chatMessagesList);
         
         chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, adjustToolbarWidthAccordingToScrollBar);
       }
@@ -611,12 +611,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         const paddingHeight:int = 5;
         const paddingWidth:int = 5;
         
-        chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 20;
-        chatToolbar.y = 10;
+//        chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 20;
+//        chatToolbar.y = 10;
         
-        if (!publicChat) {
-          chatToolbar.publicChat = false;
-        }
+//        if (!publicChat) {
+//          chatToolbar.publicChat = false;
+//        }
       }
     ]]>
     
@@ -633,7 +633,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          dataProvider="{chatMessages.messages}"
                          styleName="chatMessageListStyle"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
-      <chat:ChatToolbar id="chatToolbar" />
+      <!--chat:ChatToolbar id="chatToolbar" /-->
     </mx:Canvas>
   </mx:VBox>
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
