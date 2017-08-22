@@ -29,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		resizable="false"
 		showCloseButton="true"
 		implements="org.bigbluebutton.common.IBbbModuleWindow"
-		width="210" height="220" minWidth="0"
+		width="210" height="224" minWidth="0"
 		resize="onResize()">
 
 	<fx:Script>

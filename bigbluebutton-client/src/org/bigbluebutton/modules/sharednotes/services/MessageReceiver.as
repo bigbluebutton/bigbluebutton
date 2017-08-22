@@ -21,17 +21,18 @@ package org.bigbluebutton.modules.sharednotes.services
   import flash.events.IEventDispatcher;
   import flash.events.TimerEvent;
   import flash.utils.Timer;
-
+  
   import mx.collections.ArrayCollection;
-
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
-  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
   import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 
   public class MessageReceiver implements IMessageListener {
     private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
@@ -111,6 +112,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
 
     private function handleCreateSharedNoteRespMsg(msg: Object):void {
+      LiveMeeting.inst().sharedNotes.addNewSharedNote();
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = msg.body.noteId as String;
       e.payload.noteName = msg.body.noteName as String;
@@ -119,6 +121,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
 
     private function handleDestroySharedNoteRespMsg(msg: Object):void {
+      LiveMeeting.inst().sharedNotes.removeSharedNote();
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = msg.body.noteId as String;
       e.payload.isNotesLimit = msg.body.isNotesLimit as Boolean;

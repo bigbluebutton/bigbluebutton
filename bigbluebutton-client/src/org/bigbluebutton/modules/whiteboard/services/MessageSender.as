@@ -177,36 +177,30 @@ package org.bigbluebutton.modules.whiteboard.services
 				JSON.stringify(message)
 			);
       
-      sendClientToServerLatencyTracerMsg();
 		}
     
     public function sendClientToServerLatencyTracerMsg():void {
       var lastTraceSentOn: Date = LiveMeeting.inst().whiteboardModel.lastTraceSentOn;
       var now: Date = new Date();
       
-      if (now.time - lastTraceSentOn.time > 60000) {
-        var prettyDate: String = now.toString();
-        var ts: Number = now.time;
-        var tzOffset: Number = now.timezoneOffset;
-        
-        LiveMeeting.inst().whiteboardModel.sentLastTrace(now);
-        
-        var message:Object = {
-          header: {name: "ClientToServerLatencyTracerMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-          body: {timestamp: ts, prettyTimestamp: prettyDate, tzOffset: tzOffset, senderId: UsersUtil.getMyUserID()}
-        };
-        
-        var _nc:ConnectionManager = BBB.initConnectionManager();
-        _nc.sendMessage2x(
-          function(result:String):void { // On successful result
-            //LOGGER.debug(result);
-          },
-          function(status:String):void { // status - On error occurred
-            //LOGGER.error(status);
-          },
-          JSON.stringify(message)
-        );
-      }
+      var rtt: Number = LiveMeeting.inst().whiteboardModel.latencyInSec;
+      LiveMeeting.inst().whiteboardModel.sentLastTrace(now);
+      
+      var message:Object = {
+        header: {name: "ClientToServerLatencyTracerMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {timestampUTC: now.time, rtt: rtt, senderId: UsersUtil.getMyUserID()}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+          //LOGGER.debug(result);
+        },
+        function(status:String):void { // status - On error occurred
+          //LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
     }
   }
 }

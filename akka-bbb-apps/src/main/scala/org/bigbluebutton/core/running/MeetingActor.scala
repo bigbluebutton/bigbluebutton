@@ -129,6 +129,8 @@ class MeetingActor(
 
   var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
 
+  var lastRttTestSentOn = System.currentTimeMillis()
+
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
@@ -357,6 +359,29 @@ class MeetingActor(
     val (newState2, expireReason2) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
     state = newState2
     expireReason2 foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+
+    sendRttTraceTest()
+  }
+
+  def sendRttTraceTest(): Unit = {
+    val now = System.currentTimeMillis()
+
+    def buildDoLatencyTracerMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+      val envelope = BbbCoreEnvelope(DoLatencyTracerMsg.NAME, routing)
+      val body = DoLatencyTracerMsgBody(now)
+      val header = BbbClientMsgHeader(DoLatencyTracerMsg.NAME, meetingId, "not-used")
+      val event = DoLatencyTracerMsg(header, body)
+
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    if (now - lastRttTestSentOn > 60000) {
+      lastRttTestSentOn = now
+      val event = buildDoLatencyTracerMsg(liveMeeting.props.meetingProp.intId)
+      outGW.send(event)
+    }
+
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {

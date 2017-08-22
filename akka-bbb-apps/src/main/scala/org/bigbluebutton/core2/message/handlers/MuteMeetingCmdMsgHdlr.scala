@@ -24,12 +24,12 @@ trait MuteMeetingCmdMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    def muteUserInVoiceConf(vu: VoiceUserState): Unit = {
+    def muteUserInVoiceConf(vu: VoiceUserState, mute: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, vu.intId)
       val envelope = BbbCoreEnvelope(MuteUserInVoiceConfSysMsg.NAME, routing)
       val header = BbbCoreHeaderWithMeetingId(MuteUserInVoiceConfSysMsg.NAME, props.meetingProp.intId)
 
-      val body = MuteUserInVoiceConfSysMsgBody(props.voiceProp.voiceConf, vu.voiceUserId, true)
+      val body = MuteUserInVoiceConfSysMsgBody(props.voiceProp.voiceConf, vu.voiceUserId, mute)
       val event = MuteUserInVoiceConfSysMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
@@ -48,13 +48,9 @@ trait MuteMeetingCmdMsgHdlr {
 
     outGW.send(meetingMutedEvent)
 
-    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { u =>
-      muteUserInVoiceConf(u)
-    }
-
     VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
       if (!vu.listenOnly) {
-        muteUserInVoiceConf(vu)
+        muteUserInVoiceConf(vu, muted)
       }
     }
   }

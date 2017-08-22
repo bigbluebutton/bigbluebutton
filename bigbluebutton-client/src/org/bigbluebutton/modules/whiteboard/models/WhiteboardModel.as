@@ -57,18 +57,20 @@ package org.bigbluebutton.modules.whiteboard.models
     public function set lastTraceReceivedTimestamp(ts: Number): void {
       var tsDate: Date = new Date(ts);
       var now: Date = new Date();
-      _roundTripTime = (now.time - tsDate.time) / 1000;
+      _roundTripTime = now.time - tsDate.time;
       
       _dispatcher.dispatchEvent(new RoundTripLatencyReceivedEvent());
     }
     
     public function get latencyInSec(): Number {
-      if (_lastTraceReceivedOn.time < _lastTraceSentOn.time) {
-        var now: Date = new Date();
-        return (now.time - _lastTraceSentOn.time) / 1000;
-      } else {
-        return (_lastTraceReceivedOn.time - _lastTraceSentOn.time) / 1000;
-      }
+      return _roundTripTime;
+      
+      //if (_lastTraceReceivedOn.time < _lastTraceSentOn.time) {
+      //  var now: Date = new Date();
+      //  return (now.time - _lastTraceSentOn.time) / 1000;
+      //} else {
+      //  return (_lastTraceReceivedOn.time - _lastTraceSentOn.time) / 1000;
+      //}
     }
     
 

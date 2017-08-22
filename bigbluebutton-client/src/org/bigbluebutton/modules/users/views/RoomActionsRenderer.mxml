@@ -29,9 +29,10 @@
       
       [Bindable]
       private var breakoutRoomsReady: Boolean = false;
-      
+            
       protected function onCreationCompleteHandler(event:FlexEvent):void {
         moderator = UsersUtil.amIModerator();
+        breakoutRoomsReady = LiveMeeting.inst().breakoutRooms.breakoutRoomsReady;
         
         this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
       }
@@ -59,7 +60,7 @@
       
       protected function requestBreakoutJoinUrl(event:MouseEvent):void {
         var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
-        e.breakoutMeetingId = data.externalMeetingId as String;
+        e.breakoutMeetingId = data.meetingId as String;
         e.userId = UsersUtil.getMyUserID();
         globalDispatch.dispatchEvent(e);
       }

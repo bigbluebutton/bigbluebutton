@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.chat.model {
 		public var privateEnabled:Boolean = true;
 
 		[Bindable]
-		public var fontSize:String = "12";
+		public var fontSize:String = "14";
 
 		[Bindable]
 		public var baseTabIndex:int = 801;

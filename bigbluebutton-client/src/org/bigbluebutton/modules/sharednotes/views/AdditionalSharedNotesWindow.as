@@ -25,11 +25,9 @@ package org.bigbluebutton.modules.sharednotes.views
 			_noteId = n;
 			_windowName = "AdditionalSharedNotesWindow_" + noteId;
 
-			showCloseButton = UsersUtil.amIModerator();
+			//showCloseButton = UsersUtil.amIModerator();
 			width = 240;
 			height = 240;
-
-			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
 		}
 
 		public function get windowName():String {
@@ -46,6 +44,7 @@ package org.bigbluebutton.modules.sharednotes.views
 			LOGGER.debug("AdditionalSharedNotesWindow: [2] in-constructor additional notes " + noteId);
 
 			btnNew.visible = btnNew.includeInLayout = false;
+			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
 		}
 
 		private function onCloseBtnClick(e:MouseEvent):void {

@@ -326,7 +326,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function setupPresenter(isPresenter:Boolean):void {
-				uploadPres.visible = isPresenter;				
+				uploadPres.visible = isPresenter;
+				downloadPres.visible = !isPresenter;
+
 				var page:Page = PresentationModel.getInstance().getCurrentPage();
 				if (page != null) {
 					displaySlideNumber(page.num);		
@@ -435,8 +437,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(new GoToNextPageCommand());
 			}
 			
-      private function removeDecimalFromDataTip(val:String):String {			
-        return val; 
+      private function showPercentageInDataTip(val:String):String {			
+        return val + "%"; 
       }
       
       private function showThumbnails():void{
@@ -719,7 +721,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					pollVoteBox.includeInLayout = true;
 					downloadPres.visible = false;
 				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
-					downloadPres.visible = true;
+					downloadPres.visible = false;
 					pollStartBtn.visible = true;
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
@@ -762,7 +764,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				var downloadablePresentations:ArrayCollection = PresentationModel.getInstance().getDownloadablePresentations();
-				if (presentOptions.enableDownload && downloadablePresentations.length > 0) {
+				if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
 					LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
 					downloadPres.visible = true;
 				} else {
@@ -806,7 +808,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">
 		<!-- Presentation Actions -->
 		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="bottom" horizontalAlign="left">
-			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
+      <mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
+                 click="onUploadButtonClicked()"/>
+      <mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
 					   click="onPollStartButtonClicked()" includeInLayout="{pollStartBtn.visible}"/>
 			<poll:QuickPollButton id="quickPollBtn" height="30"
@@ -817,9 +822,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   styleName="presentationDownloadButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
 					   click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
-			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-					   click="onUploadButtonClicked()"/>
+
 		</mx:HBox>
 
 		<mx:HBox id="presenterControls" width="30%" height="100%" paddingTop="0" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">
@@ -832,9 +835,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="middle" horizontalAlign="right">
 			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
-						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
+						minimum="100" maximum="400" dataTipPlacement="top" 
 						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-						dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
+						dataTipFormatFunction="showPercentageInDataTip" change="onSliderZoom()" width="100"
 						accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
 			<mx:Button id="btnFitToWidth" visible="false" height="30" styleName="presentationFitToWidthButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 

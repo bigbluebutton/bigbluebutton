@@ -440,9 +440,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-                                        
+          updateCopyrightText();
+          
                     logData.localeVersion = localeVersion;
                     logData.tags = ["locale"];
+                    logData.appVersion = appVersion;
                     logData.message = "Received locale version from config.xml";
                     LOGGER.info(JSON.stringify(logData));
       
@@ -549,8 +551,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function openShortcutHelpWindow(e:Event = null):void{
 				if (scWindow == null) {
 					scWindow = new ShortcutHelpWindow();
-					scWindow.width = 300;
-					scWindow.height = 300;
 				}
 				
 				if (scWindow.minimized)
@@ -560,7 +560,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					scWindow.restore();
 				
 				mdiCanvas.windowManager.add(scWindow);
-				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 250, mdiCanvas.height/2 - 250);
 				
 				scWindow.focusHead();
 			}
@@ -740,7 +740,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function handleRoundTripLatencyReceivedEvent(event: RoundTripLatencyReceivedEvent): void {
-              rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec + "s";
+           //   rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
             }
       
             private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
@@ -1060,11 +1060,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="copyrightLabel2" truncateToFit="true"
 				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
-    <mx:Label 
+    <!--mx:Label 
       id="rttLabel"
       text="RTT = 0ms"
       visible="true"
-      includeInLayout="true" />
+      includeInLayout="true" /-->
 		<mx:Label 
 				id="lblWebRTC"
 				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
@@ -1093,6 +1093,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				styleName="logsButton"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
-		<mx:Button width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
+		<mx:Button id="fullScreenBtn"
+				width="30"
+				height="30"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}"
+				styleName="fullScreenButton"
+				click="toggleFullScreen()"/>
 	</mx:ControlBar>
 </mx:VBox>

@@ -2,6 +2,7 @@
 
 let Page = require('./page');
 let pageObject = new Page();
+let chai = require('chai');
 
 class LandingPage extends Page {
   open() {
@@ -13,27 +14,47 @@ class LandingPage extends Page {
   }
 
   get url() {
-    return 'http://localhost:8080/demo/demoHTML5.jsp';
+    return `${browser.baseUrl}/demo/demoHTML5.jsp`;
   }
 
-  get username() {
-    return $('input[name=username]');
+  // Username input field on the HTML5 client's landing page:
+
+  get usernameInputSelector() {
+    return 'input[name=username]';
   }
 
-  get joinButton() {
-    return $('input[type=submit]');
+  get usernameInputElement() {
+    return $(this.usernameInputSelector);
   }
+
+  // Submit button on the HTML5 client's landing page:
+
+  get joinButtonSelector() {
+    return 'input[type=submit]';
+  }
+
+  get joinButtonElement() {
+    return $(this.joinButtonSelector);
+  }
+
+  // Home page:
+
+  get loadedHomePageSelector() {
+    return '#app';
+  }
+
+  get loadedHomePageElement() {
+    return $('#app');
+  }
+
+  //////////
 
   joinWithButtonClick() {
-    this.joinButton.click();
+    this.joinButtonElement.click();
   }
 
   joinWithEnterKey() {
     pageObject.pressEnter();
-  }
-
-  get loadedHomePage() {
-    return $('#app');
   }
 }
 

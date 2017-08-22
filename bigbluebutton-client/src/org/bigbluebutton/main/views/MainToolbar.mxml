@@ -205,7 +205,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
               if (meetingTitle != null) {
                   meetingNameLbl.text = meetingTitle;
-                  meetingNameLbl.toolTip = meetingTitle;
                } 
           }
           logFlashPlayerCapabilities();
@@ -287,7 +286,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var logoutWindow:LogoutWindow;
 					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
 
-					var newX:Number = btnLogout.x + btnLogout.width - logoutWindow.width;
+					var newX:Number = this.width - logoutWindow.width;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
 
 					PopUpManager.centerPopUp(logoutWindow);
