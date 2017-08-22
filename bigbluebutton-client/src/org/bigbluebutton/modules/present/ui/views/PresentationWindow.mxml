@@ -437,8 +437,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(new GoToNextPageCommand());
 			}
 			
-      private function removeDecimalFromDataTip(val:String):String {			
-        return val; 
+      private function showPercentageInDataTip(val:String):String {			
+        return val + "%"; 
       }
       
       private function showThumbnails():void{
@@ -834,9 +834,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="middle" horizontalAlign="right">
 			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
-						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
+						minimum="100" maximum="400" dataTipPlacement="top" 
 						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-						dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
+						dataTipFormatFunction="showPercentageInDataTip" change="onSliderZoom()" width="100"
 						accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
 			<mx:Button id="btnFitToWidth" visible="false" height="30" styleName="presentationFitToWidthButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
