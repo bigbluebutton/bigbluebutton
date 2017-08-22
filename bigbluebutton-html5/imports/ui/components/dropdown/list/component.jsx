@@ -137,13 +137,13 @@ export default class DropdownList extends Component {
 
           onClick: (event) => {
             let { onClick } = item.props;
-            onClick = onClick ? () => onClick.call(item) : null;
+            onClick = onClick ? onClick.bind(item) : null;
             this.handleItemClick(event, onClick);
           },
 
           onKeyDown: (event) => {
             let { onKeyDown } = item.props;
-            onKeyDown = onKeyDown ? () => onKeyDown.call(item) : null;
+            onKeyDown = onKeyDown ? onKeyDown.bind(item) : null;
 
             this.handleItemKeyDown(event, onKeyDown);
           },

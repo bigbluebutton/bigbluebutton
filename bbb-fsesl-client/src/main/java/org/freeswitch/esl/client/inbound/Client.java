@@ -500,6 +500,9 @@ public class Client
                                     } else if (eventFunc.equals("conference_loop_input")) {
                                         listener.conferenceEventAction(uniqueId, confName, confSize, eventHeaders.get("Action"), event);
                                         return;
+                                    } else if (eventFunc.equals("stop_talking_handler")) {
+                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventHeaders.get("Action"), event);
+                                        return;
                                     } else {
                         /*              StringBuilder sb = new StringBuilder("");
                                         sb.append("\n");

@@ -84,6 +84,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
       private function onCreationComplete():void {
+        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = UsersUtil.amIPresenter();
+        
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
         addEventListener(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED, handleWhiteboardButtonPressed);
@@ -151,10 +153,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
+        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = true;
 				checkVisibility();
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
+        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = false;
 				checkToolReset();
 				checkVisibility();
 			}
@@ -307,7 +311,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
 	<mx:ColorPicker change="changeColor(event)" id="cpik"
-                  selectedColor="0x000000" width="30" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
+                  selectedColor="0x000000" width="40" height="40"
+ 				  dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"
 				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
@@ -319,5 +324,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
 	<mx:Image source="{getStyle('iconWhiteboardThin')}" horizontalAlign="center" width="40"/>
-	<mx:Button id="multiUserBtn" click="changeMultiUser()" width="40" height="40" styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"/> 
+	<mx:Button id="multiUserBtn" enabled="false" visible="false" click="changeMultiUser()" width="40" height="40" styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"/> 
 </mx:VBox>

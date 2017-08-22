@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
     import org.bigbluebutton.modules.whiteboard.models.Annotation;
-    import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
     public class DrawAnnotation implements IDrawAnnotation
     {

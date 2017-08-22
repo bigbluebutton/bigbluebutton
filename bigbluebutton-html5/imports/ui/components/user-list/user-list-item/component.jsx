@@ -59,6 +59,7 @@ class UserListItem extends Component {
       />
     );
   }
+
   getUsersActions() {
     const {
       currentUser,
@@ -76,6 +77,8 @@ class UserListItem extends Component {
       kick,
       mute,
       unmute,
+      promote,
+      demote,
     } = userActions;
 
     const actions = getAvailableActions(currentUser, user, router, isBreakoutRoom);
@@ -86,7 +89,10 @@ class UserListItem extends Component {
       allowedToUnmuteAudio,
       allowedToResetStatus,
       allowedToKick,
-      allowedToSetPresenter } = actions;
+      allowedToSetPresenter,
+      allowedToPromote,
+      allowedToDemote,
+    } = actions;
 
     return _.compact([
       (allowedToChatPrivately ? UserListItem.createAction(openChat, router, user) : null),
@@ -95,6 +101,8 @@ class UserListItem extends Component {
       (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
       (allowedToSetPresenter ? UserListItem.createAction(setPresenter, user) : null),
       (allowedToKick ? UserListItem.createAction(kick, user) : null),
+      (allowedToPromote ? UserListItem.createAction(promote, user) : null),
+      (allowedToDemote ? UserListItem.createAction(demote, user) : null),
     ]);
   }
 

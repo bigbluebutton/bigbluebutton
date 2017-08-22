@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ConnectionManager;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	
@@ -175,6 +176,31 @@ package org.bigbluebutton.modules.whiteboard.services
 				},
 				JSON.stringify(message)
 			);
+      
 		}
-	}
+    
+    public function sendClientToServerLatencyTracerMsg():void {
+      var lastTraceSentOn: Date = LiveMeeting.inst().whiteboardModel.lastTraceSentOn;
+      var now: Date = new Date();
+      
+      var rtt: Number = LiveMeeting.inst().whiteboardModel.latencyInSec;
+      LiveMeeting.inst().whiteboardModel.sentLastTrace(now);
+      
+      var message:Object = {
+        header: {name: "ClientToServerLatencyTracerMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {timestampUTC: now.time, rtt: rtt, senderId: UsersUtil.getMyUserID()}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+          //LOGGER.debug(result);
+        },
+        function(status:String):void { // status - On error occurred
+          //LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
+    }
+  }
 }

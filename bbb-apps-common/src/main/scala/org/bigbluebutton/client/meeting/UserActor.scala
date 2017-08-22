@@ -79,7 +79,7 @@ class UserActor(val userId: String,
 
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
-    log.debug("Received MsgFromClientMsg " + msg)
+
 
     def convertToJsonNode(json: String): Option[JsonNode] = {
       JsonUtil.toJsonNode(json) match {
@@ -96,6 +96,10 @@ class UserActor(val userId: String,
       case Some(msgFromClient) =>
         val routing = Routing.addMsgFromClientRouting(msgFromClient.header.meetingId, msgFromClient.header.userId)
         val envelope = new BbbCoreEnvelope(msgFromClient.header.name, routing)
+
+        if (msgFromClient.header.name == "ClientToServerLatencyTracerMsg") {
+          log.info("-- trace -- " + msg.json)
+        }
 
         for {
           jsonNode <- convertToJsonNode(msg.json)

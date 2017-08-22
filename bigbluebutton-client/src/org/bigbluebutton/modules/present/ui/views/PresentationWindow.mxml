@@ -326,7 +326,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function setupPresenter(isPresenter:Boolean):void {
-				uploadPres.visible = isPresenter;				
+				uploadPres.visible = isPresenter;
+				downloadPres.visible = !isPresenter;
+
 				var page:Page = PresentationModel.getInstance().getCurrentPage();
 				if (page != null) {
 					displaySlideNumber(page.num);		
@@ -719,7 +721,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					pollVoteBox.includeInLayout = true;
 					downloadPres.visible = false;
 				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
-					downloadPres.visible = true;
+					downloadPres.visible = false;
 					pollStartBtn.visible = true;
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
@@ -762,7 +764,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				var downloadablePresentations:ArrayCollection = PresentationModel.getInstance().getDownloadablePresentations();
-				if (presentOptions.enableDownload && downloadablePresentations.length > 0) {
+				if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
 					LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
 					downloadPres.visible = true;
 				} else {

@@ -20,7 +20,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
-	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	public class EllipseAnnotation extends DrawAnnotation
 	{
