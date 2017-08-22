@@ -557,8 +557,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function openShortcutHelpWindow(e:Event = null):void{
 				if (scWindow == null) {
 					scWindow = new ShortcutHelpWindow();
-					scWindow.width = 450;
-					scWindow.height = 550;
 				}
 				
 				if (scWindow.minimized)
