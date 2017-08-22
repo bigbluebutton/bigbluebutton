@@ -40,7 +40,8 @@ export default class Cursor extends Component {
       labelBoxX,
       labelBoxY,
       labelBoxStrokeWidth,
-      labelBoxOffset,
+      labelBoxXOffset,
+      labelBoxYOffset,
     } = cursorLabelBox;
 
     return {
@@ -60,8 +61,8 @@ export default class Cursor extends Component {
       cursorLabelBox: {
         x: Cursor.scale(labelBoxX, propsObj),
         y: Cursor.scale(labelBoxY, propsObj),
-        width: Cursor.scale(labelBoxWidth + labelBoxOffset, propsObj),
-        height: Cursor.scale(labelBoxHeight + labelBoxOffset, propsObj),
+        width: Cursor.scale(labelBoxWidth + labelBoxXOffset, propsObj),
+        height: Cursor.scale(labelBoxHeight + labelBoxYOffset, propsObj),
         strokeWidth: Cursor.scale(labelBoxStrokeWidth, propsObj),
       },
     };
@@ -228,7 +229,8 @@ Cursor.propTypes = {
     labelBoxX: PropTypes.number.isRequired,
     labelBoxY: PropTypes.number.isRequired,
     labelBoxStrokeWidth: PropTypes.number.isRequired,
-    labelBoxOffset: PropTypes.number.isRequired,
+    labelBoxXOffset: PropTypes.number.isRequired,
+    labelBoxYOffset: PropTypes.number.isRequired,
     maxWidth: PropTypes.number.isRequired,
   }),
   cursorLabelText: PropTypes.shape({
@@ -262,7 +264,8 @@ Cursor.defaultProps = {
     labelBoxX: 8,
     labelBoxY: -2,
     labelBoxStrokeWidth: 1,
-    labelBoxOffset: 2,
+    labelBoxXOffset: 4,
+    labelBoxYOffset: 2,
     maxWidth: 65,
   },
 };

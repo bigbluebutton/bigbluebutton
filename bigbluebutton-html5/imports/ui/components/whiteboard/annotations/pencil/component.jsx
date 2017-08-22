@@ -1,22 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles.scss';
 import AnnotationHelpers from '../helpers';
 
 export default class PencilDrawComponent extends Component {
 
-  shouldComponentUpdate(nextProps) {
-    return this.props.version !== nextProps.version;
-  }
-
-  getCoordinates() {
-    const { points } = this.props.annotation;
-    const { slideWidth, slideHeight } = this.props;
-
+  static getInitialCoordinates(annotation, slideWidth, slideHeight) {
+    const { points } = annotation;
     let i = 2;
     let path = '';
     if (points && points.length >= 2) {
-      path = `${path}M${(points[0] / 100) * slideWidth
+      path = `M${(points[0] / 100) * slideWidth
         }, ${(points[1] / 100) * slideHeight}`;
       while (i < points.length) {
         path = `${path} L${(points[i] / 100) * slideWidth
@@ -24,18 +17,122 @@ export default class PencilDrawComponent extends Component {
         i += 2;
       }
     }
-    return path;
+
+    return { path, points };
+  }
+
+  static getFinalCoordinates(annotation, slideWidth, slideHeight) {
+    const { points, commands } = annotation;
+
+    let path = '';
+    let i;
+    let j;
+    for (i = 0, j = 0; i < commands.length; i += 1) {
+      switch (commands[i]) {
+          // MOVE_TO - consumes 1 pair of values
+        case 1:
+          path = `${path} M${(points[j] / 100) * slideWidth} ${(points[j + 1] / 100) * slideHeight}`;
+          j += 2;
+          break;
+
+          // LINE_TO - consumes 1 pair of values
+        case 2:
+          path = `${path} L${(points[j] / 100) * slideWidth} ${(points[j + 1] / 100) * slideHeight}`;
+          j += 2;
+          break;
+
+          // QUADRATIC_CURVE_TO - consumes 2 pairs of values
+          // 1st pair is a control point, second is a coordinate
+        case 3:
+          path = `${path} Q${(points[j] / 100) * slideWidth}, ${
+              (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
+              (points[j + 3] / 100) * slideHeight}`;
+          j += 4;
+          break;
+
+          // CUBIC_CURVE_TO - consumes 3 pairs of values
+          // 1st and 2nd are control points, 3rd is an end coordinate
+        case 4:
+          path = `${path} C${(points[j] / 100) * slideWidth}, ${
+              (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
+              (points[j + 3] / 100) * slideHeight}, ${(points[j + 4] / 100) * slideWidth}, ${
+              (points[j + 5] / 100) * slideHeight}`;
+          j += 6;
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    return { path, points };
+  }
+
+  constructor(props) {
+    super(props);
+
+    const { annotation, slideWidth, slideHeight } = this.props;
+
+    this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
+    this.points = annotation.points;
+
+    this.getCurrentPath = this.getCurrentPath.bind(this);
+    this.getCoordinates = this.getCoordinates.bind(this);
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.props.version !== nextProps.version;
+  }
+
+  componentWillUpdate(nextProps) {
+    const { annotation, slideWidth, slideHeight } = nextProps;
+    if (annotation.points.length !== this.props.annotation.points.length) {
+      this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
+    }
+  }
+
+  getCoordinates(annotation, slideWidth, slideHeight) {
+    if (annotation.status === 'DRAW_END') {
+      const data = PencilDrawComponent.getFinalCoordinates(annotation, slideWidth, slideHeight);
+      this.points = data.points;
+      return data.path;
+    } else if (!this.path) {
+      const data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
+      this.points = data.points;
+      return data.path;
+    }
+
+    const data = this.updateCoordinates(annotation, slideWidth, slideHeight);
+    this.points = data.points;
+    return data.path;
+  }
+
+  getCurrentPath() {
+    return this.path ? this.path : 'M -1 -1';
+  }
+
+  updateCoordinates(annotation, slideWidth, slideHeight) {
+    const { points } = annotation;
+    let i = this.points.length;
+    let path = '';
+
+    while (i < points.length) {
+      path = `${path} L${(points[i] / 100) * slideWidth
+        }, ${(points[i + 1] / 100) * slideHeight}`;
+      i += 2;
+    }
+    path = this.path + path;
+
+    return { path, points };
   }
 
   render() {
-    const path = this.getCoordinates();
     const { annotation, slideWidth } = this.props;
     return (
       <path
-        className={styles.path}
         fill="none"
         stroke={AnnotationHelpers.formatColor(annotation.color)}
-        d={path}
+        d={this.getCurrentPath()}
         strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="round"
         strokeLinecap="round"
