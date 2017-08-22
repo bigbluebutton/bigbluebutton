@@ -39,7 +39,7 @@ module.exports = class WebServer
     urlObj = url.parse(req.url, true)
     callbackURL = urlObj.query["callbackURL"]
     meetingID = urlObj.query["meetingID"]
-    getRaw = urlObj.query["getRaw"]
+    getRaw = JSON.parse(urlObj.query["getRaw"].toLowerCase())
 
     unless callbackURL?
       respondWithXML(res, config.api.responses.missingParamCallbackURL)
@@ -48,7 +48,7 @@ module.exports = class WebServer
         if error? # the only error for now is for duplicated callbackURL
           msg = config.api.responses.createDuplicated(hook.id)
         else if hook?
-          msg = config.api.responses.createSuccess(hook.id, hook.permanent)
+          msg = config.api.responses.createSuccess(hook.id, hook.permanent, hook.getRaw)
         else
           msg = config.api.responses.createFailure
         respondWithXML(res, msg)
@@ -98,6 +98,7 @@ module.exports = class WebServer
       msg +=   "<callbackURL><![CDATA[#{hook.callbackURL}]]></callbackURL>"
       msg +=   "<meetingID><![CDATA[#{hook.externalMeetingID}]]></meetingID>" unless hook.isGlobal()
       msg +=   "<permanentHook>#{hook.permanent}</permanentHook>"
+      msg +=   "<rawData>#{hook.getRaw}</rawData>"
       msg += "</hook>"
     msg += "</hooks></response>"
 
