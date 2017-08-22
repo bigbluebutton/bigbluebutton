@@ -60,7 +60,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function onCreationComplete():void {
         var titleKey = "bbb.sharedNotes.title." + LiveMeeting.inst().sharedNotes.numActiveSharedNotes;
-        trace("***** SHARED NOTE TITLE KEY=" + titleKey);
         sharedNoteTitle = ResourceUtil.getInstance().getString(titleKey);
         
         textInput.setFocus();

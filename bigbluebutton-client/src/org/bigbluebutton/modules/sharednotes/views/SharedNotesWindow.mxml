@@ -434,7 +434,7 @@
 			}
 
 			public function getPrefferedPosition():String {
-				return MainCanvas.BOTTOM_LEFT;
+				return MainCanvas.POPUP;
 			}
 
 			override protected function resourcesChanged():void {
