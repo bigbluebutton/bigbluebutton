@@ -223,7 +223,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:CheckBox id="chatNoiseCheckBox" change="changeChatNoise()" />
 	</mx:HBox>
   <mx:HBox width="100%">
-    <mx:Label styleName="publicChatOptionsLabel" 
+    <mx:Label styleName="chatOptionsLabel" 
               text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.publicChatOptions')}" 
               width="100%"/>
     <mx:Button id="saveBtn"
