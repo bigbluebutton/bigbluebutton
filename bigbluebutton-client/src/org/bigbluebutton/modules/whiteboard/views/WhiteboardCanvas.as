@@ -69,7 +69,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			canvasDisplayModel.setDependencies(this, wbModel);
 			
 			whiteboardToolbar = new WhiteboardToolbar();
-			whiteboardToolbar.canvas = this;
+			whiteboardToolbar.setCanvas(this);
 			
 			textToolbar = new WhiteboardTextToolbar();
 			textToolbar.canvas = this;
@@ -150,8 +150,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			canvasModel.doMouseMove(mousePoint.x, mousePoint.y);
 		}
 		
-		public function changeColor(e:Event):void {
-			canvasModel.changeColor(e.target.selectedColor);
+		public function changeColor(color:uint):void {
+			canvasModel.changeColor(color);
 		}
 		
 		public function isEditingText():Boolean {
@@ -195,8 +195,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			toolType = s;
 		}
 		
-		public function changeThickness(e:Event):void {
-			canvasModel.changeThickness(e.target.value);
+		public function changeThickness(val:Number):void {
+			canvasModel.changeThickness(val);
 		}
 		
 		private function setWhiteboardInteractable():void {
