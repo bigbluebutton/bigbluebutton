@@ -132,7 +132,7 @@
 			showToolbarButton="true"
 			fontSize="14"
 			maxPasteLength="1024"
-			maxNoteLenght="5120"
+			maxNoteLength="5120"
 		/>
 
 <!--
