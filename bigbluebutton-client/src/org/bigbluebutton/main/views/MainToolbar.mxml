@@ -205,7 +205,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
               if (meetingTitle != null) {
                   meetingNameLbl.text = meetingTitle;
-                  meetingNameLbl.toolTip = meetingTitle;
                } 
           }
           logFlashPlayerCapabilities();
