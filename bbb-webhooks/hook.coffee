@@ -254,7 +254,7 @@ module.exports = class Hook
               # Persist hook to redis
               hook.save (error, hook) ->
                 nextID = hook.id + 1 if hook.id >= nextID
-                hook._processQueue(length) if hook.queue.length > 0
+                hook._processQueue(hook.queue.length) if hook.queue.length > 0
                 done(null, hook)
             else
               done(null, null)
