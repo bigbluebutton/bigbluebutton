@@ -68,11 +68,14 @@ module.exports = class WebHooks
     hooks = Hook.allGlobalSync()
 
     # Add hooks for the specific meeting that expect raw data
-    idFromMessage = message.payload?.meeting_id
+    if message[config.webhooks.rawPath] is not null
+      # Get meetingId for a raw message that was previously mapped by another webhook application or if it's straight from redis (configurable)
+      switch config.webhooks.rawPath
+        when "payload" then idFromMessage = message[config.webhooks.rawPath][config.webhooks.meetingID]
+        when "data" then idFromMessage = message[config.webhooks.rawPath].attributes.meeting[config.webhooks.meetingID]
     if idFromMessage?
       eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
-      hook = Hook.findByExternalMeetingIDSync(eMeetingID)
-      hooks = hooks.concat(hook) if hook.getRaw
+      hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
     # Notify the hooks that expect raw data
     async.forEach hooks, (hook) ->
       Logger.info "[WebHooks] enqueueing a raw message in the hook:", hook.callbackURL if hook.getRaw
