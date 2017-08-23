@@ -21,13 +21,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
 
-	/**
-	 * The Pencil class. Extends a DrawObject 
-	 * @author dzgonjan
-	 * 
-	 */	
 	public class Pencil extends DrawObject
 	{
+		private var numPointsDrawn:uint = 0;
+		
 		public function Pencil(id:String, type:String, status:String, userId:String) {
 			super(id, type, status, userId);
 		}
@@ -72,6 +69,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				//setup for the next line command
 				graphics.moveTo(denormalize(points[0], _parentWidth), denormalize(points[1], _parentHeight));
 			}
+			
+			numPointsDrawn = points.length;
 			
 			this.alpha = 1;
 		}
@@ -123,7 +122,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				_ao = a.annotation;
 				
 				graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color);
-				graphics.lineTo(denormalize(newPoints[newPoints.length-2], _parentWidth), denormalize(newPoints[newPoints.length-1], _parentHeight));
+				for (var i:int=numPointsDrawn; i<newPoints.length;){
+					graphics.lineTo(denormalize(newPoints[i++], _parentWidth), denormalize(newPoints[i++], _parentHeight));
+				}
+				
+				numPointsDrawn = newPoints.length;
 			} else {
 				_ao = a.annotation;
 				makeGraphic();
