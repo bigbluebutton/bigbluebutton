@@ -53,7 +53,7 @@ class UserListItem extends Component {
       <UserAction
         key={_.uniqueId('action-item-')}
         icon={action.icon}
-        label={action.label}
+        label={action.label(...options)}
         handler={action.handler}
         options={[...options]}
       />

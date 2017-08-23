@@ -97,9 +97,9 @@ class UserParticipants extends Component {
     if (!this.props.compact) {
       this._usersList.addEventListener('keydown',
         event => this.props.rovingIndex(event,
-                                        this._usersList,
-                                        this._userItems,
-                                        this.props.users.length));
+          this._usersList,
+          this._userItems,
+          this.props.users.length));
     }
   }
 
@@ -116,50 +116,49 @@ class UserParticipants extends Component {
       compact,
     } = this.props;
 
-    const userActions = val => (
+    const userActions =
       {
         openChat: {
-          label: intl.formatMessage(intlMessages.ChatLabel),
+          label: () => intl.formatMessage(intlMessages.ChatLabel),
           handler: (router, user) => router.push(`/users/chat/${user.id}`),
           icon: 'chat',
         },
         clearStatus: {
-          label: intl.formatMessage(intlMessages.ClearStatusLabel),
+          label: () => intl.formatMessage(intlMessages.ClearStatusLabel),
           handler: user => makeCall('setEmojiStatus', user.id, 'none'),
           icon: 'clear_status',
         },
         setPresenter: {
-          label: intl.formatMessage(intlMessages.MakePresenterLabel),
+          label: () => intl.formatMessage(intlMessages.MakePresenterLabel),
           handler: user => makeCall('assignPresenter', user.id),
           icon: 'presentation',
         },
         kick: {
-          label: intl.formatMessage(intlMessages.KickUserLabel, { 0: val.name }),
+          label: user => intl.formatMessage(intlMessages.KickUserLabel, { 0: user.name }),
           handler: user => makeCall('kickUser', user.id),
           icon: 'circle_close',
         },
         mute: {
-          label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
+          label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
           handler: user => makeCall('toggleVoice', user.id),
           icon: 'audio_off',
         },
         unmute: {
-          label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
+          label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
           handler: user => makeCall('toggleVoice', user.id),
           icon: 'audio_on',
         },
         promote: {
-          label: intl.formatMessage(intlMessages.PromoteUserLabel, { 0: val.name }),
+          label: user => intl.formatMessage(intlMessages.PromoteUserLabel, { 0: user.name }),
           handler: user => makeCall('changeRole', user.id, 'MODERATOR'),
           icon: 'promote',
         },
         demote: {
-          label: intl.formatMessage(intlMessages.DemoteUserLabel, { 0: val.name }),
+          label: user => intl.formatMessage(intlMessages.DemoteUserLabel, { 0: user.name }),
           handler: user => makeCall('changeRole', user.id, 'VIEWER'),
           icon: 'user',
         },
-      }
-    );
+      };
 
     return (
       <div className={styles.participants}>
@@ -195,7 +194,7 @@ class UserParticipants extends Component {
                     isBreakoutRoom={isBreakoutRoom}
                     user={user}
                     currentUser={currentUser}
-                    userActions={userActions(user)}
+                    userActions={userActions}
                     meeting={meeting}
                     getAvailableActions={getAvailableActions}
                     normalizeEmojiName={normalizeEmojiName}

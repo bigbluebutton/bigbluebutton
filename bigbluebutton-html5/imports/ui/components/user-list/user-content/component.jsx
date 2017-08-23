@@ -103,6 +103,7 @@ class UserContent extends Component {
           getAvailableActions={this.props.getAvailableActions}
           normalizeEmojiName={this.props.normalizeEmojiName}
           rovingIndex={this.rovingIndex}
+
         />
       </div>
     );
