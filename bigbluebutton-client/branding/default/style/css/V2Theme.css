@@ -11,6 +11,7 @@
 @namespace sharednotes "org.bigbluebutton.modules.sharednotes.views.components.*";
 @namespace chat "org.bigbluebutton.modules.chat.views.*";
 @namespace skins "org.bigbluebutton.skins.*";
+@namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
 
 /*
 //------------------------------
@@ -126,6 +127,10 @@ mx|ApplicationControlBar {
 	fillAlphas      : 1, 1;
 	fillColors      : #FFFFFF, #FFFFFF;
 	highlightAlphas : 0, 0;
+}
+
+phonecomponents|MuteMeButton {
+	glowFilterColor : #1070D7;
 }
 
 .toolbarSeparator {
@@ -274,8 +279,7 @@ mx|ApplicationControlBar {
 }
 
 .muteMeDefaultButtonStyle {
-	glowFilterColor : #1070D7;
-	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
 
 .muteMeOnButtonStyle {

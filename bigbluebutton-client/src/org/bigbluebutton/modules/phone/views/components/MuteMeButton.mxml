@@ -206,7 +206,7 @@ $Id: $
 							muteMeBtnImg.source = getStyle("iconAudio");
 						} else {
 							selected = false;
-							styleName = "muteMeOnButtonStyle";
+							styleName = "muteMeDefaultButtonStyle";
 
 							muteMeBtnImg.source = getStyle("iconAudio");
 						}
