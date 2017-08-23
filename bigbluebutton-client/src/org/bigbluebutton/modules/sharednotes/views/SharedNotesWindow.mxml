@@ -145,13 +145,15 @@
 				richTextEditor.bulletButton.visible = false;
 				richTextEditor.bulletButton.height = 0;
 				richTextEditor.bulletButton.width = 0;
+
+				richTextEditor.textArea.maxChars = options.maxNoteLength;
 			}
 
 			private function updateRoleDependentProperties(role:String):void {
 				if(noteId == "MAIN_NOTE"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
 				} else {
-					showCloseButton = role == Role.MODERATOR;
+				//	showCloseButton = role == Role.MODERATOR;
 				}
 			}
 
@@ -207,10 +209,11 @@
 							_document = result;
 //							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
+							/* This code is forcing resync and causing more problems then resolving
 							if (possiblePatchError()) {
 								syncNote();
 								return;
-							}
+							}*/
 						}
 						_lastPatch = e.patchId;
 						updateUndoRedoButtons(e.undo, e.redo);
@@ -422,12 +425,16 @@
 				return true;
 			}
 
+			public function throwPasteWarning(pasteLength:int):void {
+				Alert.show(ResourceUtil.getInstance().getString("bbb.caption.transcript.pastewarning.text", [options.maxPasteLength, pasteLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.pastewarning.title"), Alert.OK);
+			}
+
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
 				richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
 
 			public function getPrefferedPosition():String {
-				return MainCanvas.BOTTOM_LEFT;
+				return MainCanvas.POPUP;
 			}
 
 			override protected function resourcesChanged():void {
@@ -491,6 +498,10 @@
 						enabled="false" visible="true"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
+				<mx:Label id="charRemain"
+						includeInLayout="true"
+						visible="{(options.maxNoteLength - richTextEditor.text.length) &lt; (options.maxNoteLength / 8)}"
+						text="{options.maxNoteLength - richTextEditor.text.length}"/>
 				<mx:Button id="btnNew"
 						styleName="sharedNotesNewButtonStyle"
 						width="26"

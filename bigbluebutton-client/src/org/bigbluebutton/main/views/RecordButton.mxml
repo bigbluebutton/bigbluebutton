@@ -91,7 +91,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Confirm logout using built-in alert
 				_confirmationAlert = Alert.show(message, ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.title'), Alert.YES | Alert.NO, this, onCloseConfirmationDialog, null, Alert.YES);
 
-				var newX:Number = this.x;
+        // Reach out to MainAppShell to set position of alert window.
+				var newX:Number = this.parent.parent.width * 0.7;
 				var newY:Number = this.y + this.height + 5;
 
 				_confirmationAlert.validateNow();
@@ -181,7 +182,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					alert.setStyle("modalTransparencyDuration", 250);
 					alert.titleIcon = getStyle('iconRecordReminder');
 					
-					var newX:Number = this.x;
+          // Reach out to MainAppShell to set position of alert window.
+					var newX:Number = this.parent.parent.width * 0.65;
 					var newY:Number = this.y + this.height + 5;
 					
 					alert.validateNow();
