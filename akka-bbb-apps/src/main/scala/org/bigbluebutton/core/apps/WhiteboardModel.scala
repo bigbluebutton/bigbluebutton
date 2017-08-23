@@ -108,7 +108,7 @@ class WhiteboardModel {
     //println("!usersAnnotations.isEmpty: " + (!usersAnnotations.isEmpty) + ", usersAnnotations.head.id == annotation.id: " + (usersAnnotations.head.id == annotation.id));
     if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
       var dimensions: List[Int] = List[Int]()
-      annotation.annotationInfo.get("points").foreach(d => {
+      annotation.annotationInfo.get("dimensions").foreach(d => {
         d match {
           case d2: List[_] => dimensions = d2.asInstanceOf[List[Int]]
         }
@@ -124,11 +124,18 @@ class WhiteboardModel {
           }
         })
 
+        var newPoints: List[Float] = List[Float]()
+        annotation.annotationInfo.get("points").foreach(a => {
+          a match {
+            case a2: List[_] => newPoints = convertListNumbersToFloat(a2)
+          }
+        }) //newPoints = a.asInstanceOf[ArrayList[Float]])
+
         //println("oldPoints.size(): " + oldPoints.size());
 
         //val oldPointsJava: java.util.List[java.lang.Float] = oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]]
         //println("****class = " + oldPointsJava.getClass())
-        val pathData = BezierWrapper.lineSimplifyAndCurve(oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
+        val pathData = BezierWrapper.lineSimplifyAndCurve((oldPoints ::: newPoints).asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
         //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
 
         val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
