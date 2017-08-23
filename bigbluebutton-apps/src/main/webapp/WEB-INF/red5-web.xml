@@ -52,6 +52,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="connInvokerService"><ref bean="connInvokerService"/></property>
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
         <property name="clientInGW" ref="clientInGW" />
+        <property name="maxMessageLength" value="${maxMessageLength}"/>
     </bean>
 
     <bean id="clientInGW" class="org.bigbluebutton.client.ClientInGW" >
