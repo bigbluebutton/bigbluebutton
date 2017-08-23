@@ -31,15 +31,15 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-presentation_props = YAML::load(File.open('presentation.yml'))
+$presentation_props = YAML::load(File.open('presentation.yml'))
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.
 $magic_mystery_number = 2
 
 def scaleToDeskshareVideo(width, height)
-  deskshare_video_height = presentation_props['deskshare_output_height'].to_f
-  deskshare_video_width = presentation_props['deskshare_output_height'].to_f
+  deskshare_video_height = $presentation_props['deskshare_output_height'].to_f
+  deskshare_video_width = $presentation_props['deskshare_output_height'].to_f
 
   scale = [deskshare_video_width/width, deskshare_video_height/height]
   video_width = width * scale.min
@@ -49,8 +49,8 @@ def scaleToDeskshareVideo(width, height)
 end
 
 def getDeskshareVideoDimension(deskshare_stream_name)
-  video_width = presentation_props['deskshare_output_height'].to_f
-  video_height = presentation_props['deskshare_output_height'].to_f
+  video_width = $presentation_props['deskshare_output_height'].to_f
+  video_height = $presentation_props['deskshare_output_height'].to_f
   deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
 
   if File.exist?(deskshare_video_filename)
@@ -833,7 +833,7 @@ def events_get_image_info(slide)
     # Emergency last-ditch blank image creation
     FileUtils.mkdir_p(File.dirname(image_path))
     if slide[:deskshare]
-      command = "convert -size #{presentation_props['deskshare_output_width']}x#{presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
+      command = "convert -size #{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
     else
       command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_path}"
     end
@@ -921,11 +921,11 @@ def processPresentation(package_dir)
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
       panzoom_changed = true
 
-    elsif eventname == 'DeskshareStartedEvent' and presentation_props['include_deskshare']
+    elsif eventname == 'DeskshareStartedEvent' and $presentation_props['include_deskshare']
       deskshare = true
       slide_changed = true
 
-    elsif eventname == 'DeskshareStoppedEvent' and presentation_props['include_deskshare']
+    elsif eventname == 'DeskshareStoppedEvent' and $presentation_props['include_deskshare']
       deskshare = false
       slide_changed = true
 
@@ -1163,7 +1163,7 @@ begin
     BigBlueButton.logger.info("Setting process dir")
     $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
     BigBlueButton.logger.info("setting publish dir")
-    publish_dir = presentation_props['publish_dir']
+    publish_dir = $presentation_props['publish_dir']
     BigBlueButton.logger.info("setting playback url info")
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
