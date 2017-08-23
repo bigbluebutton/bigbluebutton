@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
 import styles from './../../styles.scss';
-import UserListItem from './../../user-list-item/component';
+import UserListItem from './user-list-item/component';
 
 const propTypes = {
   users: PropTypes.array.isRequired,

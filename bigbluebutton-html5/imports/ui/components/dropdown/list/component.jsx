@@ -1,7 +1,7 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import UserAction from '/imports/ui/components/user-list/user-list-item/user-action/component';
+import UserAction from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-item/user-action/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 import styles from './styles';
 import ListItem from './item/component';

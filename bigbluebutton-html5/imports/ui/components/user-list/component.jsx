@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import styles from './styles.scss';
 import UserListHeader from './user-list-header/component';
-import UserContent from './user-content/component';
+import UserContent from './user-list-content/component';
 
 const propTypes = {
   openChats: PropTypes.array.isRequired,
