@@ -163,7 +163,8 @@ mx|ApplicationControlBar {
 
 .webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
 .deskshareDefaultButtonStyle, .deskshareOverButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
-.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
+.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle,
+.recordButtonStyleNormal, .recordButtonStyleStop, .recordButtonStyleStart {
 	fillColorOver           : #FFFFFF;
 	borderColorOver         : #1070D7;
 	fillColorSelectedUp     : #1070D7;
@@ -262,7 +263,10 @@ mx|ApplicationControlBar {
 }
 
 .recordButtonStyleStart {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	icon             : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On_Blue");
+	selectedUpIcon   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	selectedOverIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	selectedDownIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .recordButtonStyleStop {
