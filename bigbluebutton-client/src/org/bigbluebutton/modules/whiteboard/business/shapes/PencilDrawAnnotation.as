@@ -24,34 +24,38 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     public class PencilDrawAnnotation extends DrawAnnotation
     {
         private var _type:String = AnnotationType.PENCIL;
-        private var _shape:Array;
+        private var _points:Array;
         private var _color:uint;
-        private var _fillColor:uint;
         private var _thickness:Number;
-        private var _fill:Boolean;
-        private var _transparent:Boolean;
+        private var _dimensions:Array;
 
         
-        public function PencilDrawAnnotation(segment:Array, color:uint, thickness:Number, trans:Boolean)
+        public function PencilDrawAnnotation(segment:Array, color:uint, thickness:Number)
         {
-            _shape = segment;
+            _points = segment;
             _color = color;
             _thickness = thickness;
-            _transparent = trans;
         }
-               
+        
+        public function addDimensions(dimensions:Array):void {
+            _dimensions = dimensions;
+        }
+        
         override public function createAnnotation(wbId:String):Annotation {
             var ao:Object = new Object();
             ao["type"] = _type;
-            ao["points"] = _shape;
+            ao["points"] = _points;
             ao["color"] = _color;
             ao["thickness"] = _thickness;
             ao["id"] = _id;
             ao["status"] = _status;
-            ao["transparency"] = _transparent;
 
+            if (_dimensions) {
+                ao["dimensions"] = _dimensions;
+            }
+            
             if (wbId != null) {
-              ao["whiteboardId"] = wbId;
+                ao["whiteboardId"] = wbId;
             }
                       
             return new Annotation(_id, _type, ao);

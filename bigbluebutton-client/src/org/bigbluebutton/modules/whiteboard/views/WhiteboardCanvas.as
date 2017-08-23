@@ -150,6 +150,13 @@ package org.bigbluebutton.modules.whiteboard.views {
 			canvasModel.doMouseMove(mousePoint.x, mousePoint.y);
 		}
 		
+		private function stopDrawing():void {
+			var mousePoint:Point = getMouseXY();
+			
+			canvasDisplayModel.doMouseDown(mousePoint.x, mousePoint.y);
+			canvasModel.stopDrawing(mousePoint.x, mousePoint.y);
+		}
+		
 		public function changeColor(color:uint):void {
 			canvasModel.changeColor(color);
 		}
@@ -238,7 +245,11 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function getMouseXY():Point {
-			return new Point(Math.min(Math.max(parent.mouseX, 0), parent.width-1) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-1) - this.y);
+			if (parent) {
+				return new Point(Math.min(Math.max(parent.mouseX, 0), parent.width-1) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-1) - this.y);
+			} else {
+				return new Point(0, 0);
+			}
 		}
 		
 		private function presenterChange(amIPresenter:Boolean, presenterId:String):void {
@@ -293,6 +304,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		public function displayWhiteboardById(wbId:String):void {
+			stopDrawing();
+			
 			currentWhiteboardId = wbId;
 			canvasDisplayModel.changeWhiteboard(wbId);
 			whiteboardToolbar.whiteboardIdSet();
@@ -342,6 +355,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private function onDisableWhiteboardEvent(e:WhiteboardButtonEvent):void {
 			e.stopPropagation();
+			
+			stopDrawing();
 			
 			removeCursor()
 			

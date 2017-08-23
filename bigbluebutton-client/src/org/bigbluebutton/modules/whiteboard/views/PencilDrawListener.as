@@ -18,9 +18,12 @@
  */
 package org.bigbluebutton.modules.whiteboard.views
 {
+  import flash.events.TimerEvent;
   import flash.geom.Point;
+  import flash.utils.Timer;
   
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.PencilDrawAnnotation;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
@@ -33,12 +36,14 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _drawStatus:String = AnnotationStatus.DRAW_START;
     private var _isDrawing:Boolean = false;; 
     private var _segment:Array = new Array();
+    private var _dimensions:Array = new Array();
     private var _wbCanvas:WhiteboardCanvas;
     private var _shapeFactory:ShapeFactory;
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
     private var _wbId:String = null;
-    
+    private var _localTool:WhiteboardTool = new WhiteboardTool();
+    private var _updateTimer:Timer = new Timer(50, 0);
     
     public function PencilDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
@@ -47,6 +52,8 @@ package org.bigbluebutton.modules.whiteboard.views
       _idGenerator = idGenerator;
       _wbCanvas = wbCanvas;
       _shapeFactory = shapeFactory;
+      
+      _updateTimer.addEventListener(TimerEvent.TIMER, onTimer);
     }
     
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool, wbId:String):void {
@@ -56,11 +63,13 @@ package org.bigbluebutton.modules.whiteboard.views
           onMouseUp(mouseX, mouseY, tool);
           return;
         }
-		
+        
         _isDrawing = true;
         _drawStatus = AnnotationStatus.DRAW_START;
         
         _wbId = wbId;
+        
+        _localTool = WhiteboardTool.copy(tool);
         
         // Generate a shape id so we can match the mouse down and up events. Then we can
         // remove the specific shape when a mouse up occurs.
@@ -68,27 +77,30 @@ package org.bigbluebutton.modules.whiteboard.views
         
         //normalize points as we get them to avoid shape drift
         var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
-		
+        
         _segment = new Array();
         _segment.push(np.x);
         _segment.push(np.y);
-		
-        sendShapeToServer(AnnotationStatus.DRAW_START, tool);
+        
+        sendShapeToServer(AnnotationStatus.DRAW_START);
+        
+        _updateTimer.start();
+        
+        _segment = new Array();
       } 
     }
     
     public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing){
-
+          
+          _localTool = WhiteboardTool.copy(tool);
+          
           //normalize points as we get them to avoid shape drift
           var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
           
-          _segment = new Array();
           _segment.push(np.x);
           _segment.push(np.y);
-          
-          sendShapeToServer(AnnotationStatus.DRAW_UPDATE, tool);
         }
       }
     }
@@ -96,38 +108,62 @@ package org.bigbluebutton.modules.whiteboard.views
     public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing) {
-          /**
-            * Check if we are drawing because when resizing the window, it generates
-            * a mouseUp event at the end of resize. We don't want to dispatch another
-            * shape to the viewers.
-            */
-          _isDrawing = false;
-          _segment = new Array();
-          _segment.push(_wbCanvas.width);
-          _segment.push(_wbCanvas.height);
-          sendShapeToServer(AnnotationStatus.DRAW_END, tool);
-        } /* (_isDrawing) */                
+          sendDrawEnd(mouseX, mouseY);
+        }
       }
     }
     
-    private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
+    public function stopDrawing(mouseX:Number, mouseY:Number):void {
+      if (_isDrawing) {
+        sendDrawEnd(mouseX, mouseY);
+      }
+    }
+    
+    private function sendDrawEnd(mouseX:Number, mouseY:Number):void {
+      _isDrawing = false;
+      
+      //normalize points as we get them to avoid shape drift
+      var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+      
+      _segment.push(np.x);
+      _segment.push(np.y);
+      
+      _dimensions = new Array();
+      _dimensions.push(_wbCanvas.width);
+      _dimensions.push(_wbCanvas.height);
+      sendShapeToServer(AnnotationStatus.DRAW_END);
+      
+      _updateTimer.stop();
+    }
+    
+    private function onTimer(e:TimerEvent):void {
+      if (_segment.length > 0) {
+        sendShapeToServer(AnnotationStatus.DRAW_UPDATE);
+        
+        _segment = new Array();
+      }
+    }
+    
+    private function sendShapeToServer(status:String):void {
       if (_segment.length == 0) {
 //        LogUtil.debug("SEGMENT LENGTH = 0");
         return;
       }
                        
-      var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, 
-                                                  tool.fillOn, tool.fillColor, tool.transparencyOn);
+      var dobj:PencilDrawAnnotation = _shapeFactory.createDrawObject(_localTool.toolType, _segment, _localTool.drawColor, _localTool.thickness) as PencilDrawAnnotation;
       
       dobj.status = status;
       dobj.id = _curID;
+      
+      if (status == AnnotationStatus.DRAW_END) {
+        dobj.addDimensions(_dimensions);
+      }
       
       var an:Annotation = dobj.createAnnotation(_wbId);
       
       if (an != null) {
         _wbCanvas.sendGraphicToServer(an);
       }
-            			
     }
   }
 }
