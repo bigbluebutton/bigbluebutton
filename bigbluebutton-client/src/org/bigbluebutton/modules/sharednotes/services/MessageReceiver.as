@@ -109,23 +109,24 @@ package org.bigbluebutton.modules.sharednotes.services
       currentDocumentEvent.document = msg.body.notesReport as Object;
       currentDocumentEvent.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(currentDocumentEvent);
+      LiveMeeting.inst().sharedNotes.updateNotesIds(msg.body.notesReport as Object);
     }
 
     private function handleCreateSharedNoteRespMsg(msg: Object):void {
-      LiveMeeting.inst().sharedNotes.addNewSharedNote();
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = msg.body.noteId as String;
       e.payload.noteName = msg.body.noteName as String;
       e.payload.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(e);
+      LiveMeeting.inst().sharedNotes.addNewSharedNote(Number(msg.body.noteId as String));
     }
 
     private function handleDestroySharedNoteRespMsg(msg: Object):void {
-      LiveMeeting.inst().sharedNotes.removeSharedNote();
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = msg.body.noteId as String;
       e.payload.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(e);
+      LiveMeeting.inst().sharedNotes.removeSharedNote(Number(msg.body.noteId as String));
     }
 
     private function handleSyncSharedNoteEvtMsg(msg: Object):void {
