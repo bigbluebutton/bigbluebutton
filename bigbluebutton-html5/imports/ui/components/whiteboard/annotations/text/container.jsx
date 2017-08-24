@@ -18,5 +18,6 @@ export default createContainer((params) => {
   return {
     isActive,
     setTextShapeValue: TextShapeService.setTextShapeValue,
+    resetTextShapeActiveId: TextShapeService.resetTextShapeActiveId,
   };
 }, TextDrawContainer);

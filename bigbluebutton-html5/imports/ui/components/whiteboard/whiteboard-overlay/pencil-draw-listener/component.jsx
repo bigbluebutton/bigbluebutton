@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles.scss';
 
-export default class PencilDrawListener extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.pencilCoordinates = [];
+export default class PencilDrawListener extends Component {
+  constructor() {
+    super();
 
     // to track the status of drawing
     this.isDrawing = false;
@@ -17,7 +15,6 @@ export default class PencilDrawListener extends React.Component {
   }
 
   // main mouse down handler
-  // calls a mouseDown<AnnotationName> handler based on the tool selected
   mouseDownHandler(event) {
     if (!this.isDrawing) {
       window.addEventListener('mouseup', this.mouseUpHandler);
@@ -33,7 +30,6 @@ export default class PencilDrawListener extends React.Component {
   }
 
   // main mouse up handler
-  // calls a mouseUp<AnnotationName> handler based on the tool selected
   mouseUpHandler(event) {
     window.removeEventListener('mouseup', this.mouseUpHandler);
     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
@@ -43,7 +39,6 @@ export default class PencilDrawListener extends React.Component {
   }
 
   // main mouse move handler
-  // calls a mouseMove<AnnotationName> handler based on the tool selected
   mouseMoveHandler(event) {
     this.mouseMovePencil(event);
   }
@@ -52,15 +47,17 @@ export default class PencilDrawListener extends React.Component {
     const { getSvgPoint, generateNewShapeId } = this.props.actions;
 
     const svgPoint = getSvgPoint(event);
-    const points = [];
-    points.push(svgPoint.x);
-    points.push(svgPoint.y);
-    this.pencilCoordinates = points;
-    generateNewShapeId();
+    const points = [svgPoint.x, svgPoint.y];
+    this.handleDrawPencil(points, 'DRAW_START', generateNewShapeId());
   }
 
   mouseMovePencil(event) {
-    const { checkIfOutOfBounds, getTransformedSvgPoint, svgCoordinateToPercentages, generateNewShapeId, getCurrentShapeId } = this.props.actions;
+    const {
+      checkIfOutOfBounds,
+      getTransformedSvgPoint,
+      svgCoordinateToPercentages,
+      getCurrentShapeId,
+    } = this.props.actions;
 
     // get the transformed svg coordinate
     let transformedSvgPoint = getTransformedSvgPoint(event);
@@ -72,58 +69,54 @@ export default class PencilDrawListener extends React.Component {
     transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
     // adding new coordinates to the saved coordinates in the state
-    const points = this.pencilCoordinates;
-    points.push(transformedSvgPoint.x);
-    points.push(transformedSvgPoint.y);
+    const points = [transformedSvgPoint.x, transformedSvgPoint.y];
 
-    // if we have 16 pairs - send a message (number 16 - to match Flash)
-    if (points.length > 30) {
-      // calling handleDrawPencil to send a message
-      this.handleDrawPencil(points, 'DRAW_START', getCurrentShapeId());
-
-      // generating a new shape Id
-      generateNewShapeId();
-
-
-      // always save the last pair of coorindtates, since this is the start of the next chunk
-      this.pencilCoordinates = [points[points.length - 2], points[points.length - 1]];
-
-    // if we don't have 16 pairs yet - just save an updated array in the state
-    } else {
-      this.pencilCoordinates = points;
-    }
+    // calling handleDrawPencil to send a message
+    this.handleDrawPencil(points, 'DRAW_UPDATE', getCurrentShapeId());
   }
 
-  mouseUpPencil(event) {
+  mouseUpPencil() {
+    const { slideWidth, slideHeight } = this.props;
     const { getCurrentShapeId } = this.props.actions;
 
-    // drawing a pencil
-    this.handleDrawPencil(this.pencilCoordinates, 'DRAW_START', getCurrentShapeId());
+    // for the last message we need to send the slide's width and height
+    // It's just for the smoothing
+    const points = [slideWidth, slideHeight];
 
-    this.pencilCoordinates = [];
+    // calling handleDrawPencil to send a message
+    this.handleDrawPencil(points, 'DRAW_END', getCurrentShapeId());
   }
 
   handleDrawPencil(points, status, id) {
-    const shape = {
-      annotation: {
-        type: 'pencil',
-        points,
+    const { normalizeThickness, sendAnnotation } = this.props.actions;
+    const { whiteboardId, userId } = this.props;
+
+    const annotation = {
+      id,
+      status,
+      annotationType: 'pencil',
+      annotationInfo: {
         color: this.props.drawSettings.color,
-        transparency: false,
-        status,
-        thickness: this.props.drawSettings.thickness,
+        thickness: normalizeThickness(this.props.drawSettings.thickness),
+        points,
         id,
-        whiteboardId: this.props.whiteboardId,
+        whiteboardId,
+        status,
+        transparency: false,
+        type: 'pencil',
       },
-      whiteboard_id: this.props.whiteboardId,
+      wbId: whiteboardId,
+      userId,
+      position: 0,
     };
 
-    this.props.sendAnnotation(shape);
+    sendAnnotation(annotation);
   }
 
   render() {
     return (
       <div
+        role="presentation"
         className={styles.pencil}
         style={{ width: '100%', height: '100%' }}
         onMouseDown={this.mouseDownHandler}
@@ -131,3 +124,42 @@ export default class PencilDrawListener extends React.Component {
     );
   }
 }
+
+PencilDrawListener.propTypes = {
+    // Defines a whiteboard id, which needed to publish an annotation message
+  whiteboardId: PropTypes.string.isRequired,
+  // Defines a user id, which needed to publish an annotation message
+  userId: PropTypes.string.isRequired,
+  // Defines the widith of the slide (svg coordinate system)
+  slideWidth: PropTypes.number.isRequired,
+  // Defines the height of the slide (svg coordinate system)
+  slideHeight: PropTypes.number.isRequired,
+  // Defines an object containing all available actions
+  actions: PropTypes.shape({
+    // Defines a function which transforms a coordinate from the window to svg coordinate system
+    getTransformedSvgPoint: PropTypes.func.isRequired,
+    // Defines a function that receives an event with the coordinates in the svg coordinate system
+    // and transforms them into percentage-based coordinates
+    getSvgPoint: PropTypes.func.isRequired,
+    // Defines a function which checks if the shape is out of bounds and returns
+    // appropriate coordinates
+    checkIfOutOfBounds: PropTypes.func.isRequired,
+    // Defines a function which receives an svg point and transforms it into
+    // percentage-based coordinates
+    svgCoordinateToPercentages: PropTypes.func.isRequired,
+    // Defines a function which returns a current shape id
+    getCurrentShapeId: PropTypes.func.isRequired,
+    // Defines a function which generates a new shape id
+    generateNewShapeId: PropTypes.func.isRequired,
+    // Defines a function which receives a thickness num and normalizes it before we send a message
+    normalizeThickness: PropTypes.func.isRequired,
+    // Defines a function which we use to publish a message to the server
+    sendAnnotation: PropTypes.func.isRequired,
+  }).isRequired,
+  drawSettings: PropTypes.shape({
+    // Annotation color
+    color: PropTypes.number.isRequired,
+    // Annotation thickness (not normalized)
+    thickness: PropTypes.number.isRequired,
+  }).isRequired,
+};

@@ -53,7 +53,7 @@ export default class TextDrawComponent extends Component {
   }
 
   componentDidMount() {
-    if (this.props.isActive && this.props.annotation.status !== 'textPublished') {
+    if (this.props.isActive && this.props.annotation.status !== 'DRAW_END') {
       this.handleFocus();
     }
   }
@@ -61,6 +61,13 @@ export default class TextDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
     return this.props.version !== nextProps.version ||
       this.props.isActive !== nextProps.isActive;
+  }
+
+  // If the user is drawing a text shape and clicks Undo - reset textShapeId
+  componentWillUnmount() {
+    if (this.props.isActive) {
+      this.props.resetTextShapeActiveId();
+    }
   }
 
   onChangeHandler(event) {
@@ -160,7 +167,7 @@ export default class TextDrawComponent extends Component {
   render() {
     const results = this.getCoordinates();
 
-    if (this.props.isActive && this.props.annotation.status !== 'textPublished') {
+    if (this.props.isActive && this.props.annotation.status !== 'DRAW_END') {
       return this.renderPresenterTextShape(results);
     }
     return this.renderViewerTextShape(results);
@@ -191,4 +198,7 @@ TextDrawComponent.propTypes = {
   isActive: PropTypes.bool.isRequired,
   // Defines a function that sends updates from the active text shape  to the server
   setTextShapeValue: PropTypes.func.isRequired,
+  // Defines a function that resets the textShape active Id in case if a user clicks Undo
+  // while drawing a shape
+  resetTextShapeActiveId: PropTypes.func.isRequired,
 };

@@ -10,11 +10,19 @@ const setTextShapeValue = (text) => {
   }
 };
 
+const resetTextShapeActiveId = () => {
+  const drawSettings = Storage.getItem('drawSettings');
+  if (drawSettings) {
+    drawSettings.textShape.textShapeActiveId = '';
+    Storage.setItem('drawSettings', JSON.stringify(drawSettings));
+  }
+};
+
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID });
 
-  if (currentUser && currentUser.user) {
-    return currentUser.user.presenter;
+  if (currentUser) {
+    return currentUser.presenter;
   }
 
   return false;
@@ -34,4 +42,5 @@ export default {
   setTextShapeValue,
   activeTextShapeId,
   isPresenter,
+  resetTextShapeActiveId,
 };

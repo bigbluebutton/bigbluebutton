@@ -23,15 +23,17 @@ const getWhiteboardToolbarValues = () => {
       color: whiteboardAnnotationColor,
       textFontSize,
       textShapeValue: textShape.textShapeValue ? textShape.textShapeValue : '',
+      textShapeActiveId: textShape.textShapeActiveId ? textShape.textShapeActiveId : '',
     };
   }
   return undefined;
 };
 
-const resetTextShapeValue = () => {
+const resetTextShapeSession = () => {
   const drawSettings = Storage.getItem('drawSettings');
   if (drawSettings) {
     drawSettings.textShape.textShapeValue = '';
+    drawSettings.textShape.textShapeActiveId = '';
     Storage.setItem('drawSettings', JSON.stringify(drawSettings));
   }
 };
@@ -39,7 +41,7 @@ const resetTextShapeValue = () => {
 const setTextShapeActiveId = (id) => {
   const drawSettings = Storage.getItem('drawSettings');
   if (drawSettings) {
-    drawSettings.textShape.textShapeActiveId = `${Auth.userID}-${id}`;
+    drawSettings.textShape.textShapeActiveId = id;
     Storage.setItem('drawSettings', JSON.stringify(drawSettings));
   }
 };
@@ -51,6 +53,6 @@ export default {
   sendAnnotation,
   getWhiteboardToolbarValues,
   setTextShapeActiveId,
-  resetTextShapeValue,
+  resetTextShapeSession,
   getCurrentUserId,
 };

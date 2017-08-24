@@ -16,7 +16,7 @@ const WhiteboardOverlayContainer = ({ ...props }) => {
 export default createContainer(() => ({
   sendAnnotation: WhiteboardOverlayService.sendAnnotation,
   setTextShapeActiveId: WhiteboardOverlayService.setTextShapeActiveId,
-  resetTextShapeValue: WhiteboardOverlayService.resetTextShapeValue,
+  resetTextShapeSession: WhiteboardOverlayService.resetTextShapeSession,
   drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
   userId: WhiteboardOverlayService.getCurrentUserId(),
 }), WhiteboardOverlayContainer);
@@ -32,8 +32,10 @@ WhiteboardOverlayContainer.propTypes = {
     tool: PropTypes.string.isRequired,
     // Font size for the text shape
     textFontSize: PropTypes.number.isRequired,
-    // Text shape value
+    // Current active text shape value
     textShapeValue: PropTypes.string.isRequired,
+    // Text active text shape id
+    textShapeActiveId: PropTypes.string.isRequired,
   }),
 };
 

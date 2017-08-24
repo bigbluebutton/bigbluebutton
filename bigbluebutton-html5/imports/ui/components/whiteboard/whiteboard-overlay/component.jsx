@@ -125,7 +125,13 @@ export default class WhiteboardOverlay extends Component {
   }
 
   render() {
-    const { drawSettings, userId, sendAnnotation, whiteboardId } = this.props;
+    const { drawSettings,
+      userId,
+      whiteboardId,
+      sendAnnotation,
+      resetTextShapeSession,
+      setTextShapeActiveId,
+    } = this.props;
     const { tool } = drawSettings;
     const actions = {
       getTransformedSvgPoint: this.getTransformedSvgPoint,
@@ -136,6 +142,8 @@ export default class WhiteboardOverlay extends Component {
       generateNewShapeId: this.generateNewShapeId,
       normalizeThickness: this.normalizeThickness,
       sendAnnotation,
+      resetTextShapeSession,
+      setTextShapeActiveId,
     };
 
     if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
@@ -149,11 +157,25 @@ export default class WhiteboardOverlay extends Component {
       );
     } else if (tool === 'pencil') {
       return (
-        <PencilDrawListener {...this.props} actions={actions} />
+        <PencilDrawListener
+          userId={userId}
+          whiteboardId={whiteboardId}
+          drawSettings={drawSettings}
+          actions={actions}
+          slideWidth={this.props.slideWidth}
+          slideHeight={this.props.slideHeight}
+        />
       );
     } else if (tool === 'text') {
       return (
-        <TextDrawListener {...this.props} actions={actions} />
+        <TextDrawListener
+          userId={userId}
+          whiteboardId={whiteboardId}
+          drawSettings={drawSettings}
+          actions={actions}
+          slideWidth={this.props.slideWidth}
+          slideHeight={this.props.slideHeight}
+        />
       );
     } else if (tool === 'hand') {
       return (
@@ -202,4 +224,8 @@ WhiteboardOverlay.propTypes = {
     // Text shape value
     textShapeValue: PropTypes.string.isRequired,
   }).isRequired,
+  // Defines a function which resets the current state of the text shape drawing
+  resetTextShapeSession: PropTypes.func.isRequired,
+  // Defines a function that sets a session value for the current active text shape
+  setTextShapeActiveId: PropTypes.func.isRequired,
 };
