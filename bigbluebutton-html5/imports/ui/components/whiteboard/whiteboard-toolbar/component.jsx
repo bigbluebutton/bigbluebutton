@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
+import WhiteboardToolbarItem from './whiteboard-toolbar-item/component';
 
 export default class WhiteboardToolbar extends Component {
 
@@ -53,6 +53,10 @@ export default class WhiteboardToolbar extends Component {
     this.handleColorChange = this.handleColorChange.bind(this);
     this.disableOnBlur = this.disableOnBlur.bind(this);
     this.enableOnBlur = this.enableOnBlur.bind(this);
+    this.renderAnnotationList = this.renderAnnotationList.bind(this);
+    this.renderFontSizeList = this.renderFontSizeList.bind(this);
+    this.renderThicknessList = this.renderThicknessList.bind(this);
+    this.renderColorList = this.renderColorList.bind(this);
   }
 
   componentWillMount() {
@@ -236,19 +240,18 @@ export default class WhiteboardToolbar extends Component {
     return (
       <div className={cx(styles.annotationList, styles.toolbarList)}>
         { annotations ? annotations.map(annotation =>
-          (<Button
-            label="Annotation"
-            hideLabel
-            color={'default'}
-            icon={annotation.icon}
-            size={'md'}
-            className={cx(styles.toolbarListButton, this.state.annotationSelected.sessionValue === annotation.sessionValue ? styles.selectedListButton : '')}
-            onClick={this.handleAnnotationChange.bind(null, annotation)}
-            onMouseEnter={this.disableOnBlur}
-            onMouseLeave={this.enableOnBlur}
-            key={annotation.sessionValue}
-            role="button"
-          />),
+          (
+            <WhiteboardToolbarItem
+              label={'Annotation'}
+              icon={annotation.icon}
+              onItemClick={this.handleAnnotationChange}
+              objectToReturn={annotation}
+              className={cx(styles.toolbarListButton, this.state.annotationSelected.sessionValue === annotation.sessionValue ? styles.selectedListButton : '')}
+              onMouseEnter={this.disableOnBlur}
+              onMouseLeave={this.enableOnBlur}
+              key={annotation.sessionValue}
+            />
+          ),
         ) : null}
       </div>
     );
@@ -260,22 +263,22 @@ export default class WhiteboardToolbar extends Component {
     return (
       <div className={cx(styles.fontSizeList, styles.toolbarList)}>
         {fontSizes ? fontSizes.map(fontSizeObj =>
-          (<Button
-            hideLabel
-            label="Radius"
-            color={'default'}
-            size={'md'}
-            className={cx(styles.toolbarListButton, styles.fontSizeListButton, this.state.fontSizeSelected === fontSizeObj.fontSize ? styles.selectedListButton : '')}
-            onClick={this.handleFontSizeChange.bind(null, fontSizeObj)}
-            onMouseEnter={this.disableOnBlur}
-            onMouseLeave={this.enableOnBlur}
-            key={fontSizeObj.fontSize}
-            customIcon={
-              <p className={styles.textThickness} style={{ fontSize: fontSizeObj.fontSize }}>
-                Aa
-              </p>
-            }
-          />),
+          (
+            <WhiteboardToolbarItem
+              label={'Font Size'}
+              customIcon={
+                <p className={styles.textThickness} style={{ fontSize: fontSizeObj.fontSize }}>
+                  Aa
+                </p>
+              }
+              onItemClick={this.handleFontSizeChange}
+              objectToReturn={fontSizeObj}
+              className={cx(styles.toolbarListButton, styles.fontSizeListButton, this.state.fontSizeSelected === fontSizeObj.fontSize ? styles.selectedListButton : '')}
+              onMouseEnter={this.disableOnBlur}
+              onMouseLeave={this.enableOnBlur}
+              key={fontSizeObj.fontSize}
+            />
+          ),
         ) : null}
       </div>
     );
@@ -287,22 +290,22 @@ export default class WhiteboardToolbar extends Component {
     return (
       <div className={cx(styles.thicknessList, styles.toolbarList)}>
         {thicknessRadiuses ? thicknessRadiuses.map(thicknessObj =>
-          (<Button
-            label="Radius"
-            hideLabel
-            color={'default'}
-            size={'md'}
-            className={cx(styles.toolbarListButton, this.state.thicknessSelected.sessionRadius === thicknessObj.sessionRadius ? styles.selectedListButton : '')}
-            onClick={this.handleThicknessChange.bind(null, thicknessObj)}
-            onMouseEnter={this.disableOnBlur}
-            onMouseLeave={this.enableOnBlur}
-            customIcon={
-              <svg className={styles.customSvgIcon}>
-                <circle cx="50%" cy="50%" r={thicknessObj.iconRadius} fill="#F3F6F9" />
-              </svg>
-            }
-            key={thicknessObj.sessionRadius}
-          />),
+          (
+            <WhiteboardToolbarItem
+              label={'Radius'}
+              customIcon={
+                <svg className={styles.customSvgIcon}>
+                  <circle cx="50%" cy="50%" r={thicknessObj.iconRadius} fill="#F3F6F9" />
+                </svg>
+              }
+              onItemClick={this.handleThicknessChange}
+              objectToReturn={thicknessObj}
+              className={cx(styles.toolbarListButton, this.state.thicknessSelected.sessionRadius === thicknessObj.sessionRadius ? styles.selectedListButton : '')}
+              onMouseEnter={this.disableOnBlur}
+              onMouseLeave={this.enableOnBlur}
+              key={thicknessObj.sessionRadius}
+            />
+          ),
         ) : null}
       </div>
     );
@@ -314,25 +317,22 @@ export default class WhiteboardToolbar extends Component {
     return (
       <div className={cx(styles.colorList, styles.toolbarList)}>
         {colors ? colors.map(color =>
-          (<Button
-            label="Color"
-            hideLabel
-            color={'default'}
-            size={'md'}
-            className={cx(styles.toolbarListButton, this.state.colorSelected === color ? styles.selectedListButton : '')}
-            onClick={this.handleColorChange.bind(null, color)}
-            onMouseEnter={this.disableOnBlur}
-            onMouseLeave={this.enableOnBlur}
-            customIcon={
-              <svg className={styles.customSvgIcon}>
-                <rect x="20%" y="20%" width="60%" height="60%" fill={color} />
-              </svg>
-            }
-            key={color}
-            role="button"
-            aria-labelledby={`${color}Label`}
-            aria-describedby={`${color}Descrip`}
-          />),
+          (
+            <WhiteboardToolbarItem
+              label={'Color'}
+              customIcon={
+                <svg className={styles.customSvgIcon}>
+                  <rect x="20%" y="20%" width="60%" height="60%" fill={color} />
+                </svg>
+              }
+              onItemClick={this.handleColorChange}
+              objectToReturn={color}
+              className={cx(styles.toolbarListButton, this.state.colorSelected === color ? styles.selectedListButton : '')}
+              onMouseEnter={this.disableOnBlur}
+              onMouseLeave={this.enableOnBlur}
+              key={color}
+            />
+          ),
         ) : null}
       </div>
     );
@@ -342,61 +342,43 @@ export default class WhiteboardToolbar extends Component {
     return (
       <div className={styles.toolbarContainer} style={{ height: this.props.height }}>
         <div className={styles.toolbarWrapper}>
-          <div className={styles.buttonWrapper}>
-            <Button
-              label="Tools"
-              hideLabel
-              role="button"
-              color={'default'}
-              icon={this.state.annotationSelected.icon}
-              size={'md'}
-              onClick={this.displaySubMenu.bind(null, 'annotationList')}
-              onBlur={this.closeSubMenu}
-              className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'annotationList' ? '' : styles.notActive)}
-            />
-            {this.state.currentSubmenuOpen === 'annotationList' ?
-              this.renderAnnotationList()
-            : null }
-          </div>
-
+          <WhiteboardToolbarItem
+            label={'Tools'}
+            icon={this.state.annotationSelected.icon}
+            onItemClick={this.displaySubMenu}
+            objectToReturn={'annotationList'}
+            onBlur={this.closeSubMenu}
+            className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'annotationList' ? '' : styles.notActive)}
+            renderSubMenu={this.state.currentSubmenuOpen === 'annotationList' ? this.renderAnnotationList : null}
+          />
           {this.state.annotationSelected.sessionValue === 'text' ?
-            <div className={styles.buttonWrapper}>
-              <Button
-                label="Thickness List"
-                hideLabel
-                role="button"
-                color={'default'}
-                size={'md'}
-                onClick={this.displaySubMenu.bind(null, 'fontSizeList')}
-                onBlur={this.closeSubMenu}
-                className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'fontSizeList' ? '' : styles.notActive)}
-                customIcon={
-                  <p
-                    className={styles.textThickness}
-                    style={{
-                      fontSize: this.state.fontSizeSelected,
-                      color: this.state.colorSelected,
-                    }}
-                  >
-                    Aa
-                  </p>
-                }
-              />
-              {this.state.currentSubmenuOpen === 'fontSizeList' ?
-                this.renderFontSizeList()
-              : null }
-            </div>
+            <WhiteboardToolbarItem
+              label={'Font Size List'}
+              customIcon={
+                <p
+                  className={styles.textThickness}
+                  style={{
+                    fontSize: this.state.fontSizeSelected,
+                    color: this.state.colorSelected,
+                  }}
+                >
+                  Aa
+                </p>
+              }
+              onItemClick={this.displaySubMenu}
+              objectToReturn={'fontSizeList'}
+              onBlur={this.closeSubMenu}
+              className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'fontSizeList' ? '' : styles.notActive)}
+              renderSubMenu={this.state.currentSubmenuOpen === 'fontSizeList' ? this.renderFontSizeList : null}
+            />
           :
-            <div className={styles.buttonWrapper}>
-              <Button
-                label="Thickness List"
-                hideLabel
-                role="button"
-                color={'default'}
-                size={'md'}
-                onClick={this.displaySubMenu.bind(null, 'thicknessList')}
+              <WhiteboardToolbarItem
+                label={'Thickness List'}
+                onItemClick={this.displaySubMenu}
+                objectToReturn={'thicknessList'}
                 onBlur={this.closeSubMenu}
                 className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'thicknessList' ? '' : styles.notActive)}
+                renderSubMenu={this.state.currentSubmenuOpen === 'thicknessList' ? this.renderThicknessList : null}
                 customIcon={
                   <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
                     <circle
@@ -430,82 +412,53 @@ export default class WhiteboardToolbar extends Component {
                       />
                     </circle>
                   </svg>
-                }
+              }
               />
-              {this.state.currentSubmenuOpen === 'thicknessList' ?
-                this.renderThicknessList()
-              : null }
-            </div>
           }
-          <div className={styles.buttonWrapper}>
-            <Button
-              label="Color List"
-              hideLabel
-              role="button"
-              color={'default'}
-              size={'md'}
-              onClick={this.displaySubMenu.bind(null, 'colorList')}
-              onBlur={this.closeSubMenu}
-              className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'colorList' ? '' : styles.notActive)}
-              customIcon={
-                <svg className={styles.customSvgIcon}>
-                  <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
-                    <animate
-                      ref={(ref) => { this.colorListIconColor = ref; }}
-                      attributeName="fill"
-                      attributeType="XML"
-                      from={this.state.prevColorSelected}
-                      to={this.state.colorSelected}
-                      begin={'indefinite'}
-                      dur="0.4s"
-                      repeatCount="0"
-                      fill="freeze"
-                    />
-                  </rect>
-                </svg>
-            }
-            />
-            {this.state.currentSubmenuOpen === 'colorList' ?
-              this.renderColorList()
-            : null }
-          </div>
-          <div className={styles.buttonWrapper}>
-            <Button
-              label="Undo Annotation"
-              hideLabel
-              role="button"
-              color={'default'}
-              icon={'undo'}
-              size={'md'}
-              onClick={this.handleUndo}
-              className={cx(styles.toolbarButton, styles.notActive)}
-            />
-          </div>
-          <div className={styles.buttonWrapper}>
-            <Button
-              label="Clear All Annotations"
-              hideLabel
-              role="button"
-              color={'default'}
-              icon={'circle_close'}
-              size={'md'}
-              onClick={this.handleClearAll}
-              className={cx(styles.toolbarButton, styles.notActive)}
-            />
-          </div>
+          <WhiteboardToolbarItem
+            label={'Color List'}
+            onItemClick={this.displaySubMenu}
+            objectToReturn={'colorList'}
+            onBlur={this.closeSubMenu}
+            className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'colorList' ? '' : styles.notActive)}
+            renderSubMenu={this.state.currentSubmenuOpen === 'colorList' ? this.renderColorList : null}
+            customIcon={
+              <svg className={styles.customSvgIcon}>
+                <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
+                  <animate
+                    ref={(ref) => { this.colorListIconColor = ref; }}
+                    attributeName="fill"
+                    attributeType="XML"
+                    from={this.state.prevColorSelected}
+                    to={this.state.colorSelected}
+                    begin={'indefinite'}
+                    dur="0.4s"
+                    repeatCount="0"
+                    fill="freeze"
+                  />
+                </rect>
+              </svg>
+              }
+          />
+          <WhiteboardToolbarItem
+            label={'Undo Annotation'}
+            icon={'undo'}
+            onItemClick={this.handleUndo}
+            className={cx(styles.toolbarButton, styles.notActive)}
+          />
+          <WhiteboardToolbarItem
+            label={'Clear All Annotations'}
+            icon={'circle_close'}
+            onItemClick={this.handleClearAll}
+            className={cx(styles.toolbarButton, styles.notActive)}
+          />
           {this.props.isPresenter ?
-            <div className={styles.buttonWrapper}>
-              <Button
-                label={this.props.multiUser ? 'Turn multi-user mode off' : 'Tuen multi-user mode on'}
-                hideLabel
-                role="button"
-                color={'default'}
-                icon={this.props.multiUser ? 'whiteboard' : 'multi_whiteboard'}
-                size={'md'}
-                onClick={this.handleSwitchWhiteboardMode}
-                className={cx(styles.toolbarButton, styles.notActive)}
-              />
-            </div>
+            <WhiteboardToolbarItem
+              label={this.props.multiUser ? 'Turn multi-user mode off' : 'Tuen multi-user mode on'}
+              icon={this.props.multiUser ? 'multi_whiteboard' : 'whiteboard'}
+              onItemClick={this.handleSwitchWhiteboardMode}
+              className={cx(styles.toolbarButton, styles.notActive)}
+            />
           : null}
         </div>
       </div>
