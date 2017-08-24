@@ -9,10 +9,11 @@ const TextDrawContainer = ({ ...props }) => (
 
 export default createContainer((params) => {
   const isPresenter = TextShapeService.isPresenter();
+  const isMultiUser = TextShapeService.getMultiUserStatus();
   const activeTextShapeId = TextShapeService.activeTextShapeId();
   let isActive = false;
 
-  if (isPresenter && activeTextShapeId === params.annotation.id) {
+  if ((isPresenter || isMultiUser) && activeTextShapeId === params.annotation.id) {
     isActive = true;
   }
   return {

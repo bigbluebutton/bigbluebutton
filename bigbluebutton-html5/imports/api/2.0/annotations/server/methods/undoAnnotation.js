@@ -1,3 +1,5 @@
+import Acl from '/imports/startup/acl';
+import { getMultiUserStatus } from '/imports/api/common/server/helpers';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
@@ -14,15 +16,21 @@ export default function undoAnnotation(credentials, whiteboardId) {
   check(requesterToken, String);
   check(whiteboardId, String);
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId: requesterUserId,
-  };
+  if (Acl.can('methods.undoAnnotation', credentials) || getMultiUserStatus(meetingId)) {
+    const header = {
+      name: EVENT_NAME,
+      meetingId,
+      userId: requesterUserId,
+    };
 
-  const payload = {
-    whiteboardId,
-  };
+    const payload = {
+      whiteboardId,
+    };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+    return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  }
+
+  throw new Meteor.Error(
+    'not-allowed', `User ${requesterUserId} is not allowed to undo the annotation`,
+  );
 }
