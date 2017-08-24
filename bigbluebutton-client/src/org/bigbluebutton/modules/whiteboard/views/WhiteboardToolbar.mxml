@@ -334,13 +334,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
    
 	<!--mx:Spacer height="2"/-->
   <mx:VBox backgroundColor="#FFFFFF" horizontalAlign="center">
-    <mx:Image source="{getStyle('iconWhiteboardThick')}" horizontalAlign="center" width="40"/>
+    <mx:Image source="{getStyle('iconWhiteboardThick')}" horizontalAlign="center" width="{BUTTON_SIZE}"/>
     <mx:VSlider height="50" id="sld" change="changeThickness(event)"
                 toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" 
                 minimum="1" maximum="30" 
                 useHandCursor="true" value="3" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
-    <mx:Image source="{getStyle('iconWhiteboardThin')}" horizontalAlign="center" width="40"/>
+    <mx:Image source="{getStyle('iconWhiteboardThin')}" horizontalAlign="center" width="{BUTTON_SIZE}"/>
   </mx:VBox>
 
 	<mx:Button id="multiUserBtn" enabled="false" visible="false" click="changeMultiUser()" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}" styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"/> 

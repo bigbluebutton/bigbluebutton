@@ -62,9 +62,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const TIMEOUT:Number = 60;
 			private static const CANCEL_BUTTON:Number = 55;
 			
-			private var dotTimer:Timer;
+			private var dotTimer:Timer = new Timer(200, 0);
 
-			private var cancelTimer:Timer;
+			private var cancelTimer:Timer = new Timer(1000, 0);
 			private var countdown:Number;
 
 			[Bindable]
@@ -84,10 +84,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connecting');
-				dotTimer = new Timer(200, 0);
 				dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
 
-				cancelTimer = new Timer(1000, 0);
 				cancelTimer.addEventListener(TimerEvent.TIMER, timeout);
 
 				startTimers();

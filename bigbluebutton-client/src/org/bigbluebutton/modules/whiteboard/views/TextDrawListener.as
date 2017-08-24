@@ -117,6 +117,15 @@ package org.bigbluebutton.modules.whiteboard.views {
                 sendTextToServer(AnnotationStatus.DRAW_START, tobj);
             }
         }
+        
+        public function stopDrawing(mouseX:Number, mouseY:Number):void {
+            feedback.clear();
+            if (_wbCanvas.contains(feedback)) {
+              _wbCanvas.removeGraphic(feedback);
+            }
+            
+            _mousedDown = false;
+        }
 
         private function sendTextToServer(status:String, tobj:TextDrawAnnotation):void {
             if (status == AnnotationStatus.DRAW_START) {
