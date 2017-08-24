@@ -1,5 +1,3 @@
-"use strict";
-let Hook;
 const _ = require("lodash");
 const async = require("async");
 const redis = require("redis");
@@ -30,7 +28,7 @@ let nextID = 1;
 // faster than the callbacks are made. In this case the events will be concatenated
 // and send up to 10 events in every post
 
-module.exports = (Hook = class Hook {
+module.exports = class Hook {
 
   constructor() {
     this.id = null;
@@ -324,4 +322,4 @@ module.exports = (Hook = class Hook {
       });
     });
   }
-});
+};

@@ -1,5 +1,3 @@
-"use strict";
-let Application;
 const config = require("./config.js");
 const Hook = require("./hook.js");
 const IDMapping = require("./id_mapping.js");
@@ -9,7 +7,7 @@ const WebServer = require("./web_server.js");
 // Class that defines the application. Listens for events on redis and starts the
 // process to perform the callback calls.
 // TODO: add port (-p) and log level (-l) to the command line args
-module.exports = (Application = class Application {
+module.exports = class Application {
 
   constructor() {
     this.webHooks = new WebHooks();
@@ -25,4 +23,4 @@ module.exports = (Application = class Application {
       });
     });
   }
-});
+};

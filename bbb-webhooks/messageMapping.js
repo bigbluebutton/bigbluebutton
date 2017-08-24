@@ -1,9 +1,7 @@
-"use strict";
-let MessageMapping;
 const config = require("./config.js");
 const Logger = require("./logger.js");
 const IDMapping = require("./id_mapping.js");
-module.exports = (MessageMapping = class MessageMapping {
+module.exports = class MessageMapping {
 
   constructor() {
     this.mappedObject = {};
@@ -196,4 +194,4 @@ module.exports = (MessageMapping = class MessageMapping {
     } })();
     return mappedMsg;
   }
-});
+};

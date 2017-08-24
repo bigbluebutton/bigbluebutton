@@ -1,4 +1,3 @@
-"use strict";
 const sha1 = require("sha1");
 const url = require("url");
 

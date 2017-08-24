@@ -1,5 +1,3 @@
-"use strict";
-let CallbackEmitter;
 const _ = require('lodash');
 const request = require("request");
 const url = require('url');
@@ -14,7 +12,7 @@ const Utils = require("./utils.js");
 // Used to emit a single callback. Destroy it and create a new class for a new callback.
 // Emits "success" on success, "failure" on error and "stopped" when gave up trying
 // to perform the callback.
-module.exports = (CallbackEmitter = class CallbackEmitter extends EventEmitter {
+module.exports = class CallbackEmitter extends EventEmitter {
 
   constructor(callbackURL, message, backupURL) {
     super();
@@ -98,7 +96,7 @@ module.exports = (CallbackEmitter = class CallbackEmitter extends EventEmitter {
       }
     });
   }
-});
+};
 
 // A simple string that identifies the event
 var simplifiedEvent = function(event) {

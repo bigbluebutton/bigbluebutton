@@ -1,4 +1,3 @@
-"use strict";
 // Local configuration file
 
 const config = {};

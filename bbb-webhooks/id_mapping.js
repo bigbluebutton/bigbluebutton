@@ -1,5 +1,3 @@
-"use strict";
-let IDMapping;
 const _ = require("lodash");
 const async = require("async");
 const redis = require("redis");
@@ -27,7 +25,7 @@ const db = {};
 let nextID = 1;
 
 // A simple model to store mappings for meeting IDs.
-module.exports = (IDMapping = class IDMapping {
+module.exports = class IDMapping {
 
   constructor() {
     this.id = null;
@@ -208,4 +206,4 @@ module.exports = (IDMapping = class IDMapping {
       });
     });
   }
-});
+};

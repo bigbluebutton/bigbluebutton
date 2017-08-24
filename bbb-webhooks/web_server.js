@@ -1,5 +1,3 @@
-"use strict";
-let WebServer;
 const _ = require("lodash");
 const express = require("express");
 const url = require("url");
@@ -10,7 +8,7 @@ const Logger = require("./logger.js");
 const Utils = require("./utils.js");
 
 // Web server that listens for API calls and process them.
-module.exports = (WebServer = class WebServer {
+module.exports = class WebServer {
 
   constructor() {
     this._validateChecksum = this._validateChecksum.bind(this);
@@ -146,7 +144,7 @@ module.exports = (WebServer = class WebServer {
       res.send(cleanupXML(config.api.responses.checksumError));
     }
   }
-});
+};
 
 var respondWithXML = function(res, msg) {
   msg = cleanupXML(msg);

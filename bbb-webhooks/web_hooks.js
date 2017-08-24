@@ -1,5 +1,3 @@
-"use strict";
-let WebHooks;
 const _ = require("lodash");
 const async = require("async");
 const redis = require("redis");
@@ -12,7 +10,7 @@ const MessageMapping = require("./messageMapping.js");
 
 // Web hooks will listen for events on redis coming from BigBlueButton and
 // perform HTTP calls with them to all registered hooks.
-module.exports = (WebHooks = class WebHooks {
+module.exports = class WebHooks {
 
   constructor() {
     this.subscriberEvents = redis.createClient();
@@ -122,4 +120,4 @@ module.exports = (WebHooks = class WebHooks {
       this._processRaw(raw);
     }
   }
-});
+};

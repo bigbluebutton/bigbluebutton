@@ -1,5 +1,4 @@
 // Global configuration file
-"use strict";
 
 // load the local configs
 const config = require("./config_local.js");
