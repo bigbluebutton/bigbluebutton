@@ -750,9 +750,16 @@ views|LogoutWindow, views|LoggedOutWindow {
 	paddingLeft               : 8;
 	paddingRight              : 8;
 	paddingTop                : 8;
-	titleStyleName            : "titleWindowStyle";
+	titleStyleName            : "logoutTitleWindowStyle";
 	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially  */
 	modalTransparencyDuration : 250;
+}
+
+.logoutTitleWindowStyle {
+	color         : #05172A;
+	fontSize      : 16;
+	textAlign     : center;
+	paddingBottom : 8;
 }
 
 /*
@@ -1301,9 +1308,10 @@ mx|TitleWindow {
 }
 
 .titleWindowStyle {
-	color     : #05172A;
-	fontSize  : 24;
-	textAlign : center;
+	color         : #05172A;
+	fontSize      : 24;
+	textAlign     : center;
+	paddingBottom : 8;
 }
 
 /*

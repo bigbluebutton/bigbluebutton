@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:common="org.bigbluebutton.common.*" 
+		xmlns:mate="http://mate.asfusion.com/"
 		layout="vertical"
 		showCloseButton="false"
-		xmlns:mate="http://mate.asfusion.com/"
 		minWidth="250"
-		creationComplete="init()" >
+		creationComplete="init()">
 
 	<fx:Script>
 		<![CDATA[
@@ -44,11 +45,11 @@
 
 		]]>
 	</fx:Script>
-	<mx:TextArea borderSkin="{null}"
-				 text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
-				 editable="false" styleName="titleWindowStyle"
-				 width="100%" />
-	
+
+	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
+						  styleName="titleWindowStyle"
+						  width="80%" />
+
 	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 
 	<mx:ControlBar width="100%" horizontalAlign="right">
