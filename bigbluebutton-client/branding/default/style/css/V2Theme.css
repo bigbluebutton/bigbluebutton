@@ -744,8 +744,13 @@ layout|BroadcastButton {
 //------------------------------
 */
 
-.logoutWindowStyle {
+views|LogoutWindow, views|LoggedOutWindow {
 	headerHeight              : 32;
+	paddingBottom             : 8;
+	paddingLeft               : 8;
+	paddingRight              : 8;
+	paddingTop                : 8;
+	titleStyleName            : "titleWindowStyle";
 	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially  */
 	modalTransparencyDuration : 250;
 }
