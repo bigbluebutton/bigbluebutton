@@ -24,6 +24,9 @@ package org.bigbluebutton.modules.sharednotes {
 		[Bindable]
 		public var maxNoteLength:int = 5120;
 
+		[Bindable]
+		public var enableDeleteNotes:Boolean = false;
+
 		public function SharedNotesOptions() {
 			name = "SharedNotesModule";
 		}

@@ -80,7 +80,7 @@
 			protected var _noteId:String = "MAIN_NOTE";
 			protected var _noteName:String = "";
 
-			[Bindable] private var options:SharedNotesOptions;
+			[Bindable] protected var options:SharedNotesOptions;
 			[Bindable] private var _isNotesLimit:Boolean = true;
 
 			private var sendUpdateTimer:Timer;
@@ -153,7 +153,7 @@
 				if(noteId == "MAIN_NOTE"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
 				} else {
-				//	showCloseButton = role == Role.MODERATOR;
+					showCloseButton = options.enableDeleteNotes && role == Role.MODERATOR;
 				}
 			}
 
