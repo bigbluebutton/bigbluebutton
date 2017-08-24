@@ -31,7 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				showCloseButton="true"
 				close="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
                 initialize="initData()"
-				creationComplete="onCreationComplete(event)">
+				creationComplete="onCreationComplete(event)" xmlns:common="org.bigbluebutton.common.*">
 	
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatch" />
@@ -345,11 +345,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   </fx:Script>
 
-  <mx:VBox width="100%" height="100%" verticalAlign="top">
-    <mx:TextArea borderSkin="{null}"
-				 text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
-                 editable="false" styleName="titleWindowStyle"
-                 width="100%"/>
+  <mx:VBox width="100%" height="100%" verticalAlign="top" horizontalAlign="center">
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
+							  styleName="titleWindowStyle"
+							  maxWidth="450" />
 	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
 	  <mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
 		  <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
