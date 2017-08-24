@@ -17,6 +17,7 @@ export default function handleChangeRole({ body }, meetingId) {
   const modifier = {
     $set: {
       role,
+      roles: ['viewer', role.toLowerCase()],
     },
   };
 
