@@ -133,6 +133,7 @@
 			fontSize="14"
 			maxPasteLength="1024"
 			maxNoteLength="5120"
+			enableDeleteNotes="false"
 		/>
 
 <!--

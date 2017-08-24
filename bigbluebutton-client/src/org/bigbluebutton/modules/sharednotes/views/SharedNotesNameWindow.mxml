@@ -48,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function btnNew_clickHandler(event:MouseEvent):void {
         btnNew.enabled = false;
         var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT);
-        if (textInput.text != ResourceUtil.getInstance().getString('bbb.sharedNotes.title')) {
+        if (textInput.text != sharedNoteTitle) {
           e.noteName = textInput.text;
         }
 
@@ -59,8 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function onCreationComplete():void {
-        var titleKey = "bbb.sharedNotes.title." + LiveMeeting.inst().sharedNotes.numActiveSharedNotes;
-        sharedNoteTitle = ResourceUtil.getInstance().getString(titleKey);
+        sharedNoteTitle = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + LiveMeeting.inst().sharedNotes.nextNoteId();
         
         textInput.setFocus();
       }
