@@ -347,6 +347,7 @@ class UserList extends Component {
                     currentUser={currentUser}
                     userActions={userActions(user)}
                     meeting={meeting}
+                    tabIndex={-1}
                   />
                 ))
               }
