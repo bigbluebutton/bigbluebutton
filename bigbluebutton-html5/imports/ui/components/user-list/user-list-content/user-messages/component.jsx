@@ -79,10 +79,6 @@ const intlMessages = defineMessages({
 
 class UserMessages extends Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     if (!this.props.compact) {
       this._msgsList.addEventListener('keydown',
@@ -110,6 +106,7 @@ class UserMessages extends Component {
             </div> : <hr className={styles.separator} />
         }
         <div
+          role="tabpanel"
           tabIndex={0}
           className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}

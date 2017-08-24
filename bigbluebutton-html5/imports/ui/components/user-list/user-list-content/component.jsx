@@ -46,11 +46,14 @@ class UserContent extends Component {
 
   rovingIndex(event, list, items, numberOfItems) {
     const active = document.activeElement;
+    const changedItems = items;
 
     const focusElement = () => {
-      active.tabIndex = -1;
-      items.childNodes[this.focusedItemIndex].tabIndex = 0;
-      items.childNodes[this.focusedItemIndex].focus();
+      if (!active.getAttribute('role') === 'tabpanel') {
+        active.tabIndex = -1;
+      }
+      changedItems.childNodes[this.focusedItemIndex].tabIndex = 0;
+      changedItems.childNodes[this.focusedItemIndex].focus();
     };
 
     if (event.keyCode === KEY_CODES.ESCAPE

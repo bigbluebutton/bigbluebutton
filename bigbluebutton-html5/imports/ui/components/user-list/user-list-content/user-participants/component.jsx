@@ -89,10 +89,6 @@ const intlMessages = defineMessages({
 
 class UserParticipants extends Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     if (!this.props.compact) {
       this._usersList.addEventListener('keydown',
@@ -171,6 +167,7 @@ class UserParticipants extends Component {
         }
         <div
           className={styles.scrollableList}
+          role="tabpanel"
           tabIndex={0}
           ref={(ref) => { this._usersList = ref; }}
         >
