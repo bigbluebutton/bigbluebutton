@@ -123,7 +123,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.events.NewGuestWaitingEvent;
       import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
       import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.core.vo.LockSettingsVO;
       import org.bigbluebutton.main.events.AppVersionEvent;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -211,6 +210,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
 			private const HIDE_TOOLBARS_DELAY:int = 1000;
 
+      private var _respTimer:ResponsivenessTimer;
+      
 			public function getLogWindow() : LogWindow
 			{
 				if (logWindow == null){
@@ -244,6 +245,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					controlBar.visible = controlBar.includeInLayout = false;
 					calculateCanvasHeight();
 				}
+        
+        _respTimer = new ResponsivenessTimer();
+        _respTimer.start();
 			}
 		
 			private function updateCopyrightText():void {
