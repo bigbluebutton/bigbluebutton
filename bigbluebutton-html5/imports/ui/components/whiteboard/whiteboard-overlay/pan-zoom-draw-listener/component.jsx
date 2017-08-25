@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import styles from '../styles.scss';
+// import PropTypes from 'prop-types';
+// import styles from '../styles.scss';
 
 export default class PanZoomDrawListener extends React.Component {
   constructor(props) {
@@ -12,15 +12,15 @@ export default class PanZoomDrawListener extends React.Component {
   }
 
   mouseDownHandler() {
-
+    this.dummyValue = '';
   }
 
   mouseMoveHandler() {
-
+    this.dummyValue = '';
   }
 
   mouseUpHandler() {
-
+    this.dummyValue = '';
   }
 
   render() {

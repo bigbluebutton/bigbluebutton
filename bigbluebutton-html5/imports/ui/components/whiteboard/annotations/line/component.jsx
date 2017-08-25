@@ -36,7 +36,6 @@ export default class LineDrawComponent extends Component {
         x2={results.x2}
         y2={results.y2}
         stroke={AnnotationHelpers.formatColor(annotation.color)}
-        strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}

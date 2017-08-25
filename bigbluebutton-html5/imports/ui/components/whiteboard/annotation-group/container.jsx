@@ -1,31 +1,23 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
-
 import AnnotationGroupService from './service';
 import AnnotationGroup from './component';
 
-class AnnotationGroupContainer extends Component {
-
-  render() {
-    return (
-      <AnnotationGroup
-        annotations={this.props.annotations}
-        width={this.props.width}
-        height={this.props.height}
-      />
-    );
-  }
-}
+const AnnotationGroupContainer = ({ ...props }) => (
+  <AnnotationGroup
+    annotationsInfo={props.annotationsInfo}
+    slideWidth={props.width}
+    slideHeight={props.height}
+  />
+);
 
 export default createContainer((params) => {
-  const { whiteboardId, width, height } = params;
-  const annotations = AnnotationGroupService.getCurrentAnnotations(whiteboardId);
+  const { whiteboardId } = params;
+  const annotationsInfo = AnnotationGroupService.getCurrentAnnotationsInfo(whiteboardId);
 
   return {
-    annotations,
-    width,
-    height,
+    annotationsInfo,
   };
 }, AnnotationGroupContainer);
 
@@ -35,5 +27,9 @@ AnnotationGroupContainer.propTypes = {
   height: PropTypes.number.isRequired,
 
   // array of annotations, optional
-  annotations: PropTypes.arrayOf(PropTypes.object),
+  annotationsInfo: PropTypes.arrayOf(PropTypes.shape({
+    status: PropTypes.string.isRequired,
+    _id: PropTypes.string.isRequired,
+    annotationType: PropTypes.string.isRequired,
+  })).isRequired,
 };

@@ -69,26 +69,28 @@ export default class PresentationArea extends React.Component {
   handleResize() {
     const { presentationPaper, whiteboardSizeAvailable } = this;
 
-    // if a user is a presenter - this means there is a whiteboardToolBar on the right
-    // and we have to get the width/height of the whiteboardSizeAvailable
-    // (inner hidden div with absolute position)
-    let clientHeight;
-    let clientWidth;
-    if (this.props.userIsPresenter) {
-      clientHeight = whiteboardSizeAvailable.clientHeight;
-      clientWidth = whiteboardSizeAvailable.clientWidth;
-    // user is not a presenter - we can get the sizes of the presentationPaper
-    // direct parent of the svg wrapper
-    } else {
-      clientHeight = presentationPaper.clientHeight;
-      clientWidth = presentationPaper.clientWidth;
-    }
+    if (presentationPaper) {
+      // if a user is a presenter - this means there is a whiteboardToolBar on the right
+      // and we have to get the width/height of the whiteboardSizeAvailable
+      // (inner hidden div with absolute position)
+      let clientHeight;
+      let clientWidth;
+      if (this.props.userIsPresenter) {
+        clientHeight = whiteboardSizeAvailable.clientHeight;
+        clientWidth = whiteboardSizeAvailable.clientWidth;
+      // user is not a presenter - we can get the sizes of the presentationPaper
+      // direct parent of the svg wrapper
+      } else {
+        clientHeight = presentationPaper.clientHeight;
+        clientWidth = presentationPaper.clientWidth;
+      }
 
-    // updating the size of the space available for the slide
-    this.setState({
-      paperHeight: clientHeight,
-      paperWidth: clientWidth,
-    });
+      // updating the size of the space available for the slide
+      this.setState({
+        paperHeight: clientHeight,
+        paperWidth: clientWidth,
+      });
+    }
   }
 
   calculateSize() {

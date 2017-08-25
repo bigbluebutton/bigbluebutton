@@ -12,12 +12,38 @@ export default class ShapeDrawListener extends Component {
       y: undefined,
     };
 
+    this.lastSentCoordinate = {
+      x: undefined,
+      y: undefined,
+    };
+
     // to track the status of drawing
     this.isDrawing = false;
 
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.mouseUpHandler = this.mouseUpHandler.bind(this);
+    this.resetState = this.resetState.bind(this);
+    this.sendLastMessage = this.sendLastMessage.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('beforeunload', this.sendLastMessage);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.sendLastMessage);
+
+    // sending the last message on componentDidUnmount
+    this.sendLastMessage();
+  }
+
+  sendLastMessage() {
+    if (this.isDrawing) {
+      const { getCurrentShapeId } = this.props.actions;
+      this.handleDrawCommonAnnotation(this.initialCoordinates, this.lastSentCoordinate, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
+      this.resetState();
+    }
   }
 
   // main mouse down handler
@@ -25,65 +51,31 @@ export default class ShapeDrawListener extends Component {
     if (!this.isDrawing) {
       window.addEventListener('mouseup', this.mouseUpHandler);
       window.addEventListener('mousemove', this.mouseMoveHandler, true);
-      this.commonMouseDown(event);
       this.isDrawing = true;
+
+      const { getSvgPoint, generateNewShapeId } = this.props.actions;
+      const svgPoint = getSvgPoint(event);
+      this.handleDrawCommonAnnotation({ x: svgPoint.x, y: svgPoint.y }, { x: svgPoint.x, y: svgPoint.y }, 'DRAW_START', generateNewShapeId(), this.props.drawSettings.tool);
+
+      // saving the coordinates for future references
+      this.lastSentCoordinate = {
+        x: svgPoint.x,
+        y: svgPoint.y,
+      };
+      this.initialCoordinates = {
+        x: svgPoint.x,
+        y: svgPoint.y,
+      };
 
       // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
       // but the browser didn't catch it. So check it here.
     } else {
-      this.mouseUpHandler(event);
+      this.sendLastMessage();
     }
   }
 
   // main mouse up handler
   mouseUpHandler(event) {
-    window.removeEventListener('mouseup', this.mouseUpHandler);
-    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-    this.commonMouseUp(event);
-    this.isDrawing = false;
-  }
-
-  // main mouse move handler
-  // calls a mouseMove<AnnotationName> handler based on the tool selected
-  mouseMoveHandler(event) {
-    this.commonMouseMove(event);
-  }
-
-  // Line / Ellipse / Rectangle / Triangle have the same actions on mouseDown
-  // so we just redirect their mouseDowns here
-  commonMouseDown(event) {
-    const { getSvgPoint, generateNewShapeId } = this.props.actions;
-
-    const svgPoint = getSvgPoint(event);
-
-    this.handleDrawCommonAnnotation({ x: svgPoint.x, y: svgPoint.y }, { x: svgPoint.x, y: svgPoint.y }, 'DRAW_START', generateNewShapeId(), this.props.drawSettings.tool);
-    this.initialCoordinates = {
-      x: svgPoint.x,
-      y: svgPoint.y,
-    };
-  }
-
-  // Line / Ellipse / Rectangle / Triangle have the same actions on mouseMove
-  // so we just redirect their mouseMoves here
-  commonMouseMove(event) {
-    const { checkIfOutOfBounds, getTransformedSvgPoint,
-      svgCoordinateToPercentages, getCurrentShapeId } = this.props.actions;
-
-    // get the transformed svg coordinate
-    let transformedSvgPoint = getTransformedSvgPoint(event);
-
-    // check if it's out of bounds
-    transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
-
-    // transforming svg coordinate to percentages relative to the slide width/height
-    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
-
-    this.handleDrawCommonAnnotation(this.initialCoordinates, transformedSvgPoint, 'DRAW_UPDATE', getCurrentShapeId(), this.props.drawSettings.tool);
-  }
-
-  // Line / Ellipse / Rectangle / Triangle have the same actions on mouseUp
-  // so we just redirect their mouseUps here
-  commonMouseUp(event) {
     const { checkIfOutOfBounds, getTransformedSvgPoint,
       svgCoordinateToPercentages, getCurrentShapeId } = this.props.actions;
 
@@ -97,7 +89,44 @@ export default class ShapeDrawListener extends Component {
     transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
     this.handleDrawCommonAnnotation(this.initialCoordinates, transformedSvgPoint, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
+
+    this.resetState();
+  }
+
+  // main mouse move handler
+  // calls a mouseMove<AnnotationName> handler based on the tool selected
+  mouseMoveHandler(event) {
+    if (this.isDrawing) {
+      const { checkIfOutOfBounds, getTransformedSvgPoint,
+        svgCoordinateToPercentages, getCurrentShapeId } = this.props.actions;
+
+      // get the transformed svg coordinate
+      let transformedSvgPoint = getTransformedSvgPoint(event);
+
+      // check if it's out of bounds
+      transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
+
+      // transforming svg coordinate to percentages relative to the slide width/height
+      transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
+
+      // saving the last sent coordinate
+      this.lastSentCoordinate = transformedSvgPoint;
+
+      this.handleDrawCommonAnnotation(this.initialCoordinates, transformedSvgPoint, 'DRAW_UPDATE', getCurrentShapeId(), this.props.drawSettings.tool);
+    }
+  }
+
+  resetState() {
+    // resetting the current state
+    window.removeEventListener('mouseup', this.mouseUpHandler);
+    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+    this.isDrawing = false;
     this.initialCoordinates = {
+      x: undefined,
+      y: undefined,
+    };
+
+    this.lastSentCoordinate = {
       x: undefined,
       y: undefined,
     };
@@ -124,7 +153,6 @@ export default class ShapeDrawListener extends Component {
         id,
         whiteboardId: this.props.whiteboardId,
         status,
-        transparency: false,
         type: shapeType,
       },
       wbId: this.props.whiteboardId,

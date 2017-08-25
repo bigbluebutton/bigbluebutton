@@ -42,7 +42,7 @@ export default class TriangleDrawComponent extends Component {
         stroke={AnnotationHelpers.formatColor(annotation.color)}
         d={path}
         strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
-        strokeLinejoin="round"
+        strokeLinejoin="miter"
       />
     );
   }
