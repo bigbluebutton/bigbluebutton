@@ -45,6 +45,7 @@
 			import flash.ui.Keyboard;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayList;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
@@ -81,12 +82,15 @@
 			private var _lastPatch:Number = 0;
 			protected var _noteId:String = "MAIN_NOTE";
 			protected var _noteName:String = "";
+			private var lastAuthors:Object = new Object();
 
 			[Bindable] protected var options:SharedNotesOptions;
 			[Bindable] private var _isNotesLimit:Boolean = true;
+			[Bindable] private var usersTyping:String = "";
 
 			private var sendUpdateTimer:Timer;
 			private var getDocumentTimer:Timer = new Timer(5000);
+			private var typistsTimer:Timer = new Timer(2000);
 
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
@@ -123,6 +127,37 @@
 				} else {
 					this.visible = LiveMeeting.inst().sharedNotes.mainNoteVisible;
 					BindingUtils.bindSetter(updateAdditionalNoteVisibility, LiveMeeting.inst().sharedNotes, "mainNoteVisible");
+				}
+
+				typistsTimer.addEventListener(TimerEvent.TIMER, updateTypists);
+				typistsTimer.start();
+			}
+
+			private function updateTypists(e:Event):void {
+				var typists:ArrayList = new ArrayList();
+				var date:Date = new Date();
+				var time:Number = date.getTime();
+
+				for (var author:String in lastAuthors) {
+					if (time - lastAuthors[author] < 2000) {
+						var name:String = UsersUtil.getUserName(author);
+						if (name != null) typists.addItem(name.split(" ")[0]);
+					}
+				}
+
+				switch (typists.length) {
+					case 0:
+						usersTyping = "";
+						break;
+					case 1:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.single', [typists.getItemAt(0)]);
+						break;
+					case 2:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.double', [typists.getItemAt(0), typists.getItemAt(1)]);
+						break;
+					default:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.multiple');
+						break;
 				}
 			}
 
@@ -228,6 +263,8 @@
 							_document = result;
 //							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
+							var date:Date = new Date();
+							lastAuthors[e.userId] = date.getTime();
 							/* This code is forcing resync and causing more problems then resolving
 							if (possiblePatchError()) {
 								syncNote();
@@ -515,6 +552,10 @@
 						click="btnRedo_clickHandler(event)"
 						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}"
 						enabled="false" visible="true"/>
+				<mx:Label id="usersTypingLabel"
+						includeInLayout="true"
+						visible="true"
+						text="{usersTyping}"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
 				<mx:Label id="charRemain"

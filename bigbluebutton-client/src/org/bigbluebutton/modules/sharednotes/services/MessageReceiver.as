@@ -97,6 +97,7 @@ package org.bigbluebutton.modules.sharednotes.services
       } else {
         receivePatchEvent.patch = "";
       }
+      receivePatchEvent.userId = userId;
       receivePatchEvent.noteId = msg.body.noteId as String;
       receivePatchEvent.patchId = msg.body.patchId as int;
       receivePatchEvent.undo = msg.body.undo as Boolean;
