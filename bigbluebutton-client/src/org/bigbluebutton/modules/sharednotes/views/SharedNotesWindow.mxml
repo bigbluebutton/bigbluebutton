@@ -50,6 +50,7 @@
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.events.MenuEvent;
+			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -60,6 +61,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.main.views.WellPositionedMenu;
@@ -116,7 +118,24 @@
 					this.enabled = false;
 					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
 					getDocumentTimer.start();
+					this.addEventListener(FlexEvent.SHOW, onShow);
+					this.addEventListener(FlexEvent.HIDE, onHide);
+				} else {
+					this.visible = LiveMeeting.inst().sharedNotes.mainNoteVisible;
+					BindingUtils.bindSetter(updateAdditionalNoteVisibility, LiveMeeting.inst().sharedNotes, "mainNoteVisible");
 				}
+			}
+
+			private function onShow(e:FlexEvent):void {
+				LiveMeeting.inst().sharedNotes.mainNoteVisible = true;
+			}
+
+			private function onHide(e:FlexEvent):void {
+				LiveMeeting.inst().sharedNotes.mainNoteVisible = false;
+			}
+
+			private function updateAdditionalNoteVisibility(mainNoteVisible:Boolean):void {
+				this.visible = mainNoteVisible;
 			}
 
 			private function gotCurrentDocument():void {
