@@ -196,7 +196,12 @@ end
 
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linecap:butt"
+  else
+    g['style'] += ";stroke-linecap:round"
+  end
 
   doc = g.document
   data_points = shape[:data_points]
@@ -210,7 +215,12 @@ end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
 
   doc = g.document
   data_points = shape[:data_points]
@@ -240,7 +250,12 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
 
   doc = g.document
   data_points = shape[:data_points]
@@ -258,7 +273,7 @@ end
 
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
 
   doc = g.document
   data_points = shape[:data_points]
