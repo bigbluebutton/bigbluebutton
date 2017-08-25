@@ -850,7 +850,7 @@ def events_get_image_info(slide)
     if slide[:deskshare]
       command = "convert -size #{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
     else
-      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_path}"
+      command = "convert -size 1600x1200 xc:transparent -background transparent -quality 90 +dither -depth 8 -colors 256 #{image_path}"
     end
     BigBlueButton.execute(command)
   end
