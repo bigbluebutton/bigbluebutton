@@ -653,13 +653,13 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')
     if !square.nil?
-      shape['square'] = (square.text == 'true')
+      shape[:square] = (square.text == 'true')
     end
   end
   if shape[:type] == 'ellipse'
     circle = event.at_xpath('circle')
     if !circle.nil?
-      shape['circle'] = (circle.text == 'true')
+      shape[:circle] = (circle.text == 'true')
     end
   end
   if shape[:type] == 'pencil'
