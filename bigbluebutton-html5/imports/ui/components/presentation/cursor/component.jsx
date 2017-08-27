@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+const CURSOR_MOVEMENT_ANIMATION_INTERVAL = '0.05s';
+
 export default class Cursor extends Component {
 
 
@@ -144,7 +146,7 @@ export default class Cursor extends Component {
           from={`${prevData.cx} ${prevData.cy}`}
           to={`${currentData.cx} ${currentData.cy}`}
           begin={'indefinite'}
-          dur="0.1s"
+          dur={CURSOR_MOVEMENT_ANIMATION_INTERVAL}
           repeatCount="0"
           fill="freeze"
         />

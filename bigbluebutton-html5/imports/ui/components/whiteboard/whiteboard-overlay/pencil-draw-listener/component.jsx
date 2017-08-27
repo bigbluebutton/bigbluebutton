@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles.scss';
 
+const MESSAGE_INTERVAL = 50;
+
 export default class PencilDrawListener extends Component {
   constructor() {
     super();
@@ -10,14 +12,18 @@ export default class PencilDrawListener extends Component {
     this.isDrawing = false;
     this.points = [];
 
+    // id of the setInterval()
+    this.intervalId = 0;
+
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.mouseUpHandler = this.mouseUpHandler.bind(this);
-    this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
+    this.sendCoordinates = this.sendCoordinates.bind(this);
   }
 
   componentDidMount() {
+    // to send the last DRAW_END message in case if a user reloads the page while drawing
     window.addEventListener('beforeunload', this.sendLastMessage);
   }
 
@@ -36,12 +42,16 @@ export default class PencilDrawListener extends Component {
       this.isDrawing = true;
 
       const { getSvgPoint, generateNewShapeId } = this.props.actions;
+
+      // transform the event's SVG-based coordinates into percentages
       const svgPoint = getSvgPoint(event);
+
+      // sending the first message
       const _points = [svgPoint.x, svgPoint.y];
       this.handleDrawPencil(_points, 'DRAW_START', generateNewShapeId());
 
-      // saving the points for future references
-      this.points = [svgPoint.x, svgPoint.y];
+      // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
+      this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
 
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
@@ -57,7 +67,6 @@ export default class PencilDrawListener extends Component {
         checkIfOutOfBounds,
         getTransformedSvgPoint,
         svgCoordinateToPercentages,
-        getCurrentShapeId,
       } = this.props.actions;
 
       // get the transformed svg coordinate
@@ -69,14 +78,9 @@ export default class PencilDrawListener extends Component {
       // transforming svg coordinate to percentages relative to the slide width/height
       transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
-      // adding new coordinates to the saved coordinates in the state
-      const _points = [transformedSvgPoint.x, transformedSvgPoint.y];
-
-      // calling handleDrawPencil to send a message
-      this.handleDrawPencil(_points, 'DRAW_UPDATE', getCurrentShapeId());
-
-      // saving the last set point
-      this.points = [transformedSvgPoint.x, transformedSvgPoint.y];
+      // saving the coordinate to the array
+      this.points.push(transformedSvgPoint.x);
+      this.points.push(transformedSvgPoint.y);
     }
   }
 
@@ -85,7 +89,15 @@ export default class PencilDrawListener extends Component {
     this.sendLastMessage();
   }
 
-  handleDrawPencil(points, status, id) {
+  sendCoordinates() {
+    if (this.isDrawing && this.points.length > 0) {
+      const { getCurrentShapeId } = this.props.actions;
+      this.handleDrawPencil(this.points, 'DRAW_UPDATE', getCurrentShapeId());
+      this.points = [];
+    }
+  }
+
+  handleDrawPencil(points, status, id, dimensions) {
     const { normalizeThickness, sendAnnotation } = this.props.actions;
     const { whiteboardId, userId } = this.props;
 
@@ -107,26 +119,31 @@ export default class PencilDrawListener extends Component {
       position: 0,
     };
 
+    // dimensions are added to the 'DRAW_END', last message
+    if (dimensions) {
+      annotation.annotationInfo.dimensions = dimensions;
+    }
+
     sendAnnotation(annotation);
   }
 
   sendLastMessage() {
+    // last message, clearing the interval
+    clearInterval(this.intervalId);
+    this.intervalId = 0;
+
     if (this.isDrawing) {
       const { getCurrentShapeId } = this.props.actions;
       const { slideWidth, slideHeight } = this.props;
 
-      this.handleDrawPencil([slideWidth, slideHeight], 'DRAW_END', getCurrentShapeId());
+      this.handleDrawPencil(this.points, 'DRAW_END', getCurrentShapeId(), [slideWidth, slideHeight]);
 
-      this.resetState();
+      // resetting the current info
+      this.points = [];
+      this.isDrawing = false;
+      window.removeEventListener('mouseup', this.mouseUpHandler);
+      window.removeEventListener('mousemove', this.mouseMoveHandler, true);
     }
-  }
-
-  resetState() {
-    window.removeEventListener('mouseup', this.mouseUpHandler);
-    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-
-    this.points = [];
-    this.isDrawing = false;
   }
 
   render() {

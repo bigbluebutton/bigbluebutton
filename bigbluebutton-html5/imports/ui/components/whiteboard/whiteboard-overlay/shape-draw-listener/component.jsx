@@ -2,17 +2,21 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles.scss';
 
+const MESSAGE_INTERVAL = 50;
 
 export default class ShapeDrawListener extends Component {
   constructor(props) {
     super(props);
 
-    this.initialCoordinates = {
+    this.initialCoordinate = {
       x: undefined,
       y: undefined,
     };
-
     this.lastSentCoordinate = {
+      x: undefined,
+      y: undefined,
+    };
+    this.currentCoordinate = {
       x: undefined,
       y: undefined,
     };
@@ -20,14 +24,19 @@ export default class ShapeDrawListener extends Component {
     // to track the status of drawing
     this.isDrawing = false;
 
+    // id of the setInterval()
+    this.intervalId = 0;
+
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.mouseUpHandler = this.mouseUpHandler.bind(this);
     this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
+    this.sendCoordinates = this.sendCoordinates.bind(this);
   }
 
   componentDidMount() {
+    // to send the last message if the user refreshes the page while drawing
     window.addEventListener('beforeunload', this.sendLastMessage);
   }
 
@@ -38,14 +47,6 @@ export default class ShapeDrawListener extends Component {
     this.sendLastMessage();
   }
 
-  sendLastMessage() {
-    if (this.isDrawing) {
-      const { getCurrentShapeId } = this.props.actions;
-      this.handleDrawCommonAnnotation(this.initialCoordinates, this.lastSentCoordinate, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
-      this.resetState();
-    }
-  }
-
   // main mouse down handler
   mouseDownHandler(event) {
     if (!this.isDrawing) {
@@ -54,18 +55,27 @@ export default class ShapeDrawListener extends Component {
       this.isDrawing = true;
 
       const { getSvgPoint, generateNewShapeId } = this.props.actions;
+
+      // sending the first message
       const svgPoint = getSvgPoint(event);
       this.handleDrawCommonAnnotation({ x: svgPoint.x, y: svgPoint.y }, { x: svgPoint.x, y: svgPoint.y }, 'DRAW_START', generateNewShapeId(), this.props.drawSettings.tool);
 
       // saving the coordinates for future references
+      this.initialCoordinate = {
+        x: svgPoint.x,
+        y: svgPoint.y,
+      };
       this.lastSentCoordinate = {
         x: svgPoint.x,
         y: svgPoint.y,
       };
-      this.initialCoordinates = {
+      this.currentCoordinate = {
         x: svgPoint.x,
         y: svgPoint.y,
       };
+
+      // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
+      this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
 
       // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
       // but the browser didn't catch it. So check it here.
@@ -74,31 +84,15 @@ export default class ShapeDrawListener extends Component {
     }
   }
 
-  // main mouse up handler
-  mouseUpHandler(event) {
-    const { checkIfOutOfBounds, getTransformedSvgPoint,
-      svgCoordinateToPercentages, getCurrentShapeId } = this.props.actions;
-
-    // get the transformed svg coordinate
-    let transformedSvgPoint = getTransformedSvgPoint(event);
-
-    // check if it's out of bounds
-    transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
-
-    // transforming svg coordinate to percentages relative to the slide width/height
-    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
-
-    this.handleDrawCommonAnnotation(this.initialCoordinates, transformedSvgPoint, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
-
-    this.resetState();
-  }
-
   // main mouse move handler
   // calls a mouseMove<AnnotationName> handler based on the tool selected
   mouseMoveHandler(event) {
     if (this.isDrawing) {
-      const { checkIfOutOfBounds, getTransformedSvgPoint,
-        svgCoordinateToPercentages, getCurrentShapeId } = this.props.actions;
+      const {
+        checkIfOutOfBounds,
+        getTransformedSvgPoint,
+        svgCoordinateToPercentages,
+      } = this.props.actions;
 
       // get the transformed svg coordinate
       let transformedSvgPoint = getTransformedSvgPoint(event);
@@ -110,9 +104,35 @@ export default class ShapeDrawListener extends Component {
       transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
       // saving the last sent coordinate
-      this.lastSentCoordinate = transformedSvgPoint;
+      this.currentCoordinate = transformedSvgPoint;
+    }
+  }
 
-      this.handleDrawCommonAnnotation(this.initialCoordinates, transformedSvgPoint, 'DRAW_UPDATE', getCurrentShapeId(), this.props.drawSettings.tool);
+  // main mouse up handler
+  mouseUpHandler() {
+    this.sendLastMessage();
+  }
+
+  sendCoordinates() {
+    if (this.isDrawing) {
+      if (this.currentCoordinate.x !== this.lastSentCoordinate.x ||
+          this.currentCoordinate.y !== this.lastSentCoordinate.y) {
+        const { getCurrentShapeId } = this.props.actions;
+        this.handleDrawCommonAnnotation(this.initialCoordinate, this.currentCoordinate, 'DRAW_UPDATE', getCurrentShapeId(), this.props.drawSettings.tool);
+        this.lastSentCoordinate = this.currentCoordinate;
+      }
+    }
+  }
+
+  sendLastMessage() {
+    // last message, clearing the interval
+    clearInterval(this.intervalId);
+    this.intervalId = 0;
+
+    if (this.isDrawing) {
+      const { getCurrentShapeId } = this.props.actions;
+      this.handleDrawCommonAnnotation(this.initialCoordinate, this.currentCoordinate, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
+      this.resetState();
     }
   }
 
@@ -121,12 +141,15 @@ export default class ShapeDrawListener extends Component {
     window.removeEventListener('mouseup', this.mouseUpHandler);
     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
     this.isDrawing = false;
-    this.initialCoordinates = {
+    this.initialCoordinate = {
       x: undefined,
       y: undefined,
     };
-
     this.lastSentCoordinate = {
+      x: undefined,
+      y: undefined,
+    };
+    this.currentCoordinate = {
       x: undefined,
       y: undefined,
     };

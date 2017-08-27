@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+const CURSOR_INTERVAL = 50;
+
 export default class PresentationOverlay extends Component {
   constructor(props) {
     super(props);
@@ -52,7 +54,7 @@ export default class PresentationOverlay extends Component {
   }
 
   mouseEnterHandler() {
-    const intervalId = setInterval(this.checkCursor, 100);
+    const intervalId = setInterval(this.checkCursor, CURSOR_INTERVAL);
     this.intervalId = intervalId;
   }
 
