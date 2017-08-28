@@ -447,6 +447,25 @@ users|RoomActionsRenderer {
 
 /*
 //------------------------------
+//  BrowserPermissionHelper
+//------------------------------
+*/
+
+views|BrowserPermissionHelper {
+	backgroundColor : #FFFFFF;
+	borderStyle     : solid;
+	borderThickness : 0;
+	cornerRadius    : 4;
+}
+
+.broswerHelperTitleStyle {
+	color     : #05172A;
+	fontSize  : 16;
+	textAlign : center;
+}
+
+/*
+//------------------------------
 //  Client Status
 //------------------------------
 */
@@ -906,19 +925,8 @@ flexlib|MDIWindow {
 //------------------------------
 */
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .permissionSettingsTextStyle, .inactivityWarningTextStyle {
 	fontSize : 14;
-}
-
-.micSettingsWindowOpenDialogLabelStyle {
-	fontSize   : 14;
-	fontWeight : bold;
-	color      : #CDD4DB;
-}
-
-.micSettingsWindowShareMicrophoneLabelStyle {
-	fontSize : 14;
-	color    : #5E6C72;
 }
 
 .inactivityWarningWindowCancelButtonStyle {

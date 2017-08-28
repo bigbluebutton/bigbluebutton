@@ -751,21 +751,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 var options:PhoneOptions = new PhoneOptions();
                 if (!options.showMicrophoneHint) return;
                 var browser:String = ExternalInterface.call("determineBrowser")[0];
+                var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
                 if (browser == "Firefox") {
-                    var ffBrowser:FirefoxMicPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, FirefoxMicPermissionImage, false) as FirefoxMicPermissionImage;
-                    if (ffBrowser) {
-                        ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-                            ffBrowser.x = 100;
-                            ffBrowser.y = 150;
-                        });
+                    if (browserPermissionHelper) {
+						if (Capabilities.os.indexOf("Mac") >= 0){
+							browserPermissionHelper.currentState = "firefoxMicMacOSX";
+						}
+						else {
+							browserPermissionHelper.currentState = "firefoxMic";
+						}
+						browserPermissionHelper.x = 50;
+						browserPermissionHelper.y = 150;
                     }
                 } else if (browser == "Chrome") {
-                    var chromeBrowser:ChromeMicPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, ChromeMicPermissionImage, false) as ChromeMicPermissionImage;
-                    if (chromeBrowser) {
-                        chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-                            chromeBrowser.x = 20;
-                            chromeBrowser.y = 130;
-                        });
+                    if (browserPermissionHelper) {
+						browserPermissionHelper.currentState = "chromeMic";
+						browserPermissionHelper.x = 50;
+						browserPermissionHelper.y = 130;
                     }
                 }
             }
@@ -786,26 +788,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
                 if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
-					// Show ChromeWebcmPermissionImg component after showing the webcam window due event listeners registration order
-                    setTimeout(showChromeWebcmPermissionImg, 100);
+					// Show browserPermissionHelper component after showing the webcam window due event listeners registration order
+                    setTimeout(showbrowserPermissionHelper, 100);
                 }
             }
 			
-			private function showChromeWebcmPermissionImg() : void {
-				var chromeWebcmPermissionImg : ChromeWebcamPermissionImage = PopUpUtil.createNonModelPopUp(mdiCanvas, ChromeWebcamPermissionImage, false) as ChromeWebcamPermissionImage;
-				if (chromeWebcmPermissionImg) {
-					chromeWebcmPermissionImg.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-						var point1:Point = new Point();
-						// Calculate position of TitleWindow in Application's coordinates.
-						point1.x = width / 2;
-						point1.y = height / 2;
-						if (Capabilities.os.indexOf("Mac") >= 0) {
-							chromeWebcmPermissionImg.x = (mdiCanvas.width - chromeWebcmPermissionImg.width);
-						} else {
-							chromeWebcmPermissionImg.x = 20;
-						}
-						chromeWebcmPermissionImg.y = 20;
-					});
+			private function showbrowserPermissionHelper() : void {
+				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
+				if (browserPermissionHelper) {
+					browserPermissionHelper.currentState = "chromeCam";
+					var point1:Point = new Point();
+					// Calculate position of TitleWindow in Application's coordinates.
+					point1.x = width / 2;
+					point1.y = height / 2;
+					if (Capabilities.os.indexOf("Mac") >= 0) {
+						browserPermissionHelper.x = (mdiCanvas.width - browserPermissionHelper.width);
+					} else {
+						browserPermissionHelper.x = 20;
+					}
+					browserPermissionHelper.y = 20;
 				}
 			}
 

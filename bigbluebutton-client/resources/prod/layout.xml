@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <layouts>
   <layout name="bbb.layout.name.defaultlayout" default="true">
-    <window name="UsersWindow" width="0.19" height="0.539560439560439" x="0.0078125" y="0.014285714285714" />
-    <window name="VideoDock" width="0.19" height="0.409769917582418" x="0.0078125" y="0.575944368131867" />
+    <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" />
+    <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
     <window name="PresentationWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
     <window name="ChatWindow" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
     <window name="SharedNotesWindow" hidden="true" />
