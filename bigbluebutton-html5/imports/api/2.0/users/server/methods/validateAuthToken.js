@@ -36,15 +36,9 @@ export default function validateAuthToken(credentials) {
     authToken: requesterToken,
   };
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId: requesterUserId,
-  };
-
   Logger.info(`User '${
     requesterUserId
     }' is trying to validate auth tokenfor meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
