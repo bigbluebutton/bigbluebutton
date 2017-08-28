@@ -653,13 +653,13 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')
     if !square.nil?
-      shape['square'] = (square.text == 'true')
+      shape[:square] = (square.text == 'true')
     end
   end
   if shape[:type] == 'ellipse'
     circle = event.at_xpath('circle')
     if !circle.nil?
-      shape['circle'] = (circle.text == 'true')
+      shape[:circle] = (circle.text == 'true')
     end
   end
   if shape[:type] == 'pencil'
@@ -850,7 +850,7 @@ def events_get_image_info(slide)
     if slide[:deskshare]
       command = "convert -size #{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
     else
-      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_path}"
+      command = "convert -size 1600x1200 xc:transparent -background transparent -quality 90 +dither -depth 8 -colors 256 #{image_path}"
     end
     BigBlueButton.execute(command)
   end
