@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*">
+
+	<fx:Declarations>
+		<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}"
+					   method="handleEventAndClose" />
+		<mate:Listener type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}"
+					   method="handleEventAndClose" />
+
+		<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_SUCCESS}"
+					   method="handleEventAndClose" />
+		<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_FAIL}"
+					   method="handleEventAndClose" />
+		<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}"
+					   method="handleEventAndClose" />
+	</fx:Declarations>
+	
+	<mx:states>
+		<mx:State name="default"/>
+		<mx:State name="chromeMic"/>
+		<mx:State name="chromeCam"/>
+		<mx:State name="firefoxMic"/>
+		<mx:State name="firefoxMicMacOSX" basedOn="firefoxMic"/>
+	</mx:states>
+
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private function handleEventAndClose(e:Event):void {
+				PopUpUtil.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	<mx:VBox width="100%"
+			 paddingBottom="12"
+			 paddingLeft="8"
+			 paddingRight="8"
+			 paddingTop="12">
+		<common:AdvancedLabel text.chromeMic="{ResourceUtil.getInstance().getString('bbb.micPermissions.chrome.title')}"
+							  text.chromeCam="{ResourceUtil.getInstance().getString('bbb.webcamPermissions.chrome.title')}"
+							  text.firefoxMic="{ResourceUtil.getInstance().getString('bbb.micPermissions.firefox.title')}"
+							  styleName="broswerHelperTitleStyle"
+							  width="100%"
+							  left="0" />
+		<mx:HBox width="100%" paddingTop="12">
+			<mx:Text width="200"
+					 text.chromeMic="{ResourceUtil.getInstance().getString('bbb.micPermissions.chrome.message')}"
+					 text.chromeCam="{ResourceUtil.getInstance().getString('bbb.webcamPermissions.chrome.message')}"
+					 text.firefoxMic="{ResourceUtil.getInstance().getString('bbb.micPermissions.firefox.message')}"
+					 selectable="false"
+					 styleName="permissionSettingsTextStyle" />
+			<mx:Image source.chromeMic="@Embed('assets/chrome-permissions.png')" 
+					  source.chromeCam="@Embed('assets/chrome-permissions.png')" 
+					  source.firefoxMic="@Embed('assets/firefox-permissions-windows.png')"
+					  source.firefoxMicMacOSX="@Embed('assets/firefox-permissions-macosx.png')"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:Canvas>

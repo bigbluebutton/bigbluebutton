@@ -8,6 +8,8 @@ chat:
   type_public: 'PUBLIC_CHAT'
   type_private: 'PRIVATE_CHAT'
   # Chat ids and names
+  system_userid: 'SYSTEM_MESSAGE'
+  system_username: 'SYSTEM_MESSAGE'
   public_id: 'public'
   public_userid: 'public_chat_userid'
   public_username: 'public_chat_username'

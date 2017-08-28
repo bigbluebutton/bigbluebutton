@@ -18,32 +18,14 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 	
-         xmlns:notes="org.bigbluebutton.modules.notes.views.*"
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx" 	
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:notes="org.bigbluebutton.modules.notes.views.*"
          width="100%" height="100%"
          verticalScrollPolicy="off"
          creationComplete="onCreationComplete()">
   
-  <mx:Style>
-    .notesColorPickerStyle {
-      backgroundColor:#E5E6E7;
-      columnCount:12;
-      horizontalGap:0;
-      previewHeight:22;
-      previewWidth:45;
-      swatchGridBackgroundColor:#000000;
-      swatchGridBorderSize:0;
-      swatchHeight:60;
-      swatchHighlightColor:#FFFFFF;
-      swatchHighlightSize:1;
-      swatchWidth:12;
-      textFieldWidth:72;
-      verticalGap:0;
-    }
-    
-  </mx:Style>
-   
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
       import com.adobe.utils.StringUtil;
       
@@ -121,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       //color="{cmpColorPicker.selectedColor}"
     ]]>
     
-  </mx:Script>
+  </fx:Script>
   
   <mx:HBox width="100%" height="100%" verticalScrollPolicy="off">
     <notes:AdvancedList width="100%" height="100%" id="notesMessagesList" selectable="false" 

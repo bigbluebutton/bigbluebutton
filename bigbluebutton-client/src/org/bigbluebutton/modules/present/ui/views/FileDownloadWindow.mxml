@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
+				layout="absolute"
+				width="580"
+				height="410"
+				showCloseButton="true"
+				close="{globalDispatch.dispatchEvent(new DownloadEvent(DownloadEvent.CLOSE_DOWNLOAD_WINDOW))}"
+				initialize="initData();" >
+
+	<fx:Declarations>
+		<mate:Dispatcher id="globalDispatch" />
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+
+			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.model.PresentationModel;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			[Bindable]
+			private var downloadablePresentations:ArrayCollection;
+
+			override public function move(x:Number, y:Number):void {
+				return;
+			}
+
+			private function initData():void {
+				downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
+			}
+		]]>
+
+	</fx:Script>
+
+	<mx:VBox width="100%"
+			 height="100%"
+			 horizontalAlign="center">
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}"
+							  styleName="titleWindowStyle"
+							  maxWidth="450" />
+		<mx:List id="presentationNamesList"
+				 allowMultipleSelection="false"
+				 width="100%"
+				 height="100%"
+				 left="5"
+				 top="5"
+				 right="5"
+				 bottom="5"
+				 itemRenderer="org.bigbluebutton.modules.present.ui.views.DownloadPresentationRenderer"
+				 dragEnabled="false"
+				 dataProvider="{downloadablePresentations}">
+		</mx:List>
+	</mx:VBox>
+</mx:TitleWindow>

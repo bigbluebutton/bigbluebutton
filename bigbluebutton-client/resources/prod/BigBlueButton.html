@@ -25,6 +25,28 @@
 
     <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
+
+    <script type="text/javascript">
+      // Workaround Flash hang in Firefox 55 / 56
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1360666
+
+      // if it's Windows
+      if (navigator.userAgent.indexOf("Windows") != -1
+        // if it's Firefox 55 or 56
+        && (navigator.userAgent.indexOf("Firefox/55") != -1 || navigator.userAgent.indexOf("Firefox/56") != -1)
+        // if there is no 64-bit signature
+        && (navigator.userAgent.indexOf("Win64; x64") == -1)) {
+
+          // resizing the content block on visibility change, to make Flash responsive again
+          document.addEventListener('visibilitychange', function() {
+            if(document.visibilityState == 'visible') {
+              document.getElementById("content").style.height = "99%";
+              setTimeout(function(){ document.getElementById("content").style.height = "100%"; }, 500);
+            }
+          });
+      }
+    </script>
+
     <script type="text/javascript">
       // Check for Firefox 41.0.1/2 to workaround Flash hang
       // See https://bugzilla.mozilla.org/show_bug.cgi?id=1210665
@@ -45,6 +67,8 @@
       params.quality = "high";
       params.bgcolor = "#FFFFFF";
       params.allowfullscreen = "true";
+      params.allowfullscreeninteractive = "true";
+
       if (ffHangWorkaround()) {
         console.log("Applying Firefox Flash hang workaround");
 	// wmode = opaque causes button clicks to be sometimes unresponsive,
@@ -74,7 +98,7 @@
         var fillContent = function(){
           var content = document.getElementById("content");
           if (content) {
-            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="allowfullscreeninteractive" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
           }
         };
       } else {
@@ -118,6 +142,9 @@
     <script src="lib/verto-min.js" language="javascript"></script>
     <script src="lib/verto_extension.js" language="javascript"></script>
 
+    <script src="lib/kurento-utils.min.js" language="javascript"></script>
+    <script src="lib/kurento-extension.js" language="javascript"></script>
+
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
     <script src="lib/sip.js?v=VERSION" language="javascript"></script>
 
@@ -127,6 +154,8 @@
     <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script>
     <script src="lib/weburl_regex.js?v=VERSION" language="javascript"></script>
     <script src="lib/jsnlog.min.js?v=VERSION" language="javascript"></script>
+    <script src="lib/diff_match_patch_uncompressed.js?v=VERSION" language="javascript"></script>
+    <script src="lib/shared_notes.js?v=VERSION" language="javascript"></script>
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');

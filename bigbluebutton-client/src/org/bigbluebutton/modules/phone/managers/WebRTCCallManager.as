@@ -12,12 +12,13 @@ package org.bigbluebutton.modules.phone.managers
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
-  import org.bigbluebutton.modules.phone.PhoneModel;
-  import org.bigbluebutton.modules.phone.PhoneOptions;
+  import org.bigbluebutton.modules.phone.models.PhoneModel;
+  import org.bigbluebutton.modules.phone.models.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
@@ -26,6 +27,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
   import org.bigbluebutton.modules.phone.models.Constants;
+  import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
   import org.bigbluebutton.modules.phone.models.WebRTCModel;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -53,7 +55,7 @@ package org.bigbluebutton.modules.phone.managers
         browserType = browserInfo[0];
         browserVersion = browserInfo[1];
       }
-      options = new PhoneOptions();
+      options = Options.getOptions(PhoneOptions) as PhoneOptions;
       
       // only show the warning if the admin has enabled WebRTC
       if (options.useWebRTCIfAvailable && !isWebRTCSupported()) {
@@ -62,8 +64,6 @@ package org.bigbluebutton.modules.phone.managers
           ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.message"),
           'bbb.clientstatus.webrtc.title'));
       }
-      
-      usingWebRTC = checkIfToUseWebRTC();
     }
     
     private function isWebRTCSupported():Boolean {
@@ -157,9 +157,11 @@ package org.bigbluebutton.modules.phone.managers
       logData.message = "handleJoinVoiceConferenceCommand - usingWebRTC:";
       LOGGER.info(JSON.stringify(logData));
 
+      usingWebRTC = checkIfToUseWebRTC();
+
       if (!usingWebRTC || !event.mic) return;
       
-      if (options.skipCheck || echoTestDone) {
+      if ((options.skipCheck && PhoneOptions.firstAudioJoin) || echoTestDone) {
         joinVoiceConference();
       } else {
         startWebRTCEchoTest();
@@ -174,6 +176,7 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleUseFlashModeCommand():void {
       usingWebRTC = false;
+      WebRTCAudioStatus.getInstance().setAudioFailState(true);
     }
 
     public function handleWebRTCEchoTestFailedEvent(event:WebRTCEchoTestEvent):void {

@@ -18,16 +18,17 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   width="{BUTTON_SIZE}"
 		   height="{BUTTON_SIZE}">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.controls.Button;
 
-			static public const BUTTON_SIZE:int = 20;
+			static public const BUTTON_SIZE:int = 30;
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>

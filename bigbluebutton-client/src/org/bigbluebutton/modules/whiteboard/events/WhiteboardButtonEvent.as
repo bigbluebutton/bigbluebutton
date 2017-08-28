@@ -26,15 +26,11 @@ package org.bigbluebutton.modules.whiteboard.events
 	{
 		public static const ENABLE_WHITEBOARD:String = "enable_whiteboard";
 		public static const DISABLE_WHITEBOARD:String = "disable_whiteboard";
-		public static const WHITEBOARD_ADDED_TO_PRESENTATION:String = "whiteboard_added";		
-		public static const CHANGE_TO_PENCIL:String = "change-to-pencil";
 		
 		public static const WHITEBOARD_BUTTON_PRESSED:String = "WhiteboardButtonPressedEvent";
 		
 		public var toolType:String;
 		public var graphicType:String;
-		
-		public var window:PresentationWindow;
 		
 		public function WhiteboardButtonEvent(type:String)
 		{

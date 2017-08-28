@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
-import Cursor from './cursor/component.jsx';
-import PresentationToolbarContainer from './presentation-toolbar/container.jsx';
-import Slide from './slide/component.jsx';
-import styles from './styles.scss';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PollingContainer from '/imports/ui/components/polling/container';
+import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
+import Cursor from './cursor/component';
+import PresentationToolbarContainer from './presentation-toolbar/container';
+import Slide from './slide/component';
+import styles from './styles.scss';
 
 export default class PresentationArea extends React.Component {
   constructor(props) {
@@ -17,11 +17,11 @@ export default class PresentationArea extends React.Component {
     let slideObj = this.props.currentSlide;
 
     if (this.props.currentSlide) {
-      slideObj = this.props.currentSlide.slide;
-      const x = -slideObj.x_offset * 2 * slideObj.width / 100;
-      const y = -slideObj.y_offset * 2 * slideObj.height / 100;
-      const viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
-      const viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
+      slideObj = this.props.currentSlide;
+      const x = -slideObj.xOffset * 2 * slideObj.width / 100;
+      const y = -slideObj.yOffset * 2 * slideObj.height / 100;
+      const viewBoxWidth = slideObj.width * slideObj.widthRatio / 100;
+      const viewBoxHeight = slideObj.height * slideObj.heightRatio / 100;
       return (
         <CSSTransitionGroup
           transitionName={{
@@ -54,7 +54,7 @@ export default class PresentationArea extends React.Component {
             </defs>
             <g clipPath="url(#viewBox)">
               <Slide id="slideComponent" currentSlide={this.props.currentSlide} />
-              <ShapeGroupContainer
+              <AnnotationGroupContainer
                 width={slideObj.width}
                 height={slideObj.height}
                 whiteboardId={slideObj.id}
@@ -65,7 +65,7 @@ export default class PresentationArea extends React.Component {
                   viewBoxHeight={viewBoxHeight}
                   viewBoxX={x}
                   viewBoxY={y}
-                  widthRatio={slideObj.width_ratio}
+                  widthRatio={slideObj.widthRatio}
                   cursorX={this.props.cursor.x}
                   cursorY={this.props.cursor.y}
                 />
@@ -82,7 +82,7 @@ export default class PresentationArea extends React.Component {
     if (this.props.currentSlide) {
       return (
         <PresentationToolbarContainer
-          currentSlideNum={this.props.currentSlide.slide.num}
+          currentSlideNum={this.props.currentSlide.num}
           presentationId={this.props.currentSlide.presentationId}
         />
       );

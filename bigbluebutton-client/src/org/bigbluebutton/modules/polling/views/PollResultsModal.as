@@ -12,9 +12,8 @@ package org.bigbluebutton.modules.polling.views
 	import mx.controls.Button;
 	import mx.controls.HRule;
 	import mx.controls.Label;
-	import mx.controls.TextArea;
-	import mx.core.ScrollPolicy;
 	
+	import org.bigbluebutton.common.AdvancedLabel;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 	import org.bigbluebutton.modules.polling.events.PollVotedEvent;
@@ -40,23 +39,15 @@ package org.bigbluebutton.modules.polling.views
 		public function PollResultsModal() {
 			super();
 			
-			styleName = "micSettingsWindowStyle";
 			width = 400;
-			height = 300;
-			setStyle("verticalGap", 15);
 			showCloseButton = false;
 			layout = "vertical";
 			setStyle("horizontalAlign", "center");
-			setStyle("verticalAlign", "middle");
 			
-			var modalTitle:TextArea = new TextArea();
-			modalTitle.setStyle("borderSkin", null);
-			modalTitle.verticalScrollPolicy = ScrollPolicy.OFF;
-			modalTitle.editable = false;
+			var modalTitle:AdvancedLabel = new AdvancedLabel();
 			modalTitle.text = ResourceUtil.getInstance().getString('bbb.polling.pollModal.title');
-			modalTitle.styleName = "micSettingsWindowTitleStyle";
-			modalTitle.percentWidth = 100;
-			modalTitle.height = 25;
+			modalTitle.styleName = "titleWindowStyle";
+			modalTitle.maxWidth = 300;
 			addChild(modalTitle);
 			
 			var hrule:HRule = new HRule();
@@ -135,8 +126,6 @@ package org.bigbluebutton.modules.polling.views
 			_pollGraphic.data = resultData;
 			_pollGraphic.height = ((23+10)*_pollGraphic.data.length+10);
 			_pollGraphic.minHeight = ((16+10)*_pollGraphic.data.length+10);
-			
-			height = _pollGraphic.height + 220;
 		}
 		
 		private function handlePollVotedEvent(e:PollVotedEvent):void {

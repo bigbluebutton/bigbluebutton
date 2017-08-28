@@ -17,17 +17,18 @@
  *
  */
 package org.bigbluebutton.common {
-	
+
 	import org.as3commons.logging.api.LOGGER_FACTORY;
 	import org.as3commons.logging.setup.LevelTargetSetup;
 	import org.as3commons.logging.setup.LogSetupLevel;
 	import org.as3commons.logging.setup.target.IFormattingLogTarget;
 	import org.as3commons.logging.setup.target.TraceTarget;
-	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
+	import org.bigbluebutton.main.model.options.LoggingOptions;
 	import org.bigbluebutton.util.logging.JSNLogTarget;
 	import org.bigbluebutton.util.logging.LogWindowTarget;
 	import org.bigbluebutton.util.logging.ServerLogTarget;
-	
+
 	/**
 	 * The logging can be configured in config.xml. The <logging> tag can be configured like the following
 	 *
@@ -60,21 +61,21 @@ package org.bigbluebutton.common {
 	 */
 	public class LogUtil {
 		public static const TRACE:String = "trace";
-		
+
 		public static const LOG_WINDOW:String = "logwindow";
-		
+
 		public static const SERVER:String = "server";
-		
+
 		public static const JSNLOG:String = "jsnlog";
-		
+
 		private static const DEFAULT_FORMAT:String = "{dateUTC} {time} :: {name} :: [{logLevel}] {message}";
-		
+
 		private static var loggingEnabled:Boolean;
-		
+
 		private static var logLevel:String = "info";
-		
+
 		private static var loggingTargetName:String = "trace";
-		
+
 		private static var logPattern:String = ".*";
 
 		/**
@@ -86,22 +87,12 @@ package org.bigbluebutton.common {
 			if (force) {
 				logTarget = new TraceTarget();
 			} else {
-				var lxml:XML = BBB.getConfigManager().config.logging;
-				if (lxml.@enabled != undefined) {
-					loggingEnabled = (lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (lxml.@target != undefined) {
-					loggingTargetName = lxml.@target.toString().toLowerCase();
-				}
-				if (lxml.@level != undefined) {
-					logLevel = String(lxml.@level).toUpperCase();
-				}
-				if (lxml.@format != undefined) {
-					logFormat = lxml.@format.toString();
-				}
-				if (lxml.@logPattern != undefined) {
-					logPattern = lxml.@logPattern.toString();
-				}
+				var loggingOptions:LoggingOptions = Options.getOptions(LoggingOptions) as LoggingOptions;
+				loggingEnabled = loggingOptions.enabled;
+				loggingTargetName = loggingOptions.logTarget;
+				logLevel = loggingOptions.level;
+				logFormat = loggingOptions.format;
+				logPattern = loggingOptions.logPattern;
 				if (loggingEnabled) {
 					switch (loggingTargetName) {
 						case TRACE:
@@ -111,7 +102,7 @@ package org.bigbluebutton.common {
 							logTarget = new LogWindowTarget();
 							break;
 						case SERVER:
-							logTarget = new ServerLogTarget(String(lxml.@uri), logPattern);
+							logTarget = new ServerLogTarget(loggingOptions.uri, logPattern);
 							break;
 						case JSNLOG:
 							logTarget = new JSNLogTarget();
@@ -129,7 +120,7 @@ package org.bigbluebutton.common {
 				disableLogging();
 			}
 		}
-		
+
 		/**
 		 * Disables logging across the applicatio.
 		 */

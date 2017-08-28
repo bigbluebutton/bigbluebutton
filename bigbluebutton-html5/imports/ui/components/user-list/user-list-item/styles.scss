@@ -1,22 +1,9 @@
-@import '../styles.scss';
+@import "../styles.scss";
 
 .userListItem {
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;
-
-  .cursorPointer {
-    opacity: 0;
-    cursor: pointer;
-    transition: all 0.3s all;
-  }
-
-  &:hover,
-  &:focus {
-    .cursorPointer {
-      opacity: 1;
-    }
-  }
 
   &:last-child {
     margin-bottom: 0.5rem;
@@ -28,7 +15,8 @@
   outline: none;
 }
 
-.userItemContentsCompact {
+.userAvatar {
+  flex: 0 0 2.2rem;
 }
 
 .userName {
@@ -43,32 +31,27 @@
 .userNameMain {
   @extend %no-margin;
   font-size: 0.9rem;
-  line-height: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   transition: all 0.3s;
   font-weight: 400;
-}
-
-.hasSub {
-  transform: translateY(0%);
+  color: $color-gray-dark;
 }
 
 .userNameSub {
   @extend %no-margin;
-  font-size: 0.8rem;
-  line-height: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 200;
-  font-style: italic;;
-  color: $sub-name-color;
+  color: $color-gray;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
 
-.userIconGlowing {
-  text-shadow: 0 0 .25rem;
+  i {
+    line-height: 0;
+    font-size: 75%;
+  }
 }
 
 .userIconsContainer {
@@ -157,6 +140,7 @@
   cursor: default;
   min-width: 10vw;
   max-width: 100%;
+  overflow: visible;
 }
 
 .actionsHeader {

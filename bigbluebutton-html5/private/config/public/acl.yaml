@@ -1,0 +1,32 @@
+acl:
+  viewer:
+    subscriptions:
+      - 'users'
+      - 'cursor'
+      - 'screenshare'
+      - 'meetings'
+      - 'polls'
+      - 'chat'
+      - 'presentations'
+      - 'annotations'
+      - 'slides'
+      - 'captions'
+      - 'breakouts'
+      - 'voiceUsers'
+    methods:
+      - 'listenOnlyToggle'
+      - 'userLogout'
+      - 'setEmojiStatus'
+      - 'toggleSelfVoice'
+      - 'publishVote'
+      - 'sendChat'
+  moderator:
+    methods:
+      - 'assignPresenter'
+      - 'kickUser'
+      - 'toggleVoice'
+      - 'clearPublicChatHistory'
+  presenter:
+    methods:
+      - 'assignPresenter'
+      - 'switchSlide'

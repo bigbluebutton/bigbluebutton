@@ -18,21 +18,22 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" visible="{_visibleTools}"
-		   xmlns:mate="http://mate.asfusion.com/"
-		   xmlns:common="org.bigbluebutton.common.*"
-		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
-		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mate="http://mate.asfusion.com/"
+		 xmlns:common="org.bigbluebutton.common.*"
+		 xmlns:views="org.bigbluebutton.modules.layout.views.*"
+		 implements="org.bigbluebutton.common.IBbbToolbarComponent"
+		 creationComplete="init()" visible="{_visibleTools}" includeInLayout="{_visibleTools}">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			import flexlib.mdi.containers.MDICanvas;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
-			import org.bigbluebutton.modules.layout.model.WindowLayout;
+      import com.asfusion.mate.events.Dispatcher;
+      import flexlib.mdi.containers.MDICanvas;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.main.views.MainToolbar;
+      import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
+      import org.bigbluebutton.modules.layout.model.WindowLayout;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			[Bindable] private var _enableEdit:Boolean = false;
@@ -45,8 +46,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function set enableEdit(arg:Boolean):void {
-				_enableEdit = arg && UserManager.getInstance().getConference().amIModerator();
+				_enableEdit = arg && UsersUtil.amIModerator();
 			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				comboBox.refreshRole(amIModerator);
+				addButton.refreshRole(amIModerator);
+				saveButton.refreshRole(amIModerator);
+				loadButton.refreshRole(amIModerator);
+				broadcastButton.refreshRole(amIModerator);
+			}
+
 			
 			public function set visibleTools(arg:Boolean):void {
 				_visibleTools = arg;
@@ -73,9 +83,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<common:TabIndexer startIndex="110000" tabIndices="{[comboBox, addButton, saveButton, loadButton, broadcastButton, lockButton]}"/>
+	<fx:Declarations>
+		<common:TabIndexer startIndex="110000" tabIndices="{[comboBox, addButton, saveButton, loadButton, broadcastButton]}"/>
+	</fx:Declarations>
 	
 	<views:LayoutsCombo id="comboBox"/>
 	<views:AddButton id="addButton" 
@@ -87,9 +99,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<views:LoadButton id="loadButton" 
 					  includeInLayout="{_enableEdit}" 
 					  visible="{_enableEdit}"/>
-	<views:BroadcastButton id="broadcastButton"
-					  enabled="{!lockButton.selected}"/>
-	<views:LockButton id="lockButton"
-					  visible="false"
-					  includeInLayout="false"/>
+	<views:BroadcastButton id="broadcastButton"/>
 </mx:HBox>

@@ -1,7 +1,7 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
  * 
- * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ * Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,30 +25,33 @@ package org.bigbluebutton.modules.polling.service
 
   public class MessageReceiver implements IMessageListener
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
     
     private var processor:PollDataProcessor;
     
     public function MessageReceiver(processor:PollDataProcessor) {
       LOGGER.debug("registering message listener");
-	  this.processor = processor;
+      this.processor = processor;
       BBB.initConnectionManager().addMessageListener(this);
     }
 
     public function onMessage(messageName:String, message:Object):void {
-//      LOGGER.debug("received message {0}", [messageName]);
+      // LOGGER.debug("received message {0}", [messageName]);
 
       switch (messageName) {
-        case "pollShowResultMessage":
-          processor.handlePollShowResultMessage(message);
+        case "PollShowResultEvtMsg":
+          processor.handlePollShowResultMessage(message, true);
           break;
-        case "pollStartedMessage":
+        case "PollHideResultEvtMsg":
+          processor.handlePollShowResultMessage(message, false);
+          break;
+        case "PollStartedEvtMsg":
           processor.handlePollStartedMesage(message);
           break;
-        case "pollStoppedMessage":
+        case "PollStoppedEvtMsg":
           processor.handlePollStoppedMesage(message);
           break;
-        case "pollUserVotedMessage":
+        case "UserRespondedToPollEvtMsg":
           processor.handlePollUserVotedMessage(message);
           break;
       }

@@ -67,7 +67,7 @@ public class Constants {
   public static final String RECORDING_FILE                  = "recording_file";
   public static final String ANNOTATION                      = "annotation";
   public static final String WHITEBOARD_ID                   = "whiteboard_id";
-  public static final String ENABLE                          = "enable";
+  public static final String MULTI_USER                      = "multi_user";
   public static final String PRESENTER                       = "presenter";
   public static final String USERS                           = "users";
   public static final String EMOJI_STATUS                    = "emoji_status";
@@ -87,6 +87,7 @@ public class Constants {
   public static final String SHAPES                          = "shapes"; 
   public static final String SHAPE                           = "shape";
   public static final String SHAPE_ID                        = "shape_id";    
+  public static final String FULL_CLEAR                      = "full_clear";
   public static final String PRESENTATION                    = "presentation";
   public static final String ID                              = "id";
   public static final String CURRENT                         = "current";
@@ -126,13 +127,6 @@ public class Constants {
   public static final String PERM_LOCK_ON_JOIN               = "lockOnJoin";
   public static final String PERM_LOCK_ON_JOIN_CONFIG        = "lockOnJoinConfigurable";
   public static final String ENABLED                         = "enabled";
-  public static final String START_INDEX                     = "start_index";
-  public static final String END_INDEX                       = "end_index";
-  public static final String LOCALE                          = "locale";
-  public static final String LOCALE_CODE                      = "locale_code";
-  public static final String TEXT                            = "text";
-  public static final String OWNER_ID                        = "owner_id";
-  public static final String CAPTION_HISTORY                 = "caption_history";
   public static final String AVATAR_URL                      = "avatarURL";
   public static final String STUNS                           = "stuns";
   public static final String TURNS                           = "turns";
@@ -140,4 +134,10 @@ public class Constants {
   public static final String URL                             = "url";
   public static final String TTL                             = "ttl";
   public static final String PASSWORD                        = "password";
+  public static final String GUEST                           = "guest";
+  public static final String WAITING_FOR_ACCEPTANCE          = "waiting_for_acceptance";
+  public static final String DOWNLOADABLE                    = "downloadable";
+  public static final String GUEST_POLICY                    = "guest_policy";
+  public static final String SET_BY                          = "set_by";
+  public static final String METADATA                        = "metadata";
 }

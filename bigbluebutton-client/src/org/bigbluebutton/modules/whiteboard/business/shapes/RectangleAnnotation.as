@@ -19,24 +19,20 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
-	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
+	import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 
 	public class RectangleAnnotation extends DrawAnnotation
 	{
-		private var _type:String = DrawObject.RECTANGLE;
+		private var _type:String = AnnotationType.RECTANGLE;
 		private var _shape:Array;
 		private var _color:uint;
-		private var _fillColor:uint;
-		private var _thickness:uint;
-		private var _fill:Boolean;
-		private var _transparent:Boolean;
+		private var _thickness:Number;
 		
-		public function RectangleAnnotation(segment:Array, color:uint, thickness:uint, trans:Boolean)
+		public function RectangleAnnotation(segment:Array, color:uint, thickness:Number)
 		{
 			_shape = segment;
 			_color = color;
 			_thickness = thickness;
-			_transparent = trans;
 		}
 		
 		private function optimize(segment:Array):Array {
@@ -54,7 +50,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return shape;
 		}
 		
-		override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
+		override public function createAnnotation(wbId:String):Annotation {
 			var ao:Object = new Object();
 			ao["type"] = _type;
 			ao["points"] = optimize(_shape);
@@ -62,19 +58,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			ao["thickness"] = _thickness;
 			ao["id"] = _id;
 			ao["status"] = _status;
-			ao["transparency"] = _transparent;
 			
-			if (ctrlKeyPressed) {
-				ao["square"] = true;
-			} else {
-				ao["square"] = false;
-			}
-			
-      var wbId:String = wbModel.getCurrentWhiteboardId();
       if (wbId != null) {
         ao["whiteboardId"] = wbId;
       }
-      
       
 			return new Annotation(_id, _type, ao);
 		}

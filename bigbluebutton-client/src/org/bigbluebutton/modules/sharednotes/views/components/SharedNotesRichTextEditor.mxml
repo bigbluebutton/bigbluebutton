@@ -1,0 +1,1364 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!---
+ The RichTextEditor control lets users enter and format text. The text characteristics that users can vary
+ include the font family, color, size, and style, and other properties such as  text alignment, bullets and
+ URL links. The control consists of a Panel control with two direct children:
+ <ul>
+  <li>A Text Area control where users can enter text.</li>
+  <li>A Container with format controls that let a
+ user specify the text characteristics. The format controls affect text being typed or selected text.</li>
+ </ul>
+ <p>The RichTextEditor has a default height and width of 300 by 325 pixels
+ and a default minimum height and width of 200 by 220 pixels.
+ If you put a RichTextEditor control in a DividedBox control, make sure that
+ the DividedBox control is large enough to contain the RichTextEditor control
+ at its minimum dimensions.
+ Also, you can explicitly set the RichTextEditor control's minHeight or
+ minWidth property to <code>NaN</code> to let the DividedBox container
+ reduce the control's dimensions to 0.</p>
+ <p>The following table describes the  subcontrols that you can access and modify:</p>
+ <table class="innertable" >
+  <tr>
+    <th>Control Type </th>
+    <th>ID</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><a href="../controls/TextArea.html">TextArea</a></td>
+    <td>textArea</td>
+    <td>Area where the user can enter text.</td>
+  </tr>
+  <tr>
+    <td><a href="../core/Container.html">Container</a></td>
+    <td>toolbar</td>
+    <td>The container for the formatting controls; puts the controls in a single
+        horizontal row, if they fit, or multiple rows, otherwise.</td>
+  </tr>
+  <tr>
+    <td><a href="../controls/ComboBox.html">ComboBox</a></td>
+    <td>fontFamilyCombo</td>
+    <td>Specifies the text font family. The ComboBox dataProvider is an Array of Strings with the following values:
+     <ul>
+         <li>_sans</li>
+         <li>_serif</li>
+         <li>_typewriter</li>
+         <li>Arial</li>
+         <li>Courier</li>
+         <li>Courier New</li>
+         <li>Geneva</li>
+         <li>Georgia</li>
+         <li>Helvetica</li>
+         <li>Times New Roman</li>
+         <li>Times</li>
+         <li>Verdana (default)</li>
+    </ul></td>
+  </tr>
+  <tr>
+    <td><a href="../controls/ComboBox.html">ComboBox</a></td>
+    <td>fontSizeCombo</td>
+    <td>Specifies the font size. The ComboBox dataProvider is an Array of Strings with the following values:
+        8, 9, 10 (default), 11, 12, 14, 16, 18, 20, 24, 26, 28, 36, 48, 72.
+    <p><strong>Note:</strong>This specification is the actual pixel value for the font size. These sizes are not equivalent to the
+        relative font sizes specified in HTML using the <code>size</code> attribute of the &lt;font&gt; tag.</p></td>
+  </tr>
+  <tr>
+    <td><a href="../containers/HBox.html">HBox</a></td>
+    <td>toolBar2</td>
+    <td>Contains the font characteristic buttons.</td>
+  </tr>
+  <tr>
+    <td><a href="../controls/Button.html">Button</a></td>
+    <td>boldButton</td>
+    <td>When toggled to selected=&quot;true&quot;, sets the font to bold. </td>
+  </tr>
+  <tr>
+    <td><a href="../controls/Button.html">Button</a></td>
+    <td>italicButton</td>
+    <td>When toggled to selected=&quot;true&quot;, sets the font to italic. </td>
+  </tr>
+  <tr>
+    <td><a href="../controls/Button.html">Button</a></td>
+    <td>underlineButton</td>
+    <td>When toggled to selected=&quot;true&quot;, sets the font to underlined.</td>
+  </tr>
+  <tr>
+    <td><a href="../controls/ColorPicker.html">ColorPicker</a></td>
+    <td>colorPicker</td>
+    <td>Specifies the color of the text. </td>
+  </tr>
+  <tr>
+    <td><a href="../controls/ToggleButtonBar.html">ToggleButtonBar</a></td>
+    <td>alignButtons</td>
+    <td>Specifies the text alignment. The control's data provider consists of an Array Of objects, with the object <code>action</code> field specifying the justification type. The available actions are as follows:
+      <ul>
+        <li>left (default) </li>
+    <li>center</li>
+    <li>right</li>
+    <li>justify</li>
+    </ul></td>
+  </tr>
+  <tr>
+    <td><a href="../controls/Button.html">Button</a></td>
+    <td>bulletButton</td>
+    <td>When toggled to selected=&quot;true&quot;, sets the current line, or the selected line, to a list item, preceded by a bullet.</td>
+  </tr>
+  <tr>
+    <td><a href="../controls/TextInput.html">TextInput</a></td>
+    <td>linkTextInput</td>
+    <td>This field is enabled only when text is selected.
+        When the user enters a URL in this field and presses the Enter key, Flex inserts
+        the equivalent of an HTML <code>&lt;a href=&quot;<em>user_text</em>&quot;
+        target=&quot;blank&quot;&gt;&lt;/a&gt;</code> tag in the TextArea subcontrol
+        at around the currently selected text.
+
+        <p>Flex initially fills this control with the text specified by the
+        <code>defaultLinkProtocol</code> property; users can append the rest of the link
+        to this text, or replace it.</p>
+ </td>
+  </tr>
+ </table>
+
+ <p>To access one of the subcontrols, you can use syntax similar to the following:
+ <pre>
+ myRTE.toolBar2.setStyle("backgroundColor", 0xCC6633);
+ </pre>
+ </p>
+
+ <p>The RichTextEditor control has the following default sizing
+    characteristics:</p>
+    <table class="innertable">
+       <tr>
+          <th>Characteristic</th>
+          <th>Description</th>
+       </tr>
+       <tr>
+          <td>Default size</td>
+          <td>325 pixels wide by 300 pixels high</td>
+       </tr>
+       <tr>
+          <td>Minimum size</td>
+          <td>220 pixels wide by 200 pixels high</td>
+       </tr>
+       <tr>
+          <td>Maximum size</td>
+          <td>10000 by 10000 pixels</td>
+       </tr>
+    </table>
+
+  @mxml
+
+  <p>The &lt;mx:RichTextEditor&gt; tag inherits all the members
+  of its parent and adds the following members:</p>
+ <pre>
+  &lt;RichTextEditor
+    <strong>Properties</strong>
+    defaultLinkProtocol="http://"
+    htmlText=""
+    showControlBar="true | false"
+    showToolTips="false | true"
+    text=""
+
+    <strong>Events</strong>
+    change
+  /&gt;
+
+ </pre>
+
+ @see mx.containers.ControlBar
+ @see mx.containers.Panel
+ @see mx.controls.ToggleButtonBar
+ @see mx.controls.Button
+ @see mx.controls.ColorPicker
+ @see mx.controls.ComboBox
+ @see mx.controls.TextArea
+ @see mx.controls.TextInput
+
+ @includeExample examples/RichTextEditorExample.mxml
+
+ @langversion 3.0
+ @playerversion Flash 9
+ @playerversion AIR 1.1
+ @productversion Flex 3
+ -->
+ <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
+    <fx:Metadata>
+        <![CDATA[
+        /**
+        * Dispatched when the user changes the contents or format of the text in the
+        * TextArea control.
+        * This event is not dispatched if you change the TextArea contents by
+        * resetting the <code>text</code> or <code>htmlText</code> property.
+        *
+        * @eventType flash.events.Event.CHANGE
+        *
+        *  @langversion 3.0
+        *  @playerversion Flash 9
+        *  @playerversion AIR 1.1
+        *  @productversion Flex 3
+        */
+        [Event(name="change", type="flash.events.Event")]
+
+        [DefaultTriggerEvent("change")]
+
+        /**
+         *  Name of the CSS Style declaration to use for the styles for the TextArea.
+         *  By default, the TextArea uses the the RichTextEditor's inheritable styles.
+         *
+         *  @langversion 3.0
+         *  @playerversion Flash 9
+         *  @playerversion AIR 1.1
+         *  @productversion Flex 3
+         */
+        [Style(name="textAreaStyleName", type="String", inherit="no")]
+
+        [IconFile("RichTextEditor.png")]
+
+        [Exclude(name="alignButtons", kind="property")]
+        [Exclude(name="boldButton", kind="property")]
+        [Exclude(name="bulletButton", kind="property")]
+        [Exclude(name="colorPicker", kind="property")]
+        [Exclude(name="defaultButton", kind="property")]
+        [Exclude(name="fontFamilyArray", kind="property")]
+        [Exclude(name="fontFamilyCombo", kind="property")]
+        [Exclude(name="fontSizeArray", kind="property")]
+        [Exclude(name="fontSizeCombo", kind="property")]
+        [Exclude(name="icon", kind="property")]
+        [Exclude(name="italicButton", kind="property")]
+        [Exclude(name="label", kind="property")]
+        [Exclude(name="layout", kind="property")]
+        [Exclude(name="linkTextInput", kind="property")]
+        [Exclude(name="toolBar", kind="property")]
+        [Exclude(name="toolBar2", kind="property")]
+        [Exclude(name="underlineButton", kind="property")]
+        ]]>
+    </fx:Metadata>
+	 <fx:Declarations>
+    <fx:Array id="fontFamilyArray">
+        <fx:String>_sans</fx:String>
+        <fx:String>_serif</fx:String>
+        <fx:String>_typewriter</fx:String>
+        <fx:String>Arial</fx:String>
+        <fx:String>Courier</fx:String>
+        <fx:String>Courier New</fx:String>
+        <fx:String>Geneva</fx:String>
+        <fx:String>Georgia</fx:String>
+        <fx:String>Helvetica</fx:String>
+        <fx:String>Times New Roman</fx:String>
+        <fx:String>Times</fx:String>
+        <fx:String>Verdana</fx:String>
+    </fx:Array>
+    <fx:Array id="fontSizeArray">
+        <fx:String>8</fx:String>
+        <fx:String>9</fx:String>
+        <fx:String>10</fx:String>
+        <fx:String>11</fx:String>
+        <fx:String>12</fx:String>
+        <fx:String>14</fx:String>
+        <fx:String>16</fx:String>
+        <fx:String>18</fx:String>
+        <fx:String>20</fx:String>
+        <fx:String>22</fx:String>
+        <fx:String>24</fx:String>
+        <fx:String>26</fx:String>
+        <fx:String>28</fx:String>
+        <fx:String>36</fx:String>
+        <fx:String>48</fx:String>
+        <fx:String>72</fx:String>
+    </fx:Array>
+	 </fx:Declarations>
+
+    <fx:Script>
+    <![CDATA[
+
+    import flash.events.Event;
+    import flash.events.FocusEvent;
+    import flash.events.KeyboardEvent;
+    import flash.events.MouseEvent;
+    import flash.events.TextEvent;
+    import flash.text.TextFormat;
+    
+    import mx.collections.ArrayCollection;
+    import mx.controls.textClasses.TextRange;
+    import mx.core.IUITextField;
+    import mx.core.UITextFormat;
+    import mx.core.mx_internal;
+    
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+    use namespace mx_internal;
+
+    private static const LOGGER:ILogger = getClassLogger(SharedNotesRichTextEditor);
+
+    /**
+    * A carret position control to handle the Paste action from mouse ContextMenu to comply with the
+    * text formatting rules of the Shared Notes Rich Text Editor.
+    */
+    public var pasteCarIndex:int = -1;
+    public var retPasteCarIndex:int = -1;
+
+    /**
+     * The ToolTip that appears when the user hovers over the font drop-down list. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Font Family"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var fontFamilyToolTip:String = "Font Family";
+    /**
+     * The ToolTip that appears when the user hovers over the font size drop-down list. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Font Size"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var fontSizeToolTip:String = "Font Size";
+    /**
+     * The ToolTip that appears when the user hovers over the text bold button. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Bold"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var boldToolTip:String = "Bold";
+    /**
+     * The ToolTip that appears when the user hovers over the text italic button. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Italic"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var italicToolTip:String = "Italic";
+    /**
+     * The ToolTip that appears when the user hovers over the text underline button. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Underline"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var underlineToolTip:String = "Underline";
+    /**
+     * The ToolTip that appears when the user hovers over the ColorPicker control. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Color"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var colorPickerToolTip:String = "Color";
+    /**
+     * The ToolTip that appears when the user hovers over the text alignment buttons. All the buttons
+     * share the same ToolTip. To view ToolTips, you must also set the <code>showToolTips</code>
+     * property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Align"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var alignToolTip:String = "Align";
+    /**
+     * The ToolTip that appears when the user hovers over the bulleted list button. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     *
+     * @default "Bullet"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public var bulletToolTip:String = "Bullet";
+    /**
+     * The ToolTip that appears when the user hovers over the link text input field. To view ToolTips,
+     * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
+     * @default "Link"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     *
+     */
+    public var linkToolTip:String = "Link";
+    private var linkTextCommitted:Boolean = false;
+    private var showControlBarChanged:Boolean = false;
+    private var showToolTipsChanged:Boolean = false;
+    private var textChanged:Boolean = false;
+    private var htmlTextChanged:Boolean = false;
+    private var previousTextFormat:TextFormat = null;
+    private var textFormatChanged:Boolean = false;
+    // -1 is used to force updation of the ToolBar styles
+    private var lastCaretIndex:int = -1;
+    private var invalidateToolBarFlag:Boolean = false;
+    private var firstTime:Boolean = true;
+
+    /*
+    public function RichTextEditor()
+    {
+        super();
+    }
+    */
+
+    //--------------------------------------------------------------------------
+    //
+    //  Properties
+    //
+    //--------------------------------------------------------------------------
+    //----------------------------------
+    //  defaultLinkProtocol
+    //----------------------------------
+    private var _defaultLinkProtocol:String = "http://";
+    [Inspectable(defaultValue="http://")]
+
+    /**
+     * The default protocol string to use at the start of link text.
+     * This string appears in the LinkTextInput subcontrol, so users do
+     * not have to type the protocol identifier when entering link text.
+     *
+     * @default "http://"
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get defaultLinkProtocol():String
+    {
+        return _defaultLinkProtocol;
+    }
+    /**
+     * @private
+     */
+    public function set defaultLinkProtocol(value:String):void
+    {
+        _defaultLinkProtocol = value;
+
+        if (linkTextInput)
+            linkTextInput.text = _defaultLinkProtocol;
+    }
+    //----------------------------------
+    //  showControlBar
+    //----------------------------------
+    private var _showControlBar:Boolean = true;
+    [Inspectable(category="General", defaultValue="true")]
+
+    /**
+     * Specifies whether to display the control bar that contains the text
+     * formatting controls.
+     *
+     * @default true
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get showControlBar():Boolean
+    {
+        return _showControlBar;
+    }
+    /**
+     * @private
+     */
+    public function set showControlBar(value:Boolean):void
+    {
+        _showControlBar = value;
+        showControlBarChanged = true;
+        invalidateProperties();
+    }
+    //----------------------------------
+    //  showToolTips
+    //----------------------------------
+    private var _showToolTips:Boolean = false;
+    [Inspectable(defaultValue="false")]
+
+    /**
+     * Specifies whether to display tooltips for the text formatting controls.
+     *
+     * @default false
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get showToolTips():Boolean
+    {
+        return _showToolTips;
+    }
+    /**
+     * @private
+     */
+    public function set showToolTips(value:Boolean):void
+    {
+        _showToolTips = value;
+        showToolTipsChanged = true;
+        invalidateProperties();
+    }
+    //----------------------------------
+    //  selection
+    //----------------------------------
+    /**
+     *  A TextRange object containing the selected text in the TextArea subcontrol.
+     *
+     *  @see mx.controls.textClasses.TextRange
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get selection():TextRange
+    {
+        return new TextRange(this, true);
+    }
+    //----------------------------------
+    //  text
+    //----------------------------------
+    private var _text:String = "";
+    [Bindable("valueCommit")]
+    [CollapseWhiteSpace]
+    [NonCommittingChangeEvent("change")]
+    [Inspectable(category="General")]
+    /**
+     * Plain text without markup that displays in the RichTextEditor control's TextArea subcontrol.
+     * You cannot set this property and the <code>htmlText</code> property simultaneously.
+     * If you set one property, it replaces any value set using the other property.
+     * You can get both properties; the <code>text</code> property always returns a plain
+     * text String with no formatting information.
+     * For more information on using this property, see the TextArea documentation.
+     *
+     * @default ""
+     *
+     * @see mx.controls.TextArea
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get text():String
+    {
+        return textArea ? textArea.text : _text;
+    }
+    /**
+     * @private
+     */
+    public function set text(value:String):void
+    {
+        _text = value;
+        textChanged = true;
+        invalidateProperties();
+    }
+    //----------------------------------
+    //  htmlText
+    //----------------------------------
+    private var _htmlText:String = "";
+    [Bindable("valueCommit")]
+    [CollapseWhiteSpace]
+    [NonCommittingChangeEvent("change")]
+    [Inspectable(category="General")]
+    /**
+     * Text containing HTML markup that displays in the RichTextEditor
+     * control's TextArea subcontrol.
+     * You cannot set this property and the <code>text</code> property simultaneously.
+     * If you set one property, it replaces any value set using  the other property.
+     * You can get both properties; the <code>htmlText</code> property always returns
+     * a String containing HTML markup that represents the current text formatting.
+     * For more information on using this property, see the TextArea documentation.
+     *
+     * @default ""
+     *
+     * @see mx.controls.TextArea
+     *
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */
+    public function get htmlText():String
+    {
+        return textArea ? textArea.htmlText : _htmlText;
+    }
+    /**
+     * @private
+     */
+    public function set htmlText(value:String):void
+    {
+        _htmlText = value;
+        htmlTextChanged = true;
+        invalidateProperties();
+    }
+    //--------------------------------------------------------------------------
+    //
+    //  Overridden methods
+    //
+    //--------------------------------------------------------------------------
+    /**
+     * @private
+     */
+    override protected function commitProperties():void
+    {
+        super.commitProperties();
+        if (firstTime)
+        {
+            firstTime = false;
+            var textAreaStyleName:String = getStyle(
+                                "textAreaStyleName");
+            if (textAreaStyleName)
+                textArea.styleName = textAreaStyleName;
+            textArea.getTextField().alwaysShowSelection = true;
+        }
+
+        if (showControlBarChanged)
+        {
+            if (_showControlBar)
+            {
+                controlBar.height = NaN;
+                controlBar.visible = true;
+            }
+            else
+            {
+                controlBar.height = 0;
+                controlBar.visible = false;
+            }
+            showControlBarChanged = false;
+        }
+
+        if (showToolTipsChanged)
+        {
+            if (_showToolTips)
+            {
+                fontFamilyCombo.toolTip = fontFamilyToolTip;
+                fontSizeCombo.toolTip = fontSizeToolTip;
+                boldButton.toolTip = boldToolTip;
+                italicButton.toolTip = italicToolTip;
+                underlineButton.toolTip = underlineToolTip;
+                colorPicker.toolTip = colorPickerToolTip;
+                alignButtons.toolTip = alignToolTip;
+                bulletButton.toolTip = bulletToolTip;
+                linkTextInput.toolTip = linkToolTip;
+            }
+            else
+            {
+                fontFamilyCombo.toolTip = "";
+                fontSizeCombo.toolTip = "";
+                boldButton.toolTip = "";
+                italicButton.toolTip = "";
+                underlineButton.toolTip = "";
+                colorPicker.toolTip = "";
+                alignButtons.toolTip = "";
+                bulletButton.toolTip = "";
+                linkTextInput.toolTip = "";
+            }
+            showToolTipsChanged = false;
+        }
+
+        if (textChanged || htmlTextChanged)
+        {
+            // Revert previously set TextFormat.
+            var tf:UITextFormat = IUITextField(textArea.getTextField()).getUITextFormat();
+            // bullet style is not exposed in flex
+            // hence has to be explicitly defaulted.
+            tf.bullet = false;
+            textArea.getTextField().defaultTextFormat = tf;
+            if (textChanged)
+            {
+                    textArea.text = _text;
+                textChanged = false;
+            }
+            else
+            {
+                    textArea.htmlText = _htmlText;
+                htmlTextChanged = false;
+            }
+        }
+    }
+
+    /**
+     * @private
+     */
+    override protected function measure():void
+    {
+        // Called only when explicitWidth and
+        // explicitHeight are set to NaN, since
+        // we have set width and height explicitly
+        // for RTE's panel.
+        super.measure();
+        measuredMinWidth = 220;
+        measuredWidth = 320;
+        measuredMinHeight = 200;
+        measuredHeight = 300;
+    }
+    /**
+     *  @private
+     */
+    override public function styleChanged(styleProp:String):void
+    {
+        super.styleChanged(styleProp);
+        if (styleProp == null || styleProp == "textAreaStyleName")
+        {
+            if (textArea)
+            {
+                var textAreaStyleName:String = getStyle("textAreaStyleName");
+                textArea.styleName = textAreaStyleName;
+            }
+        }
+
+        if (!invalidateToolBarFlag)
+        {
+            invalidateToolBarFlag = true;
+            callLater(getTextStyles);
+        }
+    }
+    //--------------------------------------------------------------------------
+    //
+    //  Methods
+    //
+    //--------------------------------------------------------------------------
+    private function setTextStyles(type:String, value:Object = null):void
+    {
+        var tf:TextFormat;
+        var wholeParagraph:Boolean = false;
+        var beginIndex:int = textArea.getTextField().selectionBeginIndex;
+        var endIndex:int = textArea.getTextField().selectionEndIndex;
+        if (beginIndex == endIndex)
+        {
+            tf = previousTextFormat;
+        }
+        else {
+            tf = new TextFormat();
+            var lines:ArrayCollection = getLinesList(beginIndex, endIndex);
+        }
+
+        if (type == "bold" || type == "italic" || type == "underline")
+        {
+            tf[type] = value;
+        }
+        else if (type == "align" || type == "bullet" || type == "font" || type == "size" || type == "color" || type == 'kerning')
+        {
+            wholeParagraph = true;
+            // Apply the paragraph styles to the whole paragraph instead of just
+            // the selected text
+            if (beginIndex == endIndex)
+            {
+                tf = new TextFormat();
+                beginIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex);
+                beginIndex = Math.max(0, beginIndex);
+                endIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex) +
+                        textArea.getTextField().getParagraphLength(beginIndex);
+            }
+            else
+            {
+                beginIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex);
+                beginIndex = Math.max(0, beginIndex);
+                endIndex = textArea.getTextField().getFirstCharInParagraph(endIndex);
+                endIndex = textArea.getTextField().getFirstCharInParagraph(endIndex) +
+                        textArea.getTextField().getParagraphLength(endIndex);
+            }
+            if (endIndex > textArea.text.length)
+            {
+                endIndex--;
+            }
+            if (type == "font")
+            {
+                tf[type] = fontFamilyCombo.text;
+                previousTextFormat[type] = fontFamilyCombo.text;
+            }
+            else if (type == "size")
+            {
+                var fontSize:uint = uint(fontSizeCombo.text);
+                if (fontSize > 0)
+                {
+                    tf[type] = fontSize;
+                    previousTextFormat[type] = fontSize;
+                }
+            }
+            else if (type == "color")
+            {
+                tf[type] = uint(colorPicker.selectedColor);
+                previousTextFormat[type] = uint(colorPicker.selectedColor);
+            }
+            else if(type == "kerning")
+            {
+                tf[type] = value;
+                previousTextFormat[type] = value;
+            }
+            else
+            {
+                tf[type] = value;
+                previousTextFormat[type] = value;
+            }
+            if (!endIndex)
+                textArea.getTextField().defaultTextFormat = tf;
+        }
+        else if (type == "url")
+        {
+            if (value != defaultLinkProtocol && value != "")
+            {
+                tf[type] = value;
+                tf["target"] = "_blank";
+            }
+            else if (tf[type] != "")
+            {
+                tf[type] = "";
+                tf["target"] = "";
+            }
+        }
+        textFormatChanged = true;
+
+        if (beginIndex == endIndex)
+        {
+            previousTextFormat = tf;
+        }
+        else
+        {
+            if (wholeParagraph)
+            {
+                textArea.getTextField().setTextFormat(tf,beginIndex,endIndex);
+            }
+            else
+            {
+                for each (var line:Array in lines)
+                {
+                    textArea.getTextField().setTextFormat(tf,line[0],line[1]);
+                }
+            }
+        }
+        dispatchEvent(new Event("change"));
+
+        var caretIndex:int = textArea.getTextField().caretIndex;
+        var lineIndex:int = textArea.getTextField().getLineIndexOfChar(caretIndex);
+        textArea.invalidateDisplayList();
+        textArea.validateDisplayList();
+        // Scroll to make the line containing the caret under viewable area
+        while (lineIndex >= textArea.getTextField().bottomScrollV)
+        {
+            textArea.verticalScrollPosition++;
+        }
+        callLater(textArea.setFocus);
+    }
+    private function getTextStyles():void
+    {
+        if (!textArea)
+            return;
+
+        var tf:TextFormat;
+        var beginIndex:int = textArea.getTextField().selectionBeginIndex;
+        var endIndex:int = textArea.getTextField().selectionEndIndex;
+        if (beginIndex == endIndex)
+            linkTextInput.enabled = false;
+        else
+            linkTextInput.enabled = true;
+
+        if (textFormatChanged)
+            previousTextFormat = null;
+        if (beginIndex == endIndex)
+        {
+            tf = textArea.getTextField().defaultTextFormat;
+            if (tf.url != "")
+            {
+                var carIndex:int = textArea.getTextField().caretIndex;
+                if (carIndex < textArea.getTextField().length)
+                {
+                    var tfNext:TextFormat=textArea.getTextField().getTextFormat(carIndex, carIndex + 1);
+                    if (!tfNext.url || tfNext.url == "")
+                        tf.url = tf.target = "";
+                }
+                else
+                    tf.url = tf.target = "";
+            }
+        }
+        else
+            tf = textArea.getTextField().getTextFormat(beginIndex,endIndex);
+        if (!previousTextFormat || previousTextFormat.font != tf.font)
+            setComboSelection(fontFamilyCombo, tf.font ? tf.font : "");
+        if (!previousTextFormat || previousTextFormat.size != tf.size)
+            setComboSelection(fontSizeCombo, tf.size ? String(tf.size) : "");
+        if (!previousTextFormat || previousTextFormat.color != tf.color)
+            colorPicker.selectedColor = Number(tf.color);
+
+        if (!previousTextFormat || previousTextFormat.bold != tf.bold)
+            boldButton.selected = tf.bold;
+        if (!previousTextFormat || previousTextFormat.italic != tf.italic)
+            italicButton.selected = tf.italic;
+        if (!previousTextFormat || previousTextFormat.underline != tf.underline)
+            underlineButton.selected = tf.underline;
+        if (!previousTextFormat || previousTextFormat.align != tf.align)
+        {
+            if (tf.align == "left")
+                alignButtons.selectedIndex = 0;
+            else if (tf.align == "center")
+                alignButtons.selectedIndex = 1;
+            else if (tf.align == "right")
+                alignButtons.selectedIndex = 2;
+            else if (tf.align == "justify")
+                alignButtons.selectedIndex = 3;
+        }
+        if (!previousTextFormat || previousTextFormat.bullet != tf.bullet)
+            bulletButton.selected = tf.bullet;
+        if (!previousTextFormat || previousTextFormat.url != tf.url)
+            linkTextInput.text = (tf.url == "" || tf.url == null) ? defaultLinkProtocol : tf.url;
+
+        if (textArea.getTextField().defaultTextFormat != tf)
+            textArea.getTextField().defaultTextFormat = tf;
+        previousTextFormat = tf;
+        textFormatChanged = false;
+
+        lastCaretIndex = textArea.getTextField().caretIndex;
+        invalidateToolBarFlag = false;
+    }
+    private function setComboSelection(combo:ComboBox,val:String):void
+    {
+        var length:uint = combo.dataProvider.length;
+
+        for (var i:uint = 0; i < length; i++)
+        {
+            if (combo.dataProvider.getItemAt(i).toLowerCase() == val.toLowerCase())
+            {
+                combo.selectedIndex = i;
+                return;
+            }
+        }
+        combo.selectedIndex = -1;
+        combo.validateNow();
+        combo.text = val;
+    }
+    /**
+     *  @private
+     *  This method is called when the user clicks on the textArea, drags
+     *  out of it and releases the mouse button outside the TextArea.
+     */
+    private function systemManager_mouseUpHandler(event:MouseEvent):void
+    {
+        if (lastCaretIndex != textArea.getTextField().caretIndex)
+            getTextStyles();
+        else
+        {
+            if (textArea.getTextField().selectionBeginIndex == textArea.getTextField().selectionEndIndex)
+                linkTextInput.enabled = false;
+            else
+                linkTextInput.enabled = true;
+        }
+        systemManager.removeEventListener(
+            MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);
+    }
+
+    //----------------------------------
+    //  Shared Notes
+    //----------------------------------
+    private var refreshSelection:Boolean = false;
+    private var shiftPressed:Boolean = false;
+    private var ctrlPressed:Boolean = false;
+    private var preventTextInput:Boolean = false;
+    private var _maxPasteLength:int = 1024;
+
+    public function set maxPasteLength(value:int):void
+    {
+        _maxPasteLength = value;
+    }
+
+    public function get maxPasteLength():int
+    {
+        return _maxPasteLength;
+    }
+
+    public function restoreVerticalScroll(oldVerticalScroll:Number):void
+    {
+        textArea.getTextField().scrollV = oldVerticalScroll;
+    }
+
+    public function restoreCursor(endIndex:Number, oldPosition:Number):void
+    {
+        var cursorLine:Number = 0;
+
+        if (endIndex == 0 && text.length == 0)
+        {
+            cursorLine = 0;
+        }
+        else if (endIndex == text.length)
+        {
+            cursorLine = textArea.getTextField().getLineIndexOfChar(endIndex - 1);
+        }
+        else
+        {
+            cursorLine = textArea.getTextField().getLineIndexOfChar(endIndex);
+        }
+
+        var relativePositon:Number = cursorLine - textArea.verticalScrollPosition;
+
+        var desloc:Number = relativePositon - oldPosition;
+        textArea.verticalScrollPosition += desloc;
+    }
+
+    public function getOldVerticalScroll():Number
+    {
+
+        var oldVerticalScroll:Number = 0;
+
+        oldVerticalScroll = textArea.getTextField().scrollV;
+
+        return oldVerticalScroll;
+    }
+
+    public function getOldPosition():Number
+    {
+        var oldPosition:Number = 0;
+
+        if (textArea.selectionEndIndex == 0 && text.length == 0)
+        {
+            oldPosition = 0;
+        }
+        else if (textArea.selectionEndIndex == text.length)
+        {
+            oldPosition = textArea.getTextField().getLineIndexOfChar(textArea.selectionEndIndex - 1);
+        }
+        else
+        {
+            oldPosition = textArea.getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
+        }
+
+        oldPosition -= textArea.verticalScrollPosition;
+        return oldPosition;
+    }
+
+    public function patch(patch:String):void
+    {
+        var results:Array;
+
+        var _lastBegin:int = textArea.selectionBeginIndex;
+        var _lastEnd:int = textArea.selectionEndIndex;
+        var oldPosition:Number = getOldPosition();
+        var oldVerticalScroll:Number = getOldVerticalScroll();
+
+        var oldText:String = text;
+        htmlText = DiffPatch.patch(patch, htmlText);
+        validateNow();
+
+        var plainPatch:String = DiffPatch.diff(oldText, text);
+        results = DiffPatch.patchClientText(plainPatch, oldText, _lastBegin, _lastEnd);
+
+        if (results[0][0] == _lastBegin && results[0][1] > _lastEnd)
+        {
+            var str1:String = oldText.substring(_lastBegin, _lastEnd);
+            var str2:String = results[1].substring(_lastBegin, _lastEnd);
+
+            if (str1 != str2)
+            {
+                _lastEnd = results[0][1];
+            }
+
+        }
+        else
+        {
+            _lastBegin = results[0][0];
+            _lastEnd = results[0][1];
+        }
+
+        restoreCursor(_lastEnd, oldPosition);
+        validateNow();
+
+        textArea.selectable = true;
+        textArea.setSelection(_lastBegin, _lastEnd);
+        validateNow();
+
+        //Will update the position of the window next time there is a validate, just before updating the client's view.
+        callLater(restoreVerticalScroll, [oldVerticalScroll]);
+    }
+
+    public function refresh():void
+    {
+//        LOGGER.debug("TextArea refresh")
+        textArea.htmlText = htmlText;
+    }
+
+    private function getLinesList(beginIndex:int, endIndex:int):ArrayCollection
+    {
+        var lines:ArrayCollection = new ArrayCollection();
+        var index:int = beginIndex;
+
+        while (index < endIndex)
+        {
+            var paragraphLength:int = textArea.getTextField().getParagraphLength(index) - 1;
+            var paragraphEndIndex:int = textArea.getTextField().getFirstCharInParagraph(index) +
+                    textArea.getTextField().getParagraphLength(index) - 1;
+            if (endIndex >= paragraphEndIndex + 1 && paragraphLength > 0 && textArea.text.charCodeAt(paragraphEndIndex) != 13)
+            {
+                paragraphEndIndex++;
+            }
+            if (paragraphLength > 0)
+            {
+                if (paragraphEndIndex < endIndex)
+                {
+                    lines.addItem([index, paragraphEndIndex]);
+                    index = paragraphEndIndex;
+                }
+                else
+                {
+                    lines.addItem([index, endIndex]);
+                    break;
+                }
+            }
+            else if (textArea.text.charCodeAt(paragraphEndIndex) != 13)
+            {
+                lines.addItem([index, endIndex]);
+                break;
+            }
+            index++;
+        }
+        return lines;
+    }
+
+    private function clearTextStyle():void
+    {
+        setTextStyles('bold', false);
+        boldButton.selected = false;
+        setTextStyles('italic', false);
+        italicButton.selected = false;
+        setTextStyles('underline', false);
+        underlineButton.selected = false;
+    }
+
+    private function refreshTextStyle():void
+    {
+        setTextStyles('font', previousTextFormat.font);
+        setTextStyles('size', previousTextFormat.size);
+        setTextStyles('color', previousTextFormat.color);
+        setTextStyles('kerning', true);
+    }
+
+    private function checkNavigableButtonDown(e:KeyboardEvent):void
+    {
+        if (e.shiftKey && !shiftPressed)
+        {
+            shiftPressed = true;
+            parentDocument.handleDraggableStatus(false);
+        }
+        if (e.ctrlKey)
+        {
+            preventTextInput = parentDocument.handleCtrlCmd(e);
+            if (!ctrlPressed)
+            {
+                ctrlPressed = true;
+                parentDocument.handleResizableStatus(false);
+            }
+        }
+    }
+
+    private function checkNavigableButtonUp(e:KeyboardEvent):void
+    {
+        if (!e.shiftKey && shiftPressed)
+        {
+            shiftPressed = false;
+            parentDocument.handleDraggableStatus(true);
+        }
+        if (!e.ctrlKey && ctrlPressed)
+        {
+            preventTextInput = false;
+            ctrlPressed = false;
+            parentDocument.handleResizableStatus(true);
+        }
+    }
+
+    private function onKeyDown(event:KeyboardEvent):void
+    {
+        checkNavigableButtonDown(event);
+        if (textArea.selectionBeginIndex != textArea.selectionEndIndex)
+        {
+            var beginIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionBeginIndex);
+            var endIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
+            if (beginIndex != endIndex && ((event.keyCode >= 65 && event.keyCode <= 111) || event.keyCode == 32))
+            {
+                refreshSelection = true;
+            }
+        }
+        if (event.keyCode == 13)
+        {
+            clearTextStyle();
+        }
+        if (textFormatChanged)
+        {
+            textArea.getTextField().defaultTextFormat=previousTextFormat;
+            textFormatChanged = false;
+        }
+    }
+
+    private function onTextInput(e:TextEvent):void
+    {
+        if (e.text.length > 0) refreshSelection = true;
+
+        if (e.text.length > maxPasteLength)
+        {
+            e.preventDefault();
+            parentDocument.throwPasteWarning(e.text.length);
+        }
+
+        if (preventTextInput) e.preventDefault();
+    }
+
+    private function onKeyUp(event:KeyboardEvent):void
+    {
+        checkNavigableButtonUp(event);
+        getTextStyles();
+        if (event.keyCode == 8 || event.keyCode == 46 || refreshSelection) {
+            refreshTextStyle();
+            refreshSelection = false;
+        }
+    }
+
+    private function onChange ( e:Event ):void
+    {
+        if (pasteCarIndex != -1){
+          getTextStyles();
+          refreshTextStyle();
+          retPasteCarIndex = textArea.getTextField().caretIndex;
+          textArea.setSelection(pasteCarIndex,pasteCarIndex);
+          getTextStyles();
+          refreshTextStyle();
+          pasteCarIndex = -1;
+          textArea.setSelection(retPasteCarIndex,retPasteCarIndex);
+        }
+    }
+
+    //This will happen every time the user activate the ContextMenu and can be used to ensure that mouse Paste will comply to the text formatting rules.
+    private function onRightClick ( e:MouseEvent ):void
+    {
+        pasteCarIndex = textArea.getTextField().caretIndex;
+    }
+
+    private function releaseNavigableButton(focus:FocusEvent):void
+    {
+        if (shiftPressed)
+        {
+            shiftPressed = false;
+            parentDocument.handleDraggableStatus(true);
+        }
+        if (ctrlPressed)
+        {
+            ctrlPressed = false;
+            parentDocument.handleResizableStatus(true);
+        }
+    }
+    ]]>
+    </fx:Script>
+    <!--- @private -->
+    <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
+    <mx:TextArea id="textArea"
+            restrict="^\u007F"
+            height="100%"
+            width="100%"
+            minHeight="0"
+            minWidth="0"
+            change="onChange(event); dispatchEvent(event);"
+            valueCommit="dispatchEvent(event);"
+            keyUp="onKeyUp(event);"
+            keyDown="onKeyDown(event);"
+            mouseDown="systemManager.addEventListener(MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);"
+            textInput= "onTextInput(event);"
+            rollOut= "onRightClick(event);"
+            focusOut="releaseNavigableButton(event)"/>
+    <mx:ControlBar>
+        <!--- @private -->
+        <mx:ToolBar id="toolbar"
+                width="100%"
+                horizontalGap="7">
+            <mx:ComboBox id="fontFamilyCombo"
+                editable="true"
+                creationComplete="getTextStyles();lastCaretIndex = -1;"
+                dataProvider = "{fontFamilyArray}"
+                close="setTextStyles('font');"
+                enter="setTextStyles('font');"/>
+            <mx:ComboBox id="fontSizeCombo"
+                editable="true"
+                paddingLeft="2" paddingRight="2"
+                dataProvider = "{fontSizeArray}"
+                close="setTextStyles('size');"
+                enter="setTextStyles('size');"/>
+            <mx:HBox id="toolBar2"
+                    horizontalGap="0">
+                <mx:Button id="boldButton"
+                        width="20"
+                        toggle="true"
+                        icon="{getStyle('iconBold')}"
+                        click="setTextStyles('bold', event.currentTarget.selected);"/>
+                <mx:Button id="italicButton"
+                        width="20"
+                        toggle="true"
+                        icon="{getStyle('iconItalic')}"
+                        click="setTextStyles('italic', event.currentTarget.selected);"/>
+                <mx:Button id="underlineButton"
+                        width="20"
+                        toggle="true"
+                        icon="{getStyle('iconUnderline')}"
+                        click="setTextStyles('underline', event.currentTarget.selected);"/>
+            </mx:HBox>
+            <mx:ColorPicker id="colorPicker"
+                    width="22"
+                    height="22"
+                    close="setTextStyles('color');"/>
+            <mx:VRule height="{alignButtons.height}"/>
+            <mx:ToggleButtonBar id="alignButtons"
+                    buttonWidth="20"
+                    itemClick="setTextStyles('align', ToggleButtonBar(event.currentTarget).dataProvider.getItemAt(ToggleButtonBar(event.currentTarget).selectedIndex).action);">
+                <mx:dataProvider>
+                    <fx:Array>
+                        <fx:Object icon="{getStyle('iconAlignLeft')}" action="left"/>
+                        <fx:Object icon="{getStyle('iconAlignCenter')}" action="center"/>
+                        <fx:Object icon="{getStyle('iconAlignRight')}" action="right"/>
+                        <fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/>
+                    </fx:Array>
+                </mx:dataProvider>
+            </mx:ToggleButtonBar>
+            <mx:Button id="bulletButton"
+                    width="20"
+                    toggle="true"
+                    icon="{getStyle('iconBullet')}"
+                    click="setTextStyles('bullet', event.currentTarget.selected);" />
+            <mx:VRule height="{linkTextInput.height}"/>
+            <mx:TextInput id="linkTextInput"
+                    width="140"
+                    focusOut="if (linkTextCommitted) { trace('already committed'); linkTextCommitted = false; } else { trace('not committed'); setTextStyles('url', linkTextInput.text); linkTextInput.text=defaultLinkProtocol;}"
+                    enter="setTextStyles('url', linkTextInput.text); linkTextInput.text = defaultLinkProtocol; linkTextCommitted = true;"/>
+        </mx:ToolBar>
+    </mx:ControlBar>
+</mx:Panel>

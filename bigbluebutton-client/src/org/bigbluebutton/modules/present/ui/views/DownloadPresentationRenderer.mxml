@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 width="90%"
+		 verticalAlign="middle">
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.present.events.DownloadEvent;
+
+			private var globalDispatch:Dispatcher = new Dispatcher();
+
+			private function downloadPresentation():void {
+				var downloadEvent:DownloadEvent = new DownloadEvent(DownloadEvent.DOWNLOAD_PRESENTATION);
+				downloadEvent.fileNameToDownload = data.id as String;
+				globalDispatch.dispatchEvent(downloadEvent);
+			}
+		]]>
+	</fx:Script>
+	<mx:Label id="presentationNameLabel"
+			  width="{this.width-downloadBtn.width-30}"
+			  text="{data.name as String}"
+			  toolTip="{data.name as String}"
+			  truncateToFit="true" />
+	<mx:Button id="downloadBtn"
+			   label="{ResourceUtil.getInstance().getString('bbb.filedownload.downloadBtn')}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.downloadBtn')}"
+			   styleName="presentationDownloadShowButtonStyle"
+			   click="downloadPresentation()"
+			   buttonMode="true"
+			   enabled="{data.downloadable as Boolean}" />
+</mx:HBox>

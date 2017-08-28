@@ -20,16 +20,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-	implements="org.bigbluebutton.common.IBigBlueButtonModule" 
-	xmlns:example="org.bigbluebutton.modules.example.*">
-	<mx:Script>
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx" layout="absolute" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
+		   xmlns:example="org.bigbluebutton.modules.example.*">
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.modules.example.ExampleChatWindow;
+			
+			
+			private static const LOGGER:ILogger = getClassLogger(ExampleChatModule);
 			
 			private var _moduleName:String = "ExampleChatModule";			
 			private var _attributes:Object;
@@ -37,7 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private function init():void{
-				LogUtil.debug("ExampleChatModule::init");
+				LOGGER.debug("ExampleChatModule::init");
 			}
 			
 			public function get moduleName():String {
@@ -64,9 +70,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
 					_attributes.mode = "LIVE"
-					LogUtil.debug('Setting ExampleChatModule mode: ' + _attributes.mode);
+					LOGGER.debug('Setting ExampleChatModule mode: ' + _attributes.mode);
 				}
-				LogUtil.debug('ExampleChatModule mode: ' + _attributes.mode);
+				LOGGER.debug('ExampleChatModule mode: ' + _attributes.mode);
 				return _attributes.mode;
 			}
 			
@@ -92,6 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 </mx:Module>

@@ -1,17 +1,17 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styles from './styles.scss';
 
-class LoadingScreen extends Component {
-  render() {
-    return (
-      <div className={styles.background}>
-        <div className={styles.spinner}>
-          <div className={styles.bounce1} />
-          <div className={styles.bounce2} />
-          <div className={styles.bounce3} />
-        </div>
-      </div>
-    );
-  }
-}
+const LoadingScreen = ({ children }) => (
+  <div className={styles.background}>
+    <div className={styles.spinner}>
+      <div className={styles.bounce1} />
+      <div className={styles.bounce2} />
+      <div className={styles.bounce3} />
+    </div>
+    <div className={styles.message}>
+      {children}
+    </div>
+  </div>
+);
+
 export default LoadingScreen;

@@ -17,28 +17,38 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   layout="absolute" 
 		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
-		   creationComplete="onCreationComplete()" >
-	<mx:Script>
+		   creationComplete="onCreationComplete()"
+		   xmlns:maps="org.bigbluebutton.modules.sharednotes.maps.*"
+		   xmlns:mate="http://mate.asfusion.com/" >
+
+	<fx:Declarations>
+		<maps:SharedNotesEventMap id="sharedNotesEventMap"/>
+	</fx:Declarations>
+
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBigBlueButtonModule;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.modules.sharednotes.SharedNotesWindow;
-			import org.bigbluebutton.modules.sharednotes.ToolbarButton;
-			import org.bigbluebutton.modules.sharednotes.infrastructure.HTTPServerConnection;
+			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
+			import org.bigbluebutton.modules.sharednotes.events.StopSharedNotesModuleEvent;
 			
-			private var _moduleName:String = "Notes Module";			
+			private static const LOGGER:ILogger = getClassLogger(SharedNotesModule);
+
+			private var _moduleName:String = "Notes Module";
 			private var _attributes:Object;
 			
-			private var globalDispatcher:Dispatcher = new Dispatcher();
+			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("NotesModule Initialized");	
-				globalDispatcher = new Dispatcher();
+				LOGGER.debug("NotesModule Initialized");
+				_globalDispatcher = new Dispatcher();
 			}
 			
 			public function get moduleName():String {
@@ -60,14 +70,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get mode():String {
 				if (_attributes.mode == null) {					
 					_attributes.mode = "LIVE"
-					LogUtil.debug('Setting NotesModule mode: ' + _attributes.mode);
+					LOGGER.debug('Setting NotesModule mode: ' + _attributes.mode);
 				}
-				LogUtil.debug('NotesModule mode: ' + _attributes.mode);
+				LOGGER.debug('NotesModule mode: ' + _attributes.mode);
 				return _attributes.mode;
 			}
 			
 			public function get userid():Number {
-				return _attributes.userid as Number;
+				return _attributes.userid;
 			}
 			
 			public function get role():String {
@@ -75,23 +85,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("notes attr: " + attributes.username);
-				_attributes = attributes;
-				SharedNotesWindow.document = _attributes.room;
-				// The following line has been removed, as the uri should be in 
-				// the URI property in the config.xml file of the client
-					HTTPServerConnection.syncURL = (_attributes.uri as String).replace("RTMP", "http") + "/notes/notes.jsp";
-				addToolbarButton();
+				var event:StartSharedNotesModuleEvent = new StartSharedNotesModuleEvent();
+				event.attributes = attributes;
+				_globalDispatcher.dispatchEvent(event);
 			}
 			
-			public function addToolbarButton():void{
-				var button:ToolbarButton = new ToolbarButton();	   	
-				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-				event.button = button;
-				globalDispatcher.dispatchEvent(event);
+			public function stop():void {
+				var event:StopSharedNotesModuleEvent = new StopSharedNotesModuleEvent(StopSharedNotesModuleEvent.STOP_SHAREDNOTES_MODULE_EVENT);
+				_globalDispatcher.dispatchEvent(event);
 			}
-			
-			public function stop():void {}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Module>

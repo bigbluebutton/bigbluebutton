@@ -20,123 +20,86 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-		xmlns:mx="http://www.adobe.com/2006/mxml" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:mate="http://mate.asfusion.com/"
-		title="Network monitor" 
+		title="{ResourceUtil.getInstance().getString('bbb.bwmonitor.title')}"
 		creationComplete="onCreationComplete()"
 		resizable="false"
-		showCloseButton="false"
+		showCloseButton="true"
 		implements="org.bigbluebutton.common.IBbbModuleWindow"
-		width="210" height="261" minHeight="0" minWidth="0"
+		width="210" height="224" minWidth="0"
 		resize="onResize()">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.utils.Timer;
 			
-			import mx.effects.Fade;
-			import mx.events.EffectEvent;
-			import mx.formatters.NumberFormatter;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.services.BandwidthMonitor;
 			import org.bigbluebutton.main.model.NetworkStatsData;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private static const LOGGER:ILogger = getClassLogger(NetworkStatsWindow);      
+			private static const LOGGER:ILogger = getClassLogger(NetworkStatsWindow);
 
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			private var _updateTimer:Timer = new Timer(1000);
-			private var _numberFormatter:NumberFormatter = new NumberFormatter();
-		
+
 			private function onCreationComplete():void {
 				this.windowControls.maximizeRestoreBtn.visible = false;
 				this.windowControls.minimizeBtn.visible = false;
 				
-				this.x = parent.width - this.width;
-				this.y = parent.height - this.height;
-				
-				_numberFormatter.precision = 2;
-				_numberFormatter.useThousandsSeparator = true;
-
 				_updateTimer.addEventListener(TimerEvent.TIMER, timerHandler);
 				_updateTimer.start();
+
+				runBandwidthMeasurement();
 			}
 			
-	        private function timerHandler(e:TimerEvent):void {
-				labelCurrentDownload.text = _numberFormatter.format(NetworkStatsData.getInstance().currentConsumedDownBW);
-			 	labelTotalDownload.text   = _numberFormatter.format(NetworkStatsData.getInstance().totalConsumedDownBW);
-			 	labelAvailableDownload.text   = _numberFormatter.format(NetworkStatsData.getInstance().measuredDownBW);
-			 	labelDownloadLatency.text   = String(NetworkStatsData.getInstance().measuredDownLatency);
+			private function timerHandler(e:TimerEvent):void {
+				labelCurrentDownload.text = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
+				labelTotalDownload.text = NetworkStatsData.getInstance().formattedTotalConsumedDownBW;
+				labelAvailableDownload.text = NetworkStatsData.getInstance().formattedMeasuredDownBW;
+				labelDownloadLatency.text = NetworkStatsData.getInstance().formattedMeasuredDownLatency;
 
-			 	labelCurrentUpload.text   = _numberFormatter.format(NetworkStatsData.getInstance().currentConsumedUpBW);
-			 	labelTotalUpload.text     = _numberFormatter.format(NetworkStatsData.getInstance().totalConsumedUpBW);
-			 	labelAvailableUpload.text   = _numberFormatter.format(NetworkStatsData.getInstance().measuredUpBW);
-			 	labelUploadLatency.text   = String(NetworkStatsData.getInstance().measuredUpLatency);
-	        }
-        			
+				labelCurrentUpload.text = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
+				labelTotalUpload.text = NetworkStatsData.getInstance().formattedTotalConsumedUpBW;
+				labelAvailableUpload.text = NetworkStatsData.getInstance().formattedMeasuredUpBW;
+				labelUploadLatency.text = NetworkStatsData.getInstance().formattedMeasuredUpLatency;
+			}
+
 			public function getPrefferedPosition():String {
 				return MainCanvas.ABSOLUTE;
 			}
-			
-			private function onResize():void {
-				LOGGER.debug("width={0} height={1}", [width, height]);
+
+			private function onResize():void {}
+
+			private function runBandwidthMeasurement():void {
+				BandwidthMonitor.getInstance().checkClientToServer();
+				BandwidthMonitor.getInstance().checkServerToClient();
 			}
-			
-			public function appear():void {
-				var fader:Fade = new Fade();
-				fader.alphaFrom = 0;
-				fader.alphaTo = 1;
-				fader.duration = 500;
-				fader.target = this;
-//				fader.addEventListener(EffectEvent.EFFECT_START, function(e:EffectEvent):void {
-//					var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-//					windowEvent.window = e.currentTarget as IBbbModuleWindow;
-//					_globalDispatcher.dispatchEvent(windowEvent);
-//				});
-				fader.play();
-				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				windowEvent.window = this;
-				_globalDispatcher.dispatchEvent(windowEvent);
-				this.windowManager.bringToFront(this);
-			}
-			
-			public function disappear():void {
-				var fader:Fade = new Fade();
-				fader.alphaFrom = 1;
-				fader.alphaTo = 0;
-				fader.duration = 500;
-				fader.target = this;
-				fader.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
-					var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-					windowEvent.window = e.target as IBbbModuleWindow;
-					_globalDispatcher.dispatchEvent(windowEvent);
-				});
-				fader.play();
-			}
+
 		]]>
-	</mx:Script>
-	
-	
-	<mx:Panel width="100%" height="100%"
-	 paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" headerHeight="10">
-		<mx:VBox verticalGap="0" width="100%" height="100%">
-			<mx:HBox backgroundColor="haloOrange" width="100%" horizontalAlign="center"><mx:Label fontWeight="bold" text="Upload"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Total: "/><mx:Label id="labelTotalUpload" fontWeight="bold" text="-"/><mx:Label text="MB"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Current: "/><mx:Label id="labelCurrentUpload" fontWeight="bold" text="-"/><mx:Label text="Kb/s"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Available: "/><mx:Label id="labelAvailableUpload" fontWeight="bold" text="-"/><mx:Label text="Mb/s"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Latency: "/><mx:Label id="labelUploadLatency" fontWeight="bold" text="-"/><mx:Label text="ms"/></mx:HBox>
-			<mx:HBox backgroundColor="haloOrange" width="100%" horizontalAlign="center"><mx:Label fontWeight="bold" text="Download"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Total: "/><mx:Label id="labelTotalDownload" fontWeight="bold" text="-"/><mx:Label text="MB"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Current: "/><mx:Label id="labelCurrentDownload" fontWeight="bold" text="-"/><mx:Label text="Kb/s"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Available: "/><mx:Label id="labelAvailableDownload" fontWeight="bold" text="-"/><mx:Label text="Mb/s"/></mx:HBox>
-			<mx:HBox horizontalGap="0"><mx:Label text="Latency: "/><mx:Label id="labelDownloadLatency" fontWeight="bold" text="-"/><mx:Label text="ms"/></mx:HBox>
-		</mx:VBox>
-	</mx:Panel>
+	</fx:Script>
+
+	<mx:VBox verticalGap="0" width="100%" height="100%"
+			 paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10"
+			 verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:HBox backgroundColor="haloOrange" width="100%" horizontalAlign="center"><mx:Label fontWeight="bold" text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.upload')}"/></mx:HBox>
+		<mx:HBox visible="false" includeInLayout="false" horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.total')}: "/><mx:Label id="labelTotalUpload" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.current')}: "/><mx:Label id="labelCurrentUpload" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox visible="false" includeInLayout="false" horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.available')}: "/><mx:Label id="labelAvailableUpload" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.latency')}: "/><mx:Label id="labelUploadLatency" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox backgroundColor="haloOrange" width="100%" horizontalAlign="center"><mx:Label fontWeight="bold" text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.download')}"/></mx:HBox>
+		<mx:HBox visible="false" includeInLayout="false" horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.total')}: "/><mx:Label id="labelTotalDownload" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.current')}: "/><mx:Label id="labelCurrentDownload" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox visible="false" includeInLayout="false" horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.available')}: "/><mx:Label id="labelAvailableDownload" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.latency')}: "/><mx:Label id="labelDownloadLatency" fontWeight="bold" text="-"/></mx:HBox>
+		<mx:HBox horizontalGap="0" width="100%" ><mx:Spacer width="100%"/><mx:Button id="labelRefresh" icon="{getStyle('iconRefresh')}" click="runBandwidthMeasurement()" /></mx:HBox>
+	</mx:VBox>
 
 </CustomMdiWindow>

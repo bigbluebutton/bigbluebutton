@@ -1,10 +1,8 @@
 package org.bigbluebutton.api.util;
 
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ParamsUtil {
   private static final Pattern VALID_ID_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9- ]*$");

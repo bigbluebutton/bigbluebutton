@@ -1,43 +1,38 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { makeCall } from '/imports/ui/services/api';
-import Service from './service.js';
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/api/1.1/meetings';
+import Service from './service';
+import UserList from './component';
 
-import UserList from './component.jsx';
+const UserListContainer = (props) => {
+  const {
+    users,
+    currentUser,
+    openChats,
+    openChat,
+    userActions,
+    isBreakoutRoom,
+    children,
+    meeting,
+    } = props;
 
-class UserListContainer extends Component {
-  render() {
-    const {
-      compact,
-      users,
-      currentUser,
-      openChats,
-      openChat,
-      userActions,
-      isBreakoutRoom,
-      children,
-      meeting,
-    } = this.props;
-
-    return (
-      <UserList
-        compact={compact}
-        users={users}
-        meeting={meeting}
-        currentUser={currentUser}
-        openChats={openChats}
-        openChat={openChat}
-        isBreakoutRoom={isBreakoutRoom}
-        makeCall={makeCall}
-        userActions={userActions}
-      >
-        {children}
-      </UserList>
-    );
-  }
-}
+  return (
+    <UserList
+      users={users}
+      meeting={meeting}
+      currentUser={currentUser}
+      openChats={openChats}
+      openChat={openChat}
+      isBreakoutRoom={isBreakoutRoom}
+      makeCall={makeCall}
+      userActions={userActions}
+    >
+      {children}
+    </UserList>
+  );
+};
 
 export default createContainer(({ params }) => ({
   users: Service.getUsers(),

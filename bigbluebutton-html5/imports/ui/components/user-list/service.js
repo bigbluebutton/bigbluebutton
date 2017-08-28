@@ -1,46 +1,24 @@
-import Users from '/imports/api/users';
-import Chat from '/imports/api/chat';
+import Users from '/imports/api/2.0/users';
+import Chat from '/imports/api/2.0/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
+import mapUser from '/imports/ui/services/user/mapUser';
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const USER_CONFIG = Meteor.settings.public.user;
-const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
-/* TODO: Same map is done in the chat/service we should share this someway */
-
-const mapUser = user => ({
-  id: user.userid,
-  name: user.name,
-  emoji: {
-    status: user.emoji_status,
-    changedAt: user.set_emoji_time,
-  },
-  isPresenter: user.presenter,
-  isModerator: user.role === ROLE_MODERATOR,
-  isCurrent: user.userid === Auth.userID,
-  isVoiceUser: user.voiceUser.joined,
-  isMuted: user.voiceUser.muted,
-  isTalking: user.voiceUser.talking,
-  isListenOnly: user.listenOnly,
-  isSharingWebcam: user.webcam_stream.length,
-  isPhoneUser: user.phone_user,
-  isOnline: user.connection_status === 'online',
-  isLocked: user.locked,
-});
-
 const mapOpenChats = (chat) => {
   const currentUserId = Auth.userID;
-  return chat.message.from_userid !== currentUserId
-    ? chat.message.from_userid
-    : chat.message.to_userid;
+  return chat.fromUserId !== currentUserId
+    ? chat.fromUserId
+    : chat.toUserId;
 };
 
 const sortUsersByName = (a, b) => {
@@ -155,31 +133,28 @@ const sortChats = (a, b) => {
 };
 
 const userFindSorting = {
-  'user.set_emoji_time': 1,
-  'user.role': 1,
-  'user.phone_user': 1,
-  'user._sort_name': 1,
-  'user.userid': 1,
+  emojiTime: 1,
+  role: 1,
+  phoneUser: 1,
+  sortName: 1,
+  userId: 1,
 };
 
 const getUsers = () => {
   const users = Users
-    .find({ 'user.connection_status': 'online' }, userFindSorting)
+    .find({ connectionStatus: 'online' }, userFindSorting)
     .fetch();
 
   return users
-    .map(u => u.user)
     .map(mapUser)
     .sort(sortUsers);
 };
 
 const getOpenChats = (chatID) => {
   let openChats = Chat
-    .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
+    .find({ type: PRIVATE_CHAT_TYPE })
     .fetch()
     .map(mapOpenChats);
-
-  const currentUserId = Auth.userID;
 
   if (chatID) {
     openChats.push(chatID);
@@ -188,12 +163,12 @@ const getOpenChats = (chatID) => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-    .find({ 'user.userid': { $in: openChats } })
-    .map(u => u.user)
+    .find({ userId: { $in: openChats } })
     .map(mapUser)
     .map((op) => {
-      op.unreadCounter = UnreadMessages.count(op.id);
-      return op;
+      const openChat = op;
+      openChat.unreadCounter = UnreadMessages.count(op.id);
+      return openChat;
     });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
@@ -221,18 +196,18 @@ const getOpenChats = (chatID) => {
     id: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
-    unreadCounter: UnreadMessages.count('public_chat_userid'),
+    unreadCounter: UnreadMessages.count(PUBLIC_CHAT_USERID),
   });
 
   return openChats
     .sort(sortChats);
 };
 
-getCurrentUser = () => {
+const getCurrentUser = () => {
   const currentUserId = Auth.userID;
-  const currentUser = Users.findOne({ 'user.userid': currentUserId });
+  const currentUser = Users.findOne({ userId: currentUserId });
 
-  return (currentUser) ? mapUser(currentUser.user) : null;
+  return (currentUser) ? mapUser(currentUser) : null;
 };
 
 export default {

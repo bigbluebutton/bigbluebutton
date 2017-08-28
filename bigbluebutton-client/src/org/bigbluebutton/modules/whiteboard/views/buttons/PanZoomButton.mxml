@@ -18,12 +18,12 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-           width="30" height="30"
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
            click="onClick()" styleName="whiteboardPanZoomButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.panzoom')}" toggle="true"
 		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.panzoom.accessibilityName')}">
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
             import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
@@ -46,5 +46,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 } 					
             }
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>
