@@ -56,7 +56,11 @@ export class Acl {
       let permissions = {};
 
       roles.forEach((role) => {
-        permissions = deepMerge(permissions, this.config[role]);
+        // There is a big issue here, if we just send the content from the this.config
+        // inside the deepMerge, we change both permissions and the config.
+        // Couldn't find a better way to prevent the changing.
+        // The problems occurs in the `sources.shift()`.
+        permissions = deepMerge(permissions, JSON.parse(JSON.stringify(this.config[role])));
       });
 
       return permissions;
@@ -66,6 +70,6 @@ export class Acl {
 
   static containsRole(user) {
     return Match.test(user, Object) &&
-        Match.test(user.roles, Array);
+      Match.test(user.roles, Array);
   }
 }
