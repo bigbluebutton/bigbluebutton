@@ -7,7 +7,7 @@
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged && npm test"
   },
   "lint-staged": {
     "gitDir": "../",
