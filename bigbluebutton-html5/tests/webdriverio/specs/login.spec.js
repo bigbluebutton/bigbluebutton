@@ -23,7 +23,8 @@ describe('Landing page', function () {
         ['chromeBrowser', 'Alex'],
         ['chromeDevBrowser', 'Anton'],
         ['firefoxBrowser', 'Danny'],
-        ['firefoxNightlyBrowser', 'Maxim']
+        ['firefoxNightlyBrowser', 'Maxim'],
+        ['chromeMobileBrowser', 'Oswaldo']
       ]));
 
       LandingPage.joinWithButtonClick();

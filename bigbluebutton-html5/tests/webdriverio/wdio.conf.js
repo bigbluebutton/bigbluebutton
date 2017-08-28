@@ -24,6 +24,16 @@ exports.config = {
         browserName: 'firefox',
         firefox_binary: '/usr/lib/firefox-trunk/firefox-trunk'
       }
+    },
+    chromeMobileBrowser: {
+      desiredCapabilities: {
+        browserName: 'chrome',
+        chromeOptions: {
+          mobileEmulation: {
+            deviceName: 'Apple iPhone 6'
+          }
+        }
+      }
     }
   },
   baseUrl: 'http://localhost:8080',
