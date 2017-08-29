@@ -82,7 +82,6 @@ $Id: $
       import org.bigbluebutton.common.IBbbModuleWindow;
       import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.BreakoutTimerUtil;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.KeyboardUtil;
       import org.bigbluebutton.core.PopUpUtil;
@@ -443,7 +442,7 @@ $Id: $
       }
       
       private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void {
-        BreakoutTimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
+        TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
       }
       
       private function breakoutRoomsListChangeListener(event:CollectionEvent):void {
