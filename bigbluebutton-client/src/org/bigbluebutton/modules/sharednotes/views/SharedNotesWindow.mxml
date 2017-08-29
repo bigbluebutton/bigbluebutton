@@ -124,7 +124,7 @@
 					getDocumentTimer.start();
 					this.addEventListener(FlexEvent.SHOW, onShow);
 					this.addEventListener(FlexEvent.HIDE, onHide);
-				} else {
+				} else if (options.hideAdditionalNotes) {
 					this.visible = LiveMeeting.inst().sharedNotes.mainNoteVisible;
 					BindingUtils.bindSetter(updateAdditionalNoteVisibility, LiveMeeting.inst().sharedNotes, "mainNoteVisible");
 				}

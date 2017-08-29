@@ -27,6 +27,9 @@ package org.bigbluebutton.modules.sharednotes {
 		[Bindable]
 		public var enableDeleteNotes:Boolean = false;
 
+		[Bindable]
+		public var hideAdditionalNotes:Boolean = false;
+
 		public function SharedNotesOptions() {
 			name = "SharedNotesModule";
 		}
