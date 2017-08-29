@@ -56,7 +56,7 @@ class RedisPubSub2x {
       meetingId: meetingId
     }
 
-    return thtis.publishMessage(channel, eventName, header, payload);
+    return this.publishMessage(channel, eventName, header, payload);
   }
 
   publishMessage(channel, eventName, header, payload) {
