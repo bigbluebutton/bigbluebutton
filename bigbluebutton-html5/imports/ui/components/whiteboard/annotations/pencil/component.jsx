@@ -92,16 +92,20 @@ export default class PencilDrawComponent extends Component {
   }
 
   getCoordinates(annotation, slideWidth, slideHeight) {
+    // Final message, display smoothes coordinates
     if (annotation.status === 'DRAW_END') {
       const data = PencilDrawComponent.getFinalCoordinates(annotation, slideWidth, slideHeight);
       this.points = data.points;
       return data.path;
+
+    // Not a final message, but rendering it for the first time, creating a new path
     } else if (!this.path) {
       const data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
       this.points = data.points;
       return data.path;
     }
 
+    // If it's not the first 2 cases - means we just got an update, updating the coordinates
     const data = this.updateCoordinates(annotation, slideWidth, slideHeight);
     this.points = data.points;
     return data.path;

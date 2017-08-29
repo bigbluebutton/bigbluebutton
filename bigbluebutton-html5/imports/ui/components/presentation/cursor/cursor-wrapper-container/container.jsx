@@ -44,10 +44,12 @@ const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest
 
 export default createContainer(() => {
   const { presenterCursorId, multiUserCursorIds } = CursorWrapperService.getCurrentCursorIds();
+  const isMultiUser = CursorWrapperService.getMultiUserStatus();
 
   return {
     presenterCursorId,
     multiUserCursorIds,
+    isMultiUser,
   };
 }, CursorWrapperContainer);
 

@@ -53,4 +53,5 @@ const getCurrentCursorIds = () => {
 
 export default {
   getCurrentCursorIds,
+  getMultiUserStatus,
 };
