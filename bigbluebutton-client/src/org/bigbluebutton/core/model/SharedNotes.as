@@ -8,6 +8,8 @@ package org.bigbluebutton.core.model
   {
     [Bindable]
     public var numAdditionalSharedNotes:Number = 0;
+    [Bindable]
+    public var mainNoteVisible:Boolean = false;
     
     private var activeNotesIds:ArrayCollection = new ArrayCollection();
     
