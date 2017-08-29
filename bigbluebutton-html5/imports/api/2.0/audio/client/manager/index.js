@@ -2,6 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import BaseAudioBridge from '../bridge/base';
 import VertoBridge from '../bridge/verto';
 import SIPBridge from '../bridge/sip';
+import IOSBridge from '../bridge/ios';
 
 class CallStates {
   static get init() {
@@ -69,9 +70,12 @@ class AudioManager {
       return;
     }
     const MEDIA_CONFIG = Meteor.settings.public.media;
-    const audioBridge = MEDIA_CONFIG.useSIPAudio
-      ? new SIPBridge(userData)
-      : new VertoBridge(userData);
+    let audioBridge;
+    if (window.navigator.userAgent === 'BigBlueButton') {
+      audioBridge = new IOSBridge(userData);
+    } else {
+      audioBridge = MEDIA_CONFIG.useSIPAudio ? new SIPBridge(userData) : new VertoBridge(userData);
+    }
 
     if (!(audioBridge instanceof BaseAudioBridge)) {
       throw 'Audio Bridge not compatible';
