@@ -63,15 +63,16 @@ export default class MessageListItem extends Component {
     }
 
     const node = this.text;
+    const { scrollArea } = this.props;
 
     if (isElementInViewport(node)) {
       this.props.handleReadMessage(this.props.time);
     } else {
-      const scrollArea = this.props.scrollArea;
-
-      eventsToBeBound.forEach(
-        e => { scrollArea ? scrollArea.addEventListener(e, this.handleMessageInViewport, false) : null },
-      );
+      if (scrollArea){
+        eventsToBeBound.forEach(
+          e => { scrollArea.addEventListener(e, this.handleMessageInViewport, false) },
+        );
+      }  
     }
   }
 
@@ -80,10 +81,14 @@ export default class MessageListItem extends Component {
       return;
     }
 
-    const scrollArea = this.props.scrollArea;
-    eventsToBeBound.forEach(
-      e => { this.props.scrollArea ? scrollArea.removeEventListener(e, this.handleMessageInViewport, false) : null },
-    );
+    const { scrollArea } = this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        e => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false) },
+      );
+    }
+    
   }
 
   render() {
