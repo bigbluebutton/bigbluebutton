@@ -428,6 +428,14 @@ users|BreakoutRoomSettings {
 	headerHeight : 0;
 }
 
+users|JoinBreakoutRoomWindow {
+	horizontalAlign : center;
+	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
+	paddingBottom   : 24;
+	paddingTop      : 0;
+	verticalGap     : 18;
+}
+
 users|RoomActionsRenderer {
 	paddingLeft     : 5;
 	paddingRight    : 5;
@@ -469,6 +477,26 @@ users|RoomActionsRenderer {
 	backgroundColor : #CCCCCC;
 	verticalAlign   : middle;
 	horizontalAlign : center;
+}
+
+.roomNumberStyle {
+	color         : #25385D;
+	fontSize      : 30;
+	fontWeight    : bold;
+	verticalAlign : middle;
+	textAlign     : center;
+}
+
+.joinBreakoutRoomButton {
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
 }
 
 /*
