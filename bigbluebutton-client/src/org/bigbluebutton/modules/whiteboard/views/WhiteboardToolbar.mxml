@@ -343,5 +343,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Image source="{getStyle('iconWhiteboardThin')}" horizontalAlign="center" width="{BUTTON_SIZE}"/>
   </mx:VBox>
 
-	<mx:Button id="multiUserBtn" enabled="false" visible="false" click="changeMultiUser()" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}" styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"/> 
+	<mx:Button id="multiUserBtn" enabled="false" visible="false" 
+			   click="changeMultiUser()" 
+			   width="{BUTTON_SIZE}" height="{BUTTON_SIZE}" 
+			   styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser')}" /> 
 </mx:VBox>
