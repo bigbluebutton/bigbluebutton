@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
-    <mate:Listener type="{MeetingTimeRemainingEvent.TIME_REMAINING}" method="handleRemainingTimeUpdate" />
+    	<mate:Listener type="{MeetingTimeRemainingEvent.TIME_REMAINING}" method="handleRemainingTimeUpdate" />
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
@@ -199,16 +199,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
         TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec);
       }
-      
-      private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
-         if (toolbarOptions.showMeetingName) {
-              var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
-              if (meetingTitle != null) {
-                  meetingNameLbl.text = meetingTitle;
-               } 
-          }
-          logFlashPlayerCapabilities();
-      }
+
+			private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
+				if (toolbarOptions.showMeetingName) {
+					var meetingTitle:String = LiveMeeting.inst().meeting.name;
+					if (meetingTitle != null) {
+						meetingNameLbl.text = meetingTitle;
+					}
+				}
+
+				if (UsersUtil.isBreakout()) {
+					breakoutRibbon.visible = breakoutRibbon.includeInLayout = true;
+					var sequence:String = StringUtils.substringAfterLast(UsersUtil.getMeetingName(), " ");
+					sequence = StringUtils.substringBefore(sequence, ")");
+					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
+				}
+
+				logFlashPlayerCapabilities();
+			}
 
       private function refreshModeratorButtonsVisibility(e:*):void {
           showGuestSettingsButton = UsersUtil.amIModerator() && usersOptions.enableGuestUI;
@@ -506,9 +514,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
 
-	<mx:VBox id="mainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="middle">
+	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="top">
+		<!-- Breakout room  Ribbon-->
+		<mx:HBox id="breakoutRibbon" width="100%" height="30"
+				 styleName="breakoutRoomRibbon" 
+				 visible="false" includeInLayout="false" >
+			<mx:Label id="breakoutLabel" />
+		</mx:HBox>
 		<!-- Top bar -->
-		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off">
+		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
 			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
 				<mx:VRule styleName="toolbarSeparator" height="10" />

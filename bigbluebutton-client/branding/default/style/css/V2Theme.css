@@ -63,6 +63,7 @@ global {
 mx|Application {
 	backgroundGradientColors : #F1F3F7, #F1F3F7;
 	backgroundColor          : #F1F3F7;
+	paddingTop               : 0;
 }
 
 /*
@@ -123,14 +124,39 @@ mx|Application {
 */
 
 mx|ApplicationControlBar {
+	borderSkin      : ClassReference(null);
 	cornerRadius    : 0;
 	fillAlphas      : 1, 1;
 	fillColors      : #FFFFFF, #FFFFFF;
 	highlightAlphas : 0, 0;
+	paddingBottom   : 0;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingTop      : 0;
+	verticalAlign   : top;
 }
 
 phonecomponents|MuteMeButton {
 	glowFilterColor : #1070D7;
+}
+
+.toolbarMainBox {
+	backgroundColor : #FFFFFF;
+	paddingTop      : 4;
+	paddingBottom   : 4;
+}
+
+.breakoutRoomRibbon {
+	backgroundColor : #1070D7;
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
+.topBoxStyle {
+	paddingLeft  : 8;
+	paddingRight : 8;
 }
 
 .toolbarSeparator {
@@ -802,7 +828,8 @@ views|LockSettings {
 */
 
 views|MainApplicationShell {
-	verticalGap : 0;
+	paddingBottom : 0;
+	verticalGap   : 0;
 }
 
 .logsButton {
