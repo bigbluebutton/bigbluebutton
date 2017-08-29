@@ -41,7 +41,7 @@ export default class MessageListItem extends Component {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
         const node = this.text;
-        const scrollArea = this.props.scrollArea;
+        const { scrollArea } = this.props;
 
         if (isElementInViewport(node)) {
           this.props.handleReadMessage(this.props.time);
@@ -70,7 +70,7 @@ export default class MessageListItem extends Component {
       const scrollArea = this.props.scrollArea;
 
       eventsToBeBound.forEach(
-        e => { this.props.scrollArea ? scrollArea.addEventListener(e, this.handleMessageInViewport, false) : null },
+        e => { scrollArea ? scrollArea.addEventListener(e, this.handleMessageInViewport, false) : null },
       );
     }
   }

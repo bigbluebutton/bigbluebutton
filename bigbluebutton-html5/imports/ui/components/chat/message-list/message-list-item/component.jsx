@@ -54,13 +54,13 @@ export default class MessageListItem extends Component {
   }
 
   componentDidMount() {
-    const scrollArea =  this.props.scrollArea;
-    eventsToBeBound.forEach(
-      e => { this.props.scrollArea 
-              ? scrollArea.addEventListener(e, this.handleMessageInViewport, false) 
-              : null
-            },
-    );
+    const { scrollArea } =  this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        e => { scrollArea.addEventListener(e, this.handleMessageInViewport, false) },
+      );
+    }
 
     this.handleMessageInViewport();
   }
