@@ -2,7 +2,7 @@ import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/api/1.1/meetings';
+import Meetings from '/imports/api/2.0/meetings';
 import Service from './service';
 import UserList from './component';
 
