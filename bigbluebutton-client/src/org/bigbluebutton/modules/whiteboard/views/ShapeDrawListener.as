@@ -18,7 +18,9 @@
  */
 package org.bigbluebutton.modules.whiteboard.views
 {
+  import flash.events.TimerEvent;
   import flash.geom.Point;
+  import flash.utils.Timer;
   
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
@@ -38,13 +40,17 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
     private var _wbId:String = null;
-        
+    private var _localTool:WhiteboardTool = new WhiteboardTool();
+    private var _updateTimer:Timer = new Timer(100, 0);
+    
     public function ShapeDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
                                        shapeFactory:ShapeFactory) {
       _idGenerator = idGenerator;
       _wbCanvas = wbCanvas;
       _shapeFactory = shapeFactory;
+      
+      _updateTimer.addEventListener(TimerEvent.TIMER, onTimer);
     }
     
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool, wbId:String):void {
@@ -62,11 +68,11 @@ package org.bigbluebutton.modules.whiteboard.views
         
         _wbId = wbId;
         
+        _localTool = WhiteboardTool.copy(tool);
+        
         // Generate a shape id so we can match the mouse down and up events. Then we can
         // remove the specific shape when a mouse up occurs.
         _curID = _idGenerator.generateID();
-        
-//        LogUtil.debug("* START count = [" + objCount + "] id=[" + _curID + "]"); 
         
         //normalize points as we get them to avoid shape drift
         var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
@@ -84,12 +90,16 @@ package org.bigbluebutton.modules.whiteboard.views
           //normalize points as we get them to avoid shape drift
           var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
           
-          var statusToSend:String = (_segment.length == 2 ? AnnotationStatus.DRAW_START : AnnotationStatus.DRAW_UPDATE);
+          var sendStart:Boolean = _segment.length == 2;
           
           _segment[2] = np.x;
           _segment[3] = np.y;
           
-          sendShapeToServer(statusToSend, tool);
+          if (sendStart) {
+            sendShapeToServer(AnnotationStatus.DRAW_START);
+          } else {
+            _updateTimer.start();
+          }
         }
       }
     }
@@ -97,32 +107,44 @@ package org.bigbluebutton.modules.whiteboard.views
     public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing) {
-          /**
-            * Check if we are drawing because when resizing the window, it generates
-            * a mouseUp event at the end of resize. We don't want to dispatch another
-            * shape to the viewers.
-            */
-          _isDrawing = false;
-          
-          //normalize points as we get them to avoid shape drift
-          var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
-          
-          _segment[2] = np.x;
-          _segment[3] = np.y;
-          
-          sendShapeToServer(AnnotationStatus.DRAW_END, tool);
-        } /* (_isDrawing) */                
+          sendDrawEnd(mouseX, mouseY);
+        }
       }
     }
     
-    private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
+    public function stopDrawing(mouseX:Number, mouseY:Number):void {
+      if (_isDrawing) {
+        sendDrawEnd(mouseX, mouseY);
+      }
+    }
+    
+    private function sendDrawEnd(mouseX:Number, mouseY:Number):void {
+      _isDrawing = false;
+      
+      //normalize points as we get them to avoid shape drift
+      var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+      
+      _segment[2] = np.x;
+      _segment[3] = np.y;
+      
+      sendShapeToServer(AnnotationStatus.DRAW_END);
+      
+      _updateTimer.stop();
+    }
+    
+    private function onTimer(e:TimerEvent):void {
+      if (_segment.length > 0) {
+        sendShapeToServer(AnnotationStatus.DRAW_UPDATE);
+      }
+    }
+    
+    private function sendShapeToServer(status:String):void {
       if (_segment.length <= 2) {
         // LogUtil.debug("SEGMENT too short");
         return;
       }
                        
-      var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, 
-                                                  tool.fillOn, tool.fillColor, tool.transparencyOn);
+      var dobj:DrawAnnotation = _shapeFactory.createDrawObject(_localTool.toolType, _segment, _localTool.drawColor, _localTool.thickness);
       
       dobj.status = status;
       dobj.id = _curID;

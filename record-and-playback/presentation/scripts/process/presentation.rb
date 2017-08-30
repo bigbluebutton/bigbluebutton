@@ -181,7 +181,8 @@ if not FileTest.directory?(target_dir)
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
-              text["slide-#{page}"] = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", :encoding => 'UTF-8')
+              t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
+              text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
               FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
             end
           end
@@ -210,12 +211,14 @@ if not FileTest.directory?(target_dir)
       File.open("#{target_dir}/presentation_text.json","w") { |f| f.puts presentation_text.to_json }
     end
 
-    # We have to decide whether to actually generate the video file
+    # We have to decide whether to actually generate the webcams video file
     # We do so if any of the following conditions are true:
     # - There is webcam video present, or
     # - There's broadcast video present, or
     # - There are closed captions present (they need a video stream to be rendered on top of)
-    if !Dir["#{raw_archive_dir}/video/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? or captions.length > 0
+    if !Dir["#{raw_archive_dir}/video/*"].empty? or
+        !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? or
+        captions.length > 0
       webcam_width = presentation_props['video_output_width']
       webcam_height = presentation_props['video_output_height']
 

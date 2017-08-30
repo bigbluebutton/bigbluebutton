@@ -139,7 +139,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		public function adjustSlideAfterParentResized():void {			
 			if (fitToPage) {
-				calculateViewportNeededForRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
+				calculateViewportNeededForRegion(_viewedRegionW, _viewedRegionH);
 				displayViewerRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
 				calculateViewportXY();
 				displayPresenterView();
@@ -213,29 +213,37 @@ package org.bigbluebutton.modules.present.ui.views.models
 			viewportW = parentW;
 			viewportH = parentH;
 			
+			/*
+			* For some reason when the viewport values are both whole numbers the clipping doesn't 
+			* function. When the second part of the width/height pair is rounded up and then 
+			* reduced by 0.5 the clipping always seems to happen. This was a long standing, bug 
+			* and if you try to remove the Math.ceil and "-0.5" you better know what you're doing.
+			*             - Chad (Aug 30, 2017)
+			*/
+			
 			if (fitToPage) {
 				// If the height is smaller than the width, we use the height as the base to determine the size of the slide.
-				if (parentH < parentW) {					
+				if (parentH < parentW) {
 					viewportH = parentH;
-					viewportW = ((pageOrigW * viewportH)/pageOrigH);					
+					viewportW = Math.ceil((pageOrigW * viewportH)/pageOrigH)-0.5;
 					if (parentW < viewportW) {
 						viewportW = parentW;
-						viewportH = ((pageOrigH * viewportW)/pageOrigW);
+						viewportH = Math.ceil((pageOrigH * viewportW)/pageOrigW)-0.5;
 					}
 				} else {
 					viewportW = parentW;
-					viewportH = (viewportW/pageOrigW) * pageOrigH;
+					viewportH = Math.ceil((viewportW/pageOrigW) * pageOrigH)-0.5;
 					if (parentH < viewportH) {
 						viewportH = parentH;
-						viewportW = ((pageOrigW * viewportH)/pageOrigH);
-					}												
-				}					
+						viewportW = Math.ceil((pageOrigW * viewportH)/pageOrigH)-0.5;
+					}
+				}
 			} else {
-				viewportH = (viewportW/pageOrigW)*pageOrigH;
-				if (viewportH > parentH) 
+				viewportH = Math.ceil((viewportW/pageOrigW)*pageOrigH)-0.5;
+				if (viewportH > parentH)
 					viewportH = parentH;
-			}		
-		}	
+			}
+		}
 			
 		public function printViewedRegion():void {
 //			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
@@ -304,27 +312,35 @@ package org.bigbluebutton.modules.present.ui.views.models
 			_viewedRegionH = regionH;
 		}
 		
-		public function calculateViewportNeededForRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {			
+		public function calculateViewportNeededForRegion(regionW:Number, regionH:Number):void {
 			var vrwp:Number = pageOrigW * (regionW/HUNDRED_PERCENT);
 			var vrhp:Number = pageOrigH * (regionH/HUNDRED_PERCENT);
 			
+			/*
+			* For some reason when the viewport values are both whole numbers the clipping doesn't 
+			* function. When the second part of the width/height pair is rounded up and then 
+			* reduced by 0.5 the clipping always seems to happen. This was a long standing, bug 
+			* and if you try to remove the Math.ceil and "-0.5" you better know what you're doing.
+			*             - Chad (Aug 30, 2017)
+			*/
+			
 			if (parentW < parentH) {
 				viewportW = parentW;
-				viewportH = (vrhp/vrwp)*parentW;				 
+				viewportH = Math.ceil((vrhp/vrwp)*parentW)-0.5;
 				if (parentH < viewportH) {
 					viewportH = parentH;
-					viewportW = ((vrwp * viewportH)/vrhp);
-//					LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
+					viewportW = Math.ceil((vrwp * viewportH)/vrhp)-0.5;
 				}
 			} else {
 				viewportH = parentH;
-				viewportW = (vrwp/vrhp)*parentH;
+				viewportW = Math.ceil((vrwp/vrhp)*parentH)-0.5;
 				if (parentW < viewportW) {
 					viewportW = parentW;
-					viewportH = ((vrhp * viewportW)/vrwp);
-//					LogUtil.debug("calc viewport resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
+					viewportH = Math.ceil((vrhp * viewportW)/vrwp)-0.5;
 				}
 			}
+			
+			LOGGER.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 		}
 	}
 }

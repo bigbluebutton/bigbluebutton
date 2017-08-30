@@ -16,7 +16,19 @@ package org.bigbluebutton.modules.sharednotes {
 		public var showToolbarButton:Boolean = false;
 
 		[Bindable]
-		public var fontSize:int = 10;
+		public var fontSize:int = 14;
+
+		[Bindable]
+		public var maxMessageLength:int = 1024;
+
+		[Bindable]
+		public var maxNoteLength:int = 5120;
+
+		[Bindable]
+		public var enableDeleteNotes:Boolean = false;
+
+		[Bindable]
+		public var hideAdditionalNotes:Boolean = false;
 
 		public function SharedNotesOptions() {
 			name = "SharedNotesModule";

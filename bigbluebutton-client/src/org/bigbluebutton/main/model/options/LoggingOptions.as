@@ -25,7 +25,7 @@ package org.bigbluebutton.main.model.options {
 		public var enabled:Boolean = true;
 
 		[Bindable]
-		public var target:String = "trace";
+		public var logTarget:String = "trace";
 
 		[Bindable]
 		public var level:String = "info";

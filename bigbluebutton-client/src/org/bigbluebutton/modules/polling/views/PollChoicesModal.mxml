@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				width="350" layout="vertical"
 				showCloseButton="true"
 				close="PopUpUtil.removePopUp(this)"
-				show="{focusManager.setFocus(choiceFirst)}">
+				show="{focusManager.setFocus(choiceFirst)}" xmlns:common="org.bigbluebutton.common.*">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -65,9 +65,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 	
-	<mx:TextArea id="modalTitle" width="100%" wordWrap="false" borderSkin="{null}" editable="false"
-				 text="{ResourceUtil.getInstance().getString('bbb.polling.customChoices.title')}"
-				 styleName="titleWindowStyle"/>
+	<mx:Canvas id="cnvTitle" width="100%">
+		<common:AdvancedLabel id="modalTitle"
+							  maxWidth="300"
+							  horizontalCenter="0"
+							  text="{ResourceUtil.getInstance().getString('bbb.polling.customChoices.title')}"
+							  styleName="titleWindowStyle" />
+	</mx:Canvas>
 	<mx:HRule width="100%"/>
 	
 	<mx:VBox width="100%" paddingTop="20" paddingBottom="20" paddingLeft="16" paddingRight="16">

@@ -246,30 +246,33 @@ function runPopcorn() {
   var xmlDoc = xmlhttp.responseXML;
 
   console.log("** Processing shapes_svg");
-  var shapeelement = xmlDoc.getElementsByTagName("svg")[0];
-  // Get an array of the elements for each "shape" in the drawing
-  var shapesArray = xmlDoc.querySelectorAll('g[class="shape"]');
+  //getting all the event tags
+  var shapeelements = xmlDoc.getElementsByTagName("svg");
 
-  // To assist in finding the version of a shape shown at a particular time
-  // (while being drawn, during updates), provide a lookup from time to id
-  // Also save the id of the last version of each shape as its main id
+  //get the array of values for the first shape (getDataPoints(0) is the first shape).
+  var shapesArray = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file
+    return $(this).attr('class') == 'shape';
+  });
+
+  //create a map from timestamp to id list
   var timestampToId = {};
-  var timestampToIdKeys = [];
-  var mainShapeIds = {};
   for (var j = 0; j < shapesArray.length; j++) {
-    shape = shapesArray[j];
-    var id = shape.getAttribute('id');
-    var shape_i = shape.getAttribute('shape');
-    var time = (parseFloat(shape.getAttribute('timestamp')) * 10) | 0;
+    shapeTime = shapesArray[j].getAttribute("timestamp");
+    shapeId = shapesArray[j].getAttribute("id");
 
-    if (timestampToId[time] == undefined) {
-      timestampToId[time] = [];
-      timestampToIdKeys.push(time);
+    if (timestampToId[shapeTime] == undefined) {
+      timestampToId[shapeTime] = new Array(0);
     }
-    timestampToId[time].push({id: id, shape: shape_i})
-
-    mainShapeIds[shape_i] = id;
+    timestampToId[shapeTime].push(shapeId);
   }
+
+  //fill the times array with the times of the svg images.
+  for (var j = 0; j < shapesArray.length; j++) {
+    times[j] = shapesArray[j].getAttribute("timestamp");
+  }
+
+  var times_length = times.length; //get the length of the times array.
+
 
   // PROCESS PANZOOMS.XML
   console.log("** Getting panzooms.xml");
@@ -338,40 +341,36 @@ function runPopcorn() {
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "0px";
+  var next_shape;
+  var shape;
+  for (var j = 0; j < shapesArray.length - 1; j++) { //iterate through all the shapes and pick out the main ones
+    var time = shapesArray[j].getAttribute("timestamp");
+    shape = shapesArray[j].getAttribute("shape");
+    next_shape = shapesArray[j+1].getAttribute("shape");
 
-  // Find the key in the timestampToId object of the last entry at or before the provided timestamp
-  var timestampToIdLookup = function(t) {
-    "use strict";
-    t = (t * 10) | 0; // keys are in deciseconds as integers
-    var minIndex = 0;
-    var maxIndex = timestampToIdKeys.length - 1;
-    var curIndex;
-    var curElement;
-
-    // I can't think of any better way to do this than just binary search.
-    while (minIndex <= maxIndex) {
-      curIndex = (minIndex + maxIndex) / 2 | 0;
-      curElement = timestampToIdKeys[curIndex];
-      if (curElement < t) {
-        minIndex = curIndex + 1;
-      } else if (curElement > t) {
-        maxIndex = curIndex - 1;
-      } else {
-        return curElement;
-      }
+    if(shape !== next_shape) {
+      main_shapes_ids.push(shapesArray[j].getAttribute("id"));
     }
-    return timestampToIdKeys[maxIndex];
+  }
+  if (shapesArray.length !== 0) {
+    main_shapes_ids.push(shapesArray[shapesArray.length-1].getAttribute("id")); //put last value into this array always!
   }
 
-  var get_shapes_in_time = function(t, shapes) {
-    "use strict";
-    var timestampToIdIndex = timestampToIdLookup(t);
-    var shapes_in_time = timestampToId[timestampToIdIndex];
+  var get_shapes_in_time = function(t) {
+    // console.log("** Getting shapes in time");
+    var shapes_in_time = timestampToId[t];
+    var shapes = [];
     if (shapes_in_time != undefined) {
       var shape = null;
       for (var i = 0; i < shapes_in_time.length; i++) {
-        var s = shapes_in_time[i];
-        shapes[s.shape] = s.id;
+        var id = shapes_in_time[i];
+        if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(id);
+        else shape = svgobj.getSVGDocument('svgfile').getElementById(id);
+
+        if (shape !== null) { //if there is actually a new shape to be displayed
+          shape = shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
+          shapes.push(shape);
+        }
       }
     }
     return shapes;
@@ -383,41 +382,55 @@ function runPopcorn() {
       start: 1, // start time
       end: p.duration(),
       onFrame: function(options) {
-        "use strict";
         var currentTime = p.currentTime();
         if ( (!p.paused() || p.seeking()) && (Math.abs(currentTime - lastFrameTime) >= 0.1) ) {
           lastFrameTime = currentTime;
           var t = currentTime.toFixed(1); //get the time and round to 1 decimal place
 
-          // Create an object referencing the main versions of all the shapes
-          var current_shapes = Object.create(mainShapeIds);
-          // And update it with current state of currently being drawn shapes
-          get_shapes_in_time(t, current_shapes);
+          current_shapes = get_shapes_in_time(t);
 
-          // Update shape visibility status
+          //redraw everything (only way to make everything elegant)
           for (var i = 0; i < shapesArray.length; i++) {
-            var a_shape = shapesArray[i];
-            var time = parseFloat(a_shape.getAttribute('timestamp'));
-            var shapeId = a_shape.getAttribute('id');
-            var shape_i = a_shape.getAttribute('shape');
-            var undo = parseFloat(a_shape.getAttribute('undo'));
+            var time_s = shapesArray[i].getAttribute("timestamp");
+            var time_f = parseFloat(time_s);
 
-            var shape = null;
-            if (svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(shapesArray[i].getAttribute("id"));
+            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(shapesArray[i].getAttribute("id"));
             else shape = svgobj.getSVGDocument('svgfile').getElementById(shapesArray[i].getAttribute("id"));
 
-            if (shape != null) {
-              if (
-                  // It's not the current version of the shape
-                  (shapeId != current_shapes[shape_i]) ||
-                  // It's in the future
-                  (time > t) ||
-                  // It's in the past (undo or clear)
-                  ((undo != -1) && (undo < currentTime))) {
-                shape.style.visibility = 'hidden';
-              } else {
-                shape.style.visibility = 'visible';
-              }
+            if(shape != null) {
+                var shape_i = shape.getAttribute("shape");
+                if (time_f < t) {
+                  if(current_shapes.indexOf(shape_i) > -1) { //currently drawing the same shape so don't draw the older steps
+                    shape.style.visibility = "hidden"; //hide older steps to shape
+                  } else if(main_shapes_ids.indexOf(shape.getAttribute("id")) > -1) { //as long as it is a main shape, it can be drawn... no intermediate steps.
+                    if(parseFloat(shape.getAttribute("undo")) === -1) { //As long as the undo event hasn't happened yet...
+                      shape.style.visibility = "visible";
+                    } else if (parseFloat(shape.getAttribute("undo")) > t) {
+                      shape.style.visibility = "visible";
+                    } else {
+                      shape.style.visibility = "hidden";
+                    }
+                  } else {
+                    shape.style.visibility = "hidden";
+                  }
+                } else if(time_s === t) { //for the shapes with the time specific to the current time
+                  // only makes visible the last drawing of a given shape
+                  var idx = current_shapes.indexOf(shape_i);
+                  if (idx > -1) {
+                    current_shapes.splice(idx, 1);
+                    idx = current_shapes.indexOf(shape_i);
+                    if (idx > -1) {
+                      shape.style.visibility = "hidden";
+                    } else {
+                      shape.style.visibility = "visible";
+                    }
+                  } else {
+                    // this is an inconsistent state, since current_shapes should have at least one drawing of this shape
+                    shape.style.visibility = "hidden";
+                  }
+                } else { //for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.
+                  shape.style.visibility = "hidden";
+                }
             }
           }
 
@@ -605,6 +618,9 @@ function defineStartTime() {
 
 var lastFrameTime = 0.0;
 
+var shape;
+var current_shapes = [];
+
 var deskshare_image = null;
 var current_image = "image0";
 var previous_image = null;
@@ -614,12 +630,20 @@ var next_image;
 var next_pgid;
 var curr_pgid;
 var svgfile;
+//current time
+var t;
 var len;
 var meetingDuration;
 //coordinates for x and y for each second
 var panAndZoomTimes = [];
 var viewBoxes = [];
 var coords = [];
+var times = [];
+// timestamp and id for drawings
+var shapeTime;
+var shapeId;
+var clearTimes = [];
+var main_shapes_ids = [];
 var vboxValues = {};
 var slideAspectValues = {};
 var currentSlideAspect = 0;

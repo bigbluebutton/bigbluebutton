@@ -45,11 +45,14 @@
 			import flash.ui.Keyboard;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayList;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
 			import mx.events.MenuEvent;
+			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -60,6 +63,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.main.views.WellPositionedMenu;
@@ -79,12 +83,15 @@
 			private var _lastPatch:Number = 0;
 			protected var _noteId:String = "MAIN_NOTE";
 			protected var _noteName:String = "";
+			private var lastAuthors:Object = new Object();
 
-			[Bindable] private var options:SharedNotesOptions;
+			[Bindable] protected var options:SharedNotesOptions;
 			[Bindable] private var _isNotesLimit:Boolean = true;
+			[Bindable] private var usersTyping:String = "";
 
 			private var sendUpdateTimer:Timer;
 			private var getDocumentTimer:Timer = new Timer(5000);
+			private var typistsTimer:Timer = new Timer(2000);
 
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
@@ -116,7 +123,55 @@
 					this.enabled = false;
 					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
 					getDocumentTimer.start();
+					this.addEventListener(FlexEvent.SHOW, onShow);
+					this.addEventListener(FlexEvent.HIDE, onHide);
+				} else if (options.hideAdditionalNotes) {
+					this.visible = LiveMeeting.inst().sharedNotes.mainNoteVisible;
+					BindingUtils.bindSetter(updateAdditionalNoteVisibility, LiveMeeting.inst().sharedNotes, "mainNoteVisible");
 				}
+
+				typistsTimer.addEventListener(TimerEvent.TIMER, updateTypists);
+				typistsTimer.start();
+			}
+
+			private function updateTypists(e:Event):void {
+				var typists:ArrayList = new ArrayList();
+				var date:Date = new Date();
+				var time:Number = date.getTime();
+
+				for (var author:String in lastAuthors) {
+					if (time - lastAuthors[author] < 2000) {
+						var name:String = UsersUtil.getUserName(author);
+						if (name != null) typists.addItem(name.split(" ")[0]);
+					}
+				}
+
+				switch (typists.length) {
+					case 0:
+						usersTyping = "";
+						break;
+					case 1:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.single', [typists.getItemAt(0)]);
+						break;
+					case 2:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.double', [typists.getItemAt(0), typists.getItemAt(1)]);
+						break;
+					default:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.multiple');
+						break;
+				}
+			}
+
+			private function onShow(e:FlexEvent):void {
+				LiveMeeting.inst().sharedNotes.mainNoteVisible = true;
+			}
+
+			private function onHide(e:FlexEvent):void {
+				LiveMeeting.inst().sharedNotes.mainNoteVisible = false;
+			}
+
+			private function updateAdditionalNoteVisibility(mainNoteVisible:Boolean):void {
+				this.visible = mainNoteVisible;
 			}
 
 			private function gotCurrentDocument():void {
@@ -145,14 +200,17 @@
 				richTextEditor.bulletButton.visible = false;
 				richTextEditor.bulletButton.height = 0;
 				richTextEditor.bulletButton.width = 0;
+
+				richTextEditor.textArea.maxChars = options.maxNoteLength;
 			}
 
 			private function updateRoleDependentProperties(role:String):void {
 				if(noteId == "MAIN_NOTE"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
 				} else {
-					showCloseButton = role == Role.MODERATOR;
+					showCloseButton = options.enableDeleteNotes && role == Role.MODERATOR;
 				}
+				btnClear.visible = btnClear.includeInLayout = role == Role.MODERATOR;
 			}
 
 			public function get noteId():String{
@@ -173,15 +231,19 @@
 
 			private function sendPatch():void {
 				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
-//				LOGGER.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
 					richTextEditor.textArea.editable = false;
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					sendPatchEvent.operation = "PATCH";
-					_dispatcher.dispatchEvent(sendPatchEvent);
-					_document = clientText;
+					if (sendPatchEvent.patch.length < options.maxMessageLength) {
+						_dispatcher.dispatchEvent(sendPatchEvent);
+						_document = clientText;
+					} else {
+						richTextEditor.htmlText = _document;
+						throwMessageLenghtWarning(sendPatchEvent.patch.length);
+					}
 					richTextEditor.textArea.editable = true;
 				}
 			}
@@ -196,21 +258,19 @@
 			}
 
 			private function receivePatch(e:ReceivePatchEvent):void {
-//				LOGGER.debug("SharedNotesWindow: patch received");
-//				LOGGER.debug("=====\n" + e.patch + "\n=====");
 				if (e.noteId == noteId) {
 					if (_lastPatch == (e.patchId - 1)) {
 						if (e.patch != "") {
 							var result:String = DiffPatch.patch(e.patch, _document);
-//							LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
-//							LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
 							_document = result;
-//							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
+							var date:Date = new Date();
+							lastAuthors[e.userId] = date.getTime();
+							/* This code is forcing resync and causing more problems then resolving
 							if (possiblePatchError()) {
 								syncNote();
 								return;
-							}
+							}*/
 						}
 						_lastPatch = e.patchId;
 						updateUndoRedoButtons(e.undo, e.redo);
@@ -408,6 +468,23 @@
 				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
+			protected function btnClear_clickHandler(event:MouseEvent = null):void {
+				var alert:Alert = Alert.show(
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.message'),
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.title'),
+						Alert.YES | Alert.NO, parent as Sprite, alertClear, null, Alert.YES);
+				event.stopPropagation();
+			}
+
+			private function alertClear(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+					sendPatchEvent.noteId = noteId;
+					sendPatchEvent.operation = "CLEAR";
+					_dispatcher.dispatchEvent(sendPatchEvent);
+				}
+			}
+
 			public function handleCtrlCmd(event:KeyboardEvent):Boolean {
 				switch (event.keyCode) {
 					case Keyboard.Z:
@@ -422,12 +499,16 @@
 				return true;
 			}
 
+			public function throwMessageLenghtWarning(messageLength:int):void {
+				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [options.maxMessageLength, messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
+			}
+
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
 				richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
 
 			public function getPrefferedPosition():String {
-				return MainCanvas.BOTTOM_LEFT;
+				return MainCanvas.POPUP;
 			}
 
 			override protected function resourcesChanged():void {
@@ -489,8 +570,16 @@
 						click="btnRedo_clickHandler(event)"
 						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}"
 						enabled="false" visible="true"/>
+				<mx:Label id="usersTypingLabel"
+						includeInLayout="true"
+						visible="true"
+						text="{usersTyping}"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
+				<mx:Label id="charRemain"
+						includeInLayout="true"
+						visible="{(options.maxNoteLength - richTextEditor.text.length) &lt; (options.maxNoteLength / 8)}"
+						text="{options.maxNoteLength - richTextEditor.text.length}"/>
 				<mx:Button id="btnNew"
 						styleName="sharedNotesNewButtonStyle"
 						width="26"
@@ -500,6 +589,11 @@
 						toolTip="{_isNotesLimit ?
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.toolTip') :
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+				<mx:Button id="btnClear"
+						styleName="sharedNotesClearButtonStyle"
+						width="26" height="26"
+						click="btnClear_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.clear.toolTip')}"/>
 				<mx:Button id="btnFormat"
 						styleName="sharedNotesFormatButtonStyle"
 						width="26" height="26"

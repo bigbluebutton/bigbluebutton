@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				layout="vertical"
+				showCloseButton="true"
+				close="PopUpUtil.removePopUp(this)"
+				width="600">
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+
+			import flash.net.navigateToURL;
+
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private var dispatcher:Dispatcher = new Dispatcher();
+
+			private var joinUrl:String;
+
+			public function setBreakoutRoomSettings(sequence:int, joinUrl:String):void {
+				sequenceLabel.text = sequence.toString();
+				this.joinUrl = joinUrl;
+			}
+
+			protected function joinButtonClickHandler(event:MouseEvent):void {
+				dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
+				dispatcher.dispatchEvent(new StopBroadcastEvent());
+				navigateToURL(new URLRequest(this.joinUrl), "_blank");
+				PopUpUtil.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label styleName="titleWindowStyle"
+			 maxWidth="500"
+			 text="{ResourceUtil.getInstance().getString('bbb.users.breakout.confirm')}" />
+	<mx:Label htmlText="{ResourceUtil.getInstance().getString('bbb.users.breakout.invited')}" />
+	<mx:Canvas>
+		<mx:Image source="{getStyle('iconRooms')}" />
+		<mx:Canvas x="16"
+				   y="47"
+				   height="38"
+				   width="70">
+			<s:Label id="sequenceLabel"
+					 styleName="roomNumberStyle"
+					 verticalCenter="0"
+					 horizontalCenter="0" />
+		</mx:Canvas>
+	</mx:Canvas>
+	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
+	<mx:Button id="joinButton"
+			   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession')}"
+			   click="joinButtonClickHandler(event)"
+			   styleName="joinBreakoutRoomButton" />
+
+</mx:TitleWindow>

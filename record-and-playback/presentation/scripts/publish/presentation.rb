@@ -28,162 +28,18 @@ require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
 
-# used to convert the colours to hex
-class String
-  def convert_base(from, to)
-    self.to_i(from).to_s(to)
-  end
-end
 
-def processPanAndZooms
-  #Create panzooms.xml
-  BigBlueButton.logger.info("Creating panzooms.xml")
-  $panzooms_xml = Nokogiri::XML::Builder.new do |xml|
-    $xml = xml
-    $xml.recording('id' => 'panzoom_events') do
-      h_ratio_prev = nil
-      w_ratio_prev = nil
-      x_prev = nil
-      y_prev = nil
-      timestamp_orig_prev = nil
-      timestamp_prev = nil
-      last_time = nil
-      desksharing = false
-      if $panzoom_events.empty?
-        BigBlueButton.logger.info("No panzoom events; old recording?")
-        BigBlueButton.logger.info("Synthesizing a panzoom event")
-        if !$slides_events.empty?
-          timestamp_orig = $slides_events.first[:timestamp].to_f
-          # make sure this is scheduled *after* the slide is shown. Dunno if needed.
-          timestamp_orig += 1000
-          timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
-          $xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
-            $xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
-          end
-          timestamp_orig_prev = timestamp_orig
-          timestamp_prev = timestamp
-          h_ratio_prev = 100
-          w_ratio_prev = 100
-          x_prev = 0
-          y_prev = 0
-        else
-          BigBlueButton.logger.info("Couldn't find any slides! panzooms will be empty.")
-        end
-      else
-        last_time = $panzoom_events.last[:timestamp].to_f
-      end
-      $panzoom_events.each_with_index do |node, index|
-        # Get variables
-        timestamp_orig = node[:timestamp].to_f
-        timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
-        eventname = node['eventname']
+# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
+bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+$presentation_props = YAML::load(File.open('presentation.yml'))
 
-        if eventname == "DeskshareStartedEvent"
-          desksharing = true
-          next
-        elsif eventname == "DeskshareStoppedEvent"
-          desksharing = false
-          last_panzoom = getFirstPanAndZoomBeforeDeskshare(index)
-          if last_panzoom == nil
-            $xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
-              $xml.viewBox "0.0 0.0 #{$vbox_width}.0 #{$vbox_height}.0"
-            end
-            timestamp_orig_prev = timestamp_orig
-            timestamp_prev = timestamp
-            h_ratio_prev = 100
-            w_ratio_prev = 100
-            x_prev = 0
-            y_prev = 0
-            next
-          end
-          h_ratio = last_panzoom.xpath(".//heightRatio")[0].text()
-          w_ratio = last_panzoom.xpath(".//widthRatio")[0].text()
-          x = last_panzoom.xpath(".//xOffset")[0].text()
-          y = last_panzoom.xpath(".//yOffset")[0].text()
-        else
-          h_ratio = node.xpath(".//heightRatio")[0].text()
-          w_ratio = node.xpath(".//widthRatio")[0].text()
-          x = node.xpath(".//xOffset")[0].text()
-          y = node.xpath(".//yOffset")[0].text()
-        end
-        # We need to skip this if in the middle of deskshare
-        next if desksharing
-
-        if(timestamp_prev == timestamp)
-          if(timestamp_orig == last_time)
-            if(h_ratio && w_ratio && x && y)
-              $xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
-                $ss.each do |key,val|
-                  $val = val
-                  if key === timestamp
-                    $vbox_width = $val[0]
-                    $vbox_height = $val[1]
-                  end
-                end
-                $xml.viewBox "#{($vbox_width-((1-((x.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio.to_f/100.0)*$vbox_height).round(1)}"
-              end
-            end
-          end
-          # do nothing because playback can't react that fast
-        else
-          if(h_ratio_prev && w_ratio_prev && x_prev && y_prev)
-            $xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
-              $ss.each do |key,val|
-                $val = val
-                if key === timestamp_prev
-                  $vbox_width = $val[0]
-                  $vbox_height = $val[1]
-                end
-              end
-              $xml.viewBox "#{($vbox_width-((1-((x_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*$vbox_height).round(1)}"
-            end
-          end
-        end
-        timestamp_prev = timestamp
-        timestamp_orig_prev = timestamp_orig
-        h_ratio_prev = h_ratio
-        w_ratio_prev = w_ratio
-        x_prev = x
-        y_prev = y
-      end
-      $xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
-        $ss.each do |key,val|
-          $val = val
-          if key === timestamp_prev
-            $vbox_width = $val[0]
-            $vbox_height = $val[1]
-          end
-        end
-        $xml.viewBox "#{($vbox_width-((1-((x_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*$vbox_height).round(1)}"
-      end
-    end
-  end
-  BigBlueButton.logger.info("Finished creating panzooms.xml")
-end
-
-def getFirstPanAndZoomBeforeDeskshare(index)
-  return nil if index < 0
-  deskshare_started_found = false
-
-  while index >= 0 do
-    eventname = $panzoom_events[index]['eventname']
-   if eventname == "DeskshareStartedEvent"
-      deskshare_started_found = true
-    else
-      if deskshare_started_found and eventname == "ResizeAndMoveSlideEvent"
-        return $panzoom_events[index]
-      end
-      deskshare_started_found = false
-    end
-    index -= 1
-  end
-
-  return nil
-end
+# There's a couple of places where stuff is mysteriously divided or multiplied
+# by 2. This is just here to call out how spooky that is.
+$magic_mystery_number = 2
 
 def scaleToDeskshareVideo(width, height)
-  deskshare_video_height = 720.to_f
-  deskshare_video_width = 1280.to_f
+  deskshare_video_height = $presentation_props['deskshare_output_height'].to_f
+  deskshare_video_width = $presentation_props['deskshare_output_height'].to_f
 
   scale = [deskshare_video_width/width, deskshare_video_height/height]
   video_width = width * scale.min
@@ -193,492 +49,18 @@ def scaleToDeskshareVideo(width, height)
 end
 
 def getDeskshareVideoDimension(deskshare_stream_name)
-  video_width = 1280
-  video_height = 720
+  video_width = $presentation_props['deskshare_output_height'].to_f
+  video_height = $presentation_props['deskshare_output_height'].to_f
   deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
 
   if File.exist?(deskshare_video_filename)
-    video_width = BigBlueButton.get_video_width(deskshare_video_filename)
-    video_height = BigBlueButton.get_video_height(deskshare_video_filename)
-    video_width, video_height = scaleToDeskshareVideo(video_width, video_height)
+    video_info = BigBlueButton::EDL::Video.video_info(deskshare_video_filename)
+    video_width, video_height = scaleToDeskshareVideo(video_info[:width], video_info[:height])
   else
     BigBlueButton.logger.error("Could not find deskshare video: #{deskshare_video_filename}")
   end
 
   return video_width, video_height
-end
-
-def processCursorEvents
-  BigBlueButton.logger.info("Processing cursor events")
-  $cursor_xml = Nokogiri::XML::Builder.new do |xml|
-    $xml = xml
-    $xml.recording('id' => 'cursor_events') do
-      x_prev = nil
-      y_prev = nil
-      timestamp_orig_prev = nil
-      timestamp_prev = nil
-      if(!$cursor_events.empty?)
-        last_time = $cursor_events.last[:timestamp].to_f
-        $cursor_events.each do |cursorEvent|
-          timestamp_orig = cursorEvent[:timestamp].to_f
-          timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
-
-          x = cursorEvent.xpath(".//xOffset")[0].text()
-          y = cursorEvent.xpath(".//yOffset")[0].text()
-          if(timestamp_prev == timestamp)
-
-          else
-            if(x_prev && y_prev)
-              $ss.each do |key,val|
-                $val = val
-                if key === timestamp_prev
-                  $vbox_width = $val[0]/2 # because the image size is twice as big as the viewbox
-                  $vbox_height = $val[1]/2 # because the image size is twice as big as the viewbox
-                end
-              end
-              xPoint = ($vbox_width.to_f*x.to_f).round(1)
-              yPoint = ($vbox_height.to_f*y.to_f).round(1)
-              if xPoint < 800 and yPoint < 600 and xPoint > 0 and yPoint > 0
-                $xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
-                  $xml.cursor "#{xPoint} #{yPoint}"
-                end
-              end
-            end
-          end
-          timestamp_prev = timestamp
-          timestamp_orig_prev = timestamp_orig
-          x_prev = x
-          y_prev = y
-        end
-      end
-    end
-  end
-  BigBlueButton.logger.info("Finished processing cursor events")
-end
-
-def processClearEvents
-  # process all the cleared pages events.
-  $clear_page_events.each do |clearEvent|
-    #Retrieve time, page and presentation.
-    clearTime = clearEvent[:timestamp].to_f
-    #clearTime = ( clearEvent[:timestamp].to_f / 1000 ).round(1)
-    $pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
-    slideFolder = clearEvent.xpath(".//presentation")[0].text()
-    whiteboardId = clearEvent.xpath(".//whiteboardId")[0].text()
-    if $version_atleast_0_9_0
-        if (whiteboardId == "deskshare")
-           $clearPageTimes[($prev_clear_time..clearTime)] =
-             [$pageCleared, $canvas_number, "presentation/deskshare/slide-1.png", nil]
-        else
-           $clearPageTimes[($prev_clear_time..clearTime)] =
-             [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
-        end
-    else
-      $clearPageTimes[($prev_clear_time..clearTime)] =
-        [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared}.png", nil]
-    end
-    $prev_clear_time = clearTime
-    $canvas_number+=1
-  end
-end
-
-def processUndoEvents
-  # Processing the undo events, creating/filling a hashmap called "undos".
-  BigBlueButton.logger.info("Process undo events.")
-  $undo_events.each do |undo|
-    closest_shape = nil # Initialize as nil to prime the loop.
-    t = undo[:timestamp].to_f
-    $shape_events.each do |shape|
-      # The undo cannot be for a shape that hasn't been drawn yet.
-      if shape[:timestamp].to_f < t
-        # It must be the closest shape drawn that hasn't already been undone.
-        if (closest_shape == nil) || (shape[:timestamp].to_f > closest_shape[:timestamp].to_f)
-          # It cannot be an undo for another shape already.
-          if !($undos.has_key? shape)
-            # Must be part of this presentation of course
-            if shape.xpath(".//pageNumber")[0].text() == undo.xpath(".//pageNumber")[0].text()
-              # Must be a shape in this page too.
-              if shape.xpath(".//presentation")[0].text() == undo.xpath(".//presentation")[0].text()
-                if ((shape.xpath(".//type")[0].text() == "rectangle") || (shape.xpath(".//type")[0].text() == "ellipse"))
-                  shape_already_processed = false
-                  if($undos.length == 0)
-                    shape_already_processed = false
-                  else
-                    $undos.each do |u, v|
-                      if shape.xpath(".//dataPoints")[0].text().split(",")[0] == u.xpath(".//dataPoints")[0].text().split(",")[0]
-                        if shape.xpath(".//dataPoints")[0].text().split(",")[1] == u.xpath(".//dataPoints")[0].text().split(",")[1]
-                          shape_already_processed = true
-                        end
-                      end
-                    end
-                  end
-                  if !(shape_already_processed)
-                    closest_shape = shape
-                  end
-                else
-                  closest_shape = shape
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-    if(closest_shape != nil)
-      $undos[closest_shape] = undo[:timestamp]
-    end
-  end
-
-  $undos_temp = {}
-  $undos.each do |un, val|
-    $undos_temp[ un[:timestamp] ] = val
-  end
-  $undos = $undos_temp
-  BigBlueButton.logger.info("Undos: #{$undos}")
-end
-
-def processClearImages
-  BigBlueButton.logger.info("Put image numbers in clearPageTimes")
-  $slides_compiled.each do |key, val|
-    $clearPageTimes.each do |cpt, pgCanvasUrl|
-      # check if the src of the slide matches the url of the clear event
-      if key[0] == pgCanvasUrl[2]
-        # put the image number into the $clearPageTimes
-        pgCanvasUrl[3] = "image#{val[2].to_i}"
-      end
-    end
-  end
-end
-
-def storePencilShape
-  $pencil_count = $pencil_count + 1 # always update the line count!
-  $global_shape_count += 1
-
-  if $shapeDataPoints.length == 2
-    # Degenerate path, draw a circle (point) instead
-    $xml.g(class: :shape,
-           id: "draw#{$global_shape_count}",
-           timestamp: $shapeCreationTime, undo: $shapeUndoTime,
-           shape: "line#{$pencil_count}",
-           style: "stroke:none;fill:##{$color_hex};visibility:hidden") do
-      $xml.circle(cx: $shapeDataPoints[0].to_f / 100 * $vbox_width,
-                  cy: $shapeDataPoints[1].to_f / 100 * $vbox_height,
-                  r: $shapeThickness / 2)
-    end
-  else
-    path = []
-    dataPoints = $shapeDataPoints.dup
-
-    if $shapeCommands
-      # BBB 2.0 recording, we have a path with commands that has to be converted to SVG path
-      $shapeCommands.each do |command|
-        case command
-        when '1' # MOVE_TO
-          x = dataPoints.shift.to_f / 100 * $vbox_width
-          y = dataPoints.shift.to_f / 100 * $vbox_height
-          path.push("M #{x} #{y}")
-        when '2' # LINE_TO
-          x = dataPoints.shift.to_f / 100 * $vbox_width
-          y = dataPoints.shift.to_f / 100 * $vbox_height
-          path.push("L #{x} #{y}")
-        when '3' # Q_CURVE_TO
-          cx1 = dataPoints.shift.to_f / 100 * $vbox_width
-          cy1 = dataPoints.shift.to_f / 100 * $vbox_height
-          x = dataPoints.shift.to_f / 100 * $vbox_width
-          y = dataPoints.shift.to_f / 100 * $vbox_height
-          path.push("Q #{cx1} #{cy2}, #{x} #{y}")
-        when '4' # C_CURVE_TO
-          cx1 = dataPoints.shift.to_f / 100 * $vbox_width
-          cy1 = dataPoints.shift.to_f / 100 * $vbox_height
-          cx2 = dataPoints.shift.to_f / 100 * $vbox_width
-          cy2 = dataPoints.shift.to_f / 100 * $vbox_height
-          x = dataPoints.shift.to_f / 100 * $vbox_width
-          y = dataPoints.shift.to_f / 100 * $vbox_height
-          path.push("C #{cx1} #{cy1}, #{cx2} #{cy2}, #{x} #{y}")
-        else
-          raise "Unknown pencil command: #{command}"
-        end
-      end
-    else
-      x = dataPoints.shift.to_f / 100 * $vbox_width
-      y = dataPoints.shift.to_f / 100 * $vbox_height
-      path.push("M #{x} #{y}")
-      while dataPoints.length > 0
-        x = dataPoints.shift.to_f / 100 * $vbox_width
-        y = dataPoints.shift.to_f / 100 * $vbox_height
-        path.push("L #{x} #{y}")
-      end
-    end
-
-    path = path.join(" ")
-
-    $xml.g(class: :shape,
-           id: "draw#{$global_shape_count}",
-           timestamp: $shapeCreationTime, undo: $shapeUndoTime,
-           shape: "line#{$pencil_count}",
-           style: "stroke:##{$colour_hex}; stroke-linejoin: round; stroke-linecap: round; stroke-width: #{$shapeThickness}; fill: none; visibility:hidden") do
-      $xml.path(d: path)
-    end
-  end
-end
-
-def storeLineShape
-  if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-    # do not update the line count
-  else
-    $line_count = $line_count + 1
-  end
-  $global_shape_count += 1
-  $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-linecap: round; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-
-    $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-    $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-    endPointX = (($shapeDataPoints[2].to_f)/100)*$vbox_width
-    endPointY = (($shapeDataPoints[3].to_f)/100)*$vbox_height
-
-    $originalOriginX = $originX
-    $originalOriginY = $originY
-
-    $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
-    $prev_time = $shapeCreationTime
-  end
-end
-
-def storeRectShape
-  if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-    # do not update the rectangle count
-  else
-    $rectangle_count = $rectangle_count + 1
-  end
-  $global_shape_count += 1
-  $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "rect#{$rectangle_count}", :style => "stroke:\##{$colour_hex}; stroke-linejoin: round; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-    $originX = x1 = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-    $originY = y1 = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-    x2 = (($shapeDataPoints[2].to_f)/100)*$vbox_width
-    y2 = (($shapeDataPoints[3].to_f)/100)*$vbox_height
-
-    width = (x2 - x1).abs
-    height = (y2 - y1).abs
-
-    # Convert to a square, keeping aligned with the start point
-    if $is_square == "true"
-      # This duplicates a bug in the BigBlueButton client
-      if x2 > x1
-        y2 = y1 + width
-      else
-        y2 = y1 - width
-      end
-    end
-
-    $xml.polygon(:points => "#{x1},#{y1} #{x2},#{y1} #{x2},#{y2} #{x1},#{y2}")
-    $originalOriginX = x1
-    $originalOriginY = y1
-    $prev_time = $shapeCreationTime
-  end
-end
-
-def storeTriangleShape
-  if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-    # do not update the triangle count
-  else
-    $triangle_count = $triangle_count + 1
-  end
-  $global_shape_count += 1
-  $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-linejoin: round; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-
-    $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-    $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-
-    #3 points (p0, p1 and p2) to draw a triangle
-
-    base = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
-
-    x0 = $originX + (base.to_f / 2.0)
-    x1 = $originX
-    x2 = $originX + base.to_f
-
-    height = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
-
-    y0 = $originY
-    y1 = $originY + height
-    y2 = y1
-
-    p0 = "#{x0},#{y0}"
-    p1 = "#{x1},#{y1}"
-    p2 = "#{x2},#{y2}"
-
-    $originalOriginX = $originX
-    $originalOriginY = $originY
-
-    $xml.polygon(:points => "#{p0} #{p1} #{p2}")
-    $prev_time = $shapeCreationTime
-  end
-end
-
-def storeEllipseShape
-  if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-    # do not update the ellipse count
-  else
-    $ellipse_count = $ellipse_count + 1
-  end # end (($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-  $global_shape_count += 1
-  $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "ellipse#{$ellipse_count}", :style =>"stroke:\##{$colour_hex}; stroke-linejoin: round; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-    $originX = x1 = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-    $originY = y1 = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-    x2 = (($shapeDataPoints[2].to_f)/100)*$vbox_width
-    y2 = (($shapeDataPoints[3].to_f)/100)*$vbox_height
-
-    width_r = (x2 - x1).abs / 2
-    height_r = (y2 - y1).abs / 2
-
-    # Convert to a circle, keeping aligned with the start point
-    if $is_circle == "true"
-      height_r = width_r
-      # This duplicates a bug in the BigBlueButton client
-      if x2 > x1
-        y2 = y1 + width_r + width_r
-      else
-        y2 = y1 - width_r - width_r
-      end
-    end
-
-    # SVG's ellipse element doesn't render if r_x or r_y is 0, but
-    # we want to display a line segment in that case. But the SVG
-    # path element's elliptical arc code renders r_x or r_y
-    # degenerate cases as line segments, so we can use that.
-
-    # Normalize the x,y coordinates
-    x1, x2 = x2, x1 if x1 > x2
-    y1, y2 = y2, y1 if y1 > y2
-
-    path = "M#{x1},#{(y1+y2)/2}"
-    path += "A#{width_r},#{height_r} 0 0 1 #{(x1+x2)/2},#{y1}"
-    path += "A#{width_r},#{height_r} 0 0 1 #{x2},#{(y1+y2)/2}"
-    path += "A#{width_r},#{height_r} 0 0 1 #{(x1+x2)/2},#{y2}"
-    path += "A#{width_r},#{height_r} 0 0 1 #{x1},#{(y1+y2)/2}"
-    path += "Z"
-
-    $xml.path(:d => path)
-
-    $originalOriginX = $originX
-    $originalOriginY = $originY
-    $prev_time = $shapeCreationTime
-  end # end xml.g
-end
-
-def storeTextShape
-  $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-  $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-  if(($originalOriginX == $originX) && ($originalOriginY == $originY))
-    # do not update the text count
-  else
-    $text_count = $text_count + 1
-  end
-  width = (($textBoxWidth.to_f)/100.0)*$vbox_width
-  height = (($textBoxHeight.to_f)/100.0)*$vbox_height
-  $textFontSize_pixels = (($textCalcedFontSize.to_f*$vbox_height)/100)
-  $global_shape_count += 1
-  $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
-    $xml.switch do
-      $xml.foreignObject(:color => "##{$colour_hex}", :width => width, :height => height, :x => "#{$originX}", :y => "#{$originY}") do
-        $xml.p(:xmlns => "http://www.w3.org/1999/xhtml", :style => "margin-top: 0; margin-bottom: 0;") do
-          lines = $textValue.split("\n")
-          lines.each_with_index do |line, index|
-            $xml.text(line)
-            if index + 1 < lines.size
-              $xml.br
-            end
-          end
-        end
-      end
-    end
-    $prev_time = $shapeCreationTime
-  end # end xml.g
-  $originalOriginX = $originX
-  $originalOriginY = $originY
-end
-
-def storePollResultShape(xml, shape)
-  origin_x = $shapeDataPoints[0].to_f / 100 * $vbox_width
-  origin_y = $shapeDataPoints[1].to_f / 100 * $vbox_height
-  width = $shapeDataPoints[2].to_f / 100 * $vbox_width
-  height = $shapeDataPoints[3].to_f / 100 * $vbox_height
-
-  result = JSON.load(shape.at_xpath('result').text)
-  num_responders = shape.at_xpath('num_responders').text.to_i
-  presentation = shape.at_xpath('presentation').text
-  max_num_votes = result.map{ |r| r['num_votes'] }.max
-
-  $global_shape_count += 1
-  $poll_result_count += 1
-
-  dat_file = "#{$process_dir}/poll_result#{$poll_result_count}.dat"
-  gpl_file = "#{$process_dir}/poll_result#{$poll_result_count}.gpl"
-  pdf_file = "#{$process_dir}/poll_result#{$poll_result_count}.pdf"
-  svg_file = "#{$process_dir}/presentation/#{presentation}/poll_result#{$poll_result_count}.svg"
-
-  # Use gnuplot to generate an SVG image for the graph
-  File.open(dat_file, 'w') do |d|
-    result.each do |r|
-      d.puts("#{r['id']} #{r['num_votes']}")
-    end
-  end
-  File.open(dat_file, 'r') do |d|
-    BigBlueButton.logger.debug("gnuplot data:")
-    BigBlueButton.logger.debug(d.readlines(nil)[0])
-  end
-  File.open(gpl_file, 'w') do |g|
-    g.puts('reset')
-    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\" noenhanced")
-    g.puts('set lmargin 0.5')
-    g.puts('set rmargin 0.5')
-    g.puts('unset key')
-    g.puts('set style data boxes')
-    g.puts('set style fill solid border -1')
-    g.puts('set boxwidth 0.9 relative')
-    g.puts('set yrange [0:*]')
-    g.puts('unset border')
-    g.puts('unset ytics')
-    xtics = result.map{ |r| "#{r['key'].gsub('%', '%%').inspect} #{r['id']}" }.join(', ')
-    g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
-    if num_responders > 0
-      x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
-      g.puts("set x2tics rotate by 90 scale 0 left (#{x2tics})")
-    end
-    g.puts('set linetype 1 linewidth 1 linecolor rgb "black"')
-    result.each do |r|
-      if r['num_votes'] == 0 or r['num_votes'].to_f / max_num_votes <= 0.5
-        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} left rotate by 90 offset 0,character 0.5 front")
-      else
-        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} right rotate by 90 offset 0,character -0.5 textcolor rgb \"white\" front")
-      end
-    end
-    g.puts("set output \"#{pdf_file}\"")
-    g.puts("plot \"#{dat_file}\"")
-  end
-  File.open(gpl_file, 'r') do |d|
-    BigBlueButton.logger.debug("gnuplot script:")
-    BigBlueButton.logger.debug(d.readlines(nil)[0])
-  end
-  ret = BigBlueButton.exec_ret('gnuplot', '-d', gpl_file)
-  raise "Failed to generate plot pdf" if ret != 0
-  ret = BigBlueButton.exec_ret('pdftocairo', '-svg', pdf_file, svg_file)
-  raise "Failed to convert poll to svg" if ret != 0
-
-  xml.g(class: 'shape', id: "draw#{$global_shape_count}",
-      shape: "poll_result#{$poll_result_count}", style: 'visibility:hidden',
-      timestamp: $shapeCreationTime, undo: $shapeUndoTime) do
-
-    # Outer box to act as poll result backdrop
-    xml.rect(x: origin_x + 2, y: origin_y + 2, width: width - 4, height: height - 4,
-        'fill' => 'white', 'stroke' => 'black', 'stroke-width' => 4)
-
-    # Poll image
-    xml.image('xlink:href' => "presentation/#{presentation}/poll_result#{$poll_result_count}.svg",
-        height: width, width: height, x: $vbox_width, y: origin_y,
-        transform: "rotate(90, #{$vbox_width}, #{origin_y})")
-
-  end
 end
 
 #
@@ -724,331 +106,985 @@ def translateTimestamp_helper(timestamp)
   # if the timestamp comes after the last stop recording event, then the timestamp is translated to the last stop recording event timestamp
   return timestamp - $rec_events.last()[:offset] + $rec_events.last()[:duration]
 end
-#
-# Given an event timestamp, says whether it occurs during a recording period or not.
-#
-def occursDuringRecording(timestamp)
-  $rec_events.each do |event|
-    if timestamp >= event[:start_timestamp] and timestamp <= event[:stop_timestamp]
-      return true
-    end
-  end
-  return false
+
+def color_to_hex(color)
+  color = color.to_i.to_s(16)
+  return '0'*(6-color.length) + color
 end
 
-def preprocessSlideEvents
-  new_slides_events = []
-  $slides_events.each do |slide_event|
-    new_slide_event = slide_event.clone
-    $rec_events.each do |rec_event|
-      if new_slide_event[:timestamp] <= rec_event[:start_timestamp]
-        new_slide_event[:timestamp] = rec_event[:start_timestamp]
-        if not new_slides_events.empty? and new_slides_events.last()[:timestamp] == rec_event[:start_timestamp]
-          new_slides_events.pop()
+def shape_scale_width(slide, x)
+  return (x / 100.0 * slide[:width]).round(5)
+end
+def shape_scale_height(slide, y)
+  return (y / 100.0 * slide[:height]).round(5)
+end
+def shape_thickness(slide, shape)
+  if !shape[:thickness_percent].nil?
+    return shape_scale_width(slide, shape[:thickness_percent])
+  else
+    return shape[:thickness]
+  end
+end
+
+def svg_render_shape_pencil(g, slide, shape)
+  g['shape'] = "pencil#{shape[:shape_unique_id]}"
+
+  doc = g.document
+  if shape[:data_points].length == 2
+    BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing single point")
+    g['style'] = "stroke:none;fill:##{shape[:color]};visibility:hidden"
+    circle = doc.create_element('circle',
+            cx: shape_scale_width(slide, shape[:data_points][0]),
+            cy: shape_scale_height(slide, shape[:data_points][1]),
+            r: (shape_thickness(slide, shape) / 2.0).round(5))
+    g << circle
+  else
+    path = []
+    data_points = shape[:data_points].each
+
+    if !shape[:commands].nil?
+      BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing from command string (#{shape[:commands].length} commands)")
+      shape[:commands].each do |command|
+        case command
+        when 1 # MOVE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("M#{x} #{y}")
+        when 2 # LINE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("L#{x} #{y}")
+        when 3 # Q_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("Q#{cx1} #{cy2},#{x} #{y}")
+        when 4 # C_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          cx2 = shape_scale_width(slide, data_points.next)
+          cy2 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("C#{cx1} #{cy1},#{cx2} #{cy2},#{x} #{y}")
+        else
+          raise "Unknown pencil command: #{command}"
         end
-        new_slides_events << new_slide_event
-        break
-      elsif new_slide_event[:timestamp] > rec_event[:start_timestamp] and new_slide_event[:timestamp] <= rec_event[:stop_timestamp]
-        new_slides_events << new_slide_event
+      end
+    else
+      BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing simple line (#{shape[:data_points].length / 2} points)")
+      x = shape_scale_width(slide, data_points.next)
+      y = shape_scale_height(slide, data_points.next)
+      path << "M#{x} #{y}"
+      begin
+        while true
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path << "L#{x} #{y}"
+        end
+      rescue StopIteration
+      end
+    end
+
+    path = path.join('')
+    g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+    svg_path = doc.create_element('path', d: path)
+    g << svg_path
+  end
+end
+
+def svg_render_shape_line(g, slide, shape)
+  g['shape'] = "line#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linecap:butt"
+  else
+    g['style'] += ";stroke-linecap:round"
+  end
+
+  doc = g.document
+  data_points = shape[:data_points]
+  line = doc.create_element('line',
+          x1: shape_scale_width(slide, data_points[0]),
+          y1: shape_scale_height(slide, data_points[1]),
+          x2: shape_scale_width(slide, data_points[2]),
+          y2: shape_scale_height(slide, data_points[3]))
+  g << line
+end
+
+def svg_render_shape_rect(g, slide, shape)
+  g['shape'] = "rect#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x1 = shape_scale_width(slide, data_points[0])
+  y1 = shape_scale_height(slide, data_points[1])
+  x2 = shape_scale_width(slide, data_points[2])
+  y2 = shape_scale_height(slide, data_points[3])
+
+  width = (x2 - x1).abs
+  height = (y2 - y1).abs
+
+  if shape[:square]
+    # Convert to a square, keeping aligned with the start point.
+    if x2 > x1
+      y2 = y1 + width
+    else
+      # This replicates a bug in the BigBlueButton flash client
+      BigBlueButton.logger.info("Rect #{shape[:shape_unique_id]} reversed square bug")
+      y2 = y1 - width
+    end
+  end
+
+  path = doc.create_element('path',
+          d: "M#{x1} #{y1}L#{x2} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
+  g << path
+end
+
+def svg_render_shape_triangle(g, slide, shape)
+  g['shape'] = "triangle#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x1 = shape_scale_width(slide, data_points[0])
+  y1 = shape_scale_height(slide, data_points[1])
+  x2 = shape_scale_width(slide, data_points[2])
+  y2 = shape_scale_height(slide, data_points[3])
+
+  px = ((x1 + x2) / 2.0).round(5)
+
+  path = doc.create_element('path',
+          d: "M#{px} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
+  g << path
+end
+
+def svg_render_shape_ellipse(g, slide, shape)
+  g['shape'] = "ellipse#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x1 = shape_scale_width(slide, data_points[0])
+  y1 = shape_scale_height(slide, data_points[1])
+  x2 = shape_scale_width(slide, data_points[2])
+  y2 = shape_scale_height(slide, data_points[3])
+
+  width_r = ((x2 - x1).abs / 2.0).round(5)
+  height_r = ((y2 - y1).abs / 2.0).round(5)
+  hx = ((x1 + x2) / 2.0).round(5)
+  hy = ((y1 + y2) / 2.0).round(5)
+
+  if shape[:circle]
+    # Convert to a circle, keeping aligned with the start point
+    height_r = width_r
+    if x2 > x1
+      y2 = y1 + height_r + height_r
+    else
+      # This replicates a bug in the BigBlueButton flash client
+      BigBlueButton.logger.info("Ellipse #{shape[:shape_unique_id]} reversed circle bug")
+      y2 = y1 - height_r - height_r
+    end
+  end
+
+  # Normalize the x,y coordinates
+  x1, x2 = x2, x1 if x1 > x2
+  y1, y2 = y2, y1 if y1 > y2
+
+  # SVG's ellipse element doesn't render if r_x or r_y is 0, but
+  # we want to display a line segment in that case. But the SVG
+  # path element's elliptical arc code renders r_x or r_y
+  # degenerate cases as line segments, so we can use that.
+  path = "M#{x1} #{hy}"
+  path += "A#{width_r} #{height_r} 0 0 1 #{hx} #{y1}"
+  path += "A#{width_r} #{height_r} 0 0 1 #{x2} #{hy}"
+  path += "A#{width_r} #{height_r} 0 0 1 #{hx} #{y2}"
+  path += "A#{width_r} #{height_r} 0 0 1 #{x1} #{hy}"
+  path += "Z"
+
+  svg_path = doc.create_element('path', d: path)
+  g << svg_path
+end
+
+def svg_render_shape_text(g, slide, shape)
+  g['shape'] = "text#{shape[:shape_unique_id]}"
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x = shape_scale_width(slide, data_points[0])
+  y = shape_scale_height(slide, data_points[1])
+  width = shape_scale_width(slide, shape[:text_box_width])
+  height = shape_scale_height(slide, shape[:text_box_height])
+  font_size = shape_scale_height(slide, shape[:calced_font_size])
+
+  BigBlueButton.logger.info("Text #{shape[:shape_unique_id]} width #{width} height #{height} font size #{font_size}")
+  g['style'] = "color:##{shape[:font_color]};word-wrap:break-word;visibility:hidden;font-family:Arial;font-size:#{font_size}px"
+
+  switch = doc.create_element('switch')
+  fo = doc.create_element('foreignObject',
+          width: width, height: height, x: x, y: y)
+  p = doc.create_element('p',
+          xmlns: 'http://www.w3.org/1999/xhtml', style: 'margin:0;padding:0')
+  shape[:text].each_line.with_index do |line, index|
+    if index > 0
+      p << doc.create_element('br')
+    end
+    p << doc.create_text_node(line.chomp)
+  end
+  fo << p
+  switch << fo
+  g << switch
+end
+
+def svg_render_shape_poll(g, slide, shape)
+  poll_id = shape[:shape_unique_id]
+  g['shape'] = "poll#{poll_id}"
+  g['style'] = 'visibility:hidden'
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x = shape_scale_width(slide, data_points[0])
+  y = shape_scale_height(slide, data_points[1])
+  width = shape_scale_width(slide, data_points[2])
+  height = shape_scale_height(slide, data_points[3])
+
+  result = JSON.load(shape[:result])
+  num_responders = shape[:num_responders]
+  presentation = shape[:presentation]
+  max_num_votes = result.map{ |r| r['num_votes'] }.max
+
+  dat_file = "#{$process_dir}/poll_result#{poll_id}.dat"
+  gpl_file = "#{$process_dir}/poll_result#{poll_id}.gpl"
+  pdf_file = "#{$process_dir}/poll_result#{poll_id}.pdf"
+  svg_file = "#{$process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
+
+  # Use gnuplot to generate an SVG image for the graph
+  File.open(dat_file, 'w') do |d|
+    result.each do |r|
+      d.puts("#{r['id']} #{r['num_votes']}")
+    end
+  end
+  File.open(dat_file, 'r') do |d|
+    BigBlueButton.logger.debug("gnuplot data:")
+    BigBlueButton.logger.debug(d.readlines(nil)[0])
+  end
+  File.open(gpl_file, 'w') do |g|
+    g.puts('reset')
+    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\" noenhanced")
+    g.puts('set lmargin 0.5')
+    g.puts('set rmargin 0.5')
+    g.puts('unset key')
+    g.puts('set style data boxes')
+    g.puts('set style fill solid border -1')
+    g.puts('set boxwidth 0.9 relative')
+    g.puts('set yrange [0:*]')
+    g.puts('unset border')
+    g.puts('unset ytics')
+    xtics = result.map{ |r| "#{r['key'].gsub('%', '%%').inspect} #{r['id']}" }.join(', ')
+    g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
+    if num_responders > 0
+      x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
+      g.puts("set x2tics rotate by 90 scale 0 left (#{x2tics})")
+    end
+    g.puts('set linetype 1 linewidth 1 linecolor rgb "black"')
+    result.each do |r|
+      if r['num_votes'] == 0 or r['num_votes'].to_f / max_num_votes <= 0.5
+        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} left rotate by 90 offset 0,character 0.5 front")
+      else
+        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} right rotate by 90 offset 0,character -0.5 textcolor rgb \"white\" front")
+      end
+    end
+    g.puts("set output \"#{pdf_file}\"")
+    g.puts("plot \"#{dat_file}\"")
+  end
+  File.open(gpl_file, 'r') do |d|
+    BigBlueButton.logger.debug("gnuplot script:")
+    BigBlueButton.logger.debug(d.readlines(nil)[0])
+  end
+  # gnuplot svg rendering has issues, so we render to pdf...
+  ret = BigBlueButton.exec_ret('gnuplot', '-d', gpl_file)
+  raise "Failed to generate plot pdf" if ret != 0
+  # then use pdftocairo to turn it into svg
+  ret = BigBlueButton.exec_ret('pdftocairo', '-svg', pdf_file, svg_file)
+  raise "Failed to convert poll to svg" if ret != 0
+
+  # Outer box to act as a poll result backdrop
+  g << doc.create_element('rect',
+          x: x + 2, y: y + 2, width: width - 4, height: height - 4,
+          fill: 'white', stroke: 'black', 'stroke-width' => 4)
+  # Poll image (note that the image is sideways and has to be rotated)
+  g << doc.create_element('image',
+          'xlink:href' => "presentation/#{presentation}/poll_result#{poll_id}.svg",
+          height: width, width: height, x: slide[:width], y: y,
+          transform: "rotate(90, #{slide[:width]}, #{y})")
+end
+
+def svg_render_shape(canvas, slide, shape, image_id)
+  if shape[:in] == shape[:out]
+    BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is never shown (duration rounds to 0)")
+    return
+  end
+
+  if shape[:in] >= slide[:out] or
+      (!shape[:out].nil? and shape[:out] <= slide[:in])
+    BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is not visible during image time span")
+    return
+  end
+
+  BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} Type #{shape[:type]} from #{shape[:in]} to #{shape[:out]} undo #{shape[:undo]}")
+
+  doc = canvas.document
+  g = doc.create_element('g',
+          id: "image#{image_id}-draw#{shape[:shape_id]}", class: 'shape',
+          timestamp: shape[:in], undo: (shape[:undo].nil? ? -1 : shape[:undo]))
+
+  case shape[:type]
+  when 'pencil'
+    svg_render_shape_pencil(g, slide, shape)
+  when 'line'
+    svg_render_shape_line(g, slide, shape)
+  when 'rectangle'
+    svg_render_shape_rect(g, slide, shape)
+  when 'triangle'
+    svg_render_shape_triangle(g, slide, shape)
+  when 'ellipse'
+    svg_render_shape_ellipse(g, slide, shape)
+  when 'text'
+    svg_render_shape_text(g, slide, shape)
+  when 'poll_result'
+    svg_render_shape_poll(g, slide, shape)
+  else
+    BigBlueButton.logger.warn("Ignoring unhandled shape type #{shape[:type]}")
+  end
+
+  g[:shape] = "image#{image_id}-#{g[:shape]}"
+
+  if g.element_children.length > 0
+    canvas << g
+  end
+end
+
+$svg_image_id = 1
+def svg_render_image(svg, slide, shapes)
+  if slide[:in] == slide[:out]
+    BigBlueButton.logger.info("Presentation #{slide[:presentation]} Slide #{slide[:slide]} is never shown (duration rounds to 0)")
+    return
+  end
+
+  image_id = $svg_image_id
+  $svg_image_id += 1
+
+  BigBlueButton.logger.info("Image #{image_id}: Presentation #{slide[:presentation]} Slide #{slide[:slide]} Deskshare #{slide[:deskshare]} from #{slide[:in]} to #{slide[:out]}")
+
+
+  doc = svg.document
+  image = doc.create_element('image',
+          id: "image#{image_id}", class: 'slide',
+          in: slide[:in], out: slide[:out],
+          'xlink:href' => slide[:src],
+          width: slide[:width], height: slide[:height], x: 0, y: 0,
+          style: 'visibility:hidden')
+  image['text'] = slide[:text] if !slide[:text].nil?
+  svg << image
+
+  if slide[:deskshare] or
+      shapes[slide[:presentation]].nil? or
+      shapes[slide[:presentation]][slide[:slide]].nil?
+    return
+  end
+  shapes = shapes[slide[:presentation]][slide[:slide]]
+
+  canvas = doc.create_element('g',
+          class: 'canvas', id: "canvas#{image_id}",
+          image: "image#{image_id}", display: 'none')
+
+  shapes.each do |shape|
+    svg_render_shape(canvas, slide, shape, image_id)
+  end
+
+  if canvas.element_children.length > 0
+    svg << canvas
+  end
+end
+
+def panzoom_viewbox(panzoom)
+  if panzoom[:deskshare]
+    panzoom[:x_offset] = 0.0
+    panzoom[:y_offset] = 0.0
+    panzoom[:width_ratio] = 100.0
+    panzoom[:height_ratio] = 100.0
+  end
+
+  x = (-panzoom[:x_offset] * $magic_mystery_number / 100.0 * panzoom[:width]).round(5)
+  y = (-panzoom[:y_offset] * $magic_mystery_number / 100.0 * panzoom[:height]).round(5)
+  w = shape_scale_width(panzoom, panzoom[:width_ratio])
+  h = shape_scale_height(panzoom, panzoom[:height_ratio])
+
+  return [x, y, w, h]
+end
+
+def panzooms_emit_event(rec, panzoom)
+  if panzoom[:in] == panzoom[:out]
+    BigBlueButton.logger.info("Panzoom: not emitting, duration rounds to 0")
+    return
+  end
+
+  doc = rec.document
+  event = doc.create_element('event', timestamp: panzoom[:in])
+
+  x, y, w, h = panzoom_viewbox(panzoom)
+
+  viewbox = doc.create_element('viewBox')
+  viewbox.content = "#{x} #{y} #{w} #{h}"
+
+  BigBlueButton.logger.info("Panzoom viewbox #{viewbox.content} at #{panzoom[:in]}")
+
+  event << viewbox
+  rec << event
+end
+
+def cursors_emit_event(rec, cursor)
+  if cursor[:in] == cursor[:out]
+    BigBlueButton.logger.info("Cursor: not emitting, duration rounds to 0")
+    return
+  end
+
+  doc = rec.document
+  event = doc.create_element('event', timestamp: cursor[:in])
+
+  panzoom = cursor[:panzoom]
+  if cursor[:visible]
+    if $version_atleast_2_0_0
+      # In BBB 2.0, the cursor now uses the same coordinate system as annotations
+      # Use the panzoom information to convert it to be relative to viewbox
+      x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * $magic_mystery_number / 100.0)) /
+           (panzoom[:width_ratio] / 100.0)).round(5)
+      y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * $magic_mystery_number / 100.0)) /
+           (panzoom[:height_ratio] / 100.0)).round(5)
+      if x < 0 or x > 1 or y < 0 or y > 1
+        x = -1.0
+        y = -1.0
+      end
+    else
+      # Cursor position is relative to the visible area
+      x = cursor[:x].round(5)
+      y = cursor[:y].round(5)
+    end
+  else
+    x = -1.0
+    y = -1.0
+  end
+
+  cursor_e = doc.create_element('cursor')
+  cursor_e.content = "#{x} #{y}"
+
+  BigBlueButton.logger.info("Cursor #{cursor_e.content} at #{cursor[:in]}")
+
+  event << cursor_e
+  rec << event
+end
+
+$svg_shape_id = 1
+$svg_shape_unique_id = 1
+def events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this shape is for, with fallbacks
+  # for old BBB where this info isn't in the shape messages
+  presentation = event.at_xpath('presentation')
+  slide = event.at_xpath('pageNumber')
+  if presentation.nil?
+    presentation = current_presentation
+  else
+    presentation = presentation.text
+  end
+  if slide.nil?
+    slide = current_slide
+  else
+    slide = slide.text.to_i
+    slide -=1 unless $version_atleast_0_9_0
+  end
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  # Set up the structure for this shape
+  shape = {}
+  # Common properties
+  shape[:in] = timestamp
+  shape[:type] = event.at_xpath('type').text
+  shape[:data_points] = event.at_xpath('dataPoints').text.split(',').map { |p| p.to_f }
+  # These can be missing in old BBB versions, there are fallbacks
+  user_id = event.at_xpath('userId')
+  shape[:user_id] = user_id.text if !user_id.nil?
+  shape_id = event.at_xpath('id')
+  shape[:id] = shape_id.text if !shape_id.nil?
+  status = event.at_xpath('status')
+  shape[:status] = status.text if !status.nil?
+  shape[:shape_id] = $svg_shape_id
+  $svg_shape_id += 1
+
+  # Some shape-specific properties
+  if shape[:type] == 'pencil' or shape[:type] == 'rectangle' or
+      shape[:type] == 'ellipse' or shape[:type] == 'triangle' or
+      shape[:type] == 'line'
+    shape[:color] = color_to_hex(event.at_xpath('color').text)
+    thickness = event.at_xpath('thickness').text
+    if $version_atleast_2_0_0
+      shape[:thickness_percent] = thickness.to_f
+    else
+      shape[:thickness] = thickness.to_i
+    end
+  end
+  if shape[:type] == 'rectangle'
+    square = event.at_xpath('square')
+    if !square.nil?
+      shape[:square] = (square.text == 'true')
+    end
+  end
+  if shape[:type] == 'ellipse'
+    circle = event.at_xpath('circle')
+    if !circle.nil?
+      shape[:circle] = (circle.text == 'true')
+    end
+  end
+  if shape[:type] == 'pencil'
+    commands = event.at_xpath('commands')
+    if !commands.nil?
+      shape[:commands] = commands.text.split(',').map { |c| c.to_i }
+    end
+  end
+  if shape[:type] == 'poll_result'
+    shape[:num_responders] = event.at_xpath('num_responders').text.to_i
+    shape[:num_respondents] = event.at_xpath('num_respondents').text.to_i
+    shape[:result] = event.at_xpath('result').text
+  end
+  if shape[:type] == 'text'
+    shape[:text_box_width] = event.at_xpath('textBoxWidth').text.to_f
+    shape[:text_box_height] = event.at_xpath('textBoxHeight').text.to_f
+    shape[:calced_font_size] = event.at_xpath('calcedFontSize').text.to_f
+    shape[:font_color] = color_to_hex(event.at_xpath('fontColor').text)
+    text = event.at_xpath('text')
+    if !text.nil?
+      shape[:text] = text.text
+    else
+      shape[:text] = ''
+    end
+  end
+
+  # Find the previous shape, for updates
+  prev_shape = nil
+  if !shape[:id].nil?
+    # If we have a shape ID, look up the previous shape by ID
+    prev_shape = shapes.find_all {|s| s[:id] == shape[:id] }.last
+  else
+    # No shape ID, so do heuristic matching. If the previous shape had the
+    # same type and same first two data points, update it.
+    last_shape = shapes.last
+    if last_shape[:type] == shape[:type] and
+        last_shape[:data_points][0] == shape[:data_points][0] and
+        last_shape[:data_points][1] == shape[:data_points][1]
+      prev_shape = last_shape
+    end
+  end
+  if !prev_shape.nil?
+    prev_shape[:out] = timestamp
+    shape[:shape_unique_id] = prev_shape[:shape_unique_id]
+
+    if shape[:type] == 'pencil' and shape[:status] == 'DRAW_UPDATE'
+      # BigBlueButton 2.0 quirk - 'DRAW_UPDATE' events on pencil tool only
+      # include newly added points, rather than the full list.
+      shape[:data_points] = prev_shape[:data_points] + shape[:data_points]
+    end
+  else
+    shape[:shape_unique_id] = $svg_shape_unique_id
+    $svg_shape_unique_id += 1
+  end
+
+  BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} Type #{shape[:type]}")
+  shapes << shape
+end
+
+def events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this undo is for, with fallbacks
+  # for old BBB where this info isn't in the undo messages
+  presentation = event.at_xpath('presentation')
+  slide = event.at_xpath('pageNumber')
+  if presentation.nil?
+    presentation = current_presentation
+  else
+    presentation = presentation.text
+  end
+  if slide.nil?
+    slide = current_slide
+  else
+    slide = slide.text.to_i
+    slide -=1 unless $version_atleast_0_9_0
+  end
+  # Newer undo messages have the shape id, making this a lot easier
+  shape_id = event.at_xpath('shapeId')
+  if !shape_id.nil?
+    shape_id = shape_id.text
+  end
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  if !shape_id.nil?
+    # If we have the shape id, we simply have to update the undo time on
+    # all the shapes with that id.
+    BigBlueButton.logger.info("Undo: removing shape with ID #{shape_id} at #{timestamp}")
+    shapes.each do |shape|
+      if shape[:id] == shape_id
+        if shape[:undo].nil? or shape[:undo] > timestamp
+          shape[:undo] = timestamp
+        end
+      end
+    end
+  else
+    # The undo command removes the most recently added shape that has not
+    # already been removed by another undo or clear. Find that shape.
+    undo_shape = shapes.select { |s| s[:undo].nil? }.last
+    if !undo_shape.nil?
+      BigBlueButton.logger.info("Undo: removing Shape #{undo_shape[:shape_unique_id]} at #{timestamp}")
+      # We have an id number assigned to associate all the updated versions
+      # of the same shape. Use that to determine which shapes to apply undo
+      # times to.
+      shapes.each do |shape|
+        if shape[:shape_unique_id] == undo_shape[:shape_unique_id]
+          if shape[:undo].nil? or shape[:undo] > timestamp
+            shape[:undo] = timestamp
+          end
+        end
+      end
+    else
+      BigBlueButton.logger.info("Undo: no applicable shapes found")
+    end
+  end
+end
+
+def events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this clear is for, with fallbacks
+  # for old BBB where this info isn't in the clear messages
+  presentation = event.at_xpath('presentation')
+  slide = event.at_xpath('pageNumber')
+  if presentation.nil?
+    presentation = current_presentation
+  else
+    presentation = presentation.text
+  end
+  if slide.nil?
+    slide = current_slide
+  else
+    slide = slide.text.to_i
+    slide -=1 unless $version_atleast_0_9_0
+  end
+
+  # BigBlueButton 2.0 per-user clear features
+  full_clear = event.at_xpath('fullClear')
+  if !full_clear.nil?
+    full_clear = (full_clear.text == 'true')
+  else
+    # Default to full clear on older versions
+    full_clear = true
+  end
+  user_id = event.at_xpath('userId')
+  if !user_id.nil?
+    user_id = user_id.text
+  end
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  if full_clear
+    BigBlueButton.logger.info("Clear: removing all shapes")
+  else
+    BigBlueButton.logger.info("Clear: removing shapes for User #{user_id}")
+  end
+
+  shapes.each do |shape|
+    if full_clear or user_id == shape[:user_id]
+      if shape[:undo].nil? or shape[:undo] > timestamp
+        shape[:undo] = timestamp
       end
     end
   end
-  return new_slides_events
 end
 
-def getLastProcessedSlide(index)
-  return nil if (index < 0)
-  eventname = $slides_events[index]['eventname']
-  while eventname != "GotoSlideEvent" do
-    index -= 1
-    return nil if (index < 0)
-    eventname = $slides_events[index]['eventname']
+def events_get_image_info(slide)
+  if slide[:deskshare]
+    slide[:src] = 'presentation/deskshare.png'
+  elsif slide[:presentation] == ''
+    slide[:src] = 'presentation/logo.png'
+  else
+    slide[:src] = "presentation/#{slide[:presentation]}/slide-#{slide[:slide] + 1}.png"
+    slide[:text] = "presentation/#{slide[:presentation]}/textfiles/slide-#{slide[:slide] + 1}.txt"
   end
-  return $slides_events[index]
+  image_path = "#{$process_dir}/#{slide[:src]}"
+  if !File.exist?(image_path)
+    BigBlueButton.logger.warn("Missing image file #{image_path}!")
+    # Emergency last-ditch blank image creation
+    FileUtils.mkdir_p(File.dirname(image_path))
+    if slide[:deskshare]
+      command = "convert -size #{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
+    else
+      command = "convert -size 1600x1200 xc:transparent -background transparent -quality 90 +dither -depth 8 -colors 256 #{image_path}"
+    end
+    BigBlueButton.execute(command)
+  end
+  slide[:width], slide[:height] = FastImage.size(image_path)
+  BigBlueButton.logger.info("Image size is #{slide[:width]}x#{slide[:height]}")
 end
 
-def processSlideEvents
-  BigBlueButton.logger.info("Slide events processing")
-  deskshare_slide = false
+# Create the shapes.svg, cursors.xml, and panzooms.xml files used for
+# rendering the presentation area
+def processPresentation(package_dir)
+  shapes_doc = Nokogiri::XML::Document.new()
+  shapes_doc.create_internal_subset('svg', '-//W3C//DTD SVG 1.1//EN',
+                             'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd')
+  svg = shapes_doc.root = shapes_doc.create_element('svg',
+          id: 'svgfile',
+          style: 'position:absolute;height:600px;width:800px',
+          xmlns: 'http://www.w3.org/2000/svg',
+          'xmlns:xlink' => 'http://www.w3.org/1999/xlink',
+          version: '1.1',
+          viewBox: '0 0 800 600')
 
-  # For each slide (there is only one image per slide)
-  $slides_events.each_with_index do |node, index|
-    # Ignore slide events that happened after the last recording period.
-    if(node[:timestamp].to_f > $rec_events.last[:stop_timestamp].to_f)
-      next
-    end
+  panzooms_doc = Nokogiri::XML::Document.new()
+  panzooms_rec = panzooms_doc.root = panzooms_doc.create_element('recording',
+          id: 'panzoom_events')
 
-    eventname = node['eventname']
-    slide_timestamp =  node[:timestamp]
-    slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
-    orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
+  cursors_doc = Nokogiri::XML::Document.new()
+  cursors_rec = cursors_doc.root = cursors_doc.create_element('recording',
+          id: 'cursor_events')
 
-    if eventname == "SharePresentationEvent"
-      $presentation_name = node.xpath(".//presentationName")[0].text()
-      slide_number = $presentation_current_slide[$presentation_name].to_i
-      BigBlueButton.logger.info("Switching to presentation #{$presentation_name}, saved slide is #{slide_number}")
+  # Current presentation/slide state
+  current_presentation_slide = {}
+  current_presentation = ''
+  current_slide = 0
+  # Current pan/zoom state
+  current_x_offset = 0.0
+  current_y_offset = 0.0
+  current_width_ratio = 100.0
+  current_height_ratio = 100.0
+  # Current cursor status
+  cursor_x = -1.0
+  cursor_y = -1.0
+  cursor_visible = false
+  presenter = nil
+  # Current deskshare state (affects presentation and pan/zoom)
+  deskshare = false
+
+  slides = []
+  panzooms = []
+  cursors = []
+  shapes = {}
+
+  # Iterate through the events.xml and store the events, building the
+  # xml files as we go
+  last_timestamp = 0.0
+  events_xml = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+  events_xml.xpath('/recording/event').each do |event|
+    eventname = event['eventname']
+    last_timestamp = timestamp =
+      (translateTimestamp(event['timestamp']) / 1000.0).round(1)
+
+    # Make sure to add initial entries to the slide & panzoom lists
+    slide_changed = slides.empty?
+    panzoom_changed = panzooms.empty?
+    cursor_changed = cursors.empty?
+
+    # Do event specific processing
+    if eventname == 'SharePresentationEvent'
+      current_presentation = event.at_xpath('presentationName').text
+      current_slide = current_presentation_slide[current_presentation].to_i
+      slide_changed = true
+      panzoom_changed = true
 
     elsif eventname == 'GotoSlideEvent'
-      slide_number = node.xpath(".//slide")[0].text().to_i
-      BigBlueButton.logger.info("Switching to slide #{slide_number} in presentation #{$presentation_name}")
+      current_slide = event.at_xpath('slide').text.to_i
+      current_presentation_slide[current_presentation] = current_slide
+      slide_changed = true
+      panzoom_changed = true
 
-    elsif eventname == "DeskshareStartedEvent"
-      deskshare_slide = true
-      slide_number = -1
-      BigBlueButton.logger.info("Started deskshare; slide area is cleared")
+    elsif eventname == 'ResizeAndMoveSlideEvent'
+      current_x_offset = event.at_xpath('xOffset').text.to_f
+      current_y_offset = event.at_xpath('yOffset').text.to_f
+      current_width_ratio = event.at_xpath('widthRatio').text.to_f
+      current_height_ratio = event.at_xpath('heightRatio').text.to_f
+      panzoom_changed = true
 
-    elsif eventname == "DeskshareStoppedEvent"
-      deskshare_slide = false
-      slide_number = $presentation_current_slide[$presentation_name].to_i
-      BigBlueButton.logger.info("Stopped deskshare; restoring slide #{slide_number} in presentation #{$presentation_name}")
+    elsif eventname == 'DeskshareStartedEvent' and $presentation_props['include_deskshare']
+      deskshare = true
+      slide_changed = true
 
-    else
-      BigBlueButton.logger.warn("Unhandled event #{eventname} in processSlideEvents")
-      next
+    elsif eventname == 'DeskshareStoppedEvent' and $presentation_props['include_deskshare']
+      deskshare = false
+      slide_changed = true
+
+    elsif eventname == 'AddShapeEvent' or eventname == 'ModifyTextEvent'
+      events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
+
+    elsif eventname == 'UndoShapeEvent' or eventname == 'UndoAnnotationEvent'
+      events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
+
+    elsif eventname == 'ClearPageEvent' or eventname == 'ClearWhiteboardEvent'
+      events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
+
+    elsif eventname == 'AssignPresenterEvent'
+      # Move cursor offscreen on presenter switch, it'll reappear if the new
+      # presenter moves it
+      presenter = event.at_xpath('userid').text
+      cursor_visible = false
+      cursor_changed = true
+
+    elsif eventname == 'CursorMoveEvent'
+      cursor_x = event.at_xpath('xOffset').text.to_f
+      cursor_y = event.at_xpath('yOffset').text.to_f
+      cursor_visible = true
+      cursor_changed = true
+
+    elsif eventname == 'WhiteboardCursorMoveEvent'
+      user_id = event.at_xpath('userId')
+      # Only draw cursor for current presentor. TODO multi-cursor support
+      if user_id.nil? or user_id.text == presenter
+        cursor_x = event.at_xpath('xOffset').text.to_f
+        cursor_y = event.at_xpath('yOffset').text.to_f
+        cursor_visible = true
+        cursor_changed = true
+      end
     end
 
-    slide_number = slide_number < 0 ? 0 : slide_number
-    $presentation_current_slide[$presentation_name] = slide_number
-    slide_src = deskshare_slide ?
-        "presentation/deskshare/slide-1.png" :
-        "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
-    txt_file_path = deskshare_slide ?
-        "presentation/deskshare/slide-1.txt" :
-        "presentation/#{$presentation_name}/textfiles/slide-#{slide_number + 1}.txt"
-    slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
-    image_url = "#{$process_dir}/#{slide_src}"
-
-    if !File.exist?(image_url)
-      BigBlueButton.logger.warn("Missing image file #{slide_src}!")
-      # Emergency last-ditch blank image creation
-      if deskshare_slide
-        FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
-        command = "convert -size 1280x720 xc:transparent -background transparent #{image_url}"
+    # Perform slide finalization
+    if slide_changed
+      slide = slides.last
+      if !slide.nil? and
+          slide[:presentation] == current_presentation and
+          slide[:slide] == current_slide and
+          slide[:deskshare] == deskshare
+        BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
+        slide_changed = false
       else
-        FileUtils.mkdir_p("#{$process_dir}/presentation/#{$presentation_name}")
-        command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_url}"
-      end
-      BigBlueButton.execute(command)
-    end
-
-    slide_size = FastImage.size(image_url)
-    if (index + 1 < $slides_events.length)
-      slide_end = ( translateTimestamp($slides_events[index + 1][:timestamp]) / 1000 ).round(1)
-      orig_slide_end = ( $slides_events[index + 1][:timestamp].to_f / 1000 ).round(1)
-    else
-      slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
-      orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
-    end
-
-    if slide_start == slide_end
-      BigBlueButton.logger.info("Slide is never displayed (slide_start = slide_end), so it won't be included in the svg")
-      next
-    end
-
-    BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
-    # Is this a new image or one previously viewed?
-    if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
-      # If it is, add it to the list with all the data.
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end], $presentation_name, slide_number]
-      $global_slide_count = $global_slide_count + 1
-    else
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-    end
-    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
-    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
-
-    $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
-    puts "#{slide_src} : #{slide_start} -> #{slide_end}"
-  end
-end
-
-def processShapesAndClears
-  # Create shapes.svg file from the events.xml
-  BigBlueButton.logger.info("Creating shapes.svg")
-  $shapes_svg = Nokogiri::XML::Builder.new do |xml|
-    $xml = xml
-
-    processClearEvents()
-    processUndoEvents()
-
-    # Put in the last clear events numbers (previous clear to the end of the slideshow)
-    #endPresentationTime = ( $end_time.to_f / 1000 ).round(1)
-    endPresentationTime = $end_time.to_f
-    $clearPageTimes[($prev_clear_time..endPresentationTime)] = [$pageCleared, $canvas_number, nil, nil]
-
-    # Put the headers on the svg xml file.
-    $xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
-    $xml.svg(:id => :svgfile, :style => 'position:absolute; height:600px; width:800px;', :xmlns => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', :version => '1.1', :viewBox => :'0 0 800 600') do
-
-      # This is for the first image. It is a placeholder for an image that doesn't exist.
-      $xml.image(:id => :image0, :class => 'slide', :in => 0, :out => $first_slide_start, :src => "logo.png", :width => 800)
-      $xml.g(:class => :canvas, :id => :canvas0, :image => :image0, :display => :none)
-      $presentation_name = ""
-
-      processSlideEvents()
-      processClearImages()
-
-      BigBlueButton.logger.info("Printing out the gathered images")
-      # Print out the gathered/detected images.
-      $slides_compiled.each do |key, val|
-        $val = val
-        $xml.image(:id => "image#{$val[2].to_i}", :class => 'slide', :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3], :x => 0)
-        $canvas_number+=1
-        $xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
-
-          BigBlueButton.logger.info("Processing shapes within the image #{$val[2].to_i}")
-          # Select and print the shapes within the current image
-          $shape_events.each do |shape|
-            $shapeTimestamp = shape[:timestamp].to_f
-            $shapeCreationTime = ( translateTimestamp($shapeTimestamp) / 1000 ).round(1)
-            orig_shapeCreationTime = ( $shapeTimestamp.to_f / 1000 ).round(1)
-            in_this_image = false
-
-            # Check if the current shape is to be drawn in the current image
-            presentation = shape.at_xpath(".//presentation")
-            pageNumber = shape.at_xpath(".//pageNumber")
-            if presentation and pageNumber
-              # If we have the presentation and page number available, match
-              # against that.
-              pageNumber = pageNumber.text().to_i
-              pageNumber -= 1 unless $version_atleast_0_9_0
-              if presentation.text() == $val[6] and pageNumber == $val[7]
-                in_this_image = true
-              end
-            else
-              # Otherwise check if the shape is within one of the time ranges
-              # when the current image is visible
-              index = 0
-              numOfTimes = $val[0].length
-              while((in_this_image == false) && (index < numOfTimes)) do
-                if((($val[4][index].to_f)..($val[5][index].to_f)) === orig_shapeCreationTime)
-                  in_this_image = true
-                end
-                index+=1
-              end
-            end
-
-            if(in_this_image)
-              # Get variables
-              BigBlueButton.logger.info shape.to_xml(:indent => 2)
-              $shapeType = shape.xpath(".//type")[0].text()
-              $pageNumber = shape.xpath(".//pageNumber")[0].text()
-              $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-
-              case $shapeType
-                when 'pencil'
-                  $shapeThickness = shape.xpath(".//thickness")[0].text()
-                  colour = shape.xpath(".//color")[0].text()
-                  commands = shape.at_xpath('.//commands')
-                  if commands
-                    $shapeCommands = commands.text().split(',')
-                  else
-                    $shapeCommands = nil
-                  end
-                when 'rectangle', 'ellipse', 'triangle', 'line'
-                  $shapeThickness = shape.xpath(".//thickness")[0].text()
-                  colour = shape.xpath(".//color")[0].text()
-                when 'text'
-                  $textValue = shape.xpath(".//text")[0].text()
-                  $textFontType = "Arial"
-                  $textFontSize = shape.xpath(".//fontSize")[0].text()
-                  $textCalcedFontSize = shape.xpath(".//calcedFontSize")[0].text()
-                  colour = shape.xpath(".//fontColor")[0].text()
-                when 'poll_result'
-                  # Just hand the 'shape' xml object to the poll rendering code.
-              end
-
-              # figure out undo time
-              BigBlueButton.logger.info("Figuring out undo time")
-              if($undos.has_key? ( shape[:timestamp] ))
-                $shapeUndoTime = ( translateTimestamp( $undos[ shape[:timestamp] ] ) / 1000).round(1)
-              else
-                $shapeUndoTime = -1
-              end
-
-              clear_time = -1
-              $clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
-                $clearTimeInstance = clearTimeInstance
-                $pageAndCanvasNumbers = pageAndCanvasNumbers
-                if(($clearTimeInstance.last > $shapeTimestamp) && ($pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"))
-                  if((clear_time > ( translateTimestamp($clearTimeInstance.last) / 1000 ).round(1)) || (clear_time == -1))
-                    clear_time = ( translateTimestamp($clearTimeInstance.last) / 1000 ).round(1)
-                  end
-                end
-              end
-
-              if($shapeUndoTime == -1)
-                if(clear_time == -1)
-                  $shapeUndoTime = -1 # nothing changes
-                elsif(clear_time != -1)
-                  $shapeUndoTime = clear_time
-                end
-              elsif($shapeUndoTime != -1)
-                if(clear_time == -1)
-                  $shapeUndoTime = $shapeUndoTime #nothing changes
-                elsif (clear_time != -1)
-                  if(clear_time < $shapeUndoTime)
-                    $shapeUndoTime = clear_time
-                  else
-                    $shapeUndoTime = $shapeUndoTime # nothing changes
-                  end
-                end
-              end
-
-              # Process colours
-              $colour_hex = colour.to_i.to_s(16) # convert from base 10 to base 16 (hex)
-              $colour_hex='0'*(6-$colour_hex.length) + $colour_hex # pad the number with 0's to give it a length of 6
-
-              # resolve the current image height and width
-              $ss.each do |t,size|
-                if t === $shapeCreationTime
-                  $vbox_width = size[0]
-                  $vbox_height = size[1]
-                end
-              end
-
-              if $version_atleast_2_0
-                # Shape thickness is now calculated as a percentage of page width
-                $shapeThickness = $shapeThickness.to_f * $vbox_width / 100.0
-              end
-
-              case $shapeType
-                when 'pencil'
-                  storePencilShape()
-                when 'line'
-                  storeLineShape()
-                when 'rectangle'
-                  square = shape.xpath(".//square")
-                  if square.length > 0
-                    $is_square = square[0].text()
-                  else
-                    $is_square = 'false'
-                  end
-                  storeRectShape()
-                when 'triangle'
-                  storeTriangleShape()
-                when 'ellipse'
-                  circle = shape.xpath(".//circle")
-                  if circle.length > 0
-                    $is_circle = circle[0].text()
-                  else
-                    $is_circle = 'false'
-                  end
-                  storeEllipseShape()
-                when 'text'
-                  $textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
-                  $textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
-                  storeTextShape()
-                when 'poll_result'
-                  storePollResultShape($xml, shape)
-              end
-            end # end if(in_this_image)
-          end # end shape_events.each do |shape|
+        if !slide.nil?
+          slide[:out] = timestamp
+          svg_render_image(svg, slide, shapes)
         end
+
+        BigBlueButton.logger.info("Presentation #{current_presentation} Slide #{current_slide} Deskshare #{deskshare}")
+        slide = {
+          presentation: current_presentation,
+          slide: current_slide,
+          in: timestamp,
+          deskshare: deskshare
+        }
+        events_get_image_info(slide)
+        slides << slide
+      end
+    end
+
+    # Perform panzoom finalization
+    if panzoom_changed
+      slide = slides.last
+      panzoom = panzooms.last
+      if !panzoom.nil? and
+          panzoom[:x_offset] == current_x_offset and
+          panzoom[:y_offset] == current_y_offset and
+          panzoom[:width_ratio] == current_width_ratio and
+          panzoom[:height_ratio] == current_height_ratio and
+          panzoom[:width] == slide[:width] and
+          panzoom[:height] == slide[:height] and
+          panzoom[:deskshare] == deskshare
+        BigBlueButton.logger.info('Panzoom: skipping, no changes')
+        panzoom_changed = false
+      else
+        if !panzoom.nil?
+          panzoom[:out] = timestamp
+          panzooms_emit_event(panzooms_rec, panzoom)
+        end
+        BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide[:width]}x#{slide[:height]})")
+        panzoom = {
+          x_offset: current_x_offset,
+          y_offset: current_y_offset,
+          width_ratio: current_width_ratio,
+          height_ratio: current_height_ratio,
+          width: slide[:width],
+          height: slide[:height],
+          in: timestamp,
+          deskshare: deskshare,
+        }
+        panzooms << panzoom
+      end
+    end
+
+    # Perform cursor finalization
+    if cursor_changed or panzoom_changed
+      unless cursor_x >= 0 and cursor_x <= 100 and
+          cursor_y >= 0 and cursor_y <= 100
+        cursor_visible = false
+      end
+
+      panzoom = panzooms.last
+      cursor = cursors.last
+      if !cursor.nil? and
+          ((!cursor[:visible] and !cursor_visible) or
+           (cursor[:x] == cursor_x and cursor[:y] == cursor_y)) and
+          !panzoom_changed
+        BigBlueButton.logger.info('Cursor: skipping, no changes')
+      else
+        if !cursor.nil?
+          cursor[:out] = timestamp
+          cursors_emit_event(cursors_rec, cursor)
+        end
+        BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{panzoom[:width]}x#{panzoom[:height]})")
+        cursor = {
+          visible: cursor_visible,
+          x: cursor_x,
+          y: cursor_y,
+          panzoom: panzoom,
+          in: timestamp,
+        }
+        cursors << cursor
       end
     end
   end
+
+  # Add the last slide, panzoom, and cursor
+  slide = slides.last
+  slide[:out] = last_timestamp
+  svg_render_image(svg, slide, shapes)
+  panzoom = panzooms.last
+  panzoom[:out] = last_timestamp
+  panzooms_emit_event(panzooms_rec, panzoom)
+  cursor = cursors.last
+  cursor[:out] = last_timestamp
+  cursors_emit_event(cursors_rec, cursor)
+
+  # And save the result
+  File.write("#{package_dir}/#{$shapes_svg_filename}", shapes_doc.to_xml)
+  File.write("#{package_dir}/#{$panzooms_xml_filename}", panzooms_doc.to_xml)
+  File.write("#{package_dir}/#{$cursor_xml_filename}", cursors_doc.to_xml)
 end
 
 def processChatMessages
@@ -1094,7 +1130,8 @@ def processDeskshareEvents
         start_timestamp = (translateTimestamp(event[:start_timestamp].to_f) / 1000).round(1)
         stop_timestamp = (translateTimestamp(event[:stop_timestamp].to_f) / 1000).round(1)
         if (start_timestamp != stop_timestamp)
-          if !BigBlueButton.is_video_valid?("#{$deskshare_dir}/#{event[:stream]}")
+          video_info = BigBlueButton::EDL::Video.video_info("#{$deskshare_dir}/#{event[:stream]}")
+          if !video_info[:video]
             BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
             next
           end
@@ -1109,44 +1146,10 @@ def processDeskshareEvents
   end
 end
 
-$vbox_width = 1600
-$vbox_height = 1200
-$magic_mystery_number = 2
-$shapesold_svg_filename = 'shapes_old.svg'
 $shapes_svg_filename = 'shapes.svg'
 $panzooms_xml_filename = 'panzooms.xml'
 $cursor_xml_filename = 'cursor.xml'
 $deskshare_xml_filename = 'deskshare.xml'
-
-$originX = "NaN"
-$originY = "NaN"
-$originalOriginX = "NaN"
-$originalOriginY = "NaN"
-
-$rectangle_count = 0
-$triangle_count = 0
-$pencil_count = 0
-$line_count = 0
-$ellipse_count = 0
-$text_count = 0
-$poll_result_count = 0
-$global_shape_count = -1
-$global_slide_count = 1
-$global_page_count = 0
-$canvas_number = 0
-$prev_clear_time = 0
-$pageCleared = "0"
-$page_number = 0
-$prev_canvas_time_start = 0 # initial start is 0 seconds. (beginning of video)
-
-$prev_time = "NaN"
-
-$ss = {}
-$clearPageTimes = {}
-$presentation_current_slide = {}
-$slides_compiled = {}
-$slides_raw = {}
-$undos = {}
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -1165,10 +1168,6 @@ begin
 
   if ($playback == "presentation")
 
-    # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-    bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-    simple_props = YAML::load(File.open('presentation.yml'))
-
     log_dir = bbb_props['log_dir']
 
     logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily' )
@@ -1179,7 +1178,7 @@ begin
     BigBlueButton.logger.info("Setting process dir")
     $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
     BigBlueButton.logger.info("setting publish dir")
-    publish_dir = simple_props['publish_dir']
+    publish_dir = $presentation_props['publish_dir']
     BigBlueButton.logger.info("setting playback url info")
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
@@ -1255,7 +1254,7 @@ begin
 
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
         $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
-        $version_atleast_2_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
+        $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
         BigBlueButton.logger.info("Creating metadata.xml")
 
         # Get the real-time start and end timestamp
@@ -1286,7 +1285,7 @@ begin
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
-              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
+              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.0/playback.html?meetingId=#{$meeting_id}")
               xml.processing_time("#{processing_time}")
               xml.duration("#{recording_time}")
               unless presentation.empty?
@@ -1314,15 +1313,7 @@ begin
         BigBlueButton.logger.info("Generating xml for slides and chat")
 
         # Gathering all the events from the events.xml
-        $slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent' or @eventname='DeskshareStartedEvent' or @eventname='DeskshareStoppedEvent']")
         $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-        $shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
-        $panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent' or @eventname='DeskshareStartedEvent' or @eventname='DeskshareStoppedEvent']") # for the action of panning and/or zooming
-        $cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
-        $clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
-        $undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
-        $join_time = $meeting_start.to_f
-        $end_time = $meeting_end.to_f
 
         # Create a list of timestamps when the moderator cleared the public chat
         $clear_chat_timestamps = [ ]
@@ -1332,33 +1323,14 @@ begin
 
         calculateRecordEventsOffset()
 
-        first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
-        first_presentation_start = $meeting_end
-        if not first_presentation_start_node.empty?
-          first_presentation_start = first_presentation_start_node[0][:timestamp]
-        end
-        $first_slide_start = ( translateTimestamp(first_presentation_start) / 1000 ).round(1)
-
         processChatMessages()
 
-        processShapesAndClears()
-
-        processPanAndZooms()
-
-        processCursorEvents()
+        processPresentation(package_dir)
 
         processDeskshareEvents()
 
         # Write slides.xml to file
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
-        # Write shapes.svg to file
-        File.open("#{package_dir}/#{$shapes_svg_filename}", 'w') { |f| f.puts $shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
-
-        # Write panzooms.xml to file
-        File.open("#{package_dir}/#{$panzooms_xml_filename}", 'w') { |f| f.puts $panzooms_xml.to_xml }
-
-        # Write panzooms.xml to file
-        File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
 
         # Write deskshare.xml to file
         File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }

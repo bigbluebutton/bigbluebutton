@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.whiteboard.models
     private var _id:String;
     private var _historyLoaded:Boolean = false;
     private var _annotations:ArrayCollection = new ArrayCollection();
+    private var _annotationsMap:Object = new Object();
     
     public function Whiteboard(id:String) {
       _id = id;
@@ -28,10 +29,12 @@ package org.bigbluebutton.modules.whiteboard.models
     
     public function addAnnotation(annotation:Annotation):void {
       _annotations.addItem(annotation);
+      _annotationsMap[annotation.id] = annotation;
     }
     
     public function addAnnotationAt(annotation:Annotation, index:int):void {
       _annotations.addItemAt(annotation, index);
+      _annotationsMap[annotation.id] = annotation;
     }
     
     public function updateAnnotation(annotation:Annotation):void {
@@ -48,42 +51,40 @@ package org.bigbluebutton.modules.whiteboard.models
     }
     
     public function undo(id:String):Annotation {
-      for (var i:int = _annotations.length-1; i >= 0; i--) {
-        if ((_annotations.getItemAt(i) as Annotation).id == id) {
-          return (_annotations.removeItemAt(i) as Annotation);
-        }
+      if (_annotationsMap.propertyIsEnumerable(id)) {
+        var annotation:Annotation = _annotationsMap[id];
+        delete _annotationsMap[id];
+        _annotations.removeItem(annotation);
+        return annotation;
+      } else {
+        return null;
       }
-      return null;
     }
     
     public function clearAll():void {
       _annotations.removeAll();
+      _annotationsMap = new Object();
     }
     
     public function clear(userId:String):void {
-      for (var i:int = _annotations.length-1; i >= 0; i--) {
-        if ((_annotations.getItemAt(i) as Annotation).userId == userId) {
-          _annotations.removeItemAt(i);
+      for each (var annotation:Annotation in _annotationsMap) {
+        if (annotation.userId == userId) {
+          delete _annotationsMap[annotation.id]
+          _annotations.removeItem(annotation);
         }
       }
     }
     
     public function getAnnotations():Array {
-      var a:Array = new Array();
-      for (var i:int = 0; i < _annotations.length; i++) {
-        a.push(_annotations.getItemAt(i) as Annotation);
-      }
-      return a;
+      return _annotations.toArray();
     }
     
     public function getAnnotation(id:String):Annotation {
-      for (var i:int = _annotations.length-1; i >= 0; i--) {
-        if ((_annotations.getItemAt(i) as Annotation).id == id) {
-          return _annotations.getItemAt(i) as Annotation;
-        }
+      if (_annotationsMap.propertyIsEnumerable(id)) {
+        return _annotationsMap[id];
+      } else {
+        return null;
       }
-      
-      return null;
     }
   }
 }

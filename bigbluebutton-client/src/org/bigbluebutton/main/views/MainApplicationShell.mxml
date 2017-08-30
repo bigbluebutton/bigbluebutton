@@ -32,8 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:common="org.bigbluebutton.common.*"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
 		creationComplete="initializeShell()"
-		addedToStage="onAddedToStage()"
-		verticalGap="0">
+		addedToStage="onAddedToStage()" >
 
 	<!--
 	height="{parentApplication.height - 1}" : The container height is set to fix height because the percentHeight
@@ -82,77 +81,76 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
 		<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
 		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
-    <mate:Listener type="{RoundTripLatencyReceivedEvent.ROUND_TRIP_LATENCY_RECEIVED}" method="handleRoundTripLatencyReceivedEvent"/>
+    	<mate:Listener type="{RoundTripLatencyReceivedEvent.ROUND_TRIP_LATENCY_RECEIVED}" method="handleRoundTripLatencyReceivedEvent"/>
     
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.Event;
-      import flash.events.FullScreenEvent;
-      import flash.events.IOErrorEvent;
-      import flash.events.TextEvent;
-      import flash.geom.Point;
-      import flash.net.navigateToURL;
-      import flash.utils.setTimeout;
-      
-      import mx.binding.utils.ChangeWatcher;
-      import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
-      import mx.core.FlexGlobals;
-      import mx.core.IFlexDisplayObject;
-      import mx.core.UIComponent;
-      import mx.events.FlexEvent;
-      
-      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-      
-      import org.as3commons.lang.StringUtils;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.IBbbModuleWindow;
-      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.OpenWindowEvent;
-      import org.bigbluebutton.common.events.ToolbarButtonEvent;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.PopUpUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.events.NewGuestWaitingEvent;
-      import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
-      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.core.vo.LockSettingsVO;
-      import org.bigbluebutton.main.events.AppVersionEvent;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.BreakoutRoomEvent;
-      import org.bigbluebutton.main.events.ClientStatusEvent;
-      import org.bigbluebutton.main.events.ConfigLoadedEvent;
-      import org.bigbluebutton.main.events.ExitApplicationEvent;
-      import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-      import org.bigbluebutton.main.events.MeetingNotFoundEvent;
-      import org.bigbluebutton.main.events.ModuleLoadEvent;
-      import org.bigbluebutton.main.events.NetworkStatsEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.Guest;
-      import org.bigbluebutton.main.model.ImageLoader;
-      import org.bigbluebutton.main.model.options.BrandingOptions;
-      import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
-      import org.bigbluebutton.main.model.options.LanguageOptions;
-      import org.bigbluebutton.main.model.options.LayoutOptions;
-      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-      import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
-      import org.bigbluebutton.modules.phone.models.PhoneOptions;
-      import org.bigbluebutton.modules.users.model.UsersOptions;
-      import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
-      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.Event;
+			import flash.events.FullScreenEvent;
+			import flash.events.IOErrorEvent;
+			import flash.events.TextEvent;
+			import flash.geom.Point;
+			import flash.net.navigateToURL;
+			import flash.utils.setTimeout;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
+			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
+			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+			import org.bigbluebutton.core.vo.LockSettingsVO;
+			import org.bigbluebutton.main.events.AppVersionEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
+			import org.bigbluebutton.main.events.ClientStatusEvent;
+			import org.bigbluebutton.main.events.ConfigLoadedEvent;
+			import org.bigbluebutton.main.events.ExitApplicationEvent;
+			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.Guest;
+			import org.bigbluebutton.main.model.ImageLoader;
+			import org.bigbluebutton.main.model.options.BrandingOptions;
+			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
+			import org.bigbluebutton.main.model.options.LanguageOptions;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -211,6 +209,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
 			private const HIDE_TOOLBARS_DELAY:int = 1000;
 
+      private var _respTimer:ResponsivenessTimer;
+      
 			public function getLogWindow() : LogWindow
 			{
 				if (logWindow == null){
@@ -244,8 +244,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					controlBar.visible = controlBar.includeInLayout = false;
 					calculateCanvasHeight();
 				}
+				_respTimer = new ResponsivenessTimer();
+				_respTimer.start();
 			}
-		
+			
 			private function updateCopyrightText():void {
 				if (StringUtils.isEmpty(brandingOptions.copyright)) {
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
@@ -394,8 +396,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function hideToolbars():void {
-				_hideToolbarsTimer.reset();
-				_hideToolbarsTimer.start();
+				// Temporarily disabling toolbar hiding on fullscreen to address animation delays
+				// _hideToolbarsTimer.reset();
+				// _hideToolbarsTimer.start();
 			}
 
 			private function showToolbars():void {
@@ -440,9 +443,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-                                        
+          updateCopyrightText();
+          
                     logData.localeVersion = localeVersion;
                     logData.tags = ["locale"];
+                    logData.appVersion = appVersion;
                     logData.message = "Received locale version from config.xml";
                     LOGGER.info(JSON.stringify(logData));
       
@@ -549,8 +554,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function openShortcutHelpWindow(e:Event = null):void{
 				if (scWindow == null) {
 					scWindow = new ShortcutHelpWindow();
-					scWindow.width = 300;
-					scWindow.height = 300;
 				}
 				
 				if (scWindow.minimized)
@@ -560,7 +563,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					scWindow.restore();
 				
 				mdiCanvas.windowManager.add(scWindow);
-				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 250, mdiCanvas.height/2 - 250);
 				
 				scWindow.focusHead();
 			}
@@ -740,28 +743,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function handleRoundTripLatencyReceivedEvent(event: RoundTripLatencyReceivedEvent): void {
-              rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
+           //   rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
             }
       
             private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
                 var options:PhoneOptions = new PhoneOptions();
                 if (!options.showMicrophoneHint) return;
                 var browser:String = ExternalInterface.call("determineBrowser")[0];
+                var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
                 if (browser == "Firefox") {
-                    var ffBrowser:FirefoxMicPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, FirefoxMicPermissionImage, false) as FirefoxMicPermissionImage;
-                    if (ffBrowser) {
-                        ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-                            ffBrowser.x = 100;
-                            ffBrowser.y = 150;
-                        });
+                    if (browserPermissionHelper) {
+						if (Capabilities.os.indexOf("Mac") >= 0){
+							browserPermissionHelper.currentState = "firefoxMicMacOSX";
+						}
+						else {
+							browserPermissionHelper.currentState = "firefoxMic";
+						}
+						browserPermissionHelper.x = 50;
+						browserPermissionHelper.y = 150;
                     }
                 } else if (browser == "Chrome") {
-                    var chromeBrowser:ChromeMicPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, ChromeMicPermissionImage, false) as ChromeMicPermissionImage;
-                    if (chromeBrowser) {
-                        chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-                            chromeBrowser.x = 20;
-                            chromeBrowser.y = 130;
-                        });
+                    if (browserPermissionHelper) {
+						browserPermissionHelper.currentState = "chromeMic";
+						browserPermissionHelper.x = 50;
+						browserPermissionHelper.y = 130;
                     }
                 }
             }
@@ -782,26 +787,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
                 if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
-					// Show ChromeWebcmPermissionImg component after showing the webcam window due event listeners registration order
-                    setTimeout(showChromeWebcmPermissionImg, 100);
+					// Show browserPermissionHelper component after showing the webcam window due event listeners registration order
+                    setTimeout(showbrowserPermissionHelper, 100);
                 }
             }
 			
-			private function showChromeWebcmPermissionImg() : void {
-				var chromeWebcmPermissionImg : ChromeWebcamPermissionImage = PopUpUtil.createNonModelPopUp(mdiCanvas, ChromeWebcamPermissionImage, false) as ChromeWebcamPermissionImage;
-				if (chromeWebcmPermissionImg) {
-					chromeWebcmPermissionImg.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-						var point1:Point = new Point();
-						// Calculate position of TitleWindow in Application's coordinates.
-						point1.x = width / 2;
-						point1.y = height / 2;
-						if (Capabilities.os.indexOf("Mac") >= 0) {
-							chromeWebcmPermissionImg.x = (mdiCanvas.width - chromeWebcmPermissionImg.width);
-						} else {
-							chromeWebcmPermissionImg.x = 20;
-						}
-						chromeWebcmPermissionImg.y = 20;
-					});
+			private function showbrowserPermissionHelper() : void {
+				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
+				if (browserPermissionHelper) {
+					browserPermissionHelper.currentState = "chromeCam";
+					var point1:Point = new Point();
+					// Calculate position of TitleWindow in Application's coordinates.
+					point1.x = width / 2;
+					point1.y = height / 2;
+					if (Capabilities.os.indexOf("Mac") >= 0) {
+						browserPermissionHelper.x = (mdiCanvas.width - browserPermissionHelper.width);
+					} else {
+						browserPermissionHelper.x = 20;
+					}
+					browserPermissionHelper.y = 20;
 				}
 			}
 
@@ -929,6 +933,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function updateToolbarHeight():void {
 				if (toolbarHeight != 0) {
 					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0 + 10);
+					if (UsersUtil.isBreakout()) {
+						toolbarHeight += toolbar.breakoutRibbon.height;
+					}
 				}
 				calculateCanvasHeight();
 			}
@@ -1037,8 +1044,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
 					   paddingTop="{toolbarPaddingTop}"
-					   updateComplete="updateToolbarHeight()"
-					   paddingBottom="0" />
+					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
 	<views:MainCanvas id="mdiCanvas"
@@ -1060,11 +1066,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="copyrightLabel2" truncateToFit="true"
 				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
-    <mx:Label 
+    <!--mx:Label 
       id="rttLabel"
       text="RTT = 0ms"
       visible="true"
-      includeInLayout="true" />
+      includeInLayout="true" /-->
 		<mx:Label 
 				id="lblWebRTC"
 				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
@@ -1093,6 +1099,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				styleName="logsButton"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
-		<mx:Button width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreenBtn" styleName="fullScreenButton" click="toggleFullScreen()" />
+		<mx:Button id="fullScreenBtn"
+				width="30"
+				height="30"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}"
+				styleName="fullScreenButton"
+				click="toggleFullScreen()"/>
 	</mx:ControlBar>
 </mx:VBox>

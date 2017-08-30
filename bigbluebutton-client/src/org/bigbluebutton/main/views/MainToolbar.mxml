@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
-    <mate:Listener type="{MeetingTimeRemainingEvent.TIME_REMAINING}" method="handleRemainingTimeUpdate" />
+    	<mate:Listener type="{MeetingTimeRemainingEvent.TIME_REMAINING}" method="handleRemainingTimeUpdate" />
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
@@ -191,25 +191,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					initBandwidthToolTip();
 				}
 			}
-			
-      private function handleRemainingTimeUpdate(e:MeetingTimeRemainingEvent):void {
-        if (! timeRemaining.visible) {
-          timeRemaining.visible = true;
-          timeRemainingLabel.visible = true;
-        }
-        TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec);
-      }
-      
-      private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
-         if (toolbarOptions.showMeetingName) {
-              var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
-              if (meetingTitle != null) {
-                  meetingNameLbl.text = meetingTitle;
-                  meetingNameLbl.toolTip = meetingTitle;
-               } 
-          }
-          logFlashPlayerCapabilities();
-      }
+			private function handleRemainingTimeUpdate(e:MeetingTimeRemainingEvent):void {
+				// Display timer only if there is less than 30 minutes remaining
+				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
+					timeRemaining.visible = true;
+				}
+				TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec);
+			}
+
+			private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
+				if (toolbarOptions.showMeetingName) {
+					var meetingTitle:String = LiveMeeting.inst().meeting.name;
+					if (meetingTitle != null) {
+						meetingNameLbl.text = meetingTitle;
+					}
+				}
+
+				if (UsersUtil.isBreakout()) {
+					breakoutRibbon.visible = breakoutRibbon.includeInLayout = true;
+					var sequence:String = StringUtils.substringAfterLast(UsersUtil.getMeetingName(), " ");
+					sequence = StringUtils.substringBefore(sequence, ")");
+					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
+				}
+
+				logFlashPlayerCapabilities();
+			}
 
       private function refreshModeratorButtonsVisibility(e:*):void {
           showGuestSettingsButton = UsersUtil.amIModerator() && usersOptions.enableGuestUI;
@@ -287,7 +293,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var logoutWindow:LogoutWindow;
 					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
 
-					var newX:Number = btnLogout.x + btnLogout.width - logoutWindow.width;
+					var newX:Number = this.width - logoutWindow.width;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
 
 					PopUpManager.centerPopUp(logoutWindow);
@@ -507,9 +513,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
 
-	<mx:VBox id="mainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="middle">
+	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="top">
+		<!-- Breakout room  Ribbon-->
+		<mx:HBox id="breakoutRibbon" width="100%" height="30"
+				 styleName="breakoutRoomRibbon" 
+				 visible="false" includeInLayout="false" >
+			<mx:Label id="breakoutLabel" />
+			<mx:Label text="|" visible="{timeRemaining.visible}" includeInLayout="{timeRemaining.visible}"/>
+			<mx:Label id="timeRemaining" visible="false" includeInLayout="{timeRemaining.visible}"
+					  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
+					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
+		</mx:HBox>
 		<!-- Top bar -->
-		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off">
+		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
 			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
 				<mx:VRule styleName="toolbarSeparator" height="10" />
@@ -521,12 +537,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:HBox id="addedBtnsDeskShare" />
 			</mx:HBox>
 			<mx:HBox id="rightBox" width="40%" horizontalAlign="right" verticalAlign="middle" horizontalScrollPolicy="off">
-				<mx:Label id="timeRemainingLabel" visible="false" includeInLayout="{timeRemainingLabel.visible}"
-						  text="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}:"
-						  toolTip="{ResourceUtil.getInstance().getString('bbb.meeting.timeRemaining')}"/>
-				<mx:Label id="timeRemaining" visible="false" includeInLayout="{timeRemaining.visible}"
-						  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
-						  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 				<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 				<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 				
