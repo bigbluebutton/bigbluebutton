@@ -229,15 +229,19 @@
 
 			private function sendPatch():void {
 				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
-//				LOGGER.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
 					richTextEditor.textArea.editable = false;
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					sendPatchEvent.operation = "PATCH";
-					_dispatcher.dispatchEvent(sendPatchEvent);
-					_document = clientText;
+					if (sendPatchEvent.patch.length < options.maxMessageLength) {
+						_dispatcher.dispatchEvent(sendPatchEvent);
+						_document = clientText;
+					} else {
+						richTextEditor.htmlText = _document;
+						throwMessageLenghtWarning(sendPatchEvent.patch.length);
+					}
 					richTextEditor.textArea.editable = true;
 				}
 			}
@@ -252,16 +256,11 @@
 			}
 
 			private function receivePatch(e:ReceivePatchEvent):void {
-//				LOGGER.debug("SharedNotesWindow: patch received");
-//				LOGGER.debug("=====\n" + e.patch + "\n=====");
 				if (e.noteId == noteId) {
 					if (_lastPatch == (e.patchId - 1)) {
 						if (e.patch != "") {
 							var result:String = DiffPatch.patch(e.patch, _document);
-//							LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
-//							LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
 							_document = result;
-//							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
 							var date:Date = new Date();
 							lastAuthors[e.userId] = date.getTime();
@@ -481,8 +480,8 @@
 				return true;
 			}
 
-			public function throwPasteWarning(pasteLength:int):void {
-				Alert.show(ResourceUtil.getInstance().getString("bbb.caption.transcript.pastewarning.text", [options.maxPasteLength, pasteLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.pastewarning.title"), Alert.OK);
+			public function throwMessageLenghtWarning(messageLength:int):void {
+				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [options.maxMessageLength, messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {

@@ -991,17 +991,6 @@
     private var shiftPressed:Boolean = false;
     private var ctrlPressed:Boolean = false;
     private var preventTextInput:Boolean = false;
-    private var _maxPasteLength:int = 1024;
-
-    public function set maxPasteLength(value:int):void
-    {
-        _maxPasteLength = value;
-    }
-
-    public function get maxPasteLength():int
-    {
-        return _maxPasteLength;
-    }
 
     public function restoreVerticalScroll(oldVerticalScroll:Number):void
     {
@@ -1226,12 +1215,6 @@
     private function onTextInput(e:TextEvent):void
     {
         if (e.text.length > 0) refreshSelection = true;
-
-        if (e.text.length > maxPasteLength)
-        {
-            e.preventDefault();
-            parentDocument.throwPasteWarning(e.text.length);
-        }
 
         if (preventTextInput) e.preventDefault();
     }

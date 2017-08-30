@@ -19,7 +19,7 @@ package org.bigbluebutton.modules.sharednotes {
 		public var fontSize:int = 14;
 
 		[Bindable]
-		public var maxPasteLength:int = 1024;
+		public var maxMessageLength:int = 1024;
 
 		[Bindable]
 		public var maxNoteLength:int = 5120;
