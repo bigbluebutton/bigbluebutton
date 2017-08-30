@@ -22,5 +22,5 @@ export default function ChangeLockSettings(meetingId, payload) {
   };
   
   const settings = JSON.stringify(body);
-  return Logger.info(`updated lock settings=${settings} for meeting=${meetingId} `);;
+  return Logger.info(`updated lock settings=${settings} for meeting=${meetingId} `);
 };
