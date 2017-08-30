@@ -1250,6 +1250,10 @@ sharednotes|SharedNotesRichTextEditor {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Format_Text");
 }
 
+.sharedNotesClearButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings"); /* TEMPORARY */
+}
+
 /*
 //------------------------------
 //  Slider

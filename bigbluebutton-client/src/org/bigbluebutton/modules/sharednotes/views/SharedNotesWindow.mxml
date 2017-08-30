@@ -50,6 +50,7 @@
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
 			import mx.events.MenuEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
@@ -209,6 +210,7 @@
 				} else {
 					showCloseButton = options.enableDeleteNotes && role == Role.MODERATOR;
 				}
+				btnClear.visible = btnClear.includeInLayout = role == Role.MODERATOR;
 			}
 
 			public function get noteId():String{
@@ -466,6 +468,23 @@
 				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
+			protected function btnClear_clickHandler(event:MouseEvent = null):void {
+				var alert:Alert = Alert.show(
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.message'),
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.title'),
+						Alert.YES | Alert.NO, parent as Sprite, alertClear, null, Alert.YES);
+				event.stopPropagation();
+			}
+
+			private function alertClear(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+					sendPatchEvent.noteId = noteId;
+					sendPatchEvent.operation = "CLEAR";
+					_dispatcher.dispatchEvent(sendPatchEvent);
+				}
+			}
+
 			public function handleCtrlCmd(event:KeyboardEvent):Boolean {
 				switch (event.keyCode) {
 					case Keyboard.Z:
@@ -570,6 +589,11 @@
 						toolTip="{_isNotesLimit ?
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.toolTip') :
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+				<mx:Button id="btnClear"
+						styleName="sharedNotesClearButtonStyle"
+						width="26" height="26"
+						click="btnClear_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.clear.toolTip')}"/>
 				<mx:Button id="btnFormat"
 						styleName="sharedNotesFormatButtonStyle"
 						width="26" height="26"
