@@ -669,8 +669,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     end
   end
   if shape[:type] == 'poll_result'
-    shape[:num_responders] = event.at_xpath('num_responders').text
-    shape[:num_respondents] = event.at_xpath('num_respondents').text
+    shape[:num_responders] = event.at_xpath('num_responders').text.to_i
+    shape[:num_respondents] = event.at_xpath('num_respondents').text.to_i
     shape[:result] = event.at_xpath('result').text
   end
   if shape[:type] == 'text'
