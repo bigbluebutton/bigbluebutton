@@ -131,9 +131,10 @@
 			toolbarVisibleByDefault="false"
 			showToolbarButton="true"
 			fontSize="14"
-			maxPasteLength="5000"
+			maxMessageLength="5000"
 			maxNoteLength="10000"
 			enableDeleteNotes="false"
+			hideAdditionalNotes="false"
 		/>
 
 <!--

@@ -50,6 +50,7 @@
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
 			import mx.events.MenuEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
@@ -124,7 +125,7 @@
 					getDocumentTimer.start();
 					this.addEventListener(FlexEvent.SHOW, onShow);
 					this.addEventListener(FlexEvent.HIDE, onHide);
-				} else {
+				} else if (options.hideAdditionalNotes) {
 					this.visible = LiveMeeting.inst().sharedNotes.mainNoteVisible;
 					BindingUtils.bindSetter(updateAdditionalNoteVisibility, LiveMeeting.inst().sharedNotes, "mainNoteVisible");
 				}
@@ -209,6 +210,7 @@
 				} else {
 					showCloseButton = options.enableDeleteNotes && role == Role.MODERATOR;
 				}
+				btnClear.visible = btnClear.includeInLayout = role == Role.MODERATOR;
 			}
 
 			public function get noteId():String{
@@ -229,15 +231,19 @@
 
 			private function sendPatch():void {
 				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
-//				LOGGER.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
 					richTextEditor.textArea.editable = false;
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					sendPatchEvent.operation = "PATCH";
-					_dispatcher.dispatchEvent(sendPatchEvent);
-					_document = clientText;
+					if (sendPatchEvent.patch.length < options.maxMessageLength) {
+						_dispatcher.dispatchEvent(sendPatchEvent);
+						_document = clientText;
+					} else {
+						richTextEditor.htmlText = _document;
+						throwMessageLenghtWarning(sendPatchEvent.patch.length);
+					}
 					richTextEditor.textArea.editable = true;
 				}
 			}
@@ -252,16 +258,11 @@
 			}
 
 			private function receivePatch(e:ReceivePatchEvent):void {
-//				LOGGER.debug("SharedNotesWindow: patch received");
-//				LOGGER.debug("=====\n" + e.patch + "\n=====");
 				if (e.noteId == noteId) {
 					if (_lastPatch == (e.patchId - 1)) {
 						if (e.patch != "") {
 							var result:String = DiffPatch.patch(e.patch, _document);
-//							LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
-//							LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
 							_document = result;
-//							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
 							var date:Date = new Date();
 							lastAuthors[e.userId] = date.getTime();
@@ -467,6 +468,23 @@
 				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
+			protected function btnClear_clickHandler(event:MouseEvent = null):void {
+				var alert:Alert = Alert.show(
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.message'),
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.title'),
+						Alert.YES | Alert.NO, parent as Sprite, alertClear, null, Alert.YES);
+				event.stopPropagation();
+			}
+
+			private function alertClear(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+					sendPatchEvent.noteId = noteId;
+					sendPatchEvent.operation = "CLEAR";
+					_dispatcher.dispatchEvent(sendPatchEvent);
+				}
+			}
+
 			public function handleCtrlCmd(event:KeyboardEvent):Boolean {
 				switch (event.keyCode) {
 					case Keyboard.Z:
@@ -481,8 +499,8 @@
 				return true;
 			}
 
-			public function throwPasteWarning(pasteLength:int):void {
-				Alert.show(ResourceUtil.getInstance().getString("bbb.caption.transcript.pastewarning.text", [options.maxPasteLength, pasteLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.pastewarning.title"), Alert.OK);
+			public function throwMessageLenghtWarning(messageLength:int):void {
+				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [options.maxMessageLength, messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
@@ -571,6 +589,11 @@
 						toolTip="{_isNotesLimit ?
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.toolTip') :
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+				<mx:Button id="btnClear"
+						styleName="sharedNotesClearButtonStyle"
+						width="26" height="26"
+						click="btnClear_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.clear.toolTip')}"/>
 				<mx:Button id="btnFormat"
 						styleName="sharedNotesFormatButtonStyle"
 						width="26" height="26"
