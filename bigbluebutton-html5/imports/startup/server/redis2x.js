@@ -40,20 +40,20 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
-  publishUserMessage(channel, eventName, meetingId, userId, payload) {
-    const header = {
-      name: eventName,
-      meetingId: meetingId,
-      userId: userId
-    }
-       
-    return this.publishMessage(channel, eventName, header, payload);
-  }
-  
-  publishMeetingMessage(channel, eventName, meetingId, payload) {
-    const header = {
-      name: eventName,
-      meetingId: meetingId
+  buildMessageheader( channel, eventName, meetingId, payload, userId = {} ) {
+    let header;
+
+    if (userId.length > 0) {
+      header = {
+        name: eventName,
+        meetingId: meetingId,
+        userId: userId
+      }
+    } else if (userid.length == 0){
+      header = {
+        name: eventName,
+        meetingId: meetingId
+      }
     }
 
     return this.publishMessage(channel, eventName, header, payload);

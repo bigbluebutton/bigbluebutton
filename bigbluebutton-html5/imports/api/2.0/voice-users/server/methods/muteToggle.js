@@ -17,5 +17,5 @@ export default function muteToggle(credentials, userId) {
     mutedBy: requesterUserId,
   };
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
+  return RedisPubSub.buildMessageheader(CHANNEL, EVENT_NAME, meetingId, payload, userId);
 }
