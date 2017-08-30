@@ -38,5 +38,5 @@ export default function assignPresenter(credentials, userId) {
 
   const header = buildMessageHeader(EVENT_NAME, meetingId, User.userId);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, paload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }
