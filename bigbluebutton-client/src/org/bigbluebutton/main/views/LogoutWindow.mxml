@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function onCreationComplete():void {
         cancelButton.setFocus();
-        endMeetingButton.visible = endMeetingButton.includeInLayout = UsersUtil.amIModerator();
+        endMeetingButton.visible = endMeetingButton.includeInLayout = UsersUtil.amIModerator() && !UsersUtil.isBreakout();
       }
 
       private function endMeetingClickHandler():void {
