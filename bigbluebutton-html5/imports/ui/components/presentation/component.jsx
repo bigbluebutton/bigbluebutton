@@ -234,7 +234,8 @@ export default class PresentationArea extends React.Component {
                     viewBoxY={y}
                     viewBoxWidth={viewBoxWidth}
                     viewBoxHeight={viewBoxHeight}
-                    physicalViewBoxWidth={adjustedSizes.width}
+                    physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
+                    physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
                   />
                 </PresentationOverlayContainer>
               : null }
@@ -259,14 +260,17 @@ export default class PresentationArea extends React.Component {
   }
 
   renderWhiteboardToolbar() {
-    const adjustedSizes = this.calculateSize();
+    if (this.props.currentSlide) {
+      const adjustedSizes = this.calculateSize();
 
-    return (
-      <WhiteboardToolbarContainer
-        whiteboardId={this.props.currentSlide.id}
-        height={adjustedSizes.height}
-      />
-    );
+      return (
+        <WhiteboardToolbarContainer
+          whiteboardId={this.props.currentSlide.id}
+          height={adjustedSizes.height}
+        />
+      );
+    }
+    return null;
   }
 
   render() {

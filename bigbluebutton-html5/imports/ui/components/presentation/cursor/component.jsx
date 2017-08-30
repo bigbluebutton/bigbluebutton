@@ -188,6 +188,7 @@ export default class Cursor extends Component {
               fill={fill}
               fillOpacity="0.8"
               fontSize={cursorLabelText.fontSize}
+              clipPath={`url(#${this.props.cursorId})`}
             >
               {this.props.userName}
             </text>

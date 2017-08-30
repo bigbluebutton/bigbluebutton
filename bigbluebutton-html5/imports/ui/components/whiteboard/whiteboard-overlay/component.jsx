@@ -78,7 +78,7 @@ export default class WhiteboardOverlay extends Component {
   }
 
   normalizeThickness(thickness) {
-    return (thickness * 100) / this.props.physicalViewBoxWidth;
+    return (thickness * 100) / this.props.physicalSlideWidth;
   }
 
   generateNewShapeId() {
@@ -162,8 +162,8 @@ export default class WhiteboardOverlay extends Component {
           whiteboardId={whiteboardId}
           drawSettings={drawSettings}
           actions={actions}
-          slideWidth={this.props.slideWidth}
-          slideHeight={this.props.slideHeight}
+          physicalSlideWidth={this.props.physicalSlideWidth}
+          physicalSlideHeight={this.props.physicalSlideHeight}
         />
       );
     } else if (tool === 'text') {
@@ -195,8 +195,8 @@ WhiteboardOverlay.propTypes = {
   slideWidth: PropTypes.number.isRequired,
   // Defines the height of the slide (svg coordinate system)
   slideHeight: PropTypes.number.isRequired,
-  // Defines the physical width of the viewBox, in order to calculate thickness
-  physicalViewBoxWidth: PropTypes.number.isRequired,
+  // Defines the physical width of the slide, in order to calculate thickness
+  physicalSlideWidth: PropTypes.number.isRequired,
   // Defines a current user's user id
   userId: PropTypes.string.isRequired,
   // Defines an X coordinate of the viewBox

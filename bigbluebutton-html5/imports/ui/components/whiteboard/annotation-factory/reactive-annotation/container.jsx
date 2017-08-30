@@ -4,14 +4,20 @@ import { createContainer } from 'meteor/react-meteor-data';
 import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 
-const ReactiveAnnotationContainer = ({ ...props }) => (
-  <ReactiveAnnotation
-    annotation={props.annotation}
-    slideWidth={props.slideWidth}
-    slideHeight={props.slideHeight}
-    drawObject={props.drawObject}
-  />
-);
+const ReactiveAnnotationContainer = ({ ...props }) => {
+  if (props.annotation) {
+    return (
+      <ReactiveAnnotation
+        annotation={props.annotation}
+        slideWidth={props.slideWidth}
+        slideHeight={props.slideHeight}
+        drawObject={props.drawObject}
+      />
+    );
+  }
+
+  return null;
+};
 
 export default createContainer((params) => {
   const { shapeId } = params;
@@ -27,8 +33,12 @@ ReactiveAnnotationContainer.propTypes = {
     PropTypes.string,
     PropTypes.number,
     PropTypes.object,
-  ])).isRequired,
+  ])),
   drawObject: PropTypes.instanceOf(Function).isRequired,
   slideWidth: PropTypes.number.isRequired,
   slideHeight: PropTypes.number.isRequired,
+};
+
+ReactiveAnnotationContainer.defaultProps = {
+  annotation: undefined,
 };

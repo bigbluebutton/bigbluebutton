@@ -121,6 +121,7 @@ export default class PencilDrawListener extends Component {
 
     // dimensions are added to the 'DRAW_END', last message
     if (dimensions) {
+      console.log(dimensions);
       annotation.annotationInfo.dimensions = dimensions;
     }
 
@@ -134,9 +135,14 @@ export default class PencilDrawListener extends Component {
 
     if (this.isDrawing) {
       const { getCurrentShapeId } = this.props.actions;
-      const { slideWidth, slideHeight } = this.props;
+      const { physicalSlideWidth, physicalSlideHeight } = this.props;
 
-      this.handleDrawPencil(this.points, 'DRAW_END', getCurrentShapeId(), [slideWidth, slideHeight]);
+      this.handleDrawPencil(
+        this.points,
+        'DRAW_END',
+        getCurrentShapeId(),
+        [Math.round(physicalSlideWidth), Math.round(physicalSlideHeight)],
+      );
 
       // resetting the current info
       this.points = [];
@@ -163,10 +169,10 @@ PencilDrawListener.propTypes = {
   whiteboardId: PropTypes.string.isRequired,
   // Defines a user id, which needed to publish an annotation message
   userId: PropTypes.string.isRequired,
-  // Defines the widith of the slide (svg coordinate system)
-  slideWidth: PropTypes.number.isRequired,
-  // Defines the height of the slide (svg coordinate system)
-  slideHeight: PropTypes.number.isRequired,
+  // Defines the physical widith of the slide
+  physicalSlideWidth: PropTypes.number.isRequired,
+  // Defines the physical height of the slide
+  physicalSlideHeight: PropTypes.number.isRequired,
   // Defines an object containing all available actions
   actions: PropTypes.shape({
     // Defines a function which transforms a coordinate from the window to svg coordinate system
