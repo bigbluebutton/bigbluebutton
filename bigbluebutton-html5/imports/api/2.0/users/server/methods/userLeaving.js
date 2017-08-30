@@ -3,6 +3,7 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
+import { buildMessageHeader } from '/imports/api/common/server/helpers';
 
 const OFFLINE_CONNECTION_STATUS = 'offline';
 
@@ -57,5 +58,7 @@ export default function userLeaving(credentials, userId) {
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
 
-  return RedisPubSub.buildMessageheader(CHANNEL, EVENT_NAME, meetingId, payload, requesterUserId);
+  const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

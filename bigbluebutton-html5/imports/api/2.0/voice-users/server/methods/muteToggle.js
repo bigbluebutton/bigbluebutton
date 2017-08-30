@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
+import { buildMessageHeader } from '/imports/api/common/server/helpers';
 
 export default function muteToggle(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -17,5 +18,7 @@ export default function muteToggle(credentials, userId) {
     mutedBy: requesterUserId,
   };
 
-  return RedisPubSub.buildMessageheader(CHANNEL, EVENT_NAME, meetingId, payload, userId);
+  const header = buildMessageHeader(EVENT_NAME, meetingId, userId);
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

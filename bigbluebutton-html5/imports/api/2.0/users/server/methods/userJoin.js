@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
+import { buildMessageHeader } from '/imports/api/common/server/helpers';
 
 export default function userJoin(meetingId, userId, authToken) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -19,5 +20,7 @@ export default function userJoin(meetingId, userId, authToken) {
 
   Logger.info(`User '${userId}' is joining meeting '${meetingId}'`);
 
-  return RedisPubSub.buildMessageheader(CHANNEL, EVENT_NAME, meetingId, payload, userId);
+  const header = buildMessageHeader(EVENT_NAME, meetingId, userId);
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

@@ -40,48 +40,6 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
-  buildMessageheader(channel, eventName, meetingId, payload, userId = {}) {
-    let header;
-
-    if (userId.length > 0) {
-      header = {
-        name: eventName,
-        meetingId,
-        userId
-      }
-    } else if (userid.length == 0) {
-      header = {
-        name: eventName,
-        meetingId
-      }
-    }
-
-    return this.publishMessage(channel, eventName, header, payload);
-  }
-
-  publishMessage(channel, eventName, header, payload) {
-    const envelope = {
-      envelope: {
-        name: eventName,
-        routing: {
-          sender: 'bbb-apps-akka',
-          // sender: 'html5-server', // TODO
-        },
-      },
-      core: {
-        header,
-        body: payload,
-      },
-    };
-    
-    Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
-    return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
-      if (err) {
-        Logger.error('Tried to publish to %s', channel, envelope);
-      }
-    });
-  }
-
   publish(channel, eventName, meetingId, payload = {}, header = {}) {
     const header2x = {
       name: eventName,
