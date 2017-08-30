@@ -298,7 +298,7 @@ function checkUrl(url)
   http.open('HEAD', url, false);
   try {
     http.send();
-  } catch(e) {
+  } catch (e) {
     return false;
   }
   return http.status == 200 || http.status == 206;

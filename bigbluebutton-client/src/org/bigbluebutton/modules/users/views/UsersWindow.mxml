@@ -65,17 +65,13 @@ $Id: $
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
-      import flash.net.navigateToURL;
-      
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
       import mx.controls.Menu;
       import mx.controls.dataGridClasses.DataGridColumn;
       import mx.controls.listClasses.IListItemRenderer;
       import mx.core.FlexGlobals;
       import mx.core.mx_internal;
-      import mx.events.CloseEvent;
       import mx.events.CollectionEvent;
       import mx.events.ListEvent;
       import mx.events.MenuEvent;
@@ -86,7 +82,6 @@ $Id: $
       import org.bigbluebutton.common.IBbbModuleWindow;
       import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.BreakoutTimerUtil;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.KeyboardUtil;
       import org.bigbluebutton.core.PopUpUtil;
@@ -119,13 +114,11 @@ $Id: $
       import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.main.views.WellPositionedMenu;
-      import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
       import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
       import org.bigbluebutton.modules.users.events.UsersRollEvent;
       import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
       import org.bigbluebutton.modules.users.model.UsersOptions;
       import org.bigbluebutton.modules.users.views.model.BBBUser2x;
-      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(UsersWindow);
@@ -162,7 +155,7 @@ $Id: $
       [Bindable]
       private var amIPresenter:Boolean = false;
       
-      private var joinAlert : Alert;
+      private var joinWindow : JoinBreakoutRoomWindow;
       
       private const MAKE_PRESENTER:String = "Make Presenter";
       private const KICK_USER:String = "Kick User";
@@ -449,7 +442,7 @@ $Id: $
       }
       
       private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void {
-        BreakoutTimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
+        TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
       }
       
       private function breakoutRoomsListChangeListener(event:CollectionEvent):void {
@@ -457,7 +450,7 @@ $Id: $
           breakoutTimeLabel.text = "...";
           TimerUtil.stopTimer(breakoutTimeLabel.id);
           // All breakout rooms were close we don't need to display the join URL alert anymore
-          removeJoinAlert();
+          removeJoinWindow();
         }
       }
       
@@ -469,26 +462,15 @@ $Id: $
       
       private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
         // We display only one alert
-        removeJoinAlert();
-        joinAlert = Alert.show(
-          ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL', [event.breakoutMeetingSequence]),
-          ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
-          Alert.YES | Alert.NO,
-          null,
-          function(e:CloseEvent):void {
-            if (e.detail == Alert.YES) {
-              dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
-              dispatcher.dispatchEvent(new StopBroadcastEvent());
-              navigateToURL(new URLRequest(event.joinURL), "_blank");
-            }
-          },
-          null, Alert.YES);
+        removeJoinWindow();
+		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow) as JoinBreakoutRoomWindow;
+		joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
       }
       
-      private function removeJoinAlert():void {
-        if (joinAlert != null) {
+      private function removeJoinWindow():void {
+        if (joinWindow != null) {
           // @todo: any way using PopUpUtil ?
-          PopUpManager.removePopUp(joinAlert);
+          PopUpManager.removePopUp(joinWindow);
         }
       }
       
@@ -746,7 +728,8 @@ $Id: $
            visible="{breakoutRoomsList.length > 0}"
            includeInLayout="{breakoutRoomsList.length > 0}"
            horizontalScrollPolicy="off"
-           width="100%" height="180">
+		   verticalScrollPolicy="off"
+           width="100%">
     <mx:HBox width="100%">
       <mx:Label styleName="breakoutRoomUserWindowHeadingStyle" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
       <mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel"
@@ -754,6 +737,7 @@ $Id: $
     </mx:HBox>
     
     <views:BBBDataGrid id="roomsGrid" editable="false" sortableColumns="false"
+					   rowCount="{breakoutRoomsList.length}"
                        dataProvider="{breakoutRoomsList}" dataTipFunction="breakoutRoomsToolTip"
                        dragEnabled="false" width="100%" height="100%" draggableColumns="false"
                        accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}">

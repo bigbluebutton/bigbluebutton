@@ -43,10 +43,10 @@
       
       private function dataChangeHandler(event:FlexEvent):void {
         if (BreakoutRoom(data).listenStatus == BreakoutRoom.SELF) {
-          listenBtn.setStyle("icon", getStyle("iconTransfer"));
+          listenBtn.setStyle("icon", getStyle("iconTransferred"));
           listenBtn.selected = true;
         } else {
-          listenBtn.setStyle("icon", getStyle("iconTransferred"));
+          listenBtn.setStyle("icon", getStyle("iconTransfer"));
           listenBtn.selected = false;
         }
       }

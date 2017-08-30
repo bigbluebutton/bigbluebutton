@@ -63,6 +63,7 @@ global {
 mx|Application {
 	backgroundGradientColors : #F1F3F7, #F1F3F7;
 	backgroundColor          : #F1F3F7;
+	paddingTop               : 0;
 }
 
 /*
@@ -123,14 +124,39 @@ mx|Application {
 */
 
 mx|ApplicationControlBar {
+	borderSkin      : ClassReference(null);
 	cornerRadius    : 0;
 	fillAlphas      : 1, 1;
 	fillColors      : #FFFFFF, #FFFFFF;
 	highlightAlphas : 0, 0;
+	paddingBottom   : 0;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingTop      : 0;
+	verticalAlign   : top;
 }
 
 phonecomponents|MuteMeButton {
 	glowFilterColor : #1070D7;
+}
+
+.toolbarMainBox {
+	backgroundColor : #FFFFFF;
+	paddingTop      : 4;
+	paddingBottom   : 4;
+}
+
+.breakoutRoomRibbon {
+	backgroundColor : #1070D7;
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
+.topBoxStyle {
+	paddingLeft  : 8;
+	paddingRight : 8;
 }
 
 .toolbarSeparator {
@@ -402,6 +428,14 @@ users|BreakoutRoomSettings {
 	headerHeight : 0;
 }
 
+users|JoinBreakoutRoomWindow {
+	horizontalAlign : center;
+	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
+	paddingBottom   : 24;
+	paddingTop      : 0;
+	verticalGap     : 18;
+}
+
 users|RoomActionsRenderer {
 	paddingLeft     : 5;
 	paddingRight    : 5;
@@ -443,6 +477,26 @@ users|RoomActionsRenderer {
 	backgroundColor : #CCCCCC;
 	verticalAlign   : middle;
 	horizontalAlign : center;
+}
+
+.roomNumberStyle {
+	color         : #25385D;
+	fontSize      : 30;
+	fontWeight    : bold;
+	verticalAlign : middle;
+	textAlign     : center;
+}
+
+.joinBreakoutRoomButton {
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
 }
 
 /*
@@ -802,7 +856,8 @@ views|LockSettings {
 */
 
 views|MainApplicationShell {
-	verticalGap : 0;
+	paddingBottom : 0;
+	verticalGap   : 0;
 }
 
 .logsButton {
@@ -1128,7 +1183,7 @@ mx|Panel {
 }
 
 .slideViewBackground {
-	backgroundColor : #4E5A66;
+	backgroundColor : #E2E8ED;
 }
 
 /*
