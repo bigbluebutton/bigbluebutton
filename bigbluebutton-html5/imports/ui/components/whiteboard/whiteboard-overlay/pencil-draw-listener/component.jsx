@@ -121,7 +121,6 @@ export default class PencilDrawListener extends Component {
 
     // dimensions are added to the 'DRAW_END', last message
     if (dimensions) {
-      console.log(dimensions);
       annotation.annotationInfo.dimensions = dimensions;
     }
 

@@ -195,8 +195,10 @@ WhiteboardOverlay.propTypes = {
   slideWidth: PropTypes.number.isRequired,
   // Defines the height of the slide (svg coordinate system)
   slideHeight: PropTypes.number.isRequired,
-  // Defines the physical width of the slide, in order to calculate thickness
+  // Defines the physical width of the slide, needed to calculate thickness, and pencil smoothing
   physicalSlideWidth: PropTypes.number.isRequired,
+  // Defines the physical width of the slide, to calculate pencil smoothing
+  physicalSlideHeight: PropTypes.number.isRequired,
   // Defines a current user's user id
   userId: PropTypes.string.isRequired,
   // Defines an X coordinate of the viewBox

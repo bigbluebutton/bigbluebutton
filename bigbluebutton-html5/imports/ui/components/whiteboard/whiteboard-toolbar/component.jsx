@@ -29,7 +29,7 @@ export default class WhiteboardToolbar extends Component {
         sessionRadius: 3,
       },
       colorSelected: '#000000',
-      fontSizeSelected: 18,
+      fontSizeSelected: 20,
 
       // keeping the previous color and the thickness icon's radius selected for svg animation
       prevColorSelected: '#000000',
