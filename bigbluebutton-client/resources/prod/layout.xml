@@ -10,8 +10,8 @@
     <window name="CaptionWindow" hidden="true" />
   </layout>
   <layout name="bbb.layout.name.closedcaption">
-    <window name="UsersWindow" width="0.19" height="0.539560439560439" x="0.0078125" y="0.014285714285714" />
-    <window name="VideoDock" width="0.19" height="0.409769917582418" x="0.0078125" y="0.575944368131867" />
+    <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" />
+    <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
     <window name="PresentationWindow" width="0.5575" height="0.539560439560439" x="0.205625" y="0.014285714285714" />
     <window name="CaptionWindow" width="0.5575" height="0.409769917582418" x="0.205625" y="0.575944368131867" />
     <window name="ChatWindow" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
@@ -55,8 +55,8 @@
     <window name="CaptionWindow" hidden="true" />
   </layout>
   <layout name="bbb.layout.name.lecture">
-    <window name="UsersWindow" width="0.19" height="0.539560439560439" x="0.0078125" y="0.014285714285714" order="3"/>
-    <window name="SharedNotesWindow" width="0.19" height="0.409769917582418" x="0.0078125" y="0.575944368131867" order="4"/>
+    <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" order="3"/>
+    <window name="SharedNotesWindow" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" order="4"/>
     <window name="PresentationWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
     <window name="ChatWindow" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" order="2"/>
     <window name="VideoDock" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.507142857142857" order="0"/>
@@ -82,8 +82,8 @@
     <window name="CaptionWindow" hidden="true" />
   </layout>
   <layout name="bbb.layout.name.sharednotes">
-    <window name="UsersWindow" width="0.19" height="0.539560439560439" x="0.0078125" y="0.014285714285714" order="3"/>
-    <window name="SharedNotesWindow" width="0.19" height="0.409769917582418" x="0.0078125" y="0.575944368131867" order="4"/>
+    <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" order="3"/>
+    <window name="SharedNotesWindow" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" order="4"/>
     <window name="PresentationWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
     <window name="ChatWindow" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" order="2"/>
     <window name="VideoDock" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.507142857142857" order="0"/>

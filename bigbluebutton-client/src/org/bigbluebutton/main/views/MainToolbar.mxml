@@ -192,7 +192,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			private function handleRemainingTimeUpdate(e:MeetingTimeRemainingEvent):void {
-				if (!timeRemaining.visible) {
+				// Display timer only if there is less than 30 minutes remaining
+				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
 					timeRemaining.visible = true;
 				}
 				TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec);

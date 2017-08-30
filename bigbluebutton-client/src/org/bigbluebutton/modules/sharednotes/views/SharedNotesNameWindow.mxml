@@ -21,64 +21,78 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
-	xmlns:fx="http://ns.adobe.com/mxml/2009"
-    xmlns:mate="http://mate.asfusion.com/"
-	verticalScrollPolicy="off"
-    horizontalScrollPolicy="off"
-    horizontalAlign="center"
-    showCloseButton="true"
-    close="onCancelClicked()"
-    creationComplete="onCreationComplete()"
-    width="250"
-    title="{ResourceUtil.getInstance().getString('bbb.sharedNotes.name')}">
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+				horizontalAlign="center"
+				showCloseButton="true"
+				close="onCancelClicked()"
+				creationComplete="onCreationComplete()"
+				keyUp="keyUpHandler(event)"
+				width="250"
+				title="{ResourceUtil.getInstance().getString('bbb.sharedNotes.name')}">
 
-  <fx:Script>
-    <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.managers.PopUpManager;
-      
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
 
-      [Bindable]
-      private var sharedNoteTitle: String = "";
-      
-      private function btnNew_clickHandler(event:MouseEvent):void {
-        btnNew.enabled = false;
-        var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT);
-        if (textInput.text != sharedNoteTitle) {
-          e.noteName = textInput.text;
-        }
+			import mx.managers.PopUpManager;
 
-        var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(e);
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-        PopUpManager.removePopUp(this);
-      }
+			[Bindable]
+			private var sharedNoteTitle:String = "";
 
-      private function onCreationComplete():void {
-        sharedNoteTitle = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + LiveMeeting.inst().sharedNotes.nextNoteId();
-        
-        textInput.setFocus();
-      }
+			private function btnNew_clickHandler(event:MouseEvent):void {
+				createSharedNote();
+			}
 
-      private function onCancelClicked():void {
-        PopUpManager.removePopUp(this);
-      }
-    ]]>
-  </fx:Script>
+			private function onCreationComplete():void {
+				sharedNoteTitle = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + LiveMeeting.inst().sharedNotes.nextNoteId();
 
-  <mx:HBox width="100%" height="100%">
-      <mx:TextInput id="textInput"
-          restrict="a-zA-Z0-9 "
-          maxChars="20"
-          width="100%"
-          text="{sharedNoteTitle}"/>
-      <mx:Button id="btnNew"
-          click="btnNew_clickHandler(event)"
-          styleName="sharedNotesNewButtonStyle"
-          toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
-  </mx:HBox>
+				textInput.setFocus();
+			}
+
+			private function onCancelClicked():void {
+				PopUpManager.removePopUp(this);
+			}
+
+			private function createSharedNote():void {
+				btnNew.enabled = false;
+				var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT);
+				if (textInput.text != sharedNoteTitle) {
+					e.noteName = textInput.text;
+				}
+
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(e);
+
+				PopUpManager.removePopUp(this);
+			}
+
+			override protected function keyUpHandler(event:KeyboardEvent):void {
+				if (event.keyCode == Keyboard.ENTER) {
+					createSharedNote();
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<mx:HBox width="100%"
+			 height="100%">
+		<mx:TextInput id="textInput"
+					  restrict="a-zA-Z0-9 "
+					  height="30"
+					  fontSize="16"
+					  maxChars="20"
+					  width="100%"
+					  text="{sharedNoteTitle}" />
+		<mx:Button id="btnNew"
+				   click="btnNew_clickHandler(event)"
+				   styleName="sharedNotesNewButtonStyle"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}" />
+	</mx:HBox>
 </mx:TitleWindow>
