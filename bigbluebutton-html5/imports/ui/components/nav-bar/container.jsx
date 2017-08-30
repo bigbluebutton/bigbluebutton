@@ -37,7 +37,7 @@ export default withRouter(createContainer(({ location, router }) => {
   });
 
   if (meetingObject != null) {
-    meetingTitle = meetingObject.meetingName;
+    meetingTitle = meetingObject.meetingProp.name;
     meetingRecorded = meetingObject.currentlyBeingRecorded;
   }
 

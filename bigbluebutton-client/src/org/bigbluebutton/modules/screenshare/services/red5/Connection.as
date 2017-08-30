@@ -214,9 +214,9 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             message["timestamp"] = timestamp;
             
             sendMessage("screenshare.screenShareClientPongMessage", function(result:String):void { // On successful result
-                LOGGER.debug(result);
+              //  LOGGER.debug(result);
             }, function(status:String):void { // status - On error occurred
-                LOGGER.error(status);
+               // LOGGER.error(status);
             }, message);
         }
         

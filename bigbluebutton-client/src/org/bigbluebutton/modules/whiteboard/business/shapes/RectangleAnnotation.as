@@ -20,24 +20,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
-	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	public class RectangleAnnotation extends DrawAnnotation
 	{
 		private var _type:String = AnnotationType.RECTANGLE;
 		private var _shape:Array;
 		private var _color:uint;
-		private var _fillColor:uint;
 		private var _thickness:Number;
-		private var _fill:Boolean;
-		private var _transparent:Boolean;
 		
-		public function RectangleAnnotation(segment:Array, color:uint, thickness:Number, trans:Boolean)
+		public function RectangleAnnotation(segment:Array, color:uint, thickness:Number)
 		{
 			_shape = segment;
 			_color = color;
 			_thickness = thickness;
-			_transparent = trans;
 		}
 		
 		private function optimize(segment:Array):Array {
@@ -63,12 +58,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			ao["thickness"] = _thickness;
 			ao["id"] = _id;
 			ao["status"] = _status;
-			ao["transparency"] = _transparent;
 			
       if (wbId != null) {
         ao["whiteboardId"] = wbId;
       }
-      
       
 			return new Annotation(_id, _type, ao);
 		}

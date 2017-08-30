@@ -23,7 +23,17 @@ trait BreakoutRoomEndedInternalMsgHdlr {
       breakoutModel.removeRoom(msg.meetingId)
     }
 
-    state.update(updatedModel)
+    updatedModel match {
+      case Some(model) =>
+        if (model.rooms.isEmpty) {
+          // All breakout rooms have ended
+          state.update(None)
+        } else {
+          state.update(Some(model))
+        }
+      case None =>
+        state
+    }
   }
 }
 

@@ -179,18 +179,6 @@ object LockUsersInMeetingCmdMsg { val NAME = "LockUsersInMeetingCmdMsg" }
 case class LockUsersInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUsersInMeetingCmdMsgBody) extends StandardMsg
 case class LockUsersInMeetingCmdMsgBody(lock: Boolean, lockedBy: String, except: Vector[String])
 
-
-/**
-  * Sent by client to check if meeting is locked.
-  */
-object IsMeetingLockedReqMsg { val NAME = "IsMeetingLockedReqMsg" }
-case class IsMeetingLockedReqMsg(header: BbbClientMsgHeader, body: IsMeetingLockedReqMsgBody) extends StandardMsg
-case class IsMeetingLockedReqMsgBody(requesterId: String)
-
-object IsMeetingLockedRespMsg { val NAME = "IsMeetingLockedRespMsg" }
-case class IsMeetingLockedRespMsg(header: BbbClientMsgHeader, body: IsMeetingLockedRespMsgBody) extends BbbCoreMsg
-case class IsMeetingLockedRespMsgBody(locked: Boolean)
-
 /**
   * Sent by client to set lock setting.
   */
@@ -224,6 +212,9 @@ case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, 
                                       disablePubChat: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                       lockOnJoinConfigurable: Boolean)
 
+object LockSettingsNotInitializedRespMsg { val NAME = "LockSettingsNotInitializedRespMsg" }
+case class LockSettingsNotInitializedRespMsg(header: BbbClientMsgHeader, body: LockSettingsNotInitializedRespMsgBody) extends BbbCoreMsg
+case class LockSettingsNotInitializedRespMsgBody(userId: String)
 
 /**
   * Sent from client to logout and end meeting.
@@ -237,6 +228,14 @@ case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
 case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
+
+/**
+  * Sent from Flash client to rejoin meeting after reconnection
+  */
+object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterReconnectReqMsg" }
+case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
+case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String)
+
 
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg

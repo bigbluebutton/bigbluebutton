@@ -20,20 +20,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 $Id: $
 -->
 
-<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
-		   xmlns:fx="http://ns.adobe.com/mxml/2009"
-		   xmlns:flc="flexlib.controls.*"
-		   xmlns:mate="http://mate.asfusion.com/"
-		   visible="false"
-		   includeInLayout="false"
-		   creationComplete="onCreationComplete()"
-		   toolTip="{UsersUtil.amIMuted() ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}"
-		   click="toggleMuteMeState()"
-		   mouseOver="mouseOverHandler()"
-		   mouseOut="mouseOutHandler()"
-		   height="30"
-		   styleName="muteMeDefaultButtonStyle"
-		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
+<flc:CanvasButton xmlns:mx="library://ns.adobe.com/flex/mx"
+				  xmlns:fx="http://ns.adobe.com/mxml/2009"
+				  xmlns:flc="flexlib.controls.*"
+				  xmlns:mate="http://mate.asfusion.com/"
+				  visible="false"
+				  includeInLayout="false"
+				  creationComplete="onCreationComplete()"
+				  toolTip="{UsersUtil.amIMuted() ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}"
+				  click="toggleMuteMeState()"
+				  mouseOver="mouseOverHandler()"
+				  mouseOut="mouseOutHandler()"
+				  height="30"
+				  width="40"
+				  styleName="muteMeDefaultButtonStyle"
+				  implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
 	<fx:Declarations>
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}"
@@ -57,9 +58,8 @@ $Id: $
 	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
-			import flash.filters.GlowFilter;
 			
-			import mx.core.mx_internal;
+			import spark.filters.GlowFilter;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -82,8 +82,6 @@ $Id: $
 
 			private var muteMeRolled:Boolean = false;
 
-			use namespace mx_internal;
-
 			public function getAlignment():String {
 				return MainToolbar.ALIGN_LEFT;
 			}
@@ -96,9 +94,9 @@ $Id: $
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (UsersUtil.isMe(e.message.userID)) {
 					if (e.message.talking) {
-						currentIcon.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+						muteMeBtnImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 					} else {
-						currentIcon.filters = [];
+						muteMeBtnImg.filters = [];
 					}
 				}
 			}
@@ -124,7 +122,7 @@ $Id: $
 				if (UsersUtil.isMe(event.payload.userID)) {
 					LOGGER.debug("User has joined the conference using flash");
 					updateMuteMeBtn();
-					currentIcon.filters = [];
+					muteMeBtnImg.filters = [];
 				}
 			}
 
@@ -155,19 +153,27 @@ $Id: $
 								selected = true;
 								styleName = "muteMeOnButtonStyle";
 								toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
+
+								muteMeBtnImg.source = getStyle("iconAudio");
 							} else {
 								selected = true;
 								styleName = "muteMeOffButtonStyle";
 								toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
+
+								muteMeBtnImg.source = getStyle("iconAudio");
 							}
 						} else {
 							if (myVoiceUser.muted) {
 								selected = true;
 								styleName = "muteMeOffButtonStyle";
 								toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
+
+								muteMeBtnImg.source = getStyle("iconAudio");
 							} else {
 								selected = false;
 								styleName = "muteMeDefaultButtonStyle";
+
+								muteMeBtnImg.source = getStyle("iconAudio");
 							}
 						}
 					}
@@ -182,19 +188,27 @@ $Id: $
 							selected = true;
 							styleName = "muteMeOnButtonStyle";
 							toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
+
+							muteMeBtnImg.source = getStyle("iconAudio");
 						} else {
 							selected = true;
 							styleName = "muteMeOffButtonStyle";
 							toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
+
+							muteMeBtnImg.source = getStyle("iconAudio");
 						}
 					} else {
 						if (event.payload.muted) {
 							selected = true;
 							styleName = "muteMeOffButtonStyle";
 							toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
+
+							muteMeBtnImg.source = getStyle("iconAudio");
 						} else {
 							selected = false;
-							styleName = "muteMeOnButtonStyle";
+							styleName = "muteMeDefaultButtonStyle";
+
+							muteMeBtnImg.source = getStyle("iconAudio");
 						}
 					}
 				}
@@ -225,4 +239,12 @@ $Id: $
 		]]>
 	</fx:Script>
 
-</mx:Button>
+	<mx:HBox id="hboxMuteMe"
+			 horizontalAlign="center"
+			 verticalAlign="middle"
+			 horizontalCenter="0"
+			 verticalCenter="0"
+			 width="100%">
+		<mx:Image id="muteMeBtnImg" />
+	</mx:HBox>
+</flc:CanvasButton>

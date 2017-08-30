@@ -42,7 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 y="60"
                 x="{this.width/2 - imgChromeHelp.width/2}"
                 visible="false"
-                source="@Embed('assets/chrome-allow-mic-access.png')" />
+                source="@Embed('assets/chrome-permissions.png')" />
         <mx:VBox
                 width="100%"
                 height="100%"

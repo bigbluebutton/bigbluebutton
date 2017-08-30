@@ -22,6 +22,11 @@ class AnalyticsActor extends Actor with ActorLogging {
     log.info(TAG + json)
   }
 
+  def traceMessage(msg: BbbCommonEnvCoreMsg): Unit = {
+    val json = JsonUtil.toJson(msg)
+    log.info(" -- trace -- " + json)
+  }
+
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
@@ -75,6 +80,9 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
+
+      case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
+      case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
 
       case _ => // ignore message
     }

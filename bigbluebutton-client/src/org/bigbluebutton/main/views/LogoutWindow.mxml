@@ -27,15 +27,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           horizontalAlign="center"
           showCloseButton="false"
           creationComplete="onCreationComplete()"
-          styleName="logoutWindowStyle"
-          height="108"
           width="350"
           title="{ResourceUtil.getInstance().getString('bbb.logout.confirm.title')}">
 
   <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import mx.managers.PopUpManager;
+      
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.core.UsersUtil;
@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function onCreationComplete():void {
         cancelButton.setFocus();
-        endMeetingButton.visible = endMeetingButton.includeInLayout = UsersUtil.amIModerator();
+        endMeetingButton.visible = endMeetingButton.includeInLayout = UsersUtil.amIModerator() && !UsersUtil.isBreakout();
       }
 
       private function endMeetingClickHandler():void {

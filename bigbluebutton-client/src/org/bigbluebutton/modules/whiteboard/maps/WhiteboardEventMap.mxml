@@ -26,20 +26,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  xmlns:mate="org.bigbluebutton.common.mate.*">
 	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
-			import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
-			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
-			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
-			import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
-			import org.bigbluebutton.modules.whiteboard.services.MessageReceiver;
-			import org.bigbluebutton.modules.whiteboard.services.MessageSender;
-			import org.bigbluebutton.modules.whiteboard.services.WhiteboardService;
+      import org.bigbluebutton.core.events.PerformRttTraceEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.modules.present.events.PresentationEvent;
+      import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
+      import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+      import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
+      import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+      import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
+      import org.bigbluebutton.modules.whiteboard.services.MessageReceiver;
+      import org.bigbluebutton.modules.whiteboard.services.MessageSender;
+      import org.bigbluebutton.modules.whiteboard.services.WhiteboardService;
 		]]>
 	</fx:Script>
 	
@@ -51,6 +51,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<EventHandlers type="{GetWhiteboardAccessCommand.GET_ACCESS}" >
 			<MethodInvoker generator="{WhiteboardService}" method="getWhiteboardAccess"/>
 		</EventHandlers>
+    
+    <EventHandlers type="{PerformRttTraceEvent.PERFORM_RTT_TRACE}" >
+      <MethodInvoker generator="{WhiteboardService}" method="handlePerformRttTraceEvent"/>
+    </EventHandlers>
+    
+    
 			
 		<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}" >
 			<MethodInvoker generator="{WhiteboardService}" method="setActivePresentation" arguments="{event}" />
@@ -89,19 +95,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  </EventHandlers>
 	  
 	    <Injectors target="{WhiteboardManager}">
-	        <ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	        <PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 	    </Injectors>	
 			
 		<Injectors target="{WhiteboardService}">
 			<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
 			<PropertyInjector targetKey="sender" source="{MessageSender}"/>
-	    <PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 		</Injectors>
 		
 		<Injectors target="{MessageReceiver}">
-			<ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
-			<PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 		</Injectors>
 	</fx:Declarations>
 </EventMap>

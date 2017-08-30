@@ -22,22 +22,15 @@ package org.bigbluebutton.modules.whiteboard.managers
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
 	import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
-	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
 	public class WhiteboardManager
 	{
 	private static const LOGGER:ILogger = getClassLogger(WhiteboardManager);      
     
-    /* Injected by Mate */
-    public var whiteboardModel:WhiteboardModel;
-	
-		public function WhiteboardManager() {
-			
-		}
-		
 		public function handleStartModuleEvent():void {
             
 			var dispatcher:Dispatcher = new Dispatcher();
@@ -45,13 +38,13 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function handleRequestNewCanvas(e:RequestNewCanvasEvent):void {
-			var whiteboardCanvas:WhiteboardCanvas = new WhiteboardCanvas(whiteboardModel);
+			var whiteboardCanvas:WhiteboardCanvas = new WhiteboardCanvas(LiveMeeting.inst().whiteboardModel);
 			whiteboardCanvas.attachToReceivingObject(e.receivingObject);
 		}
 
     public function removeAnnotationsHistory():void {
       // it will dispatch the cleanAnnotations in the displayModel later
-      whiteboardModel.clearAll();
+      LiveMeeting.inst().whiteboardModel.clearAll();
     }
 	}
 }
