@@ -131,8 +131,8 @@
 			toolbarVisibleByDefault="false"
 			showToolbarButton="true"
 			fontSize="14"
-			maxPasteLength="1024"
-			maxNoteLength="5120"
+			maxPasteLength="5000"
+			maxNoteLength="10000"
 			enableDeleteNotes="false"
 		/>
 
