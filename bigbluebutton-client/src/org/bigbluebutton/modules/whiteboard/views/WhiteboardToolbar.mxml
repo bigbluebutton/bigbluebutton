@@ -345,7 +345,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Button id="multiUserBtn" enabled="false" visible="false" 
 			   click="changeMultiUser()" 
-			   width="{BUTTON_SIZE}" height="{BUTTON_SIZE}" 
+			   width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"
+			   selected="{multiUser}"
 			   styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser')}" /> 
 </mx:VBox>
