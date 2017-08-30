@@ -396,8 +396,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function hideToolbars():void {
-				_hideToolbarsTimer.reset();
-				_hideToolbarsTimer.start();
+				// Temporarily disabling toolbar hiding on fullscreen to address animation delays
+				// _hideToolbarsTimer.reset();
+				// _hideToolbarsTimer.start();
 			}
 
 			private function showToolbars():void {
