@@ -24,6 +24,8 @@ export default class ShapeDrawListener extends Component {
     // to track the status of drawing
     this.isDrawing = false;
 
+    this.currentStatus = undefined;
+
     // id of the setInterval()
     this.intervalId = 0;
 
@@ -58,23 +60,25 @@ export default class ShapeDrawListener extends Component {
 
       // sending the first message
       const svgPoint = getSvgPoint(event);
-      this.handleDrawCommonAnnotation({ x: svgPoint.x, y: svgPoint.y }, { x: svgPoint.x, y: svgPoint.y }, 'DRAW_START', generateNewShapeId(), this.props.drawSettings.tool);
+
+      // generating new shape id
+      generateNewShapeId();
+
+      // setting the initial current status
+      this.currentStatus = 'DRAW_START';
 
       // saving the coordinates for future references
       this.initialCoordinate = {
         x: svgPoint.x,
         y: svgPoint.y,
       };
-      this.lastSentCoordinate = {
-        x: svgPoint.x,
-        y: svgPoint.y,
-      };
+
       this.currentCoordinate = {
         x: svgPoint.x,
         y: svgPoint.y,
       };
 
-      // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
+      // All the messages will be send on timer by sendCoordinates func
       this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
 
       // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
@@ -114,12 +118,29 @@ export default class ShapeDrawListener extends Component {
   }
 
   sendCoordinates() {
+    // check the current drawing status
     if (this.isDrawing) {
-      if (this.currentCoordinate.x !== this.lastSentCoordinate.x ||
-          this.currentCoordinate.y !== this.lastSentCoordinate.y) {
-        const { getCurrentShapeId } = this.props.actions;
-        this.handleDrawCommonAnnotation(this.initialCoordinate, this.currentCoordinate, 'DRAW_UPDATE', getCurrentShapeId(), this.props.drawSettings.tool);
-        this.lastSentCoordinate = this.currentCoordinate;
+      // check if a current coordinate is not the same as an initial one
+      // it prevents us from drawing dots on random clicks
+      if (this.currentCoordinate.x !== this.initialCoordinate.x ||
+        this.currentCoordinate.y !== this.initialCoordinate.y) {
+        // check if previously sent coordinate is not equal to a current one
+        if (this.currentCoordinate.x !== this.lastSentCoordinate.x ||
+            this.currentCoordinate.y !== this.lastSentCoordinate.y) {
+          const { getCurrentShapeId } = this.props.actions;
+          this.handleDrawCommonAnnotation(
+            this.initialCoordinate,
+            this.currentCoordinate,
+            this.currentStatus,
+            getCurrentShapeId(),
+            this.props.drawSettings.tool,
+          );
+          this.lastSentCoordinate = this.currentCoordinate;
+
+          if (this.currentStatus === 'DRAW_START') {
+            this.currentStatus = 'DRAW_UPDATE';
+          }
+        }
       }
     }
   }
@@ -130,8 +151,12 @@ export default class ShapeDrawListener extends Component {
     this.intervalId = 0;
 
     if (this.isDrawing) {
-      const { getCurrentShapeId } = this.props.actions;
-      this.handleDrawCommonAnnotation(this.initialCoordinate, this.currentCoordinate, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
+      // make sure we are drawing and we have some coordinates sent for this shape before
+      // to prevent sending 'DRAW_END on a random mouse click
+      if (this.lastSentCoordinate.x && this.lastSentCoordinate.y) {
+        const { getCurrentShapeId } = this.props.actions;
+        this.handleDrawCommonAnnotation(this.initialCoordinate, this.currentCoordinate, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
+      }
       this.resetState();
     }
   }
@@ -141,6 +166,7 @@ export default class ShapeDrawListener extends Component {
     window.removeEventListener('mouseup', this.mouseUpHandler);
     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
     this.isDrawing = false;
+    this.currentStatus = undefined;
     this.initialCoordinate = {
       x: undefined,
       y: undefined,

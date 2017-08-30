@@ -65,6 +65,12 @@ export default class PencilDrawComponent extends Component {
       }
     }
 
+    // If that's just one coordinate at the end (dot) - we want to display it.
+    // So adding L with the same X and Y values to the path
+    if (path && points.length === 2) {
+      path = `${path} L${(points[0] / 100) * slideWidth} ${(points[1] / 100) * slideHeight}`;
+    }
+
     return { path, points };
   }
 
@@ -74,7 +80,6 @@ export default class PencilDrawComponent extends Component {
     const { annotation, slideWidth, slideHeight } = this.props;
 
     this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
-    this.points = annotation.points;
 
     this.getCurrentPath = this.getCurrentPath.bind(this);
     this.getCoordinates = this.getCoordinates.bind(this);
