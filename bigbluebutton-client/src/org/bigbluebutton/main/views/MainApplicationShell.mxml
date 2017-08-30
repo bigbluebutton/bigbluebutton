@@ -89,7 +89,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.Event;
-			import flash.events.FullScreenEvent;
 			import flash.events.IOErrorEvent;
 			import flash.events.TextEvent;
 			import flash.geom.Point;
@@ -262,12 +261,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_hideToolbarsTimer = new Timer(HIDE_TOOLBARS_DELAY, 1);
 				_hideToolbarsTimer.addEventListener(TimerEvent.TIMER, onHideToolbarsTimerComplete);
 
-				if (stage == null) {
-					addEventListener(Event.ADDED_TO_STAGE, initFullScreen);
-				} else {
-					initFullScreen();
-				}
-
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
 			}
 			
@@ -312,23 +305,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					guestManagement = new GuestManagement();
 					guestManagement.setGuestPolicy(guestPolicy);
 					guestManagement.addToSettings();
-				}
-			}
-
-			private function isFullScreen():Boolean {
-				return stage.displayState == StageDisplayState.FULL_SCREEN ||
-						stage.displayState == StageDisplayState.FULL_SCREEN_INTERACTIVE;
-			}
-
-			private function mouseMoveHandler(e:MouseEvent):void {
-				if (isFullScreen()) {
-					if (e.stageY <= THRESHOLD_AREA_SHOW_TOOLBARS || e.stageY > this.height - THRESHOLD_AREA_SHOW_TOOLBARS) {
-						showToolbars();
-					} else if (e.stageY >= toolbar.height && e.stageY <= this.height - controlBar.height) {
-						hideToolbars();
-					}
-				} else {
-					showToolbars();
 				}
 			}
 
@@ -415,12 +391,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
 				}
 			}
-		
-			protected function initFullScreen(e:Event = null):void {
-				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
-			}
-			
+
 			private var sendStartModulesEvent:Boolean = true;
 			
 			// We have to calculate the canvas height manually because if you set it to a 
@@ -484,19 +455,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					waitWindow = null;
 				}
 			}
-
-			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
-				if (evt.fullScreen) {
-					LOGGER.debug("Switching to full screen");
-					fullScreenBtn.styleName = "exitFullScreenButton"
-					hideToolbars();
-				} else {
-					LOGGER.debug("Switching to normal screen");
-					fullScreenBtn.styleName = "fullScreenButton"
-					showToolbars();
-				}
-			}			
 
 			private function closeGuestWindow(e:Event = null):void {
 				if(guestWindow != null) {
@@ -569,26 +527,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen, current mode: " + stage.displayState);
-	   			try {
-					switch (stage.displayState) {
-						case StageDisplayState.FULL_SCREEN:
-						case StageDisplayState.FULL_SCREEN_INTERACTIVE:
-							LOGGER.debug("Full screen mode, switching to normal screen mode");
-							// If already in full screen mode, switch to normal mode.
-							stage.displayState = StageDisplayState.NORMAL;
-							break;
-						default:
-							LOGGER.debug("Normal screen mode, switching to full screen mode");
-							// If not in full screen mode, switch to full screen mode.
-							stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
-							break;
-					}
-				} catch (err:SecurityError) {
-					// ignore
+				LOGGER.debug("Toggling fullscreen");
+				if (ExternalInterface.available) {
+					ExternalInterface.call("toggleFullscreen");
 				}
-	   		}	
-	   		
+	   		}
+
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
 				// this is a terrible place for these checks because this function runs 4 times on startup
 				if (BBB.initConnectionManager().isTunnelling) {

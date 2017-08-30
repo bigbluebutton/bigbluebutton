@@ -162,3 +162,36 @@ function determineBrowser()
 	
 	return [browserName, majorVersion, fullVersion];
 }
+
+function toggleFullscreen() {
+	// are we currently in full-screen mode?
+	if (document.fullscreenElement ||
+		document.webkitFullscreenElement ||
+		document.mozFullScreenElement ||
+		document.msFullscreenElement) {
+
+		// exit full-screen
+		if (document.exitFullscreen) {
+			document.exitFullscreen();
+		} else if (document.webkitExitFullscreen) {
+			document.webkitExitFullscreen();
+		} else if (document.mozCancelFullScreen) {
+			document.mozCancelFullScreen();
+		} else if (document.msExitFullscreen) {
+			document.msExitFullscreen();
+		}
+	} else {
+		var htmlElement = document.getElementById("content");
+
+		// go full-screen
+		if (htmlElement.requestFullscreen) {
+			htmlElement.requestFullscreen();
+		} else if (htmlElement.webkitRequestFullscreen) {
+			htmlElement.webkitRequestFullscreen();
+		} else if (htmlElement.mozRequestFullScreen) {
+			htmlElement.mozRequestFullScreen();
+		} else if (htmlElement.msRequestFullscreen) {
+			htmlElement.msRequestFullscreen();
+		}
+	}
+}
