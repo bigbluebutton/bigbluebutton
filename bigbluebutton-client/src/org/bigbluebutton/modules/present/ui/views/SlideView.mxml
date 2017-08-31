@@ -242,6 +242,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function switchToFitToPage(ftp:Boolean):void {
 				slideModel.switchToFitToPage(ftp);
+				slideModel.onMove(0, 0); // fake a move to reset some values
 				onZoomSlide(100);
 			}
 			
