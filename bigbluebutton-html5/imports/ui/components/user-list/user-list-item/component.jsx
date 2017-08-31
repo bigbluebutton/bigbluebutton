@@ -239,7 +239,6 @@ class UserListItem extends Component {
       user,
       intl,
       compact,
-      meeting,
       isMeetingLocked,
     } = this.props;
 
