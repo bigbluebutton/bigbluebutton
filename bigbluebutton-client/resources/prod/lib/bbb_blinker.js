@@ -164,13 +164,15 @@ function determineBrowser()
 }
 
 function toggleFullscreen() {
-	// are we currently in full-screen mode?
-	if (document.fullscreenElement ||
-		document.webkitFullscreenElement ||
-		document.mozFullScreenElement ||
-		document.msFullscreenElement) {
 
-		// exit full-screen
+	function isFullscreen() {
+		return !!(document.fullscreenElement ||
+			document.webkitFullscreenElement ||
+			document.mozFullScreenElement ||
+			document.msFullscreenElement);
+	}
+
+	function exitFullscreen() {
 		if (document.exitFullscreen) {
 			document.exitFullscreen();
 		} else if (document.webkitExitFullscreen) {
@@ -180,10 +182,11 @@ function toggleFullscreen() {
 		} else if (document.msExitFullscreen) {
 			document.msExitFullscreen();
 		}
-	} else {
+	}
+
+	function setFullscreen() {
 		var htmlElement = document.getElementById("content");
 
-		// go full-screen
 		if (htmlElement.requestFullscreen) {
 			htmlElement.requestFullscreen();
 		} else if (htmlElement.webkitRequestFullscreen) {
@@ -193,5 +196,32 @@ function toggleFullscreen() {
 		} else if (htmlElement.msRequestFullscreen) {
 			htmlElement.msRequestFullscreen();
 		}
+	}
+
+	function FShandler() {
+		var isNowFullscreen = isFullscreen();
+		var swfObj = swfobject.getObjectById("BigBlueButton");
+		if (swfObj) {
+			swfObj.fullscreenToggled(isNowFullscreen);
+		}
+	}
+
+	// remove old listeners
+	document.removeEventListener("fullscreenchange", FShandler);
+	document.removeEventListener("webkitfullscreenchange", FShandler);
+	document.removeEventListener("mozfullscreenchange", FShandler);
+	document.removeEventListener("MSFullscreenChange", FShandler);
+
+	// add listeners
+	document.addEventListener("fullscreenchange", FShandler);
+	document.addEventListener("webkitfullscreenchange", FShandler);
+	document.addEventListener("mozfullscreenchange", FShandler);
+	document.addEventListener("MSFullscreenChange", FShandler);
+
+	// are we currently in full-screen mode?
+	if (isFullscreen()) {
+		exitFullscreen();
+	} else {
+		setFullscreen()
 	}
 }
