@@ -1330,7 +1330,7 @@
                         <fx:Object icon="{getStyle('iconAlignLeft')}" action="left"/>
                         <fx:Object icon="{getStyle('iconAlignCenter')}" action="center"/>
                         <fx:Object icon="{getStyle('iconAlignRight')}" action="right"/>
-                        <fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/>
+                        <!--fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/-->
                     </fx:Array>
                 </mx:dataProvider>
             </mx:ToggleButtonBar>
