@@ -242,7 +242,7 @@
 						_document = clientText;
 					} else {
 						richTextEditor.htmlText = _document;
-						throwMessageLenghtWarning(sendPatchEvent.patch.length);
+						throwMessageLenghtWarning(sendPatchEvent.patch.length - options.maxMessageLength);
 					}
 					richTextEditor.textArea.editable = true;
 				}
@@ -500,7 +500,7 @@
 			}
 
 			public function throwMessageLenghtWarning(messageLength:int):void {
-				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [options.maxMessageLength, messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
+				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
