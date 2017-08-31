@@ -70,3 +70,24 @@ val preview = extensions \ "preview"
 
 
 
+val imagesNodes = preview \ "images"
+
+val images = (imagesNodes \ "image") .map { n =>
+  val w = (n \ "@width").text
+  val h = (n \ "@height").text
+  val alt = (n \ "@alt").text
+  val link = (n.text)
+  new MetaImage(w, h, alt, link)
+}
+
+val x = new scala.xml.NodeBuffer
+images foreach { im =>
+  x += <image width={im.width} height={im.height} alt={im.alt}>{im.link}</image>
+}
+
+val imageElem = <images>{x}</images>
+println(imageElem)
+
+
+
+case class MetaImage(width: String, height: String, alt: String, link: String)
