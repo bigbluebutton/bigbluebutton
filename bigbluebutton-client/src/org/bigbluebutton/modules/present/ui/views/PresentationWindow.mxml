@@ -264,8 +264,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
-			[Bindable] private var fitToPage:Boolean = true;
-			
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				if (this.minimized) return;
 				
@@ -482,9 +480,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				resourcesChanged();
 			}
 			
-			private function onFitToPage(ftp:Boolean):void {				
-				fitToPage = ftp;
-				slideView.switchToFitToPage(fitToPage);
+			private function onFitToPage(ftp:Boolean):void {
+				slideView.switchToFitToPage(ftp);
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
 			
