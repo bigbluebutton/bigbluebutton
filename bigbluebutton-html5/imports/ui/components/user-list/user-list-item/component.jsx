@@ -249,7 +249,7 @@ class UserListItem extends Component {
 
     const userNameSub = [];
 
-    if ( isMeetingLocked && !user.isPresenter && !user.isModerator) {
+    if (isMeetingLocked && !user.isPresenter && !user.isModerator) {
       userNameSub.push(<span>
         <Icon iconName="lock" />
         {intl.formatMessage(messages.locked)}
