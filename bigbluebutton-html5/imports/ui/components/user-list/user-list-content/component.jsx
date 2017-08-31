@@ -28,6 +28,23 @@ const defaultProps = {
 
 class UserContent extends Component {
 
+  static focusElement(active, element) {
+    const modifiedActive = active;
+    const modifiedElement = element;
+    if (!modifiedActive.getAttribute('role') === 'tabpanel') {
+      modifiedActive.tabIndex = -1;
+    }
+    modifiedElement.tabIndex = 0;
+    modifiedElement.focus();
+  }
+
+  static removeFocusFromChilds(childs, numberOfItems) {
+    const modifiedChilds = childs;
+    for (let i = 0; i < numberOfItems; i += 1) {
+      modifiedChilds.childNodes[i].tabIndex = -1;
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -44,17 +61,17 @@ class UserContent extends Component {
     focusList.focus();
   }
 
+
   rovingIndex(event, list, items, numberOfItems) {
     const active = document.activeElement;
     const changedItems = items;
 
-    const focusElement = () => {
-      if (!active.getAttribute('role') === 'tabpanel') {
-        active.tabIndex = -1;
+    if (event.keyCode === KEY_CODES.TAB) {
+      if (this.focusedItemIndex !== -1) {
+        this.focusedItemIndex = 0;
+        UserContent.removeFocusFromChilds(changedItems, numberOfItems);
       }
-      changedItems.childNodes[this.focusedItemIndex].tabIndex = 0;
-      changedItems.childNodes[this.focusedItemIndex].focus();
-    };
+    }
 
     if (event.keyCode === KEY_CODES.ESCAPE
       || this.focusedItemIndex < 0
@@ -72,7 +89,7 @@ class UserContent extends Component {
       if (this.focusedItemIndex === numberOfItems) {
         this.focusedItemIndex = 0;
       }
-      focusElement();
+      UserContent.focusElement(active, changedItems.childNodes[this.focusedItemIndex]);
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
@@ -82,7 +99,7 @@ class UserContent extends Component {
         this.focusedItemIndex = numberOfItems - 1;
       }
 
-      focusElement();
+      UserContent.focusElement(active, changedItems.childNodes[this.focusedItemIndex]);
     }
   }
 
