@@ -577,7 +577,10 @@
 				<mx:Label id="charRemain"
 						includeInLayout="true"
 						visible="{(options.maxNoteLength - richTextEditor.text.length) &lt; (options.maxNoteLength / 8)}"
-						text="{options.maxNoteLength - richTextEditor.text.length}"/>
+						text="{options.maxNoteLength - richTextEditor.text.length}"
+						toolTip="{options.maxNoteLength - richTextEditor.text.length > 0 ?
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.remaining.tooltip') :
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.full.tooltip')}"/>
 				<mx:Button id="btnNew"
 						styleName="sharedNotesNewButtonStyle"
 						width="26"
