@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx"
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
     xmlns:mate="http://mate.asfusion.com/"
     creationComplete="onCreationComplete()"
     initialize="init()"
@@ -28,13 +29,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     width="100%" height="100%" xmlns:containers="flexlib.containers.*"
     verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*">
 
-  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
-  <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-  <mate:Listener type="{EventConstants.START_PRIVATE_CHAT}" method="handleStartPrivateChatMessageEvent"/>
-  <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
-  <mate:Listener type="{ShortcutEvent.CLOSE_PRIVATE}" method="remoteClosePrivate" />
+	<fx:Declarations>
+		<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+		<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+		<mate:Listener type="{EventConstants.START_PRIVATE_CHAT}" method="handleStartPrivateChatMessageEvent"/>
+		<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
+		<mate:Listener type="{ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT}" method="dispatchSaveChatEvent" />
+		<mate:Listener type="{ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT}" method="dispatchCopyChatEvent" />
+		<mate:Listener type="{ShortcutEvent.CLOSE_PRIVATE}" method="remoteClosePrivate" />		
+	</fx:Declarations>
   
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -43,23 +48,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.media.Sound;
 			
 			import mx.controls.Button;
+			import mx.core.INavigatorContent;
 			
 			import flexlib.controls.tabBarClasses.SuperTab;
 			import flexlib.events.SuperTabEvent;
 			
-			import mx.controls.Button;
-			import mx.core.INavigatorContent;
-			
 			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.CoreEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
 			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
+			import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
+			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
 			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;			
-					
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
 	    private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
 	    private var PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
 	    private var OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
@@ -85,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			// Initialization
 			private function init():void {
-				chatOptions = new ChatOptions();
+				chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 				noticeLabel = ResourceUtil.getInstance().getString('bbb.chat.chatTabs.accessibleNotice');
 				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
 			}
@@ -107,6 +114,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
 			}       
+
+			private function getVisibleChatBox():ChatBox {
+				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
+				return chatBox;
+			}
+
+      private function getPublicChatBox():ChatBox {
+        return publicBox;
+      }
+      
+			private function dispatchSaveChatEvent(e:Event):void {
+				var chatBox:ChatBox = getPublicChatBox();
+				var saveEvent:ChatSaveEvent = new ChatSaveEvent(ChatSaveEvent.SAVE_CHAT_EVENT);
+
+				if (chatBox.chatWithUsername == null || chatBox.chatWithUsername == "") {
+					saveEvent.filename = ResourceUtil.getInstance().getString('bbb.chat.save.filename');
+				} else {
+					saveEvent.filename = chatBox.chatWithUsername;
+				}
+
+				saveEvent.chatMessages = chatBox.getChatMessages();
+				globalDispatcher.dispatchEvent(saveEvent);
+			}
+
+			private function dispatchCopyChatEvent(e:Event):void {
+				var chatBox:ChatBox = getPublicChatBox();
+				var copyEvent:ChatCopyEvent = new ChatCopyEvent(ChatCopyEvent.COPY_CHAT_EVENT);
+
+				copyEvent.chatMessages = chatBox.getChatMessages();
+				globalDispatcher.dispatchEvent(copyEvent);
+			}
 			
 			private function focusChatTabs(e:ShortcutEvent):void{
 				focusManager.setFocus(chatTabs);
@@ -133,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		  private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 			  notifyUserOfNewMessage(PUBLIC_CHAT_USERID);
-			  if (!UsersUtil.isMe(event.message.fromUserID)) {
+			  if (!UsersUtil.isMe(event.message.fromUserId)) {
           publicNotification();
         }			
       }
@@ -141,17 +179,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 		    // This message is from me. Ignore as a chatbox has already been created for this
 			  // private chat and that chatbox will handle this message.
-			  if (UsersUtil.isMe(event.message.fromUserID)) return;
+			  if (UsersUtil.isMe(event.message.fromUserId)) return;
 			
 			  // I received a new private chat. Open up a new chatbox and forward the message
 			  // to the chatbox. Succeeding messages will be handled by that chatbox.
-			  if (! userHasChatBox(event.message.fromUserID)) {
+			  if (! userHasChatBox(event.message.fromUserId)) {
 			  	// Open a private chat tab.
-			  	openChatBoxFor(event.message.fromUserID, false).handleFirstPrivateMessage(event);         
+			  	openChatBoxFor(event.message.fromUserId, false).handleFirstPrivateMessage(event);         
 			  }
 			
 			  // See if the chatbox is not in focus and notify user about the message.
-			  notifyUserOfNewMessage(event.message.fromUserID);
+			  notifyUserOfNewMessage(event.message.fromUserId);
 			  privateNotification(event);
 	 	  }
       
@@ -204,8 +242,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chatBox:ChatBox = getChatBoxForUser(userid);
 				var tabIndex:int = getTabIndexFor(chatBox);
 				var tab:Button = chatTabs.getTabAt(tabIndex);
-				tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
-				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
+				tab.styleName = "highlightedTabStyle";
 				
 				// An event to change the accessibilityDescription of the given chat tab to <existing label> + "NEW MESSAGE" should go here.
 				// However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
@@ -217,7 +254,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onTabNavChange():void{
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
-				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+				tab.styleName = "defaultTabStyle";
 				
 				// An event to remove the "NEW MESSAGE" notification from the accessibilityDescription of the given chat tab (if it exists) should go here.
 				// However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
@@ -310,7 +347,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if (! UsersUtil.isMe(event.message.fromUserID)) {
+				if (! UsersUtil.isMe(event.message.fromUserId)) {
 					playSound();
 				}
 			}
@@ -366,11 +403,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					chatTabs.removeChild(selectedTab as DisplayObject);
 				}
 			}
+
+			// This message comes from the chat box and must get to the chat window
+			public function handleDraggableStatus(value:Boolean):void {
+				parentDocument.handleDraggableStatus(value);
+			}
+
+			// This message comes from the chat box and must get to the chat window
+			public function handleResizableStatus(value:Boolean):void {
+				parentDocument.handleResizableStatus(value);
+			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer id="tabIndexer" startIndex="{chatOptions.getBaseIndex() + 4}" tabIndices="{[chatTabs]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="{chatOptions.baseTabIndex + 4}" tabIndices="{[chatTabs]}"/>
+	</fx:Declarations>
 	
 	<containers:SuperTabNavigator includeInLayout="false" id="chatTabs" 
                                   width="100%" height="100%" change="onTabNavChange()" 

@@ -1,41 +1,25 @@
 import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { makeCall } from '/imports/ui/services/api';
-import Button from '/imports/ui/components/button/component';
-import Users from '/imports/api/users/index';
+import VoiceUsers from '/imports/api/2.0/voice-users';
 import Auth from '/imports/ui/services/auth/index';
 import MuteAudio from './component';
 
-class MuteAudioContainer extends React.Component {
-  render() {
-    return (
-      <MuteAudio {...this.props} />
-    );
-  }
-}
+const MuteAudioContainer = props => (<MuteAudio {...props} />);
 
-export default createContainer((params) => {
+export default createContainer(() => {
   const userId = Auth.userID;
-  const user = Users.findOne({ userId }).user;
-  const isMuted = user.voiceUser.muted;
-  const isInAudio = user.voiceUser.joined;
-  const isTalking = user.voiceUser.talking;
+  const voiceUser = VoiceUsers.findOne({ intId: userId });
 
-  let callback = () => { };
+  const { muted, joined, talking } = voiceUser;
 
-  if (isInAudio && !isMuted) {
-    callback = () => makeCall('muteUser', userId);
-  }
-
-  if (isInAudio && isMuted) {
-    callback = () => makeCall('unmuteUser', userId);
-  }
+  const callback = () => makeCall('toggleSelfVoice');
 
   const data = {
-    isInAudio,
-    isMuted,
+    isInAudio: joined,
+    isMuted: muted,
     callback,
-    isTalking,
+    isTalking: talking,
   };
   return data;
 }, MuteAudioContainer);

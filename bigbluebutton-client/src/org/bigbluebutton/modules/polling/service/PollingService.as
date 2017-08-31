@@ -57,7 +57,10 @@ package org.bigbluebutton.modules.polling.service
       var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
       if (curPres != null) {
         var date:Date = new Date();
-        var pollId: String = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+
+        var pollId:String;
+        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+
         return pollId;
       }
       

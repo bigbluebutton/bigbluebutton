@@ -39,11 +39,6 @@ package org.bigbluebutton.modules.caption.managers {
 			_transcripts = new Transcripts();
 		}
 		
-//		private function getCaptionOptions():void {
-//			if (_captionOptions == null) captionOptions = new CaptionOptions();
-//			return _captionOptions;
-//		}
-		
 		public function requestTranscripts(event:RequestTranscriptsEvent):void {
 			if (event.callback != null) event.callback(_transcripts);
 			
@@ -65,9 +60,6 @@ package org.bigbluebutton.modules.caption.managers {
 		
 		public function openWindow():void {
 			var dispatcher:Dispatcher = new Dispatcher();
-			
-//			getCaptionOptions();
-//			_captionWindow.captionOptions = _captionOptions;
 			
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = _captionWindow;

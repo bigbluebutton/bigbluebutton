@@ -20,67 +20,66 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-
-<pres:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<pres:CustomMdiWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:thumb="org.bigbluebutton.modules.present.views.*"
 	xmlns:pres="org.bigbluebutton.common.*"
 	xmlns:code="http://code.google.com/p/flexlib/" 
 	xmlns:containers="flexlib.containers.*"
 	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
+	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
-	horizontalScrollPolicy="off" 
+	horizontalScrollPolicy="off"
 	showControls="true" resize="resizeHandler()"
-  	styleNameFocus="presentationWindowStyleFocus"
-  	styleNameNoFocus="presentationWindowStyleNoFocus"
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	implements="org.bigbluebutton.common.IBbbModuleWindow,org.bigbluebutton.modules.whiteboard.views.IWhiteboardReceiver"
 	initialize="init()"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}"
-	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
-	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
-	>
+	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}">
 	
-	<mate:Dispatcher id="globalDispatcher" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
-	<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
-  	<mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
-	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
-	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
-	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
-	<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
-	<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
-	<mate:Listener type="{ShortcutEvent.SELECT_SLIDES}" method="remoteSelect" />
-	<mate:Listener type="{ShortcutEvent.NEXT_SLIDE}" method="remoteNext" />
-	<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
-	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />	
-	<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
-	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
-	<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
-	<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
-	<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
-	
-	<mx:Script>
+	<fx:Declarations>
+		<mate:Dispatcher id="globalDispatcher" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
+		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
+		<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
+		<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
+		<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
+		<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
+		<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
+		<mate:Listener type="{ShortcutEvent.SELECT_SLIDES}" method="remoteSelect" />
+		<mate:Listener type="{ShortcutEvent.NEXT_SLIDE}" method="remoteNext" />
+		<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
+		<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />	
+		<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
+		<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
+		<mate:Listener type="{RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT}" method="handleUpdateDownloadableFilesEvent" />
+		<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
+		<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
+		<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
+	</fx:Declarations>
+
+	<fx:Script>
 		<![CDATA[
 			import flash.geom.Point;
 			
+			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -95,21 +94,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
-			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-			import org.bigbluebutton.modules.present.events.NavigationEvent;
+			import org.bigbluebutton.modules.present.events.DownloadEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.model.Page;
+			import org.bigbluebutton.modules.present.model.PresentOptions;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              		
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
       		public static const TITLE:String = "Presentation";
-			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
 			
 			[Bindable] 
       		private var thumbY:Number;
@@ -119,7 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
 			
 			private static const TOP_WINDOW_BORDER:Number = 30;
-			private static const WIDTH_PADDING:Number = 6;
+			private static const WIDTH_PADDING:Number = 8;
 
 			[Bindable] private var DEFAULT_WINDOW_WIDTH:Number = 510;
 			[Bindable] private var DEFAULT_WINDOW_HEIGHT:Number = 451;
@@ -132,6 +134,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 									
 			private var mouseDown:Boolean = false;
 
+			private static const PRESENTATION_NAME_MAX_LENGTH:Number = 20;
 			[Bindable] private var currentPresentation:String = "";
 			
 			[Bindable] private var presentOptions:PresentOptions;
@@ -145,9 +148,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Embed(source="../../../polling/sounds/Poll.mp3")] 
 			private var noticeSoundClass:Class;
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
+
+			private var whiteboardOverlay:WhiteboardCanvas = null;
 			
 			private function init():void{
-				presentOptions = new PresentOptions();
+				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			}
 			
 			private function onCreationComplete():void{
@@ -159,7 +164,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				thumbY = this.height - 160;
                 
-				bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				resourcesChanged();
 				
@@ -169,7 +173,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
         //Necessary now because of module loading race conditions
         var t:Timer = new Timer(2000, 1);
-        t.addEventListener(TimerEvent.TIMER, addWhiteboardToolbar);
+        t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
         t.start();
         
         if (UsersUtil.amIPresenter()) {
@@ -181,14 +185,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         setPollMenuData();
       }
 			
-      private function addWhiteboardToolbar(event:TimerEvent):void {
-        LOGGER.debug("Sending event to add whiteboard canvas.");
-         // Tell the WhiteboardManager to add the toolbar
-         var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
-         e.window = this;
-         dispatchEvent(e);
-      }
-            
+			private function requestWhiteboardCanvas(event:TimerEvent):void {
+				LOGGER.debug("Sending event to add whiteboard canvas.");
+				callLater(fitSlideToWindowMaintainingAspectRatio);
+				
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(new RequestNewCanvasEvent(this));
+			}
+			
 			private function hotkeyCapture():void{
 			    LOGGER.debug("Entering hotkeyCapture");
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -265,14 +269,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				if (this.minimized) return;
 				
-				// Send the available space to display the slide.				
-				sendWindowResizedEvent((this.width - WIDTH_PADDING), (this.height - controlBar.height - TOP_WINDOW_BORDER));
+				// Send the available space to display the slide.
+				if (controlBar != null) {
+					sendWindowResizedEvent((this.width - WIDTH_PADDING), (this.height - controlBar.height - TOP_WINDOW_BORDER));
+				}
 			}
 			
 			/*
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
-			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {				
+			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
 				slideView.onParentResized(parentWidth, parentHeight);
 			}
 			
@@ -286,56 +292,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }			
 			}
 			
-      private function bindToKeyboardEvents(event:NavigationEvent):void {
-         if (event.bindToKeyboard) {
-			 LOGGER.debug("******************************************** Binding to keyboard events ********************");
-             bindKeyboardEvents();
-         } else {
-			 LOGGER.debug("********************************************* Unbinding to keyboard events *****************");
-             unbindKeyboardEvents();
-         }
-      }
-            
-      private function unbindKeyboardEvents():void {
-        stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-      }
-
-      private function bindKeyboardEvents():void {
-        stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-      }
-            
-			// Maybe there's a problem in here too?
-			private function onKeyUp(event:KeyboardEvent):void {	
-                /*if (event.shiftKey && event.ctrlKey) {
-                    switch (event.keyCode) {
-                        case Keyboard.LEFT:
-                        case Keyboard.UP:
-                        case Keyboard.PAGE_UP:			
-                            gotoPreviousSlide();		
-                            break;
-                        case Keyboard.DOWN:
-                        case Keyboard.RIGHT: 
-                        case Keyboard.SPACE:
-                        case Keyboard.PAGE_DOWN:
-                        case Keyboard.ENTER:
-                            gotoNextSlide();
-                            break; 
-                    }                    
-                }*/
-			}
-			
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
 			}
 						
 			private function onSliderZoom():void {
 				slideView.onZoomSlide(zoomSlider.value);
-			}
-			
-			private function dispatchResizeEvent(newSize:int):void {
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
-				presentEvent.newSizeInPercent = newSize;
-				dispatchEvent(presentEvent);
 			}
 			
 			private function onResetZoom():void {
@@ -364,7 +326,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function setupPresenter(isPresenter:Boolean):void {
-				uploadPres.visible = isPresenter;				
+				uploadPres.visible = isPresenter;
+				downloadPres.visible = !isPresenter;
+
 				var page:Page = PresentationModel.getInstance().getCurrentPage();
 				if (page != null) {
 					displaySlideNumber(page.num);		
@@ -373,6 +337,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				setControlBarState("presenter");
 			}
+			
             private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
 				currentPresentation = PresentationModel.getInstance().getCurrentPresentationName();
 
@@ -380,7 +345,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 slideView.visible = true;
                 var page : Page = PresentationModel.getInstance().getCurrentPage();
                 if (page != null) {
-                    displaySlideNumber(page.num);
+                    displaySlideNumber(page.num); 
                 }
 
                 if (UsersUtil.amIPresenter()) {
@@ -390,6 +355,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     displaySlideNavigationControls(false, !!page)
                 }
                 onResetZoom();
+                updateDownloadBtn();
             }
 
 			
@@ -397,6 +363,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var showButtons:Boolean = isPresenter && activePresentation;
 				
 				pollStartBtn.visible = showButtons;
+				quickPollBtn.visible = showButtons;
 				backButton.visible = showButtons;
 				forwardButton.visible = showButtons;
 				zoomSlider.visible = showButtons;
@@ -406,16 +373,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				fitSlideToWindowMaintainingAspectRatio();
 			}
-			
+
 			private function addContextMenuItems():void{
 				var contextMenuItems:Array = new Array();
 				
 				var nextButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip'));
-				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { gotoNextSlide(); });
+				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { goToNextSlide(); });
 				contextMenuItems.push(nextButton);
 				
 				var previousButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip'));
-				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { gotoPreviousSlide(); });
+				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { goToPreviousSlide(); });
 				contextMenuItems.push(previousButton);
 								
 				this.customContextMenuItems = contextMenuItems;
@@ -424,7 +391,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
 				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = presentationName;
-					shareEvent.share = true;
 					dispatchEvent(shareEvent);
 			}
 										
@@ -432,8 +398,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				backButton.mouseEnabled = pageNumber != 1;
 				forwardButton.mouseEnabled = pageNumber < PresentationModel.getInstance().getNumberOfPages();
 				
-				backButton.styleName = pageNumber != 1 ? "presentationBackButtonStyle" : "presentationBackButtonDisabledStyle";
-				forwardButton.styleName = pageNumber < PresentationModel.getInstance().getNumberOfPages() ? "presentationForwardButtonStyle" : "presentationForwardButtonDisabledStyle";
+				backButton.enabled = pageNumber != 1;
+				forwardButton.enabled = pageNumber < PresentationModel.getInstance().getNumberOfPages();
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
@@ -449,6 +415,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideView.setSelectedSlide(0);
 				btnSlideNum.label = "";
 				
+				pollStartBtn.visible = false;
+				quickPollBtn.visible = false;
+
 				backButton.visible = false;
 				forwardButton.visible = false;
 				zoomSlider.visible = false;
@@ -460,43 +429,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
 			}
 			
-			private function gotoPreviousSlide():void {
-        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
-        if (curPage != null) {
-          LOGGER.debug("Go to previous page. Current page [{0}]", [curPage.id]);
-          dispatchEvent(new GoToPrevPageCommand(curPage.id));
-        } else {
-          LOGGER.debug("Go to previous page. CanNOT find current page.");
-        }
+			private function goToPreviousSlide():void {
+				dispatchEvent(new GoToPrevPageCommand());
 			}
 			
-			private function gotoNextSlide():void {
-          var curPage:Page = PresentationModel.getInstance().getCurrentPage();
-          if (curPage != null) {
-            LOGGER.debug("Go to next page. Current page [{0}]", [curPage.id]);
-            dispatchEvent(new GoToNextPageCommand(curPage.id));
-          } else {
-            LOGGER.debug("Go to next page. CanNOT find current page.");
-          }
+			private function goToNextSlide():void {
+				dispatchEvent(new GoToNextPageCommand());
 			}
 			
-      private function removeDecimalFromDataTip(val:String):String {			
-        return val; 
+      private function showPercentageInDataTip(val:String):String {			
+        return val + "%"; 
       }
       
       private function showThumbnails():void{
         slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
       }
-      
-      private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
-        LOGGER.debug("OVERLAYING WHITEBOARD CANVAS");
-        e.canvas.acceptOverlayCanvas(slideView);
-        slideView.acceptOverlayCanvas(e.canvas);
+
+      private function addWhiteboardCanvasToSlideView():void{
+        if(whiteboardOverlay != null) {
+          LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
+          slideView.acceptOverlayCanvas(whiteboardOverlay);
+		}
       }
-					
+			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
 				
 				if (titleBarOverlay != null) {
 					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.titleBar');
@@ -531,12 +488,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
 			
+			
 			override protected function hideAllChildren():void {
-				slideView.includeInLayout=false;
+				slideView.includeInLayout = false;
 			}
 			
 			override protected function showAllChildren():void {
-				slideView.includeInLayout=true;
+				slideView.includeInLayout = true;
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
@@ -549,7 +507,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function remotePrevious(e:ShortcutEvent):void{
 				if (backButton.visible && backButton.enabled){
 					//backButton.setFocus();
-					gotoPreviousSlide();
+					goToPreviousSlide();
 				}
 			}
 			
@@ -563,7 +521,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function remoteNext(e:ShortcutEvent):void{
 				if (forwardButton.visible && forwardButton.enabled){
 					//forwardButton.setFocus();
-					gotoNextSlide();
+					goToNextSlide();
 				}
 			}
 			
@@ -579,6 +537,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					btnFitToPage.setFocus();
 					onFitToPage(true);
 				}
+			}
+
+			private function onDownloadButtonClicked():void {
+				openDownloadWindow();
+			}
+
+			private function openDownloadWindow():void {
+				var event:DownloadEvent = new DownloadEvent(DownloadEvent.OPEN_DOWNLOAD_WINDOW);
+				dispatchEvent(event);
 			}
 			
 			private function onUploadButtonClicked():void {
@@ -752,16 +719,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = true;
 					pollVoteBox.includeInLayout = true;
+					downloadPres.visible = false;
 				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
+					downloadPres.visible = false;
+					pollStartBtn.visible = true;
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
 				} else {
-					presenterControls.visible = false;
-					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
+					pollStartBtn.visible = false;
+					downloadPres.visible = true;
+					presenterControls.visible = false;
+					presenterControls.includeInLayout = false;
 				}
 				
 				// Need to call the function later because the heights haven't been validated yet
@@ -777,49 +749,102 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				setControlBarState("presenter");
 			}
 
-		]]>
-	</mx:Script>
-	
-	<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
-					 tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, uploadPres, pollStartBtn, quickPollBtn, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
-  	 
-	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
-	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
+			private function handleUpdateDownloadableFilesEvent(e:RemovePresentationEvent):void {
+				updateDownloadBtn();
+			}
 
-	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true"
-		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>			    
-	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="middle" styleName="presentationWindowControlsStyle" 
-				   paddingTop="2" paddingBottom="2">
-		<mx:HBox id="presenterControls" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center">
-			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-					   click="onUploadButtonClicked()"/>
-			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}" 
-					   click="onPollStartButtonClicked()"/>
+			private function updateDownloadBtn():void {
+				if (downloadPres == null) {
+					return;
+				}
+
+				if (pollVoteBox.visible) {
+					downloadPres.visible = false;
+					return;
+				}
+
+				var downloadablePresentations:ArrayCollection = PresentationModel.getInstance().getDownloadablePresentations();
+				if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
+					LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
+					downloadPres.visible = true;
+				} else {
+					LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
+					downloadPres.visible = false;
+				}
+			}
+
+			public function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void {
+				var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
+				addUIEvent.component = wt;
+				globalDispatcher.dispatchEvent(addUIEvent);
+				wt.positionToolbar(this);
+				
+				var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
+				addTextToolbarEvent.component = wtt;
+				globalDispatcher.dispatchEvent(addTextToolbarEvent);
+				wtt.positionToolbar(this);
+			}
+			
+			public function receiveCanvas(wc:WhiteboardCanvas):void {
+				whiteboardOverlay = wc;
+				
+				addWhiteboardCanvasToSlideView();
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
+				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
+	  	 
+		<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
+		<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
+	</fx:Declarations>
+
+	<mx:Canvas width="100%" height="100%" styleName="slideViewBackground" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
+	</mx:Canvas>
+
+	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">
+		<!-- Presentation Actions -->
+		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="bottom" horizontalAlign="left">
+      <mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
+                 click="onUploadButtonClicked()"/>
+      <mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
+					   click="onPollStartButtonClicked()" includeInLayout="{pollStartBtn.visible}"/>
 			<poll:QuickPollButton id="quickPollBtn" height="30"
-								  click="quickPollClicked(event)" />
-			<mx:Spacer width="100%" id="spacer1"/>
-			<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"/>
-			<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()"
+								  click="quickPollClicked(event)"
+								  includeInLayout="{quickPollBtn.visible}" />
+			<mx:Button id="downloadPres" visible="false"
+					   includeInLayout="{downloadPres.visible}" height="30"
+					   styleName="presentationDownloadButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
+					   click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
+
+		</mx:HBox>
+
+		<mx:HBox id="presenterControls" width="30%" height="100%" paddingTop="0" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">
+			<mx:Button id="backButton" visible="false" height="30" styleName="presentationBackButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="goToPreviousSlide()"/>
+			<mx:Button id="btnSlideNum" visible="false" height="30" click="showThumbnails()"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"/>
-			<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
-			<mx:Spacer width="50%" id="spacer3"/>
+			<mx:Button id="forwardButton" visible="false" height="30" styleName="presentationForwardButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="goToNextSlide()"/>
+		</mx:HBox>
+		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="middle" horizontalAlign="right">
 			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
-						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
+						minimum="100" maximum="400" dataTipPlacement="top" 
 						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-						dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
+						dataTipFormatFunction="showPercentageInDataTip" change="onSliderZoom()" width="100"
 						accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
-			<mx:Button id="btnFitToWidth" visible="false" width="30" height="30" styleName="presentationFitToWidthButtonStyle"
+			<mx:Button id="btnFitToWidth" visible="false" height="30" styleName="presentationFitToWidthButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
 					   click="onFitToPage(false)"/>
-			<mx:Button id="btnFitToPage" visible="false" width="30" height="30" styleName="presentationFitToPageButtonStyle"
+			<mx:Button id="btnFitToPage" visible="false" height="30" styleName="presentationFitToPageButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 					   click="onFitToPage(true)"/>
-			<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
-			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>
 		<mx:HBox id="pollVoteBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" />
     </mx:ControlBar>

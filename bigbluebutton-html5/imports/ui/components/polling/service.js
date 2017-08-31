@@ -1,5 +1,5 @@
 import { makeCall } from '/imports/ui/services/api';
-import Polls from '/imports/api/polls';
+import Polls from '/imports/api/2.0/polls';
 
 const mapPolls = function () {
   const poll = Polls.findOne({});
@@ -7,12 +7,12 @@ const mapPolls = function () {
     return { pollExists: false };
   }
 
-  const amIRequester = poll.requester != 'userId';
+  const amIRequester = poll.requester !== 'userId';
 
   return {
     poll: {
-      answers: poll.poll.answers,
-      pollId: poll.poll.id,
+      answers: poll.answers,
+      pollId: poll.id,
     },
     pollExists: true,
     amIRequester,

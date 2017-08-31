@@ -2,11 +2,11 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
-import Chats from '/imports/api/chat';
+import Chats from '/imports/api/2.0/chat';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 
 class UnreadMessagesTracker {
   constructor() {
@@ -32,18 +32,18 @@ class UnreadMessagesTracker {
 
   count(chatID) {
     const filter = {
-      'message.from_time': {
+      fromTime: {
         $gt: this.get(chatID),
       },
-      'message.from_userid': { $ne: Auth.userID },
+      fromUserId: { $ne: Auth.userID },
     };
 
     // Minimongo does not support $eq. See https://github.com/meteor/meteor/issues/4142
     if (chatID === PUBLIC_CHAT_USERID) {
-      filter['message.to_userid'] = { $not: { $ne: chatID } };
+      filter.toUserId = { $not: { $ne: chatID } };
     } else {
-      filter['message.to_userid'] = { $not: { $ne: Auth.userID } };
-      filter['message.from_userid'].$not = { $ne: chatID };
+      filter.toUserId = { $not: { $ne: Auth.userID } };
+      filter.fromUserId.$not = { $ne: chatID };
     }
 
     return Chats.find(filter).count();

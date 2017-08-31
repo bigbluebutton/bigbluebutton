@@ -3,8 +3,6 @@ package org.bigbluebutton.modules.videoconf.views
     import flash.display.Loader;
     import flash.events.Event;
     import flash.net.URLRequest;
-    import mx.events.FlexEvent;
-    import mx.utils.ObjectUtil;
 
     public class UserAvatar extends UserGraphic {
 

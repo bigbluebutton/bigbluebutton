@@ -21,9 +21,9 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class WhiteboardService
   {
@@ -31,48 +31,42 @@ package org.bigbluebutton.modules.whiteboard.services
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
-    public var whiteboardModel:WhiteboardModel;
 
     public function getAnnotationHistory(cmd:GetWhiteboardShapesCommand):void
     {
       sender.requestAnnotationHistory(cmd.whiteboardId);
     }
     
-    public function modifyEnabled(e:WhiteboardPresenterEvent):void {
-      sender.modifyEnabled(e);
+    public function modifyAccess(e:WhiteboardAccessEvent):void {
+      sender.modifyAccess(e);
+    }
+    
+    public function getWhiteboardAccess():void {
+      sender.getWhiteboardAccess();
     }
 
-    public function toggleGrid():void {
-      sender.toggleGrid();
-    }
-
-    public function undoGraphic():void {
-      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
-      if (wbId != null) {
-        
-        sender.undoGraphic(wbId)
+    public function undoGraphic(e:WhiteboardDrawEvent):void {
+      if (e.wbId != null) {
+        sender.undoGraphic(e.wbId)
       }      
     }
 
-    public function clearBoard():void {
-      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
-      if (wbId != null) {
-        LOGGER.debug("Clear shape for wb [{0}]", [wbId]);
-        sender.clearBoard(wbId);
+    public function clearBoard(e:WhiteboardDrawEvent):void {
+      if (e.wbId != null) {
+        sender.clearBoard(e.wbId);
       }
-    }
-
-    public function sendText(e:WhiteboardDrawEvent):void {
-      sender.sendText(e);
     }
 
     public function sendShape(e:WhiteboardDrawEvent):void {
       sender.sendShape(e);
     }
 
-    public function checkIsWhiteboardOn():void {
-      sender.checkIsWhiteboardOn();
+    public function sendCursorPosition(e:WhiteboardCursorEvent):void {
+      sender.sendCursorPosition(e.xPercent, e.yPercent);
     }
-
-	}
+    
+    public function handlePerformRttTraceEvent():void {
+      sender.sendClientToServerLatencyTracerMsg();
+    }
+  }
 }

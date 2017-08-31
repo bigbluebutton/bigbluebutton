@@ -1,103 +1,109 @@
-@import '../../stylesheets/variables/palette';
+@import "/imports/ui/stylesheets/variables/palette";
 
 /* Variables
  * ==========
  */
 $user-avatar-border: $color-gray-light;
-$user-avatar-text: $user-avatar-border;
+$user-avatar-text: $color-white;
+$user-indicators-offset: -.15rem;
+$user-indicator-presenter-bg: $color-primary;
+$user-indicator-voice-bg: $color-success;
+$user-indicator-muted-bg: $color-danger;
+$user-list-bg: #F3F6F9;
 
-$voice-user-bg: $color-success;
-$voice-user-text: $color-gray-light;
-
-$moderator-text: $color-white;
-$moderator-bg: $color-primary;
-
-.userAvatar {
-  // @extend .flex-column;
-  flex-basis: 2.2rem;
-  height: 2.2rem;
-  flex-shrink: 0;
-  line-height: 2.2rem;
-  justify-content: center;
-  align-items: center;
+.avatar {
   position: relative;
-  display: flex;
-  flex-flow: column;
-  font-size: 1.1rem;
-  text-align: center;
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;
   border-radius: 50%;
-  color: $color-white;
+  text-align: center;
   text-transform: capitalize;
-  transition: box-shadow 0.3s;
+  transition: .3s ease-in-out;
+  font-size: 1rem;
+
+  &:after, &:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    padding: .5rem;
+    color: inherit;
+    top: auto;
+    left: auto;
+    bottom: $user-indicators-offset / 2;
+    right: $user-indicators-offset;
+    border: 1.25px solid $user-list-bg;
+    border-radius: 50%;
+    background-color: $user-indicator-voice-bg;
+    color: $user-avatar-text;
+    opacity: 0;
+    transition: .3s ease-in-out;
+    font-family: 'bbb-icons';
+    font-size: .65rem;
+    line-height: 0;
+    text-align: center;
+    vertical-align: middle;
+    letter-spacing: -.65rem;
+  }
 }
 
-.userLogout {
-  flex-basis: 2.2rem;
-  height: 2.2rem;
-  flex-shrink: 0;
-  line-height: 2.2rem;
-  justify-content: center;
-  position: relative;
-  display: flex;
-  flex-flow: column;
-  font-size: 1.1rem;
-  text-align: center;
-  border-radius: 50%;
-  border: 1px solid $color-gray-lighter;
-  color: $color-gray-light;
-  font-style: italic;
-  text-transform: capitalize;
-}
-
-.userStatus {
-  position: absolute;
-  background-color: $color-white;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: 2px;
-  top: 0;
-  left: 0;
-  -webkit-box-shadow: 0 0 0 1px $color-white;
-  -moz-box-shadow: 0 0 0 1px $color-white;
-  box-shadow: 0 0 0 1px $color-white;
-  transition: all 0.3s;
+.talking {
+  box-shadow: 0 0 0 1px $user-list-bg, 0 0 0 3px;
 }
 
 .moderator {
-  border: 1px solid $color-gray-light;
-  background-color: $color-white;
+  border-radius: 5px;
 }
 
 .presenter {
-  background-color: $moderator-bg;
-  border: none;
+  &:before {
+    content: "\00a0\e90b\00a0";
+    opacity: 1;
+    top: $user-indicators-offset / 2;
+    left: $user-indicators-offset;
+    bottom: auto;
+    right: auto;
+    border-radius: 5px;
+    background-color: $user-indicator-presenter-bg;
+    padding: .425rem;
+  }
 }
 
-.userMediaStatus {
-  display: flex;
-  justify-content: center;
+.voice {
+  &:after {
+    content: "\00a0\e931\00a0";
+    background-color: $user-indicator-voice-bg;
+    opacity: 1;
+  }
+}
+
+.muted {
+  &:after {
+    content: "\00a0\e932\00a0";
+    background-color: $user-indicator-muted-bg;
+    opacity: 1;
+  }
+}
+
+.listenOnly {
+  &:after {
+    content: "\00a0\e90c\00a0";
+    opacity: 1;
+  }
+}
+
+.content {
+  color: $user-avatar-text;
+  top: 50%;
   position: absolute;
-  border-radius: 50%;
-  width: 0.625rem;
-  height: 0.625rem;
-  top: 1.575rem;
-  left: 1.575rem;
-  -webkit-box-shadow: 0 0 0 1px $color-white;
-  -moz-box-shadow: 0 0 0 1px $color-white;
-  box-shadow: 0 0 0 1px $color-white;
-  transition: all 0.3s;
-  background-color: $color-success;
-}
+  text-align: center;
+  left: 0;
+  right: 0;
+  font-size: 110%;
+  text-transform: capitalize;
 
-.voiceOnly {
-  border: 1px solid $color-gray-light;
-  background-color: $color-white;
-}
-
-.microphoneMuted {
-  margin-top: 0.05rem;
-  width: 2px;
-  transform: rotate(45deg);
-  height: 0.5rem;
-  background-color: $color-white;
+  &, & > * {
+    line-height: 0; // to keep centralized vertically
+  }
 }

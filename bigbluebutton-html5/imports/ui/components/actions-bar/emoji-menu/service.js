@@ -1,5 +1,5 @@
 import Auth from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/users';
+import Users from '/imports/api/2.0/users';
 import { makeCall } from '/imports/ui/services/api/index.js';
 
 const getEmojiData = () => {
@@ -11,7 +11,7 @@ const getEmojiData = () => {
   const userEmojiStatus = Users.findOne({
     meetingId: Auth.meetingID,
     userId: Auth.userID,
-  }).user.emoji_status;
+  }).emoji;
 
   return {
     userEmojiStatus,

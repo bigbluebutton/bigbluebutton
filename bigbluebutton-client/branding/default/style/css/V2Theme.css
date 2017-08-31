@@ -1,0 +1,1623 @@
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace flexlib "http://code.google.com/p/flexlib/";
+@namespace flexlibcontainers "flexlib.mdi.containers.*";
+@namespace users "org.bigbluebutton.modules.users.views.*";
+@namespace poll "org.bigbluebutton.modules.polling.views.*";
+@namespace whiteboard "org.bigbluebutton.modules.whiteboard.views.*";
+@namespace videoconf "org.bigbluebutton.modules.videoconf.views.*";
+@namespace views "org.bigbluebutton.main.views.*";
+@namespace layout "org.bigbluebutton.modules.layout.views.*";
+@namespace presentation "org.bigbluebutton.modules.present.ui.views.*";
+@namespace sharednotes "org.bigbluebutton.modules.sharednotes.views.components.*";
+@namespace chat "org.bigbluebutton.modules.chat.views.*";
+@namespace skins "org.bigbluebutton.skins.*";
+
+/*
+//------------------------------
+//  @font-face
+//------------------------------
+*/
+@font-face {
+	src        : url("assets/fonts/SourceSansPro-Regular.ttf");
+	fontFamily : "Source Sans Pro";
+	fontStyle  : normal;
+	fontWeight : normal;
+}
+
+@font-face {
+	src        : url("assets/fonts/SourceSansPro-SemiBold.ttf");
+	fontFamily : "Source Sans Pro";
+	fontStyle  : normal;
+	fontWeight : bold;
+}
+
+/*
+//------------------------------
+//  global
+//------------------------------
+*/
+
+global {
+	fontFamily     : "Source Sans Pro", Arial, sans-serif;
+	fontSize       : 13;
+	color          : #2A2D33;
+	focusColor     : #1070D7;
+	selectionColor : #CFE2F7;
+}
+
+.defaultShellStyle {
+	backgroundColor : #F1F3F7;
+}
+
+.darkShellStyle {
+	backgroundColor : #42444C;
+}
+
+/*
+//------------------------------
+//  Application
+//------------------------------
+*/
+
+mx|Application {
+	backgroundGradientColors : #F1F3F7, #F1F3F7;
+	backgroundColor          : #F1F3F7;
+}
+
+/*
+//------------------------------
+//  AudioSelectionWindow
+//------------------------------
+*/
+
+.audioSelectionsStyle {
+	horizontalGap : 60;
+	paddingLeft   : 30;
+	paddingRight  : 30;
+}
+
+.audioBroswerHintBoxStyle {
+	paddingLeft   : 5;
+	paddingRight  : 5;
+	paddingBottom : 8;
+	paddingTop    : 8;
+}
+
+.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
+	borderAlphaUp       : 0;
+	borderAlphaOver     : 1;
+	borderAlphaDown     : 1;
+	borderAlphaDisabled : 0;
+
+	fillColorUp         : #EFF5FA;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #1070D7;
+
+	borderThickness     : 5;
+	cornerRadius        : 70;
+}
+
+.btnMicrophoneStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Big");
+}
+
+.btnListenOnlyStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Headset_Big");
+}
+
+.btnPhoneStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Phone_Big");
+}
+
+.audioSubtitle {
+	color      : #363B43;
+	fontSize   : 14;
+	fontWeight : bold;
+}
+
+/*
+//------------------------------
+//  ApplicationControlBar
+//------------------------------
+*/
+
+mx|ApplicationControlBar {
+	cornerRadius    : 0;
+	fillAlphas      : 1, 1;
+	fillColors      : #FFFFFF, #FFFFFF;
+	highlightAlphas : 0, 0;
+}
+
+.toolbarSeparator {
+	strokeWidth  : 1;
+	strokeColor  : #CDD4DB;
+	paddingLeft  : 20;
+	paddingRight : 20;
+}
+
+.meetingNameLabelStyle {
+	fontSize  : 14;
+	textAlign : left;
+	color     : #2A2D33;
+}
+
+.defaultControlBarStyle {
+	color : #2A2D33;
+}
+
+.darkControlBarStyle {
+	color : #42444C;
+}
+
+.bandwidthButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bandwidth");
+}
+
+.logoutButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout");
+}
+
+.settingsButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
+}
+
+.webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
+.deskshareDefaultButtonStyle, .deskshareOverButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
+.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
+	fillColorOver           : #FFFFFF;
+	borderColorOver         : #1070D7;
+	fillColorSelectedUp     : #1070D7;
+	fillColorSelectedOver   : #0A5EAC;
+	fillColorSelectedDown   : #1070D7;
+	borderColorSelectedUp   : #1070D7;
+	borderColorSelectedOver : #0A5EAC;
+	borderColorSelectedDown : #1070D7;
+}
+
+.voiceConfDefaultButtonStyle, .voiceConfOverButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
+	/* Normal state */
+	fillColorOver           : #FFFFFF;
+	borderColorOver         : #DE2721;
+	/* Selected state */
+	backgroundColorOver     : #FFFFFF;
+	borderColorOver         : #DE2721;
+	fillColorSelectedUp     : #DE2721;
+	fillColorSelectedOver   : #B4201B;
+	fillColorSelectedDown   : #DE2721;
+	borderColorSelectedUp   : #DE2721;
+	borderColorSelectedOver : #B4201B;
+	borderColorSelectedDown : #DE2721;
+}
+
+.webcamOnButtonStyle, .webcamOffButtonStyle {
+	fillColorUp     : #1070D7;
+	borderColorUp   : #1070D7;
+	fillColorOver   : #0A5EAC;
+	fillColorDown   : #1070D7;
+	borderColorOver : #0A5EAC;
+
+	iconColor       : #FFFFFF;
+	iconColorOver   : #FFFFFF;
+	iconColorDown   : #FFFFFF;
+}
+
+.voiceConfDefaultButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Disabled");
+}
+
+.voiceConfOverButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Red");
+}
+
+.voiceConfActiveButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_On");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_On_Disabled");
+}
+
+.voiceConfInactiveButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Off_Disabled");
+}
+
+.webcamDefaultButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
+}
+
+.webcamOverButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Blue");
+}
+
+.webcamOnButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
+}
+
+.webcamOffButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Off_Disabled");
+}
+
+.deskshareDefaultButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare");
+}
+
+.deskshareOverButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_Blue");
+}
+
+.deskshareOnButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+}
+
+.deskshareOffButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deskshare_White");
+}
+
+.recordButtonStyleNormal {
+	icon               : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record");
+	disabledIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_Disabled");
+	iconRecordReminder : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_Reminder");
+}
+
+.recordButtonStyleStart {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+}
+
+.recordButtonStyleStop {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+}
+
+.muteMeDefaultButtonStyle {
+	glowFilterColor : #1070D7;
+	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+}
+
+.muteMeOnButtonStyle {
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
+}
+
+.muteMeOffButtonStyle {
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+}
+
+.quickWindowLinkStyle {
+	paddingLeft       : 0;
+	paddingRight      : 0;
+	textDecoration    : underline;
+	rollOverColor     : #1070D7;
+	selectionColor    : #0A5EAC;
+	color             : #4E5A66;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+}
+
+.helpLinkButtonStyle {
+	cornerRadius   : 2;
+	rollOverColor  : #1070D7;
+	selectionColor : #0A5EAC;
+	icon           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help");
+	overIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
+	downIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
+}
+
+/*
+//------------------------------
+//  Alert
+//------------------------------
+*/
+
+mx|Alert {
+	borderColor       : #FFFFFF;
+	backgroundColor   : #FFFFFF;
+	borderAlpha       : 1;
+	dropShadowEnabled : false;
+	color             : #6C6C6C;
+	titleStyleName    : "alertTitleStyle";
+	messageStyleName  : "alertMessageStyle";
+}
+
+mx|AlertForm {
+	paddingTop : 8;
+	fontSize   : 13;
+}
+
+.alertMessageStyle {
+	color         : #8A9AA7;
+	fontSize      : 14;
+	textAlign     : center;
+	paddingTop    : 6;
+	paddingLeft   : 12;
+	paddingRight  : 12;
+	paddingBottom : 6;
+}
+
+.alertTitleStyle {
+	textAlign : center;
+	fontSize  : 24;
+}
+
+/*
+//------------------------------
+//  Button
+//------------------------------
+*/
+
+mx|Button {
+	paddingLeft                 : 12;
+	paddingRight                : 12;
+	paddingTop                  : 8;
+	paddingBottom               : 8;
+	cornerRadius                : 2;
+	color                       : #4E5A66;
+	textRollOverColor           : #4E5A66;
+	textSelectedColor           : #4E5A66;
+	fontSize                    : 14;
+	skin                        : ClassReference("org.bigbluebutton.skins.ButtonSkin");
+
+	/* Normal state */
+	fillColorUp                 : #FFFFFF;
+	fillColorOver               : #CDD4DB;
+	fillColorDown               : #ACB2B7;
+	fillColorDisabled           : #F0F2F6;
+	borderColorUp               : #CDD4DB;
+	borderColorOver             : #CDD4DB;
+	borderColorDown             : #ACB2B7;
+	borderColorDisabled         : #CDD4DB;
+
+	borderAlphaUp               : 1;
+	borderAlphaOver             : 1;
+	borderAlphaDown             : 1;
+	borderAlphaDisabled         : 1;
+
+	borderThickness             : 1;
+
+	/* Selected state */
+	fillColorSelectedUp         : #F0F2F6;
+	fillColorSelectedOver       : #CDD4DB;
+	fillColorSelectedDown       : #ACB2B7;
+	fillColorSelectedDisabled   : #F0F2F6;
+	borderColorSelectedUp       : #CDD4DB;
+	borderColorSelectedOver     : #CDD4DB;
+	borderColorSelectedDown     : #ACB2B7;
+	borderColorSelectedDisabled : #CDD4DB;
+}
+
+/*
+//------------------------------
+//  Breakout Rooms (FIXME)
+//------------------------------
+*/
+
+users|BreakoutRoomSettings {
+	headerHeight : 0;
+}
+
+users|RoomActionsRenderer {
+	paddingLeft     : 5;
+	paddingRight    : 5;
+	iconTransfer    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transfer");
+	iconTransferred : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transferred");
+	iconJoin        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join");
+}
+
+.breakoutRoomUserWindowHeadingStyle {
+	fontWeight : bold;
+}
+
+.breakoutRoomSettingTitleStyle {
+	fontSize   : 20;
+	fontWeight : bold;
+}
+
+.roomsContainer {
+	horizontalAlign : center;
+	verticalGap     : 10;
+	horizontalGap   : 10;
+	paddingTop      : 20;
+	paddingBottom   : 20;
+}
+
+.breakoutTipBox {
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
+	horizontalAlign : center;
+}
+
+.breakoutRoomsBox {
+	paddingTop      : 12;
+	horizontalAlign : center;
+}
+
+.breakoutRoomTimerBox {
+	backgroundColor : #CCCCCC;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
+/*
+//------------------------------
+//  Client Status
+//------------------------------
+*/
+
+views|ClientStatusItemRenderer {
+	iconSuccess : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Success");
+	iconWarning : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning");
+	iconFail    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fail");
+}
+
+.statusTitleStyle {
+	fontWeight    : bold;
+	fontSize      : 12;
+	paddingBottom : 0;
+}
+
+.statusMessageStyle {
+	fontSize   : 12;
+	paddingTop : 0;
+}
+
+.statusTimeStyle {
+	fontSize   : 10;
+	paddingTop : 0;
+}
+
+/*
+//------------------------------
+//  Chat
+//------------------------------
+*/
+
+chat|AddChatTabBox {
+	verticalGap  : 20;
+	paddingLeft  : 20;
+	paddingRight : 20;
+	paddingTop   : 20;
+}
+
+.chatControlBarSendButtonStyle {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
+	cornerRadius      : 20;
+	borderStyle       : none;
+	borderThickness   : 0;
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+}
+
+.chatControlBarTextMsgStyle {
+	borderStyle     : solid;
+	borderThickness : 1;
+	borderColor     : #CDD4DB;
+	cornerRadius    : 2;
+}
+
+.chatSaveButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
+}
+
+.chatCopyButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Copy");
+}
+
+.chatClearButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Delete");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Delete_Disabled");
+}
+
+.chatToolbarStyle {
+	backgroundColor : #F1F3F7;
+	cornerRadius    : 5;
+	borderStyle     : none;
+	paddingBottom   : 4;
+	paddingTop      : 4;
+	paddingLeft     : 4;
+	paddingRight    : 4;
+}
+
+.chatOptionsLabel {
+	fontSize : 14;
+}
+
+.chatMessageListStyle {
+	borderStyle    : none;
+	rollOverColor  : #FFFFFF;
+	selectionColor : #CED4DB;
+}
+
+/*
+//------------------------------
+//  CheckBox
+//------------------------------
+*/
+
+mx|CheckBox {
+	borderColor : #4E5A66;
+	iconColor   : #1070D7;
+	fillColors  : #FFFFFF, #FFFFFF;
+}
+
+/*
+//------------------------------
+//  ColorPicker
+//------------------------------
+*/
+
+.chatColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 12;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
+.notesColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 12;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
+/*
+//------------------------------
+//  ComboBox
+//------------------------------
+*/
+
+mx|ComboBox {
+	cornerRadius        : 2;
+	color               : #5E6C73;
+	fontSize            : 12;
+
+	/* Normal state */
+	fillColorUp         : #FFFFFF;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #CDD4DB;
+	borderColorDown     : #ACB2B7;
+	borderColorDisabled : #CDD4DB;
+
+	iconColor           : #5E6C73;
+
+	borderThickness     : 1;
+
+	skin                : ClassReference("org.bigbluebutton.skins.ComboBoxSkin");
+}
+
+/*
+//------------------------------
+//  DataGrid
+//------------------------------
+*/
+
+mx|DataGrid {
+	backgroundColor       : #FFFFFF;
+	borderStyle           : none;
+	rollOverColor         : #F3F3F3;
+	textRollOverColor     : #3F3F41;
+	textSelectedColor     : #3F3F41;
+	alternatingItemColors : #FFFFFF, #FFFFFF;
+	dropShadowEnabled     : false;
+	verticalSeparatorSkin : ClassReference("org.bigbluebutton.skins.DataGridVerticalSeparatorSkin");
+}
+
+/*
+//------------------------------
+//  Desktop Sharing
+//------------------------------
+*/
+
+.deskshareControlButtonStyle {
+	cornerRadius : 18;
+}
+
+.deskshareWarningLabelStyle {
+	fontWeight : bold;
+	fontSize   : 18;
+	color      : #1070D7;
+}
+
+.deskshareWarningBackgroundStyle {
+	backgroundAlpha : 0.6;
+	backgroundColor : #5E6C72;
+}
+
+.desktopShareViewStyle {
+	backgroundColor : #FFFFFF;
+	paddingTop      : 15;
+	paddingLeft     : 15;
+	paddingBottom   : 15;
+	paddingRight    : 15;
+}
+
+.desksharePublishPauseBox {
+	horizontalAlign : center;
+	verticalAlign   : middle;
+	borderColor     : #CDD4DB;
+	borderThickness : 2;
+	borderStyle     : solid;
+}
+
+.desktopShareTextStyle {
+	color      : #2A2D33;
+	fontSize   : 11;
+	fontWeight : bold;
+}
+
+/*
+//------------------------------
+//  Guest
+//------------------------------
+*/
+
+views|BBBSettings {
+	headerHeight : 0;
+}
+
+.allowButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Allow");
+}
+
+.denyButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Deny");
+}
+
+/*
+//------------------------------
+//  Item renderers
+//------------------------------
+*/
+
+.itemRendererDefault {
+	color : #2A2D33;
+}
+
+.itemRendererOver {
+	color : #FFFFFF;
+}
+
+.itemRendererSeleted {
+	color : #FFFFFF;
+}
+
+.itemRendererDisabled {
+	color : #F0F2F6;
+}
+
+/*
+//------------------------------
+//  Layout
+//------------------------------
+*/
+
+layout|AddButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Circle_Add");
+}
+
+layout|SaveButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download_Template");
+}
+
+layout|LoadButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload_Template");
+}
+
+layout|BroadcastButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout");
+}
+
+/*
+//------------------------------
+//  Logout Window
+//------------------------------
+*/
+
+.logoutWindowStyle {
+	headerHeight              : 32;
+	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially  */
+	modalTransparencyDuration : 250;
+}
+
+/*
+//------------------------------
+//  Lock Settings
+//------------------------------
+*/
+
+views|LockSettings {
+	headerHeight : 0;
+}
+
+.lockSettingsDefaultLabelStyle {
+	fontSize : 14;
+}
+
+/*
+//------------------------------
+//  MainApplicationShell
+//------------------------------
+*/
+
+views|MainApplicationShell {
+	verticalGap : 0;
+}
+
+.logsButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logs");
+}
+
+.fullScreenButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fullscreen");
+}
+
+.exitFullScreenButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Exit_Fullscreen");
+}
+
+/*
+//------------------------------
+//  MDICanvas & MDIWindow
+//------------------------------
+*/
+
+flexlib|MDICanvas {
+	backgroundColor : #F1F3F7;
+}
+
+flexlib|MDIWindow {
+	/*None of the following properties are overridden by the MDIWindow class*/
+	backgroundSize       : "100%";
+
+	headerHeight         : 30;
+
+	cornerRadius         : 4;
+	dropShadowEnabled    : false;
+	titleStyleName       : "mdiWindowTitle";
+
+	cornerResizeImg      : Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+	roundedBottomCorners : true;
+
+	controlButtonWidth   : 10;
+	controlButtonHeight  : 10;
+	controlButtonGap     : 4;
+
+	styleNameFocus       : "mdiWindowFocus";
+	styleNameNoFocus     : "mdiWindowNoFocus";
+
+	maximizeBtnStyleName : "mdiMaximizeButtonStyle";
+	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
+	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
+
+	windowControlsClass  : ClassReference("org.bigbluebutton.skins.WindowControlsContainer");
+
+	paddingLeft          : 0;
+	paddingRight         : 0;
+	paddingTop           : 0;
+
+	borderThicknessRight : 0;
+	borderThicknessLeft  : 0;
+
+	titlePaddingRight    : 12;
+	titlePaddingLeft     : 12;
+
+	showHeaderSeparator  : true;
+}
+
+.mdiMaximizeButtonStyle {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Maximize_Disabled");
+}
+
+.mdiMinimizeButtonStyle {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Disabled");
+}
+
+.mdiWindowTitle {
+	color        : #2A2D33;
+	fontSize     : 12;
+	paddingLeft  : 12;
+	paddingRight : 12;
+}
+
+.mdiWindowNoFocus {
+	borderStyle     : solid;
+	borderAlpha     : 1;
+	borderThickness : 1;
+	borderColor     : #CDD4DB;
+
+	backgroundColor : #FFFFFF;
+	backgroundAlpha : 1;
+}
+
+.mdiWindowFocus {
+	borderStyle     : solid;
+	borderAlpha     : 1;
+	borderThickness : 1;
+	borderColor     : #9EAEBA;
+
+	backgroundColor : #FFFFFF;
+	backgroundAlpha : 1;
+}
+
+.videoDockStyleFocusChatLayout {
+	borderStyle     : none;
+	borderColor     : #42444C;
+	backgroundColor : #42444C;
+}
+
+.videoDockStyleNoFocusChatLayout {
+	borderStyle     : none;
+	borderColor     : #42444C;
+	backgroundColor : #42444C;
+}
+
+/*
+//------------------------------
+//  MicSettings
+//------------------------------
+*/
+
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
+	fontSize : 14;
+}
+
+.micSettingsWindowOpenDialogLabelStyle {
+	fontSize   : 14;
+	fontWeight : bold;
+	color      : #CDD4DB;
+}
+
+.micSettingsWindowShareMicrophoneLabelStyle {
+	fontSize : 14;
+	color    : #5E6C72;
+}
+
+.inactivityWarningWindowCancelButtonStyle {
+	color             : #CDD4DB;
+	textRollOverColor : #CDD4DB;
+	textSelectedColor : #CDD4DB;
+}
+
+/*
+//------------------------------
+//  Network Stats
+//------------------------------
+*/
+
+views|NetworkStatsWindow {
+	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refresh");
+}
+
+/*
+//------------------------------
+//  PopUpButton
+//------------------------------
+*/
+
+mx|PopUpButton {
+	/* Normal state */
+	fillColorUp         : #FFFFFF;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #0A5EAC;
+	borderColorDisabled : #CDD4DB;
+
+	/* Icon states */
+	iconColor           : #4E5A66;
+	iconColorOver       : #1070D7;
+	iconColorDown       : #4E5A66;
+
+	borderThickness     : 1;
+
+	skin                : ClassReference("org.bigbluebutton.skins.PopUpButtonSkin");
+}
+
+/*
+//------------------------------
+//  Panel
+//------------------------------
+*/
+
+mx|Panel {
+	borderColor         : #CDD4DB;
+	borderAlpha         : 1;
+	dropShadowEnabled   : false;
+	backgroundColor     : #FFFFFF;
+	titleStyleName      : "panelTitleStyle";
+	showHeaderSeparator : false;
+	borderSkin          : ClassReference("org.bigbluebutton.skins.PanelSkin");
+}
+
+.panelTitleStyle {
+	color    : #2A2D33;
+	fontSize : 12;
+}
+
+/*
+//------------------------------
+//  Presentation
+//------------------------------
+*/
+
+.presentationUploadDownloadButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
+}
+
+.presentationWindowControlsStyle {
+	paddingBottom     : 5;
+	paddingTop        : 3;
+	paddingLeft       : 3;
+	paddingRight      : 3;
+	bottom            : 5;
+	cornerRadius      : 0;
+	dropShadowEnabled : false;
+}
+
+.presentationUploadDeleteButtonStyle {
+	fillAlphas        : 1, 1, 1, 1;
+	fillColors        : #FEFEFF, #E1E2E5, #FFFFFF, #EEEEEE;
+	color             : #3F3F41;
+	textRollOverColor : #3F3F41;
+	textSelectedColor : #3F3F41;
+	borderColor       : #B9BABC;
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
+}
+
+.presentationUploadButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload");
+}
+
+.pollStartButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Polling");
+}
+
+.presentationBackButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
+}
+
+.presentationForwardButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
+}
+
+.presentationFitToWidthButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fit_To_Width");
+}
+
+.presentationFitToPageButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fit_To_Screen");
+}
+
+.presentationDownloadButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download_Disabled");
+}
+
+.presentationZoomSliderStyle {
+	labelOffset          : 0;
+	thumbOffset          : 3;
+	dataTipOffset        : -1;
+	tickOffset           : 2;
+	tickLength           : 5;
+	tickThickness        : 2;
+	tickColor            : #1070D7;
+	showTrackHighlight   : true;
+	invertThumbDirection : false;
+	borderColor          : #CDD4DB;
+	trackColors          : #5E6C72, #5E6C72;
+	fillAlphas           : 1, 1, 1, 1;
+	fillColors           : #F1F3F7, #F1F3F7, #F1F3F7, #F1F3F7;
+	labelStyleName       : "presentationZoomSliderLabelStyle";
+}
+
+.presentationZoomSliderLabelStyle {
+	color : #2A2D33;
+}
+
+.uploadFileButton {
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
+}
+
+.uploadFileButton {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
+}
+
+.presentationNameLabel {
+	color    : #05172A;
+	fontSize : 14;
+}
+
+.presentationUploadChooseFileButtonStyle {
+	color : #2A2D33;
+}
+
+.presentationUploadShowButtonStyle {
+	color : #2A2D33;
+}
+
+.presentationDownloadShowButtonStyle {
+	/* Normal state */
+	borderStyle     : none;
+	borderThickness : 0;
+	color           : #1070D7;
+	textDecoration  : underline;
+}
+
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
+}
+
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
+	fontWeight : bold;
+}
+
+.presentationSlideViewStyle {
+	backgroundColor : #FFFFFF;
+}
+
+.slideViewBackground {
+	backgroundColor : #4E5A66;
+}
+
+/*
+//------------------------------
+//  Poll
+//------------------------------
+*/
+
+poll|PollChoicesModal {
+	fontSize     : 14;
+	paddingLeft  : 16;
+	paddingRight : 16;
+}
+
+poll|PollResultsModal {
+	verticalGap     : 15;
+	horizontalAlign : center;
+	verticalAlign   : middle;
+}
+
+.pollResondersLabelStyle {
+	color    : #5E6C72;
+	fontSize : 14;
+}
+
+/*
+//------------------------------
+//  ProgressBar
+//------------------------------
+*/
+
+mx|ProgressBar {
+	color       : #8A9AA7;
+	barColor    : #1070D7;
+	trackColors : #FFFFFF, #FFFFFF;
+	borderColor : #CDD4DB;
+	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
+	trackSkin   : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+}
+
+/*
+//------------------------------
+//  RadioButton
+//------------------------------
+*/
+
+mx|RadioButton {
+	borderColor : #4E5A66;
+	iconColor   : #1070D7;
+	fillColors  : #FFFFFF, #FFFFFF;
+}
+
+/*
+//------------------------------
+//  ReconnectionPopup
+//------------------------------
+*/
+
+views|ReconnectionPopup {
+	iconRefresh : Embed(source="assets/swf/refreshing.swf");
+}
+
+/*
+//------------------------------
+//  Scrollbar
+//------------------------------
+*/
+
+mx|ScrollBar {
+	cornerRadius  : 4;
+	downArrowSkin : ClassReference(null);
+	thumbSkin     : ClassReference("org.bigbluebutton.skins.ScrollThumbSkin");
+	trackSkin     : ClassReference("org.bigbluebutton.skins.ScrollTrackSkin");
+	upArrowSkin   : ClassReference(null);
+	thumbColor    : #BBBDBF;
+	trackColor    : #F5F6F8;
+}
+
+/*
+//------------------------------
+//  SharedNotes
+//------------------------------
+*/
+
+sharednotes|SharedNotesRichTextEditor {
+	iconBold         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bold");
+	iconItalic       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Italic");
+	iconUnderline    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Underline");
+	iconBullet       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Bullet");
+	iconAlignLeft    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Left");
+	iconAlignCenter  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Center");
+	iconAlignRight   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Right");
+	iconAlignJustify : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Align_Justify");
+}
+
+.sharedNotesSettings {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
+}
+
+.sharedNotesSaveButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
+}
+
+.sharedNotesNewButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Add_File");
+}
+
+.sharedNotesUndoButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo_Disabled");
+}
+
+.sharedNotesRedoButtonStyle {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo_Disabled");
+}
+
+.sharedNotesFormatButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Format_Text");
+}
+
+/*
+//------------------------------
+//  Slider
+//------------------------------
+*/
+
+mx|Slider {
+	dataTipStyleName : "sliderDataTipStyleName";
+}
+
+.sliderDataTipStyleName {
+	color : #05172A;
+}
+
+/*
+//------------------------------
+//  SuperTabNavigator
+//------------------------------
+*/
+
+flexlib|SuperTabNavigator {
+	borderColor : #CDD4DB;
+}
+
+mx|Tab, .defaultTabStyle {
+	borderColor       : #CDD4DB;
+	color             : #2A2D33;
+	cornerRadius      : 0;
+	fillColorUp       : #E8EFF3;
+	fillColorOver     : #CDD4DB;
+	fillColorDown     : #ACB2B7;
+	fillColorDisabled : #F0F2F6;
+	iconVisible       : false;
+	paddingBottom     : 0;
+	paddingTop        : 0;
+	textIndent        : 4;
+	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
+}
+
+.highlightedTabStyle {
+	color       : #DF2721;
+	iconColor   : #DF2721;
+	iconVisible : true;
+}
+
+/*
+//------------------------------
+//  TitleWindow
+//------------------------------
+*/
+
+mx|TitleWindow {
+	closeButtonDisabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
+	closeButtonDownSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
+	closeButtonOverSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
+	closeButtonUpSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
+	borderColor             : #FFFFFF;
+	cornerRadius            : 4;
+	roundedBottomCorners    : true;
+	dropShadowEnabled       : true;
+	shadowDistance          : 0;
+	borderThickness         : 1;
+	paddingTop              : 5;
+}
+
+.titleWindowStyle {
+	color     : #05172A;
+	fontSize  : 24;
+	textAlign : center;
+}
+
+/*
+//------------------------------
+//  ToolTip
+//------------------------------
+*/
+
+mx|ToolTip {
+	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
+	backgroundColor : #1070D7;
+	color           : #FFFFFF;
+	fontSize        : 13;
+	backgroundAlpha : 0.9;
+	cornerRadius    : 3;
+}
+
+.errorTip {
+	borderColor : #DE2721;
+}
+
+/*
+//------------------------------
+//  Users
+//------------------------------
+*/
+
+users|UsersWindow {
+	iconAudioMuted  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
+	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
+	iconLock        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
+	iconMood        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconClearStatus : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ClearStatus");
+	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Rooms");
+}
+
+users|StatusItemRenderer {
+	iconPresenter      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Presenter");
+	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Moderator");
+	iconModeratorOnly  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ListenOnly");
+	iconMoodRaiseHand  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
+	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
+	iconMoodConfused   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+	iconMoodAway       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
+	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
+	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+}
+
+users|MediaItemRenderer {
+	iconAudioMuted  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio_Muted");
+	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Audio");
+	iconSound       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Sound");
+	iconLock        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Lock");
+	iconUnlock      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Unlock");
+	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
+	iconWebcam      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Webcam");
+	iconDemote      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Demote");
+	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
+	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
+	glowFilterColor : #1070D7;
+}
+
+users|NameItemRenderer {
+	fontSize  : 12;
+	textAlign : left;
+}
+
+.nameRenderer {
+	fontWeight : normal;
+	color      : #2A2D33;
+}
+
+.meNameRenderer {
+	fontWeight : bold;
+	color      : #3D97D3;
+}
+
+.usersGridStyle {
+	borderStyle : none;
+}
+
+users|EmojiGrid {
+	backgroundColor : #FFFFFF;
+	horizontalAlign : center;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingBottom   : 0;
+	paddingTop      : 0;
+}
+
+.emojiGridTile {
+	paddingBottom : 10;
+	paddingLeft   : 10;
+	paddingRight  : 10;
+	paddingTop    : 10;
+	verticalGap   : 6;
+	horizontalGap : 6;
+}
+
+users|MoodMenu {
+	iconMoodRaiseHand  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_RaiseHand");
+	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
+	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
+	iconMoodAway       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Away");
+	iconMoodHappy      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Happy");
+	iconMoodSad        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Sad");
+	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
+	iconMoodConfused   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
+	iconMoodNone       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_None");
+}
+
+/*
+//------------------------------
+//  VideoDock
+//------------------------------
+*/
+
+videoconf|UserGraphicHolder {
+	backgroundColor    : #FFFFFF;
+	iconPresenter      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Presenter");
+	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Moderator");
+	iconClose          : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
+	iconFullScreen     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fullscreen_White");
+	iconExitFullScreen : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Exit_Fullscreen_White");
+}
+
+.userGraphicBackground {
+	backgroundColor : #FFFFFF;
+	borderStyle     : solid;
+	borderColor     : #000000;
+	borderThickness : 0;
+}
+
+.videoToolbarBackgroundTalkingStyle {
+	backgroundColor : #1070D7;
+	backgroundAlpha : 0.5;
+}
+
+.videoToolbarBackgroundNotTalkingStyle {
+	backgroundColor : #000000;
+	backgroundAlpha : 0.5;
+}
+
+.videoToolbarLabelStyle {
+	color      : #FFFFFF;
+	fontSize   : 12;
+	textIndent : 0;
+}
+
+.muteOverlayBtn {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Unmuted");
+}
+
+.unmuteOverlayBtn {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Muted");
+}
+
+/*
+//------------------------------
+//  Webcam Shraring
+//------------------------------
+*/
+
+.videoMessageWarningLabelStyle {
+	fontWeight : bold;
+	fontSize   : 14;
+	color      : #FFFF26;
+}
+
+.videoMessageErrorLabelStyle {
+	fontWeight : bold;
+	fontSize   : 14;
+	color      : #EF4339;
+}
+
+.videoMessageBackgroundStyle {
+	backgroundAlpha : 0.6;
+	backgroundColor : #5E6C72;
+}
+
+.cameraDisplaySettingsWindowStartBtn {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
+}
+
+/*
+//------------------------------
+//  WebRTCAudioStatus
+//------------------------------
+*/
+
+views|WebRTCAudioStatus {
+	color                 : #E1E2E5;
+	iconStrongAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Strong_Audio");
+	iconAlmostStrongAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Almost_Strong_Audio");
+	iconAlmostWeakAudio   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Almost_Weak_Audio");
+	iconWeakAudio         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Weak_Audio");
+}
+
+/*
+//------------------------------
+//  WarningButton
+//------------------------------
+*/
+
+views|WarningButton {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning_Small");
+}
+
+/*
+//------------------------------
+//  Whiteboard
+//------------------------------
+*/
+
+whiteboard|WhiteboardToolbar {
+	iconWhiteboardThin  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Thin");
+	iconWhiteboardThick : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Thick");
+	backgroundColor     : #CFD4DB;
+	borderColor         : #CFD4DB;
+	borderStyle         : solid;
+	horizontalAlign     : center;
+	borderThickness     : 1;
+	cornerRadius        : 4;
+	paddingBottom       : 0;
+	paddingTop          : 0;
+	paddingLeft         : 0;
+	paddingRight        : 0;
+	verticalGap         : 1;
+}
+
+whiteboard|WhiteboardCanvas {
+	iconEllipse   : Embed("assets/images/ellipse.png");
+	iconRectangle : Embed("assets/images/square.png");
+	iconTriangle  : Embed("assets/images/triangle.png");
+	iconPencil    : Embed("assets/images/pencil.png");
+	iconLine      : Embed("assets/images/line.png");
+	iconText      : Embed("assets/images/text.png");
+}
+
+whiteboard|WhiteboardTextToolbar {
+	backgroundColor : #FFFFFF;
+	paddingBottom   : 3;
+	paddingLeft     : 3;
+	paddingRight    : 3;
+	paddingTop      : 3;
+}
+
+.colorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 13;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 50;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
+.whiteboardPanZoomButtonStyle, .whiteboardScribbleButtonStyle, .whiteboardRectangleButtonStyle,
+.whiteboardCircleButtonStyle, .whiteboardTriangleButtonStyle, .whiteboardLineButtonStyle,
+.whiteboardTextButtonStyle, .whiteboardClearButtonStyle, .whiteboardUndoButtonStyle {
+	/* Normal state */
+	borderStyle           : none;
+	borderThickness       : 0;
+	cornerRadius          : 0;
+	fillColorSelectedUp   : #E2E4E8;
+	fillColorSelectedOver : #E2E4E8;
+	fillColorSelectedDown : #E2E4E8;
+}
+
+.whiteboardPanZoomButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Hand");
+}
+
+.whiteboardScribbleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Pencil");
+}
+
+.whiteboardRectangleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Rectangle");
+}
+
+.whiteboardCircleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Circle");
+}
+
+.whiteboardTriangleButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Triangle");
+}
+
+.whiteboardLineButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Line");
+}
+
+.whiteboardTextButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Text_Tool");
+}
+
+.whiteboardClearButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Clear");
+}
+
+.whiteboardUndoButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard_Undo");
+}
+
+.multiUserWhiteboardOnButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Multi_Whiteboard");
+}
+
+.multiUserWhiteboardOffButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard");
+}

@@ -5,10 +5,8 @@ import Icon from '/imports/ui/components/icon/component';
 import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
-import styles from './styles.scss';
 import cx from 'classnames';
 import _ from 'lodash';
-
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -16,6 +14,21 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
+import styles from './styles.scss';
+
+const normalizeEmojiName = (emoji) => {
+  const emojisNormalized = {
+    agree: 'thumbs_up',
+    disagree: 'thumbs_down',
+    thumbsUp: 'thumbs_up',
+    thumbsDown: 'thumbs_down',
+    raiseHand: 'hand',
+    away: 'time',
+    neutral: 'undecided',
+  };
+
+  return emoji in emojisNormalized ? emojisNormalized[emoji] : emoji;
+};
 
 const propTypes = {
   user: PropTypes.shape({
@@ -50,37 +63,19 @@ const messages = defineMessages({
     id: 'app.userlist.locked',
     description: 'Text for identifying locked user',
   },
+  guest: {
+    id: 'app.userlist.guest',
+    description: 'Text for identifying guest user',
+  },
   menuTitleContext: {
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
-  userItemStatusAriaLabel: {
-    id: 'app.userlist.useritem.status.arialabel',
-    description: 'adds aria label for user and status',
-  },
-  userItemAriaLabel: {
-    id: 'app.userlist.useritem.nostatus.arialabel',
-    description: 'aria label for user',
+  userAriaLabel: {
+    id: 'app.userlist.userAriaLabel',
+    description: 'aria label for each user in the userlist',
   },
 });
-
-const userActionsTransition = {
-  enter: styles.enter,
-  enterActive: styles.enterActive,
-  appear: styles.appear,
-  appearActive: styles.appearActive,
-  leave: styles.leave,
-  leaveActive: styles.leaveActive,
-};
-
-const userNameSubTransition = {
-  enter: styles.subUserNameEnter,
-  enterActive: styles.subUserNameEnterActive,
-  appear: styles.subUserNameAppear,
-  appearActive: styles.subUserNameAppearActive,
-  leave: styles.subUserNameLeave,
-  leaveActive: styles.subUserNameLeaveActive,
-};
 
 class UserListItem extends Component {
 
@@ -97,12 +92,26 @@ class UserListItem extends Component {
     this.handleScroll = this.handleScroll.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
   }
 
-  handleScroll() {
+  componentDidUpdate() {
+    this.checkDropdownDirection();
+  }
+
+  onActionsShow() {
+    const dropdown = findDOMNode(this.dropdown);
+    const scrollContainer = dropdown.parentElement.parentElement;
+    const dropdownTrigger = dropdown.children[0];
+
     this.setState({
-      isActionsOpen: false,
+      isActionsOpen: true,
+      dropdownVisible: false,
+      dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
+      dropdownDirection: 'top',
     });
+
+    scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
 
   getAvailableActions() {
@@ -127,13 +136,12 @@ class UserListItem extends Component {
     const allowedToChatPrivately = !user.isCurrent;
     const allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
     const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
-    const allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
+    const allowedToResetStatus = hasAuthority && user.emoji.status !== 'none';
 
     // if currentUser is a moderator, allow kicking other users
     const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
-    const allowedToSetPresenter =
-      (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
+    const allowedToSetPresenter = currentUser.isModerator && !user.isPresenter;
 
     return _.compact([
       (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
@@ -145,8 +153,28 @@ class UserListItem extends Component {
     ]);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    this.checkDropdownDirection();
+  onActionsHide() {
+    this.setState({
+      isActionsOpen: false,
+      dropdownVisible: false,
+    });
+
+    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
+  }
+
+  getDropdownMenuParent() {
+    return findDOMNode(this.dropdown);
+  }
+
+  /**
+   * Return true if the content fit on the screen, false otherwise.
+   *
+   * @param {number} contentOffSetTop
+   * @param {number} contentOffsetHeight
+   * @return True if the content fit on the screen, false otherwise.
+   */
+  checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
+    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
   }
 
   /**
@@ -154,7 +182,7 @@ class UserListItem extends Component {
    */
   checkDropdownDirection() {
     if (this.isDropdownActivedByUser()) {
-      const dropdown = findDOMNode(this.refs.dropdown);
+      const dropdown = findDOMNode(this.dropdown);
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
@@ -169,7 +197,7 @@ class UserListItem extends Component {
 
       if (!isDropdownVisible) {
         const offsetPageTop =
-          (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight - scrollContainer.scrollTop);
+          ((dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop);
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -186,42 +214,107 @@ class UserListItem extends Component {
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
+    const list = findDOMNode(this.list);
+
+    if (isActionsOpen && dropdownVisible) {
+      for (let i = 0; i < list.children.length; i++) {
+        if (list.children[i].getAttribute('role') === 'menuitem') {
+          list.children[i].focus();
+          break;
+        }
+      }
+    }
+
     return isActionsOpen && !dropdownVisible;
   }
 
-  /**
-   * Return true if the content fit on the screen, false otherwise.
-   *
-   * @param {number} contentOffSetTop
-   * @param {number} contentOffsetHeight
-   * @return True if the content fit on the screen, false otherwise.
-   */
-  checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
-    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
-  }
-
-  onActionsShow() {
-    const dropdown = findDOMNode(this.refs.dropdown);
-    const scrollContainer = dropdown.parentElement.parentElement;
-    const dropdownTrigger = dropdown.children[0];
-
-    this.setState({
-      isActionsOpen: true,
-      dropdownVisible: false,
-      dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
-      dropdownDirection: 'top',
-    });
-
-    scrollContainer.addEventListener('scroll', this.handleScroll, false);
-  }
-
-  onActionsHide() {
+  handleScroll() {
     this.setState({
       isActionsOpen: false,
-      dropdownVisible: false,
     });
+  }
 
-    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
+  renderUserName() {
+    const {
+      user,
+      intl,
+      compact,
+    } = this.props;
+
+    if (compact) {
+      return null;
+    }
+
+    const userNameSub = [];
+
+    if (user.isLocked) {
+      userNameSub.push(<span>
+        <Icon iconName="lock" />
+        {intl.formatMessage(messages.locked)}
+      </span>);
+    }
+
+    if (user.isGuest) {
+      userNameSub.push(intl.formatMessage(messages.guest));
+    }
+
+    return (
+      <div className={styles.userName}>
+        <span className={styles.userNameMain}>
+          {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
+        </span>
+        {
+          userNameSub.length ?
+            <span className={styles.userNameSub}>
+              {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
+            </span>
+          : null
+        }
+      </div>
+    );
+  }
+
+  renderUserIcons() {
+    const {
+      user,
+      compact,
+    } = this.props;
+
+    if (compact) {
+      return null;
+    }
+
+    if (!user.isSharingWebcam) {
+      // Prevent rendering the markup when there is no icon to show
+      return null;
+    }
+
+    return (
+      <div className={styles.userIcons}>
+        {
+          user.isSharingWebcam ?
+            <span className={styles.userIconsContainer}>
+              <Icon iconName="video" />
+            </span>
+            : null
+        }
+      </div>
+    );
+  }
+
+  renderUserAction(action, ...parameters) {
+    const userAction = (
+      <DropdownListItem
+        key={_.uniqueId('action-item-')}
+        icon={action.icon}
+        label={action.label}
+        defaultMessage={action.label}
+        onClick={action.handler.bind(this, ...parameters)}
+        placeInTabOrder
+      />
+    );
+
+    return userAction;
   }
 
   render() {
@@ -238,29 +331,42 @@ class UserListItem extends Component {
       intl,
     } = this.props;
 
-    const you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
+    const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
     const presenter = (user.isPresenter)
       ? intl.formatMessage(messages.presenter)
-      : null;
+      : '';
 
-    const userAriaLabel = (user.emoji.status === 'none')
-      ? intl.formatMessage(messages.userItemAriaLabel,
-          { username: user.name, presenter, you })
-      : intl.formatMessage(messages.userItemStatusAriaLabel,
-        { username: user.name,
-          presenter,
-          you,
-          status: user.emoji.status });
+    const userAriaLabel = intl.formatMessage(messages.userAriaLabel,
+      {
+        0: user.name,
+        1: presenter,
+        2: you,
+        3: user.emoji.status,
+      });
 
     const actions = this.getAvailableActions();
     const contents = (
       <div
-        className={cx(styles.userListItem, userItemContentsStyle)}
+        className={!actions.length ? cx(styles.userListItem, userItemContentsStyle) : null}
         aria-label={userAriaLabel}
       >
         <div className={styles.userItemContents} aria-hidden="true">
-          <UserAvatar user={user} />
+          <div className={styles.userAvatar}>
+            <UserAvatar
+              moderator={user.isModerator}
+              presenter={user.isPresenter}
+              talking={user.isTalking}
+              muted={user.isMuted}
+              listenOnly={user.isListenOnly}
+              voice={user.isVoiceUser}
+              color={user.color}
+            >
+              {user.emoji.status !== 'none' ?
+                <Icon iconName={normalizeEmojiName(user.emoji.status)} /> :
+                user.name.toLowerCase().slice(0, 2)}
+            </UserAvatar>
+          </div>
           {this.renderUserName()}
           {this.renderUserIcons()}
         </div>
@@ -275,15 +381,15 @@ class UserListItem extends Component {
 
     return (
       <Dropdown
-        ref="dropdown"
+        ref={(ref) => { this.dropdown = ref; }}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={styles.dropdown}
+        className={cx(styles.dropdown, styles.userListItem, userItemContentsStyle)}
         autoFocus={false}
-        hasPopup="true"
-        ariaLive="assertive"
-        ariaRelevant="additions"
+        aria-haspopup="true"
+        aria-live="assertive"
+        aria-relevant="additions"
       >
         <DropdownTrigger>
           {contents}
@@ -297,7 +403,11 @@ class UserListItem extends Component {
           placement={`right ${dropdownDirection}`}
         >
 
-          <DropdownList>
+          <DropdownList
+            ref={(ref) => { this.list = ref; }}
+            getDropdownMenuParent={this.getDropdownMenuParent}
+            onActionsHide={this.onActionsHide}
+          >
             {
               [
                 (<DropdownListTitle
@@ -313,185 +423,6 @@ class UserListItem extends Component {
         </DropdownContent>
       </Dropdown>
     );
-  }
-
-  renderUserContents() {
-    const {
-      user,
-      intl,
-    } = this.props;
-
-    const actions = this.getAvailableActions();
-    const contents = (
-      <div className={styles.userItemContents}>
-        <UserAvatar user={user} />
-        {this.renderUserName()}
-        {this.renderUserIcons()}
-      </div>
-    );
-
-    if (!actions.length) {
-      return contents;
-    }
-
-    const { dropdownOffset, dropdownDirection, dropdownVisible } = this.state;
-
-    return (
-      <Dropdown
-        ref="dropdown"
-        isOpen={this.state.isActionsOpen}
-        onShow={this.onActionsShow}
-        onHide={this.onActionsHide}
-        className={styles.dropdown}
-        autoFocus={false}
-      >
-        <DropdownTrigger>
-          {contents}
-        </DropdownTrigger>
-        <DropdownContent
-          style={{
-            visibility: dropdownVisible ? 'visible' : 'hidden',
-            [dropdownDirection]: `${dropdownOffset}px`,
-          }}
-          className={styles.dropdownContent}
-          placement={`right ${dropdownDirection}`}
-        >
-
-          <DropdownList>
-            {
-              [
-                (<DropdownListTitle
-                  description={intl.formatMessage(messages.menuTitleContext)}
-                  key={_.uniqueId('dropdown-list-title')}
-                >
-                  {user.name}
-                </DropdownListTitle>),
-                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
-              ].concat(actions)
-            }
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
-    );
-  }
-
-  renderUserName() {
-    const {
-      user,
-      intl,
-      compact,
-      meeting,
-    } = this.props;
-
-    if (compact) {
-      return;
-    }
-
-    let userNameSub = [];
-
-    if (user.isPresenter) {
-      userNameSub.push(intl.formatMessage(messages.presenter));
-    }
-
-    if (user.isCurrent) {
-      userNameSub.push(`(${intl.formatMessage(messages.you)})`);
-    }
-
-    userNameSub = userNameSub.join(' ');
-
-    const { disablePrivateChat,
-            disableCam,
-            disableMic,
-            disablePublicChat } = meeting.roomLockSettings;
-
-    return (
-      <div className={styles.userName}>
-        <span className={styles.userNameMain}>
-          {user.name}
-        </span>
-        <span className={styles.userNameSub}>
-          {userNameSub}
-          {(user.isLocked && (disablePrivateChat
-            || disableCam
-            || disableMic
-            || disablePublicChat)) ?
-              <span> {(user.isCurrent ? ' | ' : null)}
-                <Icon iconName="lock" />
-                {intl.formatMessage(messages.locked)}
-              </span> : null}
-        </span>
-      </div>
-    );
-  }
-
-  renderUserIcons() {
-    const {
-      user,
-      compact,
-    } = this.props;
-
-    if (compact) {
-      return;
-    }
-
-    let audioChatIcon = null;
-
-    if (user.isListenOnly) {
-      audioChatIcon = 'listen';
-    }
-
-    if (user.isVoiceUser) {
-      audioChatIcon = !user.isMuted ? 'unmute' : 'mute';
-    }
-
-    const audioIconClassnames = {};
-
-    audioIconClassnames[styles.userIconsContainer] = true;
-    audioIconClassnames[styles.userIconGlowing] = user.isTalking;
-
-    if (!audioChatIcon && !user.isSharingWebcam) {
-      // Prevent rendering the markup when there is no icon to show
-      return;
-    }
-
-    return (
-      <div className={styles.userIcons}>
-        {
-          user.isSharingWebcam ?
-            <span className={styles.userIconsContainer}>
-              <Icon iconName="video" />
-            </span>
-            : null
-        }
-        {
-          audioChatIcon ?
-            <span className={cx(audioIconClassnames)}>
-              <Icon iconName={audioChatIcon} />
-            </span>
-            : null
-        }
-      </div>
-    );
-  }
-
-  renderUserAction(action, ...parameters) {
-    const {
-      currentUser,
-      user,
-    } = this.props;
-
-    const userAction = (
-      <DropdownListItem
-        key={_.uniqueId('action-item-')}
-        icon={action.icon}
-        label={action.label}
-        defaultMessage={action.label}
-        onClick={action.handler.bind(this, ...parameters)}
-        placeInTabOrder
-      />
-    );
-
-    return userAction;
   }
 }
 

@@ -60,7 +60,7 @@ package org.bigbluebutton.core.managers
             _profiles.splice(0);
 
             var profiles:XML = new XML(e.target.data);
-            var fallbackLocale:String = profiles.@fallbackLocale != undefined? profiles.@fallbackLocale.toString(): DEFAULT_FALLBACK_LOCALE;
+            var fallbackLocale:String = profiles.@fallbackLocale != undefined ? profiles.@fallbackLocale.toString(): DEFAULT_FALLBACK_LOCALE;
             for each (var profile:XML in profiles.children()) {
                 _profiles.push(new VideoProfile(profile, fallbackLocale));
             }

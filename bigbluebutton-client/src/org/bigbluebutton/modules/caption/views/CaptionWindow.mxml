@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-			xmlns:mx="http://www.adobe.com/2006/mxml"
+			xmlns:mx="library://ns.adobe.com/flex/mx"
+			xmlns:fx="http://ns.adobe.com/mxml/2009"
 			xmlns:containers="flexlib.containers.*"
 			xmlns:mate="http://mate.asfusion.com/"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -28,22 +29,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			showCloseButton="false"
 			creationComplete="onCreationComplete()">
 	
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import flexlib.controls.tabBarClasses.SuperTab;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			
-			import flexlib.controls.tabBarClasses.SuperTab;
-			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.model.users.User2x;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
@@ -65,10 +70,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var optionsTab:OptionsTab;
 			private var textTab:TextTab;
 			
-			private var captionOptions:CaptionOptions = new CaptionOptions();
+			private var captionOptions:CaptionOptions;
 			
 			override protected function createChildren():void {
 				super.createChildren();
+				
+				captionOptions = Options.getOptions(CaptionOptions) as CaptionOptions;
 				
 				optionsTab = new OptionsTab();
 				optionsTab.setChangeCallback(optionChange);
@@ -101,14 +108,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setTranscripts(t:Transcripts):void {
 				transcriptsObject = t;
 				
-				if (UserManager.getInstance().getConference().amIModerator()) {
+				if (UsersUtil.amIModerator()) {
 					transcriptsCollection = new ArrayCollection();
 					
-					var names:Array = ResourceUtil.getInstance().localeNames;
-					var codes:Array = ResourceUtil.getInstance().localeCodes;
+					var locales:Array = ResourceUtil.getInstance().locales;
 					
-					for (var i:int=0; i<names.length; i++) {
-						transcriptsCollection.addItem({locale: names[i], localeCode: codes[i]});
+					for each(var item:* in locales) {
+						transcriptsCollection.addItem({locale: item.name, localeCode: item.code});
 					}
 				} else {
 					transcriptsCollection = t.transcriptCollection;
@@ -178,18 +184,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function setTextTabLabel(ownerId:String):void {
-				textTab.label = currentTranscript.locale + " - ";
+				var ownerText:String = null;
+				
 				if (ownerId == "") {
 					//unclaimed text
 					//ownerNameOutputLabel.text = "Owner - " + "None";
-					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.noowner');
-				} else if (ownerId == UserManager.getInstance().getConference().getMyUserId()) {
+					ownerText = ResourceUtil.getInstance().getString('bbb.caption.transcript.noowner');
+				} else if (ownerId == UsersUtil.getMyUserID()) {
 					//release text
-					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.youowner');
+					ownerText = ResourceUtil.getInstance().getString('bbb.caption.transcript.youowner');
 				} else {
 					//claimed by other
-					textTab.label += UserManager.getInstance().getConference().getUser(ownerId).name;
+					var user:User2x = UsersUtil.getUser(ownerId);
+					if (user != null) {
+						ownerText = user.name;
+					}
 				}
+				
+				textTab.label = currentTranscript.locale + (ownerText != null ? " - " + ownerText : "");
 			}
 			
 			private function addTextTab():void {
@@ -198,11 +210,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				textTab.setFontSize(int(optionsTab.fontSizeCombo.selectedItem));
 				
 				captionTabs.addChildAt(textTab, 0);
-			}
-			
-			private function onTabChange():void {
-				var tab:Button = captionTabs.getTabAt(captionTabs.selectedIndex);
-				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -240,11 +247,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
+	
 	<mx:Box width="100%" height="100%" horizontalAlign="left">
 		<containers:SuperTabNavigator id="captionTabs"
 									  width="100%" height="100%" minTabWidth="20"
-									  dragEnabled="false" popUpButtonPolicy="off" 
-									  change="onTabChange()"/>
+									  dragEnabled="false" popUpButtonPolicy="off"/>
 	</mx:Box>
 </CustomMdiWindow>

@@ -27,12 +27,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public class Meeting {
 
-	private static final long MILLIS_IN_A_MINUTE = 60000;
-	
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;
-	private String parentMeetingId;
+	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Integer duration = 0;	 
 	private long createdTime = 0;
@@ -45,7 +43,7 @@ public class Meeting {
 	private String viewerPass;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String modOnlyMessage;
+	private String modOnlyMessage = "";
 	private String logoutUrl;
 	private int maxUsers;
 	private boolean record;
@@ -55,6 +53,7 @@ public class Meeting {
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
+	private String guestPolicy;
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
@@ -62,11 +61,14 @@ public class Meeting {
 	private final ConcurrentMap<String, Long> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
-	private final List<String> breakoutRooms = new ArrayList();
-	
-	private long lastUserLeftOn = 0;
-	
-    public Meeting(Builder builder) {
+	private final List<String> breakoutRooms = new ArrayList<String>();
+
+	private Integer maxInactivityTimeoutMinutes = 120;
+	private Integer warnMinutesBeforeMax = 5;
+	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
+	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+
+    public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;
@@ -88,6 +90,7 @@ public class Meeting {
         metadata = builder.metadata;
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
+        guestPolicy = builder.guestPolicy;
 
         userCustomData = new HashMap<String, Object>();
 
@@ -251,6 +254,10 @@ public class Meeting {
 	public String getDefaultAvatarURL() {
 		return defaultAvatarURL;
 	}
+
+	public String getGuestPolicy() {
+    	return guestPolicy;
+	}
 	
 	public String getLogoutUrl() {
 		return logoutUrl;
@@ -287,7 +294,6 @@ public class Meeting {
 
 	public User userLeft(String userid){
 		User u = (User) users.remove(userid);	
-		if (users.isEmpty()) lastUserLeftOn = System.currentTimeMillis();
 		return u;
 	}
 
@@ -310,54 +316,6 @@ public class Meeting {
 	
 	public String getDialNumber() {
 		return dialNumber;
-	}
-	
-	public boolean wasNeverJoined(int expiry) {
-		return (hasStarted() && !hasEnded() && nobodyJoined(expiry));
-	}
-	
-	private boolean meetingInfinite() {
-		/* Meeting stays runs infinitely */
-	  return 	duration == 0;
-	}
-	
-	private boolean nobodyJoined(int expiry) {
-		if (expiry == 0) return false; /* Meeting stays created infinitely */
-		
-		long now = System.currentTimeMillis();
-
-		return (!userHasJoined && (now - createdTime) >  (expiry * MILLIS_IN_A_MINUTE));
-	}
-
-	private boolean hasBeenEmptyFor(int expiry) {
-		long now = System.currentTimeMillis();
-		return (now - lastUserLeftOn > (expiry * MILLIS_IN_A_MINUTE));
-	}
-	
-	private boolean isEmpty() {
-		return users.isEmpty();
-	}
-	
-	public boolean hasExpired(int expiry) {
-		return (hasStarted() && userHasJoined && isEmpty() && hasBeenEmptyFor(expiry));
-	}
-	
-	public boolean hasExceededDuration() {
-		return (hasStarted() && !hasEnded() && pastDuration());
-	}
-
-	private boolean pastDuration() {
-		if (meetingInfinite()) return false; 
-		long now = System.currentTimeMillis();
-		return (now - startTime > (duration * MILLIS_IN_A_MINUTE));
-	}
-	
-	private boolean hasStarted() {
-		return startTime > 0;
-	}
-	
-	private boolean hasEnded() {
-		return endTime > 0;
 	}
 
 	public int getNumListenOnly() {
@@ -390,11 +348,47 @@ public class Meeting {
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
 	}
-	
+
+	public void setMaxInactivityTimeoutMinutes(Integer value) {
+		maxInactivityTimeoutMinutes = value;
+	}
+
+	public void setWarnMinutesBeforeMax(Integer value) {
+		warnMinutesBeforeMax = value;
+	}
+
+	public Integer getMaxInactivityTimeoutMinutes() {
+		return maxInactivityTimeoutMinutes;
+	}
+
+	public Integer getWarnMinutesBeforeMax() {
+		return warnMinutesBeforeMax;
+	}
+
+	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
+		meetingExpireWhenLastUserLeftInMinutes = value;
+	}
+
+	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
+		return meetingExpireWhenLastUserLeftInMinutes;
+	}
+
+
+	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
+		meetingExpireIfNoUserJoinedInMinutes = value;
+	}
+
+	public Integer getMeetingExpireIfNoUserJoinedInMinutes() {
+		return meetingExpireIfNoUserJoinedInMinutes;
+	}
+
+
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
-	
+
+
+
 	/***
 	 * Meeting Builder
 	 *
@@ -421,6 +415,7 @@ public class Meeting {
     	private String defaultAvatarURL;
     	private long createdTime;
     	private boolean isBreakout;
+    	private String guestPolicy;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -517,6 +512,11 @@ public class Meeting {
     		metadata = m;
     		return this;
     	}
+
+    	public Builder withGuestPolicy(String policy) {
+    		guestPolicy = policy;
+    		return  this;
+		}
     
     	public Meeting build() {
     		return new Meeting(this);

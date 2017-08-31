@@ -1,4 +1,4 @@
-@import "../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/_all";
 
 $navbar-height: 60px; // TODO: Change to NavBar real height
 $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
@@ -54,9 +54,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 .content {
   @extend %full-page;
 
-  background-color: $color-background;
   padding: 0 .25%;
-  // position: relative;
 
   &:before,
   &:after {
@@ -106,12 +104,12 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   }
 
   @include mq($medium-up) {
-    flex: 0 20vw;
+    flex: 0 15vw;
     order: 1;
   }
 
   @include mq($xlarge-up) {
-    flex-basis: 15vw;
+    flex-basis: 10vw;
   }
 }
 

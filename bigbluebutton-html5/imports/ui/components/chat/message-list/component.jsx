@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import styles from './styles';
-
 import Button from '/imports/ui/components/button/component';
+import styles from './styles';
 import MessageListItem from './message-list-item/component';
 
 const propTypes = {
@@ -29,89 +28,23 @@ class MessageList extends Component {
     this.shouldScrollBottom = false;
     this.lastKnowScrollPosition = 0;
     this.ticking = false;
-
     this.handleScrollChange = _.debounce(this.handleScrollChange.bind(this), 150);
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
   }
 
-  scrollTo(position = null) {
-    const { scrollArea } = this.refs;
-
-    if (position === null) {
-      position = scrollArea.scrollHeight - scrollArea.clientHeight;
-    }
-
-    scrollArea.scrollTop = position;
-  }
-
-  handleScrollUpdate(position, target) {
-    if (position !== null && position + target.offsetHeight === target.scrollHeight) {
-      position = null; // update with null so it keeps auto scrolling
-    }
-
-    this.props.handleScrollUpdate(position);
-  }
-
-  handleScrollChange(e) {
-    this.lastKnowScrollPosition = e.target.scrollTop;
-
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        const position = this.lastKnowScrollPosition;
-        this.handleScrollUpdate(position, e.target);
-        this.ticking = false;
-      });
-    }
-
-    this.ticking = true;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.chatId !== nextProps.chatId) {
-      const { scrollArea } = this.refs;
-      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
-    }
-  }
-
-  componentWillUpdate(nextProps) {
-    if (this.props.chatId !== nextProps.chatId) {
-      this.shouldScrollBottom = false;
-      return;
-    }
-
-    const { scrollArea } = this.refs;
-
-    const position = scrollArea.scrollTop + scrollArea.offsetHeight;
-
-    // Compare with <1 to account for the chance scrollArea.scrollTop is a float
-    // value in some browsers.
-    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-                              (scrollArea.scrollHeight - position < 1) ||
-                              nextProps.scrollPosition === null;
-  }
-
-  componentDidUpdate(prevProps) {
-    const { scrollPosition, chatId } = this.props;
-
-    if (this.shouldScrollBottom) {
-      this.scrollTo();
-    } else if (prevProps.chatId !== chatId) {
-      this.scrollTo(scrollPosition);
-    }
-  }
 
   componentDidMount() {
-    const { scrollArea } = this.refs;
+    const { scrollArea } = this;
 
     this.scrollTo(this.props.scrollPosition);
     scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
-  componentWillUnmount() {
-    const { scrollArea } = this.refs;
-
-    this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
-    scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
+  componentWillReceiveProps(nextProps) {
+    if (this.props.chatId !== nextProps.chatId) {
+      const { scrollArea } = this;
+      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
+    }
   }
 
   shouldComponentUpdate(nextProps) {
@@ -136,38 +69,72 @@ class MessageList extends Component {
     return false;
   }
 
-  render() {
-    const { messages, intl } = this.props;
+  componentWillUpdate(nextProps) {
+    if (this.props.chatId !== nextProps.chatId) {
+      this.shouldScrollBottom = false;
+      return;
+    }
 
-    return (
-      <div className={styles.messageListWrapper}>
-        <div
-          role="log"
-          tabIndex="0"
-          ref="scrollArea"
-          id={this.props.id}
-          className={styles.messageList}
-          aria-live="polite"
-          aria-atomic="false"
-          aria-relevant="additions"
-          aria-label={intl.formatMessage(intlMessages.emptyLogLabel)}
-        >
-          {messages.map(message => (
-            <MessageListItem
-              handleReadMessage={this.props.handleReadMessage}
-              className={styles.messageListItem}
-              key={message.id}
-              messages={message.content}
-              user={message.sender}
-              time={message.time}
-              chatAreaId={this.props.id}
-              lastReadMessageTime={this.props.lastReadMessageTime}
-            />
-          ))}
-        </div>
-        {this.renderUnreadNotification()}
-      </div>
-    );
+    const { scrollArea } = this;
+
+    const position = scrollArea.scrollTop + scrollArea.offsetHeight;
+
+    // Compare with <1 to account for the chance scrollArea.scrollTop is a float
+    // value in some browsers.
+    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
+      (scrollArea.scrollHeight - position < 1) ||
+      nextProps.scrollPosition === null;
+  }
+
+  componentDidUpdate(prevProps) {
+    const { scrollPosition, chatId } = this.props;
+
+    if (this.shouldScrollBottom) {
+      this.scrollTo();
+    } else if (prevProps.chatId !== chatId) {
+      this.scrollTo(scrollPosition);
+    }
+  }
+
+  componentWillUnmount() {
+    const { scrollArea } = this;
+
+    this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
+    scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
+  }
+
+  handleScrollUpdate(position, target) {
+    if (position !== null && position + target.offsetHeight === target.scrollHeight) {
+      this.props.handleScrollUpdate(null);
+      return;
+    }
+
+    this.props.handleScrollUpdate(position);
+  }
+
+  handleScrollChange(e) {
+    this.lastKnowScrollPosition = e.target.scrollTop;
+
+    if (!this.ticking) {
+      window.requestAnimationFrame(() => {
+        const position = this.lastKnowScrollPosition;
+        this.handleScrollUpdate(position, e.target);
+        this.ticking = false;
+      });
+    }
+
+    this.ticking = true;
+  }
+
+  scrollTo(position = null) {
+    const { scrollArea } = this;
+
+    if (position === null) {
+      scrollArea.scrollTop = scrollArea.scrollHeight - scrollArea.clientHeight;
+      return;
+    }
+
+    scrollArea.scrollTop = position;
   }
 
   renderUnreadNotification() {
@@ -185,6 +152,41 @@ class MessageList extends Component {
     }
 
     return null;
+  }
+
+  render() {
+    const { messages, intl } = this.props;
+
+    const isEmpty = messages.length == 0;
+
+    return (
+      <div className={styles.messageListWrapper}>
+        <div
+          role="log"
+          ref={(ref) => { this.scrollArea = ref; }}
+          id={this.props.id}
+          className={styles.messageList}
+          aria-live="polite"
+          aria-atomic="false"
+          aria-relevant="additions"
+          aria-label={isEmpty ? intl.formatMessage(intlMessages.emptyLogLabel) : ''}
+        >
+          {messages.map(message => (
+            <MessageListItem
+              handleReadMessage={this.props.handleReadMessage}
+              className={styles.messageListItem}
+              key={message.id}
+              messages={message.content}
+              user={message.sender}
+              time={message.time}
+              chatAreaId={this.props.id}
+              lastReadMessageTime={this.props.lastReadMessageTime}
+            />
+          ))}
+        </div>
+        {this.renderUnreadNotification()}
+      </div>
+    );
   }
 }
 

@@ -1,7 +1,5 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.Props
-import redis.RedisClient
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.actor.ActorSystem
@@ -14,6 +12,6 @@ class KeepAliveRedisPublisher(val system: ActorSystem, sender: RedisPublisher) e
 
   system.scheduler.schedule(2 seconds, 5 seconds) {
     val msg = new BbbAppsIsAliveMessage(startedOn, System.currentTimeMillis())
-    sender.publish("bigbluebutton:from-bbb-apps:keepalive", msg.toJson())
+    // sender.publish("bigbluebutton:from-bbb-apps:keepalive", msg.toJson())
   }
 }

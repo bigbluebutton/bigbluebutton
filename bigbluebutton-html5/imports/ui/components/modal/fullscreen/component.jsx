@@ -69,16 +69,14 @@ class ModalFullscreen extends Component {
               label={dismiss.label}
               disabled={dismiss.disabled}
               onClick={this.handleAction.bind(this, 'dismiss')}
-              aria-describedby={'modalDismissDescription'}
-              tabIndex={0} />
+              aria-describedby={'modalDismissDescription'} />
             <Button
               color={'primary'}
               className={styles.confirm}
               label={confirm.label}
               disabled={confirm.disabled}
               onClick={this.handleAction.bind(this, 'confirm')}
-              aria-describedby={'modalConfirmDescription'}
-              tabIndex={0} />
+              aria-describedby={'modalConfirmDescription'} />
           </div>
         </header>
         <div className={styles.content}>

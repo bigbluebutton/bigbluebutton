@@ -18,14 +18,15 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<ns:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-              xmlns:ns="org.bigbluebutton.common.*" 
+<ns:CustomMdiWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+					xmlns:fx="http://ns.adobe.com/mxml/2009"
+			  xmlns:ns="org.bigbluebutton.common.*" 
               xmlns:views="org.bigbluebutton.modules.notes.views.*"
               implements="org.bigbluebutton.common.IBbbModuleWindow" 
               title="Notes"
               creationComplete="onCreationComplete()"
               layout="absolute">
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
       import org.bigbluebutton.modules.notes.models.NotesModel;
       import org.bigbluebutton.modules.notes.models.NotesOptions;
@@ -43,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         this.title = ResourceUtil.getInstance().getString("bbb.notes.title");
       }
     ]]>
-  </mx:Script>
+  </fx:Script>
   
   <views:NotesView id="notesView" notesArray="{notesModel}"/>
 </ns:CustomMdiWindow>

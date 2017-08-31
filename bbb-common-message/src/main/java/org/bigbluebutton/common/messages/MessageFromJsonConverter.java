@@ -1,5 +1,7 @@
 package org.bigbluebutton.common.messages;
 
+import java.util.Map;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -24,31 +26,14 @@ public class MessageFromJsonConverter {
 					  return processEndMeetingMessage(payload);
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
 					  return processKeepAlive(payload);
-				  case RegisterUserMessage.REGISTER_USER:
-					  return RegisterUserMessage.fromJson(message);
-				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
-					  return processValidateAuthTokenMessage(header, payload);
-					  // return ValidateAuthTokenMessage.fromJson(message);
-				  case UserConnectedToGlobalAudio.USER_CONNECTED_TO_GLOBAL_AUDIO:
-					return UserConnectedToGlobalAudio.fromJson(message);
-				  case UserDisconnectedFromGlobalAudio.USER_DISCONNECTED_FROM_GLOBAL_AUDIO:
-					return UserDisconnectedFromGlobalAudio.fromJson(message);
+				  case ActivityResponseMessage.ACTIVITY_RESPONSE:
+					  return processActivityResponseMessage(payload);
 				  case GetAllMeetingsRequest.GET_ALL_MEETINGS_REQUEST_EVENT:
 					return new GetAllMeetingsRequest("the_string_is_not_used_anywhere");
 				}
 			}
 		}
 		return null;
-	}
-		
-	private static IBigBlueButtonMessage processValidateAuthTokenMessage(JsonObject header, JsonObject payload) {
-		String id = payload.get(Constants.MEETING_ID).getAsString();
-		String userid = payload.get(Constants.USER_ID).getAsString();
-		String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
-		String replyTo = header.get(Constants.REPLY_TO).getAsString();
-		String sessionId = "tobeimplemented";
-		return new ValidateAuthTokenMessage(id, userid, authToken, replyTo,
-		    sessionId);
 	}
 	
 	private static IBigBlueButtonMessage processCreateMeeting(JsonObject payload) {
@@ -65,11 +50,15 @@ public class MessageFromJsonConverter {
 		String viewerPassword = payload.get(Constants.VIEWER_PASS).getAsString();
 		Long createTime = payload.get(Constants.CREATE_TIME).getAsLong();
 		String createDate = payload.get(Constants.CREATE_DATE).getAsString();
+
+		Util util = new Util();
+		JsonObject metadataObject = (JsonObject) payload.get(Constants.METADATA);
+		Map<String, String> metadata = util.extractMetadata(metadataObject);
 		
 		return new CreateMeetingMessage(id, externalId, name, record, voiceBridge, 
 				          duration, autoStartRecording, allowStartStopRecording,
 				          webcamsOnlyForModerator, moderatorPassword, viewerPassword,
-				          createTime, createDate);
+				          createTime, createDate, metadata);
 	}
 	
 	private static IBigBlueButtonMessage processDestroyMeeting(JsonObject payload) {
@@ -87,4 +76,8 @@ public class MessageFromJsonConverter {
 		return new KeepAliveMessage(id);
 	}
 
+	private static IBigBlueButtonMessage processActivityResponseMessage(JsonObject payload) {
+		String id = payload.get(Constants.MEETING_ID).getAsString();
+		return new ActivityResponseMessage(id);
+	}
 }

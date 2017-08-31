@@ -1,7 +1,7 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
  * 
- * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ * Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -18,112 +18,107 @@
  */
 package org.bigbluebutton.modules.polling.service
 {
-	import org.as3commons.logging.api.ILogger;
-	import org.as3commons.logging.api.getClassLogger;
-	import org.as3commons.logging.util.jsonXify;
-	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.jsonXify;
+  import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.managers.ConnectionManager;
 
-	public class MessageSender
-	{	
-	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
-	
-	public function startCustomPoll(pollId:String, pollType: String, answers:Array):void
-	{
+  public class MessageSender {
+    private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-		
-		var header:Object = new Object();		
-		header["timestamp"] = (new Date()).time;
-		header["name"] = "start_custom_poll_request_message";
-		header["version"] = "0.0.1";
-		
-		var payload:Object = new Object();
-		payload["pollType"] = pollType;
-		payload["answers"] = answers;
-		payload["meetingId"] = UsersUtil.getInternalMeetingID();
-		payload["pollId"] = pollId;
-		payload["requesterId"] = UsersUtil.getMyUserID();
-		
-		var map:Object = new Object();
-		map["header"] = header;
-		map["payload"] = payload;
-		
-		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage("poll.sendPollingMessage", 
-			function(result:String):void { 
-			},	                   
-			function(status:String):void {
-				LOGGER.error(status); 
-			},
-			JSON.stringify(map)
-		);
-	}
-	
-    public function startPoll(pollId:String, pollType: String):void
-    {
-      var map:Object = new Object();
-      map["pollId"] = pollId;
-      map["pollType"] = pollType;
-      
+    public function startCustomPoll(pollId:String, pollType: String, answers:Array):void {
+      var message:Object = {
+        header: {name: "StartCustomPollReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), pollId: pollId, pollType: pollType, answers: answers}
+      };
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.startPoll", 
-        function(result:String):void { 
-        },	                   
-        function(status:String):void {
-			LOGGER.error(status); 
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
         },
-        map
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
+    }
+
+    public function startPoll(pollId:String, pollType: String):void {
+      var message:Object = {
+        header: {name: "StartPollReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), pollId: pollId, pollType: pollType}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
       );
     }
     
-    public function stopPoll(pollId:String):void
-    {
-      var map:Object = new Object();
-      map["pollId"] = pollId;
-      
+    public function stopPoll(pollId:String):void {
+      // note: we do not pass pollId, we stop the currentPoll
+      var message:Object = {
+        header: {name: "StopPollReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.stopPoll", 
-        function(result:String):void { 
-        },	                   
-        function(status:String):void {
-			LOGGER.error(status); 
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
         },
-        map
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
       );
     }
     
-    public function votePoll(pollId:String, answerId:Number):void
-    {
-      var map:Object = new Object();
-      map["pollId"] = pollId;
-      map["answerId"] = answerId;
-      
+    public function votePoll(pollId:String, answerId:Number):void {
+      var questionId: int = 0; // assume only one question per poll
+
+      var message:Object = {
+        header: {name: "RespondToPollReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), pollId: pollId, questionId: questionId, answerId: answerId}
+      };
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.votePoll", 
-        function(result:String):void { 
-        },	                   
-        function(status:String):void {
-			LOGGER.error(status); 
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
         },
-        map
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
       );
     }
     
     public function showPollResult(pollId:String, show:Boolean):void {
-      var map:Object = new Object();
-      map["pollId"] = pollId;
-      map["show"] = show;
-      
+      var messageName:String = "ShowPollResultReqMsg";
+      if (!show) {
+        messageName = "HidePollResultReqMsg";
+      }
+
+      var message:Object = {
+        header: {name: messageName, meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), pollId: pollId}
+      };
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.showPollResult", 
-        function(result:String):void { 
-        },	                   
-        function(status:String):void {
-			LOGGER.error(status); 
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
         },
-        map
-      );      
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
     }
-	}
+  }
 }

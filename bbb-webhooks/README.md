@@ -11,14 +11,14 @@ Development
 
 1. Install node. You can use [NVM](https://github.com/creationix/nvm) if you need multiple versions of node or install it from source. To install from source, first check the exact version you need on `package.json` and replace the all `vX.X.X` by the correct version when running the commands below.
 
-    ```bash
+~~~
 wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
 tar -xvf node-vX.X.X.tar.gz
 cd node-vX.X.X/
 ./configure
 make
 sudo make install
-    ```
+~~~
 
 2. Install the dependencies: `npm install`
 
@@ -26,9 +26,9 @@ sudo make install
 
 4. Run the application with:
 
-    ```bash
+~~~
 node app.js
-    ```
+~~~
 
 5. To test it you can use the test application `post_catcher.js`. It starts a node app that
   registers a hook on the webhooks app and prints all the events it receives. Open the file
@@ -44,14 +44,14 @@ Production
 
 1. Install node. First check the exact version you need on `package.json` and replace the all `vX.X.X` by the correct version in the commands below.
 
-    ```bash
+~~~
 wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
 tar -xvf node-vX.X.X.tar.gz
 cd node-vX.X.X/
 ./configure
 make
 sudo make install
-    ```
+~~~
 
 2. Copy the entire webhooks directory to `/usr/local/bigbluebutton/bbb-webhooks` and cd into it.
 
@@ -64,34 +64,34 @@ sudo make install
 
 6. Copy upstart's configuration file and make sure its permissions are ok:
 
-    ```bash
+~~~
 sudo cp config/upstart-bbb-webhooks.conf /etc/init/bbb-webhooks.conf
 sudo chown root:root /etc/init/bbb-webhooks.conf
-    ```
+~~~
 
     Open the file and edit it. You might need to change things like the user used to run the application.
 
 7. Copy monit's configuration file and make sure its permissions are ok:
 
-    ```bash
+~~~
 sudo cp config/monit-bbb-webhooks /etc/monit/conf.d/bbb-webhooks
 sudo chown root:root /etc/monit/conf.d/bbb-webhooks
-    ```
+~~~
 
     Open the file and edit it. You might need to change things like the port used by the application.
 
 8. Copy logrotate's configuration file and install it:
 
-    ```bash
+~~~
 sudo cp config/bbb-webhooks.logrotate /etc/logrotate.d/bbb-webhooks
 sudo chown root:root /etc/logrotate.d/bbb-webhooks
 sudo chmod 644 /etc/logrotate.d/bbb-webhooks
 sudo logrotate -s /var/lib/logrotate/status /etc/logrotate.d/bbb-webhooks
-    ```
+~~~
 
 9. Start the application:
 
-    ```bash
+~~~
 sudo service bbb-webhooks start
 sudo service bbb-webhooks stop
-    ```
+~~~

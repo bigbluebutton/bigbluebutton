@@ -18,20 +18,22 @@
  */
 package org.bigbluebutton.modules.whiteboard.services
 {
+  import com.asfusion.mate.events.Dispatcher;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.events.PerformRttTraceEvent;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class MessageReceiver implements IMessageListener
   {
 	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
     
-        /* Injected by Mate */
-    public var whiteboardModel:WhiteboardModel;
-    
+  private var _dispatcher:Dispatcher = new Dispatcher();
+  
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
     }
@@ -40,84 +42,101 @@ package org.bigbluebutton.modules.whiteboard.services
       // trace("WB: received message " + messageName);
 
       switch (messageName) {
-        case "WhiteboardRequestAnnotationHistoryReply":
-          handleRequestAnnotationHistoryReply(message);
+        case "GetWhiteboardAnnotationsRespMsg":
+          handleGetWhiteboardAnnotationsRespMsg(message);
           break;
-        case "WhiteboardIsWhiteboardEnabledReply":
-          handleIsWhiteboardEnabledReply(message);
+        case "GetWhiteboardAccessRespMsg":
+          handleGetWhiteboardAccessRespMsg(message);
           break;
-        case "WhiteboardEnableWhiteboardCommand":
-          handleEnableWhiteboardCommand(message);
-          break;    
-        case "WhiteboardNewAnnotationCommand":
-          handleNewAnnotationCommand(message);
+        case "ModifyWhiteboardAccessEvtMsg":
+          handleModifyWhiteboardAccessEvtMsg(message);
+          break;
+        case "SendWhiteboardAnnotationEvtMsg":
+          handleSendWhiteboardAnnotationEvtMsg(message);
           break;  
-        case "WhiteboardClearCommand":
-          handleClearCommand(message);
-          break;  
-        case "WhiteboardUndoCommand":
-          handleUndoCommand(message);
-          break;  			
+        case "ClearWhiteboardEvtMsg":
+          handleClearWhiteboardEvtMsg(message);
+          break;
+        case "UndoWhiteboardEvtMsg":
+          handleUndoWhiteboardEvtMsg(message);
+          break;
+        case "SendCursorPositionEvtMsg":
+          handleSendCursorPositionEvtMsg(message);
+          break;
+        case "ServerToClientLatencyTracerMsg":
+          handleServerToClientLatencyTracerMsg(message);
+          break;
+        case "DoLatencyTracerMsg":
+          handleDoLatencyTracerMsg(message);
+          break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
     }
 
-    private function handleClearCommand(message:Object):void {
-      var map:Object = JSON.parse(message.msg);      
-      
-      if (map.hasOwnProperty("whiteboardId")) {
-        whiteboardModel.clear(map.whiteboardId);
-      }
-      
-    }
-
-    private function handleUndoCommand(message:Object):void {
-      var map:Object = JSON.parse(message.msg);      
-      if (map.hasOwnProperty("whiteboardId")) {
-        whiteboardModel.undo(map.whiteboardId);
+    private function handleClearWhiteboardEvtMsg(message:Object):void {
+      if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("fullClear") 
+        && message.body.hasOwnProperty("userId")) {
+        LiveMeeting.inst().whiteboardModel.clear(message.body.whiteboardId, message.body.fullClear, message.body.userId);
       }
     }
 
-    private function handleEnableWhiteboardCommand(message:Object):void {
-      var map:Object = JSON.parse(message.msg);
-            
-      whiteboardModel.enable(map.enabled);
+    private function handleUndoWhiteboardEvtMsg(message:Object):void {
+      if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("annotationId")) {
+        LiveMeeting.inst().whiteboardModel.removeAnnotation(message.body.whiteboardId, message.body.annotationId);
+      }
+    }
+
+    private function handleModifyWhiteboardAccessEvtMsg(message:Object):void {
+      LiveMeeting.inst().whiteboardModel.accessModified(message.body.multiUser);
     }
     
-    private function handleNewAnnotationCommand(message:Object):void {
-      var map:Object = JSON.parse(message.msg);
-      var shape:Object = map.shape as Object;
-      var an:Object = shape.shape as Object;
+    private function handleGetWhiteboardAccessRespMsg(message:Object):void {
+      LiveMeeting.inst().whiteboardModel.accessModified(message.body.multiUser);
+    }
+    
+    private function handleSendWhiteboardAnnotationEvtMsg(message:Object):void {
+      var receivedAnnotation:Object = message.body.annotation;
       
-      var annotation:Annotation = new Annotation(shape.id, shape.type, an);
-      annotation.status = shape.status;
-      whiteboardModel.addAnnotation(annotation);
+      var annotation:Annotation = new Annotation(receivedAnnotation.id, receivedAnnotation.annotationType, receivedAnnotation.annotationInfo);
+      annotation.status = receivedAnnotation.status;
+      annotation.userId = receivedAnnotation.userId;
+      LiveMeeting.inst().whiteboardModel.addAnnotation(annotation);
     }
 
-    private function handleIsWhiteboardEnabledReply(message:Object):void {
-      var map:Object = JSON.parse(message.msg);
-    }
-
-    private function handleRequestAnnotationHistoryReply(message:Object):void {
-      var map:Object = JSON.parse(message.msg);      
-   
-      if (map.count != 0) {
-        var annotations:Array = map.annotations as Array;
-        var tempAnnotations:Array = new Array();
-        
-        for (var i:int = 0; i < map.count; i++) {
-          var an:Object = annotations[i] as Object;
-          var shape:Object = an.shapes as Object;                    
-          var annotation:Annotation = new Annotation(an.id, an.type, shape);
-          annotation.status = an.status;
-          tempAnnotations.push(annotation);
-        }   
-                
-        if (tempAnnotations.length > 0) {
-          whiteboardModel.addAnnotationFromHistory(map.whiteboardId, tempAnnotations);
-        }
+    private function handleGetWhiteboardAnnotationsRespMsg(message:Object):void {
+      var whiteboardId:String = message.body.whiteboardId;
+      var annotations:Array = message.body.annotations as Array;
+      var tempAnnotations:Array = new Array();
+      
+      for (var i:int = 0; i < annotations.length; i++) {
+        var an:Object = annotations[i] as Object;
+        var annotation:Annotation = new Annotation(an.id, an.annotationType, an.annotationInfo);
+        annotation.status = an.status;
+        annotation.userId = an.userId;
+        tempAnnotations.push(annotation);
       }
+      
+      LiveMeeting.inst().whiteboardModel.addAnnotationFromHistory(whiteboardId, tempAnnotations);
+    }
+    
+    private function handleSendCursorPositionEvtMsg(message:Object):void {
+      var userId:String = message.header.userId as String;
+      var xPercent:Number = message.body.xPercent as Number;
+	  var yPercent:Number = message.body.yPercent as Number;
+      
+    LiveMeeting.inst().whiteboardModel.updateCursorPosition(userId, xPercent, yPercent);
+    }
+    
+    private function handleServerToClientLatencyTracerMsg(message:Object):void {
+      var userId:String = message.body.senderId as String;
+      var timestamp:Number = message.body.timestampUTC as Number;
+      
+      LiveMeeting.inst().whiteboardModel.lastTraceReceivedTimestamp = timestamp;
+    }
+    
+    private function handleDoLatencyTracerMsg(message:Object):void {
+      _dispatcher.dispatchEvent(new PerformRttTraceEvent()); 
     }
   }
 }

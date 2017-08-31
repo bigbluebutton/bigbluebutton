@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.main.api.JSLog;
@@ -59,7 +60,7 @@ package org.bigbluebutton.modules.videoconf.business
 		private var numNetworkChangeCount:int = 0;
 		
 		private function parseOptions():void {
-			videoOptions = new VideoConfOptions();
+			videoOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
 			videoOptions.parseOptions();	
 		}
 		

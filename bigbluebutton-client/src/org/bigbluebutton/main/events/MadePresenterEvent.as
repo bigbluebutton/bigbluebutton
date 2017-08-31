@@ -27,7 +27,7 @@ package org.bigbluebutton.main.events
 		public static const SWITCH_TO_PRESENTER_MODE:String = "PRESENTER_MODE";
 		
 		public var presenterName:String;
-		public var assignerBy:String;
+		public var assignedBy:String;
 		public var userID:String;
 		
 		public function MadePresenterEvent(type:String)

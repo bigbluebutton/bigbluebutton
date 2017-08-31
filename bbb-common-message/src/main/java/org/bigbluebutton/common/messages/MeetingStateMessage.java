@@ -48,10 +48,8 @@ public class MeetingStateMessage implements ISubscribedMessage {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String userId = payload.get(Constants.USER_ID).getAsString();
 						Boolean muted = payload.get(Constants.MEETING_MUTED).getAsBoolean();
-						JsonObject premissions = (JsonObject) payload.get(Constants.PERMISSIONS);
 						
-						Util util = new Util();
-						Map<String, Boolean> premissionsMap = util.extractPermission(premissions);
+						Map<String, Boolean> premissionsMap = new HashMap<String, Boolean>();
 						
 						if (premissionsMap != null) {
 							return new MeetingStateMessage(meetingID, userId, premissionsMap, muted);							

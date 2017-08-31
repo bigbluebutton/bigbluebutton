@@ -18,14 +18,20 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-         verticalScrollPolicy="off" horizontalScrollPolicy="off">
-  <mx:Script>
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 verticalScrollPolicy="off" horizontalScrollPolicy="off">
+  <fx:Script>
     <![CDATA[
       import org.bigbluebutton.util.i18n.ResourceUtil;
     ]]>
-  </mx:Script>
+  </fx:Script>
+  <!-- No 'me' property on the User2x class -->
+  <!--
   <mx:Label id="nameLabel" textAlign="left" text="{data.name} {data.me ? '(' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : ''}" 
             fontWeight="{data.me ? 'bold' : 'normal'}"
             color="{data.me ? 0x003399 : 0x000000}"/>
+  -->
+  <mx:Label id="nameLabel" textAlign="left" text="{data.name}"
+            fontWeight="{'normal'}"/>
 </mx:HBox>

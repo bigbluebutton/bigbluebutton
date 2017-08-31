@@ -2,16 +2,26 @@
   "name": "bbb-html5-client",
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
-    "start": "cd app;./start.sh",
-    "preinstall": "npm install grunt-cli",
-    "test": "cd app;JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 meteor run --test",
-    "lint": "eslint . --ext .jsx,.js"
+    "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:prod; else npm run start:dev; fi",
+    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
+    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
+    "test": "wdio ./tests/webdriverio/wdio.conf.js",
+    "lint": "eslint . --ext .jsx,.js",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "gitDir": "../",
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "dependencies": {
     "babel-runtime": "^6.23.0",
     "classnames": "^2.2.5",
+    "clipboard": "^1.7.1",
     "eventemitter2": "^2.1.3",
-    "grunt-cli": "^1.2.0",
+    "flat": "^2.0.1",
     "hiredis": "^0.5.0",
     "history": "~3.3.0",
     "immutability-helper": "^2.2.2",
@@ -32,30 +42,30 @@
     "react-toggle": "~4.0.1",
     "react-transition-group": "~1.1.3",
     "redis": "^2.6.2",
+    "string-hash": "^1.1.3",
     "winston": "^2.3.1",
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.1",
+    "chai": "^3.5.0",
     "eslint": "~3.19.0",
     "eslint-config-airbnb": "^15.0.1",
     "eslint-config-airbnb-base": "~11.2.0",
     "eslint-plugin-import": "~2.3.0",
     "eslint-plugin-jsx-a11y": "^5.0.3",
     "eslint-plugin-react": "^7.0.1",
-    "grunt": "^0.4.5",
-    "grunt-concurrent": "~2.2.1",
-    "grunt-contrib-watch": "~1.0.0",
-    "grunt-force-task": "~2.0.0",
-    "grunt-jscs": "~2.8.0",
-    "grunt-newer": "~1.2.0",
-    "grunt-shell": "~1.2.1",
-    "load-grunt-tasks": "~3.4.1",
+    "husky": "^0.13.4",
+    "lint-staged": "^3.6.0",
     "postcss-modules-extract-imports": "1.1.0",
     "postcss-modules-local-by-default": "1.2.0",
     "postcss-modules-scope": "1.1.0",
     "postcss-modules-values": "1.3.0",
-    "postcss-nested": "2.0.2"
+    "postcss-nested": "2.0.2",
+    "wdio-jasmine-framework": "^0.3.1",
+    "wdio-junit-reporter": "^0.3.0",
+    "wdio-spec-reporter": "^0.1.0",
+    "webdriverio": "^4.8.0"
   },
   "cssModules": {
     "extensions": [

@@ -1,38 +1,51 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.Props
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.net.InetSocketAddress
-import redis.actors.RedisSubscriberActor
-import redis.api.pubsub.{ PMessage, Message }
-import scala.concurrent.duration._
-import akka.actor.ActorRef
-import akka.actor.actorRef2Scala
-import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
-import redis.api.servers.ClientSetname
-import org.bigbluebutton.common.converters.FromJsonDecoder
-import org.bigbluebutton.common.messages.PubSubPongMessage
-import akka.actor.ActorSystem
-import scala.concurrent.duration._
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
+import org.bigbluebutton.SystemConfiguration
+import akka.actor.ActorSystem
+import akka.actor.OneForOneStrategy
+import akka.actor.Props
+import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.freeswitch.bus.{ InJsonMsg, InsonMsgBus, ReceivedJsonMsg }
+import redis.actors.RedisSubscriberActor
+import redis.api.pubsub.Message
+import redis.api.pubsub.PMessage
+import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
-  val channels = Seq("time")
+  val channels = Seq(toVoiceConfRedisChannel)
   val patterns = Seq("bigbluebutton:to-voice-conf:*", "bigbluebutton:from-bbb-apps:*")
 
-  def props(system: ActorSystem, msgReceiver: RedisMessageReceiver): Props =
-    Props(classOf[AppsRedisSubscriberActor], system, msgReceiver,
+  def props(system: ActorSystem, inJsonMgBus: InsonMsgBus): Props =
+    Props(classOf[AppsRedisSubscriberActor], system, inJsonMgBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessageReceiver, redisHost: String,
-  redisPort: Int, channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
+class AppsRedisSubscriberActor(val system: ActorSystem,
+  inJsonMgBus: InsonMsgBus, redisHost: String,
+  redisPort: Int,
+  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns) {
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
-  val decoder = new FromJsonDecoder()
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on AppsRedisSubscriberActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      log.error(sw.toString())
+      Resume
+    }
+  }
+
+  //  val decoder = new FromJsonDecoder()
 
   var lastPongReceivedOn = 0L
   system.scheduler.schedule(10 seconds, 10 seconds)(checkPongMessage())
@@ -50,27 +63,15 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
   }
 
   def onMessage(message: Message) {
-    log.debug(s"message received: $message")
+    if (message.channel == toVoiceConfRedisChannel) {
+      val receivedJsonMessage = new ReceivedJsonMsg(message.channel, message.data.utf8String)
+      log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
+      inJsonMgBus.publish(InJsonMsg(toFsAppsJsonChannel, receivedJsonMessage))
+    }
   }
 
   def onPMessage(pmessage: PMessage) {
     //    log.debug(s"pattern message received: $pmessage")
-
-    val msg = decoder.decodeMessage(pmessage.data)
-
-    if (msg != null) {
-      msg match {
-        case m: PubSubPongMessage => {
-          if (m.payload.system == "BbbFsESL") {
-            lastPongReceivedOn = System.currentTimeMillis()
-          }
-        }
-        case _ => // do nothing
-      }
-    } else {
-      msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data)
-    }
-
   }
 
   def handleMessage(msg: String) {

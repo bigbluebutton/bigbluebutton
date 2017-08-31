@@ -68,8 +68,8 @@ class ActionsDropdown extends Component {
     if (!isUserPresenter) return null;
 
     return (
-      <Dropdown>
-        <DropdownTrigger>
+      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
+        <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="add"

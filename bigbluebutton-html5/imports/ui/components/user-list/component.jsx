@@ -1,20 +1,26 @@
 import React, { Component } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import styles from './styles.scss';
 import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
-import UserListItem from './user-list-item/component.jsx';
-import ChatListItem from './chat-list-item/component.jsx';
+
 import KEY_CODES from '/imports/utils/keyCodes';
+import Button from '/imports/ui/components/button/component';
+
+import styles from './styles.scss';
+
+import UserListItem from './user-list-item/component';
+import ChatListItem from './chat-list-item/component';
 
 const propTypes = {
   openChats: PropTypes.array.isRequired,
   users: PropTypes.array.isRequired,
+  compact: PropTypes.bool,
 };
 
 const defaultProps = {
+  compact: false,
 };
 
 const listTransition = {
@@ -26,6 +32,49 @@ const listTransition = {
   leaveActive: styles.leaveActive,
 };
 
+const intlMessages = defineMessages({
+  usersTitle: {
+    id: 'app.userlist.usersTitle',
+    description: 'Title for the Header',
+  },
+  messagesTitle: {
+    id: 'app.userlist.messagesTitle',
+    description: 'Title for the messages list',
+  },
+  participantsTitle: {
+    id: 'app.userlist.participantsTitle',
+    description: 'Title for the Users list',
+  },
+  toggleCompactView: {
+    id: 'app.userlist.toggleCompactView.label',
+    description: 'Toggle user list view mode',
+  },
+  ChatLabel: {
+    id: 'app.userlist.menu.chat.label',
+    description: 'Save the changes and close the settings menu',
+  },
+  ClearStatusLabel: {
+    id: 'app.userlist.menu.clearStatus.label',
+    description: 'Clear the emoji status of this user',
+  },
+  MakePresenterLabel: {
+    id: 'app.userlist.menu.makePresenter.label',
+    description: 'Set this user to be the presenter in this meeting',
+  },
+  KickUserLabel: {
+    id: 'app.userlist.menu.kickUser.label',
+    description: 'Forcefully remove this user from the meeting',
+  },
+  MuteUserAudioLabel: {
+    id: 'app.userlist.menu.muteUserAudio.label',
+    description: 'Forcefully mute this user',
+  },
+  UnmuteUserAudioLabel: {
+    id: 'app.userlist.menu.unmuteUserAudio.label',
+    description: 'Forcefully unmute this user',
+  },
+});
+
 class UserList extends Component {
   constructor(props) {
     super(props);
@@ -33,135 +82,90 @@ class UserList extends Component {
       compact: this.props.compact,
     };
 
+    this.handleToggleCompactView = this.handleToggleCompactView.bind(this);
+
     this.rovingIndex = this.rovingIndex.bind(this);
     this.focusList = this.focusList.bind(this);
-    this.focusListItem = this.focusListItem.bind(this);
-    this.counter = -1;
+    this.focusedItemIndex = -1;
   }
 
-  focusList(activeElement, list) {
-    activeElement.tabIndex = -1;
-    this.counter = 0;
+  focusList(list) {
+    document.activeElement.tabIndex = -1;
+    this.focusedItemIndex = -1;
     list.tabIndex = 0;
     list.focus();
   }
 
-  focusListItem(active, direction, element, count) {
-    function select() {
-      element.tabIndex = 0;
-      element.focus();
-    }
-
-    active.tabIndex = -1;
-
-    switch (direction) {
-      case 'down':
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
-        this.counter++;
-        break;
-      case 'up':
-        this.counter--;
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
-        break;
-      case 'upLoopUp':
-      case 'upLoopDown':
-        this.counter = count - 1;
-        select();
-        break;
-      case 'downLoopDown':
-        this.counter = -1;
-        select();
-        break;
-      case 'downLoopUp':
-        this.counter = 1;
-        select();
-        break;
-    }
-  }
-
-  rovingIndex(...Args) {
+  rovingIndex(event, listType) {
     const { users, openChats } = this.props;
 
     const active = document.activeElement;
     let list;
     let items;
-    let count;
+    let numberOfItems;
 
-    switch (Args[1]) {
+    const focusElement = () => {
+      active.tabIndex = -1;
+      items.childNodes[this.focusedItemIndex].tabIndex = 0;
+      items.childNodes[this.focusedItemIndex].focus();
+    };
+
+    switch (listType) {
       case 'users':
         list = this._usersList;
         items = this._userItems;
-        count = users.length;
+        numberOfItems = users.length;
         break;
       case 'messages':
         list = this._msgsList;
         items = this._msgItems;
-        count = openChats.length;
+        numberOfItems = openChats.length;
         break;
+      default: break;
     }
 
-    if (Args[0].keyCode === KEY_CODES.ESCAPE
-      || this.counter === -1
-      || this.counter > count) {
-      this.focusList(active, list);
+    if (event.keyCode === KEY_CODES.ESCAPE
+      || this.focusedItemIndex < 0
+      || this.focusedItemIndex > numberOfItems) {
+      this.focusList(list);
     }
 
-    if (Args[0].keyCode === KEY_CODES.ENTER
-        || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
-        || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
+    if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.ARROW_SPACE].includes(event.keyCode)) {
       active.firstChild.click();
     }
 
-    if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
-      if (this.counter < count) {
-        this.focusListItem(active, 'down', items);
-      } else if (this.counter === count) {
-        this.focusListItem(active, 'downLoopDown', list);
-      } else if (this.counter === 0) {
-        this.focusListItem(active, 'downLoopUp', list);
+    if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+      this.focusedItemIndex += 1;
+
+      if (this.focusedItemIndex === numberOfItems) {
+        this.focusedItemIndex = 0;
       }
+      focusElement();
     }
 
-    if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
-      if (this.counter < count && this.counter !== 0) {
-        this.focusListItem(active, 'up', items);
-      } else if (this.counter === 0) {
-        this.focusListItem(active, 'upLoopUp', list, count);
-      } else if (this.counter === count) {
-        this.focusListItem(active, 'upLoopDown', list, count);
+    if (event.keyCode === KEY_CODES.ARROW_UP) {
+      this.focusedItemIndex -= 1;
+
+      if (this.focusedItemIndex < 0) {
+        this.focusedItemIndex = numberOfItems - 1;
       }
+
+      focusElement();
     }
+  }
+
+  handleToggleCompactView() {
+    this.setState({ compact: !this.state.compact });
   }
 
   componentDidMount() {
-    const _this = this;
-
     if (!this.state.compact) {
-      this._msgsList.addEventListener('keypress', function (event) {
-        _this.rovingIndex.call(this, event, 'messages');
-      });
+      this._msgsList.addEventListener('keydown',
+        event => this.rovingIndex(event, 'messages'));
 
-      this._usersList.addEventListener('keypress', function (event) {
-        _this.rovingIndex.call(this, event, 'users');
-      });
+      this._usersList.addEventListener('keydown',
+        event => this.rovingIndex(event, 'users'));
     }
-  }
-
-  componentWillUnmount() {
-    this._msgsList.removeEventListener('keypress', (event) => {}, false);
-
-    this._usersList.removeEventListener('keypress', (event) => {}, false);
-  }
-
-  render() {
-    return (
-      <div className={styles.userList}>
-        {this.renderHeader()}
-        {this.renderContent()}
-      </div>
-    );
   }
 
   renderHeader() {
@@ -175,6 +179,13 @@ class UserList extends Component {
               {intl.formatMessage(intlMessages.participantsTitle)}
             </div> : null
         }
+        {/* <Button
+          label={intl.formatMessage(intlMessages.toggleCompactView)}
+          hideLabel
+          icon={!this.state.compact ? 'left_arrow' : 'right_arrow'}
+          className={styles.btnToggle}
+          onClick={this.handleToggleCompactView}
+        /> */}
       </div>
     );
   }
@@ -206,7 +217,7 @@ class UserList extends Component {
         <div
           tabIndex={0}
           className={styles.scrollableList}
-          ref={r => this._msgsList = r}
+          ref={(ref) => { this._msgsList = ref; }}
         >
           <CSSTransitionGroup
             transitionName={listTransition}
@@ -219,7 +230,7 @@ class UserList extends Component {
             component="div"
             className={cx(styles.chatsList, styles.scrollableList)}
           >
-            <div ref={r => this._msgItems = r}>
+            <div ref={(ref) => { this._msgItems = ref; }}>
               {openChats.map(chat => (
                 <ChatListItem
                   compact={this.state.compact}
@@ -269,12 +280,12 @@ class UserList extends Component {
       },
       mute: {
         label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => makeCall('muteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => makeCall('unmuteUser', user.id),
+        handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_on',
       },
     };
@@ -285,13 +296,13 @@ class UserList extends Component {
           !this.state.compact ?
             <div className={styles.smallTitle} role="banner">
               {intl.formatMessage(intlMessages.usersTitle)}
-            &nbsp;({users.length})
+              &nbsp;({users.length})
           </div> : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
           tabIndex={0}
-          ref={r => this._usersList = r}
+          ref={(ref) => { this._usersList = ref; }}
         >
           <CSSTransitionGroup
             transitionName={listTransition}
@@ -304,7 +315,7 @@ class UserList extends Component {
             component="div"
             className={cx(styles.participantsList, styles.scrollableList)}
           >
-            <div ref={r => this._userItems = r}>
+            <div ref={(ref) => { this._userItems = ref; }}>
               {
                 users.map(user => (
                   <UserListItem
@@ -315,7 +326,8 @@ class UserList extends Component {
                     currentUser={currentUser}
                     userActions={userActions}
                     meeting={meeting}
-                  />))
+                  />
+                ))
               }
             </div>
           </CSSTransitionGroup>
@@ -323,46 +335,18 @@ class UserList extends Component {
       </div>
     );
   }
+  
+  render() {
+    return (
+      <div className={styles.userList}>
+        {this.renderHeader()}
+        {this.renderContent()}
+      </div>
+    );
+  }
 }
 
-const intlMessages = defineMessages({
-  usersTitle: {
-    id: 'app.userlist.usersTitle',
-    description: 'Title for the Header',
-  },
-  messagesTitle: {
-    id: 'app.userlist.messagesTitle',
-    description: 'Title for the messages list',
-  },
-  participantsTitle: {
-    id: 'app.userlist.participantsTitle',
-    description: 'Title for the Users list',
-  },
-  ChatLabel: {
-    id: 'app.userlist.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
-  },
-  ClearStatusLabel: {
-    id: 'app.userlist.menu.clearStatus.label',
-    description: 'Clear the emoji status of this user',
-  },
-  MakePresenterLabel: {
-    id: 'app.userlist.menu.makePresenter.label',
-    description: 'Set this user to be the presenter in this meeting',
-  },
-  KickUserLabel: {
-    id: 'app.userlist.menu.kickUser.label',
-    description: 'Forcefully remove this user from the meeting',
-  },
-  MuteUserAudioLabel: {
-    id: 'app.userlist.menu.muteUserAudio.label',
-    description: 'Forcefully mute this user',
-  },
-  UnmuteUserAudioLabel: {
-    id: 'app.userlist.menu.unmuteUserAudio.label',
-    description: 'Forcefully unmute this user',
-  },
-});
-
 UserList.propTypes = propTypes;
+UserList.defaultProps = defaultProps;
+
 export default withRouter(injectIntl(UserList));

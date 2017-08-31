@@ -79,6 +79,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             builder.published(info.isPublished())
             builder.start_time(info.getStartTime())
             builder.end_time(info.getEndTime())
+            builder.raw_size(info.getRawSize())
             if ( info.getPlaybackFormat() == null ) {
                 builder.playback()
             } else {
@@ -86,6 +87,8 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     builder.format(info.getPlaybackFormat())
                     builder.link(info.getPlaybackLink())
                     builder.duration(info.getPlaybackDuration())
+                    builder.size(info.getPlaybackSize())
+                    builder.processing_time(info.getProcessingTime())
                     def extensions = info.getPlaybackExtensions()
                     if ( !extensions.isEmpty() ) {
                         builder.extensions {
@@ -108,6 +111,12 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         }
         def xmlEventFile = new File(path + File.separatorChar + "metadata.xml")
         xmlEventFile.write writer.toString()
+    }
+
+    public Recording getRecordingInfo(String id, String recordingDir, String playbackFormat) {
+        String path = recordingDir + File.separatorChar + playbackFormat + File.separatorChar + id;
+        File dir = new File(path);
+        return getRecordingInfo(dir);
     }
 
     public Recording getRecordingInfo(File dir) {
@@ -136,10 +145,13 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         r.setStartTime(rec.start_time.text());
         r.setEndTime(rec.end_time.text());
         r.setNumParticipants(rec.participants.text());
+        r.setRawSize(rec.raw_size.text());
         if ( !rec.playback.text().equals("") ) {
             r.setPlaybackFormat(rec.playback.format.text());
             r.setPlaybackLink(rec.playback.link.text());
             r.setPlaybackDuration(rec.playback.duration.text());
+            r.setPlaybackSize(rec.playback.size.text());
+            r.setProcessingTime(rec.playback.processing_time.text());
         }
 
         //Add extensions

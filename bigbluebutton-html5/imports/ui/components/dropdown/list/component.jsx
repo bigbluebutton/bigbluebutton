@@ -2,9 +2,7 @@ import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import styles from './styles';
 import cx from 'classnames';
-
 import KEY_CODES from '/imports/utils/keyCodes';
-
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';
@@ -30,77 +28,99 @@ export default class DropdownList extends Component {
   constructor(props) {
     super(props);
     this.childrenRefs = [];
+    this.menuRefs = [];
     this.handleItemKeyDown = this.handleItemKeyDown.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
   }
 
+  componentDidMount() {
+    this._menu.addEventListener('keydown', event=>this.handleItemKeyDown(event));
+  }
+  
   componentWillMount() {
     this.setState({
-      activeItemIndex: 0,
+      focusedIndex: 0,
     });
   }
-
+  
   componentDidUpdate(prevProps, prevState) {
-    let { activeItemIndex } = this.state;
+    let { focusedIndex } = this.state;
 
-    if (activeItemIndex === null) {
-      activeItemIndex = 0;
+    this.menuRefs = [];
+
+    for (let i = 0; i < (this._menu.children.length); i++) {
+      if (this._menu.children[i].getAttribute("role") === 'menuitem') {
+        this.menuRefs.push(this._menu.children[i]);
+      }
     }
 
-    const activeRef = this.childrenRefs[activeItemIndex];
-
+    const activeRef = this.menuRefs[focusedIndex];
+      
     if (activeRef) {
       activeRef.focus();
     }
   }
 
   handleItemKeyDown(event, callback) {
-    const { dropdownHide } = this.props;
-    const { activeItemIndex } = this.state;
-
-    if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      return event.currentTarget.click();
-    }
-
-    let nextActiveItemIndex = null;
+    const { onActionsHide, getDropdownMenuParent, } = this.props;
+    let nextFocusedIndex = this.state.focusedIndex;
 
     if (KEY_CODES.ARROW_UP === event.which) {
-      nextActiveItemIndex = activeItemIndex - 1;
+      event.stopPropagation();
+
+      nextFocusedIndex -= 1;
+
+      if (nextFocusedIndex < 0) {
+        nextFocusedIndex = this.menuRefs.length - 1;
+      }else if (nextFocusedIndex > this.menuRefs.length - 1) {
+        nextFocusedIndex = 0;
+      }
     }
 
-    if (KEY_CODES.ARROW_DOWN === event.which) {
-      nextActiveItemIndex = activeItemIndex + 1;
+    if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
+      event.stopPropagation();
+
+      nextFocusedIndex += 1;
+
+      if (nextFocusedIndex > this.menuRefs.length - 1) {
+        nextFocusedIndex = 0;
+      }
     }
 
-    if (nextActiveItemIndex > (this.childrenRefs.length - 1)) {
-      nextActiveItemIndex = 0;
+    if ([KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
+      event.stopPropagation();
+      document.activeElement.firstChild.click();
     }
 
-    if (nextActiveItemIndex < 0) {
-      nextActiveItemIndex = this.childrenRefs.length - 1;
-    }
-
-    if ([KEY_CODES.ESCAPE].includes(event.which)) {
-      nextActiveItemIndex = 0;
+    if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+      const { dropdownHide } = this.props;
+          
+      event.stopPropagation();
+      event.preventDefault();
+          
       dropdownHide();
+      if (getDropdownMenuParent) {
+        getDropdownMenuParent().focus();
+      }
     }
 
-    this.setState({ activeItemIndex: nextActiveItemIndex });
-
+    this.setState({focusedIndex: nextFocusedIndex});
+    
     if (typeof callback === 'function') {
       callback(event);
     }
   }
 
   handleItemClick(event, callback) {
+    const { getDropdownMenuParent,  onActionsHide} = this.props;
     const { dropdownHide } = this.props;
 
-    this.setState({ activeItemIndex: null });
-
-    dropdownHide();
+    if ( getDropdownMenuParent ) {
+      onActionsHide();
+    }else{
+      this.setState({ focusedIndex: null });
+      dropdownHide();
+    }
 
     if (typeof callback === 'function') {
       callback(event);
@@ -125,7 +145,6 @@ export default class DropdownList extends Component {
           onClick: (event) => {
             let { onClick } = item.props;
             onClick = onClick ? onClick.bind(item) : null;
-
             this.handleItemClick(event, onClick);
           },
 
@@ -139,8 +158,11 @@ export default class DropdownList extends Component {
       });
 
     return (
-      <ul style={style} className={cx(styles.list, className)} role="menu">
-        {boundChildren}
+      <ul 
+        style={style} 
+        className={cx(styles.list, className)} 
+        role="menu" ref={(r) => this._menu = r}>
+          {boundChildren}
       </ul>
     );
   }

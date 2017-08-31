@@ -18,127 +18,116 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml"
-             xmlns:mate="http://mate.asfusion.com/"
-             toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
-             prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
-             height="{LayoutButton.BUTTON_SIZE}"
-             creationComplete="init()"
-             disabledColor="{getStyle('color')}"
-             rowCount="10"
-             styleName="languageSelectorStyle">
-
-	<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
-	<mate:Listener type="{LayoutsReadyEvent.LAYOUTS_READY}" method="populateLayoutsList"/>
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+<mx:ComboBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+			 xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:mate="http://mate.asfusion.com/"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
+			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
+			height="{LayoutButton.BUTTON_SIZE}" creationComplete="init()"
+			change="onSelectedItemChanged(event)"
+			disabledColor="{getStyle('color')}" rowCount="10" width="240" >
+	
+	<fx:Declarations>
+		<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+		<mate:Listener type="{LayoutsReadyEvent.LAYOUTS_READY}" method="populateLayoutsList"/>
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidateLayout" />
+	</fx:Declarations>
   
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-
-			import mx.collections.ArrayCollection;
-			import mx.events.DropdownEvent;
-			import mx.events.ListEvent;
-
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
-			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
-			import org.bigbluebutton.modules.layout.model.LayoutModel;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-
-			private static const LOGGER:ILogger = getClassLogger(LayoutsCombo);
-
-            private var _dispatcher:Dispatcher = new Dispatcher();
-
-            [Bindable]
-            private var layoutNames:ArrayCollection = new ArrayCollection();
-
-            private function init():void {
-                dataProvider = layoutNames;
-                populateComboBox();
-                this.addEventListener(DropdownEvent.OPEN, openDropdownHandler);
-                this.addEventListener(KeyboardEvent.KEY_UP, keyboardUpHandler);
-            }
-
-            private function lockSettingsChanged(e:LockControlEvent):void {
-                var conference:Conference = UserManager.getInstance().getConference();
-                var thisUser:BBBUser = conference.getMyUser();
-                this.enabled = !thisUser.lockedLayout;
-            }
-
-            private function populateLayoutsList(e:LayoutsReadyEvent):void {
-                populateComboBox();
-            }
-
-            private function populateComboBox():void {
-                layoutNames = new ArrayCollection();
-                var layouts:Array = LayoutModel.getInstance().getLayoutNames();
-
-                var idx:int = 0, currentLayoutIndex:int = -1;
-                for each (var lay:Object in layouts) {
-                    var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
-                    if (translatedName == "undefined")
-                        translatedName = lay.name;
-                    var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout};
-                    layoutNames.addItem(item);
-                    if (lay.currentLayout) {
-                        currentLayoutIndex = idx;
-                    }
-                    idx++;
-                }
-                dataProvider = layoutNames;
-                selectedIndex = currentLayoutIndex;
-                invalidateDisplayList();
-            }
-
-            private function onLayoutChanged(e:SwitchedLayoutEvent):void {
-                lockSettingsChanged(null);
-                populateComboBox();
-                var idx:int = -1;
-                for each (var obj:Object in dataProvider) {
-                    if (obj.localeKey == e.layoutID)
-                        idx = obj.index;
-                }
-                selectedIndex = idx;
-                if (idx == -1) {
-                    prompt = e.layoutID;
-                } else {
-                    prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.prompt');
-                }
-                invalidateDisplayList();
-            }
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.collections.ArrayCollection;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
+      import org.bigbluebutton.modules.layout.model.LayoutModel;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(LayoutsCombo);      
+      
+			private var _dispatcher:Dispatcher = new Dispatcher();
+      [Bindable] private var layoutNames:ArrayCollection = new ArrayCollection();
+      
+      private function init():void {
+        dataProvider = layoutNames;
+        populateComboBox();
+        refreshRole(UsersUtil.amIModerator());
+      }
+      
+      private function lockSettingsChanged(e:LockControlEvent):void {
+		  this.enabled = ! LiveMeeting.inst().me.lockedLayout;
+      }
+      
+			private function populateLayoutsList(e:LayoutsReadyEvent):void {
+        populateComboBox();
+			}
+      
+      private function populateComboBox():void {
+        layoutNames = new ArrayCollection();         
+        var layouts:Array = LayoutModel.getInstance().getLayoutNames();
+        
+        var idx:int = 0, currentLayoutIndex:int = -1;
+        for each (var lay:Object in layouts) {
+          var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
+          if (translatedName == "undefined") translatedName = lay.name;
+          var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout };
+          layoutNames.addItem(item);
+          if (lay.currentLayout) {
+            currentLayoutIndex = idx;
+          }
+          idx++;
+        }
+        dataProvider = layoutNames;
+        selectedIndex = currentLayoutIndex;
+        invalidateDisplayList();        
+      }
+						
+			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
+				lockSettingsChanged(null);
+        populateComboBox();
+				var idx:int = -1;					
+				for each (var obj:Object in dataProvider) {
+					if (obj.localeKey == e.layoutID)
+						idx = obj.index;
+				}
+				selectedIndex = idx;
+				if (idx == -1) {
+					prompt = e.layoutID;
+				} else {
+					prompt = dataProvider[idx].label;
+				}
+				invalidateDisplayList();
+				
+			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void {
 				populateComboBox();
 			}
-            private function openDropdownHandler(e:DropdownEvent):void {
-                // a new dropdown object is created everytime the menu is opened
-                this.dropdown.addEventListener(ListEvent.ITEM_CLICK, itemSelectHandler);
-            }
+			
+			private function onSelectedItemChanged(e:Event):void {
+				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.localeKey));
+			}
+					
+			private function invalidateLayout(e:Event):void {
+				selectedIndex = -1;
+				prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.custom');
+			}
 
-            private function keyboardUpHandler(e:KeyboardEvent):void {
-                if (e.keyCode == Keyboard.ENTER || e.keyCode == Keyboard.SPACE) {
-                    setNewLayout(this.selectedItem.localeKey);
-                }
-            }
-
-            private function itemSelectHandler(e:ListEvent):void {
-                this.dropdown.removeEventListener(ListEvent.ITEM_CLICK, itemSelectHandler);
-                setNewLayout(e.currentTarget.selectedItem.localeKey);
-            }
-
-            private function setNewLayout(layout:String):void {
-                _dispatcher.dispatchEvent(new ChangeLayoutEvent(layout));
-            }
-
+			public function refreshRole(amIModerator:Boolean):void {
+				var layoutLocked:Boolean = UsersUtil.getLockSettings().getLockedLayout();
+				this.enabled = amIModerator || !layoutLocked;
+			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:ComboBox>

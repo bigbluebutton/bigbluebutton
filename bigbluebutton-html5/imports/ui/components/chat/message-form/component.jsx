@@ -51,6 +51,16 @@ class MessageForm extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  componentDidMount() {
+    this.textarea.focus();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.chatName !== this.props.chatName) {
+      this.textarea.focus();
+    }
+  }
+
   handleMessageKeyDown(e) {
     // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
@@ -61,7 +71,7 @@ class MessageForm extends Component {
         cancelable: true,
       });
 
-      this.refs.form.dispatchEvent(event);
+      this.form.dispatchEvent(event);
     }
   }
 
@@ -124,7 +134,7 @@ class MessageForm extends Component {
 
     return (
       <form
-        ref="form"
+        ref={(ref) => { this.form = ref; }}
         className={cx(this.props.className, styles.form)}
         onSubmit={this.handleSubmit}
       >
@@ -132,6 +142,7 @@ class MessageForm extends Component {
           <TextareaAutosize
             className={styles.input}
             id="message-input"
+            innerRef={ref => this.textarea = ref}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
             aria-controls={this.props.chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
@@ -146,12 +157,14 @@ class MessageForm extends Component {
             onKeyDown={this.handleMessageKeyDown}
           />
           <Button
+            hideLabel
+            circle
             className={styles.sendButton}
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
             disabled={disabled}
             label={intl.formatMessage(messages.submitLabel)}
-            hideLabel
+            color="primary"
             icon="send"
             onClick={() => null}
           />

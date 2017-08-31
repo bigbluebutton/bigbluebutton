@@ -20,20 +20,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-           xmlns:mate="http://mate.asfusion.com/"
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:mate="http://mate.asfusion.com/"
            styleName="deskshareDefaultButtonStyle"
-           height="24"
+           height="30"
            toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
            click="requestToStarSharing()"
            mouseOver = "mouseOverHandler(event)"
            mouseOut = "mouseOutHandler(event)"
            implements="org.bigbluebutton.common.IBbbToolbarComponent">
-  
-  <mate:Listener type="{ShortcutEvent.SHARE_DESKTOP}" method="remoteClick" />
-  <mate:Listener type="{ShareWindowEvent.CLOSE}" method="closeFocus" />
-  
-  <mx:Script>
+
+  <fx:Declarations>
+    <mate:Listener type="{ShortcutEvent.SHARE_DESKTOP}" method="remoteClick" />
+    <mate:Listener type="{ShareWindowEvent.CLOSE}" method="closeFocus" />
+  </fx:Declarations>
+
+  <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       import org.bigbluebutton.main.events.ShortcutEvent;
@@ -42,16 +45,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      
+
       public const OFF_STATE:Number = 0;
       public const ON_STATE:Number = 1;
-      
+
       public const STOP_SHARING:Number = 0;
       public const START_SHARING:Number = 1;
-      
-      private var _currentState:Number = OFF_STATE;	
+
+      private var _currentState:Number = OFF_STATE;
       private var dispatcher:Dispatcher = new Dispatcher();
-      
+
       public function deskshareStatus(status:Number):void {
         if(status == START_SHARING) {
           _currentState = ON_STATE;
@@ -67,14 +70,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start');
           styleName="deskshareDefaultButtonStyle"
         }
-        
+
       }
-      
+
       public function remoteClick(e:ShortcutEvent):void{
         requestToStarSharing();
         dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_DESKTOP));
       }
-      
+
       private function requestToStarSharing():void {
         if(_currentState == OFF_STATE) {
           this.selected = true;
@@ -97,35 +100,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function stopDeskshare():void {
         styleName="deskshareDefaultButtonStyle"
       }
-      
+
       private function mouseOverHandler(event:MouseEvent):void {
         if(_currentState == ON_STATE)
           styleName="deskshareOffButtonStyle"
         else
-          styleName="deskshareOnButtonStyle"
+          styleName="deskshareOverButtonStyle"
       }
-      
+
       private function mouseOutHandler(event:MouseEvent):void {
         if(_currentState == ON_STATE)
           styleName="deskshareOnButtonStyle"
-        else	
+        else
           styleName="deskshareDefaultButtonStyle"
       }
-      
-      
-      
+
+
+
       public function getAlignment():String{
         return MainToolbar.ALIGN_LEFT;
       }
-      
+
       public function theory():String{
         return "Screenshare button";
       }
-      
+
       // Moves focus back to the toolbar button when the desktop sharing window closes, for accessibility
       public function closeFocus(e:ShareWindowEvent):void{
         this.setFocus();
       }
     ]]>
-  </mx:Script>
+  </fx:Script>
 </mx:Button>

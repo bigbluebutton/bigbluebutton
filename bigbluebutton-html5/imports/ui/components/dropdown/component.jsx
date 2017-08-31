@@ -52,6 +52,7 @@ const propTypes = {
 
 const defaultProps = {
   isOpen: false,
+  autoFocus: false,
 };
 
 class Dropdown extends Component {
@@ -98,19 +99,21 @@ class Dropdown extends Component {
     this.setState({ isOpen: false }, this.handleStateCallback);
 
     if (autoFocus) {
-      const triggerElement = findDOMNode(this.refs.trigger);
+      const triggerElement = findDOMNode(this.trigger);
       triggerElement.focus();
     }
   }
 
   handleWindowClick(event) {
-    const dropdownElement = findDOMNode(this);
-    const shouldUpdateState = event.target !== dropdownElement &&
+    if (this.state.isOpen) {
+      const dropdownElement = findDOMNode(this);
+      const shouldUpdateState = event.target !== dropdownElement &&
                               !dropdownElement.contains(event.target) &&
                               this.state.isOpen;
 
-    if (shouldUpdateState) {
-      this.handleHide();
+      if (shouldUpdateState) {
+        this.handleHide();
+      }
     }
   }
 
@@ -124,24 +127,23 @@ class Dropdown extends Component {
     const {
       children,
       className,
-      style, intl,
-      hasPopup,
-      ariaLive,
-      ariaRelevant,
+      style,
+      intl,
+      ...otherProps,
     } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
 
     trigger = React.cloneElement(trigger, {
-      ref: 'trigger',
+      ref: (ref) => { this.trigger = ref; },
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
     });
 
     content = React.cloneElement(content, {
-      ref: 'content',
+      ref: (ref) => { this.content = ref; },
       'aria-expanded': this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
@@ -152,10 +154,10 @@ class Dropdown extends Component {
       <div
         style={style}
         className={cx(styles.dropdown, className)}
-        aria-live={ariaLive}
-        aria-relevant={ariaRelevant}
-        aria-haspopup={hasPopup}
-      >
+        aria-live={otherProps['aria-live']}
+        aria-relevant={otherProps['aria-relevant']}
+        aria-haspopup={otherProps['aria-haspopup']}
+        aria-label={otherProps['aria-label']}>
         {trigger}
         {content}
         { this.state.isOpen ?

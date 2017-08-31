@@ -48,7 +48,7 @@ export default class MessageListItem extends Component {
 
   handleMessageInViewport() {
     window.requestAnimationFrame(() => {
-      const node = this.refs.item;
+      const node = this.item;
       this.setState({ preventRender: !isElementInViewport(node) });
     });
   }
@@ -88,6 +88,31 @@ export default class MessageListItem extends Component {
     return !nextState.preventRender && nextState.pendingChanges;
   }
 
+  renderSystemMessage() {
+    const {
+      messages,
+    } = this.props;
+
+    return (
+      <div className={cx(styles.item, styles.systemMessage)}>
+        <div className={styles.content} ref={(ref) => { this.item = ref; }}>
+          <div className={styles.messages}>
+            {messages.map((message, i) => (
+              <Message
+                className={styles.message}
+                key={i}
+                text={message.text}
+                time={message.time}
+                chatAreaId={this.props.chatAreaId}
+                handleReadMessage={this.props.handleReadMessage}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const {
       user,
@@ -103,13 +128,19 @@ export default class MessageListItem extends Component {
 
     return (
       <div className={styles.item}>
-        <div className={styles.wrapper} ref="item">
-          <div className={styles.avatar}>
-            <UserAvatar user={user} />
+        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+          <div className={styles.avatarWrapper}>
+            <UserAvatar
+              className={styles.avatar}
+              color={user.color}
+              moderator={user.isModerator}
+            >
+              {user.name.toLowerCase().slice(0, 2)}
+            </UserAvatar>
           </div>
           <div className={styles.content}>
             <div className={styles.meta}>
-              <div className={!user.isOnline ? styles.name : styles.logout}>
+              <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
                 {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
               </div>
@@ -118,7 +149,7 @@ export default class MessageListItem extends Component {
               </time>
             </div>
             <div className={styles.messages}>
-              {messages.map((message, i) => (
+              {messages.map(message => (
                 <Message
                   className={styles.message}
                   key={message.id}
@@ -130,31 +161,6 @@ export default class MessageListItem extends Component {
                 />
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  renderSystemMessage() {
-    const {
-      messages,
-    } = this.props;
-
-    return (
-      <div className={cx(styles.item, styles.systemMessage)}>
-        <div className={styles.content} ref="item">
-          <div className={styles.messages}>
-            {messages.map((message, i) => (
-              <Message
-                className={styles.message}
-                key={i}
-                text={message.text}
-                time={message.time}
-                chatAreaId={this.props.chatAreaId}
-                handleReadMessage={this.props.handleReadMessage}
-              />
-            ))}
           </div>
         </div>
       </div>

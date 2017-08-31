@@ -19,90 +19,122 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/util 
-        http://www.springframework.org/schema/util/spring-util-2.0.xsd">  
+        http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <bean id="messagingService" class="org.bigbluebutton.api.messaging.RedisMessagingService">
-        <property name="messageSender" ref="messageSender"/>
-        <property name="redisStorageService" ref="redisStorageService"/>
+
+    <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
+
+    <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService"
+          init-method="start" destroy-method="stop">
+        <property name="runEvery" value="${checkBBBServerEvery}"/>
+        <property name="gw" ref="bbbWebApiGWApp"/>
     </bean>
 
-    <bean id="expiredMeetingCleanupTimerTask" class="org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask"/>
-
-  <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
-
-  <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService" 
-       init-method="start" destroy-method="stop">
-    <property name="runEvery" value="${checkBBBServerEvery}"/>
-    <property name="messagingService" ref="messagingService" />
-  </bean>
-
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
-        <property name="defaultMeetingExpireDuration" value="${defaultMeetingExpireDuration}"/>
-        <property name="defaultMeetingCreateJoinDuration" value="${defaultMeetingCreateJoinDuration}"/>
-        <property name="removeMeetingWhenEnded" value="${removeMeetingWhenEnded}"/>
-        <property name="expiredMeetingCleanupTimerTask" ref="expiredMeetingCleanupTimerTask"/>
-        <property name="messagingService" ref="messagingService"/>
+        <property name="redisStorageService" ref="redisStorageService"/>
         <property name="recordingService" ref="recordingService"/>
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
-  </bean>
+        <property name="gw" ref="bbbWebApiGWApp"/>
+    </bean>
 
-  <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
-  
-  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService" destroy-method="stop">
-    <property name="presentationDir" value="${presentationDir}"/>
-    <property name="presentationBaseURL" value="${presentationBaseURL}"/>
-   	<property name="pageExtractor" ref="pageExtractor"/>  
-    <property name="documentConversionService" ref="documentConversionService"/>
-  	<property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
-  </bean>
-  
-  <bean id="recordingService" class="org.bigbluebutton.api.RecordingService" >
-    <property name="recordingStatusDir" value="${recordStatusDir}"/>  
-    <property name="publishedDir" value="${publishedDir}"/>
-    <property name="unpublishedDir" value="${unpublishedDir}"/>  
-    <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
-  </bean>
-  
-  <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
-  
-  <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
-    <property name="configDir" value="${configDir}"/>  
-    <property name="clientConfigServiceHelper" ref="configServiceHelper"/>
-  </bean>
-     
-  <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil">
-    <property name="apiVersion" value="${apiVersion}"/>
-    <property name="serviceEnabled" value="${serviceEnabled}"/>
-    <property name="securitySalt" value="${securitySalt}"/>
-    <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
-    <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
-    <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
-    <property name="defaultDialAccessNumber" value="${defaultDialAccessNumber}"/>
-    <property name="testVoiceBridge" value="${testVoiceBridge}"/>
-    <property name="testConferenceMock" value="${testConferenceMock}"/>
-    <property name="defaultLogoutUrl" value="${bigbluebutton.web.logoutURL}"/>
-    <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
-    <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
-    <property name="defaultClientUrl" value="${defaultClientUrl}"/>
-    <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
-    <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
-    <property name="autoStartRecording" value="${autoStartRecording}"/>
-    <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-    <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
-    <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
-    <property name="defaultConfigURL" value="${defaultConfigURL}"/>
-  </bean>
-        
-	<import resource="doc-conversion.xml" />
-	<import resource="bbb-redis-pool.xml" />
-	<import resource="bbb-redis-messaging.xml" />
-	<import resource="turn-stun-servers.xml" />
+    <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
+        <constructor-arg index="0" ref="redisMessageHandler"/>
+    </bean>
+
+    <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
+        <constructor-arg index="0" ref="oldMessageReceivedGW"/>
+        <constructor-arg index="1" value="${screenshareRtmpServer}"/>
+        <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
+        <constructor-arg index="3" value="${screenshareConfSuffix}"/>
+    </bean>
+
+    <bean id="redisStorageService" class="org.bigbluebutton.api.messaging.RedisStorageService"
+          init-method="start" destroy-method="stop">
+        <property name="host" value="${redisHost}"/>
+        <property name="port" value="${redisPort}"/>
+    </bean>
+
+
+    <bean id="redisMessageHandler" class="org.bigbluebutton.api.messaging.ReceivedMessageHandler"
+          init-method="start" destroy-method="stop">
+    </bean>
+
+
+    <bean id="redisMessageDistributor" class="org.bigbluebutton.api.messaging.MessageDistributor">
+        <property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
+        <property name="messageListeners">
+            <set>
+                <ref bean="meetingService" />
+                <ref bean="keepAliveService" />
+            </set>
+        </property>
+    </bean>
+
+    <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
+
+    <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"
+          destroy-method="stop">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="presentationBaseURL" value="${presentationBaseURL}"/>
+        <property name="pageExtractor" ref="pageExtractor"/>
+        <property name="documentConversionService" ref="documentConversionService"/>
+        <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
+    </bean>
+
+    <bean id="recordingService" class="org.bigbluebutton.api.RecordingService">
+        <property name="recordingStatusDir" value="${recordStatusDir}"/>
+        <property name="publishedDir" value="${publishedDir}"/>
+        <property name="unpublishedDir" value="${unpublishedDir}"/>
+        <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
+    </bean>
+
+    <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
+
+    <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
+        <property name="configDir" value="${configDir}"/>
+        <property name="clientConfigServiceHelper" ref="configServiceHelper"/>
+    </bean>
+
+    <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil">
+        <property name="apiVersion" value="${apiVersion}"/>
+        <property name="serviceEnabled" value="${serviceEnabled}"/>
+        <property name="securitySalt" value="${securitySalt}"/>
+        <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
+        <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
+        <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
+        <property name="defaultDialAccessNumber" value="${defaultDialAccessNumber}"/>
+        <property name="testVoiceBridge" value="${testVoiceBridge}"/>
+        <property name="testConferenceMock" value="${testConferenceMock}"/>
+        <property name="defaultLogoutUrl" value="${bigbluebutton.web.logoutURL}"/>
+        <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
+        <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
+        <property name="defaultClientUrl" value="${defaultClientUrl}"/>
+        <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
+        <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
+        <property name="autoStartRecording" value="${autoStartRecording}"/>
+        <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+        <property name="defaultConfigURL" value="${defaultConfigURL}"/>
+        <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
+        <property name="maxInactivityTimeoutMinutes" value="${maxInactivityTimeoutMinutes}"/>
+        <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
+        <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
+        <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
+    </bean>
+
+    <import resource="doc-conversion.xml"/>
+    <import resource="bbb-redis-pool.xml"/>
+    <!--
+    <import resource="bbb-redis-messaging.xml"/>
+    -->
+    <import resource="turn-stun-servers.xml"/>
 </beans>
