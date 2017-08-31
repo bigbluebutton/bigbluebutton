@@ -1561,7 +1561,7 @@ class ApiController {
               returncode(RESP_CODE_SUCCESS)
               recordings(null)
               messageKey("noRecordings")
-              message("There are not recordings for the meetings")
+              message("There are no recordings for the meeting(s).")
             }
           }
         }
