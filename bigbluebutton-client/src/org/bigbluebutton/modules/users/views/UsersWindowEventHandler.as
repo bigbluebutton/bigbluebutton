@@ -13,6 +13,7 @@ package org.bigbluebutton.modules.users.views
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+  import org.bigbluebutton.main.views.BBBDataGrid;
   import org.bigbluebutton.modules.users.views.model.BBBUser2x;
   import org.bigbluebutton.modules.users.views.model.BBBVoiceUser2x;
   
@@ -22,6 +23,7 @@ package org.bigbluebutton.modules.users.views
     [Bindable] public var users:ArrayCollection = new ArrayCollection();
     [Bindable] public var voiceUsers:ArrayCollection = new ArrayCollection();
     [Bindable] public var breakoutRoomsList:ArrayCollection = new ArrayCollection();
+	private var dataGrid : BBBDataGrid;
     
     private var sort:Sort;
     
@@ -37,7 +39,7 @@ package org.bigbluebutton.modules.users.views
       if (webUser != null) {
         webUser.emojiStatus = emoji;
         webUser.emojiStatusTime = new Date();
-        users.refresh();
+        dataGrid.refresh();
       }
     }
 
@@ -46,7 +48,7 @@ package org.bigbluebutton.modules.users.views
 
       if (webUser != null) {
         webUser.presenter = amIPresenter;
-        users.refresh();
+        dataGrid.refresh();
       }
     }
     
@@ -67,13 +69,14 @@ package org.bigbluebutton.modules.users.views
         var user:BBBUser2x = users.getItemAt(i) as BBBUser2x;
         if (user.userId == userId) {
           users.removeItemAt(i);
-          users.refresh();
+          dataGrid.refresh();
           return;
         }
       }
     }
     
-    public function populateAllUsers():void {
+    public function populateAllUsers(dataGrid:BBBDataGrid):void {
+	  this.dataGrid = dataGrid;
       getAllWebUsers();
       getAllVoiceUsers();
     }
@@ -87,7 +90,7 @@ package org.bigbluebutton.modules.users.views
         addUser(users, user);
       }
       
-      users.refresh();
+      dataGrid.refresh();
     }
     
     private function getWebcamStreamsForUser(userId: String): Array {
@@ -135,7 +138,7 @@ package org.bigbluebutton.modules.users.views
       var user: User2x = UsersUtil.getUser(event.userID);
       if (user != null) {
         addUser(users, user);
-        users.refresh();
+        dataGrid.refresh();
       }
     }
     
@@ -167,7 +170,7 @@ package org.bigbluebutton.modules.users.views
           addVoiceOnlyUser(users, vu);
         }
       }
-      users.refresh();
+      dataGrid.refresh();
     }
     
     public function handleUserLeftVoiceConfEvent(userId: String):void {
@@ -179,7 +182,7 @@ package org.bigbluebutton.modules.users.views
         trace("****** VOICE ONLY USER LEFT VOICE CONF " + userId);
         removeUser(userId, users);
       }
-      users.refresh();
+      dataGrid.refresh();
     }
     
     private function removeVoiceFromWebUser(users: ArrayCollection, user: BBBUser2x):void {      
@@ -239,7 +242,7 @@ package org.bigbluebutton.modules.users.views
         addVoiceOnlyUser(users, user);
       }
       
-      users.refresh();
+      dataGrid.refresh();
 
     }
     
@@ -249,7 +252,7 @@ package org.bigbluebutton.modules.users.views
         user.talking = talking;
         if (user.muted && talking) user.talking = false;
       }
-      users.refresh();
+      dataGrid.refresh();
     }
     
     public function handleUserMutedEvent(userId: String, muted: Boolean): void {
@@ -258,7 +261,7 @@ package org.bigbluebutton.modules.users.views
         user.muted = muted;
         if (muted) user.talking = false;
       }
-      users.refresh();
+      dataGrid.refresh();
     }
     
     
@@ -268,7 +271,7 @@ package org.bigbluebutton.modules.users.views
             user.streams = getWebcamStreamsForUser(user.userId);
             user.viewedStream = getWebcamStreamsViewingForUser(user.userId);
         }
-        users.refresh();
+        dataGrid.refresh();
     }
     
     public function handleStoppedViewingWebcamEvent(event: StoppedViewingWebcamEvent): void {
@@ -292,7 +295,7 @@ package org.bigbluebutton.modules.users.views
       if (user != null) {
         user.presenter = true;
       }
-      users.refresh();
+      dataGrid.refresh();
     }
     
     public function handleMadeVieweEvent(userId: String): void {
@@ -300,7 +303,7 @@ package org.bigbluebutton.modules.users.views
       if (user != null) {
         user.presenter = false;
       }
-      users.refresh();
+      dataGrid.refresh();
     }
     
     private function findUser(userId: String): BBBUser2x {
