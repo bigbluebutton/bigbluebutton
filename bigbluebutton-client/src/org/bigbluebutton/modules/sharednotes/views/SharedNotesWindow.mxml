@@ -26,7 +26,7 @@
 		creationComplete="onCreationComplete()"
 		xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
 		showCloseButton="false"
-		minHeight="161" minWidth="191">
+		horizontalScrollPolicy="off">
 
 	<fx:Declarations>
 		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
@@ -549,8 +549,6 @@
 				borderThicknessRight="0"
 				borderThicknessTop="0"
 				borderThicknessBottom="0"
-				minWidth="120"
-				minHeight="100"
 				initialize="initSharedNotesRichTextEditor()"/>
 
 		<mx:HBox width="100%" paddingTop="0">
