@@ -173,8 +173,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var copyrightText:String;
 
-			private var _hideToolbarsTimer:Timer;
-
 			public function get mode():String {
 				return _mode;
 			}
@@ -203,10 +201,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var widthWatch:ChangeWatcher;
 			private var heightWatch:ChangeWatcher;
 			private var resizeExecuting:Boolean = false;
-			
-			private const THRESHOLD_AREA_SHOW_TOOLBARS:int = 5;
-			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
-			private const HIDE_TOOLBARS_DELAY:int = 1000;
 
       private var _respTimer:ResponsivenessTimer;
       
@@ -257,9 +251,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
-				
-				_hideToolbarsTimer = new Timer(HIDE_TOOLBARS_DELAY, 1);
-				_hideToolbarsTimer.addEventListener(TimerEvent.TIMER, onHideToolbarsTimerComplete);
 
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
 			}
@@ -306,80 +297,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					guestManagement.setGuestPolicy(guestPolicy);
 					guestManagement.addToSettings();
 				}
-			}
-
-			private function set showToolbar(visible:Boolean):void {
-				if (!showToolbarOpt) return;
-
-				if (visible) {
-					if (enlargeToolbar.isPlaying) return;
-					if (shrinkToolbar.isPlaying) shrinkToolbar.end();
-
-					enlargeToolbar.heightFrom = toolbar.height;
-					if (enlargeToolbar.heightFrom != enlargeToolbar.heightTo) {
-						_showToolbar = true;
-						enlargeToolbar.play([toolbar]);
-					}
-				} else {
-					if (shrinkToolbar.isPlaying) return;
-					if (enlargeToolbar.isPlaying) enlargeToolbar.end();
-
-					shrinkToolbar.heightFrom = toolbar.height;
-					if (shrinkToolbar.heightFrom != shrinkToolbar.heightTo) {
-						_showToolbar = true;
-						shrinkToolbar.play([toolbar]);
-					}
-				}
-			}
-
-
-			private function onToolbarEffectEnd():void {
-				_showToolbar = showToolbarOpt && (toolbar.height > 0);
-				calculateCanvasHeight();
-			}
-
-			private function set showFooter(visible:Boolean):void {
-				if (!showFooterOpt) return;
-
-				if (visible) {
-					if (enlargeControlBar.isPlaying) return;
-					if (shrinkControlBar.isPlaying) shrinkControlBar.end();
-
-					enlargeControlBar.heightFrom = controlBar.height;
-					if (enlargeControlBar.heightFrom != enlargeControlBar.heightTo) {
-						_showFooter = true;
-						enlargeControlBar.play([controlBar]);
-					}
-				} else {
-					if (shrinkControlBar.isPlaying) return;
-					if (enlargeControlBar.isPlaying) enlargeControlBar.end();
-
-					shrinkControlBar.heightFrom = controlBar.height;
-					if (shrinkControlBar.heightFrom != shrinkControlBar.heightTo) {
-						_showFooter = true;
-						shrinkControlBar.play([controlBar]);
-					}
-				}
-			}
-
-			private function onControlBarEffectEnd():void {
-				_showFooter = showFooterOpt && (controlBar.height > 0);
-				calculateCanvasHeight();
-			}
-
-			private function onHideToolbarsTimerComplete(event:TimerEvent):void {
-				showToolbar = showFooter = false;
-			}
-
-			private function hideToolbars():void {
-				// Temporarily disabling toolbar hiding on fullscreen to address animation delays
-				// _hideToolbarsTimer.reset();
-				// _hideToolbarsTimer.start();
-			}
-
-			private function showToolbars():void {
-				_hideToolbarsTimer.reset();
-				showToolbar = showFooter = true;
 			}
 
 			private function updateCopyrightLabelDimensions(e:Event = null):void {
@@ -967,13 +884,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 
-	<fx:Declarations>
-		<mx:Resize id="shrinkControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{footerHeight}" heightTo="0" effectEnd="onControlBarEffectEnd()" />
-		<mx:Resize id="enlargeControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{footerHeight}" effectEnd="onControlBarEffectEnd()" />
-		<mx:Resize id="shrinkToolbar" target="{toolbar}" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{toolbarHeight}" heightTo="0" effectEnd="onToolbarEffectEnd()" />
-		<mx:Resize id="enlargeToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{toolbarHeight}" effectEnd="onToolbarEffectEnd()" />
-	</fx:Declarations>
-	
 	<fx:Declarations>
 		<common:TabIndexer id="tabIndexer" startIndex="100000"
 						   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
