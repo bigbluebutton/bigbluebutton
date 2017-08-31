@@ -1,5 +1,6 @@
 import Users from '/imports/api/2.0/users';
 import Chat from '/imports/api/2.0/chat';
+import Meetings from '/imports/api/2.0/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -210,8 +211,23 @@ const getCurrentUser = () => {
   return (currentUser) ? mapUser(currentUser) : null;
 };
 
+const isMeetingLocked = () => {
+  const meeting = Meetings.findOne({});
+  const lockSettings = meeting.lockSettingsProp;
+
+  if ( lockSettings.disableCam 
+     || lockSettings.disableMic
+     || lockSettings.disablePrivChat
+     || lockSettings.disablePubChat ) {
+    return true;
+  }
+  
+  return false;
+}
+
 export default {
   getUsers,
   getOpenChats,
   getCurrentUser,
+  isMeetingLocked
 };

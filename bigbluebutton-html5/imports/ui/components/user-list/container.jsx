@@ -16,6 +16,7 @@ const UserListContainer = (props) => {
     isBreakoutRoom,
     children,
     meeting,
+    isMeetingLocked,
     } = props;
 
   return (
@@ -28,6 +29,7 @@ const UserListContainer = (props) => {
       isBreakoutRoom={isBreakoutRoom}
       makeCall={makeCall}
       userActions={userActions}
+      isMeetingLocked={isMeetingLocked}
     >
       {children}
     </UserList>
@@ -42,4 +44,5 @@ export default createContainer(({ params }) => ({
   openChat: params.chatID,
   userActions: Service.userActions,
   isBreakoutRoom: meetingIsBreakout(),
+  isMeetingLocked: Service.isMeetingLocked(),
 }), UserListContainer);

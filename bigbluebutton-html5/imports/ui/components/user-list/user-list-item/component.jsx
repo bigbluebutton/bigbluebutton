@@ -240,6 +240,7 @@ class UserListItem extends Component {
       intl,
       compact,
       meeting,
+      isMeetingLocked,
     } = this.props;
 
     if (compact) {
@@ -247,13 +248,8 @@ class UserListItem extends Component {
     }
 
     const userNameSub = [];
-    const lockSettings = meeting.body;
 
-    if ((lockSettings.disableCam 
-        || lockSettings.disableMic
-        || lockSettings.disablePrivChat
-        || lockSettings.disablePubChat) && !user.isPresenter && !user.isModerator) {
-
+    if ( isMeetingLocked && !user.isPresenter && !user.isModerator) {
       userNameSub.push(<span>
         <Icon iconName="lock" />
         {intl.formatMessage(messages.locked)}

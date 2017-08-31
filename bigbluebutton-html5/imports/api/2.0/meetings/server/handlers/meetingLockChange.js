@@ -1,8 +1,9 @@
 import { check } from 'meteor/check';
-import ChangeLockSettings from '../modifiers/changeLockSettings';
+import changeLockSettings from '../modifiers/changeLockSettings';
 
 export default function handleLockSettingsInMeeting({ body }, meetingId) {
   check(meetingId, String);
+  check(body, Object);
 
-  return ChangeLockSettings(meetingId, body);
+  return changeLockSettings(meetingId, body);
 }
