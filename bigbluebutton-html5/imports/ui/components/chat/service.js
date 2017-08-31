@@ -108,7 +108,11 @@ const isChatLocked = (receiverID) => {
   const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
   const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
 
-  return ((isPublic && isPubChatLocked) || (!isPublic && isPrivChatLocked)) ? true : false;
+  const user = Users.findOne({});
+  const isViewer = user.role === "VIEWER";
+
+  return ((isPublic && isPubChatLocked && isViewer) || (!isPublic && isPrivChatLocked && isViewer)) 
+    ? true : false;
 };
 
 const hasUnreadMessages = (receiverID) => {
