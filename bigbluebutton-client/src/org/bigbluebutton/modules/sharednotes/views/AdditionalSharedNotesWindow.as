@@ -47,7 +47,6 @@ package org.bigbluebutton.modules.sharednotes.views
 
 			LOGGER.debug("AdditionalSharedNotesWindow: [2] in-constructor additional notes " + noteId);
 
-			btnNew.visible = btnNew.includeInLayout = false;
 			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
 		}
 
