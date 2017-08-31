@@ -54,6 +54,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 		<mate:Listener type="{ExitApplicationEvent.EXIT_APPLICATION}" method="handleExitApplicationEvent" />
 		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
+		<mate:Listener type="{FullscreenToggledEvent.IS_FULLSCREEN_TOGGLED}" method="handleFullscreenToggleState"  />
 		<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
 		<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
 		<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
@@ -89,7 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.Event;
-			import flash.events.FullScreenEvent;
 			import flash.events.IOErrorEvent;
 			import flash.events.TextEvent;
 			import flash.geom.Point;
@@ -122,6 +122,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+			import org.bigbluebutton.core.events.FullscreenToggledEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -174,8 +175,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var copyrightText:String;
 
-			private var _hideToolbarsTimer:Timer;
-
 			public function get mode():String {
 				return _mode;
 			}
@@ -204,10 +203,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var widthWatch:ChangeWatcher;
 			private var heightWatch:ChangeWatcher;
 			private var resizeExecuting:Boolean = false;
-			
-			private const THRESHOLD_AREA_SHOW_TOOLBARS:int = 5;
-			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
-			private const HIDE_TOOLBARS_DELAY:int = 1000;
 
       private var _respTimer:ResponsivenessTimer;
       
@@ -258,15 +253,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
-				
-				_hideToolbarsTimer = new Timer(HIDE_TOOLBARS_DELAY, 1);
-				_hideToolbarsTimer.addEventListener(TimerEvent.TIMER, onHideToolbarsTimerComplete);
-
-				if (stage == null) {
-					addEventListener(Event.ADDED_TO_STAGE, initFullScreen);
-				} else {
-					initFullScreen();
-				}
 
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
 			}
@@ -315,97 +301,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			private function isFullScreen():Boolean {
-				return stage.displayState == StageDisplayState.FULL_SCREEN ||
-						stage.displayState == StageDisplayState.FULL_SCREEN_INTERACTIVE;
-			}
-
-			private function mouseMoveHandler(e:MouseEvent):void {
-				if (isFullScreen()) {
-					if (e.stageY <= THRESHOLD_AREA_SHOW_TOOLBARS || e.stageY > this.height - THRESHOLD_AREA_SHOW_TOOLBARS) {
-						showToolbars();
-					} else if (e.stageY >= toolbar.height && e.stageY <= this.height - controlBar.height) {
-						hideToolbars();
-					}
-				} else {
-					showToolbars();
-				}
-			}
-
-			private function set showToolbar(visible:Boolean):void {
-				if (!showToolbarOpt) return;
-
-				if (visible) {
-					if (enlargeToolbar.isPlaying) return;
-					if (shrinkToolbar.isPlaying) shrinkToolbar.end();
-
-					enlargeToolbar.heightFrom = toolbar.height;
-					if (enlargeToolbar.heightFrom != enlargeToolbar.heightTo) {
-						_showToolbar = true;
-						enlargeToolbar.play([toolbar]);
-					}
-				} else {
-					if (shrinkToolbar.isPlaying) return;
-					if (enlargeToolbar.isPlaying) enlargeToolbar.end();
-
-					shrinkToolbar.heightFrom = toolbar.height;
-					if (shrinkToolbar.heightFrom != shrinkToolbar.heightTo) {
-						_showToolbar = true;
-						shrinkToolbar.play([toolbar]);
-					}
-				}
-			}
-
-
-			private function onToolbarEffectEnd():void {
-				_showToolbar = showToolbarOpt && (toolbar.height > 0);
-				calculateCanvasHeight();
-			}
-
-			private function set showFooter(visible:Boolean):void {
-				if (!showFooterOpt) return;
-
-				if (visible) {
-					if (enlargeControlBar.isPlaying) return;
-					if (shrinkControlBar.isPlaying) shrinkControlBar.end();
-
-					enlargeControlBar.heightFrom = controlBar.height;
-					if (enlargeControlBar.heightFrom != enlargeControlBar.heightTo) {
-						_showFooter = true;
-						enlargeControlBar.play([controlBar]);
-					}
-				} else {
-					if (shrinkControlBar.isPlaying) return;
-					if (enlargeControlBar.isPlaying) enlargeControlBar.end();
-
-					shrinkControlBar.heightFrom = controlBar.height;
-					if (shrinkControlBar.heightFrom != shrinkControlBar.heightTo) {
-						_showFooter = true;
-						shrinkControlBar.play([controlBar]);
-					}
-				}
-			}
-
-			private function onControlBarEffectEnd():void {
-				_showFooter = showFooterOpt && (controlBar.height > 0);
-				calculateCanvasHeight();
-			}
-
-			private function onHideToolbarsTimerComplete(event:TimerEvent):void {
-				showToolbar = showFooter = false;
-			}
-
-			private function hideToolbars():void {
-				// Temporarily disabling toolbar hiding on fullscreen to address animation delays
-				// _hideToolbarsTimer.reset();
-				// _hideToolbarsTimer.start();
-			}
-
-			private function showToolbars():void {
-				_hideToolbarsTimer.reset();
-				showToolbar = showFooter = true;
-			}
-
 			private function updateCopyrightLabelDimensions(e:Event = null):void {
 				var appWidth:Number = parentApplication.width;
 				
@@ -415,12 +310,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
 				}
 			}
-		
-			protected function initFullScreen(e:Event = null):void {
-				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
-			}
-			
+
 			private var sendStartModulesEvent:Boolean = true;
 			
 			// We have to calculate the canvas height manually because if you set it to a 
@@ -484,19 +374,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					waitWindow = null;
 				}
 			}
-
-			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
-				if (evt.fullScreen) {
-					LOGGER.debug("Switching to full screen");
-					fullScreenBtn.styleName = "exitFullScreenButton"
-					hideToolbars();
-				} else {
-					LOGGER.debug("Switching to normal screen");
-					fullScreenBtn.styleName = "fullScreenButton"
-					showToolbars();
-				}
-			}			
 
 			private function closeGuestWindow(e:Event = null):void {
 				if(guestWindow != null) {
@@ -567,28 +444,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				scWindow.focusHead();
 			}
-			
-			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen, current mode: " + stage.displayState);
-	   			try {
-					switch (stage.displayState) {
-						case StageDisplayState.FULL_SCREEN:
-						case StageDisplayState.FULL_SCREEN_INTERACTIVE:
-							LOGGER.debug("Full screen mode, switching to normal screen mode");
-							// If already in full screen mode, switch to normal mode.
-							stage.displayState = StageDisplayState.NORMAL;
-							break;
-						default:
-							LOGGER.debug("Normal screen mode, switching to full screen mode");
-							// If not in full screen mode, switch to full screen mode.
-							stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
-							break;
+
+			private function handleFullscreenToggleState(event: FullscreenToggledEvent): void {
+				if (event.isNowFullscreen) {
+						fullScreenBtn.styleName = "exitFullScreenButton";
+					} else {
+						fullScreenBtn.styleName = "fullScreenButton";
 					}
-				} catch (err:SecurityError) {
-					// ignore
+			}
+
+			private function toggleFullScreen():void{
+				LOGGER.debug("Toggling fullscreen");
+				if (ExternalInterface.available) {
+					ExternalInterface.call("toggleFullscreen");
 				}
-	   		}	
-	   		
+	   		}
+
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
 				// this is a terrible place for these checks because this function runs 4 times on startup
 				if (BBB.initConnectionManager().isTunnelling) {
@@ -1023,13 +894,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 
-	<fx:Declarations>
-		<mx:Resize id="shrinkControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{footerHeight}" heightTo="0" effectEnd="onControlBarEffectEnd()" />
-		<mx:Resize id="enlargeControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{footerHeight}" effectEnd="onControlBarEffectEnd()" />
-		<mx:Resize id="shrinkToolbar" target="{toolbar}" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{toolbarHeight}" heightTo="0" effectEnd="onToolbarEffectEnd()" />
-		<mx:Resize id="enlargeToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{toolbarHeight}" effectEnd="onToolbarEffectEnd()" />
-	</fx:Declarations>
-	
 	<fx:Declarations>
 		<common:TabIndexer id="tabIndexer" startIndex="100000"
 						   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
