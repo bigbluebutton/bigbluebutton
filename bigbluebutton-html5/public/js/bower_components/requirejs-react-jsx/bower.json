@@ -1,0 +1,30 @@
+{
+  "name": "requirejs-react-jsx",
+  "homepage": "https://github.com/podio/requirejs-react-jsx",
+  "authors": [
+    "Søren Brokær <rasmussen@podio.com>"
+  ],
+  "description": "A RequireJS plugin for compiling React JSX files. Will use react-tools when compiling using r.js, and will use JSXTransformer when running in the browser in development.",
+  "main": "jsx.js",
+  "keywords": [
+    "react",
+    "jsx",
+    "requirejs",
+    "r.js",
+    "require.js",
+    "react-jsx",
+    "requirejs-react-jsx"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": ">=0.11.2",
+    "requirejs-text": ">=2.0.12"
+  }
+}

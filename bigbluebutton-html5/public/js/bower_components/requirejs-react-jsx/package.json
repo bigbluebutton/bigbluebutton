@@ -1,0 +1,25 @@
+{
+  "name": "requirejs-react-jsx",
+  "version": "1.0.2",
+  "description": "A RequireJS plugin for loading jsx in require.js and r.js",
+  "main": "jsx.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/podio/requirejs-react-jsx.git"
+  },
+  "keywords": [
+    "requirejs",
+    "rjs",
+    "react",
+    "jsx"
+  ],
+  "author": "Søren Brokær <root@srn.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/podio/requirejs-react-jsx/issues"
+  },
+  "homepage": "https://github.com/podio/requirejs-react-jsx"
+}

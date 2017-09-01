@@ -13,6 +13,7 @@ import '/imports/api/2.0/breakouts/server';
 import '/imports/api/2.0/chat/server';
 import '/imports/api/2.0/screenshare/server';
 import '/imports/api/2.0/voice-users/server';
+import '/imports/api/2.0/video/server';
 
 // Commons
 import '/imports/api/log-client/server';

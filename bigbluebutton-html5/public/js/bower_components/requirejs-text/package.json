@@ -1,0 +1,21 @@
+{
+    "name": "text",
+    "version": "2.0.15",
+    "description": "An AMD loader plugin for loading text resources.",
+    "categories": [
+        "Loader plugins"
+    ],
+    "main": "text.js",
+    "github": "https://github.com/requirejs/text",
+    "bugs": {
+        "web": "https://github.com/requirejs/text/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/requirejs/text.git"
+    },
+    "license": "MIT",
+    "volo": {
+        "url": "https://raw.github.com/requirejs/text/{version}/text.js"
+    }
+}

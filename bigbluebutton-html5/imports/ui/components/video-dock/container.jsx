@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import VideoDock from './component';
+import VideoService from './service';
+import Users from '/imports/api/2.0/users';
 
 class VideoDockContainer extends Component {
   constructor(props) {
@@ -11,14 +13,15 @@ class VideoDockContainer extends Component {
 
   render() {
     return (
-      <VideoDock>
+      <VideoDock {...this.props}>
         {this.props.children}
       </VideoDock>
     );
   }
 }
 
-export default createContainer(() => {
-  const data = {};
-  return data;
-}, VideoDockContainer);
+export default createContainer(() => ({
+  sendUserShareWebcam: VideoService.sendUserShareWebcam,
+  sendUserUnshareWebcam: VideoService.sendUserUnshareWebcam,
+  users: Users.find().fetch(),
+}), VideoDockContainer);
