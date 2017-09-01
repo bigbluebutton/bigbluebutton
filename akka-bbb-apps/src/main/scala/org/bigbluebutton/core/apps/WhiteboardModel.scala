@@ -110,7 +110,7 @@ class WhiteboardModel {
       var dimensions: List[Int] = List[Int]()
       annotation.annotationInfo.get("dimensions").foreach(d => {
         d match {
-          case d2: List[_] => dimensions = d2.asInstanceOf[List[Int]]
+          case d2: List[_] => dimensions = convertListNumbersToInt(d2)
         }
       })
 
@@ -230,11 +230,19 @@ class WhiteboardModel {
     ann.copy(annotationInfo = updatedAnnotationInfo)
   }
 
-  def convertListNumbersToFloat(list: List[_]): List[Float] = {
+  private def convertListNumbersToFloat(list: List[_]): List[Float] = {
     list.map {
       case f: Double => f.toFloat
       case f: Float  => f
       case f: Int    => f.toFloat
     }.asInstanceOf[List[Float]]
+  }
+
+  private def convertListNumbersToInt(list: List[_]): List[Int] = {
+    list.map {
+      case f: Double => f.toInt
+      case f: Float  => f.toInt
+      case f: Int    => f
+    }.asInstanceOf[List[Int]]
   }
 }

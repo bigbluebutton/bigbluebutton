@@ -55,12 +55,12 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
   },
-  exitFullScreenDesc: {
-    id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
+  exitFullscreenDesc: {
+    id: 'app.navBar.settingsDropdown.exitFullscreenDesc',
     description: 'Describes exit fullscreen option',
   },
-  exitFullScreenLabel: {
-    id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
+  exitFullscreenLabel: {
+    id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
 });
@@ -92,14 +92,14 @@ class SettingsDropdown extends Component {
   render() {
     const { intl, mountModal, isFullScreen } = this.props;
 
-    let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-    let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-    let fullScreenIcon = 'fullscreen';
+    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullscreenIcon = 'fullscreen';
 
     if (isFullScreen) {
-      fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
-      fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
-      fullScreenIcon = 'exit_fullscreen';
+      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
+      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
+      fullscreenIcon = 'exit_fullscreen';
     }
 
     return (
@@ -124,9 +124,9 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon={fullScreenIcon}
-              label={fullScreenLabel}
-              description={fullScreenDesc}
+              icon={fullscreenIcon}
+              label={fullscreenLabel}
+              description={fullscreenDesc}
               onClick={this.props.handleToggleFullscreen}
             />
             <DropdownListItem

@@ -89,7 +89,7 @@ public class Bezier {
         for (int i = 0, n = segments.size(); i < n; i++) {
             ArrayList<Point2D.Double> seg = segments.get(i);
             seg = removeClosePoints(seg, error * 2);
-            seg = reduceNoise(seg, 0.8);
+            seg = reduceNoise(seg, 0.5);
 
             segments.set(i, seg);
         }

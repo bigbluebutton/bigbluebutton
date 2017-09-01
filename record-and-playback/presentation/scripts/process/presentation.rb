@@ -181,7 +181,8 @@ if not FileTest.directory?(target_dir)
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
-              text["slide-#{page}"] = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", :encoding => 'UTF-8')
+              t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
+              text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
               FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
             end
           end
