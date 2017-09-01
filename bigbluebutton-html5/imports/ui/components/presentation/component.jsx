@@ -224,6 +224,7 @@ export default class PresentationArea extends React.Component {
                 <PresentationOverlayContainer
                   slideWidth={svgWidth}
                   slideHeight={svgHeight}
+                  getSvgRef={this.getSvgRef}
                 >
                   <WhiteboardOverlayContainer
                     getSvgRef={this.getSvgRef}

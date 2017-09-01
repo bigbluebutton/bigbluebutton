@@ -56,10 +56,17 @@ export default class ShapeDrawListener extends Component {
       window.addEventListener('mousemove', this.mouseMoveHandler, true);
       this.isDrawing = true;
 
-      const { getSvgPoint, generateNewShapeId } = this.props.actions;
+      const {
+        getTransformedSvgPoint,
+        generateNewShapeId,
+        svgCoordinateToPercentages,
+      } = this.props.actions;
 
       // sending the first message
-      const svgPoint = getSvgPoint(event);
+      let transformedSvgPoint = getTransformedSvgPoint(event);
+
+      // transforming svg coordinate to percentages relative to the slide width/height
+      transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
       // generating new shape id
       generateNewShapeId();
@@ -69,13 +76,13 @@ export default class ShapeDrawListener extends Component {
 
       // saving the coordinates for future references
       this.initialCoordinate = {
-        x: svgPoint.x,
-        y: svgPoint.y,
+        x: transformedSvgPoint.x,
+        y: transformedSvgPoint.y,
       };
 
       this.currentCoordinate = {
-        x: svgPoint.x,
-        y: svgPoint.y,
+        x: transformedSvgPoint.x,
+        y: transformedSvgPoint.y,
       };
 
       // All the messages will be send on timer by sendCoordinates func
@@ -233,9 +240,6 @@ ShapeDrawListener.propTypes = {
   actions: PropTypes.shape({
     // Defines a function which transforms a coordinate from the window to svg coordinate system
     getTransformedSvgPoint: PropTypes.func.isRequired,
-    // Defines a function that receives an event with the coordinates in the svg coordinate system
-    // and transforms them into percentage-based coordinates
-    getSvgPoint: PropTypes.func.isRequired,
     // Defines a function which checks if the shape is out of bounds and returns
     // appropriate coordinates
     checkIfOutOfBounds: PropTypes.func.isRequired,

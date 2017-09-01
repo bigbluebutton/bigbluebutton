@@ -41,13 +41,20 @@ export default class PencilDrawListener extends Component {
       window.addEventListener('mousemove', this.mouseMoveHandler, true);
       this.isDrawing = true;
 
-      const { getSvgPoint, generateNewShapeId } = this.props.actions;
-
-      // transform the event's SVG-based coordinates into percentages
-      const svgPoint = getSvgPoint(event);
+      const {
+        getTransformedSvgPoint,
+        generateNewShapeId,
+        svgCoordinateToPercentages,
+      } = this.props.actions;
 
       // sending the first message
-      const _points = [svgPoint.x, svgPoint.y];
+      let transformedSvgPoint = getTransformedSvgPoint(event);
+
+      // transforming svg coordinate to percentages relative to the slide width/height
+      transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
+
+      // sending the first message
+      const _points = [transformedSvgPoint.x, transformedSvgPoint.y];
       this.handleDrawPencil(_points, 'DRAW_START', generateNewShapeId());
 
       // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
@@ -176,9 +183,6 @@ PencilDrawListener.propTypes = {
   actions: PropTypes.shape({
     // Defines a function which transforms a coordinate from the window to svg coordinate system
     getTransformedSvgPoint: PropTypes.func.isRequired,
-    // Defines a function that receives an event with the coordinates in the svg coordinate system
-    // and transforms them into percentage-based coordinates
-    getSvgPoint: PropTypes.func.isRequired,
     // Defines a function which checks if the shape is out of bounds and returns
     // appropriate coordinates
     checkIfOutOfBounds: PropTypes.func.isRequired,

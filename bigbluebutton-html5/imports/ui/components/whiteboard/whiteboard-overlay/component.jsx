@@ -35,7 +35,6 @@ export default class WhiteboardOverlay extends Component {
     this.getCurrentShapeId = this.getCurrentShapeId.bind(this);
     this.generateNewShapeId = this.generateNewShapeId.bind(this);
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
-    this.getSvgPoint = this.getSvgPoint.bind(this);
     this.checkIfOutOfBounds = this.checkIfOutOfBounds.bind(this);
     this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
     this.normalizeThickness = this.normalizeThickness.bind(this);
@@ -56,15 +55,6 @@ export default class WhiteboardOverlay extends Component {
     const transformedSvgPoint = WhiteboardOverlay.coordinateTransform(svgPoint, svgObject);
 
     return transformedSvgPoint;
-  }
-
-  // this function receives an event attached to the svg, not to the window
-  // so we just transform raw coordinates to percentage based coordinates
-  getSvgPoint(event) {
-    const x = (event.nativeEvent.offsetX / this.props.slideWidth) * 100;
-    const y = (event.nativeEvent.offsetY / this.props.slideHeight) * 100;
-
-    return { x, y };
   }
 
   // receives an svg coordinate and changes the values to percentages of the slide's width/height
@@ -135,7 +125,6 @@ export default class WhiteboardOverlay extends Component {
     const { tool } = drawSettings;
     const actions = {
       getTransformedSvgPoint: this.getTransformedSvgPoint,
-      getSvgPoint: this.getSvgPoint,
       checkIfOutOfBounds: this.checkIfOutOfBounds,
       svgCoordinateToPercentages: this.svgCoordinateToPercentages,
       getCurrentShapeId: this.getCurrentShapeId,

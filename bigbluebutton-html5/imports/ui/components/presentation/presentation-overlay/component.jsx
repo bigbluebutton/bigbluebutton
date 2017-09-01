@@ -8,12 +8,12 @@ export default class PresentationOverlay extends Component {
     super(props);
 
     // last sent coordinates
-    this.lastSentOffsetX = 0;
-    this.lastSentOffsetY = 0;
+    this.lastSentClientX = 0;
+    this.lastSentClientY = 0;
 
     // last updated coordinates
-    this.currentOffsetX = 0;
-    this.currentOffsetY = 0;
+    this.currentClientX = 0;
+    this.currentClientY = 0;
 
     // id of the setInterval()
     this.intervalId = 0;
@@ -22,6 +22,49 @@ export default class PresentationOverlay extends Component {
     this.checkCursor = this.checkCursor.bind(this);
     this.mouseEnterHandler = this.mouseEnterHandler.bind(this);
     this.mouseOutHandler = this.mouseOutHandler.bind(this);
+    this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
+    this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
+  }
+
+  // transforms the coordinate from window coordinate system
+  // to the main svg coordinate system
+  getTransformedSvgPoint(clientX, clientY) {
+    const svgObject = this.props.getSvgRef();
+    const screenPoint = svgObject.createSVGPoint();
+    screenPoint.x = clientX;
+    screenPoint.y = clientY;
+
+    // transform a screen point to svg point
+    const CTM = svgObject.getScreenCTM();
+    return screenPoint.matrixTransform(CTM.inverse());
+  }
+
+  checkCursor() {
+    // check if the cursor hasn't moved since last check
+    if (this.lastSentClientX !== this.currentClientX
+      || this.lastSentClientY !== this.currentClientY) {
+      const { currentClientX, currentClientY } = this;
+      // retrieving a transformed coordinate
+      let transformedSvgPoint = this.getTransformedSvgPoint(currentClientX, currentClientY);
+      // determining the cursor's coordinates as percentages from the slide's width/height
+      transformedSvgPoint = this.svgCoordinateToPercentages(transformedSvgPoint);
+      // updating last sent raw coordinates
+      this.lastSentClientX = currentClientX;
+      this.lastSentClientY = currentClientY;
+
+      // sending the update to the server
+      this.props.updateCursor({ xPercent: transformedSvgPoint.x, yPercent: transformedSvgPoint.y });
+    }
+  }
+
+  // receives an svg coordinate and changes the values to percentages of the slide's width/height
+  svgCoordinateToPercentages(svgPoint) {
+    const point = {
+      x: (svgPoint.x / this.props.slideWidth) * 100,
+      y: (svgPoint.y / this.props.slideHeight) * 100,
+    };
+
+    return point;
   }
 
   mouseMoveHandler(event) {
@@ -32,25 +75,8 @@ export default class PresentationOverlay extends Component {
       this.mouseEnterHandler();
     }
 
-    this.currentOffsetX = event.nativeEvent.offsetX;
-    this.currentOffsetY = event.nativeEvent.offsetY;
-  }
-
-  checkCursor() {
-    // check if the cursor hasn't moved since last check
-    if (this.lastSentOffsetX !== this.currentOffsetX
-      || this.lastSentOffsetY !== this.currentOffsetY) {
-      // determining the cursor's coordinates as percentages from the slide's width/height
-      const xPercent = (this.currentOffsetX / this.props.slideWidth) * 100;
-      const yPercent = (this.currentOffsetY / this.props.slideHeight) * 100;
-
-      // updating last sent raw coordinates
-      this.lastSentOffsetX = this.currentOffsetX;
-      this.lastSentOffsetY = this.currentOffsetY;
-
-      // sending the update to the server
-      this.props.updateCursor({ xPercent, yPercent });
-    }
+    this.currentClientX = event.nativeEvent.clientX;
+    this.currentClientY = event.nativeEvent.clientY;
   }
 
   mouseEnterHandler() {
@@ -64,8 +90,8 @@ export default class PresentationOverlay extends Component {
     this.intervalId = 0;
 
     // setting the coords to negative values and send the last message (the cursor will disappear)
-    this.currentOffsetX = -1;
-    this.currentOffsetY = -1;
+    this.currentClientX = -1;
+    this.currentClientY = -1;
     this.checkCursor();
   }
 
@@ -92,6 +118,9 @@ export default class PresentationOverlay extends Component {
 }
 
 PresentationOverlay.propTypes = {
+  // Defines a function which returns a reference to the main svg object
+  getSvgRef: PropTypes.func.isRequired,
+
   // Defines the calculated slide width (in svg coordinate system)
   slideWidth: PropTypes.number.isRequired,
 
