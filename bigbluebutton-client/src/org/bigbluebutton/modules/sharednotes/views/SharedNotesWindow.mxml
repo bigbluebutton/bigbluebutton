@@ -499,10 +499,9 @@
 
 			private function alertClear(event:CloseEvent):void {
 				if (event.detail == Alert.YES) {
-					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
-					sendPatchEvent.noteId = noteId;
-					sendPatchEvent.operation = "CLEAR";
-					_dispatcher.dispatchEvent(sendPatchEvent);
+					var clearNoteEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CLEAR_NOTE_REQUEST_EVENT);
+					clearNoteEvent.payload["noteId"] = noteId;
+					_dispatcher.dispatchEvent(clearNoteEvent);
 				}
 			}
 
