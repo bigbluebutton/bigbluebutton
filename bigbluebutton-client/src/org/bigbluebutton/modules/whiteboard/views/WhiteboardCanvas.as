@@ -76,18 +76,18 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			whiteboardToolbar.whiteboardAccessModified(wbModel.multiUser);
 			
+			this.clipContent = true;
+			
 			//create the annotation display container
 			this.addChild(graphicObjectHolder);
 			graphicObjectHolder.x = 0;
 			graphicObjectHolder.y = 0;
-			graphicObjectHolder.clipContent = true;
 			graphicObjectHolder.tabFocusEnabled = false;
 			
 			//create the cursor display container
 			this.addChild(cursorObjectHolder);
 			cursorObjectHolder.x = 0;
 			cursorObjectHolder.y = 0;
-			cursorObjectHolder.clipContent = true;
 			cursorObjectHolder.tabFocusEnabled = false;
 			
 			wbModel.addEventListener(WhiteboardUpdateReceived.NEW_ANNOTATION, onNewAnnotationEvent);

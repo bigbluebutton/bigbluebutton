@@ -36,6 +36,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.VoiceConfEvent;
+  import org.bigbluebutton.core.events.FullscreenToggledEvent;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -95,6 +96,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("displayPresentationRequest", handleDisplayPresentationRequest);
         ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
         ExternalInterface.addCallback("queryListsOfPresentationsRequest", handleQueryListsOfPresentationsRequest);
+        ExternalInterface.addCallback("fullscreenToggled", handleFullscreenToggled);
 
         ExternalInterface.addCallback("webRTCCallStarted", handleWebRTCCallStarted);
         ExternalInterface.addCallback("webRTCCallConnecting", handleWebRTCCallConnecting);
@@ -216,7 +218,10 @@ package org.bigbluebutton.main.api
     private function handleAmISharingCameraRequestAsync():void {
       _dispatcher.dispatchEvent(new AmISharingWebcamQueryEvent());
     }
-    
+
+    private function handleFullscreenToggled(isNowFullscreen: Boolean):void {
+      _dispatcher.dispatchEvent(new FullscreenToggledEvent(isNowFullscreen));
+    }
 
     private function handleAmIPresenterRequestSync():Boolean {
       return UsersUtil.amIPresenter();
