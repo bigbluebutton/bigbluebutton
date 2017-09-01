@@ -42,22 +42,8 @@ const intlMessages = defineMessages({
 
 class LeaveConfirmation extends Component {
 
-  renderButtonEndMeeting() {
-    const { intl, endMeeting, isModerator } = this.props;
-
-    return (
-      isModerator ?
-        <Button
-          className={styles.endMeeting}
-          label={intl.formatMessage(intlMessages.endMeetingLabel)}
-          onClick={endMeeting}
-          aria-describedby={'modalEndMeetingDesc'}
-        /> : null
-    );
-  }
-
   render() {
-    const { intl, router } = this.props;
+    const { intl, router, endMeeting, isModerator } = this.props;
 
     return (
       <Modal
@@ -74,7 +60,14 @@ class LeaveConfirmation extends Component {
         }}
       >
         {intl.formatMessage(intlMessages.message)}
-        {this.renderButtonEndMeeting()}
+        {isModerator ?
+          <Button
+            className={styles.endMeeting}
+            label={intl.formatMessage(intlMessages.endMeetingLabel)}
+            onClick={endMeeting}
+            aria-describedby={'modalEndMeetingDesc'}
+          /> : null
+        }
         <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>
       </Modal>
     );
