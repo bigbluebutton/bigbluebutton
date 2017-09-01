@@ -26,7 +26,7 @@
 		creationComplete="onCreationComplete()"
 		xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
 		showCloseButton="false"
-		minHeight="161" minWidth="191">
+		horizontalScrollPolicy="off">
 
 	<fx:Declarations>
 		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
@@ -205,12 +205,10 @@
 			}
 
 			private function updateRoleDependentProperties(role:String):void {
-				if(noteId == "MAIN_NOTE"){
-					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
-				} else {
+				if (noteId != "MAIN_NOTE") {
 					showCloseButton = options.enableDeleteNotes && role == Role.MODERATOR;
 				}
-				btnClear.visible = btnClear.includeInLayout = role == Role.MODERATOR;
+				btnSettings.visible = btnSettings.includeInLayout = role == Role.MODERATOR;
 			}
 
 			public function get noteId():String{
@@ -242,7 +240,7 @@
 						_document = clientText;
 					} else {
 						richTextEditor.htmlText = _document;
-						throwMessageLenghtWarning(sendPatchEvent.patch.length);
+						throwMessageLenghtWarning(sendPatchEvent.patch.length - options.maxMessageLength);
 					}
 					richTextEditor.textArea.editable = true;
 				}
@@ -417,6 +415,30 @@
 				saveNotes(title, richTextEditor.text, "txt");
 			}
 
+			protected function btnSettings_clickHandler(event:MouseEvent):void {
+				var menuData:Array = [];
+				menuData.push({
+						label: _isNotesLimit ?
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.label') :
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.label'),
+						enabled: !_isNotesLimit,
+						handler: function():void {
+								newNoteHandler();
+							}
+						});
+				menuData.push({
+						label: ResourceUtil.getInstance().getString('bbb.sharedNotes.clear.label'),
+						handler: function():void {
+								clearNoteHandler();
+							}
+						});
+
+				var menu:Menu = WellPositionedMenu.createMenu(null, menuData, btnSettings, true);
+
+				registerListenersOnMenu(menu);
+				menu.show();
+			}
+
 			protected function btnSave_clickHandler(event:MouseEvent):void {
 				var menuData:Array = [];
 				menuData.push( {label: ResourceUtil.getInstance().getString('bbb.sharedNotes.save.htmlLabel'), handler: function():void { saveNotesWithFormat(title); }} );
@@ -424,32 +446,33 @@
 
 				var menu:Menu = WellPositionedMenu.createMenu(null, menuData, btnSave, true);
 
-				registerListenersOnSaveMenu(menu);
+				registerListenersOnMenu(menu);
 				menu.show();
 			}
 
-			private function registerListenersOnSaveMenu(menu:Menu):void {
-				menu.addEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
-				menu.addEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
+			private function registerListenersOnMenu(menu:Menu):void {
+				menu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				menu.addEventListener(MenuEvent.MENU_HIDE, menuHideHandler);
 			}
 
-			private function unregisterListenersOnSaveMenu(menu:Menu):void {
-				menu.removeEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
-				menu.removeEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
+			private function unregisterListenersOnMenu(menu:Menu):void {
+				menu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				menu.removeEventListener(MenuEvent.MENU_HIDE, menuHideHandler);
 			}
 
-			private function saveMenuClickHandler(e:MenuEvent):void {
+			private function menuClickHandler(e:MenuEvent):void {
 				e.item.handler();
 			}
 
-			private function saveMenuHideHandler(e:MenuEvent):void {
+			private function menuHideHandler(e:MenuEvent):void {
 				var menu:Menu = e.currentTarget as Menu;
-				unregisterListenersOnSaveMenu(menu);
+				unregisterListenersOnMenu(menu);
 
 				btnSave.emphasized = false;
+				btnSettings.emphasized = false;
 			}
 
-			protected function btnNew_clickHandler(event:MouseEvent):void {
+			protected function newNoteHandler():void {
 				var noteNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
 				PopUpManager.centerPopUp(noteNameWindow);
 			}
@@ -468,12 +491,11 @@
 				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
-			protected function btnClear_clickHandler(event:MouseEvent = null):void {
+			protected function clearNoteHandler():void {
 				var alert:Alert = Alert.show(
 						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.message'),
 						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.title'),
 						Alert.YES | Alert.NO, parent as Sprite, alertClear, null, Alert.YES);
-				event.stopPropagation();
 			}
 
 			private function alertClear(event:CloseEvent):void {
@@ -500,7 +522,7 @@
 			}
 
 			public function throwMessageLenghtWarning(messageLength:int):void {
-				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [options.maxMessageLength, messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
+				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
@@ -549,11 +571,11 @@
 				borderThicknessRight="0"
 				borderThicknessTop="0"
 				borderThicknessBottom="0"
-				minWidth="120"
+				minWidth="100"
 				minHeight="100"
 				initialize="initSharedNotesRichTextEditor()"/>
 
-		<mx:HBox width="100%" paddingTop="0">
+		<mx:HBox width="100%" paddingTop="0" minWidth="100" horizontalScrollPolicy="off">
 			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
 				<mx:Button id="btnUndo"
 						styleName="sharedNotesUndoButtonStyle"
@@ -579,21 +601,15 @@
 				<mx:Label id="charRemain"
 						includeInLayout="true"
 						visible="{(options.maxNoteLength - richTextEditor.text.length) &lt; (options.maxNoteLength / 8)}"
-						text="{options.maxNoteLength - richTextEditor.text.length}"/>
-				<mx:Button id="btnNew"
-						styleName="sharedNotesNewButtonStyle"
-						width="26"
-						height="26"
-						click="btnNew_clickHandler(event)"
-						enabled="{!_isNotesLimit}"
-						toolTip="{_isNotesLimit ?
-								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.toolTip') :
-								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
-				<mx:Button id="btnClear"
-						styleName="sharedNotesClearButtonStyle"
+						text="{options.maxNoteLength - richTextEditor.text.length}"
+						toolTip="{options.maxNoteLength - richTextEditor.text.length > 0 ?
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.remaining.tooltip') :
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.full.tooltip')}"/>
+				<mx:Button id="btnSettings"
+						styleName="sharedNotesSettings"
 						width="26" height="26"
-						click="btnClear_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.clear.toolTip')}"/>
+						click="btnSettings_clickHandler(event)"
+						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.settings.toolTip')}"/>
 				<mx:Button id="btnFormat"
 						styleName="sharedNotesFormatButtonStyle"
 						width="26" height="26"
