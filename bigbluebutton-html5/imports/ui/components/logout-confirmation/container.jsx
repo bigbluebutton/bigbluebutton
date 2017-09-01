@@ -19,7 +19,7 @@ class LogoutConfirmationContainer extends Component {
 export default createContainer(() => {
 
   return {
-    isModerator: LogoutConfirmationService.isModerator,
+    isModerator: LogoutConfirmationService.isModerator(),
     endMeeting: LogoutConfirmationService.endMeeting,
   };
 
