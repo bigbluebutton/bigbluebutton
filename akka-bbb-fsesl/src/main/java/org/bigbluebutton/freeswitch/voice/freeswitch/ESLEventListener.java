@@ -74,8 +74,12 @@ public class ESLEventListener implements IEslEventListener {
             if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
                 callerIdName = matcher.group(2).trim();
+            } else {
+                // This is a caller using phone. Let's create a userId that will allow
+                // us to identify the user as such in other parts of the system.
+                // (ralam - sept 1, 2017)
+                voiceUserId = "v_" + memberId.toString();
             }
-
 
             VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, "none");
             conferenceEventListener.handleConferenceEvent(pj);
