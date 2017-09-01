@@ -273,11 +273,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ]]>
     </fx:Script>
     
-    <mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-        <mx:TextArea width="100%" borderSkin="{null}" editable="false"
-                     id="textArea" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"
-                     styleName="titleWindowStyle"/>
-        <mx:Canvas width="100%" styleName="breakoutTipBox" backgroundColor="0xcccccc">
+    <mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center">
+		<common:AdvancedLabel maxWidth="550"
+							  id="textArea"
+							  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"
+							  styleName="titleWindowStyle" />
+        <mx:Canvas width="100%" styleName="breakoutTipBox">
             <mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
         </mx:Canvas>
         

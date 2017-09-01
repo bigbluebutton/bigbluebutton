@@ -12,9 +12,8 @@ package org.bigbluebutton.modules.polling.views
 	import mx.controls.Button;
 	import mx.controls.HRule;
 	import mx.controls.Label;
-	import mx.controls.TextArea;
-	import mx.core.ScrollPolicy;
 	
+	import org.bigbluebutton.common.AdvancedLabel;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 	import org.bigbluebutton.modules.polling.events.PollVotedEvent;
@@ -43,14 +42,12 @@ package org.bigbluebutton.modules.polling.views
 			width = 400;
 			showCloseButton = false;
 			layout = "vertical";
+			setStyle("horizontalAlign", "center");
 			
-			var modalTitle:TextArea = new TextArea();
-			modalTitle.setStyle("borderSkin", null);
-			modalTitle.verticalScrollPolicy = ScrollPolicy.OFF;
-			modalTitle.editable = false;
+			var modalTitle:AdvancedLabel = new AdvancedLabel();
 			modalTitle.text = ResourceUtil.getInstance().getString('bbb.polling.pollModal.title');
 			modalTitle.styleName = "titleWindowStyle";
-			modalTitle.percentWidth = 100;
+			modalTitle.maxWidth = 300;
 			addChild(modalTitle);
 			
 			var hrule:HRule = new HRule();

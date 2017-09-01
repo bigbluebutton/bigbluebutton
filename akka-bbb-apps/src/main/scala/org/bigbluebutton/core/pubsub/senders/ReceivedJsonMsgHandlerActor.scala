@@ -125,6 +125,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserConnectedToGlobalAudioMsg](envelope, jsonNode)
       case UserDisconnectedFromGlobalAudioMsg.NAME =>
         routeVoiceMsg[UserDisconnectedFromGlobalAudioMsg](envelope, jsonNode)
+      case MuteMeetingCmdMsg.NAME =>
+        routeGenericMsg[MuteMeetingCmdMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -166,6 +168,9 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+      case ClientToServerLatencyTracerMsg.NAME =>
+        log.info("-- trace --" + jsonNode.toString)
+        routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
 
       // Presentation
       case SetCurrentPresentationPubMsg.NAME =>

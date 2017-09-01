@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.sharednotes.events
 	public class ReceivePatchEvent extends Event
 	{
 		public static const RECEIVE_PATCH_EVENT:String = 'RECEIVE_PATCH_EVENT';
+		public var userId:String;
 		public var patch:String;
 		public var noteId:String;
 		public var patchId:Number;

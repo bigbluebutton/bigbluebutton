@@ -69,25 +69,25 @@ package org.bigbluebutton.modules.whiteboard.views {
 			canvasDisplayModel.setDependencies(this, wbModel);
 			
 			whiteboardToolbar = new WhiteboardToolbar();
-			whiteboardToolbar.canvas = this;
+			whiteboardToolbar.setCanvas(this);
 			
 			textToolbar = new WhiteboardTextToolbar();
 			textToolbar.canvas = this;
 			
 			whiteboardToolbar.whiteboardAccessModified(wbModel.multiUser);
 			
+			this.clipContent = true;
+			
 			//create the annotation display container
 			this.addChild(graphicObjectHolder);
 			graphicObjectHolder.x = 0;
 			graphicObjectHolder.y = 0;
-			graphicObjectHolder.clipContent = true;
 			graphicObjectHolder.tabFocusEnabled = false;
 			
 			//create the cursor display container
 			this.addChild(cursorObjectHolder);
 			cursorObjectHolder.x = 0;
 			cursorObjectHolder.y = 0;
-			cursorObjectHolder.clipContent = true;
 			cursorObjectHolder.tabFocusEnabled = false;
 			
 			wbModel.addEventListener(WhiteboardUpdateReceived.NEW_ANNOTATION, onNewAnnotationEvent);
@@ -150,8 +150,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 			canvasModel.doMouseMove(mousePoint.x, mousePoint.y);
 		}
 		
-		public function changeColor(e:Event):void {
-			canvasModel.changeColor(e.target.selectedColor);
+		private function stopDrawing():void {
+			var mousePoint:Point = getMouseXY();
+			
+			canvasDisplayModel.doMouseDown(mousePoint.x, mousePoint.y);
+			canvasModel.stopDrawing(mousePoint.x, mousePoint.y);
+		}
+		
+		public function changeColor(color:uint):void {
+			canvasModel.changeColor(color);
 		}
 		
 		public function isEditingText():Boolean {
@@ -195,8 +202,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			toolType = s;
 		}
 		
-		public function changeThickness(e:Event):void {
-			canvasModel.changeThickness(e.target.value);
+		public function changeThickness(val:Number):void {
+			canvasModel.changeThickness(val);
 		}
 		
 		private function setWhiteboardInteractable():void {
@@ -238,7 +245,11 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function getMouseXY():Point {
-			return new Point(Math.min(Math.max(parent.mouseX, 0), parent.width-1) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-1) - this.y);
+			if (parent) {
+				return new Point(Math.min(Math.max(parent.mouseX, 0), parent.width-1) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-1) - this.y);
+			} else {
+				return new Point(0, 0);
+			}
 		}
 		
 		private function presenterChange(amIPresenter:Boolean, presenterId:String):void {
@@ -293,6 +304,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		public function displayWhiteboardById(wbId:String):void {
+			stopDrawing();
+			
 			currentWhiteboardId = wbId;
 			canvasDisplayModel.changeWhiteboard(wbId);
 			whiteboardToolbar.whiteboardIdSet();
@@ -342,6 +355,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private function onDisableWhiteboardEvent(e:WhiteboardButtonEvent):void {
 			e.stopPropagation();
+			
+			stopDrawing();
 			
 			removeCursor()
 			

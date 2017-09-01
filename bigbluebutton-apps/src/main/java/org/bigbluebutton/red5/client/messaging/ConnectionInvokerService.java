@@ -58,7 +58,9 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
   private IScope bbbAppScope;
 
   private final long SEND_TIMEOUT = 5000000000L; // 5s
-  
+
+  private Long lastMsgLengthLog = System.currentTimeMillis();
+
   public ConnectionInvokerService() {
     messages = new LinkedBlockingQueue<ClientMessage>();
   }
@@ -74,6 +76,10 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
         while (sendMessages) {
           ClientMessage message;
           try {
+            if (System.currentTimeMillis() - lastMsgLengthLog > 60000) {
+              lastMsgLengthLog = System.currentTimeMillis();
+              log.info("Message queue length = " + messages.size());
+            }
             message = messages.take();
             if (log.isTraceEnabled()) {
               log.trace("Took message from queue: " + message.getMessageName());
@@ -167,6 +173,10 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
   private void handleDirectToClientMsg(DirectToClientMsg msg) {
     if (log.isTraceEnabled()) {
       log.trace("Handle direct message: " + msg.messageName + " msg=" + msg.json);
+    }
+
+    if ("ServerToClientLatencyTracerMsg".equals(msg.messageName)) {
+      log.info("-- trace -- " + msg.json);
     }
 
     final String connId = msg.connId;

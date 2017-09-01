@@ -17,13 +17,10 @@
  *
  */
 package org.bigbluebutton.modules.whiteboard.views {
-    import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
     import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
     import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawAnnotation;
     import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-    import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
     import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
-    import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
     import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
 
     public class TextDrawListener implements IDrawListener {
@@ -119,6 +116,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 
                 sendTextToServer(AnnotationStatus.DRAW_START, tobj);
             }
+        }
+        
+        public function stopDrawing(mouseX:Number, mouseY:Number):void {
+            feedback.clear();
+            if (_wbCanvas.contains(feedback)) {
+              _wbCanvas.removeGraphic(feedback);
+            }
+            
+            _mousedDown = false;
         }
 
         private function sendTextToServer(status:String, tobj:TextDrawAnnotation):void {

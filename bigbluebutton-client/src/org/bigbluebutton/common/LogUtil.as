@@ -89,7 +89,7 @@ package org.bigbluebutton.common {
 			} else {
 				var loggingOptions:LoggingOptions = Options.getOptions(LoggingOptions) as LoggingOptions;
 				loggingEnabled = loggingOptions.enabled;
-				loggingTargetName = loggingOptions.target;
+				loggingTargetName = loggingOptions.logTarget;
 				logLevel = loggingOptions.level;
 				logFormat = loggingOptions.format;
 				logPattern = loggingOptions.logPattern;

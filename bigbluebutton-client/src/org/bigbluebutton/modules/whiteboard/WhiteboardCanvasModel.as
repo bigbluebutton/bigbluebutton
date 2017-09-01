@@ -84,6 +84,12 @@ package org.bigbluebutton.modules.whiteboard
       }
     }
 
+    public function stopDrawing(mouseX:Number, mouseY:Number): void {
+      for (var ob:int = 0; ob < drawListeners.length; ob++) {
+        (drawListeners[ob] as IDrawListener).stopDrawing(mouseX, mouseY);
+      }
+    }
+
     public function setGraphicType(type:String):void {
       //LogUtil.debug("!!! Set graphic type = " + type);
       wbTool.graphicType = type;

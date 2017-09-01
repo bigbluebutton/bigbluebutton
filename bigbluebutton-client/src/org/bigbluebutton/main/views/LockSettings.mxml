@@ -72,10 +72,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:TabIndexer startIndex="1" tabIndices="{[titleText, saveBtn, cancelBtn]}"/>
 	</fx:Declarations>
 	
-	<mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-		<mx:TextArea borderSkin="{null}" editable="false" selectable="false" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.title')}" styleName="titleWindowStyle"
-					 id="titleText" width="100%" verticalScrollPolicy="off"/>
-		
+	<mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center">
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.lockSettings.title')}"
+							  styleName="titleWindowStyle"
+							  id="titleText"
+							  maxWidth="250" />
 		<mx:HBox verticalAlign="top" width="100%" paddingTop="20">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.feature')}" fontWeight="bold" />
 			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.locked')}" fontWeight="bold" />

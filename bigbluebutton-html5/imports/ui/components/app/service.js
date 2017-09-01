@@ -1,6 +1,6 @@
-import Breakouts from '/imports/api/1.1/breakouts';
+import Breakouts from '/imports/api/2.0/breakouts';
 import Settings from '/imports/ui/services/settings';
-import Auth from '/imports/ui/services/auth/index.js';
+import Auth from '/imports/ui/services/auth/index';
 
 const getCaptionsStatus = () => {
   const ccSettings = Settings.cc;
@@ -14,7 +14,7 @@ const getFontSize = () => {
 
 function meetingIsBreakout() {
   const breakouts = Breakouts.find().fetch();
-  return (breakouts && breakouts.some(b => b.breakoutMeetingId === Auth.meetingID));
+  return (breakouts && breakouts.some(b => b.breakoutId === Auth.meetingID));
 }
 
 export {

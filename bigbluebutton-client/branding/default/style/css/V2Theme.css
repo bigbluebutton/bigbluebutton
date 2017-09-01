@@ -11,6 +11,7 @@
 @namespace sharednotes "org.bigbluebutton.modules.sharednotes.views.components.*";
 @namespace chat "org.bigbluebutton.modules.chat.views.*";
 @namespace skins "org.bigbluebutton.skins.*";
+@namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
 
 /*
 //------------------------------
@@ -38,10 +39,11 @@
 */
 
 global {
-	fontFamily : "Source Sans Pro", Arial, sans-serif;
-	fontSize   : 13;
-	color      : #2A2D33;
-	focusColor : #1070D7;
+	fontFamily     : "Source Sans Pro", Arial, sans-serif;
+	fontSize       : 13;
+	color          : #2A2D33;
+	focusColor     : #1070D7;
+	selectionColor : #CFE2F7;
 }
 
 .defaultShellStyle {
@@ -61,6 +63,7 @@ global {
 mx|Application {
 	backgroundGradientColors : #F1F3F7, #F1F3F7;
 	backgroundColor          : #F1F3F7;
+	paddingTop               : 0;
 }
 
 /*
@@ -121,10 +124,39 @@ mx|Application {
 */
 
 mx|ApplicationControlBar {
+	borderSkin      : ClassReference(null);
 	cornerRadius    : 0;
 	fillAlphas      : 1, 1;
 	fillColors      : #FFFFFF, #FFFFFF;
 	highlightAlphas : 0, 0;
+	paddingBottom   : 0;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingTop      : 0;
+	verticalAlign   : top;
+}
+
+phonecomponents|MuteMeButton {
+	glowFilterColor : #1070D7;
+}
+
+.toolbarMainBox {
+	backgroundColor : #FFFFFF;
+	paddingTop      : 4;
+	paddingBottom   : 4;
+}
+
+.breakoutRoomRibbon {
+	backgroundColor : #1070D7;
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
+.topBoxStyle {
+	paddingLeft  : 8;
+	paddingRight : 8;
 }
 
 .toolbarSeparator {
@@ -162,7 +194,8 @@ mx|ApplicationControlBar {
 
 .webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
 .deskshareDefaultButtonStyle, .deskshareOverButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
-.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
+.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle,
+.recordButtonStyleNormal, .recordButtonStyleStop, .recordButtonStyleStart {
 	fillColorOver           : #FFFFFF;
 	borderColorOver         : #1070D7;
 	fillColorSelectedUp     : #1070D7;
@@ -261,7 +294,10 @@ mx|ApplicationControlBar {
 }
 
 .recordButtonStyleStart {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	icon             : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On_Blue");
+	selectedUpIcon   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	selectedOverIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	selectedDownIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .recordButtonStyleStop {
@@ -269,18 +305,15 @@ mx|ApplicationControlBar {
 }
 
 .muteMeDefaultButtonStyle {
-	glowFilterColor : #1070D7;
-	icon            : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
-	disabledIcon    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
 
 .muteMeOnButtonStyle {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Disabled");
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_White");
 }
 
 .muteMeOffButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone_Off");
 }
 
 .quickWindowLinkStyle {
@@ -395,6 +428,14 @@ users|BreakoutRoomSettings {
 	headerHeight : 0;
 }
 
+users|JoinBreakoutRoomWindow {
+	horizontalAlign : center;
+	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
+	paddingBottom   : 24;
+	paddingTop      : 0;
+	verticalGap     : 18;
+}
+
 users|RoomActionsRenderer {
 	paddingLeft     : 5;
 	paddingRight    : 5;
@@ -421,6 +462,9 @@ users|RoomActionsRenderer {
 }
 
 .breakoutTipBox {
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
 	horizontalAlign : center;
 }
 
@@ -433,6 +477,45 @@ users|RoomActionsRenderer {
 	backgroundColor : #CCCCCC;
 	verticalAlign   : middle;
 	horizontalAlign : center;
+}
+
+.roomNumberStyle {
+	color         : #25385D;
+	fontSize      : 30;
+	fontWeight    : bold;
+	verticalAlign : middle;
+	textAlign     : center;
+}
+
+.joinBreakoutRoomButton {
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
+}
+
+/*
+//------------------------------
+//  BrowserPermissionHelper
+//------------------------------
+*/
+
+views|BrowserPermissionHelper {
+	backgroundColor : #FFFFFF;
+	borderStyle     : solid;
+	borderThickness : 0;
+	cornerRadius    : 4;
+}
+
+.broswerHelperTitleStyle {
+	color     : #05172A;
+	fontSize  : 16;
+	textAlign : center;
 }
 
 /*
@@ -574,6 +657,22 @@ mx|CheckBox {
 	swatchHighlightColor      : #FFFFFF;
 	swatchHighlightSize       : 1;
 	swatchWidth               : 12;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
+.sharedNotesColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 5;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 28;
 	textFieldWidth            : 72;
 	verticalGap               : 0;
 }
@@ -734,10 +833,22 @@ layout|BroadcastButton {
 //------------------------------
 */
 
-.logoutWindowStyle {
+views|LogoutWindow, views|LoggedOutWindow {
 	headerHeight              : 32;
+	paddingBottom             : 8;
+	paddingLeft               : 8;
+	paddingRight              : 8;
+	paddingTop                : 8;
+	titleStyleName            : "logoutTitleWindowStyle";
 	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially  */
 	modalTransparencyDuration : 250;
+}
+
+.logoutTitleWindowStyle {
+	color         : #05172A;
+	fontSize      : 16;
+	textAlign     : center;
+	paddingBottom : 8;
 }
 
 /*
@@ -761,7 +872,8 @@ views|LockSettings {
 */
 
 views|MainApplicationShell {
-	verticalGap : 0;
+	paddingBottom : 0;
+	verticalGap   : 0;
 }
 
 .logsButton {
@@ -884,19 +996,8 @@ flexlib|MDIWindow {
 //------------------------------
 */
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .permissionSettingsTextStyle, .inactivityWarningTextStyle {
 	fontSize : 14;
-}
-
-.micSettingsWindowOpenDialogLabelStyle {
-	fontSize   : 14;
-	fontWeight : bold;
-	color      : #CDD4DB;
-}
-
-.micSettingsWindowShareMicrophoneLabelStyle {
-	fontSize : 14;
-	color    : #5E6C72;
 }
 
 .inactivityWarningWindowCancelButtonStyle {
@@ -969,9 +1070,8 @@ mx|Panel {
 //------------------------------
 */
 
-presentation|UploadedPresentationRenderer {
-	iconSave      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
-	iconSaveWhite : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File_White");
+.presentationUploadDownloadButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
 }
 
 .presentationWindowControlsStyle {
@@ -991,7 +1091,6 @@ presentation|UploadedPresentationRenderer {
 	textRollOverColor : #3F3F41;
 	textSelectedColor : #3F3F41;
 	borderColor       : #B9BABC;
-	cornerRadius      : 5;
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
 }
 
@@ -1064,12 +1163,7 @@ presentation|UploadedPresentationRenderer {
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
 }
 
-.presentationNameLabelOver {
-	color    : #FFFFFF;
-	fontSize : 14;
-}
-
-.presentationNameLabelUp {
+.presentationNameLabel {
 	color    : #05172A;
 	fontSize : 14;
 }
@@ -1091,10 +1185,9 @@ presentation|UploadedPresentationRenderer {
 }
 
 .presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
-	backgroundColor   : #CDD4DB;
-	dropShadowEnabled : false;
-	paddingLeft       : 10;
-	paddingRight      : 10;
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
 }
 
 .presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
@@ -1106,7 +1199,7 @@ presentation|UploadedPresentationRenderer {
 }
 
 .slideViewBackground {
-	backgroundColor : #4E5A66;
+	backgroundColor : #E2E8ED;
 }
 
 /*
@@ -1171,6 +1264,22 @@ views|ReconnectionPopup {
 
 /*
 //------------------------------
+//  Scrollbar
+//------------------------------
+*/
+
+mx|ScrollBar {
+	cornerRadius  : 4;
+	downArrowSkin : ClassReference(null);
+	thumbSkin     : ClassReference("org.bigbluebutton.skins.ScrollThumbSkin");
+	trackSkin     : ClassReference("org.bigbluebutton.skins.ScrollTrackSkin");
+	upArrowSkin   : ClassReference(null);
+	thumbColor    : #BBBDBF;
+	trackColor    : #F5F6F8;
+}
+
+/*
+//------------------------------
 //  SharedNotes
 //------------------------------
 */
@@ -1210,6 +1319,20 @@ sharednotes|SharedNotesRichTextEditor {
 
 .sharedNotesFormatButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Format_Text");
+}
+
+/*
+//------------------------------
+//  Slider
+//------------------------------
+*/
+
+mx|Slider {
+	dataTipStyleName : "sliderDataTipStyleName";
+}
+
+.sliderDataTipStyleName {
+	color : #05172A;
 }
 
 /*
@@ -1264,9 +1387,10 @@ mx|TitleWindow {
 }
 
 .titleWindowStyle {
-	color     : #05172A;
-	fontSize  : 24;
-	textAlign : center;
+	color         : #05172A;
+	fontSize      : 24;
+	textAlign     : center;
+	paddingBottom : 8;
 }
 
 /*
@@ -1349,9 +1473,7 @@ users|NameItemRenderer {
 }
 
 .usersGridStyle {
-	borderStyle    : none;
-	selectionColor : #FFFFFF;
-	rollOverColor  : #FFFFFF;
+	borderStyle : none;
 }
 
 users|EmojiGrid {
@@ -1392,11 +1514,19 @@ users|MoodMenu {
 */
 
 videoconf|UserGraphicHolder {
+	backgroundColor    : #FFFFFF;
 	iconPresenter      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Presenter");
 	iconModerator      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Video_Moderator");
 	iconClose          : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
 	iconFullScreen     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fullscreen_White");
 	iconExitFullScreen : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Exit_Fullscreen_White");
+}
+
+.userGraphicBackground {
+	backgroundColor : #FFFFFF;
+	borderStyle     : solid;
+	borderColor     : #000000;
+	borderThickness : 0;
 }
 
 .videoToolbarBackgroundTalkingStyle {
@@ -1493,6 +1623,7 @@ whiteboard|WhiteboardToolbar {
 	backgroundColor     : #CFD4DB;
 	borderColor         : #CFD4DB;
 	borderStyle         : solid;
+	horizontalAlign     : center;
 	borderThickness     : 1;
 	cornerRadius        : 4;
 	paddingBottom       : 0;
@@ -1584,9 +1715,9 @@ whiteboard|WhiteboardTextToolbar {
 }
 
 .multiUserWhiteboardOnButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Multi_Whiteboard");
 }
 
 .multiUserWhiteboardOffButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Multi_Whiteboard");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Whiteboard");
 }

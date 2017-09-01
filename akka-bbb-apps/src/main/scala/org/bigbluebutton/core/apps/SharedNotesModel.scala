@@ -52,6 +52,11 @@ class SharedNotesModel extends SystemConfiguration {
           redo
         }
       }
+      case "CLEAR" => {
+        undoPatches = List[(String, String)]()
+        redoPatches = List[(String, String)]()
+        patcher.custom_patch_make(document, "")
+      }
     }
 
     val patchObjects = patcher.patch_fromText(patchToApply)

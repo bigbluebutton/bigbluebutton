@@ -120,8 +120,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return chatBox;
 			}
 
+      private function getPublicChatBox():ChatBox {
+        return publicBox;
+      }
+      
 			private function dispatchSaveChatEvent(e:Event):void {
-				var chatBox:ChatBox = getVisibleChatBox();
+				var chatBox:ChatBox = getPublicChatBox();
 				var saveEvent:ChatSaveEvent = new ChatSaveEvent(ChatSaveEvent.SAVE_CHAT_EVENT);
 
 				if (chatBox.chatWithUsername == null || chatBox.chatWithUsername == "") {
@@ -135,7 +139,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function dispatchCopyChatEvent(e:Event):void {
-				var chatBox:ChatBox = getVisibleChatBox();
+				var chatBox:ChatBox = getPublicChatBox();
 				var copyEvent:ChatCopyEvent = new ChatCopyEvent(ChatCopyEvent.COPY_CHAT_EVENT);
 
 				copyEvent.chatMessages = chatBox.getChatMessages();

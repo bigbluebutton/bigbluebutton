@@ -25,6 +25,7 @@ trait UpdateSharedNoteReqMsgHdlr {
       case "PATCH" => msg.header.userId
       case "UNDO"  => liveMeeting.notesModel.SYSTEM_ID
       case "REDO"  => liveMeeting.notesModel.SYSTEM_ID
+      case "CLEAR" => liveMeeting.notesModel.SYSTEM_ID
       case _       => return
     }
 

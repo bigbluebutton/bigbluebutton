@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         xmlns:views="org.bigbluebutton.modules.videoconf.views.*"
         initialize="init()"
         creationComplete="onCreationComplete()"
-        backgroundColor="white" width="320" height="240"
+        width="320" height="240"
         mouseOver="onCanvasMouseOver()" mouseOut="onCanvasMouseOut()" >
 
 	<fx:Declarations>
@@ -41,12 +41,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <fx:Script>
         <![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
 			
 			import mx.core.UIComponent;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.Options;
