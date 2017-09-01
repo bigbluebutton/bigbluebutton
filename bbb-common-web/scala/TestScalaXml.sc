@@ -65,6 +65,7 @@ val baz = foo1 map { f =>
 baz.size
 
 val playback = xml \ "playback"
+
 val extensions = playback \ "extensions"
 val preview = extensions \ "preview"
 
