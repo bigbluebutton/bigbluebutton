@@ -26,7 +26,7 @@ package org.bigbluebutton.core {
 	
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
-	public final class TimerUtil {
+	public final class BreakoutTimerUtil {
 		public static var timers:Dictionary = new Dictionary(true);
 
 		public static function setCountDownTimer(label:Label, seconds:int):void {

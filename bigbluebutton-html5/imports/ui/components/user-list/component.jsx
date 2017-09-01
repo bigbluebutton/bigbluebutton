@@ -33,43 +33,43 @@ const listTransition = {
 
 const intlMessages = defineMessages({
   usersTitle: {
-    id: 'app.userList.usersTitle',
+    id: 'app.userlist.usersTitle',
     description: 'Title for the Header',
   },
   messagesTitle: {
-    id: 'app.userList.messagesTitle',
+    id: 'app.userlist.messagesTitle',
     description: 'Title for the messages list',
   },
   participantsTitle: {
-    id: 'app.userList.participantsTitle',
+    id: 'app.userlist.participantsTitle',
     description: 'Title for the Users list',
   },
   toggleCompactView: {
-    id: 'app.userList.toggleCompactView.label',
+    id: 'app.userlist.toggleCompactView.label',
     description: 'Toggle user list view mode',
   },
   ChatLabel: {
-    id: 'app.userList.menu.chat.label',
+    id: 'app.userlist.menu.chat.label',
     description: 'Save the changes and close the settings menu',
   },
   ClearStatusLabel: {
-    id: 'app.userList.menu.clearStatus.label',
+    id: 'app.userlist.menu.clearStatus.label',
     description: 'Clear the emoji status of this user',
   },
   MakePresenterLabel: {
-    id: 'app.userList.menu.makePresenter.label',
+    id: 'app.userlist.menu.makePresenter.label',
     description: 'Set this user to be the presenter in this meeting',
   },
   KickUserLabel: {
-    id: 'app.userList.menu.kickUser.label',
+    id: 'app.userlist.menu.kickUser.label',
     description: 'Forcefully remove this user from the meeting',
   },
   MuteUserAudioLabel: {
-    id: 'app.userList.menu.muteUserAudio.label',
+    id: 'app.userlist.menu.muteUserAudio.label',
     description: 'Forcefully mute this user',
   },
   UnmuteUserAudioLabel: {
-    id: 'app.userList.menu.unmuteUserAudio.label',
+    id: 'app.userlist.menu.unmuteUserAudio.label',
     description: 'Forcefully unmute this user',
   },
   PromoteUserLabel: {

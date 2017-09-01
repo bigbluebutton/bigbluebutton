@@ -49,6 +49,11 @@ public class RecordingMetadataReaderHelper {
       log.error("IOException on " + metadataXml.getAbsolutePath(), e);
     }
 
+    if (recMeta == null) {
+      recMeta = new RecordingMetadata();
+      recMeta.setMetadataXml(metadataXml.getParentFile().getName());
+      recMeta.setProcessingError(true);
+    }
     return recMeta;
   }
 

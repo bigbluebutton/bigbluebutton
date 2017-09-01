@@ -121,16 +121,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				
 				_ao = a.annotation;
 				
-				var graphicsCommands:Vector.<int> = new Vector.<int>();
-				var coordinates:Vector.<Number> = new Vector.<Number>();
-				
 				graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color);
 				for (var i:int=numPointsDrawn; i<newPoints.length;){
-					graphicsCommands.push(2);
-					coordinates.push(denormalize(newPoints[i++], _parentWidth), denormalize(newPoints[i++], _parentHeight));
+					graphics.lineTo(denormalize(newPoints[i++], _parentWidth), denormalize(newPoints[i++], _parentHeight));
 				}
-				
-				graphics.drawPath(graphicsCommands, coordinates);
 				
 				numPointsDrawn = newPoints.length;
 			} else {

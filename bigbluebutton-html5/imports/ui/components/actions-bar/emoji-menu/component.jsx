@@ -100,15 +100,15 @@ class EmojiMenu extends Component {
             />
             <DropdownListItem
               icon="thumbs_up"
-              label={intl.formatMessage(intlMessages.thumbsUpLabel)}
-              description={intl.formatMessage(intlMessages.thumbsUpDesc)}
+              label={intl.formatMessage(intlMessages.thumbsupLabel)}
+              description={intl.formatMessage(intlMessages.thumbsupDesc)}
               onClick={() => actions.setEmojiHandler('thumbsUp')}
               tabIndex={-1}
             />
             <DropdownListItem
               icon="thumbs_down"
-              label={intl.formatMessage(intlMessages.thumbsDownLabel)}
-              description={intl.formatMessage(intlMessages.thumbsDownDesc)}
+              label={intl.formatMessage(intlMessages.thumbsdownLabel)}
+              description={intl.formatMessage(intlMessages.thumbsdownDesc)}
               onClick={() => actions.setEmojiHandler('thumbsDown')}
               tabIndex={-1}
             />
@@ -203,20 +203,20 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.emojiMenu.applauseDesc',
     description: 'adds context to applause option',
   },
-  thumbsUpLabel: {
-    id: 'app.actionsBar.emojiMenu.thumbsUpLabel',
+  thumbsupLabel: {
+    id: 'app.actionsBar.emojiMenu.thumbsupLabel',
     description: 'thumbs up emoji label',
   },
-  thumbsUpDesc: {
-    id: 'app.actionsBar.emojiMenu.thumbsUpDesc',
+  thumbsupDesc: {
+    id: 'app.actionsBar.emojiMenu.thumbsupDesc',
     description: 'adds context to thumbs up option',
   },
-  thumbsDownLabel: {
-    id: 'app.actionsBar.emojiMenu.thumbsDownLabel',
+  thumbsdownLabel: {
+    id: 'app.actionsBar.emojiMenu.thumbsdownLabel',
     description: 'thumbs down emoji label',
   },
-  thumbsDownDesc: {
-    id: 'app.actionsBar.emojiMenu.thumbsDownDesc',
+  thumbsdownDesc: {
+    id: 'app.actionsBar.emojiMenu.thumbsdownDesc',
     description: 'adds context to thumbs down option',
   },
   changeStatusLabel: {

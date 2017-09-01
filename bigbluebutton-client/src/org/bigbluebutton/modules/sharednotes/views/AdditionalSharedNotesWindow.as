@@ -8,9 +8,7 @@ package org.bigbluebutton.modules.sharednotes.views
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -27,9 +25,7 @@ package org.bigbluebutton.modules.sharednotes.views
 			_noteId = n;
 			_windowName = "AdditionalSharedNotesWindow_" + noteId;
 
-			options = Options.getOptions(SharedNotesOptions) as SharedNotesOptions;
-
-			showCloseButton = UsersUtil.amIModerator() && options.enableDeleteNotes;
+			//showCloseButton = UsersUtil.amIModerator();
 			width = 240;
 			height = 240;
 		}
@@ -47,6 +43,7 @@ package org.bigbluebutton.modules.sharednotes.views
 
 			LOGGER.debug("AdditionalSharedNotesWindow: [2] in-constructor additional notes " + noteId);
 
+			btnNew.visible = btnNew.includeInLayout = false;
 			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
 		}
 

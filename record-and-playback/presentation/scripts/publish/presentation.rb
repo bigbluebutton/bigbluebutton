@@ -196,12 +196,7 @@ end
 
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
-  if $version_atleast_2_0_0
-    g['style'] += ";stroke-linecap:butt"
-  else
-    g['style'] += ";stroke-linecap:round"
-  end
+  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -215,12 +210,7 @@ end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
-  if $version_atleast_2_0_0
-    g['style'] += ";stroke-linejoin:miter"
-  else
-    g['style'] += ";stroke-linejoin:round"
-  end
+  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -250,12 +240,7 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
-  if $version_atleast_2_0_0
-    g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
-  else
-    g['style'] += ";stroke-linejoin:round"
-  end
+  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -273,7 +258,7 @@ end
 
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -463,7 +448,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
     svg_render_shape_ellipse(g, slide, shape)
   when 'text'
     svg_render_shape_text(g, slide, shape)
-  when 'poll_result'
+  when 'poll'
     svg_render_shape_poll(g, slide, shape)
   else
     BigBlueButton.logger.warn("Ignoring unhandled shape type #{shape[:type]}")
@@ -653,13 +638,13 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')
     if !square.nil?
-      shape[:square] = (square.text == 'true')
+      shape['square'] = (square.text == 'true')
     end
   end
   if shape[:type] == 'ellipse'
     circle = event.at_xpath('circle')
     if !circle.nil?
-      shape[:circle] = (circle.text == 'true')
+      shape['circle'] = (circle.text == 'true')
     end
   end
   if shape[:type] == 'pencil'
@@ -669,8 +654,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     end
   end
   if shape[:type] == 'poll_result'
-    shape[:num_responders] = event.at_xpath('num_responders').text.to_i
-    shape[:num_respondents] = event.at_xpath('num_respondents').text.to_i
+    shape[:num_responders] = event.at_xpath('num_responders').text
+    shape[:num_respondents] = event.at_xpath('num_respondents').text
     shape[:result] = event.at_xpath('result').text
   end
   if shape[:type] == 'text'
@@ -850,7 +835,7 @@ def events_get_image_info(slide)
     if slide[:deskshare]
       command = "convert -size #{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
     else
-      command = "convert -size 1600x1200 xc:transparent -background transparent -quality 90 +dither -depth 8 -colors 256 #{image_path}"
+      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_path}"
     end
     BigBlueButton.execute(command)
   end

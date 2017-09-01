@@ -69,7 +69,7 @@ class PresentationToolbar extends Component {
         <Button
           role="button"
           aria-labelledby="prevSlideLabel"
-          aria-describedby="prevSlideDesc"
+          aria-describedby="prevSlideDescrip"
           disabled={!(currentSlideNum > 1)}
           color={'default'}
           icon={'left_arrow'}
@@ -84,7 +84,7 @@ class PresentationToolbar extends Component {
           id="skipSlide"
           role="listbox"
           aria-labelledby="skipSlideLabel"
-          aria-describedby="skipSlideDesc"
+          aria-describedby="skipSlideDescrip"
           aria-live="polite"
           aria-relevant="all"
           value={currentSlideNum}
@@ -97,7 +97,7 @@ class PresentationToolbar extends Component {
         <Button
           role="button"
           aria-labelledby="nextSlideLabel"
-          aria-describedby="nextSlideDesc"
+          aria-describedby="nextSlideDescrip"
           disabled={!(currentSlideNum < numberOfSlides)}
           color={'default'}
           icon={'right_arrow'}
@@ -171,9 +171,9 @@ class PresentationToolbar extends Component {
             defaultMessage="Previous slide"
           />
         </div>
-        <div id="prevSlideDesc">
+        <div id="prevSlideDescrip">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.prevSlideDesc"
+            id="app.presentation.presentationToolbar.prevSlideDescrip"
             description="Aria description for when switching to previous slide"
             defaultMessage="Change the presentation to the previous slide"
           />
@@ -186,9 +186,9 @@ class PresentationToolbar extends Component {
             defaultMessage="Next slide"
           />
         </div>
-        <div id="nextSlideDesc">
+        <div id="nextSlideDescrip">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.nextSlideDesc"
+            id="app.presentation.presentationToolbar.nextSlideDescrip"
             description="Aria description for when switching to next slide"
             defaultMessage="Change the presentation to the next slide"
           />
@@ -201,9 +201,9 @@ class PresentationToolbar extends Component {
             defaultMessage="Skip slide"
           />
         </div>
-        <div id="skipSlideDesc">
+        <div id="skipSlideDescrip">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.skipSlideDesc"
+            id="app.presentation.presentationToolbar.skipSlideDescrip"
             description="Aria description for when switching to a specific slide"
             defaultMessage="Change the presentation to a specific slide"
           />
@@ -216,9 +216,9 @@ class PresentationToolbar extends Component {
             defaultMessage="Fit to width"
           />
         </div>
-        <div id="fitWidthDesc">
+        <div id="fitWidthDescrip">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.fitWidthDesc"
+            id="app.presentation.presentationToolbar.fitWidthDescrip"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Display the whole width of the slide"
           />
@@ -231,9 +231,9 @@ class PresentationToolbar extends Component {
             defaultMessage="Fit to screen"
           />
         </div>
-        <div id="fitScreenDesc">
+        <div id="fitScreenDescrip">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.fitScreenDesc"
+            id="app.presentation.presentationToolbar.fitScreenDescrip"
             description="Aria label to display the whole slide"
             defaultMessage="Display the whole slide"
           />
@@ -246,9 +246,9 @@ class PresentationToolbar extends Component {
             defaultMessage="Zoom"
           />
         </div>
-        <div id="zoomDesc">
+        <div id="zoomDescrip">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomDesc"
+            id="app.presentation.presentationToolbar.zoomDescrip"
             description="Aria label to zoom presentation"
             defaultMessage="Change the zoom level of the presentation"
           />

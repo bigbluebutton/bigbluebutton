@@ -52,27 +52,27 @@ const defaultProps = {
 
 const messages = defineMessages({
   presenter: {
-    id: 'app.userList.presenter',
+    id: 'app.userlist.presenter',
     description: 'Text for identifying presenter user',
   },
   you: {
-    id: 'app.userList.you',
+    id: 'app.userlist.you',
     description: 'Text for identifying your user',
   },
   locked: {
-    id: 'app.userList.locked',
+    id: 'app.userlist.locked',
     description: 'Text for identifying locked user',
   },
   guest: {
-    id: 'app.userList.guest',
+    id: 'app.userlist.guest',
     description: 'Text for identifying guest user',
   },
   menuTitleContext: {
-    id: 'app.userList.menuTitleContext',
+    id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
   userAriaLabel: {
-    id: 'app.userList.userAriaLabel',
+    id: 'app.userlist.userAriaLabel',
     description: 'aria label for each user in the userlist',
   },
 });
