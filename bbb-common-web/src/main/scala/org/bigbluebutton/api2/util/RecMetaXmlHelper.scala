@@ -30,19 +30,6 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
   }
 
   def saveRecordingMetadata(xml: File, metadata: RecordingMetadata): Unit = {
-    println("Saving metadata.xml to " + xml.getAbsolutePath)
-    println(" METADATAXML \n " + metadata.getRecMeta.toMetadataXml())
-/*
-    try {
-      scala.xml.XML.save(xml.getAbsolutePath, metadata.getRecMeta.toMetadataXml(), "UTF-8", true, null)
-    } catch {
-      case ioe: IOException =>
-        logger.info("Failed to save metadataxml {}", xml.getAbsolutePath)
-      case ex: Exception =>
-        logger.info("Exception while saving {}", xml.getAbsolutePath)
-        logger.info("Exception details: {}", ex.getMessage)
-    }
-*/
     try {
       val Encoding = "UTF-8"
       val pp = new PrettyPrinter(80, 2)

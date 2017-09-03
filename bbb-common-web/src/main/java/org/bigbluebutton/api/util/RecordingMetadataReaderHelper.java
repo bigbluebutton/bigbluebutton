@@ -1,21 +1,13 @@
 package org.bigbluebutton.api.util;
 
 
-import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.bigbluebutton.api.domain.RecordingMetadata;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import javax.xml.stream.*;
 import java.io.*;
 import java.util.ArrayList;
-
 import org.bigbluebutton.api2.RecordingServiceGW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
-import scala.Some;
-import scala.None;
 
 public class RecordingMetadataReaderHelper {
   private static Logger log = LoggerFactory.getLogger(RecordingMetadataReaderHelper.class);

@@ -183,8 +183,13 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
   def setPublished(publish: Boolean): RecMeta = this.copy(published = publish)
   def getRecMeta():java.util.Map[String, String] = {
     meta match {
-      case Some(m) => m.asJava
-      case None => (scala.collection.immutable.Map[String, String]()).asJava
+      case Some(m) =>
+        // Send back a mutable map. So convert the immutable map to mutable then convert
+        // to Java Map.
+        // https://stackoverflow.com/questions/5042878/how-can-i-convert-immutable-map-to-mutable-map-in-scala
+        val mutableMap = collection.mutable.Map() ++ m // convert to mutable map
+        mutableMap.asJava
+      case None => (collection.mutable.Map[String, String]()).asJava
     }
   }
 
@@ -345,9 +350,9 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
     val buffer = new scala.xml.NodeBuffer
 
     val formatElem = <format>{format}</format>
-    val urlElem = <url>{link}</url>
-    val processTimeElem = <processingTime>{processingTime}</processingTime>
-    val lengthElem = <length>{duration}</length>
+    val urlElem = <link>{link}</link>
+    val processTimeElem = <processing_time>{processingTime}</processing_time>
+    val lengthElem = <duration>{duration}</duration>
 
     buffer += formatElem
     buffer += urlElem

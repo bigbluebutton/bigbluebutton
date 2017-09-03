@@ -37,7 +37,6 @@ import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
-import org.bigbluebutton.api2.domain.RecMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -465,7 +464,6 @@ public class RecordingService {
     }
 
     public void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams) {
-        System.out.println("**** updateMetaParams");
         // Define the directories used to lookup the recording
         List<String> states = new ArrayList<String>();
         states.add(Recording.STATE_PUBLISHED);
