@@ -209,6 +209,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
       case SyncSharedNotePubMsg.NAME =>
         routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
+      case ClearSharedNotePubMsg.NAME =>
+        routeGenericMsg[ClearSharedNotePubMsg](envelope, jsonNode)
       case UpdateSharedNoteReqMsg.NAME =>
         routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
       case CreateSharedNoteReqMsg.NAME =>

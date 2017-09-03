@@ -52,11 +52,6 @@ class SharedNotesModel extends SystemConfiguration {
           redo
         }
       }
-      case "CLEAR" => {
-        undoPatches = List[(String, String)]()
-        redoPatches = List[(String, String)]()
-        patcher.custom_patch_make(document, "")
-      }
     }
 
     val patchObjects = patcher.patch_fromText(patchToApply)
@@ -75,6 +70,13 @@ class SharedNotesModel extends SystemConfiguration {
     val patchCounter = note.patchCounter + 1
     notes(noteId) = new Note(note.name, result(0).toString(), patchCounter, undoPatches, redoPatches)
     (patchCounter, patchToApply, !undoPatches.isEmpty, !redoPatches.isEmpty)
+  }
+
+  def clearNote(noteId: String): Option[NoteReport] = {
+    val note = notes(noteId)
+    val patchCounter = note.patchCounter + 1
+    notes(noteId) = new Note(note.name, "", patchCounter, List[(String, String)](), List[(String, String)]())
+    getNoteReport(noteId)
   }
 
   def createNote(noteName: String = ""): (String, Boolean) = {

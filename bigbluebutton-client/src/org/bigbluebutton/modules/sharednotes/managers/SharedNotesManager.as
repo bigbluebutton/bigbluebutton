@@ -71,5 +71,10 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			var noteId:String = e.payload.noteId;
 			sender.sharedNotesSyncNoteRequest(noteId);
 		}
+
+		public function sharedNotesClearNoteRequest(e:SharedNotesEvent):void {
+			var noteId:String = e.payload.noteId;
+			sender.sharedNotesClearNoteRequest(noteId);
+		}
 	}
 }

@@ -1320,7 +1320,9 @@
             <mx:ColorPicker id="colorPicker"
                     dataProvider="{colorPickerColours}"
                     swatchPanelStyleName="sharedNotesColorPickerStyle"
-                    close="setTextStyles('color');"/>
+                    close="setTextStyles('color');"
+                    visible="false"
+                    includeInLayout="false"/>
             <mx:VRule height="{alignButtons.height}"/>
             <mx:ToggleButtonBar id="alignButtons"
                     buttonWidth="20"

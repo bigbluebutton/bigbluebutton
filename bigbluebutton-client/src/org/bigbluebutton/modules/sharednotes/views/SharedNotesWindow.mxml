@@ -86,7 +86,6 @@
 			private var lastAuthors:Object = new Object();
 
 			[Bindable] protected var options:SharedNotesOptions;
-			[Bindable] private var _isNotesLimit:Boolean = true;
 			[Bindable] private var usersTyping:String = "";
 
 			private var sendUpdateTimer:Timer;
@@ -215,13 +214,13 @@
 				return _noteId;
 			}
 
-			public function addRemoteDocument(notes:Object, isNotesLimit:Boolean):void{
+			public function addRemoteDocument(notes:Object, isMaxNumOfNotes:Boolean):void{
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
 				_lastPatch = note["patchCounter"];
 				richTextEditor.htmlText = _document;
-				_isNotesLimit = isNotesLimit;
+				LiveMeeting.inst().sharedNotes.isMaxNumOfNotes = isMaxNumOfNotes;
 				if (!this.enabled) this.enabled = true;
 				updateTitle();
 				updateUndoRedoButtons(note["undo"], note["redo"]);
@@ -302,11 +301,11 @@
 			}
 
 			private function handleNoteCreated(e:SharedNotesEvent):void {
-				_isNotesLimit = e.payload.isNotesLimit;
+				LiveMeeting.inst().sharedNotes.isMaxNumOfNotes = e.payload.isNotesLimit;
 			}
 
 			private function handleNoteDestroyed(e:SharedNotesEvent):void {
-				_isNotesLimit = e.payload.isNotesLimit;
+				LiveMeeting.inst().sharedNotes.isMaxNumOfNotes = e.payload.isNotesLimit;
 			}
 
 			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
@@ -418,10 +417,10 @@
 			protected function btnSettings_clickHandler(event:MouseEvent):void {
 				var menuData:Array = [];
 				menuData.push({
-						label: _isNotesLimit ?
+						label: LiveMeeting.inst().sharedNotes.isMaxNumOfNotes ?
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.label') :
 								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.label'),
-						enabled: !_isNotesLimit,
+						enabled: !LiveMeeting.inst().sharedNotes.isMaxNumOfNotes,
 						handler: function():void {
 								newNoteHandler();
 							}
@@ -500,10 +499,9 @@
 
 			private function alertClear(event:CloseEvent):void {
 				if (event.detail == Alert.YES) {
-					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
-					sendPatchEvent.noteId = noteId;
-					sendPatchEvent.operation = "CLEAR";
-					_dispatcher.dispatchEvent(sendPatchEvent);
+					var clearNoteEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CLEAR_NOTE_REQUEST_EVENT);
+					clearNoteEvent.payload["noteId"] = noteId;
+					_dispatcher.dispatchEvent(clearNoteEvent);
 				}
 			}
 
