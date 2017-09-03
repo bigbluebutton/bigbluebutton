@@ -11,4 +11,5 @@ public interface RecordingServiceGW {
 
   String getRecordings2x(ArrayList<RecordingMetadata> recs);
   Option<RecordingMetadata> getRecordingMetadata(File xml);
+  void saveRecordingMetadata(File xml, RecordingMetadata metadata);
 }

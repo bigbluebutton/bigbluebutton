@@ -25,7 +25,7 @@ public class RecordingMetadata {
   }
 
   public void setMeta(Map<String, String> meta) {
-    recMeta.setRecMeta(meta);
+    recMeta = recMeta.setRecMeta(meta);
   }
 
   public java.util.Map<String, String> getMeta() {

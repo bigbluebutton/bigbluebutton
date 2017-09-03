@@ -188,11 +188,30 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
     }
   }
 
-  def setRecMeta(m: java.util.Map[String, String]): Unit = {
+  def setRecMeta(m: java.util.Map[String, String]): RecMeta = {
     this.copy(meta = Some((m.asScala).toMap))
   }
 
   def toXml(): Elem = {
+
+    def metaToElem(map: scala.collection.immutable.Map[String, String]): Elem = {
+      val buffer = new scala.xml.NodeBuffer
+
+      map.foreach {case (key, value) =>
+        val m = "<" + key + ">" + value + "</" + key + ">"
+        buffer += scala.xml.XML.loadString(m)
+      }
+      <metadata>{buffer}</metadata>
+    }
+
+    def breakoutRoomsToElem(rooms: Vector[String]): Elem = {
+      val buffer = new scala.xml.NodeBuffer
+
+      rooms foreach(r => buffer += <breakoutRoom>{r}</breakoutRoom>)
+
+      <breakoutRooms>{buffer}</breakoutRooms>
+    }
+
     val recordIdElem =  <recordID>{id}</recordID>
     val meetingIdElem = <meetingID>{meetingId}</meetingID>
     val meetingNameElem = <name>{meetingName}</name>
@@ -232,27 +251,71 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
     <recording>{buffer}</recording>
   }
 
-  def metaToElem(map: scala.collection.immutable.Map[String, String]): Elem = {
-    val buffer = new scala.xml.NodeBuffer
+  def toMetadataXml(): Elem = {
+    val recordIdElem = <id>{id}</id>
+    val stateElem = <state>{state}</state>
+    val publishedElem = <published>{published}</published>
+    val startTimeElem = <start_time>{startTime}</start_time>
+    val endTimeElem = <end_time>{endTime}</end_time>
+    val participantsElem = <participants>{participants}</participants>
+    val rawSizeElem = <raw_size>{rawSize}</raw_size>
 
-    map.foreach {case (key, value) =>
-      val m = "<" + key + ">" + value + "</" + key + ">"
-      buffer += scala.xml.XML.loadString(m)
+    val buffer = new scala.xml.NodeBuffer
+    buffer += recordIdElem
+    buffer += stateElem
+    buffer += publishedElem
+    buffer += startTimeElem
+    buffer += endTimeElem
+    buffer += participantsElem
+
+    meeting foreach { m =>
+      buffer += m.toMetadataXml()
     }
-    <metadata>{buffer}</metadata>
-  }
 
-  def breakoutRoomsToElem(rooms: Vector[String]): Elem = {
-    val buffer = new scala.xml.NodeBuffer
+    def metaToElem(map: scala.collection.immutable.Map[String, String]): Elem = {
+      val buffer = new scala.xml.NodeBuffer
 
-    rooms foreach(r => buffer += <breakoutRoom>{r}</breakoutRoom>)
+      map.foreach {case (key, value) =>
+        val m = "<" + key + ">" + value + "</" + key + ">"
+        buffer += scala.xml.XML.loadString(m)
+      }
+      <meta>{buffer}</meta>
+    }
 
-    <breakoutRooms>{buffer}</breakoutRooms>
+    meta foreach (m => buffer += metaToElem(m))
+    breakout foreach (b => buffer += b.toMetadataXml())
+
+    def breakoutRoomsToElem(rooms: Vector[String]): Elem = {
+      val buffer = new scala.xml.NodeBuffer
+
+      rooms foreach(r => buffer += <breakoutRoom>{r}</breakoutRoom>)
+
+      <breakoutRooms>{buffer}</breakoutRooms>
+    }
+
+    if (breakoutRooms.nonEmpty) {
+      buffer += breakoutRoomsToElem(breakoutRooms)
+    }
+
+    playback foreach(p => buffer += p.toMetadataXml())
+
+    buffer += rawSizeElem
+
+    <recording>{buffer}</recording>
   }
 }
 
 
-case class RecMetaMeeting(id: String, externalId: String, name: String, breakout: Boolean)
+case class RecMetaMeeting(id: String, externalId: String, name: String, breakout: Boolean) {
+  def toXml(): Elem = {
+      <meeting id={id} externalId={externalId} name={name} breakout={breakout.toString}/>
+  }
+
+  def toMetadataXml(): Elem = {
+      <meeting id={id} externalId={externalId} name={name} breakout={breakout.toString}/>
+  }
+}
+
 case class RecMetaPlayback(format: String, link: String, processingTime: Int,
                            duration: Int, size: Int, extensions: Option[scala.xml.NodeSeq]) {
   def toXml(): Elem = {
@@ -277,6 +340,27 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
 
     <playback>{buffer}</playback>
   }
+
+  def toMetadataXml(): Elem = {
+    val buffer = new scala.xml.NodeBuffer
+
+    val formatElem = <format>{format}</format>
+    val urlElem = <url>{link}</url>
+    val processTimeElem = <processingTime>{processingTime}</processingTime>
+    val lengthElem = <length>{duration}</length>
+
+    buffer += formatElem
+    buffer += urlElem
+    buffer += processTimeElem
+    buffer += lengthElem
+
+
+    extensions foreach {ext =>
+      buffer += ext.head
+    }
+
+    <playback>{buffer}</playback>
+  }
 }
 
 
@@ -293,5 +377,9 @@ case class RecMetaBreakout(parentId: String, sequence: Int, meetingId: String) {
     buffer += sequenceElem
 
     <breakout>{buffer}</breakout>
+  }
+
+  def toMetadataXml(): Elem = {
+      <breakout parentMeetingId={parentId} sequence={sequence.toString} meetingId={meetingId}/>
   }
 }

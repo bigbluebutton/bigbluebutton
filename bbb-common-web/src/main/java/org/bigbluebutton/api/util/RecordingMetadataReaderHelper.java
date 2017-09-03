@@ -43,24 +43,7 @@ public class RecordingMetadataReaderHelper {
   }
 
   public void saveRecordingMetadata(File metadataXml, RecordingMetadata recordingMetadata) {
-
-    //XMLOutputFactory factory  = XMLOutputFactory.newInstance();
-    JacksonXmlModule module   = new JacksonXmlModule();
-    module.setDefaultUseWrapper(false);
-
-    XmlMapper mapper  = new XmlMapper(module);
-
-    //Reading from xml file and creating XMLStreamReader
-    //XMLStreamWriter writer   = null;
-    try {
-      //writer = factory.createXMLStreamWriter(new FileOutputStream(metadataXml));
-      mapper.enable(SerializationFeature.INDENT_OUTPUT);
-      mapper.writeValue(metadataXml, recordingMetadata);
-    } catch (FileNotFoundException e) {
-      log.error("File not found: " + metadataXml.getAbsolutePath(), e);
-    } catch (IOException e) {
-      log.error("IOException on " + metadataXml.getAbsolutePath(), e);
-    }
+    recordingServiceGW.saveRecordingMetadata(metadataXml, recordingMetadata);
   }
 
   public void setRecordingServiceGW(RecordingServiceGW recordingServiceGW) {

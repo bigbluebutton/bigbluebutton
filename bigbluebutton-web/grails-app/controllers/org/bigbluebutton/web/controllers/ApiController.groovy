@@ -1619,7 +1619,7 @@ class ApiController {
       return
     }
 
-    List<String> recordIdList = new ArrayList<String>();
+    ArrayList<String> recordIdList = new ArrayList<String>();
     if (!StringUtils.isEmpty(recordId)) {
       recordIdList=paramsProcessorUtil.decodeIds(recordId);
     }

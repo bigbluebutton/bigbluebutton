@@ -351,22 +351,29 @@ public class MeetingService implements MessageListener {
   }
 
   public void setPublishRecording(List<String> idList, boolean publish) {
+    System.out.println("**** setPublishRecording");
+
     for (String id : idList) {
       if (publish) {
+        System.out.println("**** setPublishRecording - publish " + id);
         recordingService.changeState(id, Recording.STATE_PUBLISHED);
       } else {
+        System.out.println("**** setPublishRecording - unpublish " + id);
         recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
       }
     }
   }
 
   public void deleteRecordings(List<String> idList) {
+    System.out.println("**** deleteRecordings");
     for (String id : idList) {
+      System.out.println("**** deleteRecordings - deleteRecordings " + id);
       recordingService.changeState(id, Recording.STATE_DELETED);
     }
   }
 
   public void updateRecordings(List<String> idList, Map<String, String> metaParams) {
+    System.out.println("**** updateRecordings");
     recordingService.updateMetaParams(idList, metaParams);
   }
 

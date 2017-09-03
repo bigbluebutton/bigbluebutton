@@ -1,20 +1,22 @@
 package org.bigbluebutton.api2.util
 
-import java.io.{File, IOException}
+import java.io.{File, FileOutputStream, IOException}
+import java.nio.channels.Channels
 import java.util
 
 import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api2.RecordingServiceGW
-import org.bigbluebutton.api2.domain.{RecMeta, RecMetaBreakout, RecMetaMeeting, RecMetaPlayback}
+import org.bigbluebutton.api2.domain.RecMeta
 
-import scala.xml.{Elem, NodeSeq, XML}
+import scala.xml.{Elem, PrettyPrinter, XML}
 import scala.collection.JavaConverters._
 
 class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   def loadMetadataXml(path: String): Option[Elem] = {
     try {
-      val xml = XML.loadFile(path)
+      //val xml = XML.loadFile(path)
+      val xml = XML.load(new java.io.InputStreamReader(new java.io.FileInputStream(path), "UTF-8"))
       Some(xml)
     } catch {
       case ioe: IOException =>
@@ -24,6 +26,41 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         logger.info("Exception while loading {}", path)
         logger.info("Exception details: {}", ex.getMessage)
         None
+    }
+  }
+
+  def saveRecordingMetadata(xml: File, metadata: RecordingMetadata): Unit = {
+    println("Saving metadata.xml to " + xml.getAbsolutePath)
+    println(" METADATAXML \n " + metadata.getRecMeta.toMetadataXml())
+/*
+    try {
+      scala.xml.XML.save(xml.getAbsolutePath, metadata.getRecMeta.toMetadataXml(), "UTF-8", true, null)
+    } catch {
+      case ioe: IOException =>
+        logger.info("Failed to save metadataxml {}", xml.getAbsolutePath)
+      case ex: Exception =>
+        logger.info("Exception while saving {}", xml.getAbsolutePath)
+        logger.info("Exception details: {}", ex.getMessage)
+    }
+*/
+    try {
+      val Encoding = "UTF-8"
+      val pp = new PrettyPrinter(80, 2)
+      val fos = new FileOutputStream(xml.getAbsolutePath)
+      val writer = Channels.newWriter(fos.getChannel(), Encoding)
+
+      try {
+        writer.write("<?xml version='1.0' encoding='" + Encoding + "'?>\n")
+        writer.write(pp.format(metadata.getRecMeta.toMetadataXml()))
+      } finally {
+        writer.close()
+      }
+    } catch {
+      case ioe: IOException =>
+        logger.info("Failed to save metadataxml {}", xml.getAbsolutePath)
+      case ex: Exception =>
+        logger.info("Exception while saving {}", xml.getAbsolutePath)
+        logger.info("Exception details: {}", ex.getMessage)
     }
   }
 
