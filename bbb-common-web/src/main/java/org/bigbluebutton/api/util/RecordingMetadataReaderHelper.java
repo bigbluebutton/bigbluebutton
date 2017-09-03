@@ -8,55 +8,41 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javax.xml.stream.*;
 import java.io.*;
+import java.util.ArrayList;
+
+import org.bigbluebutton.api2.RecordingServiceGW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Option;
+import scala.Some;
+import scala.None;
 
 public class RecordingMetadataReaderHelper {
   private static Logger log = LoggerFactory.getLogger(RecordingMetadataReaderHelper.class);
 
-  public static String inputStreamToString(InputStream is) throws IOException {
-    StringBuilder sb = new StringBuilder();
-    String line;
-    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-    while ((line = br.readLine()) != null) {
-      sb.append(line);
-    }
-    br.close();
-    return sb.toString();
+  private RecordingServiceGW recordingServiceGW;
+
+  public String getRecordings2x(ArrayList<RecordingMetadata> recs) {
+    return recordingServiceGW.getRecordings2x(recs);
   }
 
-  public static RecordingMetadata getRecordingMetadata(File metadataXml) {
-    XMLInputFactory factory  = XMLInputFactory.newInstance();
+  public RecordingMetadata getRecordingMetadata(File metadataXml) {
 
-    JacksonXmlModule module   = new JacksonXmlModule();
-    // and then configure, for example:
-    module.setDefaultUseWrapper(false);
-
-    XmlMapper mapper  = new XmlMapper(module);
-
-    //Reading from xml file and creating XMLStreamReader
-    XMLStreamReader reader   = null;
     RecordingMetadata recMeta = null;
-    try {
-      reader = factory.createXMLStreamReader(new FileInputStream(metadataXml));
-      recMeta  = mapper.readValue(reader, RecordingMetadata.class);
-      recMeta.setMetadataXml(metadataXml.getParentFile().getName());
-    } catch (XMLStreamException e) {
-      log.error("Failed to read metadata xml for recording: " + metadataXml.getAbsolutePath(), e);
-    } catch (FileNotFoundException e) {
-      log.error("File not found: " + metadataXml.getAbsolutePath(), e);
-    } catch (IOException e) {
-      log.error("IOException on " + metadataXml.getAbsolutePath(), e);
+
+    Option<RecordingMetadata> rm = recordingServiceGW.getRecordingMetadata(metadataXml);
+    if (rm.isDefined()) {
+      return rm.get();
     }
 
     return recMeta;
   }
 
-  public static File getMetadataXmlLocation(String destDir) {
+  public File getMetadataXmlLocation(String destDir) {
     return new File(destDir + File.separatorChar + "metadata.xml");
   }
 
-  public static void saveRecordingMetadata(File metadataXml, RecordingMetadata recordingMetadata) {
+  public void saveRecordingMetadata(File metadataXml, RecordingMetadata recordingMetadata) {
 
     //XMLOutputFactory factory  = XMLOutputFactory.newInstance();
     JacksonXmlModule module   = new JacksonXmlModule();
@@ -75,5 +61,9 @@ public class RecordingMetadataReaderHelper {
     } catch (IOException e) {
       log.error("IOException on " + metadataXml.getAbsolutePath(), e);
     }
+  }
+
+  public void setRecordingServiceGW(RecordingServiceGW recordingServiceGW) {
+    this.recordingServiceGW = recordingServiceGW;
   }
 }

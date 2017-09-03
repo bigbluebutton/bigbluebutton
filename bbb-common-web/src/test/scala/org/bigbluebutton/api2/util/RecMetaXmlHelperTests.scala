@@ -8,7 +8,7 @@ class RecMetaXmlHelperTests extends UnitSpec {
 
   it should "load metadata xml" in {
    val xml = RecMetaXmlHelper.loadMetadataXml(metaFile)
-    println("METADATAXML = \n" + xml)
+   // println("METADATAXML = \n" + xml)
   }
 
   it should "get meta elements" in {
@@ -68,4 +68,58 @@ class RecMetaXmlHelperTests extends UnitSpec {
       case None => fail("Failed to load metadata.xml")
     }
   }
+
+  it should "get breakout rooms" in {
+    val xml = RecMetaXmlHelper.loadMetadataXml(metaFile)
+    xml match {
+      case Some(metaXml) =>
+        val rooms = RecMetaXmlHelper.getBreakoutRooms(metaXml)
+        println(rooms)
+        assert(rooms.length == 2)
+
+
+      case None => fail("Failed to load metadata.xml")
+    }
+  }
+
+  it should "get breakout" in {
+    val xml = RecMetaXmlHelper.loadMetadataXml(metaFile)
+    xml match {
+      case Some(metaXml) =>
+        RecMetaXmlHelper.getBreakout(metaXml) match {
+          case Some(br) => assert(br.sequence == 2)
+          case None => fail("Failed to get breakout.")
+        }
+      case None => fail("Failed to load metadata.xml")
+    }
+  }
+
+  it should "get recording metadata" in {
+    val xml = RecMetaXmlHelper.loadMetadataXml(metaFile)
+    xml match {
+      case Some(metaXml) =>
+        RecMetaXmlHelper.getRecMeta(metaXml) match {
+          case Some(br) => assert(br.id == "b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984")
+            println(RecMetaXmlHelper.getRecMetaXml(br))
+          case None => fail("Failed to get recording metadata.")
+        }
+      case None => fail("Failed to load metadata.xml")
+    }
+  }
+
+  /*
+  it should "get copy meta" in {
+    val xml = RecMetaXmlHelper.loadMetadataXml(metaFile)
+    xml match {
+      case Some(metaXml) =>
+        RecMetaXmlHelper.getMetaCopy(metaXml) match {
+          case Some(br) =>
+            println(br)
+            assert(true)
+          case None => fail("Failed to get recording metadata.")
+        }
+      case None => fail("Failed to load metadata.xml")
+    }
+  }
+  */
 }

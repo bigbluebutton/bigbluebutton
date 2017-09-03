@@ -1,12 +1,16 @@
 package org.bigbluebutton.api2.util
 
-import java.io.IOException
+import java.io.{File, IOException}
+import java.util
 
+import org.bigbluebutton.api.domain.RecordingMetadata
+import org.bigbluebutton.api2.RecordingServiceGW
 import org.bigbluebutton.api2.domain.{RecMeta, RecMetaBreakout, RecMetaMeeting, RecMetaPlayback}
 
 import scala.xml.{Elem, NodeSeq, XML}
+import scala.collection.JavaConverters._
 
-object RecMetaXmlHelper extends LogHelper {
+class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   def loadMetadataXml(path: String): Option[Elem] = {
     try {
@@ -23,108 +27,43 @@ object RecMetaXmlHelper extends LogHelper {
     }
   }
 
-  private def getText(elem: NodeSeq, key: String, default: String): String = {
-    val res = (elem \ key).text
-    if (res.isEmpty) default else res
-  }
-
-  private def getValInt(elem: NodeSeq, key: String, default: Int): Int = {
-    val res = (elem \ key).text
-    if (res.isEmpty) default else res.toInt
-  }
-
-  private def getValLong(elem: NodeSeq, key: String, default: Long): Long = {
-    val res = (elem \ key).text
-    if (res.isEmpty) default else res.toLong
-  }
-
-  def getPlayback(metaXml: Elem): Option[RecMetaPlayback] = {
-    val playback = metaXml \ "playback"
-    if (playback.isEmpty) None
-    else {
-      val format = getText(playback, "format", "unknown")
-      val link = getText(playback, "link", "unknown")
-      val processingTime = getValInt(playback, "processing_time", 0)
-      val duration = getValInt(playback, "duration", 0)
-      val size = getValInt(playback, "size", 0)
-      val extensions = getExtensions(playback)
-      Some(RecMetaPlayback(format, link, processingTime, duration, size, extensions))
+  def getRecordingMetadata(xml: File): Option[RecordingMetadata] = {
+    loadMetadataXml(xml.getAbsolutePath) match {
+      case Some(mXML) =>
+        RecMeta.getRecMeta(mXML) match {
+          case Some(rm) =>
+            val rec = new RecordingMetadata()
+            rec.setRecMeta(rm)
+            Some(rec)
+          case None => None
+        }
+      case None => None
     }
   }
 
-  def getExtensions(playbackXml: NodeSeq): Option[NodeSeq] = {
-    val extensions = playbackXml \ "extensions"
-    if (extensions.isEmpty) None
-    else Some(extensions)
-  }
+  def getRecordings2x(recs: util.ArrayList[RecordingMetadata]): String = {
+    val recMeta = recs.asScala map(r => r.getRecMeta)
+    if (recMeta.isEmpty) {
+      val resp =
+        <response>
+          <returncode>SUCCESS</returncode>
+          <recordings></recordings>
+          <messageKey>noRecordings</messageKey>
+          <message>There are no recordings for the meeting(s).</message>
+        </response>
+      val p = new scala.xml.PrettyPrinter(80, 4)
 
-  def getMeta(metaXml: Elem): Option[scala.collection.immutable.Map[String, String]] = {
-    val meta = (metaXml \ "meta")
-
-    if (meta.nonEmpty) {
-      // result has some #PCDATA entries which we don't want. Filter them out.
-      val nonPCData = meta.head.nonEmptyChildren filter (p => p.label != "#PCDATA")
-
-      val metaMap = nonPCData map { f =>
-        f.label -> f.text
-      } toMap
-
-      Some(metaMap)
+      p.format(<recording>{resp}</recording>)
     } else {
-      None
+      val buffer = new scala.xml.NodeBuffer
+      recMeta foreach(rm => buffer += rm.toXml())
+      val resp =
+        <response>
+          <returncode>SUCCESS</returncode>
+          <recordings>{buffer}</recordings>
+        </response>
+      val p = new scala.xml.PrettyPrinter(80, 4)
+      p.format(<recording>{resp}</recording>)
     }
-  }
-
-  def getMeeting(metaXml: Elem): Option[RecMetaMeeting] = {
-    val meetingNode = (metaXml \ "meeting")
-    if (meetingNode.isEmpty) {
-      None
-    } else {
-      val meetingElem = meetingNode(0) // convert from Node to Elem
-      val id = meetingElem.attribute("id").getOrElse("unknown").toString
-      val externalId = meetingElem.attribute("externalId").getOrElse("unknown").toString
-      val name = meetingElem.attribute("name").getOrElse("unknown").toString
-      val breakout = meetingElem.attribute("breakout").getOrElse("false")
-      Some(RecMetaMeeting(id, externalId, name, breakout.toString.toBoolean))
-    }
-  }
-
-  def getBreakout(metaXml: Elem): Option[RecMetaBreakout] = {
-    val breakoutNode = (metaXml \ "breakout")
-    if (breakoutNode.isEmpty) {
-      None
-    } else {
-      val breakoutElem = breakoutNode(0) // convert from Node to Elem
-      val parentId = breakoutElem.attribute("parentMeetingId").getOrElse("unknown").toString
-      val sequence = breakoutElem.attribute("sequence").getOrElse("0").toString
-      val meetingId = breakoutElem.attribute("meetingId").getOrElse("unknown").toString
-      Some(RecMetaBreakout(parentId, sequence.toInt, meetingId))
-    }
-  }
-
-  def getRecMeta(metaXml: Elem): Option[RecMeta] = {
-    val id = getText(metaXml, "id", "unknown")
-    val state = getText(metaXml, "state", "unknown")
-    val published = getText(metaXml, "published", "true")
-    val startTime = getValLong(metaXml, "start_time", 0)
-    val endTime = getValLong(metaXml, "end_time", 0)
-    val rawSize = getValInt(metaXml, "raw_size", 0)
-    val participants = getValInt(metaXml, "participants", 0)
-    val meeting = getMeeting(metaXml)
-    val meta = getMeta(metaXml)
-    val playback = getPlayback(metaXml)
-
-    Some(RecMeta(id, state, published.toString.toBoolean, startTime, endTime, participants, rawSize,
-      meeting, meta, playback))
-  }
-
-  def getRecMetaXml(r: RecMeta): Elem = {
-    val recordIdElem =  <recordID>{r.id}</recordID>
-    val meetingIdElem = <meetingID>{RecMeta.getMeetingId(r)}</meetingID>
-    val internalId = RecMeta.getInternalId(r)
-
-    val buffer = new scala.xml.NodeBuffer
-
-
   }
 }
