@@ -32,12 +32,9 @@
 <%@ page import="java.io.*"%>
 <%@ page import="java.nio.channels.FileChannel"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@ page import="import org.slf4j.Logger"%>
-<%@ page import="import org.slf4j.LoggerFactory"%>
 <%@ include file="bbb_api_conf.jsp"%> 
 
 <%!//
-	private static Logger log = LoggerFactory.getLogger("demo");
 // Create a meeting with specific 
 //    - meetingID
 //    - welcome message
@@ -609,7 +606,6 @@ public String getRecordings(String meetingID) {
 	try {
 		Document doc = null;
 		String url = getRecordingsURL(meetingID); 
-		System.out.println("Get URL : " + url);
 		doc = parseXml( getURL(url) );
 		
 		// if the request succeeded, then calculate the checksum of each meeting and insert it into the document
@@ -852,7 +848,6 @@ public static String postURL(String targetURL, String urlParameters, String cont
 //
 public static Document parseXml(String xml)
 throws ParserConfigurationException, IOException, SAXException {
-	System.out.printn(xml);
 	DocumentBuilderFactory docFactory = DocumentBuilderFactory
 	.newInstance();
 	DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
