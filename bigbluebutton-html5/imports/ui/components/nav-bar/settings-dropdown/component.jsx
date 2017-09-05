@@ -6,7 +6,7 @@ import styles from '../styles';
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
-import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
+import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 
@@ -146,7 +146,7 @@ class SettingsDropdown extends Component {
               icon="logout"
               label={intl.formatMessage(intlMessages.leaveSessionLabel)}
               description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-              onClick={() => mountModal(<LogoutConfirmation />)}
+              onClick={() => mountModal(<LogoutConfirmationContainer />)}
             />
           </DropdownList>
         </DropdownContent>

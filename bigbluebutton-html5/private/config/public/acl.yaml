@@ -24,6 +24,9 @@ acl:
     methods:
       - 'assignPresenter'
       - 'kickUser'
+      - 'muteUser'
+      - 'unmuteUser'
+      - 'endMeeting'
       - 'toggleVoice'
       - 'clearPublicChatHistory'
   presenter:

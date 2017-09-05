@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
+import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
+import styles from './styles.scss';
 
 const intlMessages = defineMessages({
   title: {
@@ -28,11 +30,20 @@ const intlMessages = defineMessages({
     id: 'app.leaveConfirmation.dismissDesc',
     description: 'adds context to dismiss option',
   },
+  endMeetingLabel: {
+    id: 'app.leaveConfirmation.endMeetingLabel',
+    description: 'End meeting button label',
+  },
+  endMeetingDesc: {
+    id: 'app.leaveConfirmation.endMeetingDesc',
+    description: 'adds context to end meeting option',
+  },
 });
 
 class LeaveConfirmation extends Component {
+
   render() {
-    const { intl, router } = this.props;
+    const { intl, router, endMeeting, isModerator } = this.props;
 
     return (
       <Modal
@@ -49,6 +60,15 @@ class LeaveConfirmation extends Component {
         }}
       >
         {intl.formatMessage(intlMessages.message)}
+        {isModerator ?
+          <Button
+            className={styles.endMeeting}
+            label={intl.formatMessage(intlMessages.endMeetingLabel)}
+            onClick={endMeeting}
+            aria-describedby={'modalEndMeetingDesc'}
+          /> : null
+        }
+        <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>
       </Modal>
     );
   }
