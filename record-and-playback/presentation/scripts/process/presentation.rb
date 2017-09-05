@@ -190,9 +190,8 @@ if not FileTest.directory?(target_dir)
         end
       else
         ext = File.extname("#{images[0]}")
-        #BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
-        command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
-        BigBlueButton.execute(command)
+        BigBlueButton::Presentation.convert_image_to_png(
+          images[0], "#{target_pres_dir}/slide-1.png", '1600x1200')
       end
 
       # Copy thumbnails from raw files
