@@ -38,6 +38,7 @@ export default class WhiteboardOverlay extends Component {
     this.checkIfOutOfBounds = this.checkIfOutOfBounds.bind(this);
     this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
     this.normalizeThickness = this.normalizeThickness.bind(this);
+    this.normalizeFont = this.normalizeFont.bind(this);
   }
 
 
@@ -69,6 +70,10 @@ export default class WhiteboardOverlay extends Component {
 
   normalizeThickness(thickness) {
     return (thickness * 100) / this.props.physicalSlideWidth;
+  }
+
+  normalizeFont(fontSize) {
+    return (fontSize * 100) / this.props.physicalSlideHeight;
   }
 
   generateNewShapeId() {
@@ -130,6 +135,7 @@ export default class WhiteboardOverlay extends Component {
       getCurrentShapeId: this.getCurrentShapeId,
       generateNewShapeId: this.generateNewShapeId,
       normalizeThickness: this.normalizeThickness,
+      normalizeFont: this.normalizeFont,
       sendAnnotation,
       resetTextShapeSession,
       setTextShapeActiveId,

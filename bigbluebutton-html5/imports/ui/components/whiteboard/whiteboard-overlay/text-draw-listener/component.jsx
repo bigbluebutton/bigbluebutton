@@ -242,7 +242,7 @@ export default class TextDrawListener extends Component {
   }
 
   handleDrawText(startPoint, width, height, status, id, text) {
-    const { normalizeThickness, sendAnnotation } = this.props.actions;
+    const { normalizeFont, sendAnnotation } = this.props.actions;
 
     const annotation = {
       id,
@@ -252,7 +252,7 @@ export default class TextDrawListener extends Component {
         x: startPoint.x, // left corner
         y: startPoint.y, // left corner
         fontColor: this.props.drawSettings.color,
-        calcedFontSize: normalizeThickness(this.props.drawSettings.textFontSize), // fontsize
+        calcedFontSize: normalizeFont(this.props.drawSettings.textFontSize), // fontsize
         textBoxWidth: width, // width
         text,
         textBoxHeight: height, // height
