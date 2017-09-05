@@ -17,15 +17,18 @@ const actions = {
     makeCall('changeWhiteboardAccess', multiUser);
   },
 
-  setWhiteboardToolbarValues: (tool, thickness, color, fontSize, textShape) => {
-    const drawSettings = {
-      whiteboardAnnotationTool: tool,
-      whiteboardAnnotationThickness: thickness,
-      whiteboardAnnotationColor: color,
-      textFontSize: fontSize,
-      textShape,
-    };
-    Storage.setItem('drawSettings', JSON.stringify(drawSettings));
+  setInitialWhiteboardToolbarValues: (tool, thickness, color, fontSize, textShape) => {
+    const _drawSettings = Storage.getItem('drawSettings');
+    if (!_drawSettings) {
+      const drawSettings = {
+        whiteboardAnnotationTool: tool,
+        whiteboardAnnotationThickness: thickness,
+        whiteboardAnnotationColor: color,
+        textFontSize: fontSize,
+        textShape,
+      };
+      Storage.setItem('drawSettings', JSON.stringify(drawSettings));
+    }
   },
 
   setTool: (tool) => {
@@ -59,6 +62,8 @@ const actions = {
       Storage.setItem('drawSettings', JSON.stringify(drawSettings));
     }
   },
+
+  getCurrentDrawSettings: () => Storage.getItem('drawSettings'),
 
   setTextShapeObject: (textShape) => {
     const drawSettings = Storage.getItem('drawSettings');

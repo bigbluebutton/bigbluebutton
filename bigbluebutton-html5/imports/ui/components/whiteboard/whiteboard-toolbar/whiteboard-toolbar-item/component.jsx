@@ -48,6 +48,7 @@ WhiteboardToolbarItem.propTypes = {
   objectToReturn: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object,
+    PropTypes.number,
   ]),
   onItemClick: PropTypes.func.isRequired,
   icon: PropTypes.string,

@@ -14,7 +14,7 @@ $toolbar-button-margin-bottom: 1px;
 /**********************************************************************************/
 $number-of-annotation-list-buttons: 7;
 $number-of-thickness-list-buttons: 7;
-$number-of-fontsize-list-buttons: 7;
+$number-of-fontsize-list-buttons: 6;
 $number-of-color-list-buttons: 12;
 $number-of-vertical-main-toolbar-buttons: 5;
 
@@ -108,6 +108,9 @@ $number-of-vertical-main-toolbar-buttons: 5;
 }
 
 .textThickness {
+  font-family: "Arial";
+  font-weight: normal;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   margin: auto;
   color: $color-white;
 

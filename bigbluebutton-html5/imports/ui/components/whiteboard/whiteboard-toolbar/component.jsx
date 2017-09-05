@@ -12,6 +12,16 @@ export default class WhiteboardToolbar extends Component {
     return parseInt(rrggbb, 16);
   }
 
+  static INTToHEXColor(intColor) {
+    let hex;
+    hex = parseInt(intColor, 10).toString(16);
+    while (hex.length < 6) {
+      hex = `0${hex}`;
+    }
+
+    return `#${hex}`;
+  }
+
   constructor(props) {
     super(props);
 
@@ -24,10 +34,7 @@ export default class WhiteboardToolbar extends Component {
         icon: 'hand',
         sessionValue: 'hand',
       },
-      thicknessSelected: {
-        iconRadius: 4,
-        sessionRadius: 3,
-      },
+      thicknessSelected: 4,
       colorSelected: '#000000',
       fontSizeSelected: 20,
 
@@ -60,18 +67,26 @@ export default class WhiteboardToolbar extends Component {
   }
 
   componentWillMount() {
-    // setting default or resetting current drawing settings in the session
-    const { annotationSelected, thicknessSelected, colorSelected, fontSizeSelected } = this.state;
-    this.props.actions.setWhiteboardToolbarValues(
-      annotationSelected.sessionValue,
-      thicknessSelected.sessionRadius,
-      WhiteboardToolbar.HEXToINTColor(colorSelected),
-      fontSizeSelected,
-      {
-        textShapeValue: '',
-        textShapeActiveId: '',
-      },
-    );
+    const drawSettings = this.props.actions.getCurrentDrawSettings();
+    // if there are saved drawSettings in the session storage
+    // - retrieve them and update toolbar values
+    if (drawSettings) {
+      this.setToolbarValues(drawSettings);
+    // no drawSettings in the sessionStorage - setting default values
+    } else {
+      // setting default drawing settings if they haven't been set previously
+      const { annotationSelected, thicknessSelected, colorSelected, fontSizeSelected } = this.state;
+      this.props.actions.setInitialWhiteboardToolbarValues(
+        annotationSelected.sessionValue,
+        thicknessSelected,
+        WhiteboardToolbar.HEXToINTColor(colorSelected),
+        fontSizeSelected,
+        {
+          textShapeValue: '',
+          textShapeActiveId: '',
+        },
+      );
+    }
   }
 
   componentDidMount() {
@@ -80,7 +95,11 @@ export default class WhiteboardToolbar extends Component {
 
     if (this.state.annotationSelected.sessionValue !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
+      this.thicknessListIconColor.beginElement();
       this.thicknessListIconRadius.beginElement();
+      this.colorListIconColor.beginElement();
+    } else {
+      this.colorListIconColor.beginElement();
     }
   }
 
@@ -93,6 +112,27 @@ export default class WhiteboardToolbar extends Component {
   componentWillUnmount() {
     // to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
+  }
+
+  setToolbarValues(drawSettings) {
+    // divide by 2, since we need the radius for the thickness icon
+    const thicknessSelected = drawSettings.whiteboardAnnotationThickness / 2;
+    const fontSizeSelected = drawSettings.textFontSize;
+    const colorSelected = WhiteboardToolbar.INTToHEXColor(drawSettings.whiteboardAnnotationColor);
+
+    let annotationSelected = {};
+    for (let i = 0; i < this.props.annotations.length; i += 1) {
+      if (drawSettings.whiteboardAnnotationTool === this.props.annotations[i].sessionValue) {
+        annotationSelected = this.props.annotations[i];
+        break;
+      }
+    }
+    this.setState({
+      colorSelected,
+      fontSizeSelected,
+      thicknessSelected,
+      annotationSelected,
+    });
   }
 
   animateSvgIcons(prevState) {
@@ -119,7 +159,7 @@ export default class WhiteboardToolbar extends Component {
         this.thicknessListIconColor.beginElement();
       }
     // 2nd case
-    } else if (this.state.thicknessSelected.iconRadius !== prevState.thicknessSelected.iconRadius) {
+    } else if (this.state.thicknessSelected !== prevState.thicknessSelected) {
       this.thicknessListIconRadius.beginElement();
       // 3rd case
     } else if (this.state.annotationSelected.sessionValue !== 'text' &&
@@ -128,7 +168,7 @@ export default class WhiteboardToolbar extends Component {
       this.thicknessListIconColor.beginElement();
     }
 
-    // 4th case, initial animation (just thickness) is triggered in componentDidMount
+    // 4th case, initial animation is triggered in componentDidMount
   }
 
   // open a submenu
@@ -186,22 +226,23 @@ export default class WhiteboardToolbar extends Component {
 
   // changes a current selected thickness both in the state and in the session
   // and closes the thickness list
-  handleThicknessChange(thicknessObj) {
-    this.props.actions.setThickness(thicknessObj.sessionRadius);
+  handleThicknessChange(thicknessValue) {
+    // thicknessValue * 2 since this is radius, we need to double it
+    this.props.actions.setThickness(thicknessValue * 2);
 
     this.setState({
-      prevIconRadius: this.state.thicknessSelected.iconRadius,
-      thicknessSelected: thicknessObj,
+      prevIconRadius: this.state.thicknessSelected,
+      thicknessSelected: thicknessValue,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
     });
   }
 
-  handleFontSizeChange(fontSizeObj) {
-    this.props.actions.setFontSize(fontSizeObj.fontSize);
+  handleFontSizeChange(fontSizeValue) {
+    this.props.actions.setFontSize(fontSizeValue);
 
     this.setState({
-      fontSizeSelected: fontSizeObj.fontSize,
+      fontSizeSelected: fontSizeValue,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
     });
@@ -262,21 +303,21 @@ export default class WhiteboardToolbar extends Component {
 
     return (
       <div className={cx(styles.fontSizeList, styles.toolbarList)}>
-        {fontSizes ? fontSizes.map(fontSizeObj =>
+        {fontSizes ? fontSizes.map(fontSizeValue =>
           (
             <WhiteboardToolbarItem
               label={'Font Size'}
               customIcon={
-                <p className={styles.textThickness} style={{ fontSize: fontSizeObj.fontSize }}>
+                <p className={styles.textThickness} style={{ fontSize: fontSizeValue }}>
                   Aa
                 </p>
               }
               onItemClick={this.handleFontSizeChange}
-              objectToReturn={fontSizeObj}
-              className={cx(styles.toolbarListButton, styles.fontSizeListButton, this.state.fontSizeSelected === fontSizeObj.fontSize ? styles.selectedListButton : '')}
+              objectToReturn={fontSizeValue}
+              className={cx(styles.toolbarListButton, styles.fontSizeListButton, this.state.fontSizeSelected === fontSizeValue ? styles.selectedListButton : '')}
               onMouseEnter={this.disableOnBlur}
               onMouseLeave={this.enableOnBlur}
-              key={fontSizeObj.fontSize}
+              key={fontSizeValue}
             />
           ),
         ) : null}
@@ -289,21 +330,21 @@ export default class WhiteboardToolbar extends Component {
 
     return (
       <div className={cx(styles.thicknessList, styles.toolbarList)}>
-        {thicknessRadiuses ? thicknessRadiuses.map(thicknessObj =>
+        {thicknessRadiuses ? thicknessRadiuses.map(thicknessRadius =>
           (
             <WhiteboardToolbarItem
               label={'Radius'}
               customIcon={
                 <svg className={styles.customSvgIcon}>
-                  <circle cx="50%" cy="50%" r={thicknessObj.iconRadius} fill="#F3F6F9" />
+                  <circle cx="50%" cy="50%" r={thicknessRadius} fill="#F3F6F9" />
                 </svg>
               }
               onItemClick={this.handleThicknessChange}
-              objectToReturn={thicknessObj}
-              className={cx(styles.toolbarListButton, this.state.thicknessSelected.sessionRadius === thicknessObj.sessionRadius ? styles.selectedListButton : '')}
+              objectToReturn={thicknessRadius}
+              className={cx(styles.toolbarListButton, this.state.thicknessSelected === thicknessRadius ? styles.selectedListButton : '')}
               onMouseEnter={this.disableOnBlur}
               onMouseLeave={this.enableOnBlur}
-              key={thicknessObj.sessionRadius}
+              key={thicknessRadius}
             />
           ),
         ) : null}
@@ -404,7 +445,7 @@ export default class WhiteboardToolbar extends Component {
                         attributeName="r"
                         attributeType="XML"
                         from={this.state.prevIconRadius}
-                        to={this.state.thicknessSelected.iconRadius}
+                        to={this.state.thicknessSelected}
                         begin={'indefinite'}
                         dur="0.4s"
                         repeatCount="0"
@@ -468,18 +509,11 @@ export default class WhiteboardToolbar extends Component {
 
 WhiteboardToolbar.defaultProps = {
   colors: [
-    '#000000', '#FFFFFF', '#FF0000', '#FF8800', '#CCFF00', '#00FF00',
-    '#00FFFF', '#0088FF', '#0000FF', '#8800FF', '#FF00FF', '#C0C0C0',
+    '#000000', '#ffffff', '#ff0000', '#ff8800', '#ccff00', '#00ff00',
+    '#00ffff', '#0088ff', '#0000ff', '#8800ff', '#ff00ff', '#c0c0c0',
   ],
-  thicknessRadiuses: [
-    { iconRadius: 14, sessionRadius: 30 },
-    { iconRadius: 12, sessionRadius: 22 },
-    { iconRadius: 10, sessionRadius: 15 },
-    { iconRadius: 8, sessionRadius: 10 },
-    { iconRadius: 6, sessionRadius: 6 },
-    { iconRadius: 4, sessionRadius: 3 },
-    { iconRadius: 2, sessionRadius: 1 },
-  ],
+  thicknessRadiuses: [14, 12, 10, 8, 6, 4, 2],
+  fontSizes: [36, 32, 28, 24, 20, 16],
   annotations: [
     { icon: 'text_tool', sessionValue: 'text' },
     { icon: 'linte_tool', sessionValue: 'line' },
@@ -488,15 +522,6 @@ WhiteboardToolbar.defaultProps = {
     { icon: 'rectangle_tool', sessionValue: 'rectangle' },
     { icon: 'pen_tool', sessionValue: 'pencil' },
     { icon: 'hand', sessionValue: 'hand' },
-  ],
-  fontSizes: [
-    { fontSize: 36 },
-    { fontSize: 32 },
-    { fontSize: 28 },
-    { fontSize: 24 },
-    { fontSize: 20 },
-    { fontSize: 16 },
-    { fontSize: 12 },
   ],
 };
 
@@ -521,13 +546,13 @@ WhiteboardToolbar.propTypes = {
   annotations: PropTypes.arrayOf(PropTypes.object).isRequired,
 
   // defines an array of font-sizes for the Font-size submenu of the text shape
-  fontSizes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  fontSizes: PropTypes.arrayOf(PropTypes.number).isRequired,
 
   // defines an array of colors for the toolbar (color submenu)
   colors: PropTypes.arrayOf(PropTypes.string).isRequired,
 
   // defines an array of thickness values for the toolbar and their corresponding session values
-  thicknessRadiuses: PropTypes.arrayOf(PropTypes.object).isRequired,
+  thicknessRadiuses: PropTypes.arrayOf(PropTypes.number).isRequired,
 
   // defines the physical height of the whiteboard
   height: PropTypes.number.isRequired,
