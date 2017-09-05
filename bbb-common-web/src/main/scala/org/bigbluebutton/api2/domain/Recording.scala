@@ -326,7 +326,7 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
   def toXml(): Elem = {
     val buffer = new scala.xml.NodeBuffer
 
-    val formatElem = <format>{format}</format>
+    val formatElem = <type>{format}</type>
     val urlElem = <url>{link}</url>
     val processTimeElem = <processingTime>{processingTime}</processingTime>
     val lengthElem = <length>{duration}</length>
@@ -343,7 +343,7 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
 
     }
 
-    <playback>{buffer}</playback>
+    <playback><format>{buffer}</format></playback>
   }
 
   def toMetadataXml(): Elem = {
