@@ -47,7 +47,11 @@ module.exports = class WebServer {
     const urlObj = url.parse(req.url, true);
     const callbackURL = urlObj.query["callbackURL"];
     const meetingID = urlObj.query["meetingID"];
-    const getRaw = JSON.parse(urlObj.query["getRaw"].toLowerCase());
+    let getRaw = urlObj.query["getRaw"];
+    if(getRaw){
+      getRaw = JSON.parse(getRaw.toLowerCase());
+    }
+    else getRaw = false
 
     if (callbackURL == null) {
       respondWithXML(res, config.api.responses.missingParamCallbackURL);
