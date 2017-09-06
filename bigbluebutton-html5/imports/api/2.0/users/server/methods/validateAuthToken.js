@@ -42,5 +42,5 @@ export default function validateAuthToken(credentials) {
 
   const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publ(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

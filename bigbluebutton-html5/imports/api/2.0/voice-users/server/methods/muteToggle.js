@@ -20,5 +20,5 @@ export default function muteToggle(credentials, userId) {
 
   const header = buildMessageHeader(EVENT_NAME, meetingId, userId);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publ(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

@@ -53,7 +53,7 @@ export default function publishVote(credentials, id, pollAnswerId) { // TODO dis
 
   Polls.update(selector, modifier, cb);
 
-  const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
+  //const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }

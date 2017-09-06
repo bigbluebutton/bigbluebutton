@@ -40,7 +40,34 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
-  publish(channel, eventName, meetingId, payload = {}, header = {}) {
+  publish(channel, eventName, meetingId, payload = {}, userId = {}) {
+    const envelope = {
+      envelope: {
+        name: eventName,
+        routing: {
+          sender: 'bbb-apps-akka',
+          // sender: 'html5-server', // TODO
+        }
+      },
+      core: {
+        header: Object.assign({
+          name: eventName,        
+          timestamp: new Date().getTime(),
+          meetingId,
+        }, userId),
+        body: payload,
+      }
+    };
+
+   Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
+    return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
+      if (err) {
+        Logger.error('Tried to publish to %s', channel, envelope);
+      }
+    });
+  }
+
+  publ(channel, eventName, meetingId, payload = {}, header = {}) {
     const header2x = {
       name: eventName,
       meetingId,

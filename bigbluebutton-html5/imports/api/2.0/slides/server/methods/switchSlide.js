@@ -46,7 +46,7 @@ export default function switchSlide(credentials, slideNumber) {
     presentationId: Presentation.id,
   };
 
-  const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
+  //const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }

@@ -17,9 +17,9 @@ const requestWhiteboardHistory = (meetingId, slideId) => {
     whiteboardId: slideId,
   };
 
-  const header = buildMessageHeader(EVENT_NAME, meetingId, { userId: 'nodeJSapp' });
+  //const header = buildMessageHeader(EVENT_NAME, meetingId, { userId: 'nodeJSapp' });
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: 'nodeJSapp' });
 };
 
 const SUPPORTED_TYPES = [SVG, PNG];

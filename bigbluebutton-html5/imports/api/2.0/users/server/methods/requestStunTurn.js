@@ -19,7 +19,7 @@ export default function requestStunTurn(meetingId, requesterUserId) {
 
   Logger.verbose(`User '${requesterUserId}' requested stun/turn from meeting '${meetingId}'`);
 
-  const header = buildMessageHeader(EVENT_NAME, meetingId);
+  //const header = buildMessageHeader(EVENT_NAME, meetingId);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload);
 }

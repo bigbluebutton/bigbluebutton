@@ -22,5 +22,5 @@ export default function userJoin(meetingId, userId, authToken) {
 
   const header = buildMessageHeader(EVENT_NAME, meetingId, userId);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publ(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }
