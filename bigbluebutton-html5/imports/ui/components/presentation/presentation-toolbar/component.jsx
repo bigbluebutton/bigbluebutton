@@ -19,7 +19,7 @@ class PresentationToolbar extends Component {
   static renderAriaLabelsDescs() {
     return (
       <div hidden >
-        {/* Previous Slide button aria */}
+        {/* Previous Slide button aria*/}
         <div id="prevSlideLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.prevSlideLabel"
@@ -27,14 +27,14 @@ class PresentationToolbar extends Component {
             defaultMessage="Previous slide"
           />
         </div>
-        <div id="prevSlideDescrip">
+        <div id="prevSlideDesc">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.prevSlideDescrip"
+            id="app.presentation.presentationToolbar.prevSlideDesc"
             description="Aria description for when switching to previous slide"
             defaultMessage="Change the presentation to the previous slide"
           />
         </div>
-        {/* Next Slide button aria */}
+        {/* Next Slide button aria*/}
         <div id="nextSlideLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.nextSlideLabel"
@@ -42,14 +42,14 @@ class PresentationToolbar extends Component {
             defaultMessage="Next slide"
           />
         </div>
-        <div id="nextSlideDescrip">
+        <div id="nextSlideDesc">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.nextSlideDescrip"
+            id="app.presentation.presentationToolbar.nextSlideDesc"
             description="Aria description for when switching to next slide"
             defaultMessage="Change the presentation to the next slide"
           />
         </div>
-        {/* Skip Slide drop down aria */}
+        {/* Skip Slide drop down aria*/}
         <div id="skipSlideLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.skipSlideLabel"
@@ -57,14 +57,14 @@ class PresentationToolbar extends Component {
             defaultMessage="Skip slide"
           />
         </div>
-        <div id="skipSlideDescrip">
+        <div id="skipSlideDesc">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.skipSlideDescrip"
+            id="app.presentation.presentationToolbar.skipSlideDesc"
             description="Aria description for when switching to a specific slide"
             defaultMessage="Change the presentation to a specific slide"
           />
         </div>
-        {/* Fit to width button aria */}
+        {/* Fit to width button aria*/}
         <div id="fitWidthLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.fitWidthLabel"
@@ -72,14 +72,14 @@ class PresentationToolbar extends Component {
             defaultMessage="Fit to width"
           />
         </div>
-        <div id="fitWidthDescrip">
+        <div id="fitWidthDesc">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.fitWidthDescrip"
+            id="app.presentation.presentationToolbar.fitWidthDesc"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Display the whole width of the slide"
           />
         </div>
-        {/* Fit to screen button aria */}
+        {/* Fit to screen button aria*/}
         <div id="fitScreenLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.fitScreenLabel"
@@ -87,14 +87,14 @@ class PresentationToolbar extends Component {
             defaultMessage="Fit to screen"
           />
         </div>
-        <div id="fitScreenDescrip">
+        <div id="fitScreenDesc">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.fitScreenDescrip"
+            id="app.presentation.presentationToolbar.fitScreenDesc"
             description="Aria label to display the whole slide"
             defaultMessage="Display the whole slide"
           />
         </div>
-        {/* Zoom slider aria */}
+        {/* Zoom slider aria*/}
         <div id="zoomLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomLabel"
@@ -102,9 +102,9 @@ class PresentationToolbar extends Component {
             defaultMessage="Zoom"
           />
         </div>
-        <div id="zoomDescrip">
+        <div id="zoomDesc">
           <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomDescrip"
+            id="app.presentation.presentationToolbar.zoomDesc"
             description="Aria label to zoom presentation"
             defaultMessage="Change the zoom level of the presentation"
           />
@@ -177,7 +177,7 @@ class PresentationToolbar extends Component {
         <Button
           role="button"
           aria-labelledby="prevSlideLabel"
-          aria-describedby="prevSlideDescrip"
+          aria-describedby="prevSlideDesc"
           disabled={!(currentSlideNum > 1)}
           color={'default'}
           icon={'left_arrow'}
@@ -191,7 +191,7 @@ class PresentationToolbar extends Component {
           // <select> has an implicit role of listbox, no need to define role="listbox" explicitly
           id="skipSlide"
           aria-labelledby="skipSlideLabel"
-          aria-describedby="skipSlideDescrip"
+          aria-describedby="skipSlideDesc"
           aria-live="polite"
           aria-relevant="all"
           value={currentSlideNum}
@@ -203,7 +203,7 @@ class PresentationToolbar extends Component {
         <Button
           role="button"
           aria-labelledby="nextSlideLabel"
-          aria-describedby="nextSlideDescrip"
+          aria-describedby="nextSlideDesc"
           disabled={!(currentSlideNum < numberOfSlides)}
           color={'default'}
           icon={'right_arrow'}
@@ -217,7 +217,7 @@ class PresentationToolbar extends Component {
         <Button
           role="button"
           aria-labelledby="fitWidthLabel"
-          aria-describedby="fitWidthDescrip"
+          aria-describedby="fitWidthDesc"
           color={'default'}
           icon={'fit_to_width'}
           size={'md'}
@@ -230,7 +230,7 @@ class PresentationToolbar extends Component {
         <Button
           role="button"
           aria-labelledby="fitScreenLabel"
-          aria-describedby="fitScreenDescrip"
+          aria-describedby="fitScreenDesc"
           color={'default'}
           icon={'fit_to_screen'}
           size={'md'}
@@ -247,7 +247,7 @@ class PresentationToolbar extends Component {
           <input
             role="slider"
             aria-labelledby="zoomLabel"
-            aria-describedby="zoomDescrip"
+            aria-describedby="zoomDesc"
             aria-valuemax="400"
             aria-valuemin="100"
             aria-valuenow={this.state.sliderValue}
@@ -261,10 +261,11 @@ class PresentationToolbar extends Component {
             className={styles.zoomSlider}
           />
           <div className={styles.zoomMinMax}> 400% </div>
-        </div> */}
+        </div>*/}
       </div>
     );
   }
+
 }
 
 PresentationToolbar.propTypes = {

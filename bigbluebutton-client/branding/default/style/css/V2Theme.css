@@ -661,6 +661,22 @@ mx|CheckBox {
 	verticalGap               : 0;
 }
 
+.sharedNotesColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 5;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 28;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
 /*
 //------------------------------
 //  ComboBox
@@ -1303,10 +1319,6 @@ sharednotes|SharedNotesRichTextEditor {
 
 .sharedNotesFormatButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Format_Text");
-}
-
-.sharedNotesClearButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings"); /* TEMPORARY */
 }
 
 /*

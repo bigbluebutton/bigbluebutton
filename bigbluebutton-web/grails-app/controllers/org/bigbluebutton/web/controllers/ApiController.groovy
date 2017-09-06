@@ -1528,12 +1528,12 @@ class ApiController {
       externalMeetingIds=paramsProcessorUtil.decodeIds(params.meetingID);
     }
 
-    List<String> internalRecordIds = new ArrayList<String>()
+    ArrayList<String> internalRecordIds = new ArrayList<String>()
     if (!StringUtils.isEmpty(params.recordID)) {
       internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
     }
 
-    List<String> states = new ArrayList<String>()
+    ArrayList<String> states = new ArrayList<String>()
     if (!StringUtils.isEmpty(params.state)) {
       states = paramsProcessorUtil.decodeIds(params.state)
     }
@@ -1549,33 +1549,13 @@ class ApiController {
       log.debug intRecId
     }
 
-    List<RecordingMetadata> recsList = meetingService.getRecordingsMetadata(internalRecordIds, states);
-    List<RecordingMetadata> recs = meetingService.filterRecordingsByMetadata(recsList, ParamsProcessorUtil.processMetaParam(params));
+    Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params);
 
-    if (recs.isEmpty()) {
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              recordings(null)
-              messageKey("noRecordings")
-              message("There are not recordings for the meetings")
-            }
-          }
-        }
-      }
-      return;
-    }
+    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters)
 
-    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
-    ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
-
-    def xmlText = responseBuilder.buildGetRecordingsResponse(recs, RESP_CODE_SUCCESS)
     withFormat {
       xml {
-        render(text: xmlText, contentType: "text/xml")
+        render(text: getRecordingsResult, contentType: "text/xml")
       }
     }
   }
@@ -1639,7 +1619,7 @@ class ApiController {
       return
     }
 
-    List<String> recordIdList = new ArrayList<String>();
+    ArrayList<String> recordIdList = new ArrayList<String>();
     if (!StringUtils.isEmpty(recordId)) {
       recordIdList=paramsProcessorUtil.decodeIds(recordId);
     }

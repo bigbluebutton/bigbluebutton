@@ -158,6 +158,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 			LOGGER.debug("switchToFitToPage");
 			
 			this.fitToPage = ftp;
+			
+			saveViewedRegion(0,0,100,100);
+			
 			calculateViewportSize();
 			calculateViewportXY();			
 		}

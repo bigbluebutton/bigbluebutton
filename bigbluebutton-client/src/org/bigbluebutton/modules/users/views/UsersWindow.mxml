@@ -240,7 +240,7 @@ $Id: $
       private function onCreationComplete():void {
         dispatcher = new Dispatcher();
         
-        handler.populateAllUsers()
+        handler.populateAllUsers(usersGrid)
         users = handler.users;
         
         breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
