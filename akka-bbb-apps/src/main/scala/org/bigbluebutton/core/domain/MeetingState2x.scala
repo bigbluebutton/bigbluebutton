@@ -1,12 +1,14 @@
 package org.bigbluebutton.core.domain
 
 import org.bigbluebutton.core.apps.BreakoutModel
+import org.bigbluebutton.core.models.GroupChats
 
 object MeetingState2x {
 
 }
 
 case class MeetingState2x(
+                         groupChats: GroupChats,
     breakout:          Option[BreakoutModel],
     inactivityTracker: MeetingInactivityTracker,
     expiryTracker:     MeetingExpiryTracker

@@ -15,7 +15,6 @@ case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
   def update(chat: GroupChat): GroupChats = add(chat)
 }
 
-case class GroupChatUser(id: String, name: String)
 case class GroupChat(id: String, name: String, open: Boolean, createdBy: String,
                      users: collection.immutable.Map[String, GroupChatUser],
                      msgs:  collection.immutable.Map[String, GroupChatMessage]) {
@@ -26,5 +25,6 @@ case class GroupChat(id: String, name: String, open: Boolean, createdBy: String,
   def update(msg: GroupChatMessage): GroupChat = add(msg)
 }
 
+case class GroupChatUser(id: String, name: String)
 case class GroupChatMessage(id: String, createdOn: Long, updatedOn: Long, sender: String,
                             font: String, size: Int, color: String, message: String)
