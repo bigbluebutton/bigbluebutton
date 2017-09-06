@@ -26,7 +26,7 @@ const getWhiteboardToolbarValues = () => {
       textShapeActiveId: textShape.textShapeActiveId ? textShape.textShapeActiveId : '',
     };
   }
-  return undefined;
+  return {};
 };
 
 const resetTextShapeSession = () => {

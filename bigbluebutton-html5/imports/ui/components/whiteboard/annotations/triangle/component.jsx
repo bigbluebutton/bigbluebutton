@@ -39,7 +39,7 @@ export default class TriangleDrawComponent extends Component {
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         fill="none"
-        stroke={AnnotationHelpers.formatColor(annotation.color)}
+        stroke={AnnotationHelpers.getFormattedColor(annotation.color)}
         d={path}
         strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"

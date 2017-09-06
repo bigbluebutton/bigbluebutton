@@ -54,7 +54,7 @@ export default class RectangleDrawComponent extends Component {
         width={results.width}
         height={results.height}
         fill="none"
-        stroke={AnnotationHelpers.formatColor(annotation.color)}
+        stroke={AnnotationHelpers.getFormattedColor(annotation.color)}
         strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
       />

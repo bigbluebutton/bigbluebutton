@@ -34,7 +34,7 @@ ReactiveAnnotationContainer.propTypes = {
     PropTypes.number,
     PropTypes.object,
   ])),
-  drawObject: PropTypes.instanceOf(Function).isRequired,
+  drawObject: PropTypes.func.isRequired,
   slideWidth: PropTypes.number.isRequired,
   slideHeight: PropTypes.number.isRequired,
 };

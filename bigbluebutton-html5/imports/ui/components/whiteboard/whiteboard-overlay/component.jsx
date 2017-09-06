@@ -90,26 +90,26 @@ export default class WhiteboardOverlay extends Component {
     let y = point.y;
 
     // set this flag to true if either x or y are out of bounds
-    let shouldUnSelect = false;
+    let shouldUnselect = false;
 
     if (x < viewBoxX) {
       x = viewBoxX;
-      shouldUnSelect = true;
+      shouldUnselect = true;
     } else if (x > viewBoxX + viewBoxWidth) {
       x = viewBoxX + viewBoxWidth;
-      shouldUnSelect = true;
+      shouldUnselect = true;
     }
 
     if (y < viewBoxY) {
       y = viewBoxY;
-      shouldUnSelect = true;
+      shouldUnselect = true;
     } else if (y > viewBoxY + viewBoxHeight) {
       y = viewBoxY + viewBoxHeight;
-      shouldUnSelect = true;
+      shouldUnselect = true;
     }
 
     // if either x or y are out of bounds - remove selection from potentially selected elements
-    if (shouldUnSelect) {
+    if (shouldUnselect) {
       WhiteboardOverlay.unSelect();
     }
 

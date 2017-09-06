@@ -97,21 +97,18 @@ export default class PencilDrawComponent extends Component {
   }
 
   getCoordinates(annotation, slideWidth, slideHeight) {
+    let data;
     // Final message, display smoothes coordinates
     if (annotation.status === 'DRAW_END') {
-      const data = PencilDrawComponent.getFinalCoordinates(annotation, slideWidth, slideHeight);
-      this.points = data.points;
-      return data.path;
-
+      data = PencilDrawComponent.getFinalCoordinates(annotation, slideWidth, slideHeight);
     // Not a final message, but rendering it for the first time, creating a new path
     } else if (!this.path) {
-      const data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
-      this.points = data.points;
-      return data.path;
+      data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
+    // If it's not the first 2 cases - means we just got an update, updating the coordinates
+    } else {
+      data = this.updateCoordinates(annotation, slideWidth, slideHeight);
     }
 
-    // If it's not the first 2 cases - means we just got an update, updating the coordinates
-    const data = this.updateCoordinates(annotation, slideWidth, slideHeight);
     this.points = data.points;
     return data.path;
   }
@@ -140,7 +137,7 @@ export default class PencilDrawComponent extends Component {
     return (
       <path
         fill="none"
-        stroke={AnnotationHelpers.formatColor(annotation.color)}
+        stroke={AnnotationHelpers.getFormattedColor(annotation.color)}
         d={this.getCurrentPath()}
         strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="round"

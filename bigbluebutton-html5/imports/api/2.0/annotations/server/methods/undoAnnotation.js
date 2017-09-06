@@ -16,21 +16,22 @@ export default function undoAnnotation(credentials, whiteboardId) {
   check(requesterToken, String);
   check(whiteboardId, String);
 
-  if (Acl.can('methods.undoAnnotation', credentials) || getMultiUserStatus(meetingId)) {
-    const header = {
-      name: EVENT_NAME,
-      meetingId,
-      userId: requesterUserId,
-    };
-
-    const payload = {
-      whiteboardId,
-    };
-
-    return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  const allowed = Acl.can('methods.undoAnnotation', credentials) || getMultiUserStatus(meetingId);
+  if (!allowed) {
+    throw new Meteor.Error(
+      'not-allowed', `User ${requesterUserId} is not allowed to undo the annotation`,
+    );
   }
 
-  throw new Meteor.Error(
-    'not-allowed', `User ${requesterUserId} is not allowed to undo the annotation`,
-  );
+  const header = {
+    name: EVENT_NAME,
+    meetingId,
+    userId: requesterUserId,
+  };
+
+  const payload = {
+    whiteboardId,
+  };
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

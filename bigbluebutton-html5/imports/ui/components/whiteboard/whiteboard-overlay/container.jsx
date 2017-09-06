@@ -5,7 +5,7 @@ import WhiteboardOverlayService from './service';
 import WhiteboardOverlay from './component';
 
 const WhiteboardOverlayContainer = ({ ...props }) => {
-  if (props.drawSettings) {
+  if (Object.keys(props.drawSettings).length > 0) {
     return (
       <WhiteboardOverlay {...props} />
     );
@@ -40,5 +40,5 @@ WhiteboardOverlayContainer.propTypes = {
 };
 
 WhiteboardOverlayContainer.defaultProps = {
-  drawSettings: undefined,
+  drawSettings: {},
 };

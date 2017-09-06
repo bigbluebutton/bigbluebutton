@@ -141,7 +141,7 @@ export default class WhiteboardToolbar extends Component {
      * we have 4 main cases:
      * 1. Color change -
          a) Text tool is selected, Font-Size icon substitutes the thickness icon,
-            thus we need to trigger just color change for the color icon
+            thus we need to trigger the color change just for the color icon
          b) Any other tool than Text tool is selected - trigger color change for both icons
      * 2. Thickness change - trigger radius for the thickness icon
      * 3. Switch from the Text tool to any other - trigger color and radius for thickness
@@ -150,14 +150,12 @@ export default class WhiteboardToolbar extends Component {
 
     // 1st case
     if (this.state.colorSelected !== prevState.colorSelected) {
-      // 1st case a)
-      if (this.state.annotationSelected.sessionValue === 'text') {
-        this.colorListIconColor.beginElement();
       // 1st case b)
-      } else {
-        this.colorListIconColor.beginElement();
+      if (this.state.annotationSelected.sessionValue !== 'text') {
         this.thicknessListIconColor.beginElement();
       }
+      // 1st case a)
+      this.colorListIconColor.beginElement();
     // 2nd case
     } else if (this.state.thicknessSelected !== prevState.thicknessSelected) {
       this.thicknessListIconRadius.beginElement();

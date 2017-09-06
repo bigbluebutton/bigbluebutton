@@ -26,7 +26,7 @@ export default class StaticAnnotation extends React.Component {
 
 StaticAnnotation.propTypes = {
   shapeId: PropTypes.string.isRequired,
-  drawObject: PropTypes.instanceOf(Function).isRequired,
+  drawObject: PropTypes.func.isRequired,
   slideWidth: PropTypes.number.isRequired,
   slideHeight: PropTypes.number.isRequired,
 };

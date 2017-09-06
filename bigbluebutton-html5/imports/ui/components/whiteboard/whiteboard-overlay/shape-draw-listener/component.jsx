@@ -51,48 +51,49 @@ export default class ShapeDrawListener extends Component {
 
   // main mouse down handler
   mouseDownHandler(event) {
-    if (!this.isDrawing) {
-      window.addEventListener('mouseup', this.mouseUpHandler);
-      window.addEventListener('mousemove', this.mouseMoveHandler, true);
-      this.isDrawing = true;
-
-      const {
-        getTransformedSvgPoint,
-        generateNewShapeId,
-        svgCoordinateToPercentages,
-      } = this.props.actions;
-
-      // sending the first message
-      let transformedSvgPoint = getTransformedSvgPoint(event);
-
-      // transforming svg coordinate to percentages relative to the slide width/height
-      transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
-
-      // generating new shape id
-      generateNewShapeId();
-
-      // setting the initial current status
-      this.currentStatus = 'DRAW_START';
-
-      // saving the coordinates for future references
-      this.initialCoordinate = {
-        x: transformedSvgPoint.x,
-        y: transformedSvgPoint.y,
-      };
-
-      this.currentCoordinate = {
-        x: transformedSvgPoint.x,
-        y: transformedSvgPoint.y,
-      };
-
-      // All the messages will be send on timer by sendCoordinates func
-      this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
-
-      // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
-      // but the browser didn't catch it. So check it here.
-    } else {
-      this.sendLastMessage();
+    // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
+    // but the browser didn't catch it. So check it here.
+    if (this.isDrawing) {
+      return this.sendLastMessage();
     }
+
+    window.addEventListener('mouseup', this.mouseUpHandler);
+    window.addEventListener('mousemove', this.mouseMoveHandler, true);
+    this.isDrawing = true;
+
+    const {
+      getTransformedSvgPoint,
+      generateNewShapeId,
+      svgCoordinateToPercentages,
+    } = this.props.actions;
+
+    // sending the first message
+    let transformedSvgPoint = getTransformedSvgPoint(event);
+
+    // transforming svg coordinate to percentages relative to the slide width/height
+    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
+
+    // generating new shape id
+    generateNewShapeId();
+
+    // setting the initial current status
+    this.currentStatus = 'DRAW_START';
+
+    // saving the coordinates for future references
+    this.initialCoordinate = {
+      x: transformedSvgPoint.x,
+      y: transformedSvgPoint.y,
+    };
+
+    this.currentCoordinate = {
+      x: transformedSvgPoint.x,
+      y: transformedSvgPoint.y,
+    };
+
+    // All the messages will be send on timer by sendCoordinates func
+    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
+
+    return true;
   }
 
   // main mouse move handler

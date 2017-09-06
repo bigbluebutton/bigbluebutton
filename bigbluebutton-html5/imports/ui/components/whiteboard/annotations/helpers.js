@@ -8,7 +8,7 @@ const colourToHex = (value) => {
   return `#${hex}`;
 };
 
-const formatColor = (color) => {
+const getFormattedColor = (color) => {
   let _color;
 
   if (!color) {
@@ -27,6 +27,6 @@ const formatColor = (color) => {
 const getStrokeWidth = (thickness, slideWidth) => (thickness * slideWidth) / 100;
 
 export default {
-  formatColor,
+  getFormattedColor,
   getStrokeWidth,
 };

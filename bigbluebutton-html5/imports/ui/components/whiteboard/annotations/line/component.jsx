@@ -28,14 +28,15 @@ export default class LineDrawComponent extends Component {
   render() {
     const results = this.getCoordinates();
     const { annotation, slideWidth } = this.props;
+    const { x1, y1, x2, y2 } = results;
 
     return (
       <line
-        x1={results.x1}
-        y1={results.y1}
-        x2={results.x2}
-        y2={results.y2}
-        stroke={AnnotationHelpers.formatColor(annotation.color)}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke={AnnotationHelpers.getFormattedColor(annotation.color)}
         strokeLinejoin="round"
         strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}

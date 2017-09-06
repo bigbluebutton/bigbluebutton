@@ -24,14 +24,15 @@ class CursorContainer extends Component {
 
   render() {
     const { cursorX, cursorY } = this.props;
+    const { labelBoxWidth, labelBoxHeight } = this.state;
 
     if (cursorX > 0 && cursorY > 0) {
       return (
         <Cursor
           cursorX={cursorX}
           cursorY={cursorY}
-          labelBoxWidth={this.state.labelBoxWidth}
-          labelBoxHeight={this.state.labelBoxHeight}
+          labelBoxWidth={labelBoxWidth}
+          labelBoxHeight={labelBoxHeight}
           setLabelBoxDimensions={this.setLabelBoxDimensions}
           {...this.props}
         />

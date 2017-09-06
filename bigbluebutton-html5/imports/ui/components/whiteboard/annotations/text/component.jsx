@@ -30,6 +30,7 @@ export default class TextDrawComponent extends Component {
   static getPresenterStyles(results) {
     const styles = {
       fontFamily: 'Arial',
+      lineHeight: 'normal',
       border: '1px solid black',
       width: '100%',
       height: '100%',
@@ -76,25 +77,35 @@ export default class TextDrawComponent extends Component {
 
   getCoordinates() {
     const { annotation, slideWidth, slideHeight } = this.props;
-
-    const x = (annotation.x / 100) * slideWidth;
-    const y = (annotation.y / 100) * slideHeight;
-    const width = (annotation.textBoxWidth / 100) * slideWidth;
-    const height = (annotation.textBoxHeight / 100) * slideHeight;
-    const fontColor = AnnotationHelpers.formatColor(annotation.fontColor);
-    const fontSize = annotation.fontSize;
-    const calcedFontSize = (annotation.calcedFontSize / 100) * slideHeight;
-    const text = annotation.text;
-
-    return {
+    const {
       x,
       y,
-      text,
-      width,
-      height,
-      fontSize,
+      textBoxWidth,
+      textBoxHeight,
       fontColor,
+      fontSize,
       calcedFontSize,
+      text,
+    } = annotation;
+
+    const _x = (x / 100) * slideWidth;
+    const _y = (y / 100) * slideHeight;
+    const _width = (textBoxWidth / 100) * slideWidth;
+    const _height = (textBoxHeight / 100) * slideHeight;
+    const _fontColor = AnnotationHelpers.getFormattedColor(fontColor);
+    const _fontSize = fontSize;
+    const _calcedFontSize = (calcedFontSize / 100) * slideHeight;
+    const _text = text;
+
+    return {
+      x: _x,
+      y: _y,
+      text: _text,
+      width: _width,
+      height: _height,
+      fontSize: _fontSize,
+      fontColor: _fontColor,
+      calcedFontSize: _calcedFontSize,
     };
   }
 

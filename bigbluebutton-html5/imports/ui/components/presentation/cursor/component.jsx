@@ -71,13 +71,13 @@ export default class Cursor extends Component {
   componentWillMount() {
     const cursorCoordinate = Cursor.getCursorCoordinates(this.props);
     const { fill, displayLabel } = Cursor.getFillAndLabel(this.props);
-    const scaledSizes = Cursor.getScaledSizes(this.props);
+    const _scaledSizes = Cursor.getScaledSizes(this.props);
 
     // setting the initial cursor info
     this.cursorCoordinate = cursorCoordinate;
     this.fill = fill;
     this.displayLabel = displayLabel;
-    this.scaledSizes = scaledSizes;
+    this.scaledSizes = _scaledSizes;
   }
 
   componentDidMount() {
@@ -108,8 +108,8 @@ export default class Cursor extends Component {
       ||
         (labelBoxWidth !== nextProps.labelBoxWidth ||
           labelBoxHeight !== nextProps.labelBoxHeight)) {
-      const scaledSizes = Cursor.getScaledSizes(nextProps);
-      this.scaledSizes = scaledSizes;
+      const _scaledSizes = Cursor.getScaledSizes(nextProps);
+      this.scaledSizes = _scaledSizes;
     }
 
     if (cursorX !== nextProps.cursorX || cursorY !== nextProps.cursorY) {

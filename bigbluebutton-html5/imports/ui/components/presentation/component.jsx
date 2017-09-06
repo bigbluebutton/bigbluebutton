@@ -31,12 +31,13 @@ export default class PresentationArea extends React.Component {
       setTimeout(this.handleResize.bind(this), 0);
     });
 
-    const { presentationPaper, whiteboardSizeAvailable } = this;
-    this.getInitialPaperSizes(presentationPaper, whiteboardSizeAvailable);
+    this.getInitialPaperSizes();
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', () => {
+      setTimeout(this.handleResize.bind(this), 0);
+    });
   }
 
   // returns a ref to the svg element, which is required by a WhiteboardOverlay
@@ -45,29 +46,9 @@ export default class PresentationArea extends React.Component {
     return this.svggroup;
   }
 
-  getInitialPaperSizes(presentationPaper, whiteboardSizeAvailable) {
-    // determining the paperWidth and paperHeight (available space for the svg) on the initial load
-    let clientHeight;
-    let clientWidth;
-    if (this.props.userIsPresenter) {
-      clientHeight = whiteboardSizeAvailable.clientHeight;
-      clientWidth = whiteboardSizeAvailable.clientWidth;
-    } else {
-      clientHeight = presentationPaper.clientHeight;
-      clientWidth = presentationPaper.clientWidth;
-    }
-
-    // setting the state of the paperWidth and paperheight (available space for the svg)
-    // and set the showSlide to true to start rendering the slide
-    this.setState({
-      paperHeight: clientHeight,
-      paperWidth: clientWidth,
-      showSlide: true,
-    });
-  }
-
-  handleResize() {
+  getPaperSizes() {
     const { presentationPaper, whiteboardSizeAvailable } = this;
+    const paperSizes = {};
 
     if (presentationPaper) {
       // if a user is a presenter - this means there is a whiteboardToolBar on the right
@@ -85,11 +66,28 @@ export default class PresentationArea extends React.Component {
         clientWidth = presentationPaper.clientWidth;
       }
 
+      paperSizes.paperHeight = clientHeight;
+      paperSizes.paperWidth = clientWidth;
+    }
+    return paperSizes;
+  }
+
+  getInitialPaperSizes() {
+    // determining the paperWidth and paperHeight (available space for the svg) on the initial load
+    const paperSizes = this.getPaperSizes();
+    if (Object.keys(paperSizes).length > 0) {
+      // setting the state of the paperWidth and paperHeight (available space for the svg)
+      // and set the showSlide to true to start rendering the slide
+      paperSizes.showSlide = true;
+      this.setState(paperSizes);
+    }
+  }
+
+  handleResize() {
+    const paperSizes = this.getPaperSizes();
+    if (Object.keys(paperSizes).length > 0) {
       // updating the size of the space available for the slide
-      this.setState({
-        paperHeight: clientHeight,
-        paperWidth: clientWidth,
-      });
+      this.setState(paperSizes);
     }
   }
 

@@ -16,21 +16,22 @@ export default function clearWhiteboard(credentials, whiteboardId) {
   check(requesterToken, String);
   check(whiteboardId, String);
 
-  if (Acl.can('methods.clearWhiteboard', credentials) || getMultiUserStatus(meetingId)) {
-    const header = {
-      name: EVENT_NAME,
-      meetingId,
-      userId: requesterUserId,
-    };
-
-    const payload = {
-      whiteboardId,
-    };
-
-    return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  const allowed = Acl.can('methods.clearWhiteboard', credentials) || getMultiUserStatus(meetingId);
+  if (!allowed) {
+    throw new Meteor.Error(
+      'not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`,
+    );
   }
 
-  throw new Meteor.Error(
-    'not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`,
-  );
+  const header = {
+    name: EVENT_NAME,
+    meetingId,
+    userId: requesterUserId,
+  };
+
+  const payload = {
+    whiteboardId,
+  };
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

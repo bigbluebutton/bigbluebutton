@@ -46,7 +46,7 @@ const activeTextShapeId = () => {
     return drawSettings.textShape.textShapeActiveId;
   }
 
-  return undefined;
+  return '';
 };
 
 export default {

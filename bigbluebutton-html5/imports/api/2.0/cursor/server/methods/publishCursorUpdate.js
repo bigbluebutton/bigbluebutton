@@ -20,21 +20,23 @@ export default function publishCursorUpdate(credentials, coordinates) {
     yPercent: Number,
   });
 
-  if (Acl.can('methods.moveCursor', credentials) || getMultiUserStatus(meetingId)) {
-    const header = {
-      name: EVENT_NAME,
-      userId: requesterUserId,
-      meetingId,
-    };
-
-    const payload = {
-      xPercent: coordinates.xPercent,
-      yPercent: coordinates.yPercent,
-    };
-
-    return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
-  }
-  throw new Meteor.Error(
+  const allowed = Acl.can('methods.moveCursor', credentials) || getMultiUserStatus(meetingId);
+  if (!allowed) {
+    throw new Meteor.Error(
       'not-allowed', `User ${requesterUserId} is not allowed to move the cursor`,
     );
+  }
+
+  const header = {
+    name: EVENT_NAME,
+    userId: requesterUserId,
+    meetingId,
+  };
+
+  const payload = {
+    xPercent: coordinates.xPercent,
+    yPercent: coordinates.yPercent,
+  };
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }
