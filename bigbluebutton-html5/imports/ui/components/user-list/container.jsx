@@ -44,5 +44,5 @@ export default createContainer(({ params }) => ({
   openChat: params.chatID,
   userActions: Service.userActions,
   isBreakoutRoom: meetingIsBreakout(),
-  isMeetingLocked: Service.isMeetingLocked(),
+  isMeetingLocked: Service.isMeetingLocked,
 }), UserListContainer);

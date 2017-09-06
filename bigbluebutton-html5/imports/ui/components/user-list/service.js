@@ -211,8 +211,8 @@ const getCurrentUser = () => {
   return (currentUser) ? mapUser(currentUser) : null;
 };
 
-const isMeetingLocked = () => {
-  const meeting = Meetings.findOne({ });
+const isMeetingLocked = (id) => {
+  const meeting = Meetings.findOne({ meetingId: id });
   let isLocked = false;
 
   if (meeting.lockSettingsProp === 'undefined'){
