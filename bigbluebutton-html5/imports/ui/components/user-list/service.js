@@ -213,16 +213,22 @@ const getCurrentUser = () => {
 
 const isMeetingLocked = () => {
   const meeting = Meetings.findOne({});
+  let isLocked = false;
+
+  if (typeof meeting.lockSettingsProp === 'undefined'){
+    return isLocked;
+  }
+
   const lockSettings = meeting.lockSettingsProp;
 
-  if ( lockSettings.disableCam 
-     || lockSettings.disableMic
-     || lockSettings.disablePrivChat
-     || lockSettings.disablePubChat ) {
-    return true;
+  if (lockSettings.disableCam 
+      || lockSettings.disableMic 
+      || lockSettings.disablePrivChat 
+      || lockSettings.disablePubChat ) {
+    isLocked = true;
   }
-  
-  return false;
+
+  return isLocked;
 }
 
 export default {
