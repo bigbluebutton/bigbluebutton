@@ -1,24 +1,31 @@
 package org.bigbluebutton.core.models
 
-class GroupChats {
-  private var chats: collection.immutable.HashMap[String, GroupChat] = new collection.immutable.HashMap[String, GroupChat]
+import org.bigbluebutton.core.util.RandomStringGenerator
 
-  private def toVector: Vector[GroupChat] = chats.values.toVector
-
-  private def save(chat: GroupChat): GroupChat = {
-    chats += chat.id -> chat
-    chat
-  }
-
-  private def remove(id: String): Option[GroupChat] = {
-    for {
-      chat <- chats.get(id)
-    } yield {
-      chat
-    }
+object GroupChatFactory {
+  def create(chats: GroupChats, name: String, open: Boolean, requesterId: String): GroupChat = {
+    val id = RandomStringGenerator.randomAlphanumericString(20)
+    new GroupChat(id, name, open, requesterId, Map.empty, Map.empty)
   }
 }
 
-case class GroupChat(id: String, name: String, open: Boolean, users: Vector[String], messages: Vector[GroupChatMessage])
-case class GroupChatMessage(msgId: String, timestamp: Long, sender: String,
+case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
+  def add(chat: GroupChat): GroupChats = copy(chats = chats + (chat.id -> chat))
+  def remove(id: String): GroupChats = {
+    if (chats.contains(id)) copy(chats = chats - id) else this
+  }
+}
+
+case class GroupChatUser(id: String, name: String)
+case class GroupChat(id: String, name: String, open: Boolean, createdBy: String,
+                     users: collection.immutable.Map[String, GroupChatUser],
+                     msgs:  collection.immutable.Map[String, GroupChatMessage]) {
+  def add(user: GroupChatUser): GroupChat = copy(users = users + (user.id -> user))
+  def removeUser(id: String): GroupChat = if (users.contains(id)) copy(users = users - id) else this
+  def add(msg: GroupChatMessage): GroupChat = copy(msgs = msgs + (msg.id -> msg))
+  def removeMsg(id: String): GroupChat = copy(msgs = msgs - id)
+  def updateMsg(msg: GroupChatMessage): GroupChat = add(msg)
+}
+
+case class GroupChatMessage(id: String, createdOn: Long, updatedOn: Long, sender: String,
                             font: String, size: Int, color: String, message: String)

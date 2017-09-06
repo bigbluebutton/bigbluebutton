@@ -191,7 +191,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
 
         val registeredUsers = new RegisteredUsers
         val users2x = new Users2x
-        val live = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
+        val live = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layouts,
           registeredUsers, polls2x, wbModel, presModel, captionModel,
           notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 

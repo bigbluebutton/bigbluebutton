@@ -2,7 +2,7 @@ package org.bigbluebutton.common2.msgs
 
 object GetGroupChatsReqMsg { val NAME = "GetGroupChatsReqMsg"}
 case class GetGroupChatsReqMsg(header: BbbClientMsgHeader, body: GetGroupChatsReqMsgBody) extends StandardMsg
-case class GetGroupChatsReqMsgBody(requesterId: String)
+case class GetGroupChatsReqMsgBody()
 
 object GetGroupChatsRespMsg { val NAME = "GetGroupChatsRespMsg"}
 case class GetGroupChatsRespMsg(header: BbbClientMsgHeader, body: GetGroupChatsRespMsgBody) extends BbbCoreMsg
@@ -10,11 +10,11 @@ case class GetGroupChatsRespMsgBody(requesterId: String, chats: Vector[String])
 
 object CreateGroupChatReqMsg { val NAME = "CreateGroupChatReqMsg"}
 case class CreateGroupChatReqMsg(header: BbbClientMsgHeader, body: CreateGroupChatReqMsgBody) extends StandardMsg
-case class CreateGroupChatReqMsgBody(requesterId: String, chats: Vector[String])
+case class CreateGroupChatReqMsgBody(open: Boolean, requesterId: String, name: String, correlationId: String)
 
 object CreateGroupChatRespMsg { val NAME = "CreateGroupChatRespMsg"}
 case class CreateGroupChatRespMsg(header: BbbClientMsgHeader, body: CreateGroupChatRespMsgBody) extends BbbCoreMsg
-case class CreateGroupChatRespMsgBody(requesterId: String, chats: Vector[String])
+case class CreateGroupChatRespMsgBody(correlationId: String, chatId: String, name: String, open: Boolean)
 
 object RemoveGroupChatReqMsg { val NAME = "RemoveGroupChatReqMsg"}
 case class RemoveGroupChatReqMsg(header: BbbClientMsgHeader, body: RemoveGroupChatReqMsgBody) extends StandardMsg
