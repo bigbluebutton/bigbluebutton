@@ -120,7 +120,9 @@ module.exports = class IDMapping {
   }
 
   static getExternalMeetingID(internalMeetingID) {
-    return db[internalMeetingID].externalMeetingID;
+    if (db[internalMeetingID]){
+      return db[internalMeetingID].externalMeetingID;
+    }
   }
 
   static findByExternalMeetingID(externalMeetingID) {
