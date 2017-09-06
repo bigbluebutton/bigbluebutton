@@ -19,7 +19,7 @@ class PresentationToolbar extends Component {
   static renderAriaLabelsDescs() {
     return (
       <div hidden >
-        {/* Previous Slide button aria*/}
+        {/* Previous Slide button aria */}
         <div id="prevSlideLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.prevSlideLabel"
@@ -34,7 +34,7 @@ class PresentationToolbar extends Component {
             defaultMessage="Change the presentation to the previous slide"
           />
         </div>
-        {/* Next Slide button aria*/}
+        {/* Next Slide button aria */}
         <div id="nextSlideLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.nextSlideLabel"
@@ -49,7 +49,7 @@ class PresentationToolbar extends Component {
             defaultMessage="Change the presentation to the next slide"
           />
         </div>
-        {/* Skip Slide drop down aria*/}
+        {/* Skip Slide drop down aria */}
         <div id="skipSlideLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.skipSlideLabel"
@@ -64,7 +64,7 @@ class PresentationToolbar extends Component {
             defaultMessage="Change the presentation to a specific slide"
           />
         </div>
-        {/* Fit to width button aria*/}
+        {/* Fit to width button aria */}
         <div id="fitWidthLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.fitWidthLabel"
@@ -79,7 +79,7 @@ class PresentationToolbar extends Component {
             defaultMessage="Display the whole width of the slide"
           />
         </div>
-        {/* Fit to screen button aria*/}
+        {/* Fit to screen button aria */}
         <div id="fitScreenLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.fitScreenLabel"
@@ -94,7 +94,7 @@ class PresentationToolbar extends Component {
             defaultMessage="Display the whole slide"
           />
         </div>
-        {/* Zoom slider aria*/}
+        {/* Zoom slider aria */}
         <div id="zoomLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomLabel"
@@ -261,7 +261,7 @@ class PresentationToolbar extends Component {
             className={styles.zoomSlider}
           />
           <div className={styles.zoomMinMax}> 400% </div>
-        </div>*/}
+        </div> */}
       </div>
     );
   }

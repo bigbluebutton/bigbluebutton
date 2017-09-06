@@ -343,7 +343,7 @@ class UserList extends Component {
       </div>
     );
   }
-  
+
   render() {
     return (
       <div className={styles.userList}>

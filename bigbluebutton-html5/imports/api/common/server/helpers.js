@@ -10,7 +10,7 @@ export const indexOf = [].indexOf || function (item) {
   return -1;
 };
 
-//used in 1.1
+// used in 1.1
 export const inReplyToHTML5Client = function (arg) {
   return arg.routing.userId === 'nodeJSapp';
 };

@@ -9,9 +9,7 @@ export default function handleWhiteboardCleared({ body }, meetingId) {
     fullClear: Boolean,
   });
 
-  const whiteboardId = body.whiteboardId;
-  const fullClear = body.fullClear;
-  const userId = body.userId;
+  const { whiteboardId, fullClear, userId } = body;
 
   return clearAnnotations(meetingId, whiteboardId, userId, fullClear);
 }

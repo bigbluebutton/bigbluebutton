@@ -157,7 +157,8 @@ export default class DropdownList extends Component {
       <ul
         style={style}
         className={cx(styles.list, className)}
-        role="menu" ref={r => this._menu = r}
+        role="menu"
+        ref={r => this._menu = r}
       >
         {boundChildren}
       </ul>

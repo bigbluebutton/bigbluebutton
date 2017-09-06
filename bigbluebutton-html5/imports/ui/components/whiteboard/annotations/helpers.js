@@ -9,13 +9,7 @@ const colourToHex = (value) => {
 };
 
 const getFormattedColor = (color) => {
-  let _color;
-
-  if (!color) {
-    _color = '0'; // default value
-  } else {
-    _color = color;
-  }
+  let _color = color || '0';
 
   if (!_color.toString().match(/#.*/)) {
     _color = colourToHex(_color);

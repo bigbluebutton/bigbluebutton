@@ -26,12 +26,12 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    //to let the whiteboard know that the presentation area's size has changed
+    // to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
   }
 
   componentWillUnmount() {
-    //to let the whiteboard know that the presentation area's size has changed
+    // to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
   }
 
@@ -100,6 +100,6 @@ class Chat extends Component {
       </div>
     );
   }
-};
+}
 
 export default injectIntl(Chat);
