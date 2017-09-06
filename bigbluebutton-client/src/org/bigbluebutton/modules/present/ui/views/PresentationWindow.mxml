@@ -792,7 +792,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Declarations>
 		<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
-				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
+				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, uploadPres, pollStartBtn, quickPollBtn, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
 	  	 
 		<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 		<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />

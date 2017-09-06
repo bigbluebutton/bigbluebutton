@@ -432,7 +432,7 @@ users|JoinBreakoutRoomWindow {
 	horizontalAlign : center;
 	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
 	paddingBottom   : 24;
-	paddingTop      : 0;
+	paddingTop      : 24;
 	verticalGap     : 18;
 }
 
@@ -1361,17 +1361,14 @@ mx|Tab, .defaultTabStyle {
 */
 
 mx|TitleWindow {
-	closeButtonDisabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
-	closeButtonDownSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
-	closeButtonOverSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
-	closeButtonUpSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
 	borderColor             : #FFFFFF;
 	cornerRadius            : 4;
 	roundedBottomCorners    : true;
 	dropShadowEnabled       : true;
 	shadowDistance          : 0;
 	borderThickness         : 1;
-	paddingTop              : 5;
+	paddingTop              : 10;
+	headerHeight            : 0;
 }
 
 .titleWindowStyle {
@@ -1379,6 +1376,13 @@ mx|TitleWindow {
 	fontSize      : 24;
 	textAlign     : center;
 	paddingBottom : 8;
+}
+
+.titleWindowCloseButton {
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
 }
 
 /*
