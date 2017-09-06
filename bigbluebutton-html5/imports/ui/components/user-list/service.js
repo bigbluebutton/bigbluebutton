@@ -212,10 +212,10 @@ const getCurrentUser = () => {
 };
 
 const isMeetingLocked = () => {
-  const meeting = Meetings.findOne({});
+  const meeting = Meetings.findOne({ });
   let isLocked = false;
 
-  if (typeof meeting.lockSettingsProp === 'undefined'){
+  if (meeting.lockSettingsProp === 'undefined'){
     return isLocked;
   }
 

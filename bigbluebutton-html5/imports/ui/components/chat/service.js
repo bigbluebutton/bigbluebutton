@@ -107,7 +107,7 @@ const isChatLocked = (receiverID) => {
   const meeting = Meetings.findOne({});
   const user = Users.findOne({});
 
-  if (typeof meeting.lockSettingsProp === 'undefined'){
+  if (meeting.lockSettingsProp === 'undefined'){
     return false;
   }
 
