@@ -111,8 +111,7 @@ const isChatLocked = (receiverID) => {
   const user = Users.findOne({});
   const isViewer = user.role === "VIEWER";
 
-  return ((isPublic && isPubChatLocked && isViewer) || (!isPublic && isPrivChatLocked && isViewer)) 
-    ? true : false;
+  return ((isPublic && isPubChatLocked && isViewer) || (!isPublic && isPrivChatLocked && isViewer));
 };
 
 const hasUnreadMessages = (receiverID) => {
