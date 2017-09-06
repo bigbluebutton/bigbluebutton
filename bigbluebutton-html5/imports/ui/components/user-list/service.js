@@ -215,17 +215,15 @@ const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id });
   let isLocked = false;
 
-  if (meeting.lockSettingsProp === 'undefined'){
-    return isLocked;
-  }
-
-  const lockSettings = meeting.lockSettingsProp;
-
-  if (lockSettings.disableCam 
-      || lockSettings.disableMic 
-      || lockSettings.disablePrivChat 
-      || lockSettings.disablePubChat ) {
-    isLocked = true;
+  if (meeting.lockSettingsProp !== 'undefined'){
+    const lockSettings = meeting.lockSettingsProp;
+    
+    if (lockSettings.disableCam 
+        || lockSettings.disableMic 
+        || lockSettings.disablePrivChat 
+        || lockSettings.disablePubChat ) {
+      isLocked = true;
+    }
   }
 
   return isLocked;

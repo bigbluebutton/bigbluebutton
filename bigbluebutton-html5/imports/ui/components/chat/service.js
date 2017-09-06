@@ -107,15 +107,15 @@ const isChatLocked = (receiverID) => {
   const meeting = Meetings.findOne({});
   const user = Users.findOne({});
 
-  if (meeting.lockSettingsProp === 'undefined'){
-    return false;
+  if (meeting.lockSettingsProp !== 'undefined'){
+    const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
+    const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
+    const isViewer = user.role === "VIEWER";
+  
+    return ((isPublic && isPubChatLocked && isViewer && user.locked) || (!isPublic && isPrivChatLocked && isViewer && user.locked));
   }
 
-  const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
-  const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
-  const isViewer = user.role === "VIEWER";
-
-  return ((isPublic && isPubChatLocked && isViewer && user.locked) || (!isPublic && isPrivChatLocked && isViewer && user.locked));
+  return false;
 };
 
 const hasUnreadMessages = (receiverID) => {
