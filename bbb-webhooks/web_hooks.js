@@ -87,12 +87,12 @@ module.exports = class WebHooks {
     if (idFromMessage != null) {
       const eMeetingID = IDMapping.getExternalMeetingID(idFromMessage);
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID));
-    }
-    // Notify the hooks that expect raw data
-    async.forEach(hooks, function(hook) {
-      if (hook.getRaw) { Logger.info("[WebHooks] enqueueing a raw message in the hook:", hook.callbackURL); }
-      if (hook.getRaw) { hook.enqueue(message); }
-    });
+      // Notify the hooks that expect raw data
+      async.forEach(hooks, function(hook) {
+        if (hook.getRaw) { Logger.info("[WebHooks] enqueueing a raw message in the hook:", hook.callbackURL); }
+        if (hook.getRaw) { hook.enqueue(message); }
+      });
+    } // Put foreach inside the if to avoid pingpong events
   }
 
   // Processes an event received from redis. Will get all hook URLs that
