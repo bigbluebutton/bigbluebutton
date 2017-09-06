@@ -82,18 +82,19 @@ module.exports = class Hook {
 
   // Puts a new message in the queue. Will also trigger a processing in the queue so this
   // message might be processed instantly.
-  enqueue(message) {
+  enqueue(message, hold) {
     this.redisClient.llen(config.redis.keys.events(this.id), (error, reply) => {
       const length = reply;
-      if (length < config.hooks.queueSize) {
+      if (length < config.hooks.queueSize && this.queue.length < config.hooks.queueSize) {
         Logger.info(`[Hook] ${this.callbackURL} enqueueing message:`, JSON.stringify(message));
         // Add message to redis queue
-        this.redisClient.rpush(config.redis.keys.events(this.id), JSON.stringify(message), (error,reply) => {});
-        if (error != null) { Logger.error("[Hook] error pushing event to redis queue:", JSON.stringify(message), error); }
+        this.redisClient.rpush(config.redis.keys.events(this.id), JSON.stringify(message), (error,reply) => {
+          if (error != null) { Logger.error("[Hook] error pushing event to redis queue:", JSON.stringify(message), error); }
+        });
         this.queue.push(JSON.stringify(message));
-        this._processQueue();
+        if (!hold) { this._processQueue(); }
       } else {
-        Logger.warn("[Hook] queue size exceed, event:", JSON.stringify(message));
+        Logger.warn(`[Hook] ${this.callbackURL} queue size exceed, event:`, JSON.stringify(message));
       }
     });
   }
@@ -202,7 +203,7 @@ module.exports = class Hook {
 
   static removeSubscription(hookID, callback) {
     let hook = Hook.getSync(hookID);
-    if (((hook != null) && (hook.permanent === "false")) || (hook.permanent === false)) {
+    if ( hook != null && ((hook.permanent === "false") || (hook.permanent === false))) {
       let msg = `[Hook] removing the hook with callback URL: [${hook.callbackURL}],`;
       if (hook.externalMeetingID != null) { msg += ` for the meeting: [${hook.externalMeetingID}]`; }
       Logger.info(msg);
@@ -268,6 +269,13 @@ module.exports = class Hook {
     Hook.resync(callback);
   }
 
+  static flushall() {
+    let client = redis.createClient();
+    client.flushdb()
+  }
+  flushredis() {
+    this.redisClient.flushdb();
+  }
   // Gets all hooks from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
