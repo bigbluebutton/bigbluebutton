@@ -146,7 +146,13 @@
    			}	
 			
 			private function kickUser():void{
-				dispatchEvent(new KickUserEvent(data.userId));
+				if (data.role == Role.VOICE_ONLY ) {
+					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
+					e.userid = data.userId;
+					dispatchEvent(e);
+				} else {
+					dispatchEvent(new KickUserEvent(data.userId));
+				}
 			}
 			
 			private function toggleMuteState():void {
