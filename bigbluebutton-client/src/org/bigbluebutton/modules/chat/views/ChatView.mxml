@@ -194,7 +194,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	 	  }
 
 			private function notifyUserOfNewMessage(userID:String):void {
-				var newChatNotificationTimer:Timer = new Timer(100, 1);
+				var newChatNotificationTimer:Timer = new Timer(10, 1);
 				newChatNotificationTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
 					if (! isChatBoxCurrentlySelected(userID)) {
 						notifyParticipantOfUnreadMessageFrom(userID);
