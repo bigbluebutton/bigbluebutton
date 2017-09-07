@@ -18,10 +18,9 @@ const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 // const GENERATED_SVGIMAGES_KEY = 'GENERATED_SVGIMAGES';
 // const CONVERSION_COMPLETED_KEY = 'CONVERSION_COMPLETED';
 
-export default function handlePresentationConversionUpdate({ payload }) {
-  const meetingId = payload.meeting_id;
-  const presentationId = payload.presentation_id;
-  const status = payload.message_key;
+export default function handlePresentationConversionUpdate({ body }, meetingId) {
+  const presentationId = body.presentationId;
+  const status = body.messageKey;
 
   check(meetingId, String);
   check(presentationId, String);
@@ -36,7 +35,7 @@ export default function handlePresentationConversionUpdate({ payload }) {
   switch (status) {
     case SUPPORTED_DOCUMENT_KEY:
       statusModifier['presentation.id'] = presentationId;
-      statusModifier['presentation.name'] = payload.presentation_name;
+      statusModifier['presentation.name'] = body.presentation_name;
       break;
 
     case UNSUPPORTED_DOCUMENT_KEY:
@@ -45,13 +44,13 @@ export default function handlePresentationConversionUpdate({ payload }) {
     case PAGE_COUNT_FAILED_KEY:
     case PAGE_COUNT_EXCEEDED_KEY:
       statusModifier['presentation.id'] = presentationId;
-      statusModifier['presentation.name'] = payload.presentation_name;
+      statusModifier['presentation.name'] = body.presentation_name;
       statusModifier['conversion.error'] = true;
       break;
 
     case GENERATED_SLIDE_KEY:
-      statusModifier['conversion.pages_completed'] = payload.pages_completed;
-      statusModifier['conversion.num_pages'] = payload.num_pages;
+      statusModifier['conversion.pagesCompleted'] = body.pagesCompleted;
+      statusModifier['conversion.numPages'] = body.numPages;
       break;
 
     default:
@@ -61,7 +60,7 @@ export default function handlePresentationConversionUpdate({ payload }) {
 
   const selector = {
     meetingId,
-    'presentation.id': presentationId,
+    id: presentationId,
   };
 
   const modifier = {

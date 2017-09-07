@@ -1,16 +1,11 @@
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import { check } from 'meteor/check';
-import Presentations from '/imports/api/presentations';
+import Presentations from '/imports/api/2.0/presentations';
 
 export default function sharePresentation(credentials, presentationId, shouldShare = true) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.presentation;
-  const EVENT_NAME = 'share_presentation';
-
-  if (!isAllowedTo('sharePresentation', credentials)) {
-    throw new Meteor.Error('not-allowed', 'You are not allowed to sharePresentation');
-  }
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'SetCurrentPresentationPubMsg';
 
   const { meetingId, requesterUserId } = credentials;
 
@@ -21,19 +16,23 @@ export default function sharePresentation(credentials, presentationId, shouldSha
 
   const currentPresentation = Presentations.findOne({
     meetingId,
-    'presentation.id': presentationId,
-    'presentation.current': true,
+    id: presentationId,
+    current: true,
   });
 
-  if (currentPresentation && currentPresentation.presentation.id === presentationId) {
+  if (currentPresentation && currentPresentation.id === presentationId) {
     return Promise.resolve();
   }
 
   const payload = {
-    meeting_id: meetingId,
-    presentation_id: presentationId,
-    share: shouldShare,
+    presentationId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+  const header = {
+    meetingId,
+    name: EVENT_NAME,
+    userId: requesterUserId,
+  };
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

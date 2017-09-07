@@ -1,10 +1,9 @@
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 
-export default function handlePresentationConversionDone({ payload }) {
-  const meetingId = payload.meeting_id;
-  const presentationId = payload.presentation.id;
-  const status = payload.message_key;
+export default function handlePresentationConversionDone({ body }, meetingId) {
+  const presentationId = body.presentationId;
+  const status = body.messageKey;
 
   check(meetingId, String);
   check(presentationId, String);
@@ -18,7 +17,7 @@ export default function handlePresentationConversionDone({ payload }) {
 
   const selector = {
     meetingId,
-    'presentation.id': presentationId,
+    id: presentationId,
   };
 
   const modifier = {

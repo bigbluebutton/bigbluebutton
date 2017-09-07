@@ -7,7 +7,7 @@ import addPresentation from '../modifiers/addPresentation';
 const clearCurrentPresentation = (meetingId, presentationId) => {
   const selector = {
     meetingId,
-    presentationId: { $ne: presentationId },
+    id: { $ne: presentationId },
     current: true,
   };
 

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedDate } from 'react-intl';
 import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
@@ -11,6 +12,25 @@ import Checkbox from '/imports/ui/components/checkbox/component';
 import styles from './styles.scss';
 
 const DEFAULT_FILENAME = 'default.pdf';
+
+const propTypes = {
+  defaultFileName: PropTypes.string.isRequired,
+  fileSizeMin: PropTypes.number.isRequired,
+  fileSizeMax: PropTypes.number.isRequired,
+  handleSave: PropTypes.func.isRequired,
+  fileValidMimeTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  presentations: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    filename: PropTypes.string.isRequired,
+    isCurrent: PropTypes.bool.isRequired,
+    conversion: PropTypes.object,
+    upload: PropTypes.object,
+  })).isRequired,
+};
+
+const defaultProps = {
+  defaultFileName: 'default.pdf',
+};
 
 const intlMessages = defineMessages({
   title: {
@@ -51,9 +71,13 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.fileToUpload',
     defaultMessage: 'To be uploaded...',
   },
-  genericError: {
-    id: 'app.presentationUploder.conversion.genericError',
-    defaultMessage: 'Ops, something went wrong.',
+  uploadProcess: {
+    id: 'app.presentationUploder.upload.progress',
+    defaultMessage: 'Uploading ({progress}%)',
+  },
+  413: {
+    id: 'app.presentationUploder.upload.413',
+    defaultMessage: 'File is too large.',
   },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
@@ -73,7 +97,22 @@ const intlMessages = defineMessages({
   },
 });
 
-const isProcessingOrUploading = item => item && (!item.isProcessed || !item.isUploaded);
+const isProcessingOrUploading = item => item && (!item.conversion.done || !item.upload.done);
+
+function updateFileUploadState(id, state) {
+  this.setState(({ presentations }) => {
+    const fileIndex = presentations.findIndex(f => f.id === id);
+    return {
+      presentations: update(presentations, {
+        [fileIndex]: { $apply: file =>
+          update(file, {
+            upload: { $apply: upload => update(upload, { $merge: state }) },
+          }),
+        },
+      }),
+    };
+  });
+}
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -131,21 +170,24 @@ class PresentationUploader extends Component {
       id: file.name,
       file,
       filename: file.name,
-      uploadedAt: new Date(),
-      isCurrent: true,
-      isUploaded: false,
-      isProcessed: false,
+      isCurrent: false,
       conversion: { done: false, error: false },
+      upload: { done: false, error: false, progress: 0 },
+      onProgress: (event) => {
+        if (!event.lengthComputable) return;
+
+        updateFileUploadState.call(this, file.name, {
+          progress: (event.loaded / event.total) * 100,
+          done: event.loaded === event.total,
+        });
+      },
+      onError: (error) => {
+        updateFileUploadState.call(this, file.name, { error });
+      },
     }));
 
     this.setState(({ presentations }) => ({
-      presentations: presentations
-        .map((_) => {
-          const p = _;
-          p.isCurrent = false;
-          return p;
-        })
-        .concat(presentationsToUpload),
+      presentations: presentations.concat(presentationsToUpload),
     }));
   }
 
@@ -198,7 +240,6 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
 
     const presentationsSorted = presentations
-      .sort((a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime())
       .sort((a, b) => b.filename === DEFAULT_FILENAME);
 
     return (
@@ -215,18 +256,31 @@ class PresentationUploader extends Component {
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
 
-    if (!item.isUploaded) { return intl.formatMessage(intlMessages.fileToUpload); }
+    if (!item.upload.done && item.upload.progress === 0) {
+      return intl.formatMessage(intlMessages.fileToUpload);
+    }
 
-    if (!item.isProcessed && item.conversion.error) {
+    if (!item.upload.done && !item.upload.error) {
+      return intl.formatMessage(intlMessages.uploadProcess, {
+        progress: item.upload.progress,
+      });
+    }
+
+    if (item.upload.done && item.upload.error) {
+      const errorMessage = intlMessages[item.upload.error.code] || intlMessages.genericError;
+      return intl.formatMessage(errorMessage);
+    }
+
+    if (!item.conversion.done && item.conversion.error) {
       const errorMessage = intlMessages[status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
 
-    if (!item.isProcessed && !item.conversion.error) {
-      if (item.conversion.pages_completed < item.conversion.num_pages) {
+    if (!item.conversion.done && !item.conversion.error) {
+      if (item.conversion.pagesCompleted < item.conversion.numPages) {
         return intl.formatMessage(intlMessages.conversionProcessingSlides, {
-          current: item.conversion.pages_completed,
-          total: item.conversion.num_pages,
+          current: item.conversion.pagesCompleted,
+          total: item.conversion.numPages,
         });
       }
 
@@ -235,33 +289,22 @@ class PresentationUploader extends Component {
       return intl.formatMessage(conversionStatusMessage);
     }
 
-    return (
-      <time dateTime={item.uploadedAt}>
-        <FormattedDate
-          value={item.uploadedAt}
-          day="2-digit"
-          month="2-digit"
-          year="numeric"
-          hour="2-digit"
-          minute="2-digit"
-        />
-      </time>
-    );
+    return null;
   }
 
   renderPresentationItem(item) {
-    const { disableActions, presentations } = this.state;
+    const { disableActions } = this.state;
 
     const itemClassName = {};
 
     itemClassName[styles.tableItemNew] = item.id === item.filename;
-    itemClassName[styles.tableItemUploading] = false;
-    itemClassName[styles.tableItemProcessing] = !item.isProcessed && item.isUploaded;
-    itemClassName[styles.tableItemError] = item.conversion.error || false;
+    itemClassName[styles.tableItemUploading] = !item.upload.done;
+    itemClassName[styles.tableItemProcessing] = !item.conversion.done;
+    itemClassName[styles.tableItemError] = item.conversion.error || item.upload.error;
+    itemClassName[styles.tableItemAnimated] =
+      !item.conversion.done && (!item.upload.done && item.upload.progress > 0);
 
-    const hideRemove = (item.isCurrent && item.isUploaded) || item.filename === DEFAULT_FILENAME;
-    const hasSomeFileNotUploaded = presentations.some(_ => !_.isUploaded);
-    const disableCheck = hasSomeFileNotUploaded;
+    const hideRemove = (item.isCurrent && item.upload.done) || item.filename === DEFAULT_FILENAME;
 
     return (
       <tr
@@ -278,24 +321,23 @@ class PresentationUploader extends Component {
           {this.renderPresentationItemStatus(item)}
         </td>
         <td className={styles.tableItemActions}>
-          {disableActions ? null : (<span>
-            <Checkbox
-              disabled={disableCheck}
-              ariaLabel={'Set as current presentation'}
-              className={styles.itemAction}
-              checked={item.isCurrent}
-              onChange={() => this.handleCurrentChange(item)}
-            />
-            { hideRemove ? null : (
-              <ButtonBase
-                className={cx(styles.itemAction, styles.itemActionRemove)}
-                label={'Remove presentation'}
-                onClick={() => this.handleRemove(item)}
-              >
-                <Icon iconName={'delete'} />
-              </ButtonBase>
-            )}
-          </span>)}
+          <Checkbox
+            disabled={disableActions}
+            ariaLabel={'Set as current presentation'}
+            className={styles.itemAction}
+            checked={item.isCurrent}
+            onChange={() => this.handleCurrentChange(item)}
+          />
+          { hideRemove ? null : (
+            <ButtonBase
+              disabled={disableActions}
+              className={cx(styles.itemAction, styles.itemActionRemove)}
+              label={'Remove presentation'}
+              onClick={() => this.handleRemove(item)}
+            >
+              <Icon iconName={'delete'} />
+            </ButtonBase>
+          )}
         </td>
       </tr>
     );
@@ -311,14 +353,13 @@ class PresentationUploader extends Component {
 
     const { disableActions } = this.state;
 
-    // TODO: Change the multiple prop when the endpoint supports multiple files
-    const hasSomeFileNotUploaded = this.state.presentations.some(_ => !_.isUploaded);
+    const hasSomeFileNotUploaded = this.state.presentations.some(_ => !_.upload.done);
 
     if (hasSomeFileNotUploaded || disableActions) return null;
 
     return (
       <Dropzone
-        multiple={false}
+        multiple
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
         rejectClassName={styles.dropzoneReject}

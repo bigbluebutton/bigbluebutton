@@ -1,43 +1,60 @@
-import Presentations from '/imports/api/presentations';
+import Presentations from '/imports/api/2.0/presentations';
 import Auth from '/imports/ui/services/auth';
-
 import { call } from '/imports/ui/services/api';
+
+const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
+  const xhr = new XMLHttpRequest();
+
+  xhr.open(opts.method || 'get', url);
+
+  Object.keys(opts.headers || {})
+    .forEach(k => xhr.setRequestHeader(k, opts.headers[k]));
+
+  xhr.onload = (e) => {
+    if (e.target.status !== 200) {
+      return rej({ code: e.target.status, message: e.target.statusText });
+    }
+
+    return res(e.target.responseText);
+  };
+  xhr.onerror = rej;
+  if (xhr.upload && onProgress) {
+    xhr.upload.addEventListener('progress', onProgress, false);
+  }
+  xhr.send(opts.body);
+});
 
 const getPresentations = () =>
   Presentations
     .find()
     .fetch()
-    .map(p => ({
-      _id: p._id,
-      id: p.presentation.id,
-      filename: p.presentation.name,
-      uploadedAt: p.upload ? p.upload.date : new Date(),
-      isCurrent: p.presentation.current,
-      isUploaded: true,
-      isProcessed: p.conversion.done,
-      conversion: p.conversion,
+    .map(presentation => ({
+      id: presentation.id,
+      filename: presentation.name,
+      isCurrent: presentation.current,
+      upload: { done: true, error: false },
+      conversion: presentation.conversion || { done: true, error: false },
     }));
 
-const uploadPresentation = (file, meetingID, endpoint) => {
+const uploadPresentation = (file, meetingID, endpoint, onError, onProgress) => {
   const data = new FormData();
-  data.append('Filename', file.filename);
   data.append('presentation_name', file.filename);
   data.append('fileUpload', file);
   data.append('conference', meetingID);
   data.append('room', meetingID);
 
-  /* TODO: Should we do the request on the html5 server instead of the client? */
-  /* TODO: Upload progress */
-  return fetch(endpoint, {
+  const opts = {
     method: 'POST',
     body: data,
-  });
+  };
+
+  return futch(endpoint, opts, onProgress).catch(onError);
 };
 
 const uploadPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
   Promise.all(
     presentationsToUpload
-      .map(p => uploadPresentation(p.file, meetingID, uploadEndpoint)),
+      .map(p => uploadPresentation(p.file, meetingID, uploadEndpoint, p.onError, p.onProgress)),
   );
 
 const removePresentation = presentationID => call('removePresentation', presentationID);
