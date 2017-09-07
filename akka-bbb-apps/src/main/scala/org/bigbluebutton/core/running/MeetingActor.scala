@@ -2,6 +2,7 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
+import org.bigbluebutton.core.apps.groupchats.GroupChatsApp
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
@@ -101,12 +102,15 @@ class MeetingActor(
     "actorMonitor-" + props.meetingProp.intId
   )
 
+  val msgBus = MessageBus(eventBus, outGW)
+
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW)
   val screenshareApp2x = new ScreenshareApp2x(liveMeeting, outGW)
   val captionApp2x = new CaptionApp2x(liveMeeting, outGW)
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW)
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
+  val groupChatApp = new GroupChatsApp()
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -288,6 +292,7 @@ class MeetingActor(
       case m: SetGuestPolicyCmdMsg => handleSetGuestPolicyMsg(m)
       case m: GuestsWaitingApprovedMsg => handleGuestsWaitingApprovedMsg(m)
       case m: GetGuestPolicyReqMsg => handleGetGuestPolicyReqMsg(m)
+
       // Chat
       case m: GetChatHistoryReqMsg => chatApp2x.handleGetChatHistoryReqMsg(m)
       case m: SendPublicMessagePubMsg => chatApp2x.handleSendPublicMessagePubMsg(m)
@@ -300,6 +305,11 @@ class MeetingActor(
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
       case m: GetScreenshareStatusReqMsg => screenshareApp2x.handleGetScreenshareStatusReqMsg(m)
+
+      // GroupChat
+      case m: CreateGroupChatReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetGroupChatMsgsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetGroupChatsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
