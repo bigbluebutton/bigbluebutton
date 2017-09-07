@@ -106,7 +106,7 @@ class MeetingActor(
 
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW)
   val screenshareApp2x = new ScreenshareApp2x(liveMeeting, outGW)
-  val captionApp2x = new CaptionApp2x(liveMeeting, outGW)
+  val captionApp2x = new CaptionApp2x()
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW)
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
@@ -275,9 +275,9 @@ class MeetingActor(
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
 
       // Caption
-      case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
-      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
-      case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
+      case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: SendCaptionHistoryReqMsg => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // SharedNotes
       case m: GetSharedNotesPubMsg => sharedNotesApp2x.handleGetSharedNotesPubMsg(m)

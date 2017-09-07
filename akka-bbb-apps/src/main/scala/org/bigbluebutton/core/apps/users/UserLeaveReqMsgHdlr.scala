@@ -22,7 +22,7 @@ trait UserLeaveReqMsgHdlr {
       // stop the webcams of a user leaving
       handleUserBroadcastCamStopMsg(msg.body.userId)
 
-      captionApp2x.handleUserLeavingMsg(msg.body.userId)
+      captionApp2x.handleUserLeavingMsg(msg.body.userId, liveMeeting, msgBus)
       stopAutoStartedRecording()
 
       // send a user left event for the clients to update
