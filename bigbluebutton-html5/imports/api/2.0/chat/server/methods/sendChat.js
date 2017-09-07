@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import RegexWebUrl from '/imports/utils/regex-weburl';
-import { buildMessageHeader } from '/imports/api/common/server/helpers';
 
 const HTML_SAFE_MAP = {
   '<': '&lt;',
@@ -50,8 +49,6 @@ export default function sendChat(credentials, message) {
   if (message.toUsername === TO_PUBLIC_CHAT) {
     eventName = 'SendPublicMessagePubMsg';
   }
-
-  //const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
 
   return RedisPubSub.publish(CHANNEL, eventName, meetingId, { message: parsedMessage }, { userId: requesterUserId });
 }

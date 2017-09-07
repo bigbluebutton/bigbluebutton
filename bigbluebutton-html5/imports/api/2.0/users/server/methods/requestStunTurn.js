@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
-import { buildMessageHeader } from '/imports/api/common/server/helpers';
 
 export default function requestStunTurn(meetingId, requesterUserId) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -18,8 +17,6 @@ export default function requestStunTurn(meetingId, requesterUserId) {
   };
 
   Logger.verbose(`User '${requesterUserId}' requested stun/turn from meeting '${meetingId}'`);
-
-  //const header = buildMessageHeader(EVENT_NAME, meetingId);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload);
 }

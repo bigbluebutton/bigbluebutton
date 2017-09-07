@@ -3,7 +3,6 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
-import { buildMessageHeader } from '/imports/api/common/server/helpers';
 import createDummyUser2x from '../modifiers/createDummyUser';
 import setConnectionStatus from '../modifiers/setConnectionStatus';
 
@@ -40,7 +39,5 @@ export default function validateAuthToken(credentials) {
     requesterUserId
     }' is trying to validate auth tokenfor meeting '${meetingId}'`);
 
-  const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
-
-  return RedisPubSub.publ(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }

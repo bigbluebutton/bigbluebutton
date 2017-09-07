@@ -51,8 +51,7 @@ class RedisPubSub2x {
       },
       core: {
         header: Object.assign({
-          name: eventName,        
-          timestamp: new Date().getTime(),
+          name: eventName,
           meetingId,
         }, userId),
         body: payload,
@@ -60,36 +59,6 @@ class RedisPubSub2x {
     };
 
    Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
-    return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
-      if (err) {
-        Logger.error('Tried to publish to %s', channel, envelope);
-      }
-    });
-  }
-
-  publ(channel, eventName, meetingId, payload = {}, header = {}) {
-    const header2x = {
-      name: eventName,
-      meetingId,
-    };
-
-    const msgHeader = header === {} ? header2x : header;
-
-    const envelope = {
-      envelope: {
-        name: eventName,
-        routing: {
-          sender: 'bbb-apps-akka',
-          // sender: 'html5-server', // TODO
-        },
-      },
-      core: {
-        header: msgHeader,
-        body: payload,
-      },
-    };
-
-    Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
     return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);

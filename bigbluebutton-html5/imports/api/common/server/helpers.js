@@ -12,25 +12,6 @@ export function appendMessageHeader(eventName, messageObj) {
   return messageObj;
 }
 
-export function buildMessageHeader(eventName, meetingId, userId = {}) {
-  let header;
-
-  if (userId.length > 0) {
-    header = {
-      name: eventName,
-      meetingId,
-      userId
-    }
-  } else if (userid.length == 0) {
-    header = {
-      name: eventName,
-      meetingId
-    }
-  }
-
-  return header;
-}
-
 export const indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) {
     if (i in this && this[i] === item) {

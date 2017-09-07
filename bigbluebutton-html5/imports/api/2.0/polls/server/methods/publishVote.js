@@ -2,7 +2,6 @@ import RedisPubSub from '/imports/startup/server/redis2x';
 import { check } from 'meteor/check';
 import Polls from '/imports/api/2.0/polls';
 import Logger from '/imports/startup/server/logger';
-import { buildMessageHeader } from '/imports/api/common/server/helpers';
 
 export default function publishVote(credentials, id, pollAnswerId) { // TODO discuss location
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -52,8 +51,6 @@ export default function publishVote(credentials, id, pollAnswerId) { // TODO dis
   };
 
   Polls.update(selector, modifier, cb);
-
-  //const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }

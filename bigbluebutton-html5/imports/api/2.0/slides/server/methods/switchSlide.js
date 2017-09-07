@@ -3,7 +3,6 @@ import Slides from '/imports/api/2.0/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
-import { buildMessageHeader } from '/imports/api/common/server/helpers';
 
 export default function switchSlide(credentials, slideNumber) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -45,8 +44,6 @@ export default function switchSlide(credentials, slideNumber) {
     pageId: Slide.id,
     presentationId: Presentation.id,
   };
-
-  //const header = buildMessageHeader(EVENT_NAME, meetingId, requesterUserId);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }
