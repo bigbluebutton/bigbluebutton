@@ -14,7 +14,8 @@ case class MeetingState2x(
     expiryTracker:     MeetingExpiryTracker
 ) {
 
-  def update(breakout: Option[BreakoutModel]) = copy(breakout = breakout)
+  def update(groupChats: GroupChats): MeetingState2x = copy(groupChats = groupChats)
+  def update(breakout: Option[BreakoutModel]): MeetingState2x = copy(breakout = breakout)
   def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
   def update(inactivityTracker: MeetingInactivityTracker): MeetingState2x = copy(inactivityTracker = inactivityTracker)
 }
