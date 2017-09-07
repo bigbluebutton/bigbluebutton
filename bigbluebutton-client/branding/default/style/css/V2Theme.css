@@ -388,6 +388,7 @@ mx|Button {
 	textRollOverColor           : #4E5A66;
 	textSelectedColor           : #4E5A66;
 	fontSize                    : 14;
+	fontWeight                  : normal;
 	skin                        : ClassReference("org.bigbluebutton.skins.ButtonSkin");
 
 	/* Normal state */
@@ -687,6 +688,7 @@ mx|ComboBox {
 	cornerRadius        : 2;
 	color               : #5E6C73;
 	fontSize            : 12;
+	fontWeight          : normal;
 
 	/* Normal state */
 	fillColorUp         : #FFFFFF;
