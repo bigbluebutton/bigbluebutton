@@ -13,8 +13,8 @@ trait GetGroupChatsReqMsgHdlr {
   def handleGetGroupChatsReqMsg(msg: GetGroupChatsReqMsg, state: MeetingState2x): MeetingState2x = {
     val publicChats = state.groupChats.findAllPublicChats()
     val privateChats = state.groupChats.findAllPrivateChatsForUser(msg.header.userId)
-    val pubChats = publicChats map (pc => GroupChatInfo(pc.id, pc.name, pc.publicChat, pc.createdBy))
-    val privChats = privateChats map (pc => GroupChatInfo(pc.id, pc.name, pc.publicChat, pc.createdBy))
+    val pubChats = publicChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy))
+    val privChats = privateChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy))
 
     val respMsg = buildGetGroupChatsRespMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, pubChats, privChats)
 

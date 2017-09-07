@@ -12,7 +12,7 @@ trait GetGroupChatMsgsReqMsgHdlr {
 
   def handleGetGroupChatMsgsReqMsg(msg: GetGroupChatMsgsReqMsg, state: MeetingState2x): MeetingState2x = {
     state.groupChats.find(msg.body.chatId) foreach { gc =>
-      if (gc.publicChat || gc.isUserMemberOf(msg.body.requesterId)) {
+      if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.body.requesterId)) {
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,
           msg.body.requesterId, gc.msgs.values.toVector
