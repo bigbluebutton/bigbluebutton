@@ -56,7 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _yPosition:int;
 			private var keyCombos:Object;
 			private var disp:Dispatcher = new Dispatcher();
-			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
 			
 			public function getPrefferedPosition():String{
@@ -64,10 +63,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			} 
 			
 			private function onCreationComplete():void {
-				/* Set up full screen handler. */
-				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = FlexGlobals.topLevelApplication.stage.displayState;
-				
 				hotkeyCapture();
 				titleBarOverlay.tabIndex = chatOptions.baseTabIndex;
 				
@@ -128,20 +123,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					focusManager.setFocus(titleBarOverlay);
 				}
 			}
-			
-			private function fullScreenHandler(evt:FullScreenEvent):void {
-/*				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
-				if (evt.fullScreen) {
-					txtMsg.text = "Chat not enabled in full screen mode";
-					txtMsg.enabled = false;
-					sendBtn.enabled = false;
-				} else {
-					txtMsg.text = "";
-					txtMsg.enabled = true;
-					sendBtn.enabled = true;
-				}
-*/			}		
-			
+
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString("bbb.chat.title");

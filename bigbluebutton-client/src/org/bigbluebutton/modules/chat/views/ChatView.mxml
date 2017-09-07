@@ -192,13 +192,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			  notifyUserOfNewMessage(event.message.fromUserId);
 			  privateNotification(event);
 	 	  }
-      
-      private function notifyUserOfNewMessage(userID:String):void {
-        if (! isChatBoxCurrentlySelected(userID)) {
-        	notifyParticipantOfUnreadMessageFrom(userID);
-        }
-      }
-      		
+
+			private function notifyUserOfNewMessage(userID:String):void {
+				var newChatNotificationTimer:Timer = new Timer(10, 1);
+				newChatNotificationTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
+					if (! isChatBoxCurrentlySelected(userID)) {
+						notifyParticipantOfUnreadMessageFrom(userID);
+					}});
+				newChatNotificationTimer.start();
+			}
+
 			private function mouseLeave(event:Event):void{
 				this.focus = false;
 			}

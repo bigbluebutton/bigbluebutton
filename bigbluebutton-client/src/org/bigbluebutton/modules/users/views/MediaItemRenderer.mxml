@@ -146,7 +146,13 @@
    			}	
 			
 			private function kickUser():void{
-				dispatchEvent(new KickUserEvent(data.userId));
+				if (data.role == Role.VOICE_ONLY ) {
+					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
+					e.userid = data.userId;
+					dispatchEvent(e);
+				} else {
+					dispatchEvent(new KickUserEvent(data.userId));
+				}
 			}
 			
 			private function toggleMuteState():void {
@@ -297,18 +303,20 @@
 				if (data != null) {
 					var myMenuData:Array = [];
 
-					if (data.role == Role.MODERATOR) {
-						myMenuData.push({
-							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
-							icon: getStyle('iconDemote'),
-							callback: demoteUser
-						});
-					} else {
-						myMenuData.push({
-							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
-							icon: getStyle('iconPromote'),
-							callback: promoteUser
-						});
+					if (data.role != Role.VOICE_ONLY) {
+						if (data.role == Role.MODERATOR) {
+							myMenuData.push({
+								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
+								icon: getStyle('iconDemote'),
+								callback: demoteUser
+							});
+						} else {
+							myMenuData.push({
+								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
+								icon: getStyle('iconPromote'),
+								callback: promoteUser
+							});
+						}
 					}
 
 					if (options.allowKickUser) {

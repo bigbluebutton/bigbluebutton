@@ -103,5 +103,19 @@ package org.bigbluebutton.modules.sharednotes.services {
         JSON.stringify(message)
       );
     }
+
+    public function sharedNotesClearNoteRequest(noteId: String):void {
+      var message:Object = {
+        header: {name: "ClearSharedNotePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {noteId: noteId}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        onSuccessDebugger,
+        onErrorDebugger,
+        JSON.stringify(message)
+      );
+    }
   }
 }

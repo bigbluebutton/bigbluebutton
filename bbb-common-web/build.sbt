@@ -99,6 +99,9 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.12
 libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.12" % akkaVersion % "test"
 
+// https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml_2.12
+libraryDependencies += "org.scala-lang.modules" % "scala-xml_2.12" % "1.0.6"
+
 
 seq(Revolver.settings: _*)
 

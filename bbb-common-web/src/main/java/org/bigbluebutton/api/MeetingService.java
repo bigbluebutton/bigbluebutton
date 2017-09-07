@@ -323,62 +323,8 @@ public class MeetingService implements MessageListener {
     return null;
   }
 
-  public List<RecordingMetadata> getRecordingsMetadata(List<String> idList, List<String> states) {
-    List<RecordingMetadata> recsList = recordingService.getRecordingsMetadata(idList, states);
-    return recsList;
-  }
-
-
-  public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
-    List<Recording> recsList = recordingService.getRecordings(idList, states);
-    Map<String, Recording> recs = reorderRecordings(recsList);
-    return recs;
-  }
-
-  public List<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recsList,
-                                                            Map<String, String> metadataFilters) {
-    return recordingService.filterRecordingsByMetadata(recsList, metadataFilters);
-  }
-
-  public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings,
-                                                           Map<String, String> metadataFilters) {
-    return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
-  }
-
-
-  public Map<String, Recording> reorderRecordings(List<Recording> olds) {
-    Map<String, Recording> map = new HashMap<String, Recording>();
-    for (Recording r : olds) {
-      if (!map.containsKey(r.getId())) {
-        Map<String, String> meta = r.getMetadata();
-        String mid = meta.remove("meetingId");
-        String name = meta.remove("meetingName");
-
-        r.setMeetingID(mid);
-        r.setName(name);
-
-        List<Playback> plays = new ArrayList<Playback>();
-
-        if (r.getPlaybackFormat() != null) {
-          plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
-            getDurationRecording(r.getPlaybackDuration(), r.getEndTime(),
-              r.getStartTime()), r.getPlaybackSize(), r.getProcessingTime(), r.getPlaybackExtensions()));
-        }
-
-        r.setPlaybacks(plays);
-
-        map.put(r.getId(), r);
-      } else {
-        Recording rec = map.get(r.getId());
-        if (r.getPlaybackFormat() != null) {
-          rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
-            getDurationRecording(r.getPlaybackDuration(), r.getEndTime(), r.getStartTime()),
-            r.getPlaybackSize(), r.getProcessingTime(), r.getPlaybackExtensions()));
-        }
-      }
-    }
-
-    return map;
+  public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
+    return recordingService.getRecordings2x(idList, states, metadataFilters);
   }
 
   private int getDurationRecording(String playbackDuration, String end,
