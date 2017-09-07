@@ -127,7 +127,7 @@ class MeetingActor(
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
-  var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+  var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
   var lastRttTestSentOn = System.currentTimeMillis()
 

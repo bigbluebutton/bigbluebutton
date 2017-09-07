@@ -8,7 +8,7 @@ object MeetingState2x {
 }
 
 case class MeetingState2x(
-                         groupChats: GroupChats,
+    groupChats:        GroupChats,
     breakout:          Option[BreakoutModel],
     inactivityTracker: MeetingInactivityTracker,
     expiryTracker:     MeetingExpiryTracker
