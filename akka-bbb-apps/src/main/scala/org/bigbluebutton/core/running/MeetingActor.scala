@@ -106,11 +106,11 @@ class MeetingActor(
 
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW)
   val screenshareApp2x = new ScreenshareApp2x(liveMeeting, outGW)
-  val captionApp2x = new CaptionApp2x()
+  val captionApp2x = new CaptionApp2x
   val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW)
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
-  val groupChatApp = new GroupChatsApp()
+  val groupChatApp = new GroupChatsApp
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 

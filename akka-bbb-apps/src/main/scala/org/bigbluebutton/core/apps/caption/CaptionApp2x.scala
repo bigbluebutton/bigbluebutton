@@ -6,7 +6,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
-class CaptionApp2x()(implicit val context: ActorContext) {
+class CaptionApp2x(implicit val context: ActorContext) {
   val log = Logging(context.system, getClass)
 
   def getCaptionHistory(liveMeeting: LiveMeeting): Map[String, TranscriptVO] = {
