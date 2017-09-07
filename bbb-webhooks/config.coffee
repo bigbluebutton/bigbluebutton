@@ -14,37 +14,42 @@ config.server.port or= 3005
 
 # Web hooks configs
 config.hooks or= {}
-config.hooks.pchannel or= "bigbluebutton:*"
-config.hooks.meetingsChannel or= "bigbluebutton:from-bbb-apps:meeting"
+
+# Channels to subscribe to.
+config.hooks.channels or= {
+  mainChannel: 'from-akka-apps-redis-channel',
+  rapChannel: 'bigbluebutton:from-rap'
+}
 
 # Filters to the events we want to generate callback calls for
 config.hooks.events or= [
-  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_created_message" },
-  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_listening_only" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_voice_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_voice_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_shared_webcam_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_unshared_webcam_message" },
-  { channel: "bigbluebutton:from-rap", name: "sanity_started" },
-  { channel: "bigbluebutton:from-rap", name: "sanity_ended" },
-  { channel: "bigbluebutton:from-rap", name: "archive_started" },
-  { channel: "bigbluebutton:from-rap", name: "archive_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_archive_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_archive_ended" },
-  { channel: "bigbluebutton:from-rap", name: "process_started" },
-  { channel: "bigbluebutton:from-rap", name: "process_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_process_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_process_ended" },
-  { channel: "bigbluebutton:from-rap", name: "publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "publish_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" },
-  { channel: "bigbluebutton:from-rap", name: "unpublished" },
-  { channel: "bigbluebutton:from-rap", name: "published" },
-  { channel: "bigbluebutton:from-rap", name: "deleted" }
+  { channel: config.hooks.channels.mainChannel, name: "MeetingCreatedEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "MeetingEndedEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "UserJoinedMeetingEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "UserLeftMeetingEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "UserJoinedVoiceConfToClientEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "UserLeftVoiceConfToClientEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "UserMutedVoiceEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "UserBroadcastCamStartedEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "UserBroadcastCamStoppedEvtMsg" },
+  { channel: config.hooks.channels.mainChannel, name: "RecordingStatusChangedEvtMsg" },
+  { channel: config.hooks.channels.rapChannel, name: "sanity_started" },
+  { channel: config.hooks.channels.rapChannel, name: "sanity_ended" },
+  { channel: config.hooks.channels.rapChannel, name: "archive_started" },
+  { channel: config.hooks.channels.rapChannel, name: "archive_ended" },
+  { channel: config.hooks.channels.rapChannel, name: "post_archive_started" },
+  { channel: config.hooks.channels.rapChannel, name: "post_archive_ended" },
+  { channel: config.hooks.channels.rapChannel, name: "process_started" },
+  { channel: config.hooks.channels.rapChannel, name: "process_ended" },
+  { channel: config.hooks.channels.rapChannel, name: "post_process_started" },
+  { channel: config.hooks.channels.rapChannel, name: "post_process_ended" },
+  { channel: config.hooks.channels.rapChannel, name: "publish_started" },
+  { channel: config.hooks.channels.rapChannel, name: "publish_ended" },
+  { channel: config.hooks.channels.rapChannel, name: "post_publish_started" },
+  { channel: config.hooks.channels.rapChannel, name: "post_publish_ended" },
+  { channel: config.hooks.channels.rapChannel, name: "unpublished" },
+  { channel: config.hooks.channels.rapChannel, name: "published" },
+  { channel: config.hooks.channels.rapChannel, name: "deleted" }
 ]
 
 # Retry intervals for failed attempts for perform callback calls.
