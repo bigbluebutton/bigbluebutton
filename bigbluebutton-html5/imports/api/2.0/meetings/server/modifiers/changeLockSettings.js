@@ -4,7 +4,16 @@ import { check } from 'meteor/check';
 
 export default function changeLockSettings(meetingId, payload) {
   check(meetingId, String);
-  check(payload, Object)
+  check(payload, {
+    disableCam: Boolean,
+    disableMic: Boolean,
+    disablePrivChat: Boolean,
+    disablePubChat: Boolean,
+    lockedLayout: Boolean,
+    lockOnJoin: Boolean,
+    lockOnJoinConfigurable: Boolean,
+    setBy: String,
+  });
 
   const selector = {
     meetingId

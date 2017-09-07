@@ -4,7 +4,11 @@ import { check } from 'meteor/check';
 
 export default function changeUserLock(meetingId, payload) {
   check(meetingId, String);
-  check(payload, Object)
+  check(payload, {
+    userId: String,
+    locked: Boolean,
+    lockedBy: String,
+  });
 
   const selector = {
     userId: payload.userId,
