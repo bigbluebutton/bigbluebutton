@@ -2,14 +2,13 @@ package org.bigbluebutton.core.apps.screenshare
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ScreenshareModel
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait ScreenshareStartedVoiceConfEvtMsgHdlr {
   this: ScreenshareApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleScreenshareStartedVoiceConfEvtMsg(msg: ScreenshareStartedVoiceConfEvtMsg): Unit = {
+  def handle(msg: ScreenshareStartedVoiceConfEvtMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(voiceConf: String, screenshareConf: String, url: String, timestamp: String): BbbCommonEnvCoreMsg = {
 
@@ -37,7 +36,7 @@ trait ScreenshareStartedVoiceConfEvtMsgHdlr {
 
       // Tell FreeSwitch to broadcast to RTMP
       val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, streamPath, timestamp)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
 
       ScreenshareModel.setScreenshareStarted(liveMeeting.screenshareModel, true)
     }

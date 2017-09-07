@@ -33,7 +33,11 @@ trait UserLeaveReqMsgHdlr {
         automaticallyAssignPresenter(outGW, liveMeeting)
 
         // request screenshare to end
-        screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, liveMeeting.props.screenshareProps.screenshareConf)
+        screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
+          liveMeeting.props.voiceProp.voiceConf,
+          liveMeeting.props.screenshareProps.screenshareConf,
+          liveMeeting, msgBus
+        )
 
         // request ongoing poll to end
         handleStopPollReqMsg(u.intId)
