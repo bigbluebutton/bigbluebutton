@@ -196,7 +196,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </fx:Script>
     
 	<fx:Declarations>
-		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox]}"/>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
 	</fx:Declarations>
     
     <mx:Label id="lblSelect" styleName="chatOptionsLabel"

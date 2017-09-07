@@ -1032,7 +1032,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<fx:Declarations>
 		<common:TabIndexer id="tabIndexer" startIndex="100000"
-						   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
+						   tabIndices="{[warningBtn, langSelector, logBtn, fullScreenBtn]}"/>
 	</fx:Declarations>
 
 	<views:MainToolbar id="toolbar" 
