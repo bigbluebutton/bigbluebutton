@@ -667,15 +667,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
 					browserPermissionHelper.currentState = "chromeCam";
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates.
-					point1.x = width / 2;
-					point1.y = height / 2;
-					if (Capabilities.os.indexOf("Mac") >= 0) {
-						browserPermissionHelper.x = (mdiCanvas.width - browserPermissionHelper.width);
-					} else {
-						browserPermissionHelper.x = 20;
-					}
+					browserPermissionHelper.x = 20;
 					browserPermissionHelper.y = 20;
 				}
 			}
