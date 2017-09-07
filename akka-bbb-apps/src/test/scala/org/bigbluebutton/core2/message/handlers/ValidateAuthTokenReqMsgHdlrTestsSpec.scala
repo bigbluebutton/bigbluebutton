@@ -57,7 +57,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
         // Need to get an ActorContext
         val actorRef = TestActorRef[MockTestActor]
@@ -88,7 +88,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
         val richard = TestDataGen.createRegisteredUser(live.registeredUsers, "Richard", Roles.MODERATOR_ROLE,
           guest = false, authed = false, waitForApproval = false)
@@ -145,7 +145,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
         // Need to get an ActorContext
         val actorRef = TestActorRef[MockTestActor]
