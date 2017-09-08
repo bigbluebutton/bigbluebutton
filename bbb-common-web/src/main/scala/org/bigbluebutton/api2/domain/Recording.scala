@@ -203,7 +203,9 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
       val buffer = new scala.xml.NodeBuffer
 
       map.foreach {case (key, value) =>
-        val m = "<" + key + ">" + value + "</" + key + ">"
+        println("META key=" + key + " value=" + xml.Utility.escape(value))
+        val m = "<" + key + ">" + xml.Utility.escape(value) + "</" + key + ">"
+        println("META = " + m)
         buffer += scala.xml.XML.loadString(m)
       }
       <metadata>{buffer}</metadata>
@@ -281,7 +283,10 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
       val buffer = new scala.xml.NodeBuffer
 
       map.foreach {case (key, value) =>
-        val m = "<" + key + ">" + value + "</" + key + ">"
+        println("W META key=" + key + " value=" + value)
+        println("W META key=" + key + " value=" + xml.Utility.escape(value))
+        val m = "<" + key + ">" + xml.Utility.escape(value) + "</" + key + ">"
+        println("W META = " + m)
         buffer += scala.xml.XML.loadString(m)
       }
       <meta>{buffer}</meta>

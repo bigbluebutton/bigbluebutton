@@ -66,6 +66,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
   }
 
   def getRecordings2x(recs: util.ArrayList[RecordingMetadata]): String = {
+
     val recMeta = recs.asScala map(r => r.getRecMeta)
     if (recMeta.isEmpty) {
       val resp =
@@ -80,7 +81,10 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       p.format(<recording>{resp}</recording>)
     } else {
       val buffer = new scala.xml.NodeBuffer
-      recMeta foreach(rm => buffer += rm.toXml())
+      recMeta foreach { rm =>
+        println("Processing metadata.xml for " + rm.id)
+        buffer += rm.toXml()
+      }
       val resp =
         <response>
           <returncode>SUCCESS</returncode>
