@@ -47,6 +47,7 @@
 			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
+			enablePause="true"
 			tryWebRTCFirst="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
