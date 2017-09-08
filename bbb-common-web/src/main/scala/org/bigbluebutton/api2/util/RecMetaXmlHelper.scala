@@ -39,6 +39,10 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       try {
         writer.write("<?xml version='1.0' encoding='" + Encoding + "'?>\n")
         writer.write(pp.format(metadata.getRecMeta.toMetadataXml()))
+      } catch {
+        case ex: Exception =>
+          logger.info("Exception while saving {}", xml.getAbsolutePath)
+          logger.info("Exception details: {}", ex.fillInStackTrace())
       } finally {
         writer.close()
       }
@@ -47,25 +51,45 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         logger.info("Failed to save metadataxml {}", xml.getAbsolutePath)
       case ex: Exception =>
         logger.info("Exception while saving {}", xml.getAbsolutePath)
-        logger.info("Exception details: {}", ex.getMessage)
+        logger.info("Exception details: {}", ex.fillInStackTrace())
     }
   }
 
   def getRecordingMetadata(xml: File): Option[RecordingMetadata] = {
     loadMetadataXml(xml.getAbsolutePath) match {
       case Some(mXML) =>
-        RecMeta.getRecMeta(mXML) match {
-          case Some(rm) =>
-            val rec = new RecordingMetadata()
-            rec.setRecMeta(rm)
-            Some(rec)
-          case None => None
+        try {
+          RecMeta.getRecMeta(mXML) match {
+            case Some(rm) =>
+              val rec = new RecordingMetadata()
+              rec.setRecMeta(rm)
+              Some(rec)
+            case None => None
+          }
+        } catch {
+          case ex: Exception =>
+            logger.info("Exception while saving {}", xml.getAbsolutePath)
+            logger.info("Exception details: {}", ex.fillInStackTrace())
+            None
         }
+
       case None => None
     }
   }
 
   def getRecordings2x(recs: util.ArrayList[RecordingMetadata]): String = {
+
+    def toXml(rec: RecMeta): Option[Elem] = {
+      try {
+        Some(rec.toXml())
+      } catch {
+        case ex: Exception =>
+          logger.info("Exception while building xml for recording {}", rec.id)
+          logger.info("Exception details: {}", ex.fillInStackTrace())
+          None
+      }
+    }
+
     val recMeta = recs.asScala map(r => r.getRecMeta)
     if (recMeta.isEmpty) {
       val resp =
@@ -80,7 +104,9 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       p.format(<recording>{resp}</recording>)
     } else {
       val buffer = new scala.xml.NodeBuffer
-      recMeta foreach(rm => buffer += rm.toXml())
+      recMeta foreach { rm =>
+        toXml(rm) foreach (r => buffer += r)
+      }
       val resp =
         <response>
           <returncode>SUCCESS</returncode>
