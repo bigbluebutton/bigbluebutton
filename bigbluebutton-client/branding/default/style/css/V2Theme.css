@@ -194,8 +194,7 @@ phonecomponents|MuteMeButton {
 
 .webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
 .deskshareDefaultButtonStyle, .deskshareOverButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
-.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle,
-.recordButtonStyleNormal, .recordButtonStyleStop, .recordButtonStyleStart {
+.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
 	fillColorOver           : #FFFFFF;
 	borderColorOver         : #1070D7;
 	fillColorSelectedUp     : #1070D7;
@@ -204,6 +203,17 @@ phonecomponents|MuteMeButton {
 	borderColorSelectedUp   : #1070D7;
 	borderColorSelectedOver : #0A5EAC;
 	borderColorSelectedDown : #1070D7;
+}
+
+.recordButtonStyleNormal, .recordButtonStyleStop, .recordButtonStyleStart {
+	fillColorOver           : #FFFFFF;
+	borderColorOver         : #DE2721;
+	fillColorSelectedUp     : #FFFFFF;
+	fillColorSelectedOver   : #FFFFFF;
+	fillColorSelectedDown   : #FFFFFF;
+	borderColorSelectedUp   : #DE2721;
+	borderColorSelectedOver : #DE2721;
+	borderColorSelectedDown : #DE2721;
 }
 
 .voiceConfDefaultButtonStyle, .voiceConfOverButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
@@ -294,10 +304,7 @@ phonecomponents|MuteMeButton {
 }
 
 .recordButtonStyleStart {
-	icon             : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On_Blue");
-	selectedUpIcon   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
-	selectedOverIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
-	selectedDownIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	icon             : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .recordButtonStyleStop {
@@ -388,6 +395,7 @@ mx|Button {
 	textRollOverColor           : #4E5A66;
 	textSelectedColor           : #4E5A66;
 	fontSize                    : 14;
+	fontWeight                  : normal;
 	skin                        : ClassReference("org.bigbluebutton.skins.ButtonSkin");
 
 	/* Normal state */
@@ -687,6 +695,7 @@ mx|ComboBox {
 	cornerRadius        : 2;
 	color               : #5E6C73;
 	fontSize            : 12;
+	fontWeight          : normal;
 
 	/* Normal state */
 	fillColorUp         : #FFFFFF;
@@ -1301,10 +1310,6 @@ sharednotes|SharedNotesRichTextEditor {
 
 .sharedNotesSaveButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
-}
-
-.sharedNotesNewButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Add_File");
 }
 
 .sharedNotesUndoButtonStyle {

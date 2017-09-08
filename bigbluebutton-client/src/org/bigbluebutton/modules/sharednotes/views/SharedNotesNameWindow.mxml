@@ -82,17 +82,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 
 	<mx:HBox width="100%"
-			 height="100%">
+			 height="100%"
+			 verticalAlign="middle">
 		<mx:TextInput id="textInput"
 					  restrict="a-zA-Z0-9 "
-					  height="30"
-					  fontSize="16"
 					  maxChars="20"
 					  width="100%"
 					  text="{sharedNoteTitle}" />
 		<mx:Button id="btnNew"
 				   click="btnNew_clickHandler(event)"
-				   styleName="sharedNotesNewButtonStyle"
+				   height="30"
+				   label="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.label')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}" />
 	</mx:HBox>
 </mx:TitleWindow>
