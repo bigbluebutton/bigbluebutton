@@ -58,7 +58,6 @@ class MeetingActor(
     with GuestsApp
     with LayoutApp2x
     with VoiceApp2x
-    with PollApp2x
     with BreakoutApp2x
     with UsersApp2x
     with WhiteboardApp2x
@@ -111,6 +110,7 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x(liveMeeting, outGW)
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatsApp
+  val pollApp = new PollApp2x
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -218,13 +218,13 @@ class MeetingActor(
       case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
-      case m: StartPollReqMsg                => handleStartPollReqMsg(m)
-      case m: StartCustomPollReqMsg          => handleStartCustomPollReqMsg(m)
-      case m: StopPollReqMsg                 => handleStopPollReqMsg(m)
-      case m: ShowPollResultReqMsg           => handleShowPollResultReqMsg(m)
-      case m: HidePollResultReqMsg           => handleHidePollResultReqMsg(m)
-      case m: GetCurrentPollReqMsg           => handleGetCurrentPollReqMsg(m)
-      case m: RespondToPollReqMsg            => handleRespondToPollReqMsg(m)
+      case m: StartPollReqMsg                => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StartCustomPollReqMsg          => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StopPollReqMsg                 => pollApp.handle(m, liveMeeting, msgBus)
+      case m: ShowPollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: HidePollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: GetCurrentPollReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: RespondToPollReqMsg            => pollApp.handle(m, liveMeeting, msgBus)
 
       // Breakout
       case m: BreakoutRoomsListMsg =>
@@ -335,7 +335,7 @@ class MeetingActor(
 
   def handlePresenterChange(msg: AssignPresenterReqMsg): Unit = {
     // Stop poll if one is running as presenter left
-    handleStopPollReqMsg(msg.header.userId)
+    pollApp.stopPoll(msg.header.userId, liveMeeting, msgBus)
 
     // switch user presenter status for old and new presenter
     usersApp.handleAssignPresenterReqMsg(msg)

@@ -40,7 +40,7 @@ trait UserLeaveReqMsgHdlr {
         )
 
         // request ongoing poll to end
-        handleStopPollReqMsg(u.intId)
+        pollApp.stopPoll(u.intId, liveMeeting, msgBus)
       }
 
       def broadcastEvent(vu: VoiceUserState): Unit = {
