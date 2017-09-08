@@ -3,12 +3,13 @@ package org.bigbluebutton.core.apps.chat
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ChatModel
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
 
-trait SendPublicMessagePubMsgHdlr {
-  this: ChatApp2x =>
+trait SendPublicMessagePubMsgHdlr extends LogHelper {
 
   def handle(msg: SendPublicMessagePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    log.debug("SENDING CHAT MESSAGE")
+
     def broadcastEvent(msg: SendPublicMessagePubMsg, message: ChatMessageVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SendPublicMessageEvtMsg.NAME, routing)

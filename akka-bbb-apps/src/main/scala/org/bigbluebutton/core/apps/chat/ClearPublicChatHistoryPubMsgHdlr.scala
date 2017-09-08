@@ -3,11 +3,9 @@ package org.bigbluebutton.core.apps.chat
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ChatModel
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
 
-trait ClearPublicChatHistoryPubMsgHdlr {
-  this: ChatApp2x =>
-
+trait ClearPublicChatHistoryPubMsgHdlr extends LogHelper {
   def handle(msg: ClearPublicChatHistoryPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     def broadcastEvent(msg: ClearPublicChatHistoryPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
