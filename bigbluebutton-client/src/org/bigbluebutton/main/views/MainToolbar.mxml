@@ -220,7 +220,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function refreshModeratorButtonsVisibility(e:*):void {
           showGuestSettingsButton = UsersUtil.amIModerator() && usersOptions.enableGuestUI;
 
-          showRecordButton = UsersUtil.amIModerator();
+          showRecordButton = LiveMeeting.inst().meeting.recorded && UsersUtil.amIModerator();
       }
 
       private function getFlashPlayerCapabilities():Object {
