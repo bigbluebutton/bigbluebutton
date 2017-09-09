@@ -12,6 +12,8 @@ object MyType {
 
 trait LogHelper {
 
+  import MyType._
+
   implicit val context: ActorContext
 
   val log = Logging(context.system, getClass)

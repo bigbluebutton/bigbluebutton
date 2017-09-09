@@ -6,16 +6,10 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ GroupChatFactory, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
 
-import akka.event.Logging
-
-trait CreateGroupChatReqMsgHdlr  {
-  val log: akka.event.Logging
+trait CreateGroupChatReqMsgHdlr {
 
   def handle(msg: CreateGroupChatReqMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
-
-    log.debug("Got this!!!!!")
-
     def buildCreateGroupChatRespMsg(meetingId: String, userId: String, chatId: String, name: String,
                                     access: String, correlationId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)

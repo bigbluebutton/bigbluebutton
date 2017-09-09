@@ -1,14 +1,16 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait PresentationConversionUpdatePubMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handlePresentationConversionUpdatePubMsg(msg: PresentationConversionUpdateSysPubMsg): Unit = {
+  def handle(
+    msg:         PresentationConversionUpdateSysPubMsg,
+    liveMeeting: LiveMeeting, bus: MessageBus
+  ): Unit = {
 
     def broadcastEvent(msg: PresentationConversionUpdateSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -18,9 +20,7 @@ trait PresentationConversionUpdatePubMsgHdlr {
       val body = PresentationConversionUpdateEvtMsgBody(msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.presName)
       val event = PresentationConversionUpdateEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-
-      //record(event)
+      bus.outGW.send(msgEvent)
     }
 
     broadcastEvent(msg)

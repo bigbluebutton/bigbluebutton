@@ -102,7 +102,7 @@ class MeetingActor(
 
   val msgBus = MessageBus(eventBus, outGW)
 
-  val presentationApp2x = new PresentationApp2x(liveMeeting, outGW)
+  val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
   val captionApp2x = new CaptionApp2x
   val sharedNotesApp2x = new SharedNotesApp2x
@@ -262,16 +262,16 @@ class MeetingActor(
       case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
 
       // Presentation
-      case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
-      case m: GetPresentationInfoReqMsg => presentationApp2x.handleGetPresentationInfoReqMsg(m)
-      case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
-      case m: ResizeAndMovePagePubMsg => presentationApp2x.handleResizeAndMovePagePubMsg(m)
-      case m: RemovePresentationPubMsg => presentationApp2x.handleRemovePresentationPubMsg(m)
-      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
-      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
-      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
-      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
-      case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetPresentationInfoReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetCurrentPagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: RemovePresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
 
       // Caption
@@ -323,7 +323,7 @@ class MeetingActor(
     usersApp.handleSyncGetUsersMeetingRespMsg()
 
     // sync all presentations
-    presentationApp2x.handleSyncGetPresentationInfoRespMsg()
+    presentationApp2x.handle(liveMeeting, msgBus)
 
     // sync access of whiteboard (multi user)
     wbApp.handle(liveMeeting, msgBus)
