@@ -1,0 +1,25 @@
+"use strict";
+// Local configuration file
+
+const config = {};
+
+// Shared secret of your BigBlueButton server.
+config.bbb = {};
+config.bbb.sharedSecret = "mysharedsecret";
+
+// The port in which the API server will run.
+config.server = {};
+config.server.port = 3005;
+
+// Callbacks will be triggered for all the events in this list and only for these events.
+config.hooks = {};
+config.hooks.pchannel = "bigbluebutton:*";
+// IP where aggr will be hosted
+config.hooks.aggr = ["request.catcher.url", "another.request.catcher.url"]
+
+// Allow global hook to receive all events with raw data
+config.hooks.getRaw = false;
+
+config.webhooks = {};
+
+module.exports = config;
