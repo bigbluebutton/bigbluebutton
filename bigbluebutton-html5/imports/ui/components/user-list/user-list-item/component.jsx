@@ -130,6 +130,8 @@ class UserListItem extends Component {
       kick,
       mute,
       unmute,
+      promote,
+      demote,
     } = userActions;
 
     const hasAuthority = currentUser.isModerator || user.isCurrent;
@@ -143,6 +145,9 @@ class UserListItem extends Component {
 
     const allowedToSetPresenter = currentUser.isModerator && !user.isPresenter;
 
+    const allowedToPromote = currentUser.isModerator && !user.isCurrent && !user.isModerator;
+    const allowedToDemote = currentUser.isModerator && !user.isCurrent && user.isModerator;
+
     return _.compact([
       (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
       (allowedToMuteAudio ? this.renderUserAction(unmute, user) : null),
@@ -150,6 +155,8 @@ class UserListItem extends Component {
       (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
       (allowedToSetPresenter ? this.renderUserAction(setPresenter, user) : null),
       (allowedToKick ? this.renderUserAction(kick, user) : null),
+      (allowedToPromote ? this.renderUserAction(promote, user) : null),
+      (allowedToDemote ? this.renderUserAction(demote, user) : null),
     ]);
   }
 

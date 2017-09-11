@@ -6,7 +6,6 @@ import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import cx from 'classnames';
 
 import KEY_CODES from '/imports/utils/keyCodes';
-import Button from '/imports/ui/components/button/component';
 
 import styles from './styles.scss';
 
@@ -73,6 +72,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.menu.unmuteUserAudio.label',
     description: 'Forcefully unmute this user',
   },
+  PromoteUserLabel: {
+    id: 'app.userlist.menu.promoteUser.label',
+    description: 'Forcefully promote this viewer to a moderator',
+  },
+  DemoteUserLabel: {
+    id: 'app.userlist.menu.demoteUser.label',
+    description: 'Forcefully demote this moderator to a viewer',
+  },
 });
 
 class UserList extends Component {
@@ -89,11 +96,23 @@ class UserList extends Component {
     this.focusedItemIndex = -1;
   }
 
+  componentDidMount() {
+    if (!this.state.compact) {
+      this._msgsList.addEventListener('keydown',
+        event => this.rovingIndex(event, 'messages'));
+
+      this._usersList.addEventListener('keydown',
+        event => this.rovingIndex(event, 'users'));
+    }
+  }
+
   focusList(list) {
+    const actionList = list;
+
     document.activeElement.tabIndex = -1;
     this.focusedItemIndex = -1;
-    list.tabIndex = 0;
-    list.focus();
+    actionList.tabIndex = 0;
+    actionList.focus();
   }
 
   rovingIndex(event, listType) {
@@ -158,16 +177,6 @@ class UserList extends Component {
     this.setState({ compact: !this.state.compact });
   }
 
-  componentDidMount() {
-    if (!this.state.compact) {
-      this._msgsList.addEventListener('keydown',
-        event => this.rovingIndex(event, 'messages'));
-
-      this._usersList.addEventListener('keydown',
-        event => this.rovingIndex(event, 'users'));
-    }
-  }
-
   renderHeader() {
     const { intl } = this.props;
 
@@ -215,6 +224,7 @@ class UserList extends Component {
             </div> : <hr className={styles.separator} />
         }
         <div
+          role="tabpanel"
           tabIndex={0}
           className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
@@ -257,7 +267,7 @@ class UserList extends Component {
       meeting,
     } = this.props;
 
-    const userActions = {
+    const userActions = val => ({
       openChat: {
         label: intl.formatMessage(intlMessages.ChatLabel),
         handler: (router, user) => router.push(`/users/chat/${user.id}`),
@@ -274,7 +284,7 @@ class UserList extends Component {
         icon: 'presentation',
       },
       kick: {
-        label: intl.formatMessage(intlMessages.KickUserLabel),
+        label: intl.formatMessage(intlMessages.KickUserLabel, { 0: val.name }),
         handler: user => makeCall('kickUser', user.id),
         icon: 'circle_close',
       },
@@ -288,7 +298,17 @@ class UserList extends Component {
         handler: user => makeCall('toggleVoice', user.id),
         icon: 'audio_on',
       },
-    };
+      promote: {
+        label: intl.formatMessage(intlMessages.PromoteUserLabel, { 0: val.name }),
+        handler: user => makeCall('changeRole', user.id, 'MODERATOR'),
+        icon: 'promote',
+      },
+      demote: {
+        label: intl.formatMessage(intlMessages.DemoteUserLabel, { 0: val.name }),
+        handler: user => makeCall('changeRole', user.id, 'VIEWER'),
+        icon: 'user',
+      },
+    });
 
     return (
       <div className={styles.participants}>
@@ -300,8 +320,9 @@ class UserList extends Component {
           </div> : <hr className={styles.separator} />
         }
         <div
-          className={styles.scrollableList}
+          role="tabpanel"
           tabIndex={0}
+          className={styles.scrollableList}
           ref={(ref) => { this._usersList = ref; }}
         >
           <CSSTransitionGroup
@@ -324,8 +345,9 @@ class UserList extends Component {
                     isBreakoutRoom={isBreakoutRoom}
                     user={user}
                     currentUser={currentUser}
-                    userActions={userActions}
+                    userActions={userActions(user)}
                     meeting={meeting}
+                    tabIndex={-1}
                   />
                 ))
               }
@@ -335,7 +357,7 @@ class UserList extends Component {
       </div>
     );
   }
-  
+
   render() {
     return (
       <div className={styles.userList}>

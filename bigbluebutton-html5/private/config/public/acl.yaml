@@ -29,6 +29,7 @@ acl:
       - 'endMeeting'
       - 'toggleVoice'
       - 'clearPublicChatHistory'
+      - 'changeRole'
   presenter:
     methods:
       - 'assignPresenter'
