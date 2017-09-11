@@ -1107,9 +1107,17 @@ mx|Panel {
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
 }
 
+.presentationBackButtonDisabledStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
+}
+
 .presentationForwardButtonStyle {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
+}
+
+.presentationForwardButtonDisabledStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
 }
 
 .presentationFitToWidthButtonStyle {
