@@ -40,7 +40,7 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
-  publish(channel, eventName, meetingId, payload = {}, userId = {}) {
+  publish(channel, eventName, meetingId, payload = {}, header = {}) {
     const envelope = {
       envelope: {
         name: eventName,
@@ -53,7 +53,7 @@ class RedisPubSub2x {
         header: Object.assign({
           name: eventName,
           meetingId,
-        }, userId),
+        }, header),
         body: payload,
       }
     };
