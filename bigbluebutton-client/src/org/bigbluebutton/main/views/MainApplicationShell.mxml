@@ -757,9 +757,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = tabIndexer.startIndex + addedBtns.numChildren + 10;
+					var newComponentTabIndex:int = tabIndexer.startIndex + addedBtns.numChildren + 10;
+					(event.button as UIComponent).tabIndex = newComponentTabIndex;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
+					
+					//need to force the fullscreen button to be after it
+					fullScreenBtn.tabIndex = newComponentTabIndex + 1;
 				}
 			}
 			
@@ -888,7 +892,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Declarations>
 		<common:TabIndexer id="tabIndexer" startIndex="100000"
-						   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
+						   tabIndices="{[warningBtn, langSelector, logBtn, fullScreenBtn]}"/>
 	</fx:Declarations>
 
 	<views:MainToolbar id="toolbar" 
