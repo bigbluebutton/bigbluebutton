@@ -73,6 +73,9 @@ module.exports = class Hook
   # message might be processed instantly.
   enqueue: (message) ->
     Logger.info "Hook: enqueueing message", JSON.stringify(message)
+    # Add message to redis queue
+    @redisClient.rpush config.redis.keys.events(@id), JSON.stringify(message), (error,reply) =>
+      Logger.error "Hook: error pushing event to redis queue:", JSON.stringify(message), error if error?
     @queue.push message
     @_processQueue()
 
@@ -106,6 +109,9 @@ module.exports = class Hook
 
     @emitter.on "success", =>
       delete @emitter
+      # Remove the sent message from redis
+      @redisClient.lpop config.redis.keys.events(@id), (error, reply) =>
+        Logger.error "Hook: error removing event from redis queue", error if error?
       @queue.shift() # pop the first message just sent
       @_processQueue() # go to the next message
 
@@ -135,7 +141,16 @@ module.exports = class Hook
       backupURLs = if callbackURL instanceof Array then callbackURL else []
       backupURLs.push(firstURL); backupURLs.shift()
       hook.backupURL = backupURLs
-      Logger.info "Hook: Backup URLs:", hook.backupURL
+      Logger.info "Hook: Backup URLs", hook.backupURL
+      # Sync permanent queue
+      if hook.permanent
+        hook.redisClient.llen config.redis.keys.events(hook.id), (error, len) =>
+          if len > 0
+            length = len
+            hook.redisClient.lrange config.redis.keys.events(hook.id), 0, len, (error, elements) =>
+              elements.forEach (element) =>
+                hook.queue.push element
+                hook._processQueue() if hook.queue.length > 0
       hook.save (error, hook) -> callback?(error, hook)
 
   @removeSubscription = (hookID, callback) ->
@@ -215,8 +230,17 @@ module.exports = class Hook
             if hookData?
               hook = new Hook()
               hook.fromRedis(hookData)
+              # sync events queue
+              client.llen config.redis.keys.events(hook.id), (error, len) =>
+                length = len
+                client.lrange config.redis.keys.events(hook.id), 0, len, (error, elements) =>
+                  Logger.info "elements:", hook.id, elements
+                  elements.forEach (element) =>
+                    hook.queue.push element
+              # Persist hook to redis
               hook.save (error, hook) ->
                 nextID = hook.id + 1 if hook.id >= nextID
+                hook._processQueue() if hook.queue.length > 0
                 done(null, hook)
             else
               done(null, null)

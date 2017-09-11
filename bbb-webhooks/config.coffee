@@ -19,36 +19,6 @@ config.hooks.meetingsChannel or= "bigbluebutton:from-bbb-apps:meeting"
 # IP where aggr will be hosted
 config.hooks.aggr or= []
 
-# Filters to the events we want to generate callback calls for
-config.hooks.events or= [
-  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_created_message" },
-  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_listening_only" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_voice_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_voice_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_shared_webcam_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_unshared_webcam_message" },
-  { channel: "bigbluebutton:from-rap", name: "sanity_started" },
-  { channel: "bigbluebutton:from-rap", name: "sanity_ended" },
-  { channel: "bigbluebutton:from-rap", name: "archive_started" },
-  { channel: "bigbluebutton:from-rap", name: "archive_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_archive_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_archive_ended" },
-  { channel: "bigbluebutton:from-rap", name: "process_started" },
-  { channel: "bigbluebutton:from-rap", name: "process_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_process_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_process_ended" },
-  { channel: "bigbluebutton:from-rap", name: "publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "publish_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" },
-  { channel: "bigbluebutton:from-rap", name: "unpublished" },
-  { channel: "bigbluebutton:from-rap", name: "published" },
-  { channel: "bigbluebutton:from-rap", name: "deleted" }
-]
-
 # Retry intervals for failed attempts for perform callback calls.
 # In ms. Totals to around 5min.
 config.hooks.retryIntervals = [
@@ -67,6 +37,7 @@ config.redis.keys.hook = (id) -> "bigbluebutton:webhooks:hook:#{id}"
 config.redis.keys.hooks = "bigbluebutton:webhooks:hooks"
 config.redis.keys.mappings = "bigbluebutton:webhooks:mappings"
 config.redis.keys.mapping = (id) -> "bigbluebutton:webhooks:mapping:#{id}"
+config.redis.keys.events = (id) -> "bigbluebutton:webhooks:events:#{id}"
 
 config.api = {}
 config.api.responses = {}
