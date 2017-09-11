@@ -3,6 +3,7 @@ const Hook = require("./hook.js");
 const IDMapping = require("./id_mapping.js");
 const WebHooks = require("./web_hooks.js");
 const WebServer = require("./web_server.js");
+const redis = require("redis");
 
 // Class that defines the application. Listens for events on redis and starts the
 // process to perform the callback calls.
@@ -10,6 +11,8 @@ const WebServer = require("./web_server.js");
 module.exports = class Application {
 
   constructor() {
+    config.redis.pubSubClient = redis.createClient();
+    config.redis.client = redis.createClient()
     this.webHooks = new WebHooks();
     this.webServer = new WebServer();
   }

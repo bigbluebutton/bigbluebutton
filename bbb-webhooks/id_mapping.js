@@ -32,7 +32,7 @@ module.exports = class IDMapping {
     this.externalMeetingID = null;
     this.internalMeetingID = null;
     this.lastActivity = null;
-    this.redisClient = redis.createClient();
+    this.redisClient = config.redis.client;
   }
 
   save(callback) {
@@ -176,7 +176,7 @@ module.exports = class IDMapping {
   // Gets all mappings from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
-    let client = redis.createClient();
+    let client = config.redis.client;
     let tasks = [];
 
     return client.smembers(config.redis.keys.mappings, (error, mappings) => {

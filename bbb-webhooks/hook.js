@@ -36,7 +36,7 @@ module.exports = class Hook {
     this.externalMeetingID = null;
     this.queue = [];
     this.emitter = null;
-    this.redisClient = redis.createClient();
+    this.redisClient = config.redis.client;
     this.permanent = false;
     this.backupURL = [];
     this.getRaw = false;
@@ -270,7 +270,7 @@ module.exports = class Hook {
   }
 
   static flushall() {
-    let client = redis.createClient();
+    let client = config.redis.client;
     client.flushdb()
   }
   flushredis() {
@@ -279,7 +279,7 @@ module.exports = class Hook {
   // Gets all hooks from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
-    let client = redis.createClient();
+    let client = config.redis.client;
     // Remove previous permanent hook (always ID = 1)
     client.srem(config.redis.keys.hooks, 1, (error, reply) => {
       if (error != null) { Logger.error("[Hook] error removing previous permanent hook from list:", error); }

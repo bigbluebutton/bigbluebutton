@@ -13,7 +13,7 @@ const MessageMapping = require("./messageMapping.js");
 module.exports = class WebHooks {
 
   constructor() {
-    this.subscriberEvents = redis.createClient();
+    this.subscriberEvents = config.redis.pubSubClient;
   }
 
   start() {
@@ -67,8 +67,10 @@ module.exports = class WebHooks {
         Logger.error("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e);
       }
     });
-
-    this.subscriberEvents.psubscribe(config.hooks.pchannel);
+    for (let k in config.hooks.channels) {
+      const channel = config.hooks.channels[k];
+      this.subscriberEvents.psubscribe(channel);
+    }
   }
 
   // Send raw data to hooks that are not expecting mapped messages

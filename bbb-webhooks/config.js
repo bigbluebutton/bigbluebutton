@@ -5,7 +5,7 @@ const config = require("./config_local.js");
 
 // BigBlueButton configs
 if (!config.bbb) { config.bbb = {}; }
-if (!config.bbb.sharedSecret) { config.bbb.sharedSecret = "ac8821d35c447bb3b959ca8fa05b1d3f"; }
+if (!config.bbb.sharedSecret) { config.bbb.sharedSecret = "sharedSecret"; }
 if (!config.bbb.apiPath) { config.bbb.apiPath = "/bigbluebutton/api"; }
 
 // Web server configs
@@ -14,7 +14,12 @@ if (!config.server.port) { config.server.port = 3005; }
 
 // Web hooks configs
 if (!config.hooks) { config.hooks = {}; }
-if (!config.hooks.pchannel) { config.hooks.pchannel = "bigbluebutton:*"; }
+if (!config.hooks.channels) {
+  config.hooks.channels or= {
+    mainChannel: 'from-akka-apps-redis-channel',
+    rapChannel: 'bigbluebutton:from-rap'
+  }
+ }
 // IP where aggr will be hosted
 if (!config.hooks.aggr) { config.hooks.aggr = []; }
 if (!config.hooks.queueSize) { config.hooks.queueSize = 10000; }
