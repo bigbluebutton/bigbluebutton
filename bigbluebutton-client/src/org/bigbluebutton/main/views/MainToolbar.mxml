@@ -220,7 +220,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function refreshModeratorButtonsVisibility(e:*):void {
           showGuestSettingsButton = UsersUtil.amIModerator() && usersOptions.enableGuestUI;
 
-          showRecordButton = UsersUtil.amIModerator();
+          showRecordButton = LiveMeeting.inst().meeting.recorded && UsersUtil.amIModerator();
       }
 
       private function getFlashPlayerCapabilities():Object {
@@ -365,7 +365,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					
 					numButtons++;
-					(event.button as UIComponent).tabIndex = quickLinksIndexer.startIndex + 5;
+					(event.button as UIComponent).tabIndex = quickLinksIndexer.startIndex + 6;
 				}
 			}
 			
@@ -508,7 +508,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
 	<fx:Declarations>
-		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
+		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn, sharedNotesLinkBtn]}"/>
 		<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>

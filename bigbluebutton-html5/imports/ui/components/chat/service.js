@@ -1,5 +1,6 @@
 import Chats from '/imports/api/2.0/chat';
 import Users from '/imports/api/2.0/users';
+import Meetings from '/imports/api/2.0/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -102,21 +103,19 @@ const getPrivateMessages = (userID) => {
 
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
-  const currentUser = getUser(Auth.userID);
 
-  const lockSettings = false;
+  const meeting = Meetings.findOne({});
+  const user = Users.findOne({});
 
-  // FIX ME
-  /* meeting.roomLockSettings || {
-    disablePublicChat: false,
-    disablePrivateChat: false,
-  }; */
+  if (meeting.lockSettingsProp !== 'undefined') {
+    const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
+    const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
+    const isViewer = user.role === 'VIEWER';
 
-  if (!currentUser.isLocked || currentUser.isPresenter) {
-    return false;
+    return ((isPublic && isPubChatLocked && isViewer && user.locked) || (!isPublic && isPrivChatLocked && isViewer && user.locked));
   }
 
-  return isPublic ? lockSettings.disablePublicChat : lockSettings.disablePrivateChat;
+  return false;
 };
 
 const hasUnreadMessages = (receiverID) => {

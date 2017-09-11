@@ -757,6 +757,8 @@ $Id: $
     <mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}"
                click="endAllBreakoutRoomsHandler(event)" width="100%"/>
   </mx:VBox>
+	
+  <mx:HRule width="100%" />
   
   <mx:ControlBar width="100%" horizontalAlign="right">
 	<mx:VBox>

@@ -393,11 +393,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 										
 			private function disableSlideNavigationButtons(pageNumber:int):void {
-				backButton.mouseEnabled = pageNumber != 1;
-				forwardButton.mouseEnabled = pageNumber < PresentationModel.getInstance().getNumberOfPages();
+				// We use mouseEnabled here instead of enabled because the tab position gets lost when going through 
+				//the pages. Please don't change this if you don't know why this is.
+				if (pageNumber != 1) {
+					backButton.mouseEnabled = true;
+					backButton.styleName = "presentationBackButtonStyle";
+				} else {
+					backButton.mouseEnabled = false;
+					backButton.styleName = "presentationBackButtonDisabledStyle";
+				}
 				
-				backButton.enabled = pageNumber != 1;
-				forwardButton.enabled = pageNumber < PresentationModel.getInstance().getNumberOfPages();
+				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
+					forwardButton.mouseEnabled = true;
+					forwardButton.styleName = "presentationForwardButtonStyle";
+				} else {
+					forwardButton.mouseEnabled = false;
+					forwardButton.styleName = "presentationForwardButtonDisabledStyle";
+				}
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
@@ -428,11 +440,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function goToPreviousSlide():void {
-				dispatchEvent(new GoToPrevPageCommand());
+				if (PresentationModel.getInstance().getCurrentPage().num > 1) {
+					dispatchEvent(new GoToPrevPageCommand());
+				}
 			}
 			
 			private function goToNextSlide():void {
-				dispatchEvent(new GoToNextPageCommand());
+				if (PresentationModel.getInstance().getCurrentPage().num < PresentationModel.getInstance().getNumberOfPages()) {
+					dispatchEvent(new GoToNextPageCommand());
+				}
 			}
 			
       private function showPercentageInDataTip(val:String):String {			
@@ -502,7 +518,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remotePrevious(e:ShortcutEvent):void{
-				if (backButton.visible && backButton.enabled){
+				if (backButton.visible){
 					//backButton.setFocus();
 					goToPreviousSlide();
 				}
@@ -516,7 +532,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteNext(e:ShortcutEvent):void{
-				if (forwardButton.visible && forwardButton.enabled){
+				if (forwardButton.visible){
 					//forwardButton.setFocus();
 					goToNextSlide();
 				}
@@ -792,7 +808,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Declarations>
 		<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
-				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
+				tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, uploadPres, pollStartBtn, quickPollBtn, downloadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
 	  	 
 		<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 		<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />

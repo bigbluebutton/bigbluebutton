@@ -41,13 +41,6 @@ class RedisPubSub2x {
   }
 
   publish(channel, eventName, meetingId, payload = {}, header = {}) {
-    const header2x = {
-      name: eventName,
-      meetingId,
-    };
-
-    const msgHeader = header === {} ? header2x : header;
-
     const envelope = {
       envelope: {
         name: eventName,
@@ -57,12 +50,16 @@ class RedisPubSub2x {
         },
       },
       core: {
-        header: msgHeader,
+        header: Object.assign({
+          name: eventName,
+          meetingId,
+        }, header),
         body: payload,
       },
     };
 
     Logger.info(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
+
     return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);

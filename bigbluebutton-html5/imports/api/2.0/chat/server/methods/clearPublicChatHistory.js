@@ -13,13 +13,7 @@ export default function clearPublicChatHistory(credentials) {
 
   const eventName = 'ClearPublicChatHistoryPubMsg';
 
-  const header = {
-    meetingId,
-    name: eventName,
-    userId: requesterUserId,
-  };
+  const payload = {};
 
-  const body = {};
-
-  return RedisPubSub.publish(CHANNEL, eventName, meetingId, body, header);
+  return RedisPubSub.publish(CHANNEL, eventName, meetingId, payload, { userId: requesterUserId });
 }
