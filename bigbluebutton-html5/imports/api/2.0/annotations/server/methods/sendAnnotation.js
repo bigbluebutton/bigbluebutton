@@ -48,15 +48,9 @@ export default function sendAnnotation(credentials, annotation) {
     );
   }
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId: requesterUserId,
-  };
-
   const payload = {
     annotation,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }

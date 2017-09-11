@@ -14,15 +14,9 @@ export default function changeWhiteboardAccess(credentials, multiUser) {
   check(requesterToken, String);
   check(multiUser, Boolean);
 
-  const header = {
-    name: EVENT_NAME,
-    userId: requesterUserId,
-    meetingId,
-  };
-
   const payload = {
     multiUser,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }

@@ -27,16 +27,10 @@ export default function publishCursorUpdate(credentials, coordinates) {
     );
   }
 
-  const header = {
-    name: EVENT_NAME,
-    userId: requesterUserId,
-    meetingId,
-  };
-
   const payload = {
     xPercent: coordinates.xPercent,
     yPercent: coordinates.yPercent,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }
