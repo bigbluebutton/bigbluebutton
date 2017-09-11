@@ -27,7 +27,7 @@ export default function changeLockSettings(meetingId, payload) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Removing user from collection: ${err}`);
+      return Logger.error(`Changing meeting={${meetingId}} lock settings: ${err}`);
     }
   };
   
