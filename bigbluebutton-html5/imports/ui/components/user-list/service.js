@@ -215,7 +215,7 @@ const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id });
   let isLocked = false;
 
-  if (meeting.lockSettingsProp !== 'undefined'){
+  if (meeting.lockSettingsProp !== undefined) {
     const lockSettings = meeting.lockSettingsProp;
     
     if (lockSettings.disableCam 
