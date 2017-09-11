@@ -23,13 +23,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
-                layout="absolute"
                 width="580"
                 height="410"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
-				showCloseButton="true"
-				close="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
+				close="onCancelClicked()"
                 initialize="initData()"
 				creationComplete="onCreationComplete(event)" xmlns:common="org.bigbluebutton.common.*">
 	
@@ -112,8 +110,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		protected function onCreationComplete(event:FlexEvent):void
 		{
 			dispatcher = new Dispatcher();
-
-			this.mx_internal::closeButton.toolTip = ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip');
 		}
 		
 			private function initData():void {
@@ -311,11 +307,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
 			private function disableClosing():void {
-				this.closeButton.enabled = false;
+				this.closeButton2.enabled = false;
 			}
 
 			private function enableClosing():void {
-				this.closeButton.enabled = true;
+				this.closeButton2.enabled = true;
 			}
 
 		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
@@ -341,14 +337,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			dispatcher.dispatchEvent(rollEvent);
 		}
 		
+		private function onCancelClicked():void {
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+		}
+		
 	]]>
 
   </fx:Script>
 
   <mx:VBox width="100%" height="100%" verticalAlign="top" horizontalAlign="center">
-		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
+	  <mx:HBox width="100%">
+	    <common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
 							  styleName="titleWindowStyle"
-							  maxWidth="450" />
+							  width="100%" />
+	    <mx:Button id="closeButton2" click="onCancelClicked()" styleName="titleWindowCloseButton"
+					toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.close.tooltip')}"
+					accessibilityName="{ResourceUtil.getInstance().getString('bbb.fileupload.close.accessibilityName')}" />
+	  </mx:HBox>
 	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
 	  <mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
 		  <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>

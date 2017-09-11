@@ -23,10 +23,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
-				layout="vertical"
-				showCloseButton="true"
-				close="PopUpUtil.removePopUp(this)"
-				width="600">
+				close="onCloseClick()"
+				width="600" xmlns:common="org.bigbluebutton.common.*">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -53,12 +51,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				navigateToURL(new URLRequest(this.joinUrl), "_blank");
 				PopUpUtil.removePopUp(this);
 			}
+			
+			private function onCloseClick():void {
+				PopUpUtil.removePopUp(this);
+			}
 		]]>
 	</fx:Script>
 
-	<s:Label styleName="titleWindowStyle"
-			 maxWidth="500"
-			 text="{ResourceUtil.getInstance().getString('bbb.users.breakout.confirm')}" />
+	<mx:HBox width="100%">
+		<common:AdvancedLabel styleName="titleWindowStyle"
+				 width="100%"
+				 text="{ResourceUtil.getInstance().getString('bbb.users.breakout.confirm')}" />
+		<mx:Button id="closeButton" click="onCloseClick()" styleName="titleWindowCloseButton"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.close.tooltip')}"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.close.accessibilityName')}" />
+	</mx:HBox>
 	<mx:Label htmlText="{ResourceUtil.getInstance().getString('bbb.users.breakout.invited')}" />
 	<mx:Canvas>
 		<mx:Image source="{getStyle('iconRooms')}" />
@@ -72,9 +79,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 horizontalCenter="0" />
 		</mx:Canvas>
 	</mx:Canvas>
-	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
+	<mx:Label width="100%" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
 	<mx:Button id="joinButton"
 			   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession')}"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.accessibilityName')}"
 			   click="joinButtonClickHandler(event)"
 			   styleName="joinBreakoutRoomButton" />
 
