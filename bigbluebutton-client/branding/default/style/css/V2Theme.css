@@ -304,7 +304,7 @@ phonecomponents|MuteMeButton {
 }
 
 .recordButtonStyleStart {
-	icon             : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .recordButtonStyleStop {
@@ -495,7 +495,7 @@ users|RoomActionsRenderer {
 	textAlign     : center;
 }
 
-.joinBreakoutRoomButton {
+.joinBreakoutRoomButton, .retryUploadButton {
 	fillColorUp       : #1070D7;
 	fillColorOver     : #0A5EAC;
 	fillColorDown     : #1070D7;
@@ -1103,6 +1103,10 @@ mx|Panel {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
 }
 
+.presentationUploadProgressBar {
+	trackHeight : 12;
+}
+
 .presentationUploadButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload");
 }
@@ -1191,6 +1195,11 @@ mx|Panel {
 
 .presentationUploadShowButtonStyle {
 	color : #2A2D33;
+}
+
+.progressErrorLblStyle {
+	color    : #DE2721;
+	fontSize : 16;
 }
 
 .presentationDownloadShowButtonStyle {
@@ -1386,14 +1395,14 @@ mx|Tab, .defaultTabStyle {
 */
 
 mx|TitleWindow {
-	borderColor             : #FFFFFF;
-	cornerRadius            : 4;
-	roundedBottomCorners    : true;
-	dropShadowEnabled       : true;
-	shadowDistance          : 0;
-	borderThickness         : 1;
-	paddingTop              : 10;
-	headerHeight            : 0;
+	borderColor          : #FFFFFF;
+	cornerRadius         : 4;
+	roundedBottomCorners : true;
+	dropShadowEnabled    : true;
+	shadowDistance       : 0;
+	borderThickness      : 1;
+	paddingTop           : 10;
+	headerHeight         : 0;
 }
 
 .titleWindowStyle {
