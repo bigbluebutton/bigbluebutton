@@ -15,7 +15,7 @@ if (!config.server.port) { config.server.port = 3005; }
 // Web hooks configs
 if (!config.hooks) { config.hooks = {}; }
 if (!config.hooks.channels) {
-  config.hooks.channels or= {
+  config.hooks.channels = {
     mainChannel: 'from-akka-apps-redis-channel',
     rapChannel: 'bigbluebutton:from-rap'
   }

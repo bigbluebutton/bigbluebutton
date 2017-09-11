@@ -12,7 +12,7 @@ config.server.port = 3005;
 
 // Callbacks will be triggered for all the events in this list and only for these events.
 config.hooks = {};
-config.hooks.channels or= {
+config.hooks.channels = {
   mainChannel: 'from-akka-apps-redis-channel',
   rapChannel: 'bigbluebutton:from-rap'
 }
