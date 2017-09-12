@@ -437,11 +437,7 @@ users|BreakoutRoomSettings {
 }
 
 users|JoinBreakoutRoomWindow {
-	horizontalAlign : center;
-	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
-	paddingBottom   : 24;
-	paddingTop      : 24;
-	verticalGap     : 18;
+	iconRooms : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
 }
 
 users|RoomActionsRenderer {
@@ -1198,8 +1194,9 @@ mx|Panel {
 }
 
 .progressErrorLblStyle {
-	color    : #DE2721;
-	fontSize : 16;
+	color     : #DE2721;
+	fontSize  : 16;
+	textAlign : center;
 }
 
 .presentationDownloadShowButtonStyle {
