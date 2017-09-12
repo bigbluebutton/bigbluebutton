@@ -6,67 +6,72 @@ module.exports = class MessageMapping {
   constructor() {
     this.mappedObject = {};
     this.mappedMessage = {};
-    this.meetingEvents = ["meeting_created_message","meeting_destroyed_event"];
-    this.userEvents = ["meeting_destroyed_event","user_joined_message","user_left_message","user_listening_only","user_joined_voice_message","user_left_voice_message"];
-    this.chatEvents = ["send_public_chat_message","send_private_chat_message"];
+    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingEndedEvtMsg"];
+    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg"];
+    this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
     this.rapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended"];
   }
 
   // Map internal message based on it's type
   mapMessage(messageObj) {
-    if (this.meetingEvents.some( event => {
-      return (messageObj.header != null ? messageObj.header.name : undefined) === event
-    })) {
+    if (this.mappedEvent(messageObj,this.meetingEvents)) {
       this.meetingTemplate(messageObj);
-    } else if (this.userEvents.some( event => {
-      return (messageObj.header != null ? messageObj.header.name : undefined) === event
-    })) {
+    } else if (this.mappedEvent(messageObj,this.userEvents)) {
       this.userTemplate(messageObj);
-    } else if (this.chatEvents.some( event => {
-      return (messageObj.header != null ? messageObj.header.name : undefined) === event
-    })) {
+    } else if (this.mappedEvent(messageObj,this.chatEvents)) {
       this.chatTemplate(messageObj);
-    } else if (this.rapEvents.some( event => {
-      return (messageObj.header != null ? messageObj.header.name : undefined) === event
-    })) {
+    } else if (this.mappedEvent(messageObj,this.rapEvents)) {
       this.rapTemplate(messageObj);
     }
   }
 
+  mappedEvent(messageObj,events) {
+    return events.some( event => {
+      if ((messageObj.header != null ? messageObj.header.name : undefined) === event) {
+        return true;
+      }
+      if ((messageObj.envelope != null ? messageObj.envelope.name : undefined) === event) {
+        return true;
+      }
+      return false;
+    });
+  }
+
   // Map internal to external message for meeting information
   meetingTemplate(messageObj) {
+    const props = messageObj.core.body.props;
     this.mappedObject.data = {
       "type": "event",
-      "id": this.mapInternalMessage(messageObj.header.name),
+      "id": this.mapInternalMessage(messageObj),
       "attributes":{
         "meeting":{
-          "internal-meeting-id": messageObj.payload.meeting_id,
-          "external-meeting-id": messageObj.payload.external_meeting_id
+          "internal-meeting-id": messageObj.core.body.meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.core.body.meetingId)
         }
       },
       "event":{
-        "ts": messageObj.header.current_time
+        "ts": Date.now()
       }
     };
-    if (messageObj.header.name === "meeting_created_message") {
+    if (messageObj.envelope.name === "MeetingCreatedEvtMsg") {
       this.mappedObject.data.attributes = {
         "meeting":{
-          "internal-meeting-id": messageObj.payload.meeting_id,
-          "external-meeting-id": messageObj.payload.external_meeting_id
+          "internal-meeting-id": props.meetingProp.intId,
+          "external-meeting-id": props.meetingProp.extId
         },
-        "name": messageObj.payload.name,
-        "is-breakout": messageObj.payload.is_breakout,
-        "duration": messageObj.payload.duration,
-        "create-time": messageObj.payload.create_time,
-        "create-date": messageObj.payload.create_date,
-        "moderator-pass": messageObj.payload.moderator_pass,
-        "viewer-pass": messageObj.payload.viewer_pass,
-        "recorded": messageObj.payload.recorded,
-        //"record": ?,
-        "voice-conf": messageObj.payload.voice_conf,
-        //"dial-number": ?,
-        "max-users": messageObj.payload.max_users,
-        "metadata": {}
+        "name": props.meetingProp.name,
+        "is-breakout": props.meetingProp.isBreakout,
+        "duration": props.durationProps.duration,
+        "create-time": props.durationProps.createdTime,
+        "create-date": props.durationProps.createdDate,
+        "moderator-pass": props.password.moderatorPass,
+        "viewer-pass": props.password.viewerPass,
+        //"recorded": messageObj.payload.recorded, ?
+        "record": props.recordProp.record,
+        "voice-conf": props.voiceProp.voiceConf,
+        "dial-number": props.voiceProp.dialNumber,
+        "max-users": props.usersProp.maxUsers,
+        "metadata": props.metadataProp.metadata
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
@@ -75,71 +80,63 @@ module.exports = class MessageMapping {
 
   // Map internal to external message for user information
   userTemplate(messageObj) {
-    // Specific verification for listen_only event
-    messageObj.header.name += messageObj.payload.listen_only ? "_true" : "";
-    const userid = (messageObj.payload.user != null) ? messageObj.payload.user.userid : messageObj.payload.userid;
-    const extid = (messageObj.payload.user != null) ? messageObj.payload.user.extern_userid : "";
+    const msgBody = messageObj.core.body;
     this.mappedObject.data = {
       "type": "event",
-      "id": this.mapInternalMessage(messageObj.header.name),
+      "id": this.mapInternalMessage(messageObj),
       "attributes":{
         "meeting":{
-          "internal-meeting-id": messageObj.payload.meeting_id,
-          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.payload.meeting_id)
+          "internal-meeting-id": messageObj.envelope.routing.meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
         },
         "user":{
-          "internal-user-id": userid,
-          "external-user-id": extid
+          "internal-user-id": msgBody.intId,
+          "external-user-id": msgBody.extId,
+          "sharing-mic": msgBody.muted,
+          "name": msgBody.name,
+          "role": msgBody.role,
+          "presenter": msgBody.presenter,
+          "stream": msgBody.stream,
+          "listening-only": msgBody.listenOnly
         }
       },
       "event":{
-        "ts": messageObj.header.current_time
+        "ts": Date.now()
       }
     };
-    if (messageObj.header.name === "user_joined_message") {
-      this.mappedObject.data.attributes.user = {
-        "internal-user-id": messageObj.payload.user.userid,
-        "external-user-id": messageObj.payload.user.extern_userid,
-        "name": messageObj.payload.user.name,
-        "role": messageObj.payload.user.role,
-        "presenter": messageObj.payload.user.presenter,
-        "sharing-mic": messageObj.payload.user.voiceUser.joined,
-        "sharing-video": messageObj.payload.user.has_stream,
-        "listening-only": messageObj.payload.user.listenOnly
-      };
-    }
     this.mappedMessage = JSON.stringify(this.mappedObject);
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
   }
 
   // Map internal to external message for chat information
   chatTemplate(messageObj) {
+    const message = messageObj.core.body.message;
     this.mappedObject.data = {
       "type": "event",
-      "id": this.mapInternalMessage(messageObj.header.name),
+      "id": this.mapInternalMessage(messageObj),
       "attributes":{
         "meeting":{
-          "internal-meeting-id": messageObj.payload.meeting_id,
-          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.payload.meeting_id)
+          "internal-meeting-id": messageObj.envelope.routing.meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
         },
         "chat-message":{
-          "message": messageObj.payload.message.message,
+          "message": message.message,
           "sender":{
-            "internal-user-id": messageObj.payload.message.fromUserID,
-            "external-user-id": messageObj.payload.message.fromUsername,
-            "timezone-offset": messageObj.payload.message.fromTimeZoneOffset,
-            "time": messageObj.payload.message.fromTime
+            "internal-user-id": message.fromUserId,
+            "external-user-id": message.fromUsername,
+            "timezone-offset": message.fromTimezoneOffset,
+            "time": message.fromTime
           }
         }
       },
       "event":{
-        "ts": messageObj.header.current_time
+        "ts": Date.now()
       }
     };
-    if (messageObj.header.name.indexOf("private") !== -1) {
+    if (messageObj.envelope.name.indexOf("Private") !== -1) {
       this.mappedObject.data.attributes["chat-message"].receiver = {
-        "internal-user-id": messageObj.payload.message.toUserID,
-        "external-user-id": messageObj.payload.message.toUsername
+        "internal-user-id": message.toUserId,
+        "external-user-id": message.toUsername
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
@@ -166,17 +163,23 @@ module.exports = class MessageMapping {
 
 
   mapInternalMessage(message) {
+    if (message.envelope) {
+      message = message.envelope.name
+    }
+    else if (message.header) {
+      message = message.header.name
+    }
     const mappedMsg = (() => { switch (message) {
-      case "meeting_created_message": return "meeting-created";
-      case "meeting_destroyed_event": return "meeting-ended";
-      case "user_joined_message": return "user-joined";
-      case "user_left_message": return "user-left";
-      case "user_listening_only_true": return "user-audio-listen-only-enabled";
-      case "user_listening_only": return "user-audio-listen-only-disabled";
-      case "user_joined_voice_message": return "user-audio-voice-enabled";
-      case "user_left_voice_message": return "user-audio-voice-disabled";
-      case "send_public_chat_message": return "chat-public-message-sent";
-      case "send_private_chat_message": return "chat-private-message-sent";
+      case "MeetingCreatedEvtMsg": return "meeting-created";
+      case "MeetingEndedEvtMsg": return "meeting-ended";
+      case "UserJoinedMeetingEvtMsg": return "user-joined";
+      case "UserLeftMeetingEvtMsg": return "user-left";
+      case "UserJoinedVoiceConfToClientEvtMsg": return "user-audio-voice-enabled";
+      case "UserLeftVoiceConfToClientEvtMsg": return "user-audio-voice-disabled";
+      case "UserBroadcastCamStartedEvtMsg": return "user-cam-broadcast-start";
+      case "UserBroadcastCamStoppedEvtMsg": return "user-cam-broadcast-end"
+      case "SendPublicMessageEvtMsg": return "chat-public-message-sent";
+      case "SendPrivateMessageEvtMsg": return "chat-private-message-sent";
       case "archive_started": return "rap-archive-started";
       case "archive_ended": return "rap-archive-ended";
       case "sanity_started": return "rap-sanity-started";
