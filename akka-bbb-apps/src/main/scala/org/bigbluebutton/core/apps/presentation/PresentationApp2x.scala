@@ -16,6 +16,7 @@ class PresentationApp2x(
     with SetCurrentPagePubMsgHdlr
     with ResizeAndMovePagePubMsgHdlr
     with RemovePresentationPubMsgHdlr
+    with PresentationUploadTokenReqMsgHdlr
     with PreuploadedPresentationsPubMsgHdlr
     with PresentationConversionUpdatePubMsgHdlr
     with PresentationPageCountErrorPubMsgHdlr

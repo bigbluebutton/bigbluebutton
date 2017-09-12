@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
+  import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
+  import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
@@ -83,6 +85,12 @@ package org.bigbluebutton.modules.present.services.messaging
           break;
         case "GetPresentationInfoRespMsg":
           handleGetPresentationInfoRespMsg(message);
+          break;
+        case "PresentationUploadTokenPassRespMsg":
+          handlePresentationUploadTokenPassRespMsg(message);
+          break;
+        case "PresentationUploadTokenFailRespMsg":
+          handlePresentationUploadTokenFailRespMsg(message);
           break;
       }
     }
@@ -215,19 +223,30 @@ package org.bigbluebutton.modules.present.services.messaging
     }	
             
     private function handleGetPresentationInfoRespMsg(msg:Object):void {
-//      trace(LOG + "Getting presentations information");
-      
       var presos:ArrayCollection = new ArrayCollection();
       var presentations:Array = msg.body.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
         var presentation:Object = presentations[j] as Object;
-//        trace(LOG + "Processing presentation information");
         var presVO: PresentationVO = processUploadedPresentation(presentation)
         presos.addItem(presVO);
       }
       
       service.removeAllPresentations();
       service.addPresentations(presos);
+    }
+
+    private function handlePresentationUploadTokenPassRespMsg(msg:Object):void {
+      var podId: String = msg.body.podId as String;
+      var authzToken: String = msg.body.authzToken as String;
+      var filename: String = msg.body.filename as String;
+
+      dispatcher.dispatchEvent(new PresentationUploadTokenPass(podId, authzToken, filename));
+    }
+
+    private function handlePresentationUploadTokenFailRespMsg(msg:Object):void {
+      var podId: String = msg.body.podId;
+      var filename: String = msg.body.filename;
+      dispatcher.dispatchEvent(new PresentationUploadTokenFail(podId, filename));
     }
   }
 }

@@ -23,6 +23,10 @@ case class ResizeAndMovePagePubMsgBody(presentationId: String, pageId: String, x
 object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg"}
 case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
 case class RemovePresentationPubMsgBody(presentationId: String)
+
+object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg"}
+case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
+case class PresentationUploadTokenReqMsgBody(podId: String, filename: String)
 // ------------ client to akka-apps ------------
 
 
@@ -108,8 +112,23 @@ object PresentationConversionCompletedEvtMsg { val NAME = "PresentationConversio
 case class PresentationConversionCompletedEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedEvtMsgBody) extends BbbCoreMsg
 case class PresentationConversionCompletedEvtMsgBody(messageKey: String, code: String, presentation: PresentationVO)
 
+object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg"}
+case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg
+case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String)
+
+object PresentationUploadTokenFailRespMsg { val NAME = "PresentationUploadTokenFailRespMsg"}
+case class PresentationUploadTokenFailRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenFailRespMsgBody) extends StandardMsg
+case class PresentationUploadTokenFailRespMsgBody(podId: String, filename: String)
+
 // html5 client only
 object SyncGetPresentationInfoRespMsg { val NAME = "SyncGetPresentationInfoRespMsg"}
 case class SyncGetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: SyncGetPresentationInfoRespMsgBody) extends BbbCoreMsg
 case class SyncGetPresentationInfoRespMsgBody(presentations: Vector[PresentationVO])
 // ------------ akka-apps to client ------------
+
+
+// ------------ akka-apps to bbb-common-web ------------
+object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg"}
+case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends StandardMsg
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authorizToken: String, filename: String)
+// ------------ akka-apps to bbb-common-web ------------
