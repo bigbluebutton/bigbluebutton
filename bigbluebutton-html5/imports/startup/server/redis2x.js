@@ -40,9 +40,14 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
-  //publishSystemMessage(channel, eventName, payload) {
-    
-  //}
+  publishSystemMessage(channel, eventName, payload) {
+
+    const header = {
+      name: eventName
+    }
+
+    this.publish(channel, eventName, header, payload);
+  }
 
   publishMeetingMessage(channel, eventName, meetingId, payload) {
     const header = {
@@ -104,7 +109,7 @@ class RedisPubSub2x {
 
     // We need to send an empty string in the this.publish as third param,
     // the bbb does not support null or undefined meetingId.
-    this.publish(CHANNEL, EVENT_NAME, '', body, header);
+    this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
     this.didSendRequestEvent = true;
   }
 
