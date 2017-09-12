@@ -79,22 +79,38 @@ module.exports = class WebHooks {
     let hooks = Hook.allGlobalSync();
 
     // Add hooks for the specific meeting that expect raw data
-    if (message[config.webhooks.rawPath] != null) {
-      // Get meetingId for a raw message that was previously mapped by another webhook application or if it's straight from redis (configurable)
-      switch (config.webhooks.rawPath) {
-        case "payload": idFromMessage = message[config.webhooks.rawPath][config.webhooks.meetingID]; break;
-        case "data": idFromMessage = message[config.webhooks.rawPath].attributes.meeting[config.webhooks.meetingID]; break;
-      }
-    }
+    // Get meetingId for a raw message that was previously mapped by another webhook application or if it's straight from redis
+    idFromMessage = this._findMeetingID(message);
     if (idFromMessage != null) {
       const eMeetingID = IDMapping.getExternalMeetingID(idFromMessage);
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID));
       // Notify the hooks that expect raw data
-      async.forEach(hooks, function(hook) {
-        if (hook.getRaw) { Logger.info("[WebHooks] enqueueing a raw message in the hook:", hook.callbackURL); }
-        if (hook.getRaw) { hook.enqueue(message); }
+      async.forEach(hooks, (hook) => {
+        if (hook.getRaw) {
+          Logger.info("[WebHooks] enqueueing a raw message in the hook:", hook.callbackURL);
+          hook.enqueue(message);
+        }
       });
     } // Put foreach inside the if to avoid pingpong events
+  }
+
+  _findMeetingID(message) {
+    if (message.data) {
+      return message.data.attributes.meeting["internal-meeting-id"];
+    }
+    if (message.payload) {
+      return message.payload.meeting_id;
+    }
+    if (message.envelope && message.envelope.routing && message.envelope.routing.meetingId) {
+      return message.envelope.routing.meetingId;
+    }
+    if (message.header && message.header.body && message.header.body.meetingId) {
+      return message.header.body.meetingId;
+    }
+    if (message.core && message.core.body) {
+      return message.core.body.props ? message.core.body.props.meetingProp.intId : message.core.body.meetingId;
+    }
+    return undefined;
   }
 
   // Processes an event received from redis. Will get all hook URLs that
@@ -112,9 +128,11 @@ module.exports = class WebHooks {
     }
 
     // Notify every hook asynchronously, if hook N fails, it won't block hook N+k from receiving its message
-    async.forEach(hooks, function(hook) {
-      if (!hook.getRaw) { Logger.info("[WebHooks] enqueueing a message in the hook:", hook.callbackURL); }
-      if (!hook.getRaw) { hook.enqueue(message); }
+    async.forEach(hooks, (hook) => {
+      if (!hook.getRaw) {
+        Logger.info("[WebHooks] enqueueing a message in the hook:", hook.callbackURL);
+        hook.enqueue(message);
+      }
     });
 
     const sendRaw = hooks.some(hook => { return hook.getRaw });
