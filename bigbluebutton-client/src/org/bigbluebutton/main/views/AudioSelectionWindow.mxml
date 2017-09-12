@@ -24,18 +24,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
 				initialize="init()"
-				creationComplete="creationCompleteHandler(event)"
+				layout="absolute"
 				close="onCancelClicked()"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
-				showCloseButton="true">
+				showCloseButton="false">
 
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.core.mx_internal;
-			import mx.events.FlexEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -83,14 +80,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			private function creationCompleteHandler(event:FlexEvent):void
-			{
-				this.mx_internal::closeButton.toolTip = ResourceUtil.getInstance().getString('bbb.micSettings.cancel');
-				this.mx_internal::closeButton.accessibilityName = ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip');
-				
-				tabIndexer.tabIndices.unshift(this.mx_internal::closeButton);
-			}
-			
 			private function onMicClick():void {
 				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
@@ -127,14 +116,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
 	<fx:Declarations>
-		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[windowTitle, btnMicrophone, btnListenOnly]}"/>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[windowTitle, closeButton, btnMicrophone, btnListenOnly]}"/>
 	</fx:Declarations>
 	
-	<mx:VBox width="100%" height="100%" paddingBottom="50" paddingLeft="80" paddingRight="80" paddingTop="0" horizontalAlign="center">
+	<mx:VBox width="100%" height="100%" paddingBottom="50" paddingLeft="80" paddingRight="80" paddingTop="15" horizontalAlign="center">
 		<common:AdvancedLabel id="windowTitle"
 							 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
 							 styleName="titleWindowStyle"
-							 maxWidth="400" />
+							 width="90%" />
 		<mx:Box width="100%" height="56"
 				verticalAlign="middle" horizontalAlign="center"
 				verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -169,4 +158,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:VBox>
 		</mx:HBox>
 	</mx:VBox>
+	
+	<mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}"
+			   right="10" top="15"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}" />
+
 </mx:TitleWindow>

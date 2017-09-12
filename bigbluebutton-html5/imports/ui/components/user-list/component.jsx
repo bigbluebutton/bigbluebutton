@@ -255,6 +255,7 @@ class UserList extends Component {
       intl,
       makeCall,
       meeting,
+      isMeetingLocked,
     } = this.props;
 
     const userActions = {
@@ -326,6 +327,7 @@ class UserList extends Component {
                     currentUser={currentUser}
                     userActions={userActions}
                     meeting={meeting}
+                    isMeetingLocked={isMeetingLocked}
                   />
                 ))
               }

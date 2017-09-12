@@ -25,12 +25,6 @@ export default function assignPresenter(credentials, userId) {
       'user-not-found', 'You need a valid user to be able to set presenter');
   }
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId,
-  };
-
   const payload = {
     newPresenterId: userId,
     newPresenterName: User.name,
@@ -41,5 +35,5 @@ export default function assignPresenter(credentials, userId) {
   Logger.verbose(`User '${userId}' setted as presenter by '${
     requesterUserId}' from meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: User.userId });
 }

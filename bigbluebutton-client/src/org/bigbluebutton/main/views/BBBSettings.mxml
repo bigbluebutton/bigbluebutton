@@ -4,6 +4,7 @@
 		xmlns:common="org.bigbluebutton.common.*" 
 		xmlns:mate="http://mate.asfusion.com/"
 		layout="vertical"
+		horizontalAlign="center"
 		showCloseButton="false"
 		minWidth="250"
 		creationComplete="init()">

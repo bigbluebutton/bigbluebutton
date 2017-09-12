@@ -293,7 +293,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var logoutWindow:LogoutWindow;
 					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
 
-					var newX:Number = this.width - logoutWindow.width;
+					var newX:Number = this.width - logoutWindow.width - 5;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
 
 					PopUpManager.centerPopUp(logoutWindow);
@@ -365,7 +365,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					
 					numButtons++;
-					(event.button as UIComponent).tabIndex = quickLinksIndexer.startIndex + 5;
+					(event.button as UIComponent).tabIndex = quickLinksIndexer.startIndex + 6;
 				}
 			}
 			
@@ -486,6 +486,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function hideLogo():void {
 				logo.visible = logo.includeInLayout = false;
+				logoSperatator.visible = logo.includeInLayout = false;
 			}
 
 			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
@@ -508,7 +509,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
 	<fx:Declarations>
-		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
+		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn, sharedNotesLinkBtn]}"/>
 		<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
@@ -528,7 +529,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
 			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
-				<mx:VRule styleName="toolbarSeparator" height="10" />
+				<mx:VRule id="logoSperatator" styleName="toolbarSeparator" height="10" />
 				<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" width="100%" truncateToFit="true"/>
 			</mx:HBox>
 			<mx:HBox id="actionBox" width="30%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
