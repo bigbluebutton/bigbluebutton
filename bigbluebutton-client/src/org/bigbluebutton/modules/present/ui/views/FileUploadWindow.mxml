@@ -23,15 +23,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
-                layout="absolute"
                 width="580"
-                height="410"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
-				showCloseButton="true"
-				close="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
+				layout="absolute"
+				close="onCancelClicked()"
                 initialize="initData()"
-				creationComplete="onCreationComplete(event)" xmlns:common="org.bigbluebutton.common.*">
+				creationComplete="onCreationComplete(event)" xmlns:common="org.bigbluebutton.common.*" xmlns:s="library://ns.adobe.com/flex/spark">
 	
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatch" />
@@ -53,6 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
   <fx:Script>
     <![CDATA[
+		import flash.utils.setTimeout;
+		
 		import mx.collections.ArrayCollection;
 		import mx.controls.listClasses.IListItemRenderer;
 		import mx.core.mx_internal;
@@ -112,8 +112,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		protected function onCreationComplete(event:FlexEvent):void
 		{
 			dispatcher = new Dispatcher();
-
-			this.mx_internal::closeButton.toolTip = ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip');
 		}
 		
 			private function initData():void {
@@ -148,7 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function displayGeneratingThumbnailsMessage():void {
         genThumbDots += ".";
-        progressBar.label = genThumbText + genThumbDots;
+		buildProgressLabel(genThumbText + genThumbDots);
       }
 
       private function selectFile():void{
@@ -168,12 +166,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function startUpload():void {
+		currentState = "uploading";
+
         var fileSize:Number = fileToUpload.size;
         var maxFileSizeBytes:Number = maxFileSize * 1000000;
 
-        fileFormatHintLbl.visible = false;
-        fileFormatHintLbl.includeInLayout = false;
-		
 	    uploadedFilesList.enabled = false;
 
         progressReportBox.visible = true;
@@ -194,12 +191,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             logData.maxFileSizeBytes = maxFileSizeBytes;
             LOGGER.error(JSON.stringify(logData));
                 
-          enableControls();
+          enableClosing();
           displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         } else {
           var presentationName:String = StringUtil.trim(fileToUpload.name);
 
-          progBarLbl.visible = true;          
           lblFileName.enabled = false;
 
           var isDownloadable:Boolean = new Boolean(letUserDownload.selected);
@@ -215,13 +211,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function handleUploadProgressUpdate(e:UploadProgressEvent):void{
         var progress:Number = e.percentUploaded;
-        progressBar.label = progress + "% " + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
+		buildProgressLabel(progress + "% " + ResourceUtil.getInstance().getString('bbb.presentation.uploaded'));
         progressBar.setProgress(progress, 100);
         progressBar.validateNow();
       }
 
       private function handleUploadCompletedEvent(e:UploadCompletedEvent):void{
-        progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete');
+		buildProgressLabel(ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete'));
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
 
@@ -233,76 +229,72 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleOfficeDocumentConversionFailed(e:OfficeDocConvertFailedEvent):void {
-        enableControls();
+        enableClosing();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.failed'));
       }
 		
 		private function handleOfficeDocumentConversionInvalid(e:OfficeDocConvertInvalidEvent):void {
-			enableControls();
+			enableClosing();
 			displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.invalid'));
 		}
 
       private function handleOfficeDocumentConversionSuccess(e:OfficeDocConvertSuccessEvent):void {
-        progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.converted');
+		buildProgressLabel(ResourceUtil.getInstance().getString('bbb.presentation.document.converted'));
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
       }
 
       private function handleSupportedDocument(e:ConversionSupportedDocEvent):void {
         LOGGER.debug("handleSupportedDocument");
-        progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.supported');
+		buildProgressLabel(ResourceUtil.getInstance().getString('bbb.presentation.document.supported'));
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
       }
 
       private function handleUnsupportedDocument(e:ConversionUnsupportedDocEvent):void {
-        enableControls();
+        enableClosing();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.notsupported'));
       }
 
       private function handlePageCountFailed(e:ConversionPageCountError):void {
-        enableControls();
+        enableClosing();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage'));
       }
 
       private function handlePageCountExceeded(e:ConversionPageCountMaxed):void {
 		LOGGER.debug("handlePageCountExceeded");
-        enableControls();
+        enableClosing();
         var message:String = " Maximum supported is " + e.maxPages;
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'), message);
       }
 
       private function handleUploadIoError(e:UploadIoErrorEvent):void{
-        enableControls();
+        enableClosing();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.io'));
       }
 
       private function handleUploadSecurityError(e:UploadSecurityErrorEvent):void{
-        enableControls();
+        enableClosing();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
       }
 
-			private function displayAlert(error:String, message:String = null):void {
-				progressBar.setStyle("color", 0xFF0000);
-				progressBar.label = error;
-				if (!StringUtils.isEmpty(message)) {
-					progressBar.label += message;
-				}
+		private function displayAlert(error:String, message:String = null):void {
+			currentState = "error";
+			progressErrorLbl.text = error;
+			if (!StringUtils.isEmpty(message)) {
+				progressErrorLbl.text += message;
 			}
-
-      private function enableControls():void {
-        enableClosing();
-        selectBtn.enabled = true;
-        uploadBtn.enabled = true;
-        lblFileName.enabled = true;			
-        letUserDownload.visible = true;
-      }
+		}
 
       private function handleConvertUpdate(e:ConversionUpdateEvent):void{
-        progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.numPagesDone, e.totalPages]);
+		buildProgressLabel(ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.numPagesDone, e.totalPages]));
         progressBar.setProgress(e.numPagesDone, e.totalPages);
         progressBar.validateNow();
       }
+		
+	  private function buildProgressLabel(value:String) : void {
+		  progressBar.label = ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl') + " " + value;
+	  }
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
         enableClosing();
@@ -310,13 +302,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
 
-			private function disableClosing():void {
-				this.closeButton.enabled = false;
-			}
+		private function disableClosing():void {
+			this.closeButton2.enabled = false;
+		}
 
-			private function enableClosing():void {
-				this.closeButton.enabled = true;
-			}
+		private function enableClosing():void {
+			uploadedFilesList.enabled = true;
+			this.closeButton2.enabled = true;
+		}
 
 		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
 			for(var i:int = 0; i < presentationNamesAC.length; i++) {
@@ -341,20 +334,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			dispatcher.dispatchEvent(rollEvent);
 		}
 		
+		private function onCancelClicked():void {
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+		}
+		
+		private function retryButtonClikcHandler(event:MouseEvent):void {
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))
+			setTimeout(function():void {
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))
+			}, 100);
+		}
 	]]>
 
   </fx:Script>
+	
+	<mx:states>
+		<s:State name="normal" />
+		<s:State name="uploading" />
+		<s:State name="error" />
+	</mx:states>
+	
 
-  <mx:VBox width="100%" height="100%" verticalAlign="top" horizontalAlign="center">
-		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
+  <mx:VBox width="100%" height="100%" verticalAlign="top" horizontalAlign="center" top="15">
+	  <mx:HBox width="100%">
+	    <common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
 							  styleName="titleWindowStyle"
-							  maxWidth="450" />
-	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
+							  width="100%" />
+	  </mx:HBox>
+
+	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5" includeIn="normal">
 	  <mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
 		  <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
 		</mx:Box>
 	</mx:Box>
-    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle"> 
+
+    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle" includeIn="normal"> 
       <mx:Label id="lblFileName" truncateToFit="true" width="{fileUploadBox.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
 	  <mx:Button id="selectBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
@@ -364,23 +378,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false"/>
     </mx:HBox>
-    <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
-      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="false" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
-    </mx:Box>
-    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" includeInLayout="true" visible="false">
-      <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
-                styleName="presentationUploadProgressBarLabelStyle" visible="false"/>
+
+    <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="false" excludeFrom="error"
+				 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"
+				 paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}"/>
+	  
+    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" verticalAlign="middle"
+			 includeInLayout="true" visible="false" excludeFrom="error">
       <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
-                      styleName="presentationUploadProgressBarStyle" labelPlacement="center" width="100%" visible="false"/>
+                      styleName="presentationUploadProgressBar" labelPlacement="top" width="100%" visible="false"/>
     </mx:HBox>
+	
+	<mx:VBox id="errorBox" paddingTop="5" paddingBottom="5" width="100%" horizontalAlign="center" includeIn="error">
+		<s:Label id="progressErrorLbl" styleName="progressErrorLblStyle" width="540"/>
+		<mx:Button id="retryButton" styleName="retryUploadButton"
+				  label="{ResourceUtil.getInstance().getString('bbb.fileupload.retry')}" click="retryButtonClikcHandler(event)"/>
+	</mx:VBox>
 
     <mx:Canvas width="100%" height="145" verticalScrollPolicy="off">
-      <mx:List height="142" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" allowMultipleSelection="false"
+      <mx:List height="160" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
 			   itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
     </mx:Canvas>
   </mx:VBox>
+	
+	<mx:Button id="closeButton2" click="onCancelClicked()" styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.close.tooltip')}"
+			   top="15" right="10"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.fileupload.close.accessibilityName')}" />
 
 </mx:TitleWindow> 

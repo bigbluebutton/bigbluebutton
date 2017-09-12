@@ -183,9 +183,9 @@ function createUA(username, server, callback, makeCallFunc) {
   				'password': data['password']
   			};
   		}) : [] );
-		stunsConfig['remoteIceCandidates'] = ( data['remoteIceCandidates'] ? data['remoteIceCandidates'].map(function(data) {
-			return data['ip'];
-		}) : [] );
+		//stunsConfig['remoteIceCandidates'] = ( data['remoteIceCandidates'] ? data['remoteIceCandidates'].map(function(data) {
+		//	return data['ip'];
+		//}) : [] );
   		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
   	}).fail(function(data, textStatus, errorThrown) {
   		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
@@ -211,7 +211,7 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 		userAgentString: "BigBlueButton",
 		stunServers: stunsConfig['stunServers'],
 		turnServers: stunsConfig['turnServers'],
-		artificialRemoteIceCandidates: stunsConfig['remoteIceCandidates']
+		//artificialRemoteIceCandidates: stunsConfig['remoteIceCandidates']
 	};
 	
 	uaConnected = false;

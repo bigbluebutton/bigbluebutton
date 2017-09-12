@@ -304,7 +304,7 @@ phonecomponents|MuteMeButton {
 }
 
 .recordButtonStyleStart {
-	icon             : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .recordButtonStyleStop {
@@ -437,11 +437,7 @@ users|BreakoutRoomSettings {
 }
 
 users|JoinBreakoutRoomWindow {
-	horizontalAlign : center;
-	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
-	paddingBottom   : 24;
-	paddingTop      : 0;
-	verticalGap     : 18;
+	iconRooms : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
 }
 
 users|RoomActionsRenderer {
@@ -495,7 +491,7 @@ users|RoomActionsRenderer {
 	textAlign     : center;
 }
 
-.joinBreakoutRoomButton {
+.joinBreakoutRoomButton, .retryUploadButton {
 	fillColorUp       : #1070D7;
 	fillColorOver     : #0A5EAC;
 	fillColorDown     : #1070D7;
@@ -1103,6 +1099,10 @@ mx|Panel {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
 }
 
+.presentationUploadProgressBar {
+	trackHeight : 12;
+}
+
 .presentationUploadButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload");
 }
@@ -1116,9 +1116,17 @@ mx|Panel {
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
 }
 
+.presentationBackButtonDisabledStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
+}
+
 .presentationForwardButtonStyle {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
+}
+
+.presentationForwardButtonDisabledStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
 }
 
 .presentationFitToWidthButtonStyle {
@@ -1183,6 +1191,12 @@ mx|Panel {
 
 .presentationUploadShowButtonStyle {
 	color : #2A2D33;
+}
+
+.progressErrorLblStyle {
+	color     : #DE2721;
+	fontSize  : 16;
+	textAlign : center;
 }
 
 .presentationDownloadShowButtonStyle {
@@ -1378,17 +1392,14 @@ mx|Tab, .defaultTabStyle {
 */
 
 mx|TitleWindow {
-	closeButtonDisabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
-	closeButtonDownSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
-	closeButtonOverSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
-	closeButtonUpSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
-	borderColor             : #FFFFFF;
-	cornerRadius            : 4;
-	roundedBottomCorners    : true;
-	dropShadowEnabled       : true;
-	shadowDistance          : 0;
-	borderThickness         : 1;
-	paddingTop              : 5;
+	borderColor          : #FFFFFF;
+	cornerRadius         : 4;
+	roundedBottomCorners : true;
+	dropShadowEnabled    : true;
+	shadowDistance       : 0;
+	borderThickness      : 1;
+	paddingTop           : 10;
+	headerHeight         : 0;
 }
 
 .titleWindowStyle {
@@ -1396,6 +1407,13 @@ mx|TitleWindow {
 	fontSize      : 24;
 	textAlign     : center;
 	paddingBottom : 8;
+}
+
+.titleWindowCloseButton {
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
 }
 
 /*

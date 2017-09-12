@@ -36,11 +36,6 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
 
   // check(User.user.name, String);
 
-  const header = {
-    name: EVENT_NAME,
-    voiceConf: Meeting.voiceProp.voiceConf,
-  };
-
   const payload = {
     userId: requesterUserId,
     name: VoiceUser.callerName,
@@ -49,5 +44,5 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   Logger.verbose(`VoiceUser '${requesterUserId}' ${isJoining
     ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { voiceConf: Meeting.voiceProp.voiceConf });
 }
