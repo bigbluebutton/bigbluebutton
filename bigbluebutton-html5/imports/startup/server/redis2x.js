@@ -40,6 +40,15 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
+  publishVoiceMessage(channel, eventName, voiceConf, payload) {
+    const header = {
+      name: eventName, 
+      voiceConf
+    }
+
+    this.publish(channel, eventName, header, payload);
+  }
+
   publishSystemMessage(channel, eventName, payload) {
     const header = {
       name: eventName
@@ -102,10 +111,6 @@ class RedisPubSub2x {
 
     const body = {
       requesterId: 'nodeJSapp',
-    };
-
-    const header = {
-      name: EVENT_NAME,
     };
 
     this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
