@@ -307,6 +307,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 
 		private function enableClosing():void {
+			uploadedFilesList.enabled = true;
 			this.closeButton2.enabled = true;
 		}
 
@@ -389,7 +390,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>
 	
 	<mx:VBox id="errorBox" paddingTop="5" paddingBottom="5" width="100%" horizontalAlign="center" includeIn="error">
-		<s:Label id="progressErrorLbl" styleName="progressErrorLblStyle" width=900%"/>
+		<s:Label id="progressErrorLbl" styleName="progressErrorLblStyle" width="540"/>
 		<mx:Button id="retryButton" styleName="retryUploadButton"
 				  label="{ResourceUtil.getInstance().getString('bbb.fileupload.retry')}" click="retryButtonClikcHandler(event)"/>
 	</mx:VBox>
@@ -401,11 +402,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
     </mx:Canvas>
-  </mx:VBox
+  </mx:VBox>
 	
 	<mx:Button id="closeButton2" click="onCancelClicked()" styleName="titleWindowCloseButton"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.close.tooltip')}"
 			   top="15" right="10"
-			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.fileupload.close.accessibilityName')}" />>
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.fileupload.close.accessibilityName')}" />
 
 </mx:TitleWindow> 

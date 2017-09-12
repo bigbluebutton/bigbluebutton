@@ -1194,8 +1194,9 @@ mx|Panel {
 }
 
 .progressErrorLblStyle {
-	color    : #DE2721;
-	fontSize : 16;
+	color     : #DE2721;
+	fontSize  : 16;
+	textAlign : center;
 }
 
 .presentationDownloadShowButtonStyle {
