@@ -31,4 +31,16 @@ export default class KurentoScreenshareBridge {
   kurentoExitVideo() {
     window.kurentoExitVideo();
   }
+
+  // TODO parameters? que elementos?
+  kurentoShareScreen() {
+    window.kurentoShareScreen(
+      null,
+      BridgeService.getConferenceBridge(),
+      getUsername(), 
+      getMeetingId(),
+      null,
+      null,
+    );
+  }
 }

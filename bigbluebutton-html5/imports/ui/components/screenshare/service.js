@@ -32,6 +32,10 @@ function presenterScreenshareHasStarted() {
   KurentoBridge.kurentoWatchVideo();
 }
 
+const shareScreen = () => {
+  KurentoBridge.kurentoShareScreen();
+}
+
 export {
-  isVideoBroadcasting, presenterScreenshareHasEnded, presenterScreenshareHasStarted,
+  isVideoBroadcasting, presenterScreenshareHasEnded, presenterScreenshareHasStarted, shareScreen,
 };

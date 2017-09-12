@@ -82,7 +82,7 @@ module.exports = class ConnectionManager {
     let connectionId;
     let request = webSocket.upgradeReq;
     let sessionId;
-    let callerIdName;
+    let callerName;
     let response = {
       writeHead : {}
     };
@@ -161,7 +161,7 @@ module.exports = class ConnectionManager {
           console.log("[viewer] Session output \n " + session);
           if (message.sdpOffer && message.voiceBridge) {
             if (session) {
-              session._startViewer(webSocket, message.voiceBridge, message.sdpOffer, message.callerIdName, self._screenshareSessions[message.voiceBridge]._presenterEndpoint);
+              session._startViewer(webSocket, message.voiceBridge, message.sdpOffer, message.callerName, self._screenshareSessions[message.voiceBridge]._presenterEndpoint);
             } else {
               webSocket.sendMessage("voiceBridge not recognized");
               webSocket.sendMessage(Object.keys(self._screenshareSessions));
@@ -199,7 +199,7 @@ module.exports = class ConnectionManager {
 	case 'viewerIceCandidate':
 	  console.log("[viewerIceCandidate] Session output => " + session);
 	  if (session) {
-	    session._onViewerIceCandidate(message.candidate, callerIdName);
+	    session._onViewerIceCandidate(message.candidate, message.callerName);
 	  } else {
 	    console.log("[iceCandidate] Why is there no session on ICE CANDIDATE?");
 	  }

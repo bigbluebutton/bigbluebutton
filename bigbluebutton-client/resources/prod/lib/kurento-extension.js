@@ -289,7 +289,7 @@ Kurento.prototype.onViewerIceCandidate = function(candidate) {
     type: 'screenshare',
     voiceBridge: kurentoHandler.voiceBridge,
     candidate : candidate,
-    callerIdName: kurentoHandler.caller_id_name
+    callerName: kurentoHandler.caller_id_name
   }
   console.log("this object " + JSON.stringify(this, null, 2));
   kurentoHandler.sendMessage(message);

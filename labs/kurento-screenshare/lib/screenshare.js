@@ -60,24 +60,26 @@ module.exports = class Screenshare {
     }
   };
   
-  _onViewerIceCandidate(_candidate, callerIdName) {
+  _onViewerIceCandidate(_candidate, callerName) {
+    console.log("onviewericecandidate callerName = " + callerName);
     let candidate = kurento.getComplexType('IceCandidate')(_candidate);
     
-    if (this._viewersEndpoint[callerIdName]) {
-      this._viewersEndpoint[callerIdName].addIceCandidate(candidate);
+    if (this._viewersEndpoint[callerName]) {
+      this._viewersEndpoint[callerName].addIceCandidate(candidate);
     }
     else {
-      if (!this._viewersCandidatesQueue[callerIdName]) {
-        this._viewersCandidatesQueue[callerIdName] = [];
+      if (!this._viewersCandidatesQueue[callerName]) {
+        this._viewersCandidatesQueue[callerName] = [];
       }
-      this._viewersCandidatesQueue[callerIdName].push(candidate);
+      this._viewersCandidatesQueue[callerName].push(candidate);
     }
   }
 
-  _startViewer(ws, voiceBridge, sdp, callerIdName, presenterEndpoint, callback) {
+  _startViewer(ws, voiceBridge, sdp, callerName, presenterEndpoint, callback) {
     let self = this;
     let _callback = function(){};
-    self._viewersCandidatesQueue[callerIdName] = [];
+    console.log("startviewer callerName = " + callerName);
+    self._viewersCandidatesQueue[callerName] = [];
     
     console.log("VIEWER VOICEBRIDGE:    "+self._voiceBridge);
  
@@ -87,15 +89,15 @@ module.exports = class Screenshare {
         return _callback(error);
       }
 
-      self._viewersEndpoint[callerIdName] = webRtcEndpoint;
+      self._viewersEndpoint[callerName] = webRtcEndpoint;
 
       // QUEUES UP ICE CANDIDATES IF NEGOTIATION IS NOT YET READY
-      while(self._viewersCandidatesQueue[callerIdName].length) {
-        let candidate = self._viewersCandidatesQueue[callerIdName].shift();
-        MediaController.addIceCandidate(self._viewersEndpoint[callerIdName].id, candidate);
+      while(self._viewersCandidatesQueue[callerName].length) {
+        let candidate = self._viewersCandidatesQueue[callerName].shift();
+        MediaController.addIceCandidate(self._viewersEndpoint[callerName].id, candidate);
       }
       // CONNECTS TWO MEDIA ELEMENTS
-      MediaController.connectMediaElements(presenterEndpoint.id, self._viewersEndpoint[callerIdName].id, C.VIDEO, function(error) {
+      MediaController.connectMediaElements(presenterEndpoint.id, self._viewersEndpoint[callerName].id, C.VIDEO, function(error) {
         if (error) {
           console.log("Media elements CONNECT error " + error);
           //pipeline.release();
@@ -104,7 +106,7 @@ module.exports = class Screenshare {
       });
 
       // ICE NEGOTIATION WITH THE ENDPOINT
-      self._viewersEndpoint[callerIdName].on('OnIceCandidate', function(event) {
+      self._viewersEndpoint[callerName].on('OnIceCandidate', function(event) {
         let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
         ws.sendMessage({ id : 'iceCandidate', candidate : candidate });
       });
@@ -118,14 +120,14 @@ module.exports = class Screenshare {
           return _callback(error);
         }
         ws.sendMessage({id: "viewerResponse", sdpAnswer: webRtcSdpAnswer, response: "accepted"});
-        console.log(" Sent sdp message to client with callerIdName:" + callerIdName);
+        console.log(" Sent sdp message to client with callerName:" + callerName);
 
         MediaController.gatherCandidates(webRtcEndpoint.id, function(error) {
           if (error) {
             return _callback(error);
           }
 
-	  self._viewersEndpoint[callerIdName].on('MediaFlowInStateChange', function(event) {
+	  self._viewersEndpoint[callerName].on('MediaFlowInStateChange', function(event) {
             if (event.state === 'NOT_FLOWING') {                          
               console.log(" NOT FLOWING ");                              
             }                                                             
