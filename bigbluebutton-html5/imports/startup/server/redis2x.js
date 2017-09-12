@@ -40,7 +40,30 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
-  publish(channel, eventName, meetingId, payload = {}, header = {}) {
+  //publishSystemMessage(channel, eventName, payload) {
+    
+  //}
+
+  publishMeetingMessage(channel, eventName, meetingId, payload) {
+    const header = {
+      name: eventName,
+      meetingId
+    }
+
+    this.publish(channel, eventName, header, payload);
+  }
+
+  publishUserMessage(channel, eventName, meetingId, userId, payload) {
+    const header = {
+      name: eventName,
+      meetingId,
+      userId
+    }
+
+    this.publish(channel, eventName, header, payload);
+  }
+
+  publish(channel, eventName, header, payload) {
     const envelope = {
       envelope: {
         name: eventName,
@@ -50,10 +73,7 @@ class RedisPubSub2x {
         }
       },
       core: {
-        header: Object.assign({
-          name: eventName,
-          meetingId,
-        }, header),
+        header,
         body: payload,
       }
     };

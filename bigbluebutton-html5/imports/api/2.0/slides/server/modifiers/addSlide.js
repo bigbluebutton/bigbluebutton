@@ -11,12 +11,13 @@ const requestWhiteboardHistory = (meetingId, slideId) => {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'GetWhiteboardAnnotationsReqMsg';
+  const USER_ID = 'nodeJSapp';
 
   const payload = {
     whiteboardId: slideId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: 'nodeJSapp' });
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, USER_ID, payload);
 };
 
 const SUPPORTED_TYPES = [SVG, PNG];
