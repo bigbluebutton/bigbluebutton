@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				close="onCloseClick()"
+				layout="absolute"
 				width="600" xmlns:common="org.bigbluebutton.common.*">
 	<fx:Script>
 		<![CDATA[
@@ -58,32 +59,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 
-	<mx:HBox width="100%">
+	<mx:VBox height="100%" width="100%" paddingTop="15" paddingBottom="15" verticalGap="15" horizontalAlign="center">
 		<common:AdvancedLabel styleName="titleWindowStyle"
-				 width="100%"
-				 text="{ResourceUtil.getInstance().getString('bbb.users.breakout.confirm')}" />
-		<mx:Button id="closeButton" click="onCloseClick()" styleName="titleWindowCloseButton"
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.close.tooltip')}"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.close.accessibilityName')}" />
-	</mx:HBox>
-	<mx:Label htmlText="{ResourceUtil.getInstance().getString('bbb.users.breakout.invited')}" />
-	<mx:Canvas>
-		<mx:Image source="{getStyle('iconRooms')}" />
-		<mx:Canvas x="16"
-				   y="47"
-				   height="38"
-				   width="70">
-			<s:Label id="sequenceLabel"
-					 styleName="roomNumberStyle"
-					 verticalCenter="0"
-					 horizontalCenter="0" />
+							  width="100%"
+							  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.confirm')}" />
+		<mx:Label htmlText="{ResourceUtil.getInstance().getString('bbb.users.breakout.invited')}" paddingTop="4" />
+		<mx:Canvas>
+			<mx:Image source="{getStyle('iconRooms')}" />
+			<mx:Canvas x="16"
+					   y="47"
+					   height="38"
+					   width="70">
+				<s:Label id="sequenceLabel"
+						 styleName="roomNumberStyle"
+						 verticalCenter="0"
+						 horizontalCenter="0" />
+			</mx:Canvas>
 		</mx:Canvas>
-	</mx:Canvas>
-	<mx:Label width="100%" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
-	<mx:Button id="joinButton"
-			   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession')}"
-			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.accessibilityName')}"
-			   click="joinButtonClickHandler(event)"
-			   styleName="joinBreakoutRoomButton" />
+		<s:Label width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
+		<mx:Button id="joinButton"
+				   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession')}"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.accessibilityName')}"
+				   click="joinButtonClickHandler(event)"
+				   styleName="joinBreakoutRoomButton" />
+	</mx:VBox>
+	
+	<mx:Button id="closeButton" click="onCloseClick()" styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.close.tooltip')}"
+			   top="15" right="10"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.close.accessibilityName')}" />
 
 </mx:TitleWindow>
