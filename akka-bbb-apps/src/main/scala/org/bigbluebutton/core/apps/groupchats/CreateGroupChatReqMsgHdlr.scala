@@ -10,13 +10,22 @@ trait CreateGroupChatReqMsgHdlr {
 
   def handle(msg: CreateGroupChatReqMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+
+    def makeHeader(name: String, meetingId: String, userId: String): BbbClientMsgHeader = {
+      BbbClientMsgHeader(name, meetingId, userId)
+    }
+
+    def makeEnvelope(msgType: String, name: String, meetingId: String, userId: String): BbbCoreEnvelope = {
+      val routing = Routing.addMsgToClientRouting(msgType, meetingId, userId)
+      BbbCoreEnvelope(name, routing)
+    }
+
     def buildCreateGroupChatRespMsg(meetingId: String, userId: String, chatId: String, name: String,
                                     access: String, correlationId: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
-      val envelope = BbbCoreEnvelope(CreateGroupChatRespMsg.NAME, routing)
-      val header = BbbClientMsgHeader(CreateGroupChatRespMsg.NAME, meetingId, userId)
+      val envelope = makeEnvelope(MessageTypes.DIRECT, CreateGroupChatRespMsg.NAME, meetingId, userId)
+      val header = makeHeader(CreateGroupChatRespMsg.NAME, meetingId, userId)
 
-      val body = CreateGroupChatRespMsgBody(correlationId, chatId, name: String, access)
+      val body = CreateGroupChatRespMsgBody(correlationId, chatId, name, access)
       val event = CreateGroupChatRespMsg(header, body)
 
       BbbCommonEnvCoreMsg(envelope, event)
