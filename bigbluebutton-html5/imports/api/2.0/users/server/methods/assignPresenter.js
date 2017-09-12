@@ -35,5 +35,5 @@ export default function assignPresenter(credentials, userId) {
   Logger.verbose(`User '${userId}' setted as presenter by '${
     requesterUserId}' from meeting '${meetingId}'`);
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, User.userId, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }
