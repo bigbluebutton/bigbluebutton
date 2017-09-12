@@ -3,8 +3,8 @@ package org.bigbluebutton.core.apps.groupchats
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ GroupChatFactory, Users2x }
-import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
+import org.bigbluebutton.core.models.{ GroupChat, GroupChatFactory, Users2x }
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait CreateGroupChatReqMsgHdlr {
 
@@ -32,19 +32,17 @@ trait CreateGroupChatReqMsgHdlr {
     }
 
     val newState = for {
-      user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.requesterId)
-      gcId = GroupChatFactory.genId()
-      gcUser = GroupChatUser(msg.body.requesterId, user.name)
-      gc = GroupChatFactory.create(gcId, msg.body.name, msg.body.access, gcUser)
-      groupChats = state.groupChats.add(gc)
-      newState = state.update(groupChats)
+      sender <- GroupChat.sender(msg.header.userId, liveMeeting.users2x)
     } yield {
+      val gc = GroupChat.createGroupChat(msg.body.name, msg.body.access, sender.name, sender.id)
       val respMsg = buildCreateGroupChatRespMsg(liveMeeting.props.meetingProp.intId, msg.body.requesterId,
-        gcId, gc.name, gc.access, msg.body.correlationId)
+        gc.id, gc.name, gc.access, msg.body.correlationId)
       bus.outGW.send(respMsg)
-      newState
+      val groupChats = state.groupChats.add(gc)
+      state.update(groupChats)
     }
 
     newState.getOrElse(state)
   }
+
 }

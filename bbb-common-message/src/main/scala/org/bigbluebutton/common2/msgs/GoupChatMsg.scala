@@ -6,8 +6,11 @@ object GroupChatAccess {
 }
 
 case class GroupChatUser(id: String, name: String)
-case class GroupChatMessage(id: String, createdOn: Long, updatedOn: Long, sender: GroupChatUser,
-                            font: String, size: Int, color: String, message: String)
+
+case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser,
+                                font: String, size: Int, color: String, message: String)
+case class GroupChatMsgToUser(id: String, timestamp: Long, sender: GroupChatUser,
+                              font: String, size: Int, color: String, message: String)
 case class GroupChatInfo(id: String, name: String, access: String, createdBy: GroupChatUser)
 
 
@@ -25,7 +28,7 @@ case class GetGroupChatMsgsReqMsgBody(requesterId: String, chatId: String)
 
 object GetGroupChatMsgsRespMsg { val NAME = "GetGroupChatMsgsRespMsg"}
 case class GetGroupChatMsgsRespMsg(header: BbbClientMsgHeader, body: GetGroupChatMsgsRespMsgBody) extends BbbCoreMsg
-case class GetGroupChatMsgsRespMsgBody(requesterId: String, msgs: Vector[GroupChatMessage])
+case class GetGroupChatMsgsRespMsgBody(requesterId: String, msgs: Vector[GroupChatMsgToUser])
 
 object CreateGroupChatReqMsg { val NAME = "CreateGroupChatReqMsg"}
 case class CreateGroupChatReqMsg(header: BbbClientMsgHeader, body: CreateGroupChatReqMsgBody) extends StandardMsg
@@ -69,8 +72,8 @@ case class GroupChatUserRemovedEvtMsgBody(requesterId: String, chats: Vector[Str
 
 object SendGroupChatMessageMsg { val NAME = "SendGroupChatMessageMsg"}
 case class SendGroupChatMessageMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageMsgBody) extends StandardMsg
-case class SendGroupChatMessageMsgBody(requesterId: String, chats: Vector[String])
+case class SendGroupChatMessageMsgBody(chatId: String, chatMsg: GroupChatMsgFromUser)
 
 object GroupChatMessageBroadcastEvtMsg { val NAME = "GroupChatMessageBroadcastEvtMsg"}
 case class GroupChatMessageBroadcastEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageBroadcastEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageBroadcastEvtMsgBody(requesterId: String, chats: Vector[String])
+case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, chatMsg: GroupChatMsgToUser)

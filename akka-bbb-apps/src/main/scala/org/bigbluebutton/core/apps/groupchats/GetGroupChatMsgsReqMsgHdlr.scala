@@ -10,7 +10,7 @@ trait GetGroupChatMsgsReqMsgHdlr {
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
     def buildGetGroupChatMsgsRespMsg(meetingId: String, userId: String,
-                                     msgs: Vector[GroupChatMessage]): BbbCommonEnvCoreMsg = {
+                                     msgs: Vector[GroupChatMsgToUser]): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(GetGroupChatMsgsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetGroupChatMsgsRespMsg.NAME, meetingId, userId)
@@ -23,9 +23,11 @@ trait GetGroupChatMsgsReqMsgHdlr {
 
     state.groupChats.find(msg.body.chatId) foreach { gc =>
       if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.body.requesterId)) {
+        val msgs = gc.msgs.values.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn,
+          m.sender, m.font, m.size, m.color, m.message))
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,
-          msg.body.requesterId, gc.msgs.values.toVector
+          msg.body.requesterId, msgs
         )
         bus.outGW.send(respMsg)
       }

@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessage, GroupChatUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatUser }
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 object GroupChatFactory {
@@ -31,3 +31,6 @@ case class GroupChat(id: String, name: String, access: String, createdBy: GroupC
   def isUserMemberOf(userId: String): Boolean = users.contains(userId)
 }
 
+case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, createdOn: Long,
+                            updatedOn: Long, sender: GroupChatUser,
+                            font: String, size: Int, color: String, message: String)
