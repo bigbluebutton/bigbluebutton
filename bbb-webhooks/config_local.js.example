@@ -14,7 +14,8 @@ config.server.port = 3005;
 config.hooks = {};
 config.hooks.channels = {
   mainChannel: 'from-akka-apps-redis-channel',
-  rapChannel: 'bigbluebutton:from-rap'
+  rapChannel: 'bigbluebutton:from-rap',
+  chatChannel: 'from-akka-apps-chat-redis-channel'
 }
 
 // IP where aggr will be hosted
@@ -22,7 +23,5 @@ config.hooks.aggr = ["request.catcher.url", "another.request.catcher.url"]
 
 // Allow global hook to receive all events with raw data
 config.hooks.getRaw = false;
-
-config.webhooks = {};
 
 module.exports = config;

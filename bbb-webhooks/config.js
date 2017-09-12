@@ -25,10 +25,6 @@ if (!config.hooks.aggr) { config.hooks.aggr = []; }
 if (!config.hooks.queueSize) { config.hooks.queueSize = 10000; }
 if (!config.hooks.getRaw) { config.hooks.getRaw = false; }
 
-if (!config.webhooks) { config.webhooks = {}; }
-if (!config.webhooks.rawPath) { config.webhooks.rawPath = "payload"; }
-if (!config.webhooks.meetingID) { config.webhooks.meetingID = "meeting_id"; }
-
 // Retry intervals for failed attempts for perform callback calls.
 // In ms. Totals to around 5min.
 config.hooks.retryIntervals = [
