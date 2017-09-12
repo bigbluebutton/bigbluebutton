@@ -41,7 +41,6 @@ class RedisPubSub2x {
   }
 
   publishSystemMessage(channel, eventName, payload) {
-
     const header = {
       name: eventName
     }
@@ -68,6 +67,8 @@ class RedisPubSub2x {
     this.publish(channel, eventName, header, payload);
   }
 
+  // this publish function should only be called from either publishSystemMessage,
+  // publishMeetingMessage or publishUserMessage
   publish(channel, eventName, header, payload) {
     const envelope = {
       envelope: {
@@ -107,8 +108,6 @@ class RedisPubSub2x {
       name: EVENT_NAME,
     };
 
-    // We need to send an empty string in the this.publish as third param,
-    // the bbb does not support null or undefined meetingId.
     this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
     this.didSendRequestEvent = true;
   }
