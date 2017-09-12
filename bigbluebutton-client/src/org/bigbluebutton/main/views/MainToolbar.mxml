@@ -293,7 +293,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var logoutWindow:LogoutWindow;
 					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
 
-					var newX:Number = this.width - logoutWindow.width;
+					var newX:Number = this.width - logoutWindow.width - 5;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
 
 					PopUpManager.centerPopUp(logoutWindow);
