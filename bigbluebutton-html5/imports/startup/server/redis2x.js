@@ -24,6 +24,13 @@ const makeEnvelope = (channel, eventName, header, body) => {
 };
 
 class RedisPubSub2x {
+
+  static handlePublishError(err) {
+    if (err) {
+      Logger.error(err);
+    }
+  }
+
   constructor(config = {}) {
     this.config = config;
 
@@ -36,12 +43,6 @@ class RedisPubSub2x {
     this.handleTask = this.handleTask.bind(this);
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
-
-    this.handlePublishError = function (err) {
-      if (err) {
-        Logger.error(err);
-      }
-    };
   }
 
   init() {
@@ -72,7 +73,7 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, this.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
   }
 
   publishSystemMessage(channel, eventName, payload) {
@@ -82,7 +83,7 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, this.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
   }
 
   publishMeetingMessage(channel, eventName, meetingId, payload) {
@@ -93,7 +94,7 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, this.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
   }
 
   publishUserMessage(channel, eventName, meetingId, userId, payload) {
@@ -105,7 +106,7 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, this.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
   }
 
   handleSubscribe() {
