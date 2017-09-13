@@ -329,7 +329,7 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
     val formatElem = <type>{format}</type>
     val urlElem = <url>{link}</url>
     val processTimeElem = <processingTime>{processingTime}</processingTime>
-    val lengthElem = <length>{duration}</length>
+    val lengthElem = <length>{duration / 60000}</length>
 
     buffer += formatElem
     buffer += urlElem
