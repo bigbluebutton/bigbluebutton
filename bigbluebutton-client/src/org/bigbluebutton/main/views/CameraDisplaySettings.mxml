@@ -146,6 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			btnStartPublish.mouseEnabled = true;
 			btnStartPublish.enabled = true;
 			btnStartPublish.accessibilityName = ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip');
+			PopUpUtil.removePopUp(BrowserPermissionHelper);
 		}
 		
 		private function videoFailure(reason:String):void {
