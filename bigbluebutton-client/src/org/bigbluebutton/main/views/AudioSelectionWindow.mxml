@@ -119,7 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[windowTitle, closeButton, btnMicrophone, btnListenOnly]}"/>
 	</fx:Declarations>
 	
-	<mx:VBox width="100%" height="100%" paddingBottom="50" paddingLeft="80" paddingRight="80" paddingTop="15" horizontalAlign="center">
+	<mx:VBox width="100%" height="100%" paddingBottom="20" paddingLeft="80" paddingRight="80" paddingTop="15" horizontalAlign="center">
 		<common:AdvancedLabel id="windowTitle"
 							 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
 							 styleName="titleWindowStyle"
@@ -132,7 +132,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Text width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.message')}" styleName="audioBroswerHintTextStyle"/>
 		</mx:Box>
 		<mx:HBox width="100%" height="100%" styleName="audioSelectionsStyle">
-			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
+			<mx:VBox id="vboxMic" width="30%" horizontalAlign="center" verticalAlign="middle">
 				<mx:Button id="btnMicrophone" buttonMode="true" styleName="btnMicrophoneStyle" width="140" height="140"
 						   click="onMicClick()"
 						   toolTip="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
@@ -140,7 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
 						  styleName="audioSubtitle" />
 			</mx:VBox>
-			<mx:VBox id="vboxListen" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
+			<mx:VBox id="vboxListen" width="30%" horizontalAlign="center" verticalAlign="middle">
 				<mx:Button id="btnListenOnly" width="140" height="140" buttonMode="true" styleName="btnListenOnlyStyle"
 						   click="onListenClick()"
 						   toolTip="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
@@ -148,7 +148,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
 						  styleName="audioSubtitle" />
 			</mx:VBox>
-			<mx:VBox id="vboxPhone" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
+			<mx:VBox id="vboxPhone" width="30%" horizontalAlign="center" verticalAlign="middle">
 				<mx:Button id="btnPhone"
 						   width="140"
 						   height="140"
