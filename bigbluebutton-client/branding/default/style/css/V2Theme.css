@@ -76,6 +76,7 @@ mx|Application {
 	horizontalGap : 60;
 	paddingLeft   : 30;
 	paddingRight  : 30;
+	verticalAlign : top;
 }
 
 .audioBroswerHintBoxStyle {
