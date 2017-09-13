@@ -100,7 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var lastTime:String = "";
       
       [Bindable]
-      private var chatMessages:ChatConversation = new ChatConversation();
+      private var chatMessages:ChatConversation;
       
       private var lastCount:Number = 0;			
       private var scrollTimer:Timer;
@@ -125,6 +125,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var ctrlPressed:Boolean = false;
       
       private function onCreationComplete():void {
+        chatMessages = LiveMeeting.inst().chats.getChatConversation(id);
+        
         chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
         bindToHeightToDetermineHeightOfMessageList();
         
@@ -251,7 +253,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function refreshChat(e:BBBEvent):void {
         if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-          if (publicChat) chatMessages = new ChatConversation();
+          if (publicChat) chatMessages = LiveMeeting.inst().chats.getChatConversation("PUBLIC_CHAT");
         }
       }
       

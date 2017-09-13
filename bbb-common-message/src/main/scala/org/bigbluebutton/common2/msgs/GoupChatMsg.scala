@@ -9,7 +9,7 @@ case class GroupChatUser(id: String, name: String)
 
 case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser,
                                 font: String, size: Int, color: String, message: String)
-case class GroupChatMsgToUser(id: String, timestamp: Long, sender: GroupChatUser,
+case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser,
                               font: String, size: Int, color: String, message: String)
 case class GroupChatInfo(id: String, name: String, access: String, createdBy: GroupChatUser)
 

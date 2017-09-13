@@ -25,7 +25,8 @@ trait SendGroupChatMessageMsgHdlr {
       val envelope = makeEnvelope(MessageTypes.BROADCAST_TO_MEETING, GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
       val header = makeHeader(GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
 
-      val cmsgs = msgs.map(m => GroupChatMsgToUser(m.id, m.timestamp, m.sender, m.font, m.size, m.color, m.message))
+      val cmsgs = msgs.map(m => GroupChatMsgToUser(m.id, m.timestamp, m.correlationId,
+        m.sender, m.font, m.size, m.color, m.message))
       val body = GroupChatMessageBroadcastEvtMsgBody(chatId, cmsgs)
       val event = GroupChatMessageBroadcastEvtMsg(header, body)
 

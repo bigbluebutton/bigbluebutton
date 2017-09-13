@@ -37,6 +37,16 @@ package org.bigbluebutton.modules.chat.model
 
     [Bindable]
     public var messages:ArrayCollection = new ArrayCollection();
+
+    private var id: String;
+    
+    public function ChatConversation(id: String) {
+      this.id = id;
+    }
+    
+    public function getId(): String {
+      return id;
+    }
     
     public function numMessages():int {
       return messages.length;

@@ -25,11 +25,14 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
   import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
   import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-  import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+  import org.bigbluebutton.modules.chat.model.ChatConversation;
+  import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   
   public class MessageReceiver implements IMessageListener
@@ -73,8 +76,11 @@ package org.bigbluebutton.modules.chat.services
         processedMessages.push(processIncomingChatMessage(rawMessages[i]));
       }
 
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
+      publicChat.processChatHistory(processedMessages);
+      
       var chEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
-	  chEvent.history = processedMessages;
+      chEvent.history = processedMessages;
       dispatcher.dispatchEvent(chEvent);
     }
     
@@ -82,6 +88,9 @@ package org.bigbluebutton.modules.chat.services
       LOGGER.debug("Handling public chat message [{0}]", [message.message]);
       
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
+      
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
+      publicChat.newChatMessage(msg);
       
       var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
       pcEvent.message = msg;
@@ -97,6 +106,10 @@ package org.bigbluebutton.modules.chat.services
       
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
       
+      var chatId: String = LiveMeeting.inst().chats.getConvId(msg.fromUserId, msg.toUserId);
+      var privChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(chatId);
+      privChat.newChatMessage(msg);
+      
       var pcEvent:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
       pcEvent.message = msg;
       dispatcher.dispatchEvent(pcEvent);
@@ -109,6 +122,9 @@ package org.bigbluebutton.modules.chat.services
     private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
       LOGGER.debug("Handling clear chat history message");
 
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation("PUBLIC_CHAT");
+      publicChat.clearPublicChat();
+      
       var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
       dispatcher.dispatchEvent(clearChatEvent);
     }
