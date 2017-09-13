@@ -6,11 +6,10 @@ import { check } from 'meteor/check';
 import Logger from './logger';
 
 const RedisPubSubSingleton = ( () => {
-  this.pub = Redis.createClient();
 
   // this publish function should only be called from either publishSystemMessage,
   // publishMeetingMessage, publishVoiceMessage or publishUserMessage
-  const _publish = (channel, eventName, header, body) => {
+  const _publish = (channel, eventName, header, body, clientPublisher) => {
     const envelope = {
       envelope: {
         name: eventName,
@@ -26,7 +25,7 @@ const RedisPubSubSingleton = ( () => {
     };
 
     Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
-    return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
+    return clientPublisher.publish(channel, JSON.stringify(envelope), (err) => {
       if (err) {
         Logger.error('Tried to publish to %s', channel, envelope);
       }
@@ -38,6 +37,7 @@ const RedisPubSubSingleton = ( () => {
       this.config = config;
   
       this.didSendRequestEvent = false;
+      this.pub = Redis.createClient();
       this.sub = Redis.createClient();
       this.emitter = new EventEmitter2();
       this.queue = new PowerQueue();
@@ -73,7 +73,7 @@ const RedisPubSubSingleton = ( () => {
         voiceConf
       }
   
-      return _publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload, this.pub);
     }
   
     publishSystemMessage(channel, eventName, payload) {
@@ -81,7 +81,7 @@ const RedisPubSubSingleton = ( () => {
         name: eventName
       }
   
-      return _publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload, this.pub);
     }
   
     publishMeetingMessage(channel, eventName, meetingId, payload) {
@@ -90,7 +90,7 @@ const RedisPubSubSingleton = ( () => {
         meetingId
       }
   
-      return _publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload, this.pub);
     }
   
     publishUserMessage(channel, eventName, meetingId, userId, payload) {
@@ -100,7 +100,7 @@ const RedisPubSubSingleton = ( () => {
         userId
       }
   
-      return _publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload, this.pub);
     }
   
     handleSubscribe() {
