@@ -18,7 +18,7 @@ trait PresentationUploadTokenReqMsgHdlr {
   }
 
   def handlePresentationUploadTokenReqMsg(msg: PresentationUploadTokenReqMsg): Unit = {
-    log.info(" ____ handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +
+    log.info("handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +
       " userId=" + msg.header.userId + " filename=" + msg.body.filename)
 
     /* for {
@@ -31,6 +31,7 @@ trait PresentationUploadTokenReqMsgHdlr {
     if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
       val token = generateToken(msg.body.podId, msg.header.userId)
       broadcastPresentationUploadTokenPassResp(msg, token)
+      broadcastPresentationUploadTokenSysPubMsg(msg, token)
     } else {
       broadcastPresentationUploadTokenFailResp(msg)
     }
@@ -47,9 +48,6 @@ trait PresentationUploadTokenReqMsgHdlr {
     val event = PresentationUploadTokenPassRespMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
     outGW.send(msgEvent)
-
-    // send to bbb-web
-
   }
 
   private def broadcastPresentationUploadTokenFailResp(msg: PresentationUploadTokenReqMsg): Unit = {
@@ -62,8 +60,18 @@ trait PresentationUploadTokenReqMsgHdlr {
     val event = PresentationUploadTokenFailRespMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
     outGW.send(msgEvent)
+  }
 
+  private def broadcastPresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenReqMsg, token: String): Unit = {
     // send to bbb-web
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
+    val body = PresentationUploadTokenSysPubMsgBody(msg.body.podId, token, msg.body.filename)
+    val event = PresentationUploadTokenSysPubMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+
+    outGW.send(msgEvent)
   }
 }

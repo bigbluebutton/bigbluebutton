@@ -129,6 +129,6 @@ case class SyncGetPresentationInfoRespMsgBody(presentations: Vector[Presentation
 
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg"}
-case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends StandardMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authorizToken: String, filename: String)
+case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String)
 // ------------ akka-apps to bbb-common-web ------------

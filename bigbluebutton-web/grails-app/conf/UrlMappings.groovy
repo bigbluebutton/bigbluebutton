@@ -1,7 +1,7 @@
 class UrlMappings {
 
 	static mappings = {
-		"/presentation/upload"(controller:"presentation") {
+		"/presentation/$authzToken/upload"(controller:"presentation") {
 			action = [POST:'upload']
 		}
 

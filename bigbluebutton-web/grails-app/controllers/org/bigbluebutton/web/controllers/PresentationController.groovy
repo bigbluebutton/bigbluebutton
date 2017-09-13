@@ -35,6 +35,12 @@ class PresentationController {
   }
   
   def upload = {
+    // check if the authorization token provided is valid
+    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
+      log.debug "WARNING! AuthzToken was not valid in meetingId=" + params.conference
+      return
+    }
+
     def meetingId = params.conference
     def meeting = meetingService.getNotEndedMeetingWithId(meetingId);
     if (meeting == null) {
