@@ -5,12 +5,12 @@ import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
 import Logger from './logger';
 
-const RedisPubSub2xWrapper = ( () => {
+const RedisPubSubSingleton = ( () => {
   this.pub = Redis.createClient();
 
   // this publish function should only be called from either publishSystemMessage,
   // publishMeetingMessage, publishVoiceMessage or publishUserMessage
-  const publish = (channel, eventName, header, body) => {
+  const _publish = (channel, eventName, header, body) => {
     const envelope = {
       envelope: {
         name: eventName,
@@ -33,7 +33,7 @@ const RedisPubSub2xWrapper = ( () => {
     });
   }
 
-  class RedisPubSub2x {
+  class _RedisPubSub2x {
     constructor(config = {}) {
       this.config = config;
   
@@ -73,7 +73,7 @@ const RedisPubSub2xWrapper = ( () => {
         voiceConf
       }
   
-      return publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload);
     }
   
     publishSystemMessage(channel, eventName, payload) {
@@ -81,7 +81,7 @@ const RedisPubSub2xWrapper = ( () => {
         name: eventName
       }
   
-      return publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload);
     }
   
     publishMeetingMessage(channel, eventName, meetingId, payload) {
@@ -90,7 +90,7 @@ const RedisPubSub2xWrapper = ( () => {
         meetingId
       }
   
-      return publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload);
     }
   
     publishUserMessage(channel, eventName, meetingId, userId, payload) {
@@ -100,7 +100,7 @@ const RedisPubSub2xWrapper = ( () => {
         userId
       }
   
-      return publish(channel, eventName, header, payload);
+      return _publish(channel, eventName, header, payload);
     }
   
     handleSubscribe() {
@@ -180,11 +180,8 @@ const RedisPubSub2xWrapper = ( () => {
       }
     }
   }
-  return RedisPubSub2x;
+  return new _RedisPubSub2x();
 })();
-
-
-const RedisPubSubSingleton = new RedisPubSub2xWrapper;
 
 Meteor.startup(() => {
   const REDIS_CONFIG = Meteor.settings.redis;
