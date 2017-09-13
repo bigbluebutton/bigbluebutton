@@ -300,16 +300,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function createChatBoxFor(chatWithUserID:String, publicChat:Boolean = false):ChatBox {
 				var chatBox:ChatBox = new ChatBox();
-				chatBox.id = chatWithUserID;
+				
 				chatBox.name = chatWithUserID;
 				chatBox.chatWithUserID = chatWithUserID;
 				chatBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
 
 				if (publicChat) {
+          chatBox.id = ChatModel.PUBLIC_CHAT_USERID;
 					chatBox.label = PUBLIC_CHAT_USERNAME
 					chatBox.publicChat = true;
 					publicBox = chatBox; // keep a reference to the public chat box
 				} else {
+          chatBox.id = ChatModel.getConvId(chatWithUserID, UsersUtil.getMyUserID());
 					chatBox.publicChat = false;
 					chatBox.label = UsersUtil.getUserName(chatWithUserID);
 		                        chatBox.displayHowToCloseMessage();

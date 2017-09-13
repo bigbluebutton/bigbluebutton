@@ -302,14 +302,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
-          chatMessages.newChatMessage(event.message);
+//          chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }
       }
       
       private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (publicChat && event.history != null) {
-          chatMessages.processChatHistory(event.history);
+//          chatMessages.processChatHistory(event.history);
           scrollToEndOfMessage();
         }
       }
@@ -325,7 +325,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!publicChat && 
           ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
             (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
-          chatMessages.newChatMessage(event.message);
+//          chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }        
       }

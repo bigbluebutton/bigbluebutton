@@ -106,7 +106,7 @@ package org.bigbluebutton.modules.chat.services
       
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
       
-      var chatId: String = LiveMeeting.inst().chats.getConvId(msg.fromUserId, msg.toUserId);
+      var chatId: String = ChatModel.getConvId(msg.fromUserId, msg.toUserId);
       var privChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(chatId);
       privChat.newChatMessage(msg);
       

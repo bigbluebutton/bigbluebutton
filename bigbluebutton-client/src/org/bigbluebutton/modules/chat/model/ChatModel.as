@@ -13,7 +13,7 @@ package org.bigbluebutton.modules.chat.model
     
     private var dispatcher:Dispatcher = new Dispatcher();
     
-    public function getConvId(from:String, to: String):String {
+    public static function getConvId(from:String, to: String):String {
       var members:Array = new Array(to, from);
       members.sort(); 
       return members[0] + "-" + members[1];
