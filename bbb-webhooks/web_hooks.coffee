@@ -13,7 +13,7 @@ Logger = require("./logger")
 module.exports = class WebHooks
 
   constructor: ->
-    @subscriberEvents = redis.createClient()
+    @subscriberEvents = config.redis.pubSubClient
 
   start: ->
     @_subscribeToEvents()
@@ -33,22 +33,24 @@ module.exports = class WebHooks
       try
         message = JSON.parse(message)
         if message?
-          id = message.payload?.meeting_id
+          id = @_findMeetingId(message)
           IDMapping.reportActivity(id)
 
           # First treat meeting events to add/remove ID mappings
-          if message.header?.name is "meeting_created_message"
+          if message.envelope?.name is "MeetingCreatedEvtMsg"
             Logger.info "WebHooks: got create message on meetings channel [#{channel}]", message
-            IDMapping.addOrUpdateMapping message.payload?.meeting_id, message.payload?.external_meeting_id, (error, result) ->
-              # has to be here, after the meeting was created, otherwise create calls won't generate
-              # callback calls for meeting hooks
-              processMessage()
+            meetingProp = message.core?.body?.props?.meetingProp
+            if meetingProp
+              IDMapping.addOrUpdateMapping meetingProp.intId, meetingProp.extId, (error, result) ->
+                # has to be here, after the meeting was created, otherwise create calls won't generate
+                # callback calls for meeting hooks
+                processMessage()
 
           # TODO: Temporarily commented because we still need the mapping for recording events,
           #   after the meeting ended.
-          # else if message.header?.name is "meeting_destroyed_event"
+          # else if message.envelope?.name is "MeetingEndedEvtMessage"
           #   Logger.info "WebHooks: got destroy message on meetings channel [#{channel}]", message
-          #   IDMapping.removeMapping message.payload?.meeting_id, (error, result) ->
+          #   IDMapping.removeMapping @_findMeetingId(message), (error, result) ->
           #     processMessage()
 
           else
@@ -57,17 +59,40 @@ module.exports = class WebHooks
       catch e
         Logger.error "WebHooks: error processing the message", message, ":", e
 
-    @subscriberEvents.psubscribe config.hooks.pchannel
+    # Subscribe to the neccesary channels.
+    for k, channel of config.hooks.channels
+      @subscriberEvents.psubscribe channel
 
   # Returns whether the message read from redis should generate a callback
   # call or not.
   _filterMessage: (channel, message) ->
+    messageName = @_messageNameFromChannel(channel, message)
     for event in config.hooks.events
-      if channel? and message.header?.name? and
-         event.channel.match(channel) and event.name.match(message.header?.name)
+      if channel? and messageName? and
+         event.channel.match(channel) and event.name.match(messageName)
           return true
-    false
+    false  
 
+  # BigBlueButton 2.0 changed where the message name is located, but it didn't
+  # change for the Record and Playback events. Thus, we need to handle both.
+  _messageNameFromChannel: (channel, message) ->
+    if channel == 'bigbluebutton:from-rap'
+      return message.header?.name
+    message.envelope?.name
+
+  # Find the meetingId in the message.
+  # This is neccesary because the new message in BigBlueButton 2.0 have 
+  # their meetingId in different locations.
+  _findMeetingId: (message) ->
+    # Various 2.0 meetingId locations.
+    return message.envelope.routing.meetingId if message.envelope?.routing?.meetingId?
+    return message.header.body.meetingId if message.header?.body?.meetingId?
+    return message.core.body.meetingId if message.core?.body?.meetingId?
+    return message.core.body.props.meetingProp.intId if message.core?.body?.props?.meetingProp?.intId?
+    # Record and Playback 1.1 meeting_id location.
+    return message.payload.meeting_id if message.payload?.meeting_id?
+    return undefined
+    
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
   _processEvent: (message) ->
@@ -78,7 +103,11 @@ module.exports = class WebHooks
 
     # filter the hooks that need to receive this event
     # only global hooks or hooks for this specific meeting
-    idFromMessage = message.payload?.meeting_id
+    
+    # All the messages have the meetingId in different locations now.
+    # Depending on the event, it could appear within header, core or envelope.
+    # It always appears in atleast one, so we just need to search for it.
+    idFromMessage = @_findMeetingId(message)
     if idFromMessage?
       eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
