@@ -10,7 +10,7 @@ const sinon = require('sinon');
 const winston = require('winston')
 
 // Block winston from logging
-Logger.remove(winston.transports.Console);
+//Logger.remove(winston.transports.Console);
 describe('bbb-webhooks tests', () => {
   before( () => {
     config.hooks.queueSize = 10;
@@ -225,7 +225,7 @@ describe('bbb-webhooks tests', () => {
         return path.split('?')[0];
       })
       .filteringRequestBody( (body) => {
-        if (body.indexOf("payload")) {
+        if (body.indexOf("envelope")) {
           return "raw message";
         }
         else { return "not raw"; }
