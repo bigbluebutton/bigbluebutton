@@ -3,7 +3,6 @@ package org.bigbluebutton.core.apps.groupchats
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ GroupChat, GroupChatFactory, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait CreateGroupChatReqMsgHdlr {
@@ -32,12 +31,14 @@ trait CreateGroupChatReqMsgHdlr {
     }
 
     val newState = for {
-      sender <- GroupChat.sender(msg.header.userId, liveMeeting.users2x)
+      sender <- GroupChatApp.sender(msg.header.userId, liveMeeting.users2x)
     } yield {
-      val gc = GroupChat.createGroupChat(msg.body.name, msg.body.access, sender.name, sender.id)
+      val gc = GroupChatApp.createGroupChat(msg.body.name, msg.body.access, sender)
+
       val respMsg = buildCreateGroupChatRespMsg(liveMeeting.props.meetingProp.intId, msg.body.requesterId,
         gc.id, gc.name, gc.access, msg.body.correlationId)
       bus.outGW.send(respMsg)
+
       val groupChats = state.groupChats.add(gc)
       state.update(groupChats)
     }

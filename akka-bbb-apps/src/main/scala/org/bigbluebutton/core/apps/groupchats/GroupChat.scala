@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.common2.msgs.{ GroupChatMsgFromUser, GroupChatUser }
-import org.bigbluebutton.core.domain.BbbSystemConst
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser, GroupChatUser }
+import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingState2x }
 import org.bigbluebutton.core.models._
 
-object GroupChat {
-  def createGroupChat(chatName: String, access: String, userName: String, requesterId: String): GroupChat = {
+object GroupChatApp {
+  def createGroupChat(chatName: String, access: String, createBy: GroupChatUser): GroupChat = {
     val gcId = GroupChatFactory.genId()
-    val gcUser = GroupChatUser(requesterId, userName)
-    GroupChatFactory.create(gcId, chatName, access, gcUser)
+    GroupChatFactory.create(gcId, chatName, access, createBy)
   }
 
   def addNewGroupChatMessage(sender: GroupChatUser, chat: GroupChat, chats: GroupChats,
@@ -31,5 +30,12 @@ object GroupChat {
           None
         }
     }
+  }
+
+  def createDefaultPublicGroupChat(state: MeetingState2x): MeetingState2x = {
+    val createBy = GroupChatUser(BbbSystemConst.SYSTEM_USER, BbbSystemConst.SYSTEM_USER)
+    val defaultPubGroupChat = createGroupChat("PUBLIC", GroupChatAccess.PUBLIC, createBy)
+    val groupChats = state.groupChats.add(defaultPubGroupChat)
+    state.update(groupChats)
   }
 }

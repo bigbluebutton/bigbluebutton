@@ -2,7 +2,7 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
-import org.bigbluebutton.core.apps.groupchats.GroupChatsApp
+import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
@@ -108,7 +108,7 @@ class MeetingActor(
   val sharedNotesApp2x = new SharedNotesApp2x
   val chatApp2x = new ChatApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
-  val groupChatApp = new GroupChatsApp
+  val groupChatApp = new GroupChatHdlrs
   val pollApp = new PollApp2x
   val wbApp = new WhiteboardApp2x
 
@@ -134,6 +134,9 @@ class MeetingActor(
   var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
   var lastRttTestSentOn = System.currentTimeMillis()
+
+  // Create a default publish group chat
+  state = GroupChatApp.createDefaultPublicGroupChat(state)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData

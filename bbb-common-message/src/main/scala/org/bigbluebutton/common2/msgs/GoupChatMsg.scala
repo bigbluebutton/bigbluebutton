@@ -76,4 +76,4 @@ case class SendGroupChatMessageMsgBody(chatId: String, chatMsg: GroupChatMsgFrom
 
 object GroupChatMessageBroadcastEvtMsg { val NAME = "GroupChatMessageBroadcastEvtMsg"}
 case class GroupChatMessageBroadcastEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageBroadcastEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, chatMsg: GroupChatMsgToUser)
+case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, chatMsg: Vector[GroupChatMsgToUser])
