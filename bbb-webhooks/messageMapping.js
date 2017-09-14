@@ -1,12 +1,13 @@
 const config = require("./config.js");
 const Logger = require("./logger.js");
 const IDMapping = require("./id_mapping.js");
+const UserMapping = require("./userMapping.js");
 module.exports = class MessageMapping {
 
   constructor() {
     this.mappedObject = {};
     this.mappedMessage = {};
-    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingEndedEvtMsg"];
+    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg"];
     this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg"];
     this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
     this.rapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended"];
@@ -81,6 +82,7 @@ module.exports = class MessageMapping {
   // Map internal to external message for user information
   userTemplate(messageObj) {
     const msgBody = messageObj.core.body;
+    const extId = UserMapping.getExternalUserID(msgBody.intId) ? UserMapping.getExternalUserID(msgBody.intId) : msgBody.extId;
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj),
@@ -91,7 +93,7 @@ module.exports = class MessageMapping {
         },
         "user":{
           "internal-user-id": msgBody.intId,
-          "external-user-id": msgBody.extId,
+          "external-user-id": extId,
           "sharing-mic": msgBody.muted,
           "name": msgBody.name,
           "role": msgBody.role,
@@ -171,7 +173,7 @@ module.exports = class MessageMapping {
     }
     const mappedMsg = (() => { switch (message) {
       case "MeetingCreatedEvtMsg": return "meeting-created";
-      case "MeetingEndedEvtMsg": return "meeting-ended";
+      case "MeetingDestroyedEvtMsg": return "meeting-ended";
       case "UserJoinedMeetingEvtMsg": return "user-joined";
       case "UserLeftMeetingEvtMsg": return "user-left";
       case "UserJoinedVoiceConfToClientEvtMsg": return "user-audio-voice-enabled";
