@@ -565,10 +565,9 @@ function webrtc_hangup(callback) {
 }
 
 function isWebRTCAvailable() {
-	var browserInfo = determineBrowser();
-	if (browserInfo[0] === "Edge") {
+	if (bowser.msedge) {
 		return false;
-	else {
+	} else {
 		return SIP.WebRTC.isSupported();
 	}
 }
