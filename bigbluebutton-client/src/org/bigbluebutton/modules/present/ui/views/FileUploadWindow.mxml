@@ -23,13 +23,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
+				xmlns:s="library://ns.adobe.com/flex/spark"
                 width="580"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
 				layout="absolute"
 				close="onCancelClicked()"
                 initialize="initData()"
-				creationComplete="onCreationComplete(event)" xmlns:common="org.bigbluebutton.common.*" xmlns:s="library://ns.adobe.com/flex/spark">
+				creationComplete="onCreationComplete(event)">
 	
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatch" />
@@ -59,6 +61,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.events.FlexEvent;
 		import mx.events.ListEvent;
 		import mx.utils.StringUtil;
+		
+		import flashx.textLayout.formats.Direction;
 		
 		import org.as3commons.lang.StringUtils;
 		import org.as3commons.logging.api.ILogger;
@@ -112,6 +116,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		protected function onCreationComplete(event:FlexEvent):void
 		{
 			dispatcher = new Dispatcher();
+			updateStyles();
+		}
+		
+		private function updateStyles() : void {
+			var styleNameExt : String = "";
+			if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+				styleNameExt = "RTL";
+			}
+			
+			uploadBtn.styleName = "uploadFileButton" + styleNameExt;
 		}
 		
 			private function initData():void {
