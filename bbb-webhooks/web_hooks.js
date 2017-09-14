@@ -7,6 +7,7 @@ const Hook = require("./hook.js");
 const IDMapping = require("./id_mapping.js");
 const Logger = require("./logger.js");
 const MessageMapping = require("./messageMapping.js");
+const UserMapping = require("./userMapping.js");
 
 // Web hooks will listen for events on redis coming from BigBlueButton and
 // perform HTTP calls with them to all registered hooks.
@@ -38,27 +39,31 @@ module.exports = class WebHooks {
         messageMapped.mapMessage(JSON.parse(message));
         message = messageMapped.mappedObject;
         if (!_.isEmpty(message) && !config.hooks.getRaw) {
-          const id = message.data.attributes.meeting["internal-meeting-id"];
-          IDMapping.reportActivity(id);
+          const intId = message.data.attributes.meeting["internal-meeting-id"];
+          IDMapping.reportActivity(intId);
 
           // First treat meeting events to add/remove ID mappings
-          if ((message.data != null ? message.data.id : undefined) === "meeting-created") {
-            Logger.info(`[WebHooks] got create message on meetings channel [${channel}]:`, message);
-            IDMapping.addOrUpdateMapping(message.data.attributes.meeting["internal-meeting-id"], message.data.attributes.meeting["external-meeting-id"], (error, result) =>
+          switch (message.data.id) {
+            case "meeting-created":
+              Logger.info(`[WebHooks] got create message on meetings channel [${channel}]:`, message);
+              IDMapping.addOrUpdateMapping(intId, message.data.attributes.meeting["external-meeting-id"], (error, result) => {
               // has to be here, after the meeting was created, otherwise create calls won't generate
               // callback calls for meeting hooks
-              processMessage()
-            );
-
-          // TODO: Temporarily commented because we still need the mapping for recording events,
-          //   after the meeting ended.
-          // else if message.header?.name is "meeting_destroyed_event"
-          //   Logger.info "[WebHooks] got destroy message on meetings channel [#{channel}]", message
-          //   IDMapping.removeMapping message.payload?.meeting_id, (error, result) ->
-          //     processMessage()
-
-          } else {
-            processMessage();
+                processMessage();
+              });
+              break;
+            case "user-joined":
+              UserMapping.addMapping(message.data.attributes.user["internal-user-id"],message.data.attributes.user["external-user-id"], intId, () => {
+                processMessage();
+              });
+              break;
+            case "user-left":
+              UserMapping.removeMapping(message.data.attributes.user["internal-user-id"], () => { processMessage(); });
+              break;
+            case "meeting-ended":
+              UserMapping.removeMappingMeetingId(intId, () => { processMessage(); });
+              break;
+            default: processMessage();
           }
         } else {
           this._processRaw(raw);

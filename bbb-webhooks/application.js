@@ -4,6 +4,7 @@ const IDMapping = require("./id_mapping.js");
 const WebHooks = require("./web_hooks.js");
 const WebServer = require("./web_server.js");
 const redis = require("redis");
+const UserMapping = require("./userMapping.js");
 
 // Class that defines the application. Listens for events on redis and starts the
 // process to perform the callback calls.
@@ -19,10 +20,12 @@ module.exports = class Application {
 
   start() {
     Hook.initialize(() => {
-      IDMapping.initialize(() => {
-        this.webServer.start(config.server.port);
-        this.webServer.createPermanent();
-        this.webHooks.start();
+      UserMapping.initialize(() => {
+        IDMapping.initialize(()=> {
+          this.webServer.start(config.server.port);
+          this.webServer.createPermanent();
+          this.webHooks.start();
+        });
       });
     });
   }

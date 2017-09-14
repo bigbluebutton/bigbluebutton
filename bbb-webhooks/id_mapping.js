@@ -4,6 +4,7 @@ const redis = require("redis");
 
 const config = require("./config.js");
 const Logger = require("./logger.js");
+const UserMapping = require("./userMapping.js");
 
 // The database of mappings. Uses the internal ID as key because it is unique
 // unlike the external ID.
@@ -163,7 +164,10 @@ module.exports = class IDMapping {
     const toRemove = _.filter(all, mapping => mapping.lastActivity < (now - config.mappings.timeout));
     if (!_.isEmpty(toRemove)) {
       Logger.info("[IDMapping] expiring the mappings:", _.map(toRemove, map => map.print()));
-      toRemove.forEach(mapping => mapping.destroy());
+      toRemove.forEach(mapping => {
+        UserMapping.removeMappingMeetingId(mapping.internalMeetingID);
+        mapping.destroy()
+      });
     }
   }
 

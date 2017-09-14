@@ -44,6 +44,8 @@ config.redis.keys.hooks = "bigbluebutton:webhooks:hooks";
 config.redis.keys.mappings = "bigbluebutton:webhooks:mappings";
 config.redis.keys.mapping = id => `bigbluebutton:webhooks:mapping:${id}`;
 config.redis.keys.events = id => `bigbluebutton:webhooks:events:${id}`;
+config.redis.keys.userMaps = "bigbluebutton:webhooks:userMaps";
+config.redis.keys.userMap = id => `bigbluebutton:webhooks:userMap:${id}`;
 
 config.api = {};
 config.api.responses = {};
