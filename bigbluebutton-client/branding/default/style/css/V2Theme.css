@@ -581,8 +581,15 @@ chat|AddChatTabBox {
 }
 
 .chatControlBarSendButtonStyleRTL {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_RTL");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled_RTL");
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_RTL");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled_RTL");
+	cornerRadius      : 20;
+	borderStyle       : none;
+	borderThickness   : 0;
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
 }
 
 .chatControlBarTextMsgStyle {
@@ -1192,8 +1199,17 @@ mx|Panel {
 }
 
 .uploadFileButtonRTL {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_RTL");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled_RTL");
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_RTL");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled_RTL");
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
 }
 
 .presentationNameLabel {
