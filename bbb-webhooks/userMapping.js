@@ -122,7 +122,6 @@ module.exports = class UserMapping {
         if (mapping.meetingId === meetingId) {
           result.push(mapping.destroy( (error, result) => {
             Logger.info(`[UserMapping] removing user mapping from the list ${mapping.internalUserID}:`, mapping.print());
-            return (typeof callback === 'function' ? callback(error, result) : undefined);
           }));
         } else {
           result.push(undefined);
@@ -137,7 +136,7 @@ module.exports = class UserMapping {
       return db[internalUserID].externalUserID;
     }
   }
-  
+
   static allSync() {
     let arr = Object.keys(db).reduce(function(arr, id) {
       arr.push(db[id]);

@@ -63,7 +63,8 @@ module.exports = class WebHooks {
             case "meeting-ended":
               UserMapping.removeMappingMeetingId(intId, () => { processMessage(); });
               break;
-            default: processMessage();
+            default:
+              processMessage();
           }
         } else {
           this._processRaw(raw);
