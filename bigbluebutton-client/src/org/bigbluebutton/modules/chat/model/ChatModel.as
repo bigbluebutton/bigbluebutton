@@ -43,9 +43,15 @@ package org.bigbluebutton.modules.chat.model
     
     public function getChatConversation(convId:String):ChatConversation {
       if (convs.hasOwnProperty(convId)) {
+        trace("FOUND chatId = " + convId);
         return convs[convId];
+      } else {
+        trace("NOT FOUND chatId = " + convId);
+        var conv: ChatConversation = new ChatConversation(convId);
+        convs[convId] = conv;
+        return conv;
       }
-      return new ChatConversation(convId);
+      
     }
   }
 }

@@ -1,10 +1,13 @@
 package org.bigbluebutton.modules.chat.services
 {
 	import flash.events.Event;
-	import mx.controls.Alert;
 	import flash.net.FileReference;
-	import org.bigbluebutton.modules.chat.model.ChatConversation;
+	
+	import mx.controls.Alert;
+	
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
+	import org.bigbluebutton.modules.chat.model.ChatConversation;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class ChatSaver
@@ -12,9 +15,11 @@ package org.bigbluebutton.modules.chat.services
 		public function ChatSaver(){}
 
 		public function saveChatToFile(e:ChatSaveEvent):void{
-			var chat:ChatConversation = e.chatMessages;
+			var chatId: String = e.chatId;
 			var filename:String = e.filename;
 
+      var chat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(chatId);
+      
 			var textToExport:String = chat.getAllMessageAsString();
 			var fileRef:FileReference = new FileReference();
 

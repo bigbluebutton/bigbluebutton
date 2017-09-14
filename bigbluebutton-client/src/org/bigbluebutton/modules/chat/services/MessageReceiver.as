@@ -27,10 +27,8 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
   import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
   import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -79,22 +77,19 @@ package org.bigbluebutton.modules.chat.services
       var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
       publicChat.processChatHistory(processedMessages);
       
-      var chEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
-      chEvent.history = processedMessages;
-      dispatcher.dispatchEvent(chEvent);
     }
     
     private function handleSendPublicMessageEvtMsg(message:Object, history:Boolean = false):void {
-      LOGGER.debug("Handling public chat message [{0}]", [message.message]);
-      
+      LOGGER.debug("onMessageFromServer2x - " + JSON.stringify(message));
+       
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
       
       var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
-      publicChat.newChatMessage(msg);
+      LOGGER.debug("Handling public chat message [{0}]", [publicChat.getId()]);
       
-      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-      pcEvent.message = msg;
-      dispatcher.dispatchEvent(pcEvent);
+      publicChat.newChatMessage(msg);
+      LOGGER.debug("Num messages [{0}]", [publicChat.messages.length]);
+
       
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PUBLIC_CHAT);
       pcCoreEvent.message = message;

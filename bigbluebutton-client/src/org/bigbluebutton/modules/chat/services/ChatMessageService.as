@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+  import org.bigbluebutton.modules.chat.model.ChatConversation;
+  import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -105,9 +107,9 @@ package org.bigbluebutton.modules.chat.services
         welcomeMsg.toUsername = SPACE;
         welcomeMsg.message = welcome;
         
-        var welcomeMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-        welcomeMsgEvent.message = welcomeMsg;
-        dispatcher.dispatchEvent(welcomeMsgEvent);
+        var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
+        publicChat.newChatMessage(welcomeMsg);
+        
         
         //Say that client is ready when sending the welcome message
         ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
@@ -125,9 +127,9 @@ package org.bigbluebutton.modules.chat.services
           moderatorOnlyMsg.toUsername = SPACE;
           moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
           
-          var moderatorOnlyMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-          moderatorOnlyMsgEvent.message = moderatorOnlyMsg;
-          dispatcher.dispatchEvent(moderatorOnlyMsgEvent);
+          var pChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
+          pChat.newChatMessage(moderatorOnlyMsg);
+          
         }
       }
     }

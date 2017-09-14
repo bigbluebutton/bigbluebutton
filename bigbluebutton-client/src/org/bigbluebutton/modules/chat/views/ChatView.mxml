@@ -135,7 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					saveEvent.filename = chatBox.chatWithUsername;
 				}
 
-				saveEvent.chatMessages = chatBox.getChatMessages();
+				saveEvent.chatId = chatBox.id;
 				globalDispatcher.dispatchEvent(saveEvent);
 			}
 
@@ -143,7 +143,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chatBox:ChatBox = getPublicChatBox();
 				var copyEvent:ChatCopyEvent = new ChatCopyEvent(ChatCopyEvent.COPY_CHAT_EVENT);
 
-				copyEvent.chatMessages = chatBox.getChatMessages();
+				copyEvent.chatId = chatBox.getChatId();
 				globalDispatcher.dispatchEvent(copyEvent);
 			}
 			
@@ -172,7 +172,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		  private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 			  notifyUserOfNewMessage(ChatModel.PUBLIC_CHAT_USERID);
-			  if (!UsersUtil.isMe(event.message.fromUserId)) {
+			  if (!UsersUtil.isMe(event.senderId)) {
           publicNotification();
         }			
       }

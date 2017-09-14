@@ -25,11 +25,11 @@ package org.bigbluebutton.modules.chat.events
 		public static const REQUEST_HISTORY:String = "REQUEST_HISTORY";
 		public static const RECEIVED_HISTORY:String = 'RECEIVED_HISTORY';
 		
-		public var history:Array;
+		public var chatId:String;
 		
-		public function ChatHistoryEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function ChatHistoryEvent(type:String)
 		{
-			super(type, bubbles, cancelable);
+			super(type, true, false);
 		}
 		
 	}
