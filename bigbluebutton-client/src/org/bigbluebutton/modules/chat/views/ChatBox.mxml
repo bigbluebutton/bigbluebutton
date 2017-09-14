@@ -155,7 +155,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
         }
        
-        LOGGER.debug(" onCreationComplete. Apply lock settings");
         applyLockSettings();
         
 //        chatToolbar.registerListeners(chatMessagesList);
@@ -304,11 +303,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
-          LOGGER.debug("GOT PUBLIC CHAT for id=" + id); 
-//          chatMessages.newChatMessage(event.message);
           var chat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-          LOGGER.debug("FOUND PUBLIC CHAT for id=" + chat.getId()); 
-          LOGGER.debug("NUM CHAT MESSAGES  = " + chat.messages.length);
           chatMessages = chat.messages;
           scrollToEndOfMessage();
         }
@@ -316,12 +311,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (publicChat) {
-//          chatMessages.processChatHistory(event.history);
-          LOGGER.debug("GOT PUBLIC CHAT HISTORY for id=" + id); 
-          
           var chat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-          LOGGER.debug("FOUND PUBLIC CHAT HISTORY for id=" + chat.getId()); 
-          LOGGER.debug("NUM CHAT HISTORY MESSAGES  = " + chat.messages.length);
           chatMessages = chat.messages;
           scrollToEndOfMessage();
         }
@@ -333,12 +323,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-        var message:ChatMessageVO = event.message;
-        
-        if (!publicChat && 
-          ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
-            (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
-//          chatMessages.newChatMessage(event.message);
+        if (!publicChat && event.chatId == id) {
+          var chat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          chatMessages = chat.messages;
           scrollToEndOfMessage();
         }        
       }

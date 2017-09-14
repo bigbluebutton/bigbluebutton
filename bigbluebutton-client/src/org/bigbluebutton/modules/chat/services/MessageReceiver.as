@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
@@ -28,7 +27,6 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-  import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -80,35 +78,23 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleSendPublicMessageEvtMsg(message:Object, history:Boolean = false):void {
-      LOGGER.debug("onMessageFromServer2x - " + JSON.stringify(message));
-       
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
       
       var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
-      LOGGER.debug("Handling public chat message [{0}]", [publicChat.getId()]);
-      
       publicChat.newChatMessage(msg);
-      LOGGER.debug("Num messages [{0}]", [publicChat.messages.length]);
-
-      
+ 
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PUBLIC_CHAT);
       pcCoreEvent.message = message;
       dispatcher.dispatchEvent(pcCoreEvent);
     }
     
     private function handleSendPrivateMessageEvtMsg(message:Object):void {
-      LOGGER.debug("Handling private chat message");
-      
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
       
       var chatId: String = ChatModel.getConvId(msg.fromUserId, msg.toUserId);
       var privChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(chatId);
-      privChat.newChatMessage(msg);
-      
-      var pcEvent:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
-      pcEvent.message = msg;
-      dispatcher.dispatchEvent(pcEvent);
-      
+      privChat.newPrivateChatMessage(msg);
+            
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PRIVATE_CHAT);
       pcCoreEvent.message = message;
       dispatcher.dispatchEvent(pcCoreEvent);      
@@ -117,7 +103,7 @@ package org.bigbluebutton.modules.chat.services
     private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
       LOGGER.debug("Handling clear chat history message");
 
-      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation("PUBLIC_CHAT");
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
       publicChat.clearPublicChat();
       
       var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);

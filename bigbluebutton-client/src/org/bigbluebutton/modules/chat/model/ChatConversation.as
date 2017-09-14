@@ -19,11 +19,15 @@
 package org.bigbluebutton.modules.chat.model
 {
   import com.adobe.utils.StringUtil;
-  import com.asfusion.mate.events.Dispatcher;  
-  import flash.system.Capabilities;  
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import flash.system.Capabilities;
+  
   import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+  import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -65,6 +69,22 @@ package org.bigbluebutton.modules.chat.model
       pcEvent.senderId = newCM.senderId;
       _dispatcher.dispatchEvent(pcEvent);
       
+    }
+    
+    public function newPrivateChatMessage(msg:ChatMessageVO):void {
+      var newCM:ChatMessage = convertChatMessage(msg);
+      if (messages.length > 0) {
+        var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
+        newCM.lastSenderId = previousCM.senderId;
+        newCM.lastTime = previousCM.time;
+      }
+      messages.addItem(newCM);
+      trace("NUM MESSAGES = " + messages.length);
+      
+      var pcEvent:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
+      pcEvent.chatId = id;
+      pcEvent.senderId = newCM.senderId;
+      _dispatcher.dispatchEvent(pcEvent);     
     }
     
     public function processChatHistory(messageVOs:Array):void {
