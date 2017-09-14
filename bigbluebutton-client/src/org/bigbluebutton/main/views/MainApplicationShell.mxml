@@ -890,8 +890,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 			
 			private function onLocaleChanged(e:LocaleChangeEvent) : void {
-				var languageOptions : LanguageOptions = Options.getOptions(LanguageOptions) as LanguageOptions;
-				if (languageOptions.rtlEnabled) {
+				if (ResourceUtil.getInstance().isRTLEnabled()) {
 					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
 				}
 			}

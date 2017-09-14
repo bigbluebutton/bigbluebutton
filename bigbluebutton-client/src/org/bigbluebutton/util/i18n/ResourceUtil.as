@@ -39,8 +39,10 @@ package org.bigbluebutton.util.i18n
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.AppVersionEvent;
+	import org.bigbluebutton.main.model.options.LanguageOptions;
 
 	public class ResourceUtil extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(ResourceUtil);
@@ -320,6 +322,11 @@ package org.bigbluebutton.util.i18n
 
 		public function getCurrentLanguageIndex():int {
 			return getIndexForLocale(preferredLocale);
+		}
+		
+		public function isRTLEnabled() : Boolean {
+			var languageOptions : LanguageOptions = Options.getOptions(LanguageOptions) as LanguageOptions;
+			return languageOptions.rtlEnabled;
 		}
 	}
 }

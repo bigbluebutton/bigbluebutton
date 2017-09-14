@@ -189,6 +189,10 @@ phonecomponents|MuteMeButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout");
 }
 
+.logoutButtonStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout_RTL");
+}
+
 .settingsButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
@@ -576,6 +580,11 @@ chat|AddChatTabBox {
 	fillColorDisabled : #F0F2F6;
 }
 
+.chatControlBarSendButtonStyleRTL {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_RTL");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled_RTL");
+}
+
 .chatControlBarTextMsgStyle {
 	borderStyle     : solid;
 	borderThickness : 1;
@@ -829,8 +838,12 @@ layout|LoadButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload_Template");
 }
 
-layout|BroadcastButton {
+.broadcastLayoutButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout");
+}
+
+.broadcastLayoutButtonStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout_RTL");
 }
 
 /*
@@ -1112,21 +1125,21 @@ mx|Panel {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Polling");
 }
 
-.presentationBackButtonStyle {
+.presentationBackButtonStyle, .presentationForwardButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
 }
 
-.presentationBackButtonDisabledStyle {
+.presentationBackButtonDisabledStyle, .presentationForwardButtonDisabledStyleRTL {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
 }
 
-.presentationForwardButtonStyle {
+.presentationForwardButtonStyle, .presentationBackButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
 }
 
-.presentationForwardButtonDisabledStyle {
+.presentationForwardButtonDisabledStyle, .presentationBackButtonDisabledStyleRTL {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
 }
 
@@ -1165,6 +1178,8 @@ mx|Panel {
 }
 
 .uploadFileButton {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
 	fillColorUp       : #1070D7;
 	fillColorOver     : #0A5EAC;
 	fillColorDown     : #1070D7;
@@ -1176,9 +1191,9 @@ mx|Panel {
 	borderThickness   : 0;
 }
 
-.uploadFileButton {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
+.uploadFileButtonRTL {
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_RTL");
+	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled_RTL");
 }
 
 .presentationNameLabel {
@@ -1327,12 +1342,12 @@ sharednotes|SharedNotesRichTextEditor {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
 }
 
-.sharedNotesUndoButtonStyle {
+.sharedNotesUndoButtonStyle, .sharedNotesRedoButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo_Disabled");
 }
 
-.sharedNotesRedoButtonStyle {
+.sharedNotesRedoButtonStyle, .sharedNotesUndoButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo_Disabled");
 }
