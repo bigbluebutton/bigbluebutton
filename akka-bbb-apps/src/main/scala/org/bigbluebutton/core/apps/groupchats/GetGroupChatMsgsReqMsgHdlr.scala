@@ -23,7 +23,7 @@ trait GetGroupChatMsgsReqMsgHdlr {
 
     state.groupChats.find(msg.body.chatId) foreach { gc =>
       if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.body.requesterId)) {
-        val msgs = gc.msgs.values.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
+        val msgs = gc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
           m.sender, m.font, m.size, m.color, m.message))
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,

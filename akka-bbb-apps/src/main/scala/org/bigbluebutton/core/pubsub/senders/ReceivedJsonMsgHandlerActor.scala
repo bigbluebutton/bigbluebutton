@@ -267,6 +267,8 @@ class ReceivedJsonMsgHandlerActor(
       // GroupChats
       case SendGroupChatMessageMsg.NAME =>
         routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
+      case GetGroupChatMsgsReqMsg.NAME =>
+        routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

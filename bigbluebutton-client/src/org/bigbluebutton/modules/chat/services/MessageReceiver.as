@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.chat.services
         case "SendPrivateMessageEvtMsg":
           handleSendPrivateMessageEvtMsg(message);
           break;	
-        case "GetChatHistoryRespMsg":
+        case "GetGroupChatMsgsRespMsg":
           handleGetChatHistoryRespMsg(message);
           break;	
         case "ClearPublicChatHistoryEvtMsg":
@@ -68,12 +68,12 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleGetChatHistoryRespMsg(message:Object):void {
-      LOGGER.debug("Handling chat history message [{0}]", [message.body.history]);
-      var rawMessages:Array = message.body.history as Array;
+      LOGGER.debug("Handling chat history message [{0}]", [message.body.msgs]);
+      var rawMessages:Array = message.body.msgs as Array;
       var processedMessages:Array = new Array();
       
       for (var i:int = 0; i < rawMessages.length; i++) {
-        processedMessages.push(processIncomingChatMessage(rawMessages[i]));
+        processedMessages.push(processNewChatMessage(rawMessages[i] as Object));
       }
       
       var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.chat.services
       var body: Object = message.body as Object;
       var chatId: String = body.chatId as String;
       
-      var msg: ChatMessageVO = processNewChatMessage(body);
+      var msg: ChatMessageVO = processNewChatMessage(body.msg as Object);
       
       var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
       publicChat.newChatMessage(msg);
@@ -143,16 +143,16 @@ package org.bigbluebutton.modules.chat.services
       return msg;
     }
     
-    private function processNewChatMessage(body:Object):ChatMessageVO {
+    private function processNewChatMessage(message:Object):ChatMessageVO {
       var msg:ChatMessageVO = new ChatMessageVO();
-      msg.fromUserId = body.msg.sender.id as String;
-      msg.fromUsername = body.msg.sender.name as String;
-      msg.fromColor = body.msg.color as String;
-      msg.fromTime = body.msg.timestamp as Number;
-      msg.fromTimezoneOffset = body.msg.timestamp as Number;
-      msg.toUserId = body.msg.chatId as String;
-      msg.toUsername = body.msg.chatId as String;
-      msg.message = body.msg.message as String;
+      msg.fromUserId = message.sender.id as String;
+      msg.fromUsername = message.sender.name as String;
+      msg.fromColor = message.color as String;
+      msg.fromTime = message.timestamp as Number;
+      msg.fromTimezoneOffset = message.timestamp as Number;
+      msg.toUserId = message.chatId as String;
+      msg.toUsername = message.chatId as String;
+      msg.message = message.message as String;
       return msg;
     }
   }

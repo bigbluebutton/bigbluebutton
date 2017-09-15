@@ -6,7 +6,6 @@ object GroupChatAccess {
 }
 
 case class GroupChatUser(id: String, name: String)
-
 case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser,
                                 font: String, size: Int, color: String, message: String)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser,
@@ -28,7 +27,7 @@ case class GetGroupChatMsgsReqMsgBody(requesterId: String, chatId: String)
 
 object GetGroupChatMsgsRespMsg { val NAME = "GetGroupChatMsgsRespMsg"}
 case class GetGroupChatMsgsRespMsg(header: BbbClientMsgHeader, body: GetGroupChatMsgsRespMsgBody) extends BbbCoreMsg
-case class GetGroupChatMsgsRespMsgBody(requesterId: String, msgs: Vector[GroupChatMsgToUser])
+case class GetGroupChatMsgsRespMsgBody(chatId: String, msgs: Vector[GroupChatMsgToUser])
 
 object CreateGroupChatReqMsg { val NAME = "CreateGroupChatReqMsg"}
 case class CreateGroupChatReqMsg(header: BbbClientMsgHeader, body: CreateGroupChatReqMsgBody) extends StandardMsg
