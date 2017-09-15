@@ -7,9 +7,6 @@ package org.bigbluebutton.modules.sharednotes {
 		public var refreshDelay:int = 500;
 
 		[Bindable]
-		public var enableMultipleNotes:Boolean = false;
-
-		[Bindable]
 		public var toolbarVisibleByDefault:Boolean = false;
 
 		[Bindable]
