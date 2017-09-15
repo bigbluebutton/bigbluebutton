@@ -7,8 +7,8 @@
   &:active {
     &:focus {
       outline: none !important;
-      border: 3px solid #F3F6F9 !important;
-      border-left: 3px solid $color-primary !important;
+      border: 3px solid #F3F6F9;
+      border-left: 3px solid $color-primary;
       padding-left: 3px;
     }
   }
