@@ -737,7 +737,7 @@ $Id: $
     </mx:HBox>
     
     <views:BBBDataGrid id="roomsGrid" editable="false" sortableColumns="false"
-					   rowCount="{breakoutRoomsList.length}"
+					   rowCount="{breakoutRoomsList.length &lt; 6 ? breakoutRoomsList.length : 5}"
                        dataProvider="{breakoutRoomsList}" dataTipFunction="breakoutRoomsToolTip"
                        dragEnabled="false" width="100%" height="100%" draggableColumns="false"
                        accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}">
@@ -757,6 +757,8 @@ $Id: $
     <mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}"
                click="endAllBreakoutRoomsHandler(event)" width="100%"/>
   </mx:VBox>
+	
+  <mx:HRule width="100%" />
   
   <mx:ControlBar width="100%" horizontalAlign="right">
 	<mx:VBox>

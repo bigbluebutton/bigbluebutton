@@ -4,6 +4,7 @@
 		xmlns:common="org.bigbluebutton.common.*" 
 		xmlns:mate="http://mate.asfusion.com/"
 		layout="vertical"
+		horizontalAlign="center"
 		showCloseButton="false"
 		minWidth="250"
 		creationComplete="init()">
@@ -48,7 +49,7 @@
 
 	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
 						  styleName="titleWindowStyle"
-						  width="80%" />
+						  width="{this.width - 40}" />
 
 	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 

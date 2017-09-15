@@ -121,6 +121,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
       case EjectUserFromMeetingCmdMsg.NAME =>
         routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+      case EjectUserFromVoiceCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromVoiceCmdMsg](envelope, jsonNode)
       case UserConnectedToGlobalAudioMsg.NAME =>
         routeVoiceMsg[UserConnectedToGlobalAudioMsg](envelope, jsonNode)
       case UserDisconnectedFromGlobalAudioMsg.NAME =>

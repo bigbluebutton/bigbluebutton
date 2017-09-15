@@ -27,7 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           horizontalAlign="center"
           showCloseButton="false"
           creationComplete="onCreationComplete()"
-          width="350"
+          minWidth="350"
           title="{ResourceUtil.getInstance().getString('bbb.logout.confirm.title')}">
 
   <fx:Script>

@@ -13,6 +13,8 @@ object VoiceUsers {
 
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
+  def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
+
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
   }

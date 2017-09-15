@@ -239,6 +239,8 @@ class UserListItem extends Component {
       user,
       intl,
       compact,
+      isMeetingLocked,
+      meeting,
     } = this.props;
 
     if (compact) {
@@ -246,8 +248,9 @@ class UserListItem extends Component {
     }
 
     const userNameSub = [];
+    const isViewer = (!user.isPresenter && !user.isModerator) ? true : false;
 
-    if (user.isLocked) {
+    if (isMeetingLocked(meeting.meetingId) && isViewer && user.isLocked) {
       userNameSub.push(<span>
         <Icon iconName="lock" />
         {intl.formatMessage(messages.locked)}
