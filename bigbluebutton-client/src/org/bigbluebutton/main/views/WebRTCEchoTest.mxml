@@ -301,8 +301,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 			<mx:HRule width="100%"/>
 			<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
-				<common:AdvancedLabel textAlign="left"
-									  width="100%"
+				<common:AdvancedLabel id="micSettingLabel"
+									  textAlign="left"
+									  maxWidth="{micSettingLabel.parent.width - 6}"
 									  height="60"
 									  text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
 									  styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
