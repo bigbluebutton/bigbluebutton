@@ -218,7 +218,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
     <mx:HBox width="100%" horizontalAlign="center">
-		<common:AdvancedLabel maxWidth="400"
+		<common:AdvancedLabel maxWidth="{this.width - 40}"
 							  text="{ResourceUtil.getInstance().getString('bbb.users.settings.webcamSettings')}"
 							  styleName="titleWindowStyle"
 							  id="textArea" />

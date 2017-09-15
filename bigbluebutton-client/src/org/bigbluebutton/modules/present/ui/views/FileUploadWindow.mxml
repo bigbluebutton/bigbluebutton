@@ -370,11 +370,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 
   <mx:VBox width="100%" height="100%" verticalAlign="top" horizontalAlign="center" top="15">
-	  <mx:HBox width="100%">
-	    <common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
-							  styleName="titleWindowStyle"
-							  width="100%" />
-	  </mx:HBox>
+    <common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
+						  styleName="titleWindowStyle"
+						  maxWidth="550" />
 
 	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5" includeIn="normal">
 	  <mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">

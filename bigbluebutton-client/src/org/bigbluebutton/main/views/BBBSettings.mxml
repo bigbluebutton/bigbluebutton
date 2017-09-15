@@ -49,7 +49,7 @@
 
 	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
 						  styleName="titleWindowStyle"
-						  width="80%" />
+						  width="{this.width - 40}" />
 
 	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 

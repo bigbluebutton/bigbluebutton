@@ -64,11 +64,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 height="100%"
 			 horizontalAlign="center"
 			 paddingTop="15">
-		<mx:HBox width="100%">
-			<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}"
-								  styleName="titleWindowStyle"
-								  width="100%" />
-		</mx:HBox>
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}"
+							  styleName="titleWindowStyle"
+							  maxWidth="550" />
 		<mx:List id="presentationNamesList"
 				 allowMultipleSelection="false"
 				 width="100%"

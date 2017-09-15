@@ -83,7 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:VBox width="100%" height="100%" paddingTop="15">
 		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.sharedNotes.createNoteWindow.label')}"
 							  styleName="titleWindowStyle"
-							  width="100%" />
+							  maxWidth="{this.width - 10}" />
 		<mx:HBox width="100%"
 				 height="100%"
 				 verticalAlign="middle">
