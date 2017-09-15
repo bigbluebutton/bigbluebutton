@@ -52,14 +52,30 @@
   flex-grow: 1;
 }
 
+.brandedSelectFocus {
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: 3px solid $color-primary;
+      padding: 1px;
+    }
+  }
+}
+
 .select {
+  @extend .brandedSelectFocus;
   background-color: #fff;
-  border: 0;
+  border: 3px solid #fff;
+  border-radius: calc(.1em + .2em + .2em);
   border-bottom: 0.1rem solid $color-gray-lighter;
   color: $color-gray-label;
   width: 100%;
   // appearance: none;
   height: 1.75rem;
+  padding: 1px;
+
+
 }
 
 .pullContentRight {
@@ -89,6 +105,7 @@
 }
 
 .swatch {
+  @extend .brandedSelectFocus;
   position: absolute;
   float: right;
   background: #fff;
