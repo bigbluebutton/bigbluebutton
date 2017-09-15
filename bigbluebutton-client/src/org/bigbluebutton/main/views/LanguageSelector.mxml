@@ -34,15 +34,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private function localeChanged(e:LocaleChangeEvent):void {
 				selectedIndex = ResourceUtil.getInstance().getCurrentLanguageIndex();
 			}
 
 			private function changeLanguage():void {
-				ResourceUtil.getInstance().setPreferredLocale(selectedItem.code);
+				ResourceUtil.getInstance().setPreferredLocale(selectedItem);
 			}
 		]]>
 	</fx:Script>

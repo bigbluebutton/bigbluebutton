@@ -565,7 +565,11 @@ function webrtc_hangup(callback) {
 }
 
 function isWebRTCAvailable() {
-	return SIP.WebRTC.isSupported();
+	if (bowser.msedge) {
+		return false;
+	} else {
+		return SIP.WebRTC.isSupported();
+	}
 }
 
 function getCallStatus() {

@@ -71,6 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			
+			import flashx.textLayout.formats.Direction;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.logging.api.ILogger;
@@ -391,29 +393,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					shareEvent.presentationName = presentationName;
 					dispatchEvent(shareEvent);
 			}
-										
+			
 			private function disableSlideNavigationButtons(pageNumber:int):void {
+				var styleNameExt : String = "";
+				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+					styleNameExt = "RTL";
+				}
+
 				// We use mouseEnabled here instead of enabled because the tab position gets lost when going through 
 				//the pages. Please don't change this if you don't know why this is.
 				if (pageNumber != 1) {
 					backButton.mouseEnabled = true;
-					backButton.styleName = "presentationBackButtonStyle";
+					backButton.styleName = "presentationBackButtonStyle" + styleNameExt;
 				} else {
 					backButton.mouseEnabled = false;
-					backButton.styleName = "presentationBackButtonDisabledStyle";
+					backButton.styleName = "presentationBackButtonDisabledStyle" + styleNameExt;
 				}
 				
 				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
 					forwardButton.mouseEnabled = true;
-					forwardButton.styleName = "presentationForwardButtonStyle";
+					forwardButton.styleName = "presentationForwardButtonStyle" + styleNameExt;
 				} else {
 					forwardButton.mouseEnabled = false;
-					forwardButton.styleName = "presentationForwardButtonDisabledStyle";
+					forwardButton.styleName = "presentationForwardButtonDisabledStyle" + styleNameExt;
 				}
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
-        disableSlideNavigationButtons(currentSlide);
+        		disableSlideNavigationButtons(currentSlide);
 				btnSlideNum.label = "" + currentSlide + '/' + PresentationModel.getInstance().getNumberOfPages();
 				btnSlideNum.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.accessibilityName', [currentSlide, PresentationModel.getInstance().getNumberOfPages()])
 			}
@@ -490,6 +497,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addContextMenuItems();
 				
 				setPollMenuData();
+				
+				updateStyles();
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -564,20 +573,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onUploadButtonClicked():void {
 				openUploadWindow();	
 			}
-			
+
 			private function openUploadWindow():void {
-        if (presentOptions.openExternalFileUploadDialog) {
-          var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW);
-          fileEvent.maxFileSize = presentOptions.maxFileSize;
-          var gDispatcher:Dispatcher = new Dispatcher();
-          gDispatcher.dispatchEvent(fileEvent);         
-        } else {
-          var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
-          event.maxFileSize = presentOptions.maxFileSize;
-          dispatchEvent(event);
-        }
+				if (presentOptions.openExternalFileUploadDialog) {
+					var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW);
+					fileEvent.maxFileSize = presentOptions.maxFileSize;
+					var gDispatcher:Dispatcher = new Dispatcher();
+					gDispatcher.dispatchEvent(fileEvent);
+				} else {
+					var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
+					event.maxFileSize = presentOptions.maxFileSize;
+					dispatchEvent(event);
+				}
 			}
-			
+
 			private function quickPollClicked(e:MouseEvent):void {
 				sendStartPollEvent(Button(e.target).name);
 			}
@@ -594,7 +603,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPollOption.label")});
 			}
-			
+
+			private function updateStyles():void {
+				if (PresentationModel.getInstance().getCurrentPage()) {
+					disableSlideNavigationButtons(PresentationModel.getInstance().getCurrentPage().num);
+				}
+			}
+
 			private function onPollStartButtonClicked():void {
 				openPollTypeMenu();
 			}
@@ -821,8 +836,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">
 		<!-- Presentation Actions -->
 		<mx:HBox width="40%" height="100%" horizontalScrollPolicy="off" verticalAlign="bottom" horizontalAlign="left">
-			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
+			<mx:Button id="uploadPres" includeInLayout="{uploadPres.visible}"
+					   visible="false" height="30" styleName="presentationUploadButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}"
 					   click="onUploadButtonClicked()"/>
 			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
@@ -835,7 +851,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   styleName="presentationDownloadButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
 					   click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
-			
 		</mx:HBox>
 
 		<mx:HBox id="presenterControls" width="30%" height="100%" paddingTop="0" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">

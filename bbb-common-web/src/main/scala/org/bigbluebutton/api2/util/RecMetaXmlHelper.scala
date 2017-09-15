@@ -100,8 +100,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
           <message>There are no recordings for the meeting(s).</message>
         </response>
       val p = new scala.xml.PrettyPrinter(80, 4)
-
-      p.format(<recording>{resp}</recording>)
+      p.format(resp)
     } else {
       val buffer = new scala.xml.NodeBuffer
       recMeta foreach { rm =>
@@ -113,7 +112,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
           <recordings>{buffer}</recordings>
         </response>
       val p = new scala.xml.PrettyPrinter(80, 4)
-      p.format(<recording>{resp}</recording>)
+      p.format(resp)
     }
   }
 }

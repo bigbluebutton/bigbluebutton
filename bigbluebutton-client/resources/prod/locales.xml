@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <locales>
-	<locale code="ar" name="Arabic"/>
+	<locale code="ar" name="Arabic" direction="rtl"/>
 	<locale code="az_AZ" name="Azerbaijani"/>
 	<locale code="eu_EU" name="Basque" />
 	<locale code="bn_BN" name="Bengali" />
@@ -21,7 +21,7 @@
 	<locale code="ff_SN" name="Fulah"/>
 	<locale code="de_DE" name="German"/>
 	<locale code="el_GR" name="Greek"/>
-	<locale code="he_IL" name="Hebrew"/>  
+	<locale code="he_IL" name="Hebrew" direction="rtl"/>  
 	<locale code="hu_HU" name="Hungarian"/>
 	<locale code="id_ID" name="Indonesian"/>
 	<locale code="it_IT" name="Italian"/>

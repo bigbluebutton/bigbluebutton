@@ -48,10 +48,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher; 
-      import flash.events.TextEvent;  
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.TextEvent;
+      
       import mx.binding.utils.BindingUtils;
-      import mx.collections.ArrayCollection;    
+      import mx.collections.ArrayCollection;
+      
+      import flashx.textLayout.formats.Direction;
+      
       import org.as3commons.lang.StringUtils;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
@@ -433,7 +438,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var modifier:String = ExternalInterface.call("determineModifier");
         
         addContextMenuItems();
+		
+		updateStyles();
       }
+		
+	  private function updateStyles():void {
+		  var styleNameExt : String = "";
+		  if (ResourceUtil.getInstance().isRTLEnabled() && 
+        ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+			  styleNameExt = "RTL";
+		  }
+		  
+		  sendBtn.styleName = "chatControlBarSendButtonStyle" + styleNameExt;
+	  }
       
       private function sendStartCustomPollEvent(answers:Array):void {
         var dispatcher:Dispatcher = new Dispatcher();
