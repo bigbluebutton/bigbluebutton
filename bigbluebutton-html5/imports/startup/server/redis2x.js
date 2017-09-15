@@ -29,7 +29,7 @@ class RedisPubSub2x {
     this.sub.psubscribe(this.config.channels.fromAkkaApps); // 2.0
     this.sub.psubscribe(this.config.channels.toHTML5); // 2.0
 
-    Logger.info(`Subscribed to '${this.config.channels.fromBBBApps}'`);
+    Logger.info(`Subscribed to '${this.config.channels.fromAkkaApps}'`);
   }
 
   updateConfig(config) {
@@ -103,8 +103,9 @@ class RedisPubSub2x {
 
     Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName} | CHANNEL ${channel}`);
 
+    const regex = new RegExp(fromAkkaApps);
     // We should only handle messages from this two channels, else, we simple ignore them.
-    if (channel !== fromAkkaApps && channel !== toHTML5) {
+    if (!regex.test(channel) && channel !== toHTML5) {
       Logger.warn(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
       return;
     }

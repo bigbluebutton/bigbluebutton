@@ -47,11 +47,9 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
-  import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
-  import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
@@ -349,16 +347,6 @@ package org.bigbluebutton.modules.layout.managers
 
     private function get detectContainerChange():Boolean {
       return _applyingLayoutCounter == 0;
-    }
-
-    public function handleLockLayoutEvent(e: LockLayoutEvent):void {
-      
-    }
-    
-    
-    public function handleLayoutLockedEvent(e: LayoutLockedEvent):void {
-      _locked = e.locked;
-      checkPermissionsOverAllWindows();
     }
 
     public function lockSettingsChanged():void {

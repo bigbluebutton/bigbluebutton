@@ -25,6 +25,10 @@ object VoiceUsers {
     users.toVector.find(u => u.intId == intId)
   }
 
+  def recoverVoiceUser(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
+    users.removeFromCache(intId)
+  }
+
   def userMuted(users: VoiceUsers, voiceUserId: String, muted: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)

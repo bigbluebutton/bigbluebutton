@@ -46,7 +46,6 @@ object MeetingStatus2x {
   def audioSettingsInitialized(status: MeetingStatus2x): Boolean = status.audioSettingsInited
   def initializeAudioSettings(status: MeetingStatus2x) = status.audioSettingsInited = true
   def permissionsEqual(status: MeetingStatus2x, other: Permissions): Boolean = status.permissions == other
-  def lockLayout(status: MeetingStatus2x, lock: Boolean) = status.permissions = status.permissions.copy(lockedLayout = lock)
   def getPermissions(status: MeetingStatus2x): Permissions = status.permissions
   def setPermissions(status: MeetingStatus2x, p: Permissions) = status.permissions = p
   def meetingHasEnded(status: MeetingStatus2x) = status.meetingEnded = true

@@ -10,6 +10,7 @@
 @namespace presentation "org.bigbluebutton.modules.present.ui.views.*";
 @namespace sharednotes "org.bigbluebutton.modules.sharednotes.views.components.*";
 @namespace chat "org.bigbluebutton.modules.chat.views.*";
+@namespace skins "org.bigbluebutton.skins.*";
 
 /*
 //------------------------------
@@ -809,19 +810,19 @@ flexlib|MDIWindow {
 	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
 	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
 
+	windowControlsClass  : ClassReference("org.bigbluebutton.skins.WindowControlsContainer");
+
 	paddingLeft          : 0;
 	paddingRight         : 0;
 	paddingTop           : 0;
-	
+
 	borderThicknessRight : 0;
 	borderThicknessLeft  : 0;
 
-	showHeaderSeparator  : true;
-}
+	titlePaddingRight    : 12;
+	titlePaddingLeft     : 12;
 
-flexlibcontainers|MDIWindowControlsContainer {
-	paddingRight  : 12;
-	horizontalGap : 12;
+	showHeaderSeparator  : true;
 }
 
 .mdiMaximizeButtonStyle {
@@ -1104,6 +1105,10 @@ presentation|UploadedPresentationRenderer {
 	backgroundColor : #FFFFFF;
 }
 
+.slideViewBackground {
+	backgroundColor : #4E5A66;
+}
+
 /*
 //------------------------------
 //  Poll
@@ -1345,7 +1350,8 @@ users|NameItemRenderer {
 
 .usersGridStyle {
 	borderStyle    : none;
-	selectionColor : #F0F2F6;
+	selectionColor : #FFFFFF;
+	rollOverColor  : #FFFFFF;
 }
 
 users|EmojiGrid {

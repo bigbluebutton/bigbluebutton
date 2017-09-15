@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
-import org.bigbluebutton.core.models.{ VoiceUser2x, VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -15,6 +15,12 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
   def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg): Unit = {
     log.info("Received user joined voice conference " + msg)
 
+    handleUserJoinedVoiceConfEvtMsg(msg.body.voiceConf, msg.body.intId, msg.body.voiceUserId,
+      msg.body.callingWith, msg.body.callerIdName, msg.body.callerIdNum, msg.body.muted, msg.body.talking)
+  }
+
+  def handleUserJoinedVoiceConfEvtMsg(voiceConf: String, intId: String, voiceUserId: String, callingWith: String,
+                                      callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean): Unit = {
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
@@ -26,20 +32,16 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
         liveMeeting.props.meetingProp.intId, voiceUserState.intId
       )
 
-      val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf = msg.body.voiceConf, intId = voiceUserState.intId, voiceUserId = voiceUserState.voiceUserId,
-        callerName = voiceUserState.callerName, callerNum = voiceUserState.callerNum, muted = voiceUserState.muted,
-        talking = voiceUserState.talking, callingWith = voiceUserState.callingWith, listenOnly = voiceUserState.listenOnly)
+      val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf, voiceUserState.intId, voiceUserState.voiceUserId,
+        voiceUserState.callerName, voiceUserState.callerNum, voiceUserState.muted, voiceUserState.talking,
+        voiceUserState.callingWith, voiceUserState.listenOnly)
 
       val event = UserJoinedVoiceConfToClientEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
-
     }
 
-    val voiceUser = VoiceUser2x(msg.body.intId, msg.body.voiceUserId)
-    val voiceUserState = VoiceUserState(intId = msg.body.intId, voiceUserId = msg.body.voiceUserId,
-      callingWith = msg.body.callingWith, callerName = msg.body.callerIdName, callerNum = msg.body.callerIdNum,
-      muted = msg.body.muted, talking = msg.body.talking, listenOnly = false)
+    val voiceUserState = VoiceUserState(intId, voiceUserId, callingWith, callerIdName, callerIdNum, muted, talking, listenOnly = false)
 
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 

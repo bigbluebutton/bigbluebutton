@@ -34,6 +34,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
+import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 
 object MeetingActor {
   def props(
@@ -63,6 +64,7 @@ class MeetingActor(
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
+    with UserJoinMeetingAfterReconnectReqMsgHdlr
     with UserBroadcastCamStopMsgHdlr
     with UserConnectedToGlobalAudioMsgHdlr
     with UserDisconnectedFromGlobalAudioMsgHdlr
@@ -180,6 +182,8 @@ class MeetingActor(
         state = usersApp.handleValidateAuthTokenReqMsg(m, state)
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
+      case m: UserJoinMeetingAfterReconnectReqMsg =>
+        state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
       case m: UserBroadcastCamStartMsg  => handleUserBroadcastCamStartMsg(m)
@@ -240,7 +244,6 @@ class MeetingActor(
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
-      case m: LockLayoutMsg => handleLockLayoutMsg(m)
       case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
 
       // Lock Settings

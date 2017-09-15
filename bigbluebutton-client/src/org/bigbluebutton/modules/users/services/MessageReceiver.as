@@ -147,6 +147,12 @@ package org.bigbluebutton.modules.users.services
         case "UserLockedInMeetingEvtMsg":
           handleUserLocked(message);
           break;
+        case "GetLockSettingsRespMsg":
+          handleGetLockSettings(message);
+          break;
+        case "LockSettingsNotInitializedRespMsg":
+          handleLockSettingsNotInitialized(message);
+          break;
         // Breakout room feature
         case "BreakoutRoomsListEvtMsg":
           handleBreakoutRoomsList(message)
@@ -365,16 +371,21 @@ package org.bigbluebutton.modules.users.services
       joinEvent.userID = user2x.intId;
       dispatcher.dispatchEvent(joinEvent);
 
-      if (UsersUtil.isMe(intId) && wasPresenterBefore != presenter) {
-        UsersUtil.setUserAsPresent(intId, false);
-        sendSwitchedPresenterEvent(false, intId);
+      if (UsersUtil.isMe(intId)) {
+        if (wasPresenterBefore != presenter) {
+          UsersUtil.setUserAsPresent(intId, false);
+          sendSwitchedPresenterEvent(false, intId);
 
-        var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-        e.userID = intId;
-        e.presenterName = name;
-        e.assignedBy = intId;
-        dispatcher.dispatchEvent(e);
-        dispatcher.dispatchEvent(new UserStatusChangedEvent(intId));
+          var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+          e.userID = intId;
+          e.presenterName = name;
+          e.assignedBy = intId;
+          dispatcher.dispatchEvent(e);
+          dispatcher.dispatchEvent(new UserStatusChangedEvent(intId));
+        }
+        
+        LiveMeeting.inst().me.locked = locked;
+        UsersUtil.applyLockSettings();
       }
     }
     
@@ -487,7 +498,11 @@ package org.bigbluebutton.modules.users.services
       if(user.locked != locked) {
         if (UsersUtil.isMe(user.intId)) {
           LiveMeeting.inst().me.locked = locked;
+          
+          UsersUtil.applyLockSettings();
         }
+        
+        user.locked = locked;
         
         dispatcher.dispatchEvent(new UserStatusChangedEvent(user.intId));
       }
@@ -496,7 +511,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
-      //LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.msg]);
+      LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.body]);
       var body:Object = msg.body as Object;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(
@@ -510,6 +525,27 @@ package org.bigbluebutton.modules.users.services
       UsersUtil.setLockSettings(lockSettings);
     }
     
+    private function handleGetLockSettings(msg:Object):void {
+      LOGGER.debug("handleGetLockSettings {0} \n", [msg.body]);
+      
+      var body:Object = msg.body as Object;
+      
+      var lockSettings:LockSettingsVO = new LockSettingsVO(
+        body.disableCam as Boolean,
+        body.disableMic as Boolean,
+        body.disablePrivChat as Boolean,
+        body.disablePubChat as Boolean,
+        body.lockedLayout as Boolean,
+        body.lockOnJoin as Boolean,
+        body.lockOnJoinConfigurable as Boolean);
+      UsersUtil.setLockSettings(lockSettings);
+    }
+    
+	private function handleLockSettingsNotInitialized(msg:Object):void {
+		LOGGER.debug("handleLockSettingsNotInitialized received");
+		UsersUtil.lockSettingsNotInitialized();
+	}
+	
     private function sendRecordingStatusUpdate(recording:Boolean):void {
       LiveMeeting.inst().meetingStatus.isRecording = recording;
       
