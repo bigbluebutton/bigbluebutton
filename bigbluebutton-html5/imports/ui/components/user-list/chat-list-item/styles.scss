@@ -1,13 +1,11 @@
 @import "../styles.scss";
 
 .brandedFocus {
-  transition: all .2s ease-in-out;
-
   &,
   &:active {
     &:focus {
       outline: none !important;
-      border: 3px solid #F3F6F9;
+      border: 3px solid $user-list-bg;
       border-left: 3px solid $color-primary;
       padding-left: 3px;
     }
