@@ -1,19 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 
-.brandedFocus {
-  transition: all .2s ease-in-out;
-  border: 3px solid #F3F6F9;
-
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: 3px solid $color-primary;
-    }
-  }
-}
-
 /* Variables
  * ==========
  */
@@ -43,6 +30,18 @@ $user-icons-color-hover: $color-gray;
 /* classes for extending
  * ==========
  */
+ .brandedFocus {
+  border: 3px solid $user-list-bg;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: 3px solid $color-primary;
+    }
+  }
+}
+
 %flex-column {
   display: flex;
   flex-flow: column;
