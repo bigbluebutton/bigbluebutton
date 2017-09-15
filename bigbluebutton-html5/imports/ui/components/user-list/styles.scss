@@ -1,6 +1,19 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 
+.brandedFocus {
+  transition: all .2s ease-in-out;
+  border: 3px solid #F3F6F9;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: 3px solid $color-primary;
+    }
+  }
+}
+
 /* Variables
  * ==========
  */
@@ -42,9 +55,6 @@ $user-icons-color-hover: $color-gray;
 %list-item {
   display: flex;
   flex-flow: row;
-  padding-left: $sm-padding-x / 2;
-  margin-left: $sm-padding-x / 2;
-  padding-right: $sm-padding-x;
   padding-top: $sm-padding-y;
   padding-bottom: $sm-padding-y;
   margin-top: $sm-padding-y * 2;
@@ -140,6 +150,10 @@ $user-icons-color-hover: $color-gray;
   padding: 0 $sm-padding-x;
   margin: 0 0 ($lg-padding-x / 2) 0;
   color: $color-gray-light;
+}
+
+.scrollableList {
+  @extend .brandedFocus;
 }
 
 .scrollableList {

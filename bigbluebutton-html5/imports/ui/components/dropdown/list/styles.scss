@@ -1,5 +1,26 @@
 @import "../../../stylesheets/variables/_all";
 
+.listItemBrandedFocus {
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+  padding-left: .5em !important;
+  padding-right: .5em !important;
+  border-left: 3px solid white;
+  border-right: 3px solid white;
+  transition: all .2s ease-in-out;
+
+  &,
+  &:active {
+    &:focus {
+      left: 3px;
+      outline: none !important;
+      border-left: 3px solid $color-primary;
+      border-right: 3px solid white;
+    }
+  }
+}
+
 .list {
   list-style: none;
   font-size: $font-size-base;
@@ -37,6 +58,7 @@
 }
 
 .item {
+  @extend .listItemBrandedFocus;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;
   display: flex;
