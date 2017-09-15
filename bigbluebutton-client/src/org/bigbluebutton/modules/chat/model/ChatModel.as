@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.chat.model
 
   public class ChatModel
   {
-    public static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
+    public static const MAIN_PUBLIC_CHAT:String = 'MAIN-PUBLIC-GROUP-CHAT';
     
     private var convs:Object = new Object();
     
@@ -52,6 +52,19 @@ package org.bigbluebutton.modules.chat.model
         return conv;
       }
       
+    }
+    
+    public static function toChatMessage(rawMessage:Object):ChatMessageVO {
+      var msg:ChatMessageVO = new ChatMessageVO();
+      msg.fromUserId = rawMessage.fromUserId;
+      msg.fromUsername = rawMessage.fromUsername;
+      msg.fromColor = rawMessage.fromColor;
+      msg.fromTime = rawMessage.fromTime;
+      msg.fromTimezoneOffset = rawMessage.fromTimezoneOffset;
+      msg.toUserId = rawMessage.toUserId;
+      msg.toUsername = rawMessage.toUsername;
+      msg.message = rawMessage.message;
+      return msg;
     }
   }
 }

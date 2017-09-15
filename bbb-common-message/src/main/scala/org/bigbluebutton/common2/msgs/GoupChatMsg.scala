@@ -45,7 +45,6 @@ case class DestroyGroupChatReqMsgBody(requesterId: String, chats: Vector[String]
 object GroupChatDestroyedEvtMsg { val NAME = "GroupChatDestroyedEvtMsg"}
 case class GroupChatDestroyedEvtMsg(header: BbbClientMsgHeader, body: GroupChatDestroyedEvtMsgBody) extends BbbCoreMsg
 case class GroupChatDestroyedEvtMsgBody(requesterId: String, chatId: String)
-
 object ChangeGroupChatAccessReqMsg { val NAME = "ChangeGroupChatAccessReqMsg"}
 case class ChangeGroupChatAccessReqMsg(header: BbbClientMsgHeader, body: ChangeGroupChatAccessReqMsgBody) extends StandardMsg
 case class ChangeGroupChatAccessReqMsgBody(requesterId: String, chatId: String, publicChat: Boolean)
@@ -72,8 +71,8 @@ case class GroupChatUserRemovedEvtMsgBody(requesterId: String, chats: Vector[Str
 
 object SendGroupChatMessageMsg { val NAME = "SendGroupChatMessageMsg"}
 case class SendGroupChatMessageMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageMsgBody) extends StandardMsg
-case class SendGroupChatMessageMsgBody(chatId: String, chatMsg: GroupChatMsgFromUser)
+case class SendGroupChatMessageMsgBody(chatId: String, msg: GroupChatMsgFromUser)
 
 object GroupChatMessageBroadcastEvtMsg { val NAME = "GroupChatMessageBroadcastEvtMsg"}
 case class GroupChatMessageBroadcastEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageBroadcastEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, chatMsg: Vector[GroupChatMsgToUser])
+case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, msg: GroupChatMsgToUser)

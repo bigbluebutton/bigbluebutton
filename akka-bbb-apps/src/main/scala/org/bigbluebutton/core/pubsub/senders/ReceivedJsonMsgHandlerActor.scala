@@ -264,6 +264,10 @@ class ReceivedJsonMsgHandlerActor(
       case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
 
+      // GroupChats
+      case SendGroupChatMessageMsg.NAME =>
+        routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

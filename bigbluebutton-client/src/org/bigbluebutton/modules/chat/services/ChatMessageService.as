@@ -107,7 +107,7 @@ package org.bigbluebutton.modules.chat.services
         welcomeMsg.toUsername = SPACE;
         welcomeMsg.message = welcome;
         
-        var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
+        var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
         publicChat.newChatMessage(welcomeMsg);
         
         
@@ -127,7 +127,7 @@ package org.bigbluebutton.modules.chat.services
           moderatorOnlyMsg.toUsername = SPACE;
           moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
           
-          var pChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.PUBLIC_CHAT_USERID);
+          var pChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
           pChat.newChatMessage(moderatorOnlyMsg);
           
         }

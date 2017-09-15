@@ -138,6 +138,8 @@ class MeetingActor(
   // Create a default publish group chat
   state = GroupChatApp.createDefaultPublicGroupChat(state)
 
+  log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
+
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
@@ -313,6 +315,7 @@ class MeetingActor(
       case m: CreateGroupChatReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
       case m: GetGroupChatMsgsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
       case m: GetGroupChatsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: SendGroupChatMessageMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }

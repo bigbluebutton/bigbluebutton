@@ -100,7 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 
 			private function onCreationComplete():void{				
-				openChatBoxFor(ChatModel.PUBLIC_CHAT_USERID, true);
+				openChatBoxFor(ChatModel.MAIN_PUBLIC_CHAT, true);
 				makePublicChatUncloseable();
 				
 				createAddTabBox();
@@ -171,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		  private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-			  notifyUserOfNewMessage(ChatModel.PUBLIC_CHAT_USERID);
+			  notifyUserOfNewMessage(ChatModel.MAIN_PUBLIC_CHAT);
 			  if (!UsersUtil.isMe(event.senderId)) {
           publicNotification();
         }			
@@ -230,7 +230,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function calledOnTheNextScreenRefreshToMakePublicChatUncloseable():void {
-				var chatBox:ChatBox = getChatBoxForUser(ChatModel.PUBLIC_CHAT_USERID);
+				var chatBox:ChatBox = getChatBoxForUser(ChatModel.MAIN_PUBLIC_CHAT);
 				var chatIndex:int = getTabIndexFor(chatBox);
 				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);								
 			}
@@ -306,7 +306,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
 
 				if (publicChat) {
-          chatBox.id = ChatModel.PUBLIC_CHAT_USERID;
+          chatBox.id = ChatModel.MAIN_PUBLIC_CHAT;
 					chatBox.label = PUBLIC_CHAT_USERNAME
 					chatBox.publicChat = true;
 					publicBox = chatBox; // keep a reference to the public chat box
@@ -347,8 +347,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function publicNotification():void {
 				publicWaiting = true;
 				playSound();
-				chatTabs.getChildByName(ChatModel.PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
-				chatTabs.getChildByName(ChatModel.PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
+				chatTabs.getChildByName(ChatModel.MAIN_PUBLIC_CHAT).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
+				chatTabs.getChildByName(ChatModel.MAIN_PUBLIC_CHAT).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
 			}
 			
 			// Activates an audio alert for screen-reader users on private message reception

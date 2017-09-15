@@ -5,18 +5,24 @@ import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingState2x }
 import org.bigbluebutton.core.models._
 
 object GroupChatApp {
+
+  val MAIN_PUBLIC_CHAT = "MAIN-PUBLIC-GROUP-CHAT"
+
   def createGroupChat(chatName: String, access: String, createBy: GroupChatUser): GroupChat = {
     val gcId = GroupChatFactory.genId()
     GroupChatFactory.create(gcId, chatName, access, createBy)
   }
 
-  def addNewGroupChatMessage(sender: GroupChatUser, chat: GroupChat, chats: GroupChats,
-                             msg: GroupChatMsgFromUser): GroupChats = {
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    val chatMsg = GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.font,
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.font,
       msg.size, msg.correlationId, msg.message)
-    val c = chat.add(chatMsg)
+  }
+
+  def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
+                          msg: GroupChatMessage): GroupChats = {
+    val c = chat.add(msg)
     chats.update(c)
   }
 
@@ -34,7 +40,8 @@ object GroupChatApp {
 
   def createDefaultPublicGroupChat(state: MeetingState2x): MeetingState2x = {
     val createBy = GroupChatUser(BbbSystemConst.SYSTEM_USER, BbbSystemConst.SYSTEM_USER)
-    val defaultPubGroupChat = createGroupChat("PUBLIC", GroupChatAccess.PUBLIC, createBy)
+    val defaultPubGroupChat = GroupChatFactory.create(MAIN_PUBLIC_CHAT, MAIN_PUBLIC_CHAT,
+      GroupChatAccess.PUBLIC, createBy)
     val groupChats = state.groupChats.add(defaultPubGroupChat)
     state.update(groupChats)
   }

@@ -25,7 +25,11 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.bigbluebutton.modules.chat.ChatUtil;
+  import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+  import org.bigbluebutton.modules.chat.vo.GroupChatMsgFromUser;
+  import org.bigbluebutton.modules.chat.vo.GroupChatUser;
 
   public class MessageSender
   {
@@ -53,9 +57,19 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPublicMessage(cm:ChatMessageVO):void {
       LOGGER.debug("Sending [chat.sendPublicMessage] to server. [{0}]", [cm.message]);
+      var sender: GroupChatUser = new GroupChatUser(UsersUtil.getMyUserID(), 
+        UsersUtil.getMyUsername());
+      var corrId: String = ChatUtil.genCorrelationId();
+      var font: String = "arial"; 
+      var fontSize: Number = 10;
+      
+      var msgFromUser: GroupChatMsgFromUser = new GroupChatMsgFromUser(corrId,
+        sender, font, fontSize, cm.fromColor, cm.message);
+      
       var message:Object = {
-        header: {name: "SendPublicMessagePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {message: cm}
+        header: {name: "SendGroupChatMessageMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {chatId: ChatModel.MAIN_PUBLIC_CHAT, msg: msgFromUser}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

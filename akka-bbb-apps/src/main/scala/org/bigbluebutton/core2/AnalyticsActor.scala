@@ -82,6 +82,10 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
 
+      // Group Chats
+      case m: SendGroupChatMessageMsg => logMessage(msg)
+      case m: GroupChatMessageBroadcastEvtMsg => logMessage(msg)
+
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
 

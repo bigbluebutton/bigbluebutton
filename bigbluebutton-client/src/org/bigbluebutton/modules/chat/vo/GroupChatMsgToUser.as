@@ -1,7 +1,9 @@
 package org.bigbluebutton.modules.chat.vo
 {
-  public class GroupChatMsgFromUser
+  public class GroupChatMsgToUser
   {
+    public var id: String;
+    public var timestamp: Number;
     public var correlationId: String;
     public var sender: GroupChatUser;
     public var font: String;
@@ -9,10 +11,13 @@ package org.bigbluebutton.modules.chat.vo
     public var color: String;
     public var message: String;
     
-    public function GroupChatMsgFromUser(correlationId: String,
-    sender: GroupChatUser, font: String, size: Number, color: String,
-    message: String)
+    public function GroupChatMsgToUser(id: String, timestamp: Number, 
+                                       correlationId: String, sender: GroupChatUser,
+                                       font: String, size: Number, 
+                                       color: String, message: String)
     {
+      this.id = id;
+      this.timestamp = timestamp;
       this.correlationId = correlationId;
       this.sender = sender;
       this.font = font;

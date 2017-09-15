@@ -7,9 +7,13 @@ import org.bigbluebutton.core.models.GroupChatMessage
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait SendGroupChatMessageMsgHdlr {
+  this: GroupChatHdlrs =>
 
   def handle(msg: SendGroupChatMessageMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+
+    log.debug("RECEIVED PUBLIC CHAT MESSAGE")
+    log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 
     def makeHeader(name: String, meetingId: String, userId: String): BbbClientMsgHeader = {
       BbbClientMsgHeader(name, meetingId, userId)
@@ -21,23 +25,46 @@ trait SendGroupChatMessageMsgHdlr {
     }
 
     def buildGroupChatMessageBroadcastEvtMsg(meetingId: String, userId: String, chatId: String,
-                                             msgs: Vector[GroupChatMessage]): BbbCommonEnvCoreMsg = {
+                                             msg: GroupChatMessage): BbbCommonEnvCoreMsg = {
       val envelope = makeEnvelope(MessageTypes.BROADCAST_TO_MEETING, GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
       val header = makeHeader(GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
 
-      val cmsgs = msgs.map(m => GroupChatMsgToUser(m.id, m.timestamp, m.correlationId,
-        m.sender, m.font, m.size, m.color, m.message))
+      val cmsgs = GroupChatMsgToUser(msg.id, msg.timestamp, msg.correlationId,
+        msg.sender, msg.font, msg.size, msg.color, msg.message)
       val body = GroupChatMessageBroadcastEvtMsgBody(chatId, cmsgs)
       val event = GroupChatMessageBroadcastEvtMsg(header, body)
 
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
+    GroupChatApp.sender(msg.header.userId, liveMeeting.users2x) match {
+      case Some(s) => log.debug("Found sender")
+      case None    => log.debug("NOT FOUND sender")
+    }
+
+    state.groupChats.find(msg.body.chatId) match {
+      case Some(c) => log.debug("FOUND CHAT ID " + c.id)
+      case None    => log.debug("NOT FOUND CHAT ID " + msg.body.chatId)
+    }
+
+    state.groupChats.chats.values.toVector foreach { ch =>
+      log.debug("CHAT = " + ch.id)
+    }
+
     val newState = for {
       sender <- GroupChatApp.sender(msg.header.userId, liveMeeting.users2x)
       chat <- state.groupChats.find(msg.body.chatId)
     } yield {
-      val gcs = GroupChatApp.addNewGroupChatMessage(sender, chat, state.groupChats, msg.body.chatMsg)
+      val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)
+      val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
+
+      val event = buildGroupChatMessageBroadcastEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        msg.header.userId, msg.body.chatId, gcm
+      )
+
+      bus.outGW.send(event)
+
       state.update(gcs)
     }
 
