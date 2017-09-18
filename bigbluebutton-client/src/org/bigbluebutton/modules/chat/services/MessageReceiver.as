@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
   import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;

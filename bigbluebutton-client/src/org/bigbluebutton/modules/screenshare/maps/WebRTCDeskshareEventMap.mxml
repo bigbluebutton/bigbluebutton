@@ -27,7 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
-
+			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
 			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
-			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;

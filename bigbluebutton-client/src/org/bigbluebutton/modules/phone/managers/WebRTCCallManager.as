@@ -17,8 +17,6 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
-  import org.bigbluebutton.modules.phone.models.PhoneModel;
-  import org.bigbluebutton.modules.phone.models.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
@@ -27,6 +25,8 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
   import org.bigbluebutton.modules.phone.models.Constants;
+  import org.bigbluebutton.modules.phone.models.PhoneModel;
+  import org.bigbluebutton.modules.phone.models.PhoneOptions;
   import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
   import org.bigbluebutton.modules.phone.models.WebRTCModel;
   import org.bigbluebutton.util.i18n.ResourceUtil;
