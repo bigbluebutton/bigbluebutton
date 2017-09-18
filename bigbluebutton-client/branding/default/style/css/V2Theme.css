@@ -1510,6 +1510,9 @@ users|MediaItemRenderer {
 	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
 	glowFilterColor : #1070D7;
+	verticalAlign   : middle;
+	horizontalGap   : 8;
+	horizontalAlign : center;
 }
 
 users|NameItemRenderer {

@@ -24,9 +24,6 @@
 	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	verticalAlign="middle"
-	horizontalGap="8"
-	horizontalAlign="center"
 	creationComplete="onCreationComplete()" > 
 	
 	<fx:Declarations>
@@ -381,7 +378,8 @@
 				   mouseOver="lockMouseOverHandler()"
 				   mouseOut="lockMouseOutHandler()"
 				   toolTip="{data.locked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
-		</mx:Canvas>
+	</mx:Canvas>
+
 	<mx:Button id="settingsBtn"
 			   visible="false"
 			   width="20"
