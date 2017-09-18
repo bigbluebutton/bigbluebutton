@@ -211,32 +211,50 @@ export default class PresentationArea extends React.Component {
                   slideHeight={height}
                 />
               </g>
-              {this.props.userIsPresenter || this.props.multiUser ?
-                <PresentationOverlayContainer
-                  slideWidth={width}
-                  slideHeight={height}
-                  getSvgRef={this.getSvgRef}
-                >
-                  <WhiteboardOverlayContainer
-                    getSvgRef={this.getSvgRef}
-                    whiteboardId={slideObj.id}
-                    slideWidth={width}
-                    slideHeight={height}
-                    viewBoxX={x}
-                    viewBoxY={y}
-                    viewBoxWidth={viewBoxWidth}
-                    viewBoxHeight={viewBoxHeight}
-                    physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
-                    physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
-                  />
-                </PresentationOverlayContainer>
-              : null }
+              {this.renderOverlays(slideObj, adjustedSizes)}
             </svg>
           </CSSTransitionGroup>
         </div>
       );
     }
     return null;
+  }
+
+  renderOverlays(slideObj, adjustedSizes) {
+    if (!this.props.userIsPresenter && !this.props.multiUser) {
+      return null;
+    }
+
+    // retrieving the pre-calculated data from the slide object
+    const {
+      x,
+      y,
+      width,
+      height,
+      viewBoxWidth,
+      viewBoxHeight,
+    } = slideObj.calculatedData;
+
+    return (
+      <PresentationOverlayContainer
+        slideWidth={width}
+        slideHeight={height}
+        getSvgRef={this.getSvgRef}
+      >
+        <WhiteboardOverlayContainer
+          getSvgRef={this.getSvgRef}
+          whiteboardId={slideObj.id}
+          slideWidth={width}
+          slideHeight={height}
+          viewBoxX={x}
+          viewBoxY={y}
+          viewBoxWidth={viewBoxWidth}
+          viewBoxHeight={viewBoxHeight}
+          physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
+          physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
+        />
+      </PresentationOverlayContainer>
+    );
   }
 
   renderPresentationToolbar() {
