@@ -35,11 +35,6 @@ class PresentationController {
   }
 
   def checkPresentationBeforeUploading = {
-    Enumeration a =  request.getHeaderNames();
-    while(a.hasMoreElements()) {
-      log.debug " __header element: " + a.nextElement()
-    }
-
     try {
       def maxUploadFileSize = 3000000 // 30 MB
       def presentationToken = request.getHeader("x-presentation-token")
@@ -50,10 +45,6 @@ class PresentationController {
       if (originalContentLengthString.isNumber()) {
         originalContentLength = originalContentLengthString as int
       }
-
-      log.debug "\ncontent-length==== " + originalContentLength.toString()
-      log.debug "x-original-uri==== " + originalUri
-      log.debug "x-presentation-token=== " + presentationToken
 
       if (null != presentationToken
                && meetingService.authzTokenIsValid(presentationToken) // this we do in the upload handling
@@ -81,8 +72,6 @@ class PresentationController {
     if (null == params.authzToken || !meetingService.authzTokenIsValidAndExpired(params.authzToken)) {
       log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
       return
-    } else {
-      log.debug "All went fine with upload in meetingId=" + params.conference
     }
 
     def meetingId = params.conference
