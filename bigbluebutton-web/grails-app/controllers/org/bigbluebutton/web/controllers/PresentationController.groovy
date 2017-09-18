@@ -33,12 +33,56 @@ class PresentationController {
   def index = {
     render(view:'upload-file') 
   }
-  
+
+  def checkPresentationBeforeUploading = {
+    Enumeration a =  request.getHeaderNames();
+    while(a.hasMoreElements()) {
+      log.debug " __header element: " + a.nextElement()
+    }
+
+    try {
+      def maxUploadFileSize = 3000000 // 30 MB
+      def presentationToken = request.getHeader("x-presentation-token")
+      def originalUri = request.getHeader("x-original-uri")
+      def originalContentLengthString = request.getHeader("x-original-content-length")
+
+      def originalContentLength = 0
+      if (originalContentLengthString.isNumber()) {
+        originalContentLength = originalContentLengthString as int
+      }
+
+      log.debug "\ncontent-length==== " + originalContentLength.toString()
+      log.debug "x-original-uri==== " + originalUri
+      log.debug "x-presentation-token=== " + presentationToken
+
+      if (null != presentationToken
+               && meetingService.authzTokenIsValid(presentationToken) // this we do in the upload handling
+              && originalContentLength < maxUploadFileSize
+              && 0 != originalContentLength) {
+        log.debug "SUCCESS\n"
+        response.setStatus(200);
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'upload-success';
+      } else {
+        log.debug "NO SUCCESS \n"
+        response.setStatus(404);
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'file-empty';
+      }
+    } catch (IOException e) {
+      log.error("Error in checkPresentationBeforeUploading.\n" + e.getMessage());
+    }
+  }
+
   def upload = {
     // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
-      log.debug "WARNING! AuthzToken was not valid in meetingId=" + params.conference
+    if (null == params.authzToken || !meetingService.authzTokenIsValidAndExpired(params.authzToken)) {
+      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
       return
+    } else {
+      log.debug "All went fine with upload in meetingId=" + params.conference
     }
 
     def meetingId = params.conference

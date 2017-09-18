@@ -184,7 +184,7 @@ package org.bigbluebutton.modules.present.business
 		 */
 		public function requestUploadToken(e:UploadFileCommand):void{
 			currentUploadCommand = e;
-			sender.requestPresentationUploadPermission("todo", e.filename);
+			sender.requestPresentationUploadPermission("todo-podId", e.filename);
 		}
 
 		/**

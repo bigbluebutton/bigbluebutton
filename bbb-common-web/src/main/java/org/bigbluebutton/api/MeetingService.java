@@ -150,7 +150,12 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public Boolean authzTokenIsValid(String authzToken) {
+  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
+    Boolean valid = uploadAuthzTokens.containsKey(authzToken);
+    return valid;
+  }
+
+  public Boolean authzTokenIsValidAndExpired(String authzToken) {  // Note we DO expire the token
     Boolean valid = uploadAuthzTokens.containsKey(authzToken);
     expirePresentationUploadToken(authzToken);
     return valid;

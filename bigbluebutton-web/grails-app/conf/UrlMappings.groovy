@@ -5,6 +5,10 @@ class UrlMappings {
 			action = [POST:'upload']
 		}
 
+		"/presentation/checkPresentation"(controller:"presentation") {
+			action = [GET:'checkPresentationBeforeUploading']
+		}
+
 		"/presentation/test-convert"(controller:"presentation") {
 			action = [GET:'testConversion']
 		}
