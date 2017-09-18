@@ -1225,6 +1225,13 @@ mx|Panel {
 	color : #2A2D33;
 }
 
+.presentationFilesList {
+	paddingBottom : 5;
+	paddingLeft   : 5;
+	paddingRight  : 5;
+	paddingTop    : 5;
+}
+
 .progressErrorLblStyle {
 	color     : #DE2721;
 	fontSize  : 16;

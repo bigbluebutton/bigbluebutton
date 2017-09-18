@@ -407,13 +407,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				  label="{ResourceUtil.getInstance().getString('bbb.fileupload.retry')}" click="retryButtonClikcHandler(event)"/>
 	</mx:VBox>
 
-    <mx:Canvas width="100%" height="145" verticalScrollPolicy="off">
-      <mx:List height="160" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" allowMultipleSelection="false"
-               itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
-			   itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)"
-               dragEnabled="false" dataProvider="{presentationNamesAC}">
-      </mx:List>
-    </mx:Canvas>
+    <mx:List id="uploadedFilesList" rowCount="{presentationNamesAC.length > 3 ? Math.min(6, presentationNamesAC.length) : 3}" width="100%" styleName="presentationFilesList"
+             itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
+		     itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)"
+			 allowMultipleSelection="false" dragEnabled="false" dataProvider="{presentationNamesAC}">
+    </mx:List>
   </mx:VBox>
 	
 	<mx:Button id="closeButton2" click="onCancelClicked()" styleName="titleWindowCloseButton"
