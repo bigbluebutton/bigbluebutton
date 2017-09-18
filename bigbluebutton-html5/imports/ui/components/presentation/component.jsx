@@ -96,8 +96,8 @@ export default class PresentationArea extends React.Component {
   }
 
   calculateSize() {
-    const originalWidth = this.props.currentSlide.width;
-    const originalHeight = this.props.currentSlide.height;
+    const originalWidth = this.props.currentSlide.calculatedData.width;
+    const originalHeight = this.props.currentSlide.calculatedData.height;
     const { presentationHeight, presentationWidth } = this.state;
 
     let adjustedWidth;
@@ -133,8 +133,9 @@ export default class PresentationArea extends React.Component {
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
     if (this.props.currentSlide &&
-        this.props.currentSlide.width &&
-        this.props.currentSlide.height) {
+        this.props.currentSlide.calculatedData &&
+        this.props.currentSlide.calculatedData.width &&
+        this.props.currentSlide.calculatedData.height) {
       // to control the size of the svg wrapper manually
       // and adjust cursor's thickness, so that svg didn't scale it automatically
       const adjustedSizes = this.calculateSize();
@@ -142,18 +143,16 @@ export default class PresentationArea extends React.Component {
       // a reference to the slide object
       const slideObj = this.props.currentSlide;
 
-      // svgWidth and svgHeight are needed to set the svg's coordinate system
-      const svgWidth = slideObj.width;
-      const svgHeight = slideObj.height;
-
-      // calculating viewBox and offsets for the current presentation
-      const x = ((-slideObj.xOffset * 2) * svgWidth) / 100;
-      const y = ((-slideObj.yOffset * 2) * svgHeight) / 100;
-      const viewBoxWidth = (svgWidth * slideObj.widthRatio) / 100;
-      const viewBoxHeight = (svgHeight * slideObj.heightRatio) / 100;
-
-      // Uri for the slide
-      const imageUri = this.props.currentSlide.svgUri || this.props.currentSlide.pngUri;
+      // retrieving the pre-calculated data from the slide object
+      const {
+        x,
+        y,
+        width,
+        height,
+        viewBoxWidth,
+        viewBoxHeight,
+        imageUri,
+      } = slideObj.calculatedData;
 
       return (
         <div
@@ -179,8 +178,8 @@ export default class PresentationArea extends React.Component {
             transitionLeaveTimeout={400}
           >
             <svg
-              width={svgWidth}
-              height={svgHeight}
+              width={width}
+              height={height}
               ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
               viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
               version="1.1"
@@ -197,32 +196,32 @@ export default class PresentationArea extends React.Component {
                 <Slide
                   id="slideComponent"
                   imageUri={imageUri}
-                  svgWidth={svgWidth}
-                  svgHeight={svgHeight}
+                  svgWidth={width}
+                  svgHeight={height}
                 />
                 <AnnotationGroupContainer
-                  width={svgWidth}
-                  height={svgHeight}
+                  width={width}
+                  height={height}
                   whiteboardId={slideObj.id}
                 />
                 <CursorWrapperContainer
                   widthRatio={slideObj.widthRatio}
-                  physicalWidthRatio={adjustedSizes.width / svgWidth}
-                  slideWidth={svgWidth}
-                  slideHeight={svgHeight}
+                  physicalWidthRatio={adjustedSizes.width / width}
+                  slideWidth={width}
+                  slideHeight={height}
                 />
               </g>
               {this.props.userIsPresenter || this.props.multiUser ?
                 <PresentationOverlayContainer
-                  slideWidth={svgWidth}
-                  slideHeight={svgHeight}
+                  slideWidth={width}
+                  slideHeight={height}
                   getSvgRef={this.getSvgRef}
                 >
                   <WhiteboardOverlayContainer
                     getSvgRef={this.getSvgRef}
                     whiteboardId={slideObj.id}
-                    slideWidth={svgWidth}
-                    slideHeight={svgHeight}
+                    slideWidth={width}
+                    slideHeight={height}
                     viewBoxX={x}
                     viewBoxY={y}
                     viewBoxWidth={viewBoxWidth}
@@ -299,8 +298,6 @@ PresentationArea.propTypes = {
     meetingId: PropTypes.string,
     presentationId: PropTypes.string.isRequired,
     current: PropTypes.bool.isRequired,
-    height: PropTypes.number.isRequired,
-    width: PropTypes.number.isRequired,
     heightRatio: PropTypes.number.isRequired,
     widthRatio: PropTypes.number.isRequired,
     xOffset: PropTypes.number.isRequired,
@@ -313,6 +310,15 @@ PresentationArea.propTypes = {
     swfUri: PropTypes.string.isRequired,
     thumbUri: PropTypes.string.isRequired,
     txtUri: PropTypes.string.isRequired,
+    calculatedData: PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      height: PropTypes.number.isRequired,
+      width: PropTypes.number.isRequired,
+      viewBoxWidth: PropTypes.number.isRequired,
+      viewBoxHeight: PropTypes.number.isRequired,
+      imageUri: PropTypes.string.isRequired,
+    }).isRequired,
   }),
   // current multi-user status
   multiUser: PropTypes.bool.isRequired,
