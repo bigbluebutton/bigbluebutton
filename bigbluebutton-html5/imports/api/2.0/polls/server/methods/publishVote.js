@@ -52,5 +52,5 @@ export default function publishVote(credentials, id, pollAnswerId) { // TODO dis
 
   Polls.update(selector, modifier, cb);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
