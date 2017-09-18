@@ -1,22 +1,21 @@
 @import "../../../stylesheets/variables/_all";
 
 .listItemBrandedFocus {
-  overflow: hidden;
   position: relative;
   display: inline-block;
-  padding-left: .5em !important;
-  padding-right: .5em !important;
-  border-left: 3px solid white;
-  border-right: 3px solid white;
+  border-left: $focus-border-size solid $color-white;
+  border-right: $focus-border-size solid $color-white;
   transition: all .2s ease-in-out;
 
   &,
   &:active {
     &:focus {
-      left: 3px;
       outline: none !important;
-      border-left: 3px solid $color-primary;
-      border-right: 3px solid white;
+      border-left: $focus-border-size solid $color-primary;
+      border-right: $focus-border-size solid $color-white;   
+      > i, span {
+        left: $focus-border-size;  
+      }  
     }
   }
 }
@@ -97,6 +96,7 @@
 }
 
 .itemLabel {
+  position: relative;
   color: $color-gray-dark;
   font-size: 90%;
   flex: 1;

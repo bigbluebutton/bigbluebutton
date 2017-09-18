@@ -1,13 +1,15 @@
 @import "../styles.scss";
+@import "/imports/ui/stylesheets/variables/_all";
 
 .brandedFocus {
   &,
   &:active {
     &:focus {
       outline: none !important;
-      border: 3px solid $user-list-bg;
-      border-left: 3px solid $color-primary;
-      padding-left: 3px;
+      border: $focus-border-size solid $user-list-bg;
+      border-left: $focus-border-size solid $color-primary;
+      padding-left: $focus-border-size;
+      border-radius: $focus-border-size;
     }
   }
 }

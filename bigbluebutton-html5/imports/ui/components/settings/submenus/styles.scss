@@ -57,7 +57,7 @@
   &:active {
     &:focus {
       outline: none !important;
-      border: 3px solid $color-primary;
+      border: $focus-border-size solid $color-primary;
       padding: 1px;
     }
   }
@@ -66,16 +66,13 @@
 .select {
   @extend .brandedSelectFocus;
   background-color: #fff;
-  border: 3px solid #fff;
-  border-radius: calc(.1em + .2em + .2em);
+  border: $focus-border-size solid #fff;
+  border-radius: $focus-border-size;
   border-bottom: 0.1rem solid $color-gray-lighter;
   color: $color-gray-label;
   width: 100%;
-  // appearance: none;
   height: 1.75rem;
   padding: 1px;
-
-
 }
 
 .pullContentRight {
@@ -118,7 +115,7 @@
 .swatchInner {
   width: 3rem;
   height: 1.1rem;
-  border-radius: 3px;
+  border-radius: $focus-border-size;
 }
 
 .colorPickerOverlay {

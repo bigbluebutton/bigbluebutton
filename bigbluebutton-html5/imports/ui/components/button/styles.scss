@@ -33,7 +33,10 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
 $btn-jumbo-font-size: 3rem;
 $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 
-.brandedBtnFocus {
+/* Base
+ * ==========
+ */
+ .brandedBtnFocus {
   border: none;
   position: relative;
   overflow: visible;
@@ -50,18 +53,15 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   &:focus::before {
     position: absolute;
     content: '';  
-    border: 3px solid $color-primary;
+    border: $focus-border-size solid $color-primary;
     top: calc(.1em - .25em - .25em);
     left: calc(.1em - .25em - .25em);
     right: calc(.1em - .25em - .25em);
     bottom: calc(.1em - .25em - .25em);
-    border-radius: calc(.1em + .2em + .2em);
+    border-radius: $focus-border-size;
   }
 }
 
-/* Base
- * ==========
- */
 .button {
   @extend .brandedBtnFocus;
 
