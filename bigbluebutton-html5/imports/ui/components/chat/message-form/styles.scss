@@ -1,5 +1,15 @@
 @import "../../../stylesheets/variables/_all";
 
+.brandedInputFocus {
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: 3px solid $color-primary;
+    }
+  }
+}
+
 .form {
   flex-grow: 0;
   flex-shrink: 0;
@@ -42,6 +52,7 @@
 }
 
 .input {
+  @extend .brandedInputFocus;
   flex: 1;
   background: #fff;
   border: $border-size solid $color-gray-lighter;
