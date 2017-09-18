@@ -27,5 +27,5 @@ export default function undoAnnotation(credentials, whiteboardId) {
     whiteboardId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
