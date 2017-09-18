@@ -33,7 +33,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
 			import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 			import org.bigbluebutton.modules.broadcast.models.Stream;
-			import org.bigbluebutton.modules.broadcast.models.Streams;			     
+			import org.bigbluebutton.modules.broadcast.models.Streams;
+
 			public var broadcastManager:BroadcastManager;
 			public var curStream:Stream;
 					

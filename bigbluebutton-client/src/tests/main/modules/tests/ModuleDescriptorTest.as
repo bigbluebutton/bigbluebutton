@@ -20,7 +20,6 @@ package tests.main.modules.tests
 {
 	import flash.system.ApplicationDomain;
 	
-	import mx.controls.Alert;
 	import mx.events.ModuleEvent;
 	import mx.modules.ModuleLoader;
 	

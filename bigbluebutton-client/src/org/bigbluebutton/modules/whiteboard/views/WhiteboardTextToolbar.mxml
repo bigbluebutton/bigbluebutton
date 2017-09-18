@@ -31,10 +31,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import flexlib.mdi.containers.MDIWindow;
-			
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
+			
+			import flexlib.mdi.containers.MDIWindow;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;

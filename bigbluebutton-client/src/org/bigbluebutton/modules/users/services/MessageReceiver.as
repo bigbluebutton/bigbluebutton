@@ -22,7 +22,6 @@ package org.bigbluebutton.modules.users.services
   
   import flash.utils.setTimeout;
   
-  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
