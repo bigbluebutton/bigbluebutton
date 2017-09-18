@@ -25,9 +25,13 @@ export default function changeLockSettings(meetingId, payload) {
     },
   };
 
-  const cb = (err) => {
+  const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Changing meeting={${meetingId}} lock settings: ${err}`);
+    }
+
+    if (numChanged) {
+      return Logger.error(`Changed meeting={${meetingId}} updated lock settings`);
     }
   };
 

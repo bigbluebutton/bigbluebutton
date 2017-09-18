@@ -17,8 +17,8 @@ export default class PresentationArea extends React.Component {
     super();
 
     this.state = {
-      paperWidth: 0,
-      paperHeight: 0,
+      presentationWidth: 0,
+      presentationHeight: 0,
       showSlide: false,
     };
 
@@ -31,7 +31,7 @@ export default class PresentationArea extends React.Component {
       setTimeout(this.handleResize.bind(this), 0);
     });
 
-    this.getInitialPaperSizes();
+    this.getInitialPresentationSizes();
   }
 
   componentWillUnmount() {
@@ -46,76 +46,81 @@ export default class PresentationArea extends React.Component {
     return this.svggroup;
   }
 
-  getPaperSizes() {
-    const { presentationPaper, whiteboardSizeAvailable } = this;
-    const paperSizes = {};
+  getPresentationSizesAvailable() {
+    const { refPresentationArea, refWhiteboardArea } = this;
+    const presentationSizes = {};
 
-    if (presentationPaper) {
-      // if a user is a presenter - this means there is a whiteboardToolBar on the right
-      // and we have to get the width/height of the whiteboardSizeAvailable
-      // (inner hidden div with absolute position)
-      let clientHeight;
-      let clientWidth;
-      if (this.props.userIsPresenter) {
-        clientHeight = whiteboardSizeAvailable.clientHeight;
-        clientWidth = whiteboardSizeAvailable.clientWidth;
-      // user is not a presenter - we can get the sizes of the presentationPaper
+    if (refPresentationArea && refWhiteboardArea) {
+      // By default presentation sizes are equal to the sizes of the refPresentationArea
       // direct parent of the svg wrapper
-      } else {
-        clientHeight = presentationPaper.clientHeight;
-        clientWidth = presentationPaper.clientWidth;
+      let clientHeight = refPresentationArea.clientHeight;
+      let clientWidth = refPresentationArea.clientWidth;
+
+      // if a user is a presenter - this means there is a whiteboard toolbar on the right
+      // and we have to get the width/height of the refWhiteboardArea
+      // (inner hidden div with absolute position)
+      if (this.props.userIsPresenter) {
+        clientHeight = refWhiteboardArea.clientHeight;
+        clientWidth = refWhiteboardArea.clientWidth;
       }
 
-      paperSizes.paperHeight = clientHeight;
-      paperSizes.paperWidth = clientWidth;
+      presentationSizes.presentationHeight = clientHeight;
+      presentationSizes.presentationWidth = clientWidth;
     }
-    return paperSizes;
+    return presentationSizes;
   }
 
-  getInitialPaperSizes() {
-    // determining the paperWidth and paperHeight (available space for the svg) on the initial load
-    const paperSizes = this.getPaperSizes();
-    if (Object.keys(paperSizes).length > 0) {
-      // setting the state of the paperWidth and paperHeight (available space for the svg)
+  getInitialPresentationSizes() {
+    // determining the presentationWidth and presentationHeight (available space for the svg)
+    // on the initial load
+    const presentationSizes = this.getPresentationSizesAvailable();
+    if (Object.keys(presentationSizes).length > 0) {
+      // setting the state of the available space for the svg
       // and set the showSlide to true to start rendering the slide
-      paperSizes.showSlide = true;
-      this.setState(paperSizes);
+      this.setState(
+        {
+          presentationHeight: presentationSizes.presentationHeight,
+          presentationWidth: presentationSizes.presentationWidth,
+          showSlide: true,
+        },
+      );
     }
   }
 
   handleResize() {
-    const paperSizes = this.getPaperSizes();
-    if (Object.keys(paperSizes).length > 0) {
+    const presentationSizes = this.getPresentationSizesAvailable();
+    if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      this.setState(paperSizes);
+      this.setState(presentationSizes);
     }
   }
 
   calculateSize() {
     const originalWidth = this.props.currentSlide.width;
     const originalHeight = this.props.currentSlide.height;
+    const { presentationHeight, presentationWidth } = this.state;
 
     let adjustedWidth;
     let adjustedHeight;
 
     // Slide has a portrait orientation
     if (originalWidth <= originalHeight) {
-      adjustedWidth = (this.state.paperHeight * originalWidth) / originalHeight;
-      if (this.state.paperWidth < adjustedWidth) {
-        adjustedHeight = (this.state.paperHeight * this.state.paperWidth) / adjustedWidth;
-        adjustedWidth = this.state.paperWidth;
+      adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
+      if (presentationWidth < adjustedWidth) {
+        adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
+        adjustedWidth = presentationWidth;
       } else {
-        adjustedHeight = this.state.paperHeight;
+        adjustedHeight = presentationHeight;
       }
 
       // Slide has a landscape orientation
     } else {
-      adjustedHeight = (this.state.paperWidth * originalHeight) / originalWidth;
-      if (this.state.paperHeight < adjustedHeight) {
-        adjustedWidth = (this.state.paperWidth * this.state.paperHeight) / adjustedHeight;
-        adjustedHeight = this.state.paperHeight;
+      adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
+      if (presentationHeight < adjustedHeight) {
+        adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
+        adjustedHeight = presentationHeight;
       } else {
-        adjustedWidth = this.state.paperWidth;
+        adjustedWidth = presentationWidth;
       }
     }
     return {
@@ -137,20 +142,9 @@ export default class PresentationArea extends React.Component {
       // a reference to the slide object
       const slideObj = this.props.currentSlide;
 
-      // calculating the svg's coordinate system; we set it based on the slide's width/height ratio
-      // the longest value becomes '1000' and the second is calculated accordingly to keep the ratio
-      // if we don't do it, then the shapes' thickness changes with the slides' resolution
-      // 1000 makes html5 shapes' thickness approximately match
-      // Flash client's shapes' thickness in a default view (full screen window) at this point.
-      let svgWidth;
-      let svgHeight;
-      if (slideObj.width > slideObj.height) {
-        svgWidth = 1000;
-        svgHeight = 1000 / (slideObj.width / slideObj.height);
-      } else {
-        svgHeight = 1000;
-        svgWidth = 1000 / (slideObj.height / slideObj.width);
-      }
+      // svgWidth and svgHeight are needed to set the svg's coordinate system
+      const svgWidth = slideObj.width;
+      const svgHeight = slideObj.height;
 
       // calculating viewBox and offsets for the current presentation
       const x = ((-slideObj.xOffset * 2) * svgWidth) / 100;
@@ -276,11 +270,11 @@ export default class PresentationArea extends React.Component {
     return (
       <div className={styles.presentationContainer}>
         <div
-          ref={(ref) => { this.presentationPaper = ref; }}
-          className={styles.presentationPaper}
+          ref={(ref) => { this.refPresentationArea = ref; }}
+          className={styles.presentationArea}
         >
           <div
-            ref={(ref) => { this.whiteboardSizeAvailable = ref; }}
+            ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
           {this.state.showSlide ?

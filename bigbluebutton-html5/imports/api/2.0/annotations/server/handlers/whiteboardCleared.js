@@ -11,5 +11,9 @@ export default function handleWhiteboardCleared({ body }, meetingId) {
 
   const { whiteboardId, fullClear, userId } = body;
 
-  return clearAnnotations(meetingId, whiteboardId, userId, fullClear);
+  if (fullClear) {
+    return clearAnnotations(meetingId, whiteboardId);
+  }
+
+  return clearAnnotations(meetingId, whiteboardId, userId);
 }

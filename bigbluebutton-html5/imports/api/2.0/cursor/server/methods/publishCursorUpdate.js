@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 
-export default function publishCursorUpdate(credentials, coordinates) {
+export default function publishCursorUpdate(credentials, payload) {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendCursorPositionPubMsg';
@@ -15,7 +15,7 @@ export default function publishCursorUpdate(credentials, coordinates) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
-  check(coordinates, {
+  check(payload, {
     xPercent: Number,
     yPercent: Number,
   });
@@ -26,11 +26,6 @@ export default function publishCursorUpdate(credentials, coordinates) {
       'not-allowed', `User ${requesterUserId} is not allowed to move the cursor`,
     );
   }
-
-  const payload = {
-    xPercent: coordinates.xPercent,
-    yPercent: coordinates.yPercent,
-  };
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }
