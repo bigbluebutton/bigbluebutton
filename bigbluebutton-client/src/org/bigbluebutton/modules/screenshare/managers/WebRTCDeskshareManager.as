@@ -16,7 +16,6 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-
 package org.bigbluebutton.modules.screenshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
@@ -39,9 +38,7 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
-	import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
 	import org.bigbluebutton.modules.screenshare.utils.WebRTCScreenshareUtility;
-	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopPublishWindow;
 
 	public class WebRTCDeskshareManager {
 		private static const LOGGER:ILogger = getClassLogger(WebRTCDeskshareManager);

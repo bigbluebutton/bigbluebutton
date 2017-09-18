@@ -22,7 +22,13 @@
 
 	<fx:Script>
 		<![CDATA[
-      import org.bigbluebutton.modules.polling.events.*;
+      import org.bigbluebutton.modules.polling.events.InitPollModuleEvent;
+      import org.bigbluebutton.modules.polling.events.ModuleEvent;
+      import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
+      import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+      import org.bigbluebutton.modules.polling.events.StartPollEvent;
+      import org.bigbluebutton.modules.polling.events.StopPollEvent;
+      import org.bigbluebutton.modules.polling.events.VotePollEvent;
       import org.bigbluebutton.modules.polling.service.PollingService;
 			
 				]]>

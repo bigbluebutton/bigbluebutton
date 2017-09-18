@@ -167,7 +167,7 @@ $Id: $
       
       private const STATUS_GRID_WIDTH:int = 56;
       private const NAME_GRID_MIN_WIDTH:int = 80;
-      private const MEDIA_GRID_WIDTH:int = 112;
+      private const MEDIA_GRID_WIDTH:int = 118;
       
       private var muteMeRolled:Boolean = false;
       

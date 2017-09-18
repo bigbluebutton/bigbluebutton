@@ -19,24 +19,20 @@
 
 package org.bigbluebutton.modules.screenshare.services.red5 {
     import com.asfusion.mate.events.Dispatcher;
+    
     import flash.events.NetStatusEvent;
     import flash.events.SecurityErrorEvent;
-    import flash.events.TimerEvent;
     import flash.net.NetConnection;
     import flash.net.ObjectEncoding;
     import flash.net.Responder;
-    import flash.net.SharedObject;
-    import flash.utils.Timer;
+    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.UsersUtil;
-    import org.bigbluebutton.modules.screenshare.events.AppletStartedEvent;
-    import org.bigbluebutton.modules.screenshare.events.CursorEvent;
-    import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.main.events.BBBEvent;
+    import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
     
     public class Connection {
