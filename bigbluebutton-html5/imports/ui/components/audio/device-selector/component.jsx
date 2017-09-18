@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import styles from '../audio-modal/styles';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
@@ -69,6 +70,7 @@ class DeviceSelector extends Component {
         value={value}
         onChange={this.handleSelectChange}
         disabled={!options.length}
+        className={styles.select}
       >
         {
           options.length ?

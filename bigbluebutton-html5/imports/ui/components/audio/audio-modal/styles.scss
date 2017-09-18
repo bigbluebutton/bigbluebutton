@@ -141,8 +141,19 @@ Button.audioBtn:last-of-type {
   flex-grow: 1;
 }
 
+.brandedSelectFocus {
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border-bottom: 3px solid $color-primary;
+    }
+  }
+}
+
 .select {
-  background-color: #fff;
+  @extend .brandedSelectFocus;
+  background-color: $color-white;
   border: 0;
   border-bottom: 0.1rem solid $color-text;
   color: $color-text;
