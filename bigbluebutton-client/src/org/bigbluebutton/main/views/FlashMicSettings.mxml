@@ -357,7 +357,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							  horizontalCenter="0"
 							  styleName="titleWindowStyle"
 							  id="audioSettingText"
-							  maxWidth="400" />
+							  width="350" />
 		<mx:LinkButton toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 					   styleName="helpLinkButtonStyle"
 					   top="0" right="0"
@@ -381,7 +381,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:HRule width="100%"/>
 			<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
 				<common:AdvancedLabel textAlign="left"
-									  width="{echoTestText.parent.width - 20}"
+									  width="100%"
 									  height="60"
 									  id="echoTestText"
 									  text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
@@ -419,7 +419,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox includeIn="flashMicTestFailedState" width="100%" paddingBottom="60" verticalAlign="middle" horizontalAlign="center">
 			<common:AdvancedLabel id="flashMicFailLabel"
 								  textAlign="center"
-								  width="{flashMicFailLabel.parent.width - 20}"
+								  width="100%"
 								  height="{txtErrorMessageMock.height}"
 								  text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}"
 								  styleName="micSettingsWindowHearFromHeadsetLabelStyle" />
