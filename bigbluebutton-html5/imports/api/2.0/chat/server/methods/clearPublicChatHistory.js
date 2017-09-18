@@ -15,5 +15,5 @@ export default function clearPublicChatHistory(credentials) {
 
   const payload = {};
 
-  return RedisPubSub.publish(CHANNEL, eventName, meetingId, payload, { userId: requesterUserId });
+  return RedisPubSub.publishUserMessage(CHANNEL, eventName, meetingId, requesterUserId, payload);
 }

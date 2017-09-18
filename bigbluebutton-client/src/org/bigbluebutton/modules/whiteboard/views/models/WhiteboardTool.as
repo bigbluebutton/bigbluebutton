@@ -18,7 +18,6 @@
  */
 package org.bigbluebutton.modules.whiteboard.views.models
 {
-    import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
     import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
     import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 

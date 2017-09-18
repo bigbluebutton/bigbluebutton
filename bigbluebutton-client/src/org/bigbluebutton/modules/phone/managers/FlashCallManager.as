@@ -14,7 +14,6 @@
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.modules.phone.models.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;
@@ -32,6 +31,7 @@
   import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+  import org.bigbluebutton.modules.phone.models.PhoneOptions;
 
   public class FlashCallManager
   {

@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
+	
 	import org.bigbluebutton.modules.chat.model.ChatConversation;
 
 	public class ChatSaveEvent extends Event

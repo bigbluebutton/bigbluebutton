@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
+				layout="absolute"
 				width="580"
 				height="410"
 				close="onCancelClicked()"
@@ -37,7 +38,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			
-			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -62,15 +62,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:VBox width="100%"
 			 height="100%"
-			 horizontalAlign="center">
-		<mx:HBox width="100%">
-			<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}"
-								  styleName="titleWindowStyle"
-								  width="100%" />
-			<mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.close.tooltip')}"
-					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.filedownload.close.accessibilityName')}" />
-		</mx:HBox>
+			 horizontalAlign="center"
+			 paddingTop="15">
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}"
+							  styleName="titleWindowStyle"
+							  maxWidth="550" />
 		<mx:List id="presentationNamesList"
 				 allowMultipleSelection="false"
 				 width="100%"
@@ -84,4 +80,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 dataProvider="{downloadablePresentations}">
 		</mx:List>
 	</mx:VBox>
+	
+	<mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.close.tooltip')}"
+			   top="15" right="10"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.filedownload.close.accessibilityName')}" />
+	
 </mx:TitleWindow>

@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.users.views.model
 {
   import com.asfusion.mate.events.Dispatcher;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   

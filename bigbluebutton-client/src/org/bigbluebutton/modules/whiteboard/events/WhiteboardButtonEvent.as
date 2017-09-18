@@ -20,8 +20,6 @@ package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-	
 	public class WhiteboardButtonEvent extends Event
 	{
 		public static const ENABLE_WHITEBOARD:String = "enable_whiteboard";

@@ -6,6 +6,7 @@ package org.red5.flash.bwcheck.app
 	
 	import mx.core.Application;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.red5.flash.bwcheck.ClientServerBandwidth;
 	import org.red5.flash.bwcheck.ServerClientBandwidth;
 	import org.red5.flash.bwcheck.events.BandwidthDetectEvent;
