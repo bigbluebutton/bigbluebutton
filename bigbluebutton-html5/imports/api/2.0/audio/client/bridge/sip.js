@@ -14,12 +14,14 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   joinListenOnly(stunServers, turnServers, callbackFromManager) {
+    console.log('Join listen only from sip');
     makeCall('listenOnlyToggle', true);
-    this._joinVoiceCallSIP({ isListenOnly: true }, stunServers, turnServers, callbackFromManager);
+    return this._joinVoiceCallSIP({ isListenOnly: true }, stunServers, turnServers, callbackFromManager);
   }
 
   joinMicrophone(stunServers, turnServers, callbackFromManager) {
-    this._joinVoiceCallSIP({ isListenOnly: false }, stunServers, turnServers, callbackFromManager);
+    console.log('Join microphone from sip');
+    return this._joinVoiceCallSIP({ isListenOnly: false }, stunServers, turnServers, callbackFromManager);
   }
 
   // Periodically check the status of the WebRTC call, when a call has been established attempt to
@@ -67,19 +69,27 @@ export default class SIPBridge extends BaseAudioBridge {
 
   // join the conference. If listen only send the request to the server
   _joinVoiceCallSIP(options, stunServers, turnServers, callbackFromManager) {
-    const extension = this.userData.voiceBridge;
-    console.log(options);
+    return new Promise((resolve, reject) => {
+      const extension = this.userData.voiceBridge;
+      console.log(options);
 
-    // create voice call params
-    const joinCallback = function (message) {
-      console.log('Beginning WebRTC Conference Call');
-    };
+      // create voice call params
+      const joinCallback = function (message) {
+        console.log('Beginning WebRTC Conference Call', this.userData);
+      };
 
-    const stunsAndTurns = {
-      stun: stunServers,
-      turn: turnServers,
-    };
+      const stunsAndTurns = {
+        stun: stunServers,
+        turn: turnServers,
+      };
 
-    callIntoConference(extension, callbackFromManager, options.isListenOnly, stunsAndTurns);
+      const callback = (message) => {
+        console.log('CALLBACK FROM SIP BRIDGE');
+        return callbackFromManager(message).then(response => resolve(response))
+                       .catch(reason => reject(reason));
+      }
+
+      callIntoConference(extension, callback, options.isListenOnly, stunsAndTurns);
+    })
   }
 }

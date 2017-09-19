@@ -22,32 +22,29 @@ class JoinAudioOptions extends React.Component {
       intl,
       isInAudio,
       isInListenOnly,
+      isConnecting,
       handleJoinAudio,
       handleCloseAudio,
     } = this.props;
 
+    let onClick = handleJoinAudio;
+    let label = intl.formatMessage(intlMessages.joinAudio);
+    let color = 'primary';
+    let icon = 'audio_on';
+
     if (isInAudio || isInListenOnly) {
-      if (AudioManager.currentState == AudioManager.callStates.inConference ||
-      AudioManager.currentState == AudioManager.callStates.inListenOnly) {
-        return (
-          <Button
-            onClick={handleCloseAudio}
-            label={intl.formatMessage(intlMessages.leaveAudio)}
-            color={'danger'}
-            icon={'audio_off'}
-            size={'lg'}
-            circle
-          />
-        );
-      }
+      onClick = handleCloseAudio;
+      label = intl.formatMessage(intlMessages.leaveAudio);
+      color = 'danger';
+      icon = 'audio_off';
     }
 
     return (
       <Button
-        onClick={handleJoinAudio}
-        label={intl.formatMessage(intlMessages.joinAudio)}
-        color={'primary'}
-        icon={'audio_on'}
+        onClick={onClick}
+        label={label}
+        color={color}
+        icon={icon}
         size={'lg'}
         circle
       />

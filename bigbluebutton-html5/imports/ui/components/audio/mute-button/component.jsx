@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import styles from '../styles.scss';
-
+import styles from './styles.scss';
+//
 import { defineMessages, injectIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
@@ -21,35 +21,34 @@ class MuteAudio extends React.Component {
     const {
       isInAudio,
       isMuted,
-      callback,
+      toggleMuteMicrophone,
       isTalking,
       intl,
+      isListenOnly,
     } = this.props;
 
-    if (!isInAudio) return null;
-    const muteLabel = intl.formatMessage(intlMessages.muteLabel);
-    const unmuteLabel = intl.formatMessage(intlMessages.unmuteLabel);
-
-    const label = !isMuted ? muteLabel : unmuteLabel;
     const icon = !isMuted ? 'unmute' : 'mute';
-    const tabIndex = !isInAudio ? -1 : 0;
-    let className = null;
+    const label = intl.formatMessage(!isMuted ? intlMessages.muteLabel :
+                                                intlMessages.unmuteLabel);
+    // const tabIndex = !isInAudio ? -1 : 0;
+    let className;
 
-    if (isInAudio && isTalking) {
+    if (isTalking) {
       className = styles.circleGlow;
     }
 
     return (
       <Button
-        onClick={callback}
+        onClick={toggleMuteMicrophone}
         label={label}
         color={'primary'}
         icon={icon}
         size={'lg'}
         circle
         className={className}
-        tabIndex={tabIndex}
       />
+
+        //tabIndex={tabIndex}
     );
   }
 }

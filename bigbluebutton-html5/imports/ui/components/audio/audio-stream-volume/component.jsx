@@ -89,7 +89,7 @@ class AudioStreamVolume extends Component {
   handleConnectStreamToProcessor(stream) {
     this.source = this.audioContext.createMediaStreamSource(stream);
     this.source.connect(this.scriptProcessor);
-    this.scriptProcessor.connect(this.audioContext.destination);
+    // this.scriptProcessor.connect(this.audioContext.destination);
   }
 
   handleAudioProcess(event) {

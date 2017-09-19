@@ -1,9 +1,10 @@
 import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
-import AudioManager from '/imports/api/2.0/audio/client/manager';
+import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/2.0/meetings';
 
 const init = () => {
+  console.log('Running audio service init.');
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
   const username = User.name;
@@ -20,16 +21,19 @@ const init = () => {
     microphoneLockEnforced,
   };
 
-  AudioManager.init(userData);
+  AudioManager.userData = userData;
 };
-
-const exitAudio = () => AudioManager.exitAudio();
-const joinListenOnly = () => AudioManager.joinAudio(true);
-const joinMicrophone = () => AudioManager.joinAudio(false);
 
 export default {
   init,
-  exitAudio,
-  joinListenOnly,
-  joinMicrophone,
+  exitAudio: () => AudioManager.exitAudio(),
+  joinListenOnly: () => AudioManager.joinAudio(true),
+  joinMicrophone: () => AudioManager.joinAudio(),
+  toggleMuteMicrophone: () => AudioManager.toggleMuteMicrophone(),
+  isConnected: () => AudioManager.isConnected,
+  isMuted: () => AudioManager.isMuted,
+  isConnecting: () => AudioManager.isConnecting,
+  isListenOnly: () => AudioManager.isListenOnly,
+  inputDeviceId: () => AudioManager.inputDeviceId,
+  outputDeviceId: () => AudioManager.outputDeviceId,
 };

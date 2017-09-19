@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  flex-flow: row;
+
+  > * {
+    margin: 0 1rem;
+  }
+
+  > :last-child {
+    margin-right: 0;
+  }
+}

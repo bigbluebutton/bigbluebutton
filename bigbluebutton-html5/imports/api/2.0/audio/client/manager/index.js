@@ -77,45 +77,59 @@ class AudioManager {
       throw 'Audio Bridge not compatible';
     }
 
+    console.log('INIT AUDIO MANAGER', audioBridge);
+
     this.bridge = audioBridge;
     this.isListenOnly = false;
     this.microphoneLockEnforced = userData.microphoneLockEnforced;
     this.callStates = CallStates;
     this.currentState = this.callStates.init;
 
-    callbackToAudioBridge = function (message) {
-      switch (message.status) {
-        case 'failed': {
-          this.currentState = this.callStates.init;
-          const audioFailed = new CustomEvent('bbb.webrtc.failed', {
-            detail: {
-              status: 'Failed',
-              errorCode: message.errorcode,
-            },
-          });
-          window.dispatchEvent(audioFailed);
-          break;
+    callbackToAudioBridge = (message) => {
+      return new Promise((resolve, reject) => {
+        console.log('MESSAGE', message);
+        if(message.status === 'failed' || message.status === 'mediafail') {
+          console.log('REJECT FROM MANAGER CALLBACK');
+          reject(message.status);
+        } else if (message.status === 'started'){
+          console.log('RESOLVE FROM MANAGER CALLBACK');
+          resolve(message.status)
         }
-        case 'mediafail': {
-          const mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
-            detail: {
-              status: 'MediaFailed',
-            },
-          });
-          window.dispatchEvent(mediaFailed);
-          break;
-        }
-        case 'mediasuccess':
-        case 'started': {
-          const connected = new CustomEvent('bbb.webrtc.connected', {
-            detail: {
-              status: 'started',
-            },
-          });
-          window.dispatchEvent(connected);
-          break;
-        }
-      }
+      })
+
+      // switch (message.status) {
+      //   case 'failed': {
+      //     this.currentState = this.callStates.init;
+      //     const audioFailed = new CustomEvent('bbb.webrtc.failed', {
+      //       detail: {
+      //         status: 'Failed',
+      //         errorCode: message.errorcode,
+      //       },
+      //     });
+      //     window.dispatchEvent(audioFailed);
+      //     break;
+      //   }
+      //   case 'mediafail': {
+      //     const mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
+      //       detail: {
+      //         status: 'MediaFailed',
+      //       },
+      //     });
+      //     window.dispatchEvent(mediaFailed);
+      //     break;
+      //   }
+      //   case 'mediasuccess':
+      //   case 'started': {
+      //     const connected = new CustomEvent('bbb.webrtc.connected', {
+      //       detail: {
+      //         status: 'started',
+      //       },
+      //     });
+      //     window.dispatchEvent(connected);
+      //
+      //     break;
+      //   }
+      // }
     };
   }
 
@@ -129,25 +143,28 @@ class AudioManager {
   }
 
   joinAudio(listenOnly) {
-    AudioManager.fetchServers().then(({ error, stunServers, turnServers }) => {
-      if (error || error !== undefined) {
-        // We need to alert the user about this problem by some gui message.
-        console.error("Couldn't fetch the stuns/turns servers!");
-        AudioManager.stunTurnServerFail();
-        return;
-      }
+    return new Promise((resolve, reject) => {
+      AudioManager.fetchServers().then(({ stunServers, turnServers }) => {
+        const shouldJoinListenOnly = listenOnly || this.microphoneLockEnforced;
 
-      if (listenOnly || this.microphoneLockEnforced) {
-        this.isListenOnly = true;
-        this.bridge.joinListenOnly(stunServers, turnServers, callbackToAudioBridge.bind(this));
-        // TODO: remove line below after echo test implemented, use webRTCCallStarted instead
-        this.currentState = this.callStates.inListenOnly;
-      } else {
-        this.bridge.joinMicrophone(stunServers, turnServers, callbackToAudioBridge.bind(this));
-        // TODO: remove line below after echo test implemented, use webRTCCallStarted instead
-        this.currentState = this.callStates.inConference;
-      }
-    });
+        if (shouldJoinListenOnly) {
+          this.bridge.joinListenOnly(stunServers, turnServers, callbackToAudioBridge.bind(this)).then((response) => {
+            this.isListenOnly = true;
+            this.currentState = this.callStates.inListenOnly;
+            resolve(response);
+          }).catch(reason => reject(reason));
+        } else {
+          this.bridge.joinMicrophone(stunServers, turnServers, callbackToAudioBridge.bind(this)).then((response) => {
+            this.currentState = this.callStates.inConference;
+            resolve(response);
+          }).catch(reason => reject(reason));
+        }
+      }).catch(error => {
+        AudioManager.stunTurnServerFail();
+        console.error(error);
+        reject(error);
+      });
+    })
   }
 
   transferToConference() {
@@ -207,7 +224,7 @@ class AudioManager {
   // We use on the SIP an String Array, while in the server, it comes as
   // an Array of objects, we need to map from Array<Object> to Array<String>
   static mapToArray({ response, stunServers, turnServers }) {
-    const promise = new Promise((resolve) => {
+    return new Promise((resolve) => {
       if (response) {
         resolve({ error: 404, stunServers: [], turnServers: [] });
       }
@@ -216,15 +233,19 @@ class AudioManager {
         turnServers: turnServers.map(server => server.url),
       });
     });
-    return promise;
   }
 
   static fetchServers() {
-    const url = `/bigbluebutton/api/stuns?sessionToken=${Auth.sessionToken}`;
+    return new Promise(async (resolve, reject) => {
+      const url = `/bigbluebutton/api/stuns?sessionToken=${Auth.sessionToken}`;
 
-    return fetch(url)
-      .then(response => response.json())
-      .then(json => AudioManager.mapToArray(json));
+      let response = await fetch(url)
+        .then(response => response.json())
+        .then(json => AudioManager.mapToArray(json));
+
+      if(response.error) return reject(`Could not fetch the stuns/turns servers!`);
+      resolve(response);
+    })
   }
 }
 

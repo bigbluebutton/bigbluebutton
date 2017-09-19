@@ -8,10 +8,6 @@ import AudioService from '../audio/service';
 import AudioModal from '../audio/audio-modal/component';
 
 class ActionsBarContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <ActionsBar
