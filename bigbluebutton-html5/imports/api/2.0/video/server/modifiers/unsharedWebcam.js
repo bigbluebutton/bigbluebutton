@@ -14,7 +14,7 @@ export default function unsharedWebcam(meetingId, userId) {
     $set: {
       meetingId,
       userId,
-      'user.has_stream': false,
+      has_stream: false,
     },
   };
 

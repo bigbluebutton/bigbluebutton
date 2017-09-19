@@ -1,12 +1,11 @@
-import { callServer } from '/imports/ui/services/api';
-import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 
-const sendUserShareWebcam = () => {
-  callServer('userShareWebcam');
+const sendUserShareWebcam = (stream) => {
+  makeCall('userShareWebcam', stream);
 };
 
-const sendUserUnshareWebcam = () => {
-  callServer('userUnshareWebcam');
+const sendUserUnshareWebcam = (stream) => {
+  makeCall('userUnshareWebcam', stream);
 };
 
 export default {

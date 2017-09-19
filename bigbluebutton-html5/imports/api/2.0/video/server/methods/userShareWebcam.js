@@ -1,10 +1,12 @@
 import { Meteor } from 'meteor/meteor';
+import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 
 export default function userShareWebcam(credentials, message) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'UserBroadcastCamStartMsg';
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -15,18 +17,22 @@ export default function userShareWebcam(credentials, message) {
   check(requesterToken, String);
   // check(message, Object);
 
-  const eventName = 'user_share_html5_webcam_request_message';
-
-  const actionName = 'joinVideo';
+  // const actionName = 'joinVideo';
   /* TODO throw an error if user has no permission to share webcam
   if (!isAllowedTo(actionName, credentials)) {
     throw new Meteor.Error('not-allowed', `You are not allowed to share webcam`);
   } */
 
   const payload = {
-    meeting_id: meetingId,
-    userid: requesterUserId,
+    stream: message,
+    isHtml5Client: true,
   };
 
-  return RedisPubSub.publish(CHANNEL, eventName, payload);
+  const header = {
+    meetingId,
+    name: EVENT_NAME,
+    userId: requesterUserId,
+  };
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
 }

@@ -14,7 +14,7 @@ export default function sharedWebcam(meetingId, userId) {
     $set: {
       meetingId,
       userId,
-      'user.has_stream': true,
+      has_stream: true,
     },
   };
 

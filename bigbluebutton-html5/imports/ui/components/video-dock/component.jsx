@@ -236,13 +236,15 @@ export default class VideoDock extends Component {
 
   shareWebcam() {
     const { users } = this.props;
-    const id = users[0].user.userid;
+    const id = users[0].userId;
 
     this.start(id, true, this.refs.videoInput);
   }
 
   unshareWebcam() {
-    this.sendUserUnshareWebcam();
+    const { users } = this.props;
+    const id = users[0].userId;
+    this.sendUserUnshareWebcam(id);
   }
 
   startResponse(message) {
@@ -265,7 +267,7 @@ export default class VideoDock extends Component {
       }
     });
 
-    this.sendUserShareWebcam();
+    this.sendUserShareWebcam(id);
   }
 
   sendMessage(message) {
@@ -300,7 +302,6 @@ export default class VideoDock extends Component {
     return (
 
       <div className={styles.videoDock}>
-        <ScreenshareContainer /> // TODO is it in the right place?
         <div className={styles.secretButtons}>
           <button type="button" onClick={this.shareWebcam} > Share Webcam </button>
           <button type="button" onClick={this.unshareWebcam} > Unshare Webcam </button>
@@ -321,15 +322,15 @@ export default class VideoDock extends Component {
       let suc = false;
 
       for (let i = 0; i < users.length; i++) {
-        if (users && users[i] && users[i].user &&
-              nextUsers && nextUsers[i] && nextUsers[i].user) {
-          if (users[i].user.has_stream != nextUsers[i].user.has_stream) {
-            console.log(`User ${nextUsers[i].user.has_stream ? '' : 'un'}shared webcam ${users[i].user.userid}`);
+        if (users && users[i] &&
+              nextUsers && nextUsers[i]) {
+          if (users[i].has_stream !== nextUsers[i].has_stream) {
+            console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
-            if (nextUsers[i].user.has_stream) {
-              this.start(users[i].user.userid, false, this.refs.videoInput);
+            if (nextUsers[i].has_stream) {
+              this.start(users[i].userId, false, this.refs.videoInput);
             } else {
-              this.stop(users[i].user.userid);
+              this.stop(users[i].userId);
             }
 
             suc = suc || true;

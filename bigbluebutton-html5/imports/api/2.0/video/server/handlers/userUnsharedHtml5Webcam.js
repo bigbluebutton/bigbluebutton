@@ -1,8 +1,8 @@
 import unsharedWebcam from '../modifiers/unsharedWebcam';
 
-export default function handleUserUnsharedHtml5Webcam({ payload }) {
-  const meetingId = payload.meeting_id;
-  const userId = payload.userid;
+export default function handleUserUnsharedHtml5Webcam({ header, payload }) {
+  const meetingId = header.meetingId;
+  const userId = header.userId;
 
   check(meetingId, String);
 
