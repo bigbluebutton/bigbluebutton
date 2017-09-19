@@ -57,5 +57,5 @@ export default function userLeaving(credentials, userId) {
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
