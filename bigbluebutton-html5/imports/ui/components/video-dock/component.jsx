@@ -107,6 +107,15 @@ export default class VideoDock extends Component {
 
   componentDidMount() {
     const ws = this.state.ws;
+    const { users } = this.props;
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].has_stream) {
+        if (users[i].has_stream) {
+          this.start(users[i].userId, false, this.refs.videoInput);
+        }
+      }
+    }
 
     ws.addEventListener('message', (msg) => {
       const parsedMessage = JSON.parse(msg.data);
@@ -232,6 +241,8 @@ export default class VideoDock extends Component {
     }
 
     this.sendMessage({ id: 'stop', cameraId: id });
+
+    adjustVideos(true);
   }
 
   shareWebcam() {
