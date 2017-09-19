@@ -25,26 +25,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		 xmlns:mate="http://mate.asfusion.com/"
 		 width="620"
 		 alpha="0"
-		 verticalScrollPolicy="off" horizontalScrollPolicy="off"
-		 creationComplete="creationCompleteHandler(event)">
-	
+		 verticalScrollPolicy="off"
+		 horizontalScrollPolicy="off">
+
 	<fx:Declarations>
-		<mx:Fade id="dissolveIn" duration="250" alphaFrom="0.0" alphaTo="1.0" target="{this}" startDelay="200"/>
-		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
+		<mx:Fade id="dissolveIn"
+				 duration="250"
+				 alphaFrom="0.0"
+				 alphaTo="1.0"
+				 target="{this}"
+				 startDelay="200" />
+		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}"
+					   method="allModulesLoaded" />
 	</fx:Declarations>
-	
+
 	<fx:Script>
 		<![CDATA[
 			import mx.events.EffectEvent;
-			import mx.events.FlexEvent;
 
 			import org.as3commons.lang.StringUtils;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
-			private function creationCompleteHandler(event:FlexEvent):void {
-				showNewQuote();
-			}
 
 			private function dissolveOutHandler(event:EffectEvent):void {
 				showNewQuote();
@@ -60,14 +61,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function allModulesLoaded(event:ModuleLoadEvent):void {
+				dispose();
+			}
+
+			public function init():void {
+				showNewQuote();
+			}
+
+			public function dispose():void {
 				if (parent != null)
 					parent.removeChild(this);
 			}
 		]]>
 	</fx:Script>
-	
+
 	<mx:Image source="{getStyle('iconQuote')}" />
-	
+
 	<s:Label id="quoteLabel"
 			 width="620"
 			 fontSize="36"

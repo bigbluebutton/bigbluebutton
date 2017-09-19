@@ -222,6 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				updateCopyrightText();
 				loadBackground();
+				initQuote();
 				
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
@@ -248,6 +249,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
 					copyrightText = String(brandingOptions.copyright).replace("{0}", appVersion);
+				}
+			}
+			
+			private function initQuote() : void {
+				if (brandingOptions.showQuote) {
+					quoteView.init();
+				} else {
+					quoteView.dispose();
 				}
 			}
 
