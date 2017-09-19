@@ -38,6 +38,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.PresenterCommands;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
+      import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
 		]]>
@@ -84,9 +86,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 			
 		<EventHandlers type="{UploadFileCommand.UPLOAD_FILE}">
+			<MethodInvoker generator="{PresentProxy}" method="requestUploadToken" arguments="{event}" />
+		</EventHandlers>
+
+
+		<EventHandlers type="{PresentationUploadTokenPass.PRESENTATION_UPLOAD_TOKEN_PASS}">
 			<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
 		</EventHandlers>
-		
+
+		<EventHandlers type="{PresentationUploadTokenFail.PRESENTATION_UPLOAD_TOKEN_FAIL}">
+			<MethodInvoker generator="{PresentProxy}" method="cancelUpload" arguments="{event}" />
+		</EventHandlers>
+
 		<EventHandlers type="{PresenterCommands.GOTO_SLIDE}" >
 			<MethodInvoker generator="{PresentProxy}" method="gotoSlide" arguments="{event}" />
 		</EventHandlers>
