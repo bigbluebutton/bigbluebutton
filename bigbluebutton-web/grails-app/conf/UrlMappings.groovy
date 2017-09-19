@@ -1,8 +1,12 @@
 class UrlMappings {
 
 	static mappings = {
-		"/presentation/upload"(controller:"presentation") {
+		"/presentation/$authzToken/upload"(controller:"presentation") {
 			action = [POST:'upload']
+		}
+
+		"/presentation/checkPresentation"(controller:"presentation") {
+			action = [GET:'checkPresentationBeforeUploading']
 		}
 
 		"/presentation/test-convert"(controller:"presentation") {

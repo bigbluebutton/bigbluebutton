@@ -101,5 +101,19 @@ package org.bigbluebutton.modules.present.services.messaging
         JSON.stringify(message)
       );
     }
+
+    public function requestPresentationUploadPermission(podId: String, filename: String):void {
+      var message:Object = {
+        header: {name: "PresentationUploadTokenReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {podId: podId, filename: filename}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error("Error while requesting token for presentation upload." + status); },
+        JSON.stringify(message)
+      );
+    }
   }
 }

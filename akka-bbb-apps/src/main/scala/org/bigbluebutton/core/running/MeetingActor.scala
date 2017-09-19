@@ -273,6 +273,7 @@ class MeetingActor(
       case m: SetCurrentPagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationUploadTokenReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)

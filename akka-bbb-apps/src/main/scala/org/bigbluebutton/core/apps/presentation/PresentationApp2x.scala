@@ -13,6 +13,7 @@ class PresentationApp2x(implicit val context: ActorContext)
     with SetCurrentPagePubMsgHdlr
     with ResizeAndMovePagePubMsgHdlr
     with RemovePresentationPubMsgHdlr
+    with PresentationUploadTokenReqMsgHdlr
     with PreuploadedPresentationsPubMsgHdlr
     with PresentationConversionUpdatePubMsgHdlr
     with PresentationPageCountErrorPubMsgHdlr

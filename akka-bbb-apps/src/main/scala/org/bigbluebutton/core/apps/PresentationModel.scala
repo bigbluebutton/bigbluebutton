@@ -8,10 +8,6 @@ case class CurrentPresentationInfo(presenter: CurrentPresenter, presentations: S
 case class Presentation(id: String, name: String, current: Boolean = false,
                         pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean)
 
-case class Page(id: String, num: Int, thumbUri: String = "", swfUri: String,
-                txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0, yOffset: Double = 0,
-                widthRatio: Double = 100D, heightRatio: Double = 100D)
-
 class PresentationModel {
   private var presentations = new scala.collection.immutable.HashMap[String, Presentation]
 
