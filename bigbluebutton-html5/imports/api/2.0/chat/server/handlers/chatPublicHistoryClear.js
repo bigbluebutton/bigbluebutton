@@ -13,13 +13,6 @@ export default function publicHistoryClear({ header }, meetingId) {
     Chat.remove({ meetingId, toUsername: PUBLIC_CHAT_USERNAME },
       Logger.info(`Cleared Chats (${meetingId})`));
 
-    Logger.info('###########################');
-    Logger.info('###########################');
-    Logger.info(PUBLIC_CHAT_USERNAME);
-    Logger.info('###########################');
-    Logger.info(PUBLIC_CHAT_USERID);
-    Logger.info('###########################');
-
     addChat(meetingId, {
       message: '<b><i>The public chat history was cleared by a moderator</i></b>',
       fromTime: new Date().getTime(),
