@@ -20,10 +20,8 @@ package org.bigbluebutton.modules.present.business
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
-	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 	

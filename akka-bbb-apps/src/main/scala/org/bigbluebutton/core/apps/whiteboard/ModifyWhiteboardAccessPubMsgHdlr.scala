@@ -1,30 +1,26 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.{ OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.bus.MessageBus
 
 trait ModifyWhiteboardAccessPubMsgHdlr {
-  this: MeetingActor =>
+  this: WhiteboardApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleModifyWhiteboardAccessPubMsg(msg: ModifyWhiteboardAccessPubMsg): Unit = {
+  def handle(msg: ModifyWhiteboardAccessPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: ModifyWhiteboardAccessPubMsg): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(ModifyWhiteboardAccessEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(ModifyWhiteboardAccessEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
+      val header = BbbClientMsgHeader(ModifyWhiteboardAccessEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
       val body = ModifyWhiteboardAccessEvtMsgBody(msg.body.multiUser)
       val event = ModifyWhiteboardAccessEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-
-      //record(event)
+      bus.outGW.send(msgEvent)
     }
 
-    modifyWhiteboardAccess(msg.body.multiUser)
+    modifyWhiteboardAccess(msg.body.multiUser, liveMeeting)
     broadcastEvent(msg)
   }
 }

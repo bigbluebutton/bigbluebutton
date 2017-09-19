@@ -73,6 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 		
 		<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
 	
 		<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
 		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
@@ -112,17 +113,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.FullscreenToggledEvent;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-			import org.bigbluebutton.core.events.FullscreenToggledEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -667,16 +669,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
 					browserPermissionHelper.currentState = "chromeCam";
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates.
-					point1.x = width / 2;
-					point1.y = height / 2;
-					if (Capabilities.os.indexOf("Mac") >= 0) {
-						browserPermissionHelper.x = (mdiCanvas.width - browserPermissionHelper.width);
-					} else {
-						browserPermissionHelper.x = 20;
-					}
-					browserPermissionHelper.y = 20;
+					browserPermissionHelper.x = 20;
+					browserPermissionHelper.y = 150;
 				}
 			}
 
@@ -690,16 +684,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         handleExitApplicationEvent();
                         return;
                     }
-                    var logoutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(mdiCanvas, LoggedOutWindow, false) as LoggedOutWindow;
-                    if (logoutWindow) {
+                    var loggedOutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(mdiCanvas, LoggedOutWindow, false) as LoggedOutWindow;
+                    if (loggedOutWindow) {
                         var point1:Point = new Point();
                         // Calculate position of TitleWindow in Application's coordinates. 
                         point1.x = width / 2;
                         point1.y = height / 2;
-                        logoutWindow.x = point1.x - (logoutWindow.width / 2);
-                        logoutWindow.y = point1.y - (logoutWindow.height / 2);
+                        loggedOutWindow.x = point1.x - (loggedOutWindow.width / 2);
+                        loggedOutWindow.y = point1.y - (loggedOutWindow.height / 2);
 
-                        logoutWindow.setReason(reason);
+                        loggedOutWindow.setReason(reason);
                         mdiCanvas.removeAllPopUps();
                         removeToolBars();
                     }
@@ -765,9 +759,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = tabIndexer.startIndex + addedBtns.numChildren + 10;
+					var newComponentTabIndex:int = tabIndexer.startIndex + addedBtns.numChildren + 10;
+					(event.button as UIComponent).tabIndex = newComponentTabIndex;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
+					
+					//need to force the fullscreen button to be after it
+					fullScreenBtn.tabIndex = newComponentTabIndex + 1;
 				}
 			}
 			
@@ -890,13 +888,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					controlBar.styleName = "darkControlBarStyle";
                 }
             }
+			
+			private function onLocaleChanged(e:LocaleChangeEvent) : void {
+				if (ResourceUtil.getInstance().isRTLEnabled()) {
+					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
+				}
+			}
 
 		]]>
 	</fx:Script>
 
 	<fx:Declarations>
 		<common:TabIndexer id="tabIndexer" startIndex="100000"
-						   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
+						   tabIndices="{[warningBtn, langSelector, logBtn, fullScreenBtn]}"/>
 	</fx:Declarations>
 
 	<views:MainToolbar id="toolbar" 

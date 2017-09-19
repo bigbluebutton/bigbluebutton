@@ -23,6 +23,9 @@ package org.bigbluebutton.main.model.options {
 
 		[Bindable]
 		public var userSelectionEnabled:Boolean = true;
+		
+		[Bindable]
+		public var rtlEnabled:Boolean = false;
 
 		public function LanguageOptions() {
 			name = "language";

@@ -12,13 +12,11 @@ const requestWhiteboardHistory = (meetingId, slideId) => {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'GetWhiteboardAnnotationsReqMsg';
 
-  const header = { name: EVENT_NAME, meetingId, userId: 'nodeJSapp' };
-
   const payload = {
     whiteboardId: slideId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: 'nodeJSapp' });
 };
 
 const SUPPORTED_TYPES = [SVG, PNG];

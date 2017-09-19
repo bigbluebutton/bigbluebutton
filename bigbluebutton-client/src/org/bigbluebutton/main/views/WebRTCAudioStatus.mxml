@@ -41,8 +41,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCAudioStatus);

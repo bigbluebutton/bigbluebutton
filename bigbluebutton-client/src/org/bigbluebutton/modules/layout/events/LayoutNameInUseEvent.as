@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.layout.events
 {
 	import flash.events.Event;
-	import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
 
 	public class LayoutNameInUseEvent extends Event
 	{

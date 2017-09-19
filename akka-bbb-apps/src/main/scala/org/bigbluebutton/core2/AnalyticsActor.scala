@@ -71,6 +71,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => logMessage(msg)
       case m: MeetingInactivityWarningEvtMsg => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg => logMessage(msg)
+      case m: StopRecordingVoiceConfSysMsg => logMessage(msg)
       case m: TransferUserToVoiceConfSysMsg => logMessage(msg)
 
       // Breakout
@@ -80,6 +81,12 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
+
+      // Group Chats
+      case m: SendGroupChatMessageMsg => logMessage(msg)
+      case m: GroupChatMessageBroadcastEvtMsg => logMessage(msg)
+      case m: GetGroupChatMsgsReqMsg => logMessage(msg)
+      case m: GetGroupChatMsgsRespMsg => logMessage(msg)
 
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)

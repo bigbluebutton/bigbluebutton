@@ -196,7 +196,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </fx:Script>
     
 	<fx:Declarations>
-		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox]}"/>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
 	</fx:Declarations>
     
     <mx:Label id="lblSelect" styleName="chatOptionsLabel"
@@ -220,7 +220,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Label styleName="chatOptionsLabel" 
               text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" 
               width="100%"/>
-		<mx:CheckBox id="chatNoiseCheckBox" change="changeChatNoise()" />
+		<mx:CheckBox id="chatNoiseCheckBox" change="changeChatNoise()" accessibilityName="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" />
 	</mx:HBox>
   <mx:HBox width="100%">
     <mx:Label styleName="chatOptionsLabel" 

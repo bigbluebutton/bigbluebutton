@@ -25,18 +25,19 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-  import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+  import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+  import org.bigbluebutton.modules.chat.model.ChatConversation;
+  import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   
   public class MessageReceiver implements IMessageListener
   {
     
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
-	
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+    
     public var dispatcher:IEventDispatcher;
     
     public function MessageReceiver()
@@ -53,11 +54,14 @@ package org.bigbluebutton.modules.chat.services
         case "SendPrivateMessageEvtMsg":
           handleSendPrivateMessageEvtMsg(message);
           break;	
-        case "GetChatHistoryRespMsg":
+        case "GetGroupChatMsgsRespMsg":
           handleGetChatHistoryRespMsg(message);
           break;	
         case "ClearPublicChatHistoryEvtMsg":
           handleClearPublicChatHistoryEvtMsg(message);
+          break;
+        case "GroupChatMessageBroadcastEvtMsg":
+          handleGroupChatMessageBroadcastEvtMsg(message);
           break;
         default:
           //   LogUtil.warn("Cannot handle message [" + messageName + "]");
@@ -65,27 +69,40 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleGetChatHistoryRespMsg(message:Object):void {
-      LOGGER.debug("Handling chat history message [{0}]", [message.body.history]);
-      var rawMessages:Array = message.body.history as Array;
+      LOGGER.debug("Handling chat history message [{0}]", [message.body.msgs]);
+      var rawMessages:Array = message.body.msgs as Array;
       var processedMessages:Array = new Array();
       
       for (var i:int = 0; i < rawMessages.length; i++) {
-        processedMessages.push(processIncomingChatMessage(rawMessages[i]));
+        processedMessages.push(processNewChatMessage(rawMessages[i] as Object));
       }
-
-      var chEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
-	  chEvent.history = processedMessages;
-      dispatcher.dispatchEvent(chEvent);
+      
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
+      publicChat.processChatHistory(processedMessages);
+      
+    }
+    
+    private function handleGroupChatMessageBroadcastEvtMsg(message: Object):void {
+      LOGGER.debug("onMessageFromServer2x - " + message);
+      var header: Object = message.header as Object;
+      var body: Object = message.body as Object;
+      var chatId: String = body.chatId as String;
+      
+      var msg: ChatMessageVO = processNewChatMessage(body.msg as Object);
+      
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
+      publicChat.newChatMessage(msg);
+      
+      var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PUBLIC_CHAT);
+      pcCoreEvent.message = message;
+      dispatcher.dispatchEvent(pcCoreEvent);
     }
     
     private function handleSendPublicMessageEvtMsg(message:Object, history:Boolean = false):void {
-      LOGGER.debug("Handling public chat message [{0}]", [message.message]);
-      
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
       
-      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-      pcEvent.message = msg;
-      dispatcher.dispatchEvent(pcEvent);
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
+      publicChat.newChatMessage(msg);
       
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PUBLIC_CHAT);
       pcCoreEvent.message = message;
@@ -93,22 +110,23 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleSendPrivateMessageEvtMsg(message:Object):void {
-      LOGGER.debug("Handling private chat message");
-      
       var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
       
-      var pcEvent:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
-      pcEvent.message = msg;
-      dispatcher.dispatchEvent(pcEvent);
+      var chatId: String = ChatModel.getConvId(msg.fromUserId, msg.toUserId);
+      var privChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(chatId);
+      privChat.newPrivateChatMessage(msg);
       
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PRIVATE_CHAT);
       pcCoreEvent.message = message;
       dispatcher.dispatchEvent(pcCoreEvent);      
     }
-
+    
     private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
       LOGGER.debug("Handling clear chat history message");
-
+      
+      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
+      publicChat.clearPublicChat();
+      
       var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
       dispatcher.dispatchEvent(clearChatEvent);
     }
@@ -123,7 +141,20 @@ package org.bigbluebutton.modules.chat.services
       msg.toUserId = rawMessage.toUserId;
       msg.toUsername = rawMessage.toUsername;
       msg.message = rawMessage.message;
-	  return msg;
+      return msg;
+    }
+    
+    private function processNewChatMessage(message:Object):ChatMessageVO {
+      var msg:ChatMessageVO = new ChatMessageVO();
+      msg.fromUserId = message.sender.id as String;
+      msg.fromUsername = message.sender.name as String;
+      msg.fromColor = message.color as String;
+      msg.fromTime = message.timestamp as Number;
+      msg.fromTimezoneOffset = message.timestamp as Number;
+      msg.toUserId = message.chatId as String;
+      msg.toUsername = message.chatId as String;
+      msg.message = message.message as String;
+      return msg;
     }
   }
 }

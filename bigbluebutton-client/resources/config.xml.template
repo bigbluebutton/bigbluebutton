@@ -4,16 +4,16 @@
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
-    <porttest host="HOST" application="video/portTest" timeout="10000"/>    
+    <porttest host="HOST" application="video/portTest" timeout="10000"/>
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
-    <language userSelectionEnabled="true" />
+    <language userSelectionEnabled="true" rtlEnabled="false"/>
     <skinning enabled="true" url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
     <branding logo="logo.swf" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" />
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
-            showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
+            showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true"
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="false"
             showRecordingNotification="true" logoutOnStopRecording="false"/>
     <meeting muteOnStart="false" />
@@ -24,7 +24,7 @@
             
 		<modules>
 		 
-		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
+		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"	
 			privateEnabled="true"  
@@ -34,7 +34,7 @@
 			maxMessageLength="1024"
 		/>
 
-		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
+		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			allowKickUser="true"
 			enableEmojiStatus="true"
@@ -47,6 +47,7 @@
 			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
+			enablePause="true"
 			tryWebRTCFirst="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
@@ -54,7 +55,7 @@
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
     
-		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
+		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION"
 			uri="rtmp://HOST/sip" 
 			dependsOn="UsersModule"
 			autoJoin="true"
@@ -70,7 +71,7 @@
 			echoTestApp="9196"
 		/>
 
-		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
+		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION"
 			uri="rtmp://HOST/video"
 			dependsOn="UsersModule"
 			baseTabIndex="401"
@@ -85,20 +86,19 @@
 			priorityRatio="0.67"
 		/>
 		
-		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
+		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 			baseTabIndex="601"
-			whiteboardAccess="presenter"
 			keepToolbarVisible="false"
 		/>
 		
-		<module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
+		<module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 		/>
 		
-		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
+		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
 			host="http://HOST" 
@@ -110,7 +110,7 @@
 			enableDownload="true"
 		/>
 		
-		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
+		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
 			maxPasteLength="1024"
@@ -127,7 +127,6 @@
 			uri="rtmp://HOST/bigbluebutton"
 			dependsOn="UsersModule"
 			refreshDelay="500"
-			enableMultipleNotes="true"
 			toolbarVisibleByDefault="false"
 			showToolbarButton="true"
 			fontSize="14"

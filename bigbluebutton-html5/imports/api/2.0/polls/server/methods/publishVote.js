@@ -29,12 +29,6 @@ export default function publishVote(credentials, id, pollAnswerId) { // TODO dis
     answerId: pollAnswerId,
   };
 
-  const header = {
-    meetingId,
-    name: EVENT_NAME,
-    userId: requesterUserId,
-  };
-
   const selector = {
     users: requesterUserId,
     meetingId,
@@ -57,5 +51,6 @@ export default function publishVote(credentials, id, pollAnswerId) { // TODO dis
   };
 
   Polls.update(selector, modifier, cb);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+
+  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: requesterUserId });
 }

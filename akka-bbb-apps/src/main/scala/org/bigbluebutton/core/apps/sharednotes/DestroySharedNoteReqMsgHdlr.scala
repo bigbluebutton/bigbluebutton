@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.sharednotes
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait DestroySharedNoteReqMsgHdlr {
   this: SharedNotesApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleDestroySharedNoteReqMsg(msg: DestroySharedNoteReqMsg): Unit = {
+  def handle(msg: DestroySharedNoteReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: DestroySharedNoteReqMsg, isNotesLimit: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -18,7 +17,7 @@ trait DestroySharedNoteReqMsgHdlr {
       val body = DestroySharedNoteRespMsgBody(msg.body.noteId, isNotesLimit)
       val event = DestroySharedNoteRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
     }
 
     val isNotesLimit = liveMeeting.notesModel.destroyNote(msg.body.noteId)

@@ -1,8 +1,10 @@
 package org.bigbluebutton.core.apps.polls
 
-import org.bigbluebutton.core.running.{ MeetingActor }
+import akka.actor.ActorContext
+import akka.event.Logging
 
-trait PollApp2x extends GetCurrentPollReqMsgHdlr
+class PollApp2x(implicit val context: ActorContext)
+    extends GetCurrentPollReqMsgHdlr
     with HidePollResultReqMsgHdlr
     with RespondToPollReqMsgHdlr
     with ShowPollResultReqMsgHdlr
@@ -10,5 +12,5 @@ trait PollApp2x extends GetCurrentPollReqMsgHdlr
     with StartPollReqMsgHdlr
     with StopPollReqMsgHdlr {
 
-  this: MeetingActor =>
+  val log = Logging(context.system, getClass)
 }

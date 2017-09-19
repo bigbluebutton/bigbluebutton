@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.modules.whiteboard
 {
-
-  
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;

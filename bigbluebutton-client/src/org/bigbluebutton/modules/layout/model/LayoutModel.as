@@ -2,7 +2,6 @@ package org.bigbluebutton.modules.layout.model
 {
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class LayoutModel
   {

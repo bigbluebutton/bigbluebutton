@@ -121,6 +121,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
       case EjectUserFromMeetingCmdMsg.NAME =>
         routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+      case EjectUserFromVoiceCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromVoiceCmdMsg](envelope, jsonNode)
       case UserConnectedToGlobalAudioMsg.NAME =>
         routeVoiceMsg[UserConnectedToGlobalAudioMsg](envelope, jsonNode)
       case UserDisconnectedFromGlobalAudioMsg.NAME =>
@@ -263,6 +265,12 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
       case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+
+      // GroupChats
+      case SendGroupChatMessageMsg.NAME =>
+        routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
+      case GetGroupChatMsgsReqMsg.NAME =>
+        routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

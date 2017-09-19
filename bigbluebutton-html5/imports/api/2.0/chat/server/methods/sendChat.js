@@ -50,11 +50,5 @@ export default function sendChat(credentials, message) {
     eventName = 'SendPublicMessagePubMsg';
   }
 
-  const header = {
-    meetingId,
-    name: eventName,
-    userId: requesterUserId,
-  };
-
-  return RedisPubSub.publish(CHANNEL, eventName, meetingId, { message: parsedMessage }, header);
+  return RedisPubSub.publish(CHANNEL, eventName, meetingId, { message: parsedMessage }, { userId: requesterUserId });
 }

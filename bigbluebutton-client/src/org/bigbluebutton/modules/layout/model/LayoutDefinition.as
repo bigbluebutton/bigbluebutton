@@ -21,10 +21,11 @@ package org.bigbluebutton.modules.layout.model {
 	
 	import flexlib.mdi.containers.MDICanvas;
 	import flexlib.mdi.containers.MDIWindow;
-	import org.bigbluebutton.core.UsersUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 	public class LayoutDefinition {

@@ -2,14 +2,11 @@ package org.bigbluebutton.core.apps.presentation
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.core.running.LiveMeeting
 
-class PresentationApp2x(
-  val liveMeeting: LiveMeeting,
-  val outGW:       OutMsgRouter
-)(implicit val context: ActorContext)
+class PresentationApp2x(implicit val context: ActorContext)
     extends NewPresentationMsgHdlr
     with SetCurrentPresentationPubMsgHdlr
     with GetPresentationInfoReqMsgHdlr
@@ -26,30 +23,30 @@ class PresentationApp2x(
 
   val log = Logging(context.system, getClass)
 
-  def processPreuploadedPresentations(presentations: Vector[Presentation]) {
+  def processPreuploadedPresentations(liveMeeting: LiveMeeting, presentations: Vector[Presentation]) {
     presentations.foreach(presentation => {
       liveMeeting.presModel.addPresentation(presentation)
     })
 
     liveMeeting.presModel.getCurrentPresentation() match {
       case Some(p) => // do nothing
-      case None    => setCurrentPresentation(presentations.head.id)
+      case None    => setCurrentPresentation(liveMeeting, presentations.head.id)
     }
   }
 
-  def presentationConversionCompleted(presentation: Presentation) {
+  def presentationConversionCompleted(liveMeeting: LiveMeeting, presentation: Presentation) {
     liveMeeting.presModel.addPresentation(presentation)
   }
 
-  def setCurrentPresentation(presentationId: String): Option[Presentation] = {
+  def setCurrentPresentation(liveMeeting: LiveMeeting, presentationId: String): Option[Presentation] = {
     liveMeeting.presModel.setCurrentPresentation(presentationId)
   }
 
-  def getPresentationInfo(): Vector[Presentation] = {
+  def getPresentationInfo(liveMeeting: LiveMeeting): Vector[Presentation] = {
     liveMeeting.presModel.getPresentations
   }
 
-  def setCurrentPage(presentationId: String, pageId: String): Boolean = {
+  def setCurrentPage(liveMeeting: LiveMeeting, presentationId: String, pageId: String): Boolean = {
     liveMeeting.presModel.changeCurrentPage(presentationId, pageId)
 
     /* Need to figure out if this is still needed and if it is how to do it now
@@ -59,7 +56,7 @@ class PresentationApp2x(
     */
   }
 
-  def resizeAndMovePage(presentationId: String, pageId: String,
+  def resizeAndMovePage(liveMeeting: LiveMeeting, presentationId: String, pageId: String,
                         xOffset: Double, yOffset: Double, widthRatio: Double,
                         heightRatio: Double): Option[PageVO] = {
     // Force coordinate that are out-of-bounds inside valid values
@@ -73,7 +70,7 @@ class PresentationApp2x(
     liveMeeting.presModel.resizePage(presentationId, pageId, checkedXOffset, checkedYOffset, checkedWidth, checkedHeight);
   }
 
-  def removePresentation(presentationId: String): Option[Presentation] = {
+  def removePresentation(liveMeeting: LiveMeeting, presentationId: String): Option[Presentation] = {
     liveMeeting.presModel.removePresentation(presentationId)
   }
 }

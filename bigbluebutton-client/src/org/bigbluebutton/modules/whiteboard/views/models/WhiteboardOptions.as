@@ -4,9 +4,6 @@ package org.bigbluebutton.modules.whiteboard.views.models {
 	public class WhiteboardOptions extends Options {
 
 		[Bindable]
-		public var whiteboardAccess:String = "presenter";
-
-		[Bindable]
 		public var baseTabIndex:int = 701;
 
 		[Bindable]

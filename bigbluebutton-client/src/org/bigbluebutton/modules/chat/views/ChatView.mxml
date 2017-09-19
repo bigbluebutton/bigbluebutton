@@ -41,33 +41,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			import flash.events.FocusEvent;
-			import flash.media.Sound;
-			
-			import mx.controls.Button;
-			import mx.core.INavigatorContent;
-			
-			import flexlib.controls.tabBarClasses.SuperTab;
-			import flexlib.events.SuperTabEvent;
-			
-			import org.bigbluebutton.core.EventConstants;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.CoreEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
-			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
-			import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
-			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.Event;
+      import flash.events.FocusEvent;
+      import flash.media.Sound;
+      
+      import mx.controls.Button;
+      import mx.core.INavigatorContent;
+      
+      import flexlib.controls.tabBarClasses.SuperTab;
+      import flexlib.events.SuperTabEvent;
+      
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
+      import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
+      import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
+      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.model.ChatModel;
+      import org.bigbluebutton.modules.chat.model.ChatOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
-	    private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
+	    
 	    private var PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
 	    private var OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
 	    private var tabBox:AddChatTabBox;
@@ -99,7 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 
 			private function onCreationComplete():void{				
-				openChatBoxFor(PUBLIC_CHAT_USERID, true);
+				openChatBoxFor(ChatModel.MAIN_PUBLIC_CHAT, true);
 				makePublicChatUncloseable();
 				
 				createAddTabBox();
@@ -134,7 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					saveEvent.filename = chatBox.chatWithUsername;
 				}
 
-				saveEvent.chatMessages = chatBox.getChatMessages();
+				saveEvent.chatId = chatBox.id;
 				globalDispatcher.dispatchEvent(saveEvent);
 			}
 
@@ -142,7 +143,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chatBox:ChatBox = getPublicChatBox();
 				var copyEvent:ChatCopyEvent = new ChatCopyEvent(ChatCopyEvent.COPY_CHAT_EVENT);
 
-				copyEvent.chatMessages = chatBox.getChatMessages();
+				copyEvent.chatId = chatBox.getChatId();
 				globalDispatcher.dispatchEvent(copyEvent);
 			}
 			
@@ -170,8 +171,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		  private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-			  notifyUserOfNewMessage(PUBLIC_CHAT_USERID);
-			  if (!UsersUtil.isMe(event.message.fromUserId)) {
+			  notifyUserOfNewMessage(ChatModel.MAIN_PUBLIC_CHAT);
+			  if (!UsersUtil.isMe(event.senderId)) {
           publicNotification();
         }			
       }
@@ -179,17 +180,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 		    // This message is from me. Ignore as a chatbox has already been created for this
 			  // private chat and that chatbox will handle this message.
-			  if (UsersUtil.isMe(event.message.fromUserId)) return;
+			  if (UsersUtil.isMe(event.senderId)) return;
 			
 			  // I received a new private chat. Open up a new chatbox and forward the message
 			  // to the chatbox. Succeeding messages will be handled by that chatbox.
-			  if (! userHasChatBox(event.message.fromUserId)) {
+			  if (! userHasChatBox(event.senderId)) {
 			  	// Open a private chat tab.
-			  	openChatBoxFor(event.message.fromUserId, false).handleFirstPrivateMessage(event);         
+			  	openChatBoxFor(event.senderId, false).handleFirstPrivateMessage(event);         
 			  }
 			
 			  // See if the chatbox is not in focus and notify user about the message.
-			  notifyUserOfNewMessage(event.message.fromUserId);
+			  notifyUserOfNewMessage(event.senderId);
 			  privateNotification(event);
 	 	  }
 
@@ -229,7 +230,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function calledOnTheNextScreenRefreshToMakePublicChatUncloseable():void {
-				var chatBox:ChatBox = getChatBoxForUser(PUBLIC_CHAT_USERID);
+				var chatBox:ChatBox = getChatBoxForUser(ChatModel.MAIN_PUBLIC_CHAT);
 				var chatIndex:int = getTabIndexFor(chatBox);
 				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);								
 			}
@@ -299,16 +300,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function createChatBoxFor(chatWithUserID:String, publicChat:Boolean = false):ChatBox {
 				var chatBox:ChatBox = new ChatBox();
-				chatBox.id = chatWithUserID;
+				
 				chatBox.name = chatWithUserID;
 				chatBox.chatWithUserID = chatWithUserID;
 				chatBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
 
 				if (publicChat) {
+          chatBox.id = ChatModel.MAIN_PUBLIC_CHAT;
 					chatBox.label = PUBLIC_CHAT_USERNAME
 					chatBox.publicChat = true;
 					publicBox = chatBox; // keep a reference to the public chat box
 				} else {
+          chatBox.id = ChatModel.getConvId(chatWithUserID, UsersUtil.getMyUserID());
 					chatBox.publicChat = false;
 					chatBox.label = UsersUtil.getUserName(chatWithUserID);
 		                        chatBox.displayHowToCloseMessage();
@@ -344,13 +347,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function publicNotification():void {
 				publicWaiting = true;
 				playSound();
-				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
-				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
+				chatTabs.getChildByName(ChatModel.MAIN_PUBLIC_CHAT).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
+				chatTabs.getChildByName(ChatModel.MAIN_PUBLIC_CHAT).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
 			}
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if (! UsersUtil.isMe(event.message.fromUserId)) {
+				if (! UsersUtil.isMe(event.senderId)) {
 					playSound();
 				}
 			}

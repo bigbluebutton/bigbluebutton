@@ -53,6 +53,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flash.events.TextEvent;
       
       import mx.binding.utils.BindingUtils;
+      import mx.collections.ArrayCollection;
+      
+      import flashx.textLayout.formats.Direction;
       
       import org.as3commons.lang.StringUtils;
       import org.as3commons.logging.api.ILogger;
@@ -100,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var lastTime:String = "";
       
       [Bindable]
-      private var chatMessages:ChatConversation = new ChatConversation();
+      private var chatMessages: ArrayCollection = new ArrayCollection();
       
       private var lastCount:Number = 0;			
       private var scrollTimer:Timer;
@@ -125,6 +128,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var ctrlPressed:Boolean = false;
       
       private function onCreationComplete():void {
+
         chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
         bindToHeightToDetermineHeightOfMessageList();
         
@@ -156,7 +160,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
         }
        
-        LOGGER.debug(" onCreationComplete. Apply lock settings");
         applyLockSettings();
         
 //        chatToolbar.registerListeners(chatMessagesList);
@@ -251,7 +254,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function refreshChat(e:BBBEvent):void {
         if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-          if (publicChat) chatMessages = new ChatConversation();
+          if (publicChat) {
+            var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+            chatMessages = myChat.messages;
+          }
         }
       }
       
@@ -276,7 +282,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+        myChat.newChatMessage(msg);
       }
       
       private function displayUserHasJoinedMessage():void {
@@ -290,7 +297,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          myChat.newChatMessage(msg);
       }
       
       public function focusToTextMessageArea():void {
@@ -300,14 +308,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
-          chatMessages.newChatMessage(event.message);
+          var chat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          chatMessages = chat.messages;
           scrollToEndOfMessage();
         }
       }
       
       private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
-        if (publicChat && event.history != null) {
-          chatMessages.processChatHistory(event.history);
+        if (publicChat) {
+          var chat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          chatMessages = chat.messages;
           scrollToEndOfMessage();
         }
       }
@@ -318,12 +328,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-        var message:ChatMessageVO = event.message;
-        
-        if (!publicChat && 
-          ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
-            (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
-          chatMessages.newChatMessage(event.message);
+        if (!publicChat && event.chatId == id) {
+          var chat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          chatMessages = chat.messages;
           scrollToEndOfMessage();
         }        
       }
@@ -346,7 +353,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+        myChat.newChatMessage(msg);
       }
       
       public function scrollToEndOfMessage():void {
@@ -392,11 +400,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function copyAllText():void{
-        System.setClipboard(chatMessages.getAllMessageAsString());
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+        System.setClipboard(myChat.getAllMessageAsString());
       }
       
-      public function getChatMessages():ChatConversation {
-        return chatMessages;
+      public function getChatId():String {
+        return id;
       }
       
       private function addContextMenuItems():void {
@@ -412,7 +421,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function menuItemHandler(e:ContextMenuEvent):void{
         if (e.target.caption == ResourceUtil.getInstance().getString("bbb.chat.contextmenu.copyalltext")){
-          System.setClipboard(chatMessages.getAllMessageAsString());
+          var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          System.setClipboard(myChat.getAllMessageAsString());
         }
       }
       
@@ -428,7 +438,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var modifier:String = ExternalInterface.call("determineModifier");
         
         addContextMenuItems();
+		
+		updateStyles();
       }
+		
+	  private function updateStyles():void {
+		  var styleNameExt : String = "";
+		  if (ResourceUtil.getInstance().isRTLEnabled() && 
+        ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+			  styleNameExt = "RTL";
+		  }
+		  
+		  sendBtn.styleName = "chatControlBarSendButtonStyle" + styleNameExt;
+	  }
       
       private function sendStartCustomPollEvent(answers:Array):void {
         var dispatcher:Dispatcher = new Dispatcher();
@@ -596,7 +618,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleClearPublicChatBoxMessages(event:ClearPublicChatEvent):void {
         if(publicChat){
-          chatMessages.clearPublicChat();
+          var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          myChat.clearPublicChat();
           invalidateDisplayList();
           validateNow();
         }
@@ -630,7 +653,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
       <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
                          itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
-                         dataProvider="{chatMessages.messages}"
+                         dataProvider="{chatMessages}"
                          styleName="chatMessageListStyle"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
       <!--chat:ChatToolbar id="chatToolbar" /-->

@@ -203,7 +203,8 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
       val buffer = new scala.xml.NodeBuffer
 
       map.foreach {case (key, value) =>
-        val m = "<" + key + ">" + value + "</" + key + ">"
+        // Need to escape value otherwise loadString would choke.
+        val m = "<" + key + ">" + xml.Utility.escape(value) + "</" + key + ">"
         buffer += scala.xml.XML.loadString(m)
       }
       <metadata>{buffer}</metadata>
@@ -281,7 +282,8 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
       val buffer = new scala.xml.NodeBuffer
 
       map.foreach {case (key, value) =>
-        val m = "<" + key + ">" + value + "</" + key + ">"
+        // Need to escape value otherwise loadString would choke.
+        val m = "<" + key + ">" + xml.Utility.escape(value) + "</" + key + ">"
         buffer += scala.xml.XML.loadString(m)
       }
       <meta>{buffer}</meta>
@@ -329,7 +331,7 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
     val formatElem = <type>{format}</type>
     val urlElem = <url>{link}</url>
     val processTimeElem = <processingTime>{processingTime}</processingTime>
-    val lengthElem = <length>{duration}</length>
+    val lengthElem = <length>{duration / 60000}</length>
 
     buffer += formatElem
     buffer += urlElem

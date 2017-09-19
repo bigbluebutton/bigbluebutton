@@ -20,6 +20,7 @@ package org.bigbluebutton.common {
 	
 	import flash.media.Camera;
 	import flash.media.Microphone;
+	
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
