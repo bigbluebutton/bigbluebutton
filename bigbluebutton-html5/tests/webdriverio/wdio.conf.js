@@ -1,3 +1,18 @@
+var path = require('path');
+var VisualRegressionCompare = require('wdio-visual-regression-service/compare');
+
+
+function getScreenshotName(basePath) {
+  return function(context) {
+    var testName = context.test.title;
+    var resolution = context.meta.width || context.meta.orientation || 'unknown';
+    var browserVersion = parseInt(/\d+/.exec(context.browser.version)[0]);
+    var browserName = context.browser.name;
+
+    return path.join(basePath, `${testName}_${resolution}_${browserName}_v${browserVersion}.png`);
+  };
+}
+
 exports.config = {
   specs: ['tests/webdriverio/specs/**/*.spec.js'],
   capabilities: {
@@ -49,6 +64,16 @@ exports.config = {
     login: [
       'tests/webdriverio/specs/login.spec.js',
     ],
+  },
+  services: [
+    'visual-regression'
+  ],
+  visualRegression: {
+    compare: new VisualRegressionCompare.LocalCompare({
+      referenceName: getScreenshotName(path.join(process.cwd(), 'screenshots/reference')),
+      screenshotName: getScreenshotName(path.join(process.cwd(), 'screenshots/taken')),
+      diffName: getScreenshotName(path.join(process.cwd(), 'screenshots/diff')),
+    }),
   },
   before: function() {
     // make the properties that browsers share and the list of browserNames available:

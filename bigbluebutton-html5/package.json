@@ -6,6 +6,7 @@
     "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
+    "test-visual-regression": "wdio ./tests/webdriverio/wdio.vreg.conf.js",
     "lint": "eslint . --ext .jsx,.js",
     "precommit": "lint-staged"
   },
@@ -63,6 +64,7 @@
     "wdio-jasmine-framework": "^0.3.1",
     "wdio-junit-reporter": "^0.3.0",
     "wdio-spec-reporter": "^0.1.0",
+    "wdio-visual-regression-service": "^0.8.0",
     "webdriverio": "^4.8.0"
   },
   "cssModules": {
