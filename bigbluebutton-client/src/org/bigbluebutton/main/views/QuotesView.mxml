@@ -29,8 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		 creationComplete="creationCompleteHandler(event)">
 	
 	<fx:Declarations>
-		<mx:Fade id="dissolveOut" duration="150" alphaFrom="1.0" alphaTo="0.0" target="{this}"/>
-		<mx:Fade id="dissolveIn" duration="250" alphaFrom="0.0" alphaTo="1.0" target="{this}"/>
+		<mx:Fade id="dissolveIn" duration="250" alphaFrom="0.0" alphaTo="1.0" target="{this}" startDelay="200"/>
 		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
 	</fx:Declarations>
 	
@@ -38,49 +37,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import mx.events.EffectEvent;
 			import mx.events.FlexEvent;
-			
-			import org.as3commons.lang.ArrayUtils;
+
+			import org.as3commons.lang.StringUtils;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private var quotes:Array = [];
-			
-			private var timer:Timer = new Timer(2200);
-
 			private function creationCompleteHandler(event:FlexEvent):void {
-				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.1'));
-				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.2'));
-				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.3'));
-				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.4'));
-				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.5'));
-
-				dissolveOut.addEventListener(EffectEvent.EFFECT_END, dissolveOutHandler);
-				timer.addEventListener(TimerEvent.TIMER, timerCompleteHandler);
 				showNewQuote();
 			}
 
-			private function timerCompleteHandler(event:TimerEvent):void {
-				dissolveOut.play();
-				timer.stop();
-			}
-			
 			private function dissolveOutHandler(event:EffectEvent):void {
 				showNewQuote();
 			}
-			
+
 			private function showNewQuote():void {
-				while ("“ " + quotes[0] + " ”" == quoteLabel.text) {
-					ArrayUtils.shuffle(quotes);
+				var quote:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.' + Math.ceil(Math.random() * 5));
+				if (StringUtils.isEmpty(quote)) {
+					quote = "Research is creating new knowledge."
 				}
-				quoteLabel.text = "“ " + quotes[0] + " ”";
+				quoteLabel.text = "“ " + quote + " ”";
 				dissolveIn.play();
-				timer.start();
 			}
 
 			private function allModulesLoaded(event:ModuleLoadEvent):void {
-				timer.stop();
-				timer.removeEventListener(Event.DEACTIVATE, timerCompleteHandler);
-				dissolveOut.removeEventListener(EffectEvent.EFFECT_END, dissolveOutHandler);
 				if (parent != null)
 					parent.removeChild(this);
 			}
