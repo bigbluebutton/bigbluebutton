@@ -15,10 +15,21 @@ const getCurrentSlide = () => {
     return null;
   }
 
-  return Slides.findOne({
-    presentationId: currentPresentation.id,
-    current: true,
-  });
+  return Slides.findOne(
+    {
+      presentationId: currentPresentation.id,
+      current: true,
+    },
+    {
+      fields: {
+        meetingId: 0,
+        thumbUri: 0,
+        swfUri: 0,
+        txtUri: 0,
+        svgUri: 0,
+      },
+    },
+  );
 };
 
 const isPresenter = () => {

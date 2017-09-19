@@ -258,15 +258,16 @@ export default class PresentationArea extends React.Component {
   }
 
   renderPresentationToolbar() {
-    if (this.props.currentSlide) {
-      return (
-        <PresentationToolbarContainer
-          currentSlideNum={this.props.currentSlide.num}
-          presentationId={this.props.currentSlide.presentationId}
-        />
-      );
+    if (!this.props.currentSlide) {
+      return null;
     }
-    return null;
+
+    return (
+      <PresentationToolbarContainer
+        currentSlideNum={this.props.currentSlide.num}
+        presentationId={this.props.currentSlide.presentationId}
+      />
+    );
   }
 
   renderWhiteboardToolbar() {
@@ -312,8 +313,6 @@ PresentationArea.propTypes = {
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,
   currentSlide: PropTypes.shape({
-    // TODO don't need meetingId here
-    meetingId: PropTypes.string,
     presentationId: PropTypes.string.isRequired,
     current: PropTypes.bool.isRequired,
     heightRatio: PropTypes.number.isRequired,
@@ -322,12 +321,6 @@ PresentationArea.propTypes = {
     yOffset: PropTypes.number.isRequired,
     num: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
-    svgUri: PropTypes.string,
-    pngUri: PropTypes.string,
-    // TODO we don't use any of thefollowing uris here
-    swfUri: PropTypes.string.isRequired,
-    thumbUri: PropTypes.string.isRequired,
-    txtUri: PropTypes.string.isRequired,
     calculatedData: PropTypes.shape({
       x: PropTypes.number.isRequired,
       y: PropTypes.number.isRequired,
