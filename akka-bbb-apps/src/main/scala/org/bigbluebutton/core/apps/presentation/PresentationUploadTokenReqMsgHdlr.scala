@@ -42,6 +42,9 @@ trait PresentationUploadTokenReqMsgHdlr {
 
     }
 
+    handlePresentationUploadTokenReqMsg(msg)
+
+    // helpers
     def broadcastPresentationUploadTokenPassResp(msg: PresentationUploadTokenReqMsg, token: String): Unit = {
       // send back to client
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, msg.header.userId)
