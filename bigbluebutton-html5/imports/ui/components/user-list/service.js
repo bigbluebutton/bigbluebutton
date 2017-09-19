@@ -217,21 +217,21 @@ const isMeetingLocked = (id) => {
 
   if (meeting.lockSettingsProp !== undefined) {
     const lockSettings = meeting.lockSettingsProp;
-    
-    if (lockSettings.disableCam 
-        || lockSettings.disableMic 
-        || lockSettings.disablePrivChat 
-        || lockSettings.disablePubChat ) {
+
+    if (lockSettings.disableCam
+        || lockSettings.disableMic
+        || lockSettings.disablePrivChat
+        || lockSettings.disablePubChat) {
       isLocked = true;
     }
   }
 
   return isLocked;
-}
+};
 
 export default {
   getUsers,
   getOpenChats,
   getCurrentUser,
-  isMeetingLocked
+  isMeetingLocked,
 };

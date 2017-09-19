@@ -15,7 +15,7 @@ export default function endMeeting(credentials) {
   check(requesterToken, String);
 
   const payload = {
-      userId: requesterUserId,
+    userId: requesterUserId,
   };
 
   Logger.verbose(`Meeting '${meetingId}' is destroyed by '${requesterUserId}'`);

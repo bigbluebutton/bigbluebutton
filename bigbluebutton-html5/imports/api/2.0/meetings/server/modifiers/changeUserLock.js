@@ -25,6 +25,6 @@ export default function changeUserLock(meetingId, payload) {
       return Logger.error(`Changing user lock setting: ${err}`);
     }
   };
-  
+
   return Users.upsert(selector, modifier, cb);
-};
+}
