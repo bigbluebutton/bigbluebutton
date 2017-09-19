@@ -1306,6 +1306,18 @@ mx|ProgressBar {
 
 /*
 //------------------------------
+//  QuoteView
+//------------------------------
+*/
+
+views|QuotesView {
+	iconQuote       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Quote");
+	verticalGap     : 20;
+	horizontalAlign : center;
+}
+
+/*
+//------------------------------
 //  RadioButton
 //------------------------------
 */

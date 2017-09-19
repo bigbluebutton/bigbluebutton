@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:mate="http://mate.asfusion.com/"
+		 width="620"
+		 alpha="0"
+		 verticalScrollPolicy="off" horizontalScrollPolicy="off"
+		 creationComplete="creationCompleteHandler(event)">
+	
+	<fx:Declarations>
+		<mx:Fade id="dissolveOut" duration="150" alphaFrom="1.0" alphaTo="0.0" target="{this}"/>
+		<mx:Fade id="dissolveIn" duration="250" alphaFrom="0.0" alphaTo="1.0" target="{this}"/>
+		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			
+			import org.as3commons.lang.ArrayUtils;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private var quotes:Array = [];
+			
+			private var timer:Timer = new Timer(2200);
+
+			private function creationCompleteHandler(event:FlexEvent):void {
+				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.1'));
+				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.2'));
+				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.3'));
+				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.4'));
+				quotes.push(ResourceUtil.getInstance().getString('bbb.mainshell.quote.5'));
+
+				dissolveOut.addEventListener(EffectEvent.EFFECT_END, dissolveOutHandler);
+				timer.addEventListener(TimerEvent.TIMER, timerCompleteHandler);
+				showNewQuote();
+			}
+
+			private function timerCompleteHandler(event:TimerEvent):void {
+				dissolveOut.play();
+				timer.stop();
+			}
+			
+			private function dissolveOutHandler(event:EffectEvent):void {
+				showNewQuote();
+			}
+			
+			private function showNewQuote():void {
+				while ("“ " + quotes[0] + " ”" == quoteLabel.text) {
+					ArrayUtils.shuffle(quotes);
+				}
+				quoteLabel.text = "“ " + quotes[0] + " ”";
+				dissolveIn.play();
+				timer.start();
+			}
+
+			private function allModulesLoaded(event:ModuleLoadEvent):void {
+				timer.stop();
+				timer.removeEventListener(Event.DEACTIVATE, timerCompleteHandler);
+				dissolveOut.removeEventListener(EffectEvent.EFFECT_END, dissolveOutHandler);
+				if (parent != null)
+					parent.removeChild(this);
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:Image source="{getStyle('iconQuote')}" />
+	
+	<s:Label id="quoteLabel"
+			 width="620"
+			 fontSize="36"
+			 textAlign="center" />
+</mx:VBox>

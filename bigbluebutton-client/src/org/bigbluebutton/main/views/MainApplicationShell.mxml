@@ -920,8 +920,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  height="150"
 					  width="100%">
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
-		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
-		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15" labelWidth="280" textAlign="center"/>
+		<views:QuotesView id="quoteView" horizontalCenter="0" y="{this.height/2 - quoteView.height - 80}"/>
 	</views:MainCanvas>	
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" styleName="defaultControlBarStyle" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >
