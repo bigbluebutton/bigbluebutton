@@ -1,25 +1,5 @@
 @import "../../../stylesheets/variables/_all";
 
-.listItemBrandedFocus {
-  position: relative;
-  display: inline-block;
-  border-left: $focus-border-size solid $color-white;
-  border-right: $focus-border-size solid $color-white;
-  transition: all .2s ease-in-out;
-
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border-left: $focus-border-size solid $color-primary;
-      border-right: $focus-border-size solid $color-white;   
-      > i, span {
-        left: $focus-border-size;  
-      }  
-    }
-  }
-}
-
 .list {
   list-style: none;
   font-size: $font-size-base;
@@ -57,7 +37,7 @@
 }
 
 .item {
-  @extend .listItemBrandedFocus;
+  @extend .customListItemFocus;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;
   display: flex;

@@ -1,19 +1,7 @@
 @import "../styles.scss";
 
-.brandedFocus {
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: 3px solid $user-list-bg;
-      border-left: 3px solid $color-primary;
-      padding-left: 3px;
-    }
-  }
-}
-
 .chatListItem {
-  @extend .brandedFocus;
+  @extend .customChatItemFocus;
   @extend %list-item;
   cursor: pointer;
   padding: 0;

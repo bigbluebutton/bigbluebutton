@@ -30,19 +30,6 @@ $user-icons-color-hover: $color-gray;
 /* classes for extending
  * ==========
  */
- .brandedFocus {
-  border: $focus-border-size solid $user-list-bg;
-  border-radius: $focus-border-size;
-
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: $focus-border-size solid $color-primary;
-    }
-  }
-}
-
 %flex-column {
   display: flex;
   flex-flow: column;
@@ -153,11 +140,8 @@ $user-icons-color-hover: $color-gray;
 }
 
 .scrollableList {
-  @extend .brandedFocus;
-}
-
-.scrollableList {
   @include scrollbox-vertical($user-list-bg);
+  @extend .customListFocus;
 }
 
 .participants, .messages {

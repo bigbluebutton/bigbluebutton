@@ -1,0 +1,112 @@
+$focus-border-size: 3px;
+$color-primary: #0F70D7 !default;
+$user-list-bg: #F3F6F9;
+$color-white: #FFF;
+
+.customListFocus {
+  border: $focus-border-size solid $user-list-bg;
+  border-radius: $focus-border-size;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: $focus-border-size solid $color-primary;
+    }
+  }
+}
+
+.customUserItemFocus,
+.customChatItemFocus {
+  border: $focus-border-size solid $user-list-bg;
+  border-radius: $focus-border-size;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: $focus-border-size solid $user-list-bg;
+      border-left: $focus-border-size solid $color-primary;
+      padding-left: $focus-border-size;
+      border-radius: $focus-border-size;
+    }
+  }
+}
+
+.customInputFocus {
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: $focus-border-size solid $color-primary;
+    }
+  }
+}
+
+.customListItemFocus {
+  position: relative;
+  display: inline-block;
+  border-left: $focus-border-size solid $color-white;
+  border-right: $focus-border-size solid $color-white;
+  transition: all .2s ease-in-out;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border-left: $focus-border-size solid $color-primary;
+      border-right: $focus-border-size solid $color-white;   
+      > i, span {
+        left: $focus-border-size;  
+      }  
+    }
+  }
+}
+
+.customSelectFocus {
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: $focus-border-size solid $color-primary;
+    }
+  }
+}
+
+.customLinkFocus {
+  border: $focus-border-size solid $color-white;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: $focus-border-size solid $color-primary;
+    }
+  }
+}
+
+.customBtnFocus {
+  border: none;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  transition: all .2s ease-in-out;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+    }
+  }
+
+  &:focus::before {
+    position: absolute;
+    content: '';
+    top: calc(.1em - .25em - .25em);
+    left: calc(.1em - .25em - .25em);
+    right: calc(.1em - .25em - .25em);
+    bottom: calc(.1em - .25em - .25em);
+    border-radius: $focus-border-size;
+    border: $focus-border-size solid $color-primary;
+  }
+}

@@ -17,19 +17,8 @@
   align-items: left;
   flex-shrink: 0;
 
-  .brandedLinkFocus {
-    border: 3px solid $color-white;
-    &,
-    &:active {
-      &:focus {
-        outline: none !important;
-        border: 3px solid $color-primary;
-      }
-    }
-  }
-
   a {
-    @extend .brandedLinkFocus;
+    @extend .customLinkFocus;
     text-decoration: none;
     display: block;
   }

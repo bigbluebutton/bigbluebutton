@@ -1,21 +1,8 @@
 @import "../styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
 
-.brandedFocus {
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: $focus-border-size solid $user-list-bg;
-      border-left: $focus-border-size solid $color-primary;
-      padding-left: $focus-border-size;
-      border-radius: $focus-border-size;
-    }
-  }
-}
-
 .userListItem {
-  @extend .brandedFocus;
+  @extend .customUserItemFocus;
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;

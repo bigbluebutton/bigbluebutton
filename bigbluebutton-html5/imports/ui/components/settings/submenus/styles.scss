@@ -52,19 +52,8 @@
   flex-grow: 1;
 }
 
-.brandedSelectFocus {
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: $focus-border-size solid $color-primary;
-      padding: 1px;
-    }
-  }
-}
-
 .select {
-  @extend .brandedSelectFocus;
+  @extend .customSelectFocus;
   background-color: #fff;
   border: $focus-border-size solid #fff;
   border-radius: $focus-border-size;
@@ -102,7 +91,7 @@
 }
 
 .swatch {
-  @extend .brandedSelectFocus;
+  @extend .customSelectFocus;
   position: absolute;
   float: right;
   background: #fff;
