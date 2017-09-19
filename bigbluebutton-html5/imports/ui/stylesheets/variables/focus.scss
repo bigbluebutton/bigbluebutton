@@ -33,16 +33,6 @@ $color-white: #FFF;
   }
 }
 
-.customInputFocus {
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: $focus-border-size solid $color-primary;
-    }
-  }
-}
-
 .customListItemFocus {
   position: relative;
   display: inline-block;
@@ -63,16 +53,8 @@ $color-white: #FFF;
   }
 }
 
-.customSelectFocus {
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: $focus-border-size solid $color-primary;
-    }
-  }
-}
-
+.customInputFocus,
+.customSelectFocus,
 .customLinkFocus {
   border: $focus-border-size solid $color-white;
 
