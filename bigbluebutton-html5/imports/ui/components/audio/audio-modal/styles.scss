@@ -78,6 +78,14 @@ Button.audioBtn:last-of-type {
   i {
     color: $color-link;
   }
+
+  &,
+  &:focus,
+  &:hover {
+    i {
+      color: $color-white;
+    }
+  }
 }
 
 .topRow {
