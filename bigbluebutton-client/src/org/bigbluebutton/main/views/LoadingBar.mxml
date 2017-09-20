@@ -61,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function moduleLoadingStarted(e:ModuleLoadEvent):void {
 				numModules = BBB.getConfigManager().config.numberOfModules();
-				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
+				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading');
 				this.visible = true;
 			}
 
