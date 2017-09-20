@@ -248,7 +248,7 @@ class UserListItem extends Component {
     }
 
     const userNameSub = [];
-    const isViewer = (!user.isPresenter && !user.isModerator) ? true : false;
+    const isViewer = !!((!user.isPresenter && !user.isModerator));
 
     if (isMeetingLocked(meeting.meetingId) && isViewer && user.isLocked) {
       userNameSub.push(<span>

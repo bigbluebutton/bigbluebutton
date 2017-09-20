@@ -6,17 +6,19 @@ import RedisPubSub from '/imports/startup/server/redis2x';
 import Slides from '/imports/api/2.0/slides';
 import Logger from '/imports/startup/server/logger';
 import { SVG, PNG } from '/imports/utils/mimeTypes';
+import calculateSlideData from '/imports/api/2.0/slides/server/helpers';
 
 const requestWhiteboardHistory = (meetingId, slideId) => {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'GetWhiteboardAnnotationsReqMsg';
+  const USER_ID = 'nodeJSapp';
 
   const payload = {
     whiteboardId: slideId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, { userId: 'nodeJSapp' });
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, USER_ID, payload);
 };
 
 const SUPPORTED_TYPES = [SVG, PNG];
@@ -25,7 +27,9 @@ const fetchImageSizes = imageUri =>
   probe(imageUri)
     .then((result) => {
       if (!SUPPORTED_TYPES.includes(result.mime)) {
-        throw `Invalid image type, received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`;
+        throw new Meteor.Error(
+          'invalid-image-type', `received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`,
+        );
       }
 
       return {
@@ -89,8 +93,20 @@ export default function addSlide(meetingId, presentationId, slide) {
 
   return fetchImageSizes(imageUri)
     .then(({ width, height }) => {
-      modifier.$set.width = width;
-      modifier.$set.height = height;
+      // pre-calculating the width, height, and vieBox coordinates / dimensions
+      // to unload the client-side
+      const slideData = {
+        width,
+        height,
+        xOffset: modifier.$set.xOffset,
+        yOffset: modifier.$set.yOffset,
+        widthRatio: modifier.$set.widthRatio,
+        heightRatio: modifier.$set.heightRatio,
+      };
+      modifier.$set.calculatedData = calculateSlideData(slideData);
+      modifier.$set.calculatedData.imageUri = imageUri;
+      modifier.$set.calculatedData.width = width;
+      modifier.$set.calculatedData.height = height;
 
       return Slides.upsert(selector, modifier, cb);
     })

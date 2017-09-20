@@ -142,10 +142,10 @@ package org.bigbluebutton.modules.chat.model
       var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\n");
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-        allText += "[" + item.time + "] ";
         if (StringUtil.trim(item.name) != "") {
-          allText += item.name + ": ";
+          allText += item.name + "\t";
         }
+		allText += item.time + "\t";
         allText += item.text + returnStr;
       }
       return allText;

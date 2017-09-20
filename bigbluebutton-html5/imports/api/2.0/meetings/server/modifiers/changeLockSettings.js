@@ -16,7 +16,7 @@ export default function changeLockSettings(meetingId, payload) {
   });
 
   const selector = {
-    meetingId
+    meetingId,
   };
 
   const modifier = {
@@ -25,11 +25,15 @@ export default function changeLockSettings(meetingId, payload) {
     },
   };
 
-  const cb = (err) => {
+  const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Changing meeting={${meetingId}} lock settings: ${err}`);
     }
+
+    if (numChanged) {
+      return Logger.error(`Changed meeting={${meetingId}} updated lock settings`);
+    }
   };
-  
+
   return Meetings.upsert(selector, modifier, cb);
-};
+}

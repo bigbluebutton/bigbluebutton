@@ -46,7 +46,7 @@ const nextSlide = (currentSlideNum, numberOfSlides) => {
 };
 
 const skipToSlide = (event) => {
-  const requestedSlideNum = parseInt(event.target.value);
+  const requestedSlideNum = parseInt(event.target.value, 10);
   makeCall('switchSlide', requestedSlideNum);
 };
 

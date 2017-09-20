@@ -4,23 +4,19 @@ import LogoutConfirmation from './component';
 import LogoutConfirmationService from './service';
 
 class LogoutConfirmationContainer extends Component {
-    
+
   constructor(props) {
     super(props);
   }
 
   render() {
-    return(
+    return (
       <LogoutConfirmation {...this.props} />
     );
   }
 }
 
-export default createContainer(() => {
-
-  return {
-    isModerator: LogoutConfirmationService.isModerator(),
-    endMeeting: LogoutConfirmationService.endMeeting,
-  };
-
-}, LogoutConfirmationContainer);
+export default createContainer(() => ({
+  isModerator: LogoutConfirmationService.isModerator(),
+  endMeeting: LogoutConfirmationService.endMeeting,
+}), LogoutConfirmationContainer);
