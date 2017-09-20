@@ -189,7 +189,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var _showToolbar:Boolean = true;
 			private const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
 			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
-			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
 			[Bindable] private var footerHeight:Number = 60;
@@ -206,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var heightWatch:ChangeWatcher;
 			private var resizeExecuting:Boolean = false;
 
-      private var _respTimer:ResponsivenessTimer;
+  			private var _respTimer:ResponsivenessTimer;
       
 			public function getLogWindow() : LogWindow
 			{
@@ -223,11 +222,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				updateCopyrightText();
 				loadBackground();
+				initQuote();
 				
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;
-					toolbarPaddingTop = 0;
 					calculateCanvasHeight();
 				}
 				toolbar.displayToolbar();
@@ -250,6 +249,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
 					copyrightText = String(brandingOptions.copyright).replace("{0}", appVersion);
+				}
+			}
+			
+			private function initQuote() : void {
+				if (brandingOptions.showQuote) {
+					quoteView.init();
+				} else {
+					quoteView.dispose();
 				}
 			}
 
@@ -905,13 +912,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
-					   width="100%" 
+					   width="100%"
 					   height="{toolbarHeight}" 
 					   visible="{_showToolbar}"
 					   includeInLayout="{showToolbarOpt}"
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
-					   paddingTop="{toolbarPaddingTop}"
 					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
@@ -923,8 +929,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  height="150"
 					  width="100%">
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
-		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
-		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15" labelWidth="280" textAlign="center"/>
+		<views:QuotesView id="quoteView" horizontalCenter="0" y="{this.height/2 - quoteView.height - 80}"/>
 	</views:MainCanvas>	
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" styleName="defaultControlBarStyle" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >
