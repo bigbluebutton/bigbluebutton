@@ -20,8 +20,11 @@ package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
   
+  import mx.collections.ArrayCollection;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.objectify;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
@@ -31,7 +34,9 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
+  import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+  import org.bigbluebutton.modules.chat.vo.GroupChatUser;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -63,9 +68,43 @@ package org.bigbluebutton.modules.chat.services
         case "GroupChatMessageBroadcastEvtMsg":
           handleGroupChatMessageBroadcastEvtMsg(message);
           break;
+        case "GroupChatCreatedEvtMsg":
+          handleGroupChatCreatedEvtMsg(message);
+          break;
         default:
           //   LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
+    }
+    
+    private function handleGroupChatCreatedEvtMsg(msg:Object):void {
+      var body: Object = msg.body as Object;
+      var corrId: String = body.correlationId as String;
+      var chatId: String = body.chatId as String;
+      var createdBy: GroupChatUser = new GroupChatUser(body.createdBy.id, body.createdBy.name);
+      var name: String = body.name as String;
+      var access: String = body.access as String;
+      var users: Array = body.users as Array;
+      var msgs: Array = body.msg as Array;
+      
+      var chatUsers:Array = new Array();
+      if (users.length > 0) {
+        for (var i:int = 0; i < users.length; i++) {
+          var u: Object = users[i] as Object;
+          chatUsers.push(new GroupChatUser(u.id, u.name));
+        }
+      }
+      
+      var chatMsgs: Array = new Array();
+      if (msgs.length > 0) {
+        for (var j: int = 0; j < msgs.length; j++) {
+          var m: Object = msgs[i] as Object;
+          chatMsgs.push(processNewChatMessage(m));
+        }
+      }
+      
+      var groupChat: GroupChat = new GroupChat(chatId, name, access,
+        createdBy, new ArrayCollection(chatUsers), new ArrayCollection(chatMsgs));
+      
     }
     
     private function handleGetChatHistoryRespMsg(message:Object):void {

@@ -33,11 +33,11 @@ object CreateGroupChatReqMsg { val NAME = "CreateGroupChatReqMsg"}
 case class CreateGroupChatReqMsg(header: BbbClientMsgHeader, body: CreateGroupChatReqMsgBody) extends StandardMsg
 case class CreateGroupChatReqMsgBody(correlationId: String, requesterId: String,
                                      name: String, access: String,
-                                     users: Vector[GroupChatUser], msg: Vector[GroupChatMsgFromUser])
+                                     users: Vector[String], msg: Vector[GroupChatMsgFromUser])
 
-object CreateGroupChatRespMsg { val NAME = "CreateGroupChatRespMsg"}
-case class CreateGroupChatRespMsg(header: BbbClientMsgHeader, body: CreateGroupChatRespMsgBody) extends BbbCoreMsg
-case class CreateGroupChatRespMsgBody(correlationId: String, chatId: String, createdBy: GroupChatUser,
+object GroupChatCreatedEvtMsg { val NAME = "GroupChatCreatedEvtMsg"}
+case class GroupChatCreatedEvtMsg(header: BbbClientMsgHeader, body: GroupChatCreatedEvtMsgBody) extends BbbCoreMsg
+case class GroupChatCreatedEvtMsgBody(correlationId: String, chatId: String, createdBy: GroupChatUser,
                                       name: String, access: String,
                                       users: Vector[GroupChatUser], msg: Vector[GroupChatMsgToUser])
 
@@ -62,7 +62,7 @@ case class GroupChatAddUserReqMsgBody(requesterId: String, chats: Vector[String]
 
 object GroupChatUserAddedEvtMsg { val NAME = "GroupChatUserAddedEvtMsg"}
 case class GroupChatUserAddedEvtMsg(header: BbbClientMsgHeader, body: GroupChatUserAddedEvtMsgBody) extends BbbCoreMsg
-case class GroupChatUserAddedEvtMsgBody(requesterId: String, chats: Vector[String])
+case class GroupChatUserAddedEvtMsgBody(requesterId: String, chats: Vector[GroupChatUser])
 
 object GroupChatRemoveUserReqMsg { val NAME = "GroupChatRemoveUserReqMsg"}
 case class GroupChatRemoveUserReqMsg(header: BbbClientMsgHeader, body: GroupChatRemoveUserReqMsgBody) extends StandardMsg
