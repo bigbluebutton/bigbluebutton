@@ -56,6 +56,8 @@ package org.bigbluebutton.modules.chat.services
         },
         JSON.stringify(message)
       );
+      
+      createGroupChat();
     }
     
     public function sendPublicMessage(cm:ChatMessageVO):void {
@@ -97,6 +99,34 @@ package org.bigbluebutton.modules.chat.services
       var message:Object = {
         header: {name: "ClearPublicChatHistoryPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
         body: {}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
+    }
+    
+    public function createGroupChat():void {
+      LOGGER.debug("Sending [chat.CreateGroupChatReqMsg] to server.");
+      
+      var corrId: String = "my-correlation-id";
+      var requesterId: String = UsersUtil.getMyUserID();
+      var name: String = "TEST GROUP CHAT";
+      var access: String = "PRIVATE_ACCESS";
+      var users: Array = new Array();
+      var msg: Array = new Array();
+      
+      var message:Object = {
+        header: {name: "CreateGroupChatReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: UsersUtil.getMyUserID()},
+        body: {correlationId: corrId, requesterId: requesterId,
+          name: name, access: access, users: users, msg: msg}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

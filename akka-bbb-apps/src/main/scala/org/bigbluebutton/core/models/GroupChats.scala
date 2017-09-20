@@ -5,8 +5,10 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object GroupChatFactory {
   def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
-  def create(id: String, name: String, access: String, createdBy: GroupChatUser): GroupChat = {
-    new GroupChat(id, name, access, createdBy, Map.empty, Vector.empty)
+  def create(id: String, name: String, access: String, createdBy: GroupChatUser,
+             users: Vector[GroupChatUser], msgs: Vector[GroupChatMessage]): GroupChat = {
+    val cu = users.map(u => u.id -> u).toMap
+    new GroupChat(id, name, access, createdBy, cu, msgs)
   }
 }
 

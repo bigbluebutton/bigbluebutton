@@ -31,11 +31,15 @@ case class GetGroupChatMsgsRespMsgBody(chatId: String, msgs: Vector[GroupChatMsg
 
 object CreateGroupChatReqMsg { val NAME = "CreateGroupChatReqMsg"}
 case class CreateGroupChatReqMsg(header: BbbClientMsgHeader, body: CreateGroupChatReqMsgBody) extends StandardMsg
-case class CreateGroupChatReqMsgBody(access: String, requesterId: String, name: String, correlationId: String)
+case class CreateGroupChatReqMsgBody(correlationId: String, requesterId: String,
+                                     name: String, access: String,
+                                     users: Vector[GroupChatUser], msg: Vector[GroupChatMsgFromUser])
 
 object CreateGroupChatRespMsg { val NAME = "CreateGroupChatRespMsg"}
 case class CreateGroupChatRespMsg(header: BbbClientMsgHeader, body: CreateGroupChatRespMsgBody) extends BbbCoreMsg
-case class CreateGroupChatRespMsgBody(correlationId: String, chatId: String, name: String, access: String)
+case class CreateGroupChatRespMsgBody(correlationId: String, chatId: String, createdBy: GroupChatUser,
+                                      name: String, access: String,
+                                      users: Vector[GroupChatUser], msg: Vector[GroupChatMsgToUser])
 
 object DestroyGroupChatReqMsg { val NAME = "DestroyGroupChatReqMsg"}
 case class DestroyGroupChatReqMsg(header: BbbClientMsgHeader, body: DestroyGroupChatReqMsgBody) extends StandardMsg
