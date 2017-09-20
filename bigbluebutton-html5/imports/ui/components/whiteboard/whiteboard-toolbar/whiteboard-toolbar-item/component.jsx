@@ -7,18 +7,15 @@ export default class WhiteboardToolbarItem extends Component {
   constructor() {
     super();
 
-    this._onClick = this._onClick.bind(this);
+    this.handleItemClick = this.handleItemClick.bind(this);
   }
 
-  _onClick() {
+  handleItemClick() {
     const { objectToReturn, onItemClick } = this.props;
     // if there is a submenu name, then pass it to onClick
-    // if not - it's probably "Undo", "Clear All", "Multi-user", etc. No submenu here.
-    if (objectToReturn) {
-      onItemClick(objectToReturn);
-    } else {
-      onItemClick();
-    }
+    // if not - it's probably "Undo", "Clear All", "Multi-user", etc.
+    // in the second case we'll pass undefined and it will work fine anyway
+    onItemClick(objectToReturn);
   }
 
   render() {
@@ -32,7 +29,7 @@ export default class WhiteboardToolbarItem extends Component {
           label={this.props.label}
           icon={this.props.icon ? this.props.icon : null}
           customIcon={this.props.customIcon}
-          onClick={this._onClick}
+          onClick={this.handleItemClick}
           onBlur={this.props.onBlur}
           className={this.props.className}
           onMouseEnter={this.props.onMouseEnter}

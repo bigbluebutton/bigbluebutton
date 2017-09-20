@@ -5,12 +5,7 @@ import Users from '/imports/api/2.0/users';
 
 const getMultiUserStatus = () => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
-
-  if (data) {
-    return data.multiUser;
-  }
-
-  return false;
+  return data ? data.multiUser : false;
 };
 
 const getPresenterCursorId = userId => Cursor.findOne({ userId }, { fields: { _id: 1 } });

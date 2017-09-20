@@ -34,22 +34,12 @@ const getCurrentSlide = () => {
 
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-
-  if (currentUser) {
-    return currentUser.presenter;
-  }
-
-  return false;
+  return currentUser ? currentUser.presenter : false;
 };
 
 const getMultiUserStatus = () => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
-
-  if (data) {
-    return data.multiUser;
-  }
-
-  return false;
+  return data ? data.multiUser : false;
 };
 
 export default {

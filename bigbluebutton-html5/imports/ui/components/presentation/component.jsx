@@ -271,17 +271,17 @@ export default class PresentationArea extends React.Component {
   }
 
   renderWhiteboardToolbar() {
-    if (this.props.currentSlide) {
-      const adjustedSizes = this.calculateSize();
-
-      return (
-        <WhiteboardToolbarContainer
-          whiteboardId={this.props.currentSlide.id}
-          height={adjustedSizes.height}
-        />
-      );
+    if (!this.props.currentSlide) {
+      return null;
     }
-    return null;
+
+    const adjustedSizes = this.calculateSize();
+    return (
+      <WhiteboardToolbarContainer
+        whiteboardId={this.props.currentSlide.id}
+        height={adjustedSizes.height}
+      />
+    );
   }
 
   render() {

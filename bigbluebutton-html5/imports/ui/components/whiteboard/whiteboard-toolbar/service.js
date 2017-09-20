@@ -4,6 +4,17 @@ import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
 
+
+const DRAW_SETTINGS = 'drawSettings';
+
+const makeSetter = key => (value) => {
+  const drawSettings = Storage.getItem(DRAW_SETTINGS);
+  if (drawSettings) {
+    drawSettings[key] = value;
+    Storage.setItem(DRAW_SETTINGS, drawSettings);
+  }
+};
+
 const actions = {
   undoAnnotation: (whiteboardId) => {
     makeCall('undoAnnotation', whiteboardId);
@@ -18,7 +29,7 @@ const actions = {
   },
 
   setInitialWhiteboardToolbarValues: (tool, thickness, color, fontSize, textShape) => {
-    const _drawSettings = Storage.getItem('drawSettings');
+    const _drawSettings = Storage.getItem(DRAW_SETTINGS);
     if (!_drawSettings) {
       const drawSettings = {
         whiteboardAnnotationTool: tool,
@@ -27,80 +38,36 @@ const actions = {
         textFontSize: fontSize,
         textShape,
       };
-      Storage.setItem('drawSettings', JSON.stringify(drawSettings));
+      Storage.setItem(DRAW_SETTINGS, drawSettings);
     }
   },
 
-  setTool: (tool) => {
-    const drawSettings = Storage.getItem('drawSettings');
-    if (drawSettings) {
-      drawSettings.whiteboardAnnotationTool = tool;
-      Storage.setItem('drawSettings', JSON.stringify(drawSettings));
-    }
-  },
+  getCurrentDrawSettings: () => Storage.getItem(DRAW_SETTINGS),
 
-  setThickness: (thickness) => {
-    const drawSettings = Storage.getItem('drawSettings');
-    if (drawSettings) {
-      drawSettings.whiteboardAnnotationThickness = thickness;
-      Storage.setItem('drawSettings', JSON.stringify(drawSettings));
-    }
-  },
+  setFontSize: makeSetter('textFontSize'),
 
-  setColor: (color) => {
-    const drawSettings = Storage.getItem('drawSettings');
-    if (drawSettings) {
-      drawSettings.whiteboardAnnotationColor = color;
-      Storage.setItem('drawSettings', JSON.stringify(drawSettings));
-    }
-  },
+  setTool: makeSetter('whiteboardAnnotationTool'),
 
-  setFontSize: (fontSize) => {
-    const drawSettings = Storage.getItem('drawSettings');
-    if (drawSettings) {
-      drawSettings.textFontSize = fontSize;
-      Storage.setItem('drawSettings', JSON.stringify(drawSettings));
-    }
-  },
+  setThickness: makeSetter('whiteboardAnnotationThickness'),
 
-  getCurrentDrawSettings: () => Storage.getItem('drawSettings'),
+  setColor: makeSetter('whiteboardAnnotationColor'),
 
-  setTextShapeObject: (textShape) => {
-    const drawSettings = Storage.getItem('drawSettings');
-    if (drawSettings) {
-      drawSettings.textShape = textShape;
-      Storage.setItem('drawSettings', JSON.stringify(drawSettings));
-    }
-  },
+  setTextShapeObject: makeSetter('textShape'),
 };
 
 const getTextShapeActiveId = () => {
-  const drawSettings = Storage.getItem('drawSettings');
-  if (drawSettings) {
-    return drawSettings.textShape.textShapeActiveId;
-  }
-
-  return '';
+  const drawSettings = Storage.getItem(DRAW_SETTINGS);
+  return drawSettings ? drawSettings.textShape.textShapeActiveId : '';
 };
 
 const getMultiUserStatus = () => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
-
-  if (data) {
-    return data.multiUser;
-  }
-
-  return false;
+  return data ? data.multiUser : false;
 };
 
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-
-  if (currentUser) {
-    return currentUser.presenter;
-  }
-
-  return false;
+  return currentUser ? currentUser.presenter : false;
 };
 
 export default {

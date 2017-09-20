@@ -4,6 +4,8 @@ import cx from 'classnames';
 import styles from './styles.scss';
 import WhiteboardToolbarItem from './whiteboard-toolbar-item/component';
 
+const TRANSITION_DURATION = '0.4s';
+
 export default class WhiteboardToolbar extends Component {
 
   static HEXToINTColor(hexColor) {
@@ -58,8 +60,8 @@ export default class WhiteboardToolbar extends Component {
     this.handleThicknessChange = this.handleThicknessChange.bind(this);
     this.handleFontSizeChange = this.handleFontSizeChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
-    this.disableOnBlur = this.disableOnBlur.bind(this);
-    this.enableOnBlur = this.enableOnBlur.bind(this);
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
     this.renderAnnotationList = this.renderAnnotationList.bind(this);
     this.renderFontSizeList = this.renderFontSizeList.bind(this);
     this.renderThicknessList = this.renderThicknessList.bind(this);
@@ -260,14 +262,14 @@ export default class WhiteboardToolbar extends Component {
   }
 
   // disabling onBlur flag when mouse is over the items in the lists
-  disableOnBlur() {
+  handleMouseEnter() {
     this.setState({
       onBlurEnabled: false,
     });
   }
 
   // enabling the onBlur flag when the mouse leaving the lists
-  enableOnBlur() {
+  handleMouseLeave() {
     this.setState({
       onBlurEnabled: true,
     });
@@ -286,8 +288,8 @@ export default class WhiteboardToolbar extends Component {
               onItemClick={this.handleAnnotationChange}
               objectToReturn={annotation}
               className={cx(styles.toolbarListButton, this.state.annotationSelected.sessionValue === annotation.sessionValue ? styles.selectedListButton : '')}
-              onMouseEnter={this.disableOnBlur}
-              onMouseLeave={this.enableOnBlur}
+              onMouseEnter={this.handleMouseEnter}
+              onMouseLeave={this.handleMouseLeave}
               key={annotation.sessionValue}
             />
           ),
@@ -313,8 +315,8 @@ export default class WhiteboardToolbar extends Component {
               onItemClick={this.handleFontSizeChange}
               objectToReturn={fontSizeValue}
               className={cx(styles.toolbarListButton, styles.fontSizeListButton, this.state.fontSizeSelected === fontSizeValue ? styles.selectedListButton : '')}
-              onMouseEnter={this.disableOnBlur}
-              onMouseLeave={this.enableOnBlur}
+              onMouseEnter={this.handleMouseEnter}
+              onMouseLeave={this.handleMouseLeave}
               key={fontSizeValue}
             />
           ),
@@ -340,8 +342,8 @@ export default class WhiteboardToolbar extends Component {
               onItemClick={this.handleThicknessChange}
               objectToReturn={thicknessRadius}
               className={cx(styles.toolbarListButton, this.state.thicknessSelected === thicknessRadius ? styles.selectedListButton : '')}
-              onMouseEnter={this.disableOnBlur}
-              onMouseLeave={this.enableOnBlur}
+              onMouseEnter={this.handleMouseEnter}
+              onMouseLeave={this.handleMouseLeave}
               key={thicknessRadius}
             />
           ),
@@ -367,8 +369,8 @@ export default class WhiteboardToolbar extends Component {
               onItemClick={this.handleColorChange}
               objectToReturn={color}
               className={cx(styles.toolbarListButton, this.state.colorSelected === color ? styles.selectedListButton : '')}
-              onMouseEnter={this.disableOnBlur}
-              onMouseLeave={this.enableOnBlur}
+              onMouseEnter={this.handleMouseEnter}
+              onMouseLeave={this.handleMouseLeave}
               key={color}
             />
           ),
@@ -399,6 +401,8 @@ export default class WhiteboardToolbar extends Component {
                   style={{
                     fontSize: this.state.fontSizeSelected,
                     color: this.state.colorSelected,
+                    WebkitTransition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`, /* Safari */
+                    transition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`,
                   }}
                 >
                   Aa
@@ -434,7 +438,7 @@ export default class WhiteboardToolbar extends Component {
                         from={this.state.prevColorSelected}
                         to={this.state.colorSelected}
                         begin={'indefinite'}
-                        dur="0.4s"
+                        dur={TRANSITION_DURATION}
                         repeatCount="0"
                         fill="freeze"
                       />
@@ -445,7 +449,7 @@ export default class WhiteboardToolbar extends Component {
                         from={this.state.prevIconRadius}
                         to={this.state.thicknessSelected}
                         begin={'indefinite'}
-                        dur="0.4s"
+                        dur={TRANSITION_DURATION}
                         repeatCount="0"
                         fill="freeze"
                       />
@@ -471,7 +475,7 @@ export default class WhiteboardToolbar extends Component {
                     from={this.state.prevColorSelected}
                     to={this.state.colorSelected}
                     begin={'indefinite'}
-                    dur="0.4s"
+                    dur={TRANSITION_DURATION}
                     repeatCount="0"
                     fill="freeze"
                   />
