@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationUploadTokenReqMsgHdlr {
   this: PresentationApp2x =>

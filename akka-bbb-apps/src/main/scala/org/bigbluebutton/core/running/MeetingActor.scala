@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import java.io.{ PrintWriter, StringWriter }
 
 import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
+import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
@@ -131,7 +132,13 @@ class MeetingActor(
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
-  var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
+  var state = new MeetingState2x(
+    new GroupChats(Map.empty),
+    new PresentationPodManager(Map.empty),
+    None,
+    inactivityTracker,
+    expiryTracker
+  )
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
@@ -140,6 +147,11 @@ class MeetingActor(
   state = GroupChatApp.genTestChatMsgHistory(state, BbbSystemConst.SYSTEM_USER, liveMeeting)
 
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
+
+  // Create a default Presentation Pod
+  state = PresentationPodsApp.createDefaultPresentationPod(state)
+  log.debug("\n\n____NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
+
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -268,6 +280,7 @@ class MeetingActor(
       case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
 
       // Presentation
+      //      case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus, state)
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: GetPresentationInfoReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)

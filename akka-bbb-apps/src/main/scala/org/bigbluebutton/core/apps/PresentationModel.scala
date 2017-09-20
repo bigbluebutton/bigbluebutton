@@ -9,17 +9,17 @@ case class Presentation(id: String, name: String, current: Boolean = false,
                         pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean)
 
 class PresentationModel {
-  private var presentations = new scala.collection.immutable.HashMap[String, Presentation]
+  private var presentations = new scala.collection.immutable.HashMap[String, Presentation] // todo remove
 
-  def addPresentation(pres: Presentation) {
+  def addPresentation(pres: Presentation) { // todo remove
     savePresentation(pres)
   }
 
-  def getPresentations(): Vector[Presentation] = {
+  def getPresentations(): Vector[Presentation] = { // todo remove
     presentations.values.toVector
   }
 
-  def getCurrentPresentation(): Option[Presentation] = {
+  def getCurrentPresentation(): Option[Presentation] = { // todo remove
     presentations.values find (p => p.current)
   }
 
@@ -34,7 +34,7 @@ class PresentationModel {
     } yield curPage
   }
 
-  def removePresentation(presId: String): Option[Presentation] = {
+  def removePresentation(presId: String): Option[Presentation] = { // todo remove
     for {
       pres <- presentations.get(presId)
     } yield {
@@ -43,7 +43,7 @@ class PresentationModel {
     }
   }
 
-  def setCurrentPresentation(presId: String): Option[Presentation] = {
+  def setCurrentPresentation(presId: String): Option[Presentation] = { // todo remove
     getPresentations foreach (curPres => {
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
@@ -60,7 +60,7 @@ class PresentationModel {
     }
   }
 
-  private def savePresentation(pres: Presentation) {
+  private def savePresentation(pres: Presentation) { // todo remove
     presentations += pres.id -> pres
   }
 
@@ -105,7 +105,7 @@ class PresentationModel {
   }
 
   def changeCurrentPage(presentationId: String, pageId: String): Boolean = {
-    var foundPage: Boolean = false;
+    var foundPage: Boolean = false
 
     for {
       pres <- presentations.get(presentationId)
