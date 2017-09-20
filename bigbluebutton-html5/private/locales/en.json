@@ -218,5 +218,7 @@
     "app.error.401": "Unauthorized",
     "app.error.403": "Forbidden",
     "app.error.leaveLabel": "Log in again",
-    "app.guest.waiting": "Waiting for approval to join"
+    "app.guest.waiting": "Waiting for approval to join",
+    "app.video.joinVideo": "Cam off",
+    "app.video.leaveVideo": "Cam on"
 }

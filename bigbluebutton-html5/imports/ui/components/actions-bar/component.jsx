@@ -3,6 +3,7 @@ import styles from './styles.scss';
 import EmojiContainer from './emoji-menu/container';
 import ActionsDropdown from './actions-dropdown/component';
 import JoinAudioOptionsContainer from '../audio/audio-menu/container';
+import JoinVideoOptionsContainer from '../video-dock/video-menu/container';
 import MuteAudioContainer from './mute-button/container';
 
 export default class ActionsBar extends Component {
@@ -24,7 +25,10 @@ export default class ActionsBar extends Component {
             handleJoinAudio={this.props.handleOpenJoinAudio}
             handleCloseAudio={this.props.handleExitAudio}
           />
-          {/* <JoinVideo />*/}
+          <JoinVideoOptionsContainer
+            handleJoinVideo={this.props.handleJoinVideo}
+            handleCloseVideo={this.props.handleExitVideo}
+          />
           <EmojiContainer />
         </div>
       </div>

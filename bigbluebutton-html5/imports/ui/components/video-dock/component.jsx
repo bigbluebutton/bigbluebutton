@@ -106,6 +106,7 @@ export default class VideoDock extends Component {
   }
 
   componentDidMount() {
+    const that = this;
     const ws = this.state.ws;
     const { users } = this.props;
 
@@ -116,6 +117,9 @@ export default class VideoDock extends Component {
         }
       }
     }
+
+    document.addEventListener('joinVideo', function() { that.shareWebcam(); });// TODO find a better way to do this
+    document.addEventListener('exitVideo', function() { that.unshareWebcam(); });
 
     ws.addEventListener('message', (msg) => {
       const parsedMessage = JSON.parse(msg.data);
@@ -313,13 +317,7 @@ export default class VideoDock extends Component {
     return (
 
       <div className={styles.videoDock}>
-        <div className={styles.secretButtons}>
-          <button type="button" onClick={this.shareWebcam} > Share Webcam </button>
-          <button type="button" onClick={this.unshareWebcam} > Unshare Webcam </button>
-        </div>
-
         <div id="webcamArea" />
-
         <video id="shareWebcamVideo" className={styles.sharedWebcamVideo} ref="videoInput" />
       </div>
     );
