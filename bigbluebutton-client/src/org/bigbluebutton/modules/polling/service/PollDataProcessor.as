@@ -1,14 +1,10 @@
 package org.bigbluebutton.modules.polling.service
 {
   import com.asfusion.mate.events.Dispatcher;
-  
   import flash.accessibility.Accessibility;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.model.LiveMeeting;
-  import org.bigbluebutton.modules.chat.ChatConstants;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;

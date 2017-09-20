@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.chat.model
   import com.asfusion.mate.events.Dispatcher;
   
   import org.bigbluebutton.modules.chat.events.ConversationDeletedEvent;
+  import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
   public class ChatModel
@@ -11,7 +12,29 @@ package org.bigbluebutton.modules.chat.model
     
     private var convs:Object = new Object();
     
+    private var groupChats:Object = new Object();
+    
+    
     private var dispatcher:Dispatcher = new Dispatcher();
+    
+    public function getGroupChat(id: String):GroupChat {
+      if (groupChats.hasOwnProperty(id)) {
+        return groupChats[id];
+      } 
+      
+      return null;
+    }
+    
+    public function addGroupChat(gc: GroupChat):void {
+      groupChats[gc.id] = gc;
+      dispatcher.dispatchEvent(new GroupChatCreatedEvent(gc.id));
+    }
+    
+    public function removeGroupChat(id: String):void {
+      if (groupChats.hasOwnProperty(id)) {
+        delete groupChats[id];
+      } 
+    }
     
     public static function getConvId(from:String, to: String):String {
       var members:Array = new Array(to, from);

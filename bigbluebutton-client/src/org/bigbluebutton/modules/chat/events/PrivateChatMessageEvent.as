@@ -28,9 +28,11 @@ package org.bigbluebutton.modules.chat.events
     public var chatId: String;
     public var senderId: String;
     
-    public function PrivateChatMessageEvent(type:String)
+    public function PrivateChatMessageEvent(id: String, senderId: String)
     {
-      super(type, false, false);
+      super(PRIVATE_CHAT_MESSAGE_EVENT, false, false);
+      this.chatId = id;
+      this.senderId = senderId;
     }
     
   }

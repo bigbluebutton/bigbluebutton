@@ -64,9 +64,7 @@ package org.bigbluebutton.modules.chat.model
       messages.addItem(newCM);
       trace("NUM MESSAGES = " + messages.length);
       
-      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-      pcEvent.id = id;
-      pcEvent.senderId = newCM.senderId;
+      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(id, newCM.senderId);
       _dispatcher.dispatchEvent(pcEvent);
       
     }
@@ -81,9 +79,7 @@ package org.bigbluebutton.modules.chat.model
       messages.addItem(newCM);
       trace("NUM MESSAGES = " + messages.length);
       
-      var pcEvent:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
-      pcEvent.chatId = id;
-      pcEvent.senderId = newCM.senderId;
+      var pcEvent:PrivateChatMessageEvent = new PrivateChatMessageEvent(id, newCM.senderId);
       _dispatcher.dispatchEvent(pcEvent);     
     }
     
