@@ -157,7 +157,9 @@ class Dropdown extends Component {
         aria-live={otherProps['aria-live']}
         aria-relevant={otherProps['aria-relevant']}
         aria-haspopup={otherProps['aria-haspopup']}
-        aria-label={otherProps['aria-label']}>
+        aria-label={otherProps['aria-label']}
+        tabIndex={-1}
+      >
         {trigger}
         {content}
         { this.state.isOpen ?

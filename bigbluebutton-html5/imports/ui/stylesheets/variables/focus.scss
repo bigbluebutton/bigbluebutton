@@ -2,17 +2,15 @@ $focus-border-size: 3px;
 $color-primary: #0F70D7 !default;
 $user-list-bg: #F3F6F9;
 $color-white: #FFF;
+$list-item-bg-hover: darken(#F3F6F9, 7%);
 
 .customListFocus {
   border: $focus-border-size solid $user-list-bg;
   border-radius: $focus-border-size;
 
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-      border: $focus-border-size solid $color-primary;
-    }
+  &:focus {
+    outline: none !important;
+    border: $focus-border-size solid $color-primary;
   }
 }
 
@@ -20,6 +18,10 @@ $color-white: #FFF;
 .customChatItemFocus {
   border: $focus-border-size solid $user-list-bg;
   border-radius: $focus-border-size;
+
+  &:hover {
+    background-color: $list-item-bg-hover;
+  }
 
   &,
   &:active {
