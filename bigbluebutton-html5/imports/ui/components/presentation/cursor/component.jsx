@@ -66,20 +66,19 @@ export default class Cursor extends Component {
 
   componentWillMount() {
     const { cursorX, cursorY, slideWidth, slideHeight, presenter, isMultiUser } = this.props;
-    const cursorCoordinate = Cursor.getCursorCoordinates(
+
+    // setting the initial cursor info
+    this.scaledSizes = Cursor.getScaledSizes(this.props);
+    this.cursorCoordinate = Cursor.getCursorCoordinates(
       cursorX,
       cursorY,
       slideWidth,
       slideHeight,
     );
-    const { fill, displayLabel } = Cursor.getFillAndLabel(presenter, isMultiUser);
-    const _scaledSizes = Cursor.getScaledSizes(this.props);
 
-    // setting the initial cursor info
-    this.cursorCoordinate = cursorCoordinate;
+    const { fill, displayLabel } = Cursor.getFillAndLabel(presenter, isMultiUser);
     this.fill = fill;
     this.displayLabel = displayLabel;
-    this.scaledSizes = _scaledSizes;
   }
 
   componentDidMount() {
@@ -113,8 +112,7 @@ export default class Cursor extends Component {
       ||
         (labelBoxWidth !== nextProps.labelBoxWidth ||
           labelBoxHeight !== nextProps.labelBoxHeight)) {
-      const _scaledSizes = Cursor.getScaledSizes(nextProps);
-      this.scaledSizes = _scaledSizes;
+      this.scaledSizes = Cursor.getScaledSizes(nextProps);
     }
 
     if (cursorX !== nextProps.cursorX || cursorY !== nextProps.cursorY) {

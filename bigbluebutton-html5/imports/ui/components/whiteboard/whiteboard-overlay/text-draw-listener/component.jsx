@@ -207,39 +207,41 @@ export default class TextDrawListener extends Component {
 
   mouseUpText() {
     // TODO - find if the size is large enough to display the text area
-    if (this.state.isDrawing && !this.state.isWritingText) {
-      const { generateNewShapeId,
-        getCurrentShapeId,
-        setTextShapeActiveId,
-      } = this.props.actions;
-
-      // coordinates and width/height of the textarea in percentages of the current slide
-      // saving them in the class since they will be used during all updates
-      this.currentX = (this.state.textBoxX / this.props.slideWidth) * 100;
-      this.currentY = (this.state.textBoxY / this.props.slideHeight) * 100;
-      this.currentWidth = (this.state.textBoxWidth / this.props.slideWidth) * 100;
-      this.currentHeight = (this.state.textBoxHeight / this.props.slideHeight) * 100;
-      this.currentStatus = 'DRAW_START';
-      this.handleDrawText(
-        { x: this.currentX, y: this.currentY },
-        this.currentWidth,
-        this.currentHeight,
-        this.currentStatus,
-        generateNewShapeId(),
-        '',
-      );
-
-      setTextShapeActiveId(getCurrentShapeId());
-
-      this.setState({
-        isWritingText: true,
-        isDrawing: false,
-        textBoxX: undefined,
-        textBoxY: undefined,
-        textBoxWidth: 0,
-        textBoxHeight: 0,
-      });
+    if (!this.state.isDrawing && this.state.isWritingText) {
+      return;
     }
+
+    const { generateNewShapeId,
+      getCurrentShapeId,
+      setTextShapeActiveId,
+    } = this.props.actions;
+
+    // coordinates and width/height of the textarea in percentages of the current slide
+    // saving them in the class since they will be used during all updates
+    this.currentX = (this.state.textBoxX / this.props.slideWidth) * 100;
+    this.currentY = (this.state.textBoxY / this.props.slideHeight) * 100;
+    this.currentWidth = (this.state.textBoxWidth / this.props.slideWidth) * 100;
+    this.currentHeight = (this.state.textBoxHeight / this.props.slideHeight) * 100;
+    this.currentStatus = 'DRAW_START';
+    this.handleDrawText(
+      { x: this.currentX, y: this.currentY },
+      this.currentWidth,
+      this.currentHeight,
+      this.currentStatus,
+      generateNewShapeId(),
+      '',
+    );
+
+    setTextShapeActiveId(getCurrentShapeId());
+
+    this.setState({
+      isWritingText: true,
+      isDrawing: false,
+      textBoxX: undefined,
+      textBoxY: undefined,
+      textBoxWidth: 0,
+      textBoxHeight: 0,
+    });
   }
 
   handleDrawText(startPoint, width, height, status, id, text) {
