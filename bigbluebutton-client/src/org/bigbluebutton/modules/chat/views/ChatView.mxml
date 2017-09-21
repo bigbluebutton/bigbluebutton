@@ -306,12 +306,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
 
 				if (publicChat) {
-          chatBox.id = ChatModel.MAIN_PUBLIC_CHAT;
+          chatBox.chatId = ChatModel.MAIN_PUBLIC_CHAT;
 					chatBox.label = PUBLIC_CHAT_USERNAME
 					chatBox.publicChat = true;
 					publicBox = chatBox; // keep a reference to the public chat box
 				} else {
-          chatBox.id = ChatModel.getConvId(chatWithUserID, UsersUtil.getMyUserID());
+          chatBox.chatId = ChatModel.getConvId(chatWithUserID, UsersUtil.getMyUserID());
 					chatBox.publicChat = false;
 					chatBox.label = UsersUtil.getUserName(chatWithUserID);
 		                        chatBox.displayHowToCloseMessage();

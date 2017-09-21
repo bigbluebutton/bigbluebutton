@@ -37,14 +37,13 @@ package org.bigbluebutton.modules.chat.services
     
     public var dispatcher:IEventDispatcher;
     
-    public function getPublicChatMessages():void {
-      LOGGER.debug("Sending [chat.getPublicMessages] to server.");
+    public function getGroupChats():void {
+      LOGGER.debug("Sending [chat.GetGroupChatsReqMsg] to server.");
       var message:Object = {
-        header: {name: "GetGroupChatMsgsReqMsg", 
+        header: {name: "GetGroupChatsReqMsg", 
           meetingId: UsersUtil.getInternalMeetingID(), 
             userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID(),
-            chatId: ChatModel.MAIN_PUBLIC_CHAT}
+        body: {requesterId: UsersUtil.getMyUserID()}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -56,8 +55,26 @@ package org.bigbluebutton.modules.chat.services
         },
         JSON.stringify(message)
       );
+    }
+    
+    public function getGroupChatMsgHistory(chatId: String):void {
+      trace("SENDING CHAT HISTORY REQUEST FOR CHAT ID = " + chatId);
+      var message:Object = {
+        header: {name: "GetGroupChatMsgsReqMsg", 
+          meetingId: UsersUtil.getInternalMeetingID(), 
+            userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), chatId: chatId}
+      };
       
-      createGroupChat();
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
     }
     
     public function sendPublicMessage(cm:ChatMessageVO):void {

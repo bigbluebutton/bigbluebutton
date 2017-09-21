@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.chat.model
   
   import org.bigbluebutton.modules.chat.events.ConversationDeletedEvent;
   import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
+  import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
   public class ChatModel
@@ -24,6 +25,15 @@ package org.bigbluebutton.modules.chat.model
       
       return null;
     }
+    
+    public function addGroupChatsList(gcs: Array):void {
+      for (var i: int = 0; i < gcs.length; i++) {
+        var gc: GroupChat = gcs[i] as GroupChat;
+        groupChats[gc.id] = gc;
+      }
+      dispatcher.dispatchEvent(new ReceivedGroupChatsEvent());
+    }
+    
     
     public function addGroupChat(gc: GroupChat):void {
       groupChats[gc.id] = gc;
@@ -66,10 +76,8 @@ package org.bigbluebutton.modules.chat.model
     
     public function getChatConversation(convId:String):ChatConversation {
       if (convs.hasOwnProperty(convId)) {
-        trace("FOUND chatId = " + convId);
         return convs[convId];
       } else {
-        trace("NOT FOUND chatId = " + convId);
         var conv: ChatConversation = new ChatConversation(convId);
         convs[convId] = conv;
         return conv;

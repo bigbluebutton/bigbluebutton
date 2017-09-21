@@ -24,16 +24,12 @@ package org.bigbluebutton.modules.chat.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.as3commons.logging.util.objectify;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
   import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-  import org.bigbluebutton.modules.chat.model.ChatConversation;
-  import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
@@ -53,12 +49,9 @@ package org.bigbluebutton.modules.chat.services
     public function onMessage(messageName:String, message:Object):void
     {
       switch (messageName) {
-        case "SendPublicMessageEvtMsg":
-          handleSendPublicMessageEvtMsg(message);
-          break;			
-        case "SendPrivateMessageEvtMsg":
-          handleSendPrivateMessageEvtMsg(message);
-          break;	
+        case "GetGroupChatsRespMsg":
+          handleGetGroupChatsRespMsg(message);
+          break;
         case "GetGroupChatMsgsRespMsg":
           handleGetChatHistoryRespMsg(message);
           break;	
@@ -74,6 +67,46 @@ package org.bigbluebutton.modules.chat.services
         default:
           //   LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
+    }
+    
+    private function toGroupChat(chatInfo: Object):GroupChat {
+      var id: String = chatInfo.id as String;
+      var name: String = chatInfo.name as String;
+      var access: String = chatInfo.access as String;
+      var createdBy: GroupChatUser = new GroupChatUser(
+        chatInfo.createdBy.id as String, 
+        chatInfo.createdBy.name as String);
+      var users: Array = chatInfo.users as Array;
+      
+      var chatUsers:Array = new Array();
+      if (users.length > 0) {
+        for (var i:int = 0; i < users.length; i++) {
+          var u: Object = users[i] as Object;
+          chatUsers.push(new GroupChatUser(u.id, u.name));
+        }
+      }
+      
+      var emptyChatMsgs: Array = new Array();
+      var gc: GroupChat = new GroupChat(id, name, access,
+        createdBy, new ArrayCollection(chatUsers), 
+        new ArrayCollection(emptyChatMsgs));
+      return gc;
+    }
+    
+    private function handleGetGroupChatsRespMsg(msg: Object):void {
+      var body: Object = msg.body as Object;
+      var allChats: Array = msg.body.chats as Array;
+
+      var chats: Array = new Array();
+      if (allChats.length > 0) {
+        for (var i:int = 0; i < allChats.length; i++) {
+          var chatInfo: Object = allChats[i] as Object;
+          var groupChat: GroupChat = toGroupChat(chatInfo);
+          chats.push(groupChat);
+        }
+      }
+      
+      LiveMeeting.inst().chats.addGroupChatsList(chats);
     }
     
     private function handleGroupChatCreatedEvtMsg(msg:Object):void {
@@ -109,23 +142,28 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleGetChatHistoryRespMsg(message:Object):void {
-      LOGGER.debug("Handling chat history message [{0}]", [message.body.msgs]);
+      LOGGER.debug("Handling chat history message [{0}]", [JSON.stringify(message)]);
       var chatId: String = message.body.chatId as String;
       var rawMessages:Array = message.body.msgs as Array;
       var processedMessages:Array = new Array();
       
+      trace("HISTORY LENGTH = " + rawMessages.length);
       for (var i:int = 0; i < rawMessages.length; i++) {
-        processedMessages.push(processNewChatMessage(rawMessages[i] as Object));
+        var rawMsg: Object = rawMessages[i] as Object;
+        trace("PROCESS MESSAGE " + i);
+        processedMessages.push(processNewChatMessage(rawMsg));
       }
       
       var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
       if (groupChat != null) {
         groupChat.addMessageHistory(processedMessages);
+      } else {
+        trace("CANNOT FIND GROUP CHAT ID = " + chatId);
       }
     }
     
     private function handleGroupChatMessageBroadcastEvtMsg(message: Object):void {
-      LOGGER.debug("onMessageFromServer2x - " + message);
+      LOGGER.debug("onMessageFromServer2x - " + JSON.stringify(message));
       var header: Object = message.header as Object;
       var body: Object = message.body as Object;
       var chatId: String = body.chatId as String;
@@ -142,34 +180,17 @@ package org.bigbluebutton.modules.chat.services
       dispatcher.dispatchEvent(pcCoreEvent);
     }
     
-    private function handleSendPublicMessageEvtMsg(message:Object, history:Boolean = false):void {
-      var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
-      
-      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
-      publicChat.newChatMessage(msg);
-      
-      var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PUBLIC_CHAT);
-      pcCoreEvent.message = message;
-      dispatcher.dispatchEvent(pcCoreEvent);
-    }
-    
-    private function handleSendPrivateMessageEvtMsg(message:Object):void {
-      var msg:ChatMessageVO = processIncomingChatMessage(message.body.message);
-      
-      var chatId: String = ChatModel.getConvId(msg.fromUserId, msg.toUserId);
-      var privChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(chatId);
-      privChat.newPrivateChatMessage(msg);
-      
-      var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PRIVATE_CHAT);
-      pcCoreEvent.message = message;
-      dispatcher.dispatchEvent(pcCoreEvent);      
-    }
+
     
     private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
       LOGGER.debug("Handling clear chat history message");
       
-      var publicChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
-      publicChat.clearPublicChat();
+      var chatId: String = message.body.chatId as String;
+      
+      var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+      if (groupChat != null) {
+        groupChat.clearPublicChat();
+      }
       
       var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
       dispatcher.dispatchEvent(clearChatEvent);
@@ -195,8 +216,8 @@ package org.bigbluebutton.modules.chat.services
       msg.fromColor = message.color as String;
       msg.fromTime = message.timestamp as Number;
       msg.fromTimezoneOffset = message.timestamp as Number;
-      msg.toUserId = message.chatId as String;
-      msg.toUsername = message.chatId as String;
+      msg.toUserId = message.id as String;
+      msg.toUsername = message.id as String;
       msg.message = message.message as String;
       return msg;
     }

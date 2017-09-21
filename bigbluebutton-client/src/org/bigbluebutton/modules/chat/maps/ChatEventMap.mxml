@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+      import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
@@ -47,13 +48,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 			<ObjectBuilder generator="{ChatEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
-		</EventHandlers>
+      <ObjectBuilder generator="{ChatMessageService}"/>
+    </EventHandlers>
 		
 		<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">
-			<MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow" />
-	    <ObjectBuilder generator="{ChatMessageService}"/>
+			<MethodInvoker generator="{ChatMessageService}" method="getGroupChats" />   
 	  </EventHandlers>
 	    
+    <EventHandlers type="{ReceivedGroupChatsEvent.RECEIVED_GROUPCHATS_EVENT}">
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow" />  
+    </EventHandlers>
+    
 	  <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
 	   		<MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindow" />
 	  </EventHandlers>
@@ -75,7 +80,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    </EventHandlers>
 	    		
 		<EventHandlers type="{ChatHistoryEvent.REQUEST_HISTORY}" >
-	    <MethodInvoker generator="{ChatMessageService}" method="getPublicChatMessages"/>
+	    <MethodInvoker generator="{ChatMessageService}" method="getGroupChatHistoryMessages" 
+                     arguments="{event.chatId}"/>
 		</EventHandlers>    
 	  
 	  <EventHandlers type="{ChatHistoryEvent.RECEIVED_HISTORY}" >

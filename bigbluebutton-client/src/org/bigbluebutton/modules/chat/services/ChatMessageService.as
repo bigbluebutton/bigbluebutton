@@ -79,8 +79,12 @@ package org.bigbluebutton.modules.chat.services
       sender.sendPrivateMessage(message);
     }
     
-    public function getPublicChatMessages():void {
-      sender.getPublicChatMessages();
+    public function getGroupChats():void {
+      sender.getGroupChats();
+    }
+    
+    public function getGroupChatHistoryMessages(chatId: String):void {
+      sender.getGroupChatMsgHistory(chatId);
     }
 
     public function clearPublicChatMessages():void {
