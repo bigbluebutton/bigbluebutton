@@ -200,6 +200,10 @@ class ReceivedJsonMsgHandlerActor(
       case AssignPresenterReqMsg.NAME =>
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
 
+      // Presentation Pods
+      case CreateNewPresentationPodPubMsg.NAME =>
+        routeGenericMsg[CreateNewPresentationPodPubMsg](envelope, jsonNode)
+
       // Caption
       case EditCaptionHistoryPubMsg.NAME =>
         routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)

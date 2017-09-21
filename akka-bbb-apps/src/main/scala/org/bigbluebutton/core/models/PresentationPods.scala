@@ -33,7 +33,7 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
       }
     })
 
-    presentations.get(presId) match {
+    presentations.get(presId) match { // set new current presenter
       case Some(pres) =>
         val cp = pres.copy(current = true)
         addPresentation(cp)

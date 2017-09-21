@@ -146,7 +146,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
-			
+
+			private var podId: String = "";
+			private var ownerId: String = "";
+
 			[Embed(source="../../../polling/sounds/Poll.mp3")] 
 			private var noticeSoundClass:Class;
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
@@ -156,7 +159,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void{
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			}
-			
+
+			public function setPodId(_podId: String):void {
+				this.podId = _podId;
+			}
+
+			public function getPodId(): String {
+				return this.podId;
+			}
+
+			public function setOwnerId(_ownerId: String):void {
+				this.ownerId = _ownerId;
+			}
+
+			public function getOwnerId(): String {
+				return this.ownerId;
+			}
+
 			private function onCreationComplete():void{
 				//check for the polling module in config.xml
 				var vxml:XML = BBB.getConfigForModule("PollingModule");

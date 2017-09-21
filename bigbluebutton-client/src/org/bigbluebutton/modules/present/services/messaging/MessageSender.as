@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.bigbluebutton.main.api.JSLog;
   
   public class MessageSender {
     
@@ -112,6 +113,21 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error("Error while requesting token for presentation upload." + status); },
+        JSON.stringify(message)
+      );
+    }
+
+    public function createNewPresentationPod():void {
+      var message:Object = {
+        header: {name: "CreateNewPresentationPodPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {ownerId: UsersUtil.getMyUserID()}
+      };
+        JSLog.warn("sender: creating a new presentation pod ", null);
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error("Error while creating a new presentation pod." + status); },
         JSON.stringify(message)
       );
     }

@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
       import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+      import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
 		]]>
@@ -141,5 +142,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{GoToNextPageCommand.GO_TO_NEXT_PAGE}">
 	    <MethodInvoker generator="{PresentProxy}" method="handleGoToNextPageCommand" arguments="{event}" />
 	  </EventHandlers>
+
+		<EventHandlers type="{NewPresentationPodCreated.PRESENTATION_NEW_POD_CREATED}" >
+			<MethodInvoker generator="{PresentManager}" method="handleAddPresentationPod" arguments="{event}" />
+		</EventHandlers>
+
 	</fx:Declarations>
 </EventMap>

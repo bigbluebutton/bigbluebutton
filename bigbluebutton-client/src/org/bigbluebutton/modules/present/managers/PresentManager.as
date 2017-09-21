@@ -31,26 +31,40 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
 	import org.bigbluebutton.modules.present.model.PresentOptions;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
 	public class PresentManager
 	{
 		private var globalDispatcher:Dispatcher;
 		private var presentWindow:PresentationWindow;
+		private var sender:MessageSender;
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
+			sender = new MessageSender();
 		}
 		
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
 			if (presentWindow != null){ 
 				return;
 			}
+			sender.createNewPresentationPod();
+		}
+
+		public function handleAddPresentationPod(e: NewPresentationPodCreated): void {
+			if (presentWindow != null){
+				return;
+			}
+
 			var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			presentWindow = new PresentationWindow();
+			presentWindow.setPodId(e.podId);
+			presentWindow.setOwnerId(e.ownerId);
 			presentWindow.visible = presentOptions.showPresentWindow;
 			presentWindow.showControls = presentOptions.showWindowControls;
 			openWindow(presentWindow);

@@ -38,10 +38,13 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+  import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
+  import org.bigbluebutton.main.api.JSLog;
+
   
   public class MessageReceiver implements IMessageListener {
     private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
@@ -57,6 +60,7 @@ package org.bigbluebutton.modules.present.services.messaging
     
     public function onMessage(messageName:String, message:Object):void {
       //LOGGER.info("Presentation: received message " + messageName);
+      JSLog.warn("____Presentation received: " + messageName, message);
       
       switch (messageName) {
         case "SetCurrentPageEvtMsg":
@@ -91,6 +95,9 @@ package org.bigbluebutton.modules.present.services.messaging
           break;
         case "PresentationUploadTokenFailRespMsg":
           handlePresentationUploadTokenFailRespMsg(message);
+          break;
+        case "CreateNewPresentationPodEvtMsg":
+          handleCreateNewPresentationPodEvtMsg(message);
           break;
       }
     }
@@ -248,5 +255,15 @@ package org.bigbluebutton.modules.present.services.messaging
       var filename: String = msg.body.filename;
       dispatcher.dispatchEvent(new PresentationUploadTokenFail(podId, filename));
     }
+
+    private function handleCreateNewPresentationPodEvtMsg(msg:Object): void {
+      var ownerId: String = msg.body.ownerId;
+      var podId: String = msg.body.podId;
+      dispatcher.dispatchEvent(new NewPresentationPodCreated(podId, ownerId));
+
+      JSLog.warn("+++ receiver handleCreateNewPresentationPodEvtMsg received ownerId=" + ownerId + " podId=" + podId, {});
+    }
+
+ 
   }
 }

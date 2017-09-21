@@ -110,6 +110,7 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatHdlrs
+  val presentationPodsApp = new PresentationPodHdlrs
   val pollApp = new PollApp2x
   val wbApp = new WhiteboardApp2x
 
@@ -151,7 +152,6 @@ class MeetingActor(
   // Create a default Presentation Pod
   state = PresentationPodsApp.createDefaultPresentationPod(state)
   log.debug("\n\n____NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
-
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -293,6 +293,9 @@ class MeetingActor(
       case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
+
+      // Presentation Pods
+      case m: CreateNewPresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
