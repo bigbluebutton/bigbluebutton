@@ -244,6 +244,11 @@ Cursor.propTypes = {
   // Slide physical size to original size ratio
   physicalWidthRatio: PropTypes.number.isRequired,
 
+  // Slide width (svg)
+  slideWidth: PropTypes.number.isRequired,
+  // Slide height (svg)
+  slideHeight: PropTypes.number.isRequired,
+
   /**
    * Defines the cursor radius (not scaled)
    * @defaultValue 5
@@ -276,7 +281,6 @@ Cursor.propTypes = {
 
 Cursor.defaultProps = {
   radius: 5,
-
   cursorLabelText: {
     // text Y shift (10 points down)
     textDY: 10,

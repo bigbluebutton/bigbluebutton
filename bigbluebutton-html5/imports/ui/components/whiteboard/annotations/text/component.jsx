@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AnnotationHelpers from '../helpers';
 
+const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
+
 export default class TextDrawComponent extends Component {
   static getViewerStyles(results) {
     const styles = {
@@ -53,7 +55,7 @@ export default class TextDrawComponent extends Component {
   }
 
   componentDidMount() {
-    if (this.props.isActive && this.props.annotation.status !== 'DRAW_END') {
+    if (this.props.isActive && this.props.annotation.status !== DRAW_END) {
       this.handleFocus();
     }
   }
@@ -177,7 +179,7 @@ export default class TextDrawComponent extends Component {
   render() {
     const results = this.getCoordinates();
 
-    if (this.props.isActive && this.props.annotation.status !== 'DRAW_END') {
+    if (this.props.isActive && this.props.annotation.status !== DRAW_END) {
       return this.renderPresenterTextShape(results);
     }
     return this.renderViewerTextShape(results);

@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles.scss';
 
-const MESSAGE_INTERVAL = 50;
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const MESSAGE_FREQUENCY = ANNOTATION_CONFIG.message_frequency;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
+const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class ShapeDrawListener extends Component {
   constructor(props) {
@@ -78,7 +82,7 @@ export default class ShapeDrawListener extends Component {
     generateNewShapeId();
 
     // setting the initial current status
-    this.currentStatus = 'DRAW_START';
+    this.currentStatus = DRAW_START;
 
     // saving the coordinates for future references
     this.initialCoordinate = {
@@ -92,7 +96,7 @@ export default class ShapeDrawListener extends Component {
     };
 
     // All the messages will be send on timer by sendCoordinates func
-    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
+    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_FREQUENCY);
 
     return true;
   }
@@ -155,8 +159,8 @@ export default class ShapeDrawListener extends Component {
     );
     this.lastSentCoordinate = this.currentCoordinate;
 
-    if (this.currentStatus === 'DRAW_START') {
-      this.currentStatus = 'DRAW_UPDATE';
+    if (this.currentStatus === DRAW_START) {
+      this.currentStatus = DRAW_UPDATE;
     }
   }
 
@@ -167,10 +171,16 @@ export default class ShapeDrawListener extends Component {
 
     if (this.isDrawing) {
       // make sure we are drawing and we have some coordinates sent for this shape before
-      // to prevent sending 'DRAW_END on a random mouse click
+      // to prevent sending DRAW_END on a random mouse click
       if (this.lastSentCoordinate.x && this.lastSentCoordinate.y) {
         const { getCurrentShapeId } = this.props.actions;
-        this.handleDrawCommonAnnotation(this.initialCoordinate, this.currentCoordinate, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
+        this.handleDrawCommonAnnotation(
+          this.initialCoordinate,
+          this.currentCoordinate,
+          DRAW_END,
+          getCurrentShapeId(),
+          this.props.drawSettings.tool,
+        );
       }
       this.resetState();
     }

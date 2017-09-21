@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles.scss';
 
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
+const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
+
 export default class TextDrawListener extends Component {
   constructor() {
     super();
@@ -31,7 +36,7 @@ export default class TextDrawListener extends Component {
     this.currentWidth = undefined;
     this.currentHeight = undefined;
 
-    // current text shape status, it may change between "DRAW_START", "DRAW_UPDATE", "DRAW_END"
+    // current text shape status, it may change between DRAW_START, DRAW_UPDATE, DRAW_END
     this.currentStatus = '';
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -72,7 +77,7 @@ export default class TextDrawListener extends Component {
 
     if ((fontSizeChanged || colorChanged || textShapeValueChanged) && textShapeIdNotEmpty) {
       const { getCurrentShapeId } = this.props.actions;
-      this.currentStatus = 'DRAW_UPDATE';
+      this.currentStatus = DRAW_UPDATE;
 
       this.handleDrawText(
         { x: this.currentX, y: this.currentY },
@@ -141,7 +146,7 @@ export default class TextDrawListener extends Component {
     }
 
     const { getCurrentShapeId } = this.props.actions;
-    this.currentStatus = 'DRAW_END';
+    this.currentStatus = DRAW_END;
 
     this.handleDrawText(
       { x: this.currentX, y: this.currentY },
@@ -222,7 +227,7 @@ export default class TextDrawListener extends Component {
     this.currentY = (this.state.textBoxY / this.props.slideHeight) * 100;
     this.currentWidth = (this.state.textBoxWidth / this.props.slideWidth) * 100;
     this.currentHeight = (this.state.textBoxHeight / this.props.slideHeight) * 100;
-    this.currentStatus = 'DRAW_START';
+    this.currentStatus = DRAW_START;
     this.handleDrawText(
       { x: this.currentX, y: this.currentY },
       this.currentWidth,
@@ -337,7 +342,7 @@ TextDrawListener.propTypes = {
     // Defines a function which generates a new shape id
     generateNewShapeId: PropTypes.func.isRequired,
     // Defines a function which receives a thickness num and normalizes it before we send a message
-    normalizeThickness: PropTypes.func.isRequired,
+    normalizeFont: PropTypes.func.isRequired,
     // Defines a function which we use to publish a message to the server
     sendAnnotation: PropTypes.func.isRequired,
     // Defines a function which resets the current state of the text shape drawing

@@ -1,0 +1,66 @@
+whiteboard:
+  #annotation statuses specific to the each type of annotation
+  annotations:
+    message_frequency: 50
+    status:
+      start: 'DRAW_START'
+      update: 'DRAW_UPDATE'
+      end: 'DRAW_END'
+  toolbar:
+    colors:
+      - '#000000'
+      - '#ffffff'
+      - '#ff0000'
+      - '#ff8800'
+      - '#ccff00'
+      - '#00ff00'
+      - '#00ffff'
+      - '#0088ff'
+      - '#0000ff'
+      - '#8800ff'
+      - '#ff00ff'
+      - '#c0c0c0'
+    thickness:
+      - 14
+      - 12
+      - 10
+      - 8
+      - 6
+      - 4
+      - 2
+    font_sizes: 
+      - 36
+      - 32
+      - 28
+      - 24
+      - 20
+      - 16
+    tools:
+      #text
+      - 
+        icon: 'text_tool'
+        name: 'text'
+      #line
+      -
+        icon: 'linte_tool'
+        name: 'line'
+      #ellipse
+      -
+        icon: 'circle_tool'
+        name: 'ellipse'
+      #triangle
+      -
+        icon: 'triangle_tool'
+        name: 'triangle'
+      #rectangle
+      -
+        icon: 'rectangle_tool'
+        name: 'rectangle'
+      #pencil
+      -
+        icon: 'pen_tool'
+        name: 'pencil'
+      #pan and zoom hand
+      -
+        icon: 'hand'
+        name: 'hand'

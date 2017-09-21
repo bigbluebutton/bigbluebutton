@@ -5,6 +5,11 @@ import styles from './styles.scss';
 import WhiteboardToolbarItem from './whiteboard-toolbar-item/component';
 
 const TRANSITION_DURATION = '0.4s';
+const TOOLBAR_CONFIG = Meteor.settings.public.whiteboard.toolbar;
+const ANNOTATION_COLORS = TOOLBAR_CONFIG.colors;
+const THICKNESS_RADIUSES = TOOLBAR_CONFIG.thickness;
+const FONT_SIZES = TOOLBAR_CONFIG.font_sizes;
+const ANNOTATION_TOOLS = TOOLBAR_CONFIG.tools;
 
 export default class WhiteboardToolbar extends Component {
 
@@ -34,7 +39,7 @@ export default class WhiteboardToolbar extends Component {
       // variables to keep current selected draw settings
       annotationSelected: {
         icon: 'hand',
-        sessionValue: 'hand',
+        name: 'hand',
       },
       thicknessSelected: 4,
       colorSelected: '#000000',
@@ -79,8 +84,8 @@ export default class WhiteboardToolbar extends Component {
       // setting default drawing settings if they haven't been set previously
       const { annotationSelected, thicknessSelected, colorSelected, fontSizeSelected } = this.state;
       this.props.actions.setInitialWhiteboardToolbarValues(
-        annotationSelected.sessionValue,
-        thicknessSelected,
+        annotationSelected.name,
+        thicknessSelected * 2,
         WhiteboardToolbar.HEXToINTColor(colorSelected),
         fontSizeSelected,
         {
@@ -95,7 +100,7 @@ export default class WhiteboardToolbar extends Component {
     // to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
 
-    if (this.state.annotationSelected.sessionValue !== 'text') {
+    if (this.state.annotationSelected.name !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
       this.thicknessListIconColor.beginElement();
       this.thicknessListIconRadius.beginElement();
@@ -124,7 +129,7 @@ export default class WhiteboardToolbar extends Component {
 
     let annotationSelected = {};
     for (let i = 0; i < this.props.annotations.length; i += 1) {
-      if (drawSettings.whiteboardAnnotationTool === this.props.annotations[i].sessionValue) {
+      if (drawSettings.whiteboardAnnotationTool === this.props.annotations[i].name) {
         annotationSelected = this.props.annotations[i];
         break;
       }
@@ -153,7 +158,7 @@ export default class WhiteboardToolbar extends Component {
     // 1st case
     if (this.state.colorSelected !== prevState.colorSelected) {
       // 1st case b)
-      if (this.state.annotationSelected.sessionValue !== 'text') {
+      if (this.state.annotationSelected.name !== 'text') {
         this.thicknessListIconColor.beginElement();
       }
       // 1st case a)
@@ -162,8 +167,8 @@ export default class WhiteboardToolbar extends Component {
     } else if (this.state.thicknessSelected !== prevState.thicknessSelected) {
       this.thicknessListIconRadius.beginElement();
       // 3rd case
-    } else if (this.state.annotationSelected.sessionValue !== 'text' &&
-          prevState.annotationSelected.sessionValue === 'text') {
+    } else if (this.state.annotationSelected.name !== 'text' &&
+          prevState.annotationSelected.name === 'text') {
       this.thicknessListIconRadius.beginElement();
       this.thicknessListIconColor.beginElement();
     }
@@ -181,7 +186,7 @@ export default class WhiteboardToolbar extends Component {
   // close a current submenu (fires onBlur only, when you click anywhere on the screen)
   closeSubMenu() {
     // a separate case for the active text shape
-    if (this.state.annotationSelected.sessionValue === 'text' && this.props.textShapeActiveId !== '') {
+    if (this.state.annotationSelected.name === 'text' && this.props.textShapeActiveId !== '') {
       return;
     }
 
@@ -216,11 +221,11 @@ export default class WhiteboardToolbar extends Component {
     };
 
     // to animate thickness icon properly when you switch the tool back from Text
-    if (annotation.sessionValue === 'text') {
+    if (annotation.name === 'text') {
       obj.prevIconRadius = 0;
     }
 
-    this.props.actions.setTool(annotation.sessionValue);
+    this.props.actions.setTool(annotation.name);
     this.setState(obj);
   }
 
@@ -287,10 +292,10 @@ export default class WhiteboardToolbar extends Component {
               icon={annotation.icon}
               onItemClick={this.handleAnnotationChange}
               objectToReturn={annotation}
-              className={cx(styles.toolbarListButton, this.state.annotationSelected.sessionValue === annotation.sessionValue ? styles.selectedListButton : '')}
+              className={cx(styles.toolbarListButton, this.state.annotationSelected.name === annotation.name ? styles.selectedListButton : '')}
               onMouseEnter={this.handleMouseEnter}
               onMouseLeave={this.handleMouseLeave}
-              key={annotation.sessionValue}
+              key={annotation.name}
             />
           ),
         ) : null}
@@ -392,7 +397,7 @@ export default class WhiteboardToolbar extends Component {
             className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'annotationList' ? '' : styles.notActive)}
             renderSubMenu={this.state.currentSubmenuOpen === 'annotationList' ? this.renderAnnotationList : null}
           />
-          {this.state.annotationSelected.sessionValue === 'text' ?
+          {this.state.annotationSelected.name === 'text' ?
             <WhiteboardToolbarItem
               label={'Font Size List'}
               customIcon={
@@ -510,21 +515,10 @@ export default class WhiteboardToolbar extends Component {
 }
 
 WhiteboardToolbar.defaultProps = {
-  colors: [
-    '#000000', '#ffffff', '#ff0000', '#ff8800', '#ccff00', '#00ff00',
-    '#00ffff', '#0088ff', '#0000ff', '#8800ff', '#ff00ff', '#c0c0c0',
-  ],
-  thicknessRadiuses: [14, 12, 10, 8, 6, 4, 2],
-  fontSizes: [36, 32, 28, 24, 20, 16],
-  annotations: [
-    { icon: 'text_tool', sessionValue: 'text' },
-    { icon: 'linte_tool', sessionValue: 'line' },
-    { icon: 'circle_tool', sessionValue: 'ellipse' },
-    { icon: 'triangle_tool', sessionValue: 'triangle' },
-    { icon: 'rectangle_tool', sessionValue: 'rectangle' },
-    { icon: 'pen_tool', sessionValue: 'pencil' },
-    { icon: 'hand', sessionValue: 'hand' },
-  ],
+  colors: ANNOTATION_COLORS,
+  thicknessRadiuses: THICKNESS_RADIUSES,
+  fontSizes: FONT_SIZES,
+  annotations: ANNOTATION_TOOLS,
 };
 
 WhiteboardToolbar.propTypes = {
