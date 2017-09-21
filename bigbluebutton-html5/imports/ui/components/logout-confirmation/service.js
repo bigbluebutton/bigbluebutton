@@ -1,5 +1,6 @@
-import { makeCall } from '/imports/ui/services/api/index.js';
+import { makeCall } from '/imports/ui/services/api/index';
 import Users from '/imports/api/2.0/users';
+import Breakouts from '/imports/api/2.0/breakouts';
 import mapUser from '/imports/ui/services/user/mapUser';
 import Auth from '/imports/ui/services/auth';
 
@@ -14,7 +15,13 @@ const isModerator = () => {
   return (currentUser) ? mapUser(currentUser).isModerator : null;
 };
 
+const isBreakout = () => {
+  console.log('isBreakout', Breakouts.findOne({ breakoutId: Auth.meetingID }));
+  return Breakouts.findOne({ breakoutId: Auth.meetingID });
+};
+
 export default {
   endMeeting,
   isModerator,
+  isBreakout,
 };
