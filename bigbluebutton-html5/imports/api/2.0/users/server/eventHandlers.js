@@ -7,7 +7,7 @@ import handleEmojiStatus from './handlers/emojiStatus';
 import handleGetUsers from './handlers/getUsers';
 import handleGuestsWaitingForApproval from './handlers/guestsWaitingForApproval';
 import handleGuestApproved from './handlers/guestApproved';
-import handleKickUser from './handlers/kickUser';
+import handleUserKicked from './handlers/userKicked';
 
 RedisPubSub.on('PresenterAssignedEvtMsg', handlePresenterAssigned);
 RedisPubSub.on('UserJoinedMeetingEvtMsg', handleUserJoined);
@@ -17,4 +17,4 @@ RedisPubSub.on('UserEmojiChangedEvtMsg', handleEmojiStatus);
 RedisPubSub.on('SyncGetUsersMeetingRespMsg', handleGetUsers);
 RedisPubSub.on('GuestsWaitingForApprovalEvtMsg', handleGuestsWaitingForApproval);
 RedisPubSub.on('GuestApprovedEvtMsg', handleGuestApproved);
-RedisPubSub.on('UserEjectedFromMeetingEvtMsg', handleKickUser);
+RedisPubSub.on('UserEjectedFromMeetingEvtMsg', handleUserKicked);
