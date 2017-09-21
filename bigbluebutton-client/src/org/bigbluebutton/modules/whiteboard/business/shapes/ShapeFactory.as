@@ -74,24 +74,24 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         return null;
     }
         
-    private function createAnnotation(type:String, shape:Array, color:uint, thickness:Number, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
+    private function createAnnotation(type:String, shape:Array, color:uint, thickness:Number):DrawAnnotation{
             if (type == AnnotationType.PENCIL){
-                return new PencilDrawAnnotation(shape, color, thickness, trans);
+                return new PencilDrawAnnotation(shape, color, thickness);
             } else if (type == AnnotationType.RECTANGLE){
-        return new RectangleAnnotation(shape, color, thickness, trans);
+        return new RectangleAnnotation(shape, color, thickness);
       } else if (type == AnnotationType.ELLIPSE){
-        return new EllipseAnnotation(shape, color, thickness, trans);
+        return new EllipseAnnotation(shape, color, thickness);
       } else if (type == AnnotationType.LINE){
-        return new LineAnnotation(shape, color, thickness, trans);
+        return new LineAnnotation(shape, color, thickness);
       } else if (type == AnnotationType.TRIANGLE){
-        return new TriangleAnnotation(shape, color, thickness, trans);
+        return new TriangleAnnotation(shape, color, thickness);
       }
             
             return null;
         }
             
-    public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawAnnotation {
-      return createAnnotation(type, segment, color, normalize(thickness, _parentWidth), fill, fillColor, transparency);
+    public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint):DrawAnnotation {
+      return createAnnotation(type, segment, color, normalize(thickness, _parentWidth));
     }
     
     public function normalizePoint(x:Number, y:Number):Point {

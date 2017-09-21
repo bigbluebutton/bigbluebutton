@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			_lastXPosition = -1;
 			_lastYPosition = 1;
 			
-			_timer = new Timer(100);
+			_timer = new Timer(50);
 			_timer.addEventListener(TimerEvent.TIMER, onTimerInterval);
 		}
 		

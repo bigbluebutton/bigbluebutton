@@ -16,11 +16,12 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-
 package org.bigbluebutton.modules.screenshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.external.ExternalInterface;
+	
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
@@ -30,15 +31,14 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
+	import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
 	import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
 	import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
-	import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
 	import org.bigbluebutton.modules.screenshare.utils.WebRTCScreenshareUtility;
-	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopPublishWindow;
 
 	public class WebRTCDeskshareManager {
 		private static const LOGGER:ILogger = getClassLogger(WebRTCDeskshareManager);
@@ -296,8 +296,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			dispatcher.dispatchEvent(new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START));
 		}
 
-		/*public function handleIsSharingScreenEvent(event: IsSharingScreenEvent):void {*/
-		public function handleIsSharingScreenEvent():void {
+		public function handleIsSharingScreenEvent(event: IsSharingScreenEvent):void {
 			if (UsersUtil.amIPresenter()) {
 			} else {
 				/*handleStreamStartEvent(ScreenshareModel.getInstance().streamId, event.width, event.height);*/

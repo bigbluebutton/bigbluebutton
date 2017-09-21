@@ -50,12 +50,6 @@ export default function userLeaving(credentials, userId) {
     Users.update(selector, modifier, cb);
   }
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId: requesterUserId,
-  };
-
   const payload = {
     userId,
     sessionId: meetingId,
@@ -63,5 +57,5 @@ export default function userLeaving(credentials, userId) {
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

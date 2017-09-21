@@ -7,14 +7,16 @@ import styles from './../../styles.scss';
 import ChatListItem from './../../chat-list-item/component';
 
 const propTypes = {
-  openChats: PropTypes.array.isRequired,
+  openChats: PropTypes.arrayOf(String).isRequired,
+  openChat: PropTypes.string,
   compact: PropTypes.bool,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({}).isRequired,
   rovingIndex: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
+  openChat: '',
 };
 
 const listTransition = {

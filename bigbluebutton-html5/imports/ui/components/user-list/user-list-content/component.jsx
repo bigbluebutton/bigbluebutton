@@ -6,16 +6,17 @@ import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
 
 const propTypes = {
-  openChats: PropTypes.array.isRequired,
-  users: PropTypes.array.isRequired,
+  openChats: PropTypes.arrayOf(String).isRequired,
+  users: PropTypes.arrayOf(Object).isRequired,
   compact: PropTypes.bool,
-  intl: PropTypes.object.isRequired,
-  currentUser: PropTypes.object.isRequired,
-  meeting: PropTypes.object,
+  intl: PropTypes.shape({}).isRequired,
+  currentUser: PropTypes.shape({}).isRequired,
+  meeting: PropTypes.shape({}),
   isBreakoutRoom: PropTypes.bool,
   makeCall: PropTypes.func.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -123,7 +124,7 @@ class UserContent extends Component {
           getAvailableActions={this.props.getAvailableActions}
           normalizeEmojiName={this.props.normalizeEmojiName}
           rovingIndex={this.rovingIndex}
-
+          isMeetingLocked={this.props.isMeetingLocked}
         />
       </div>
     );

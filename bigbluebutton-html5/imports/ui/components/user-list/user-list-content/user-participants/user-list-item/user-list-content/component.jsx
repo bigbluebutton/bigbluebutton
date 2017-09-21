@@ -17,37 +17,39 @@ import UserIcons from './../user-icons/component';
 
 const messages = defineMessages({
   presenter: {
-    id: 'app.userlist.presenter',
+    id: 'app.userList.presenter',
     description: 'Text for identifying presenter user',
   },
   you: {
-    id: 'app.userlist.you',
+    id: 'app.userList.you',
     description: 'Text for identifying your user',
   },
   locked: {
-    id: 'app.userlist.locked',
+    id: 'app.userList.locked',
     description: 'Text for identifying locked user',
   },
   guest: {
-    id: 'app.userlist.guest',
+    id: 'app.userList.guest',
     description: 'Text for identifying guest user',
   },
   menuTitleContext: {
-    id: 'app.userlist.menuTitleContext',
+    id: 'app.userList.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
   userAriaLabel: {
-    id: 'app.userlist.userAriaLabel',
+    id: 'app.userList.userAriaLabel',
     description: 'aria label for each user in the userlist',
   },
 });
 
 const propTypes = {
   compact: PropTypes.bool.isRequired,
-  user: PropTypes.object.isRequired,
-  intl: PropTypes.object.isRequired,
+  user: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({}).isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
-  actions: PropTypes.array.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  meeting: PropTypes.shape({}).isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
 };
 
 
@@ -173,6 +175,8 @@ class UserListContent extends Component {
       intl,
       normalizeEmojiName,
       actions,
+      isMeetingLocked,
+      meeting,
     } = this.props;
 
     const {
@@ -226,6 +230,8 @@ class UserListContent extends Component {
             user={user}
             compact={compact}
             intl={intl}
+            meeting={meeting}
+            isMeetingLocked={isMeetingLocked}
           />}
           {<UserIcons
             user={user}

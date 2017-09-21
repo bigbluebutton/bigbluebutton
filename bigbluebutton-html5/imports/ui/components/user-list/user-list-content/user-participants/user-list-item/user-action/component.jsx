@@ -6,7 +6,7 @@ const propTypes = {
   icon: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   handler: PropTypes.func.isRequired,
-  options: PropTypes.array.isRequired,
+  options: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 const UserActions = (props) => {

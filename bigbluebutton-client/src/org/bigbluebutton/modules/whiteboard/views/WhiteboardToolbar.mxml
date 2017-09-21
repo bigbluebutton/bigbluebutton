@@ -67,12 +67,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
-			private static const LOGGER:ILogger = getClassLogger(WhiteboardToolbar);      
+			private static const LOGGER:ILogger = getClassLogger(WhiteboardToolbar);
+		
+			private static const BUTTON_SIZE : int = 36;
       
 			private var mousedOver:Boolean = false;
 			private var whiteboardIdExists:Boolean = false;
 			
-			public var canvas:WhiteboardCanvas;
+			private var canvas:WhiteboardCanvas;
 			private var containerToOverlay:MDIWindow;
 			
 			[Bindable]
@@ -89,6 +91,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
         addEventListener(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED, handleWhiteboardButtonPressed);
+        
+        if (canvas) {
+          changeThickness();
+          changeColor();
+        }
+      }
+      
+      public function setCanvas(c:WhiteboardCanvas):void {
+        canvas = c;
+        
+        if (cpik) {
+          changeThickness();
+          changeColor();
+        }
       }
 
       private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
@@ -134,12 +150,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-            protected function changeColor(e:Event):void {
-                canvas.changeColor(e);
+			protected function changeColor(e:Event=null):void {
+				canvas.changeColor(cpik.selectedColor);
 			}
 			
-			protected function changeThickness(e:Event):void {
-				canvas.changeThickness(e);
+			protected function changeThickness(e:Event=null):void {
+				canvas.changeThickness(sld.value);
 			}
 		
 			protected function changeMultiUser():void {
@@ -289,15 +305,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
-    <wbBtns:PanZoomButton id="panzoomBtn"/>
-	<wbBtns:ScribbleButton id="scribbleBtn"/>
-	<wbBtns:RectangleButton id="rectangleBtn"/>
-	<wbBtns:CircleButton id="circleBtn"/>
-	<wbBtns:TriangleButton id="triangleBtn"/>
-	<wbBtns:LineButton id="lineBtn"/>
-	<wbBtns:TextButton id="textBtn"/>
-	<wbBtns:ClearButton id="clearBtn"/>
-	<wbBtns:UndoButton id="undoBtn"/>
+    <wbBtns:PanZoomButton id="panzoomBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:ScribbleButton id="scribbleBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:RectangleButton id="rectangleBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:CircleButton id="circleBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:TriangleButton id="triangleBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:LineButton id="lineBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:TextButton id="textBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:ClearButton id="clearBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
+	<wbBtns:UndoButton id="undoBtn" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"/>
 	
 	<!--
 	Properties that were removed from original color picker:
@@ -311,18 +327,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
 	<mx:ColorPicker change="changeColor(event)" id="cpik"
-                  selectedColor="0x000000" width="40" height="40"
+                  selectedColor="0x000000" width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"
  				  dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"
 				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
-	<mx:Spacer height="3"/>
-	<mx:Image source="{getStyle('iconWhiteboardThick')}" horizontalAlign="center" width="40"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" 
-				minimum="1" maximum="30" 
-				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
-				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
-	<mx:Image source="{getStyle('iconWhiteboardThin')}" horizontalAlign="center" width="40"/>
-	<mx:Button id="multiUserBtn" enabled="false" visible="false" click="changeMultiUser()" width="40" height="40" styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"/> 
+	<!--mx:Spacer height="2"/-->
+  <mx:VBox backgroundColor="#FFFFFF" horizontalAlign="center">
+    <mx:Image source="{getStyle('iconWhiteboardThick')}" horizontalAlign="center" width="{BUTTON_SIZE}"/>
+    <mx:VSlider height="50" id="sld" change="changeThickness(event)"
+                toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" 
+                minimum="1" maximum="30" 
+                useHandCursor="true" value="3" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
+                accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
+    <mx:Image source="{getStyle('iconWhiteboardThin')}" horizontalAlign="center" width="{BUTTON_SIZE}"/>
+  </mx:VBox>
+
+	<mx:Button id="multiUserBtn" enabled="false" visible="false" 
+			   click="changeMultiUser()" 
+			   width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"
+			   selected="{multiUser}"
+			   styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser')}" /> 
 </mx:VBox>

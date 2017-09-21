@@ -6,7 +6,7 @@ package org.bigbluebutton.core.model.users
     public var intId: String;
     public var extId: String;
     public var name: String;
-    public var role: String;
+    [Bindable] public var role: String;
     public var guest: Boolean;
     public var authed: Boolean;
     public var waitingForAcceptance: Boolean;

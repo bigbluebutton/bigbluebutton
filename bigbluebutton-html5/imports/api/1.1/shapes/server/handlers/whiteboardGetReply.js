@@ -1,4 +1,3 @@
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Shapes from './../../';
@@ -30,6 +29,4 @@ export default function handleWhiteboardGetReply({ payload }) {
     const whiteboardId = shape.wb_id;
     shapesAdded.push(addShape(meetingId, whiteboardId, shape));
   });
-
-  return shapesAdded;
 }

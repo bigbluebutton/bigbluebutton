@@ -22,13 +22,10 @@ package org.bigbluebutton.main.model
   import flash.display.Loader;
   import flash.events.Event;
   import flash.events.IOErrorEvent;
-  import flash.net.URLLoader;
   import flash.net.URLRequest;
   import flash.system.LoaderContext;
-
+  
   import mx.controls.Image;
-  import mx.events.FlexEvent;
-  import mx.utils.ObjectUtil;
 
   public class ImageLoader
   {

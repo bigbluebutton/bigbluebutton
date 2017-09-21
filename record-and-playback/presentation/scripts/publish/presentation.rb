@@ -31,15 +31,15 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-presentation_props = YAML::load(File.open('presentation.yml'))
+$presentation_props = YAML::load(File.open('presentation.yml'))
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.
 $magic_mystery_number = 2
 
 def scaleToDeskshareVideo(width, height)
-  deskshare_video_height = presentation_props['deskshare_output_height'].to_f
-  deskshare_video_width = presentation_props['deskshare_output_height'].to_f
+  deskshare_video_height = $presentation_props['deskshare_output_height'].to_f
+  deskshare_video_width = $presentation_props['deskshare_output_height'].to_f
 
   scale = [deskshare_video_width/width, deskshare_video_height/height]
   video_width = width * scale.min
@@ -49,8 +49,8 @@ def scaleToDeskshareVideo(width, height)
 end
 
 def getDeskshareVideoDimension(deskshare_stream_name)
-  video_width = presentation_props['deskshare_output_height'].to_f
-  video_height = presentation_props['deskshare_output_height'].to_f
+  video_width = $presentation_props['deskshare_output_height'].to_f
+  video_height = $presentation_props['deskshare_output_height'].to_f
   deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
 
   if File.exist?(deskshare_video_filename)
@@ -196,7 +196,12 @@ end
 
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linecap:butt"
+  else
+    g['style'] += ";stroke-linecap:round"
+  end
 
   doc = g.document
   data_points = shape[:data_points]
@@ -210,7 +215,12 @@ end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
 
   doc = g.document
   data_points = shape[:data_points]
@@ -240,7 +250,12 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
 
   doc = g.document
   data_points = shape[:data_points]
@@ -258,7 +273,7 @@ end
 
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -416,7 +431,7 @@ def svg_render_shape_poll(g, slide, shape)
           transform: "rotate(90, #{slide[:width]}, #{y})")
 end
 
-def svg_render_shape(canvas, slide, shape)
+def svg_render_shape(canvas, slide, shape, image_id)
   if shape[:in] == shape[:out]
     BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is never shown (duration rounds to 0)")
     return
@@ -432,7 +447,7 @@ def svg_render_shape(canvas, slide, shape)
 
   doc = canvas.document
   g = doc.create_element('g',
-          id: "draw#{shape[:shape_id]}", class: 'shape',
+          id: "image#{image_id}-draw#{shape[:shape_id]}", class: 'shape',
           timestamp: shape[:in], undo: (shape[:undo].nil? ? -1 : shape[:undo]))
 
   case shape[:type]
@@ -448,11 +463,13 @@ def svg_render_shape(canvas, slide, shape)
     svg_render_shape_ellipse(g, slide, shape)
   when 'text'
     svg_render_shape_text(g, slide, shape)
-  when 'poll'
+  when 'poll_result'
     svg_render_shape_poll(g, slide, shape)
   else
     BigBlueButton.logger.warn("Ignoring unhandled shape type #{shape[:type]}")
   end
+
+  g[:shape] = "image#{image_id}-#{g[:shape]}"
 
   if g.element_children.length > 0
     canvas << g
@@ -494,7 +511,7 @@ def svg_render_image(svg, slide, shapes)
           image: "image#{image_id}", display: 'none')
 
   shapes.each do |shape|
-    svg_render_shape(canvas, slide, shape)
+    svg_render_shape(canvas, slide, shape, image_id)
   end
 
   if canvas.element_children.length > 0
@@ -502,15 +519,7 @@ def svg_render_image(svg, slide, shapes)
   end
 end
 
-def panzooms_emit_event(rec, panzoom)
-  if panzoom[:in] == panzoom[:out]
-    BigBlueButton.logger.info("Panzoom: not emitting, duration rounds to 0")
-    return
-  end
-
-  doc = rec.document
-  event = doc.create_element('event', timestamp: panzoom[:in])
-
+def panzoom_viewbox(panzoom)
   if panzoom[:deskshare]
     panzoom[:x_offset] = 0.0
     panzoom[:y_offset] = 0.0
@@ -522,6 +531,20 @@ def panzooms_emit_event(rec, panzoom)
   y = (-panzoom[:y_offset] * $magic_mystery_number / 100.0 * panzoom[:height]).round(5)
   w = shape_scale_width(panzoom, panzoom[:width_ratio])
   h = shape_scale_height(panzoom, panzoom[:height_ratio])
+
+  return [x, y, w, h]
+end
+
+def panzooms_emit_event(rec, panzoom)
+  if panzoom[:in] == panzoom[:out]
+    BigBlueButton.logger.info("Panzoom: not emitting, duration rounds to 0")
+    return
+  end
+
+  doc = rec.document
+  event = doc.create_element('event', timestamp: panzoom[:in])
+
+  x, y, w, h = panzoom_viewbox(panzoom)
 
   viewbox = doc.create_element('viewBox')
   viewbox.content = "#{x} #{y} #{w} #{h}"
@@ -541,9 +564,24 @@ def cursors_emit_event(rec, cursor)
   doc = rec.document
   event = doc.create_element('event', timestamp: cursor[:in])
 
+  panzoom = cursor[:panzoom]
   if cursor[:visible]
-    x = (cursor[:x] / 100.0 * cursor[:width] / $magic_mystery_number).round(5)
-    y = (cursor[:y] / 100.0 * cursor[:height] / $magic_mystery_number).round(5)
+    if $version_atleast_2_0_0
+      # In BBB 2.0, the cursor now uses the same coordinate system as annotations
+      # Use the panzoom information to convert it to be relative to viewbox
+      x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * $magic_mystery_number / 100.0)) /
+           (panzoom[:width_ratio] / 100.0)).round(5)
+      y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * $magic_mystery_number / 100.0)) /
+           (panzoom[:height_ratio] / 100.0)).round(5)
+      if x < 0 or x > 1 or y < 0 or y > 1
+        x = -1.0
+        y = -1.0
+      end
+    else
+      # Cursor position is relative to the visible area
+      x = cursor[:x].round(5)
+      y = cursor[:y].round(5)
+    end
   else
     x = -1.0
     y = -1.0
@@ -615,13 +653,13 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')
     if !square.nil?
-      shape['square'] = (square.text == 'true')
+      shape[:square] = (square.text == 'true')
     end
   end
   if shape[:type] == 'ellipse'
     circle = event.at_xpath('circle')
     if !circle.nil?
-      shape['circle'] = (circle.text == 'true')
+      shape[:circle] = (circle.text == 'true')
     end
   end
   if shape[:type] == 'pencil'
@@ -631,8 +669,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     end
   end
   if shape[:type] == 'poll_result'
-    shape[:num_responders] = event.at_xpath('num_responders').text
-    shape[:num_respondents] = event.at_xpath('num_respondents').text
+    shape[:num_responders] = event.at_xpath('num_responders').text.to_i
+    shape[:num_respondents] = event.at_xpath('num_respondents').text.to_i
     shape[:result] = event.at_xpath('result').text
   end
   if shape[:type] == 'text'
@@ -800,6 +838,9 @@ def events_get_image_info(slide)
     slide[:src] = 'presentation/deskshare.png'
   elsif slide[:presentation] == ''
     slide[:src] = 'presentation/logo.png'
+  else
+    slide[:src] = "presentation/#{slide[:presentation]}/slide-#{slide[:slide] + 1}.png"
+    slide[:text] = "presentation/#{slide[:presentation]}/textfiles/slide-#{slide[:slide] + 1}.txt"
   end
   image_path = "#{$process_dir}/#{slide[:src]}"
   if !File.exist?(image_path)
@@ -807,9 +848,9 @@ def events_get_image_info(slide)
     # Emergency last-ditch blank image creation
     FileUtils.mkdir_p(File.dirname(image_path))
     if slide[:deskshare]
-      command = "convert -size #{presentation_props['deskshare_output_width']}x#{presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
+      command = "convert -size #{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']} xc:transparent -background transparent #{image_path}"
     else
-      command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_path}"
+      command = "convert -size 1600x1200 xc:transparent -background transparent -quality 90 +dither -depth 8 -colors 256 #{image_path}"
     end
     BigBlueButton.execute(command)
   end
@@ -819,7 +860,7 @@ end
 
 # Create the shapes.svg, cursors.xml, and panzooms.xml files used for
 # rendering the presentation area
-def processPresentation
+def processPresentation(package_dir)
   shapes_doc = Nokogiri::XML::Document.new()
   shapes_doc.create_internal_subset('svg', '-//W3C//DTD SVG 1.1//EN',
                              'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd')
@@ -895,11 +936,11 @@ def processPresentation
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
       panzoom_changed = true
 
-    elsif eventname == 'DeskshareStartedEvent' and presentation_props['include_deskshare']
+    elsif eventname == 'DeskshareStartedEvent' and $presentation_props['include_deskshare']
       deskshare = true
       slide_changed = true
 
-    elsif eventname == 'DeskshareStoppedEvent' and presentation_props['include_deskshare']
+    elsif eventname == 'DeskshareStoppedEvent' and $presentation_props['include_deskshare']
       deskshare = false
       slide_changed = true
 
@@ -920,8 +961,8 @@ def processPresentation
       cursor_changed = true
 
     elsif eventname == 'CursorMoveEvent'
-      cursor_x = event.at_xpath('xOffset').text.to_f * 100.0
-      cursor_y = event.at_xpath('yOffset').text.to_f * 100.0
+      cursor_x = event.at_xpath('xOffset').text.to_f
+      cursor_y = event.at_xpath('yOffset').text.to_f
       cursor_visible = true
       cursor_changed = true
 
@@ -944,6 +985,7 @@ def processPresentation
           slide[:slide] == current_slide and
           slide[:deskshare] == deskshare
         BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
+        slide_changed = false
       else
         if !slide.nil?
           slide[:out] = timestamp
@@ -952,8 +994,6 @@ def processPresentation
 
         BigBlueButton.logger.info("Presentation #{current_presentation} Slide #{current_slide} Deskshare #{deskshare}")
         slide = {
-          src: "presentation/#{current_presentation}/slide-#{current_slide + 1}.png",
-          text: "presentation/#{current_presentation}/textfiles/slide-#{current_slide + 1}.txt",
           presentation: current_presentation,
           slide: current_slide,
           in: timestamp,
@@ -977,6 +1017,7 @@ def processPresentation
           panzoom[:height] == slide[:height] and
           panzoom[:deskshare] == deskshare
         BigBlueButton.logger.info('Panzoom: skipping, no changes')
+        panzoom_changed = false
       else
         if !panzoom.nil?
           panzoom[:out] = timestamp
@@ -998,30 +1039,30 @@ def processPresentation
     end
 
     # Perform cursor finalization
-    if cursor_changed
+    if cursor_changed or panzoom_changed
       unless cursor_x >= 0 and cursor_x <= 100 and
           cursor_y >= 0 and cursor_y <= 100
         cursor_visible = false
       end
 
-      slide = slides.last
+      panzoom = panzooms.last
       cursor = cursors.last
       if !cursor.nil? and
           ((!cursor[:visible] and !cursor_visible) or
-          (cursor[:x] == cursor_x and cursor[:y] == cursor_y))
+           (cursor[:x] == cursor_x and cursor[:y] == cursor_y)) and
+          !panzoom_changed
         BigBlueButton.logger.info('Cursor: skipping, no changes')
       else
         if !cursor.nil?
           cursor[:out] = timestamp
           cursors_emit_event(cursors_rec, cursor)
         end
-        BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{slide[:width]}x#{slide[:height]})")
+        BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{panzoom[:width]}x#{panzoom[:height]})")
         cursor = {
           visible: cursor_visible,
           x: cursor_x,
           y: cursor_y,
-          width: slide[:width],
-          height: slide[:height],
+          panzoom: panzoom,
           in: timestamp,
         }
         cursors << cursor
@@ -1137,7 +1178,7 @@ begin
     BigBlueButton.logger.info("Setting process dir")
     $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
     BigBlueButton.logger.info("setting publish dir")
-    publish_dir = presentation_props['publish_dir']
+    publish_dir = $presentation_props['publish_dir']
     BigBlueButton.logger.info("setting playback url info")
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
@@ -1213,7 +1254,7 @@ begin
 
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
         $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
-        $version_atleast_2_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
+        $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
         BigBlueButton.logger.info("Creating metadata.xml")
 
         # Get the real-time start and end timestamp
@@ -1284,7 +1325,7 @@ begin
 
         processChatMessages()
 
-        processPresentation()
+        processPresentation(package_dir)
 
         processDeskshareEvents()
 

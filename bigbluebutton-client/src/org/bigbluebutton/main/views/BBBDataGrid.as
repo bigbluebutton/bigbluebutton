@@ -17,18 +17,34 @@
  *
  */
 package org.bigbluebutton.main.views {
-  import mx.controls.DataGrid;
-  
-  public class BBBDataGrid extends DataGrid {
-    // This function needs to be overridden to avoid finding any
-    // first comumn value that starts the typed letter.
-    // It will make hotkeys work correctly gtriki (12 feb, 2017)
-    override protected function findKey(eventCode:int):Boolean {
-      if (eventCode >= 33 && eventCode <= 126) {
-        return false;
-      } else {
-        return super.findKey(eventCode);
-      }
-    }
-  }
+	import mx.collections.ArrayCollection;
+	import mx.collections.ListCollectionView;
+	import mx.controls.DataGrid;
+
+	public class BBBDataGrid extends DataGrid {
+		// This function needs to be overridden to avoid finding any
+		// first comumn value that starts the typed letter.
+		// It will make hotkeys work correctly gtriki (12 feb, 2017)
+		override protected function findKey(eventCode:int):Boolean {
+			if (eventCode >= 33 && eventCode <= 126) {
+				return false;
+			} else {
+				return super.findKey(eventCode);
+			}
+		}
+
+		public function refresh():void {
+			// Store currently selected item and vertical scroll position
+			var storeItemForUpdate:Object = this.selectedItem;;
+			var vScroll:int = this.verticalScrollPosition;
+
+			if (this.dataProvider && this.dataProvider is ListCollectionView) {
+				(this.dataProvider as ArrayCollection).refresh();
+			}
+
+			// Restore currently selected item and vertical scroll position
+			this.verticalScrollPosition = vScroll;
+			this.selectedItem = storeItemForUpdate;
+		}
+	}
 }

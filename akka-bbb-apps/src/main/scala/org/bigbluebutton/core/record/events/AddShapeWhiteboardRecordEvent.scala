@@ -19,8 +19,12 @@
 
 package org.bigbluebutton.core.record.events
 
+import org.bigbluebutton.common2.domain.SimpleVoteOutVO
+
 import scala.collection.immutable.List
 import scala.collection.JavaConverters._
+import scala.collection.Map
+import scala.collection.mutable.ArrayBuffer
 
 class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
   import AddShapeWhiteboardRecordEvent._
@@ -49,6 +53,14 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
         f._2 match {
           case f2: List[_] => eventMap.put(COMMANDS, listToString(f2))
         }
+      } else if (f._1 == "numResponders") {
+        eventMap.put(NUM_RESPONDERS, f._2.toString)
+      } else if (f._1 == "numRespondents") {
+        eventMap.put(NUM_RESPONDENTS, f._2.toString)
+      } else if (f._1 == "result") {
+        f._2 match {
+          case f2: ArrayBuffer[_] => eventMap.put(RESULT, pollResultToString(f2))
+        }
       } else {
         eventMap.put(f._1, f._2.toString)
       }
@@ -58,6 +70,16 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
   private def listToString(list: List[_]): String = {
     list.map(f => f.toString).mkString(",")
   }
+
+  private def pollResultToString(list: ArrayBuffer[_]): String = {
+    val pollResult = list.map { f =>
+      val res = f.asInstanceOf[SimpleVoteOutVO]
+      val result = Map("num_votes" -> res.numVotes, "id" -> res.id, "key" -> res.key)
+      org.bigbluebutton.common2.util.JsonUtil.toJson(result)
+    }.mkString(",")
+
+    "[" + pollResult + "]"
+  }
 }
 
 object AddShapeWhiteboardRecordEvent {
@@ -66,4 +88,7 @@ object AddShapeWhiteboardRecordEvent {
   protected final val POSITION = "position"
   protected final val POINTS = "dataPoints"
   protected final val COMMANDS = "commands"
+  protected final val NUM_RESPONDERS = "num_responders"
+  protected final val NUM_RESPONDENTS = "num_respondents"
+  protected final val RESULT = "result"
 }

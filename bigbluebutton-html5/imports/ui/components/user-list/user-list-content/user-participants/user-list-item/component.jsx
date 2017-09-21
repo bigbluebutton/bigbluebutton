@@ -34,11 +34,13 @@ const propTypes = {
   }).isRequired,
 
   compact: PropTypes.bool.isRequired,
-  intl: PropTypes.object.isRequired,
-  userActions: PropTypes.object.isRequired,
-  router: PropTypes.object.isRequired,
+  intl: PropTypes.shape({}).isRequired,
+  userActions: PropTypes.shape({}).isRequired,
+  router: PropTypes.shape({}).isRequired,
   isBreakoutRoom: PropTypes.bool.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
+  meeting: PropTypes.shape({}).isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -111,6 +113,8 @@ class UserListItem extends Component {
       compact,
       user,
       intl,
+      meeting,
+      isMeetingLocked,
     } = this.props;
 
     const actions = this.getUsersActions();
@@ -121,6 +125,8 @@ class UserListItem extends Component {
       intl={intl}
       normalizeEmojiName={normalizeEmojiName}
       actions={actions}
+      meeting={meeting}
+      isMeetingLocked={isMeetingLocked}
     />);
 
     return contents;

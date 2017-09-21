@@ -18,7 +18,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   isSingleMessage: PropTypes.bool.isRequired,
   unreadCounter: PropTypes.number.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({ formatMessage: PropTypes.func.isRequired }).isRequired,
 };
 
 const defaultProps = {

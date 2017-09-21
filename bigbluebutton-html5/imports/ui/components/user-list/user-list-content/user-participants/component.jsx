@@ -7,15 +7,16 @@ import styles from './../../styles.scss';
 import UserListItem from './user-list-item/component';
 
 const propTypes = {
-  users: PropTypes.array.isRequired,
+  users: PropTypes.arrayOf(Object).isRequired,
   compact: PropTypes.bool,
-  intl: PropTypes.object.isRequired,
-  currentUser: PropTypes.object.isRequired,
-  meeting: PropTypes.object,
+  intl: PropTypes.shape({}).isRequired,
+  currentUser: PropTypes.shape({}).isRequired,
+  meeting: PropTypes.shape({}),
   isBreakoutRoom: PropTypes.bool,
   makeCall: PropTypes.func.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
   rovingIndex: PropTypes.func.isRequired,
 };
 
@@ -38,11 +39,11 @@ const listTransition = {
 
 const intlMessages = defineMessages({
   usersTitle: {
-    id: 'app.userlist.usersTitle',
+    id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
   messagesTitle: {
-    id: 'app.userlist.messagesTitle',
+    id: 'app.userList.messagesTitle',
     description: 'Title for the messages list',
   },
   participantsTitle: {
@@ -109,6 +110,7 @@ class UserParticipants extends Component {
       meeting,
       getAvailableActions,
       normalizeEmojiName,
+      isMeetingLocked,
       compact,
     } = this.props;
 
@@ -195,6 +197,7 @@ class UserParticipants extends Component {
                     meeting={meeting}
                     getAvailableActions={getAvailableActions}
                     normalizeEmojiName={normalizeEmojiName}
+                    isMeetingLocked={isMeetingLocked}
                   />
                 ))
               }

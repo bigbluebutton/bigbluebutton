@@ -13,6 +13,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.titlePublic',
     description: 'title for public chat',
   },
+  unreadPlural: {
+    id: 'app.userList.chatListItem.unreadPlural',
+    description: 'singular aria label for new message',
+  },
+  unreadSingular: {
+    id: 'app.userList.chatListItem.unreadSingular',
+    description: 'plural aria label for new messages',
+  },
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -26,7 +34,7 @@ const propTypes = {
   }).isRequired,
   openChat: PropTypes.string,
   compact: PropTypes.bool.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({}).isRequired,
   tabIndex: PropTypes.number.isRequired,
 };
 

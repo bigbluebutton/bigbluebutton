@@ -5,14 +5,14 @@ import styles from './../styles.scss';
 
 const intlMessages = defineMessages({
   participantsTitle: {
-    id: 'app.userlist.participantsTitle',
+    id: 'app.userList.participantsTitle',
     description: 'Title for the Users list',
   },
 });
 
 const propTypes = {
   compact: PropTypes.bool,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({ formatMessage: PropTypes.func.isRequired }).isRequired,
 };
 
 const defaultProps = {

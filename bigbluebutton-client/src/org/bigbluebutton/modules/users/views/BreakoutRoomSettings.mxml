@@ -25,24 +25,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:mate="http://mate.asfusion.com/"
                 xmlns:common="org.bigbluebutton.common.*"
-                width="630" height="630"
+                width="630"
                 close="onCloseClicked()"
                 visible="false"
                 showCloseButton="false">
     
     <fx:Script>
         <![CDATA[
-            import com.asfusion.mate.events.Dispatcher;
-            
-            import mx.collections.ArrayCollection;
-            import mx.controls.Alert;
-            
-            import org.bigbluebutton.core.PopUpUtil;
-            import org.bigbluebutton.core.UsersUtil;
-            import org.bigbluebutton.core.model.LiveMeeting;
-            import org.bigbluebutton.core.model.users.User2x;
-            import org.bigbluebutton.main.events.BreakoutRoomEvent;
-            import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.core.model.users.User2x;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
             
             [Bindable]
             private var roomsProvider:Array;
@@ -139,10 +140,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 var perRoom:int = users.length / rooms;
                 var remaining:int = users.length % rooms;
                 var user:User2x;
+				var listHeight : int = rooms <= 5 ? 140 : 100;
                 roomsContainer.removeAllChildren();
                 for (var r:int = 0; r < rooms; r++) {
                     var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
                     list.users = new ArrayCollection();
+					list.height = listHeight;
                     list.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r + 1).toString();
                     list.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r + 1).toString();
                     for (var i:int = 0; i < perRoom; i++) {
@@ -154,6 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
                 var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
                 unassignedList.users = new ArrayCollection([me]);
+				unassignedList.height = listHeight;
                 unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
                 unassignedList.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
                 unassignedList.notAssignedUsers = true;
@@ -248,7 +252,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 roomsProvider = new Array();
                 this.mode = mode;
                 this.recordingEnabled = record;
-                for (var i:int = 2; i <= 5; i++) {
+                for (var i:int = 2; i <= 8; i++) {
                     roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms'));
                 }
                 roomsCombo.selectedIndex = 0;
@@ -269,14 +273,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     assignUsersForInvitation();
                     visible = true;
                 }
+				PopUpManager.centerPopUp(this);
             }
         ]]>
     </fx:Script>
     
-    <mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-        <mx:TextArea width="100%" borderSkin="{null}" editable="false"
-                     id="textArea" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"
-                     styleName="titleWindowStyle"/>
+    <mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center">
+		<common:AdvancedLabel maxWidth="550"
+							  id="textArea"
+							  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"
+							  styleName="titleWindowStyle" />
         <mx:Canvas width="100%" styleName="breakoutTipBox">
             <mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
         </mx:Canvas>
@@ -303,6 +309,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <mx:CheckBox id="recordCheckbox"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
         </mx:HBox>
+
         <mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
         
         <mx:HBox width="100%" horizontalAlign="right" verticalGap="15">

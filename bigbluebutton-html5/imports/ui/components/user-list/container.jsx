@@ -2,7 +2,7 @@ import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/api/1.1/meetings';
+import Meetings from '/imports/api/2.0/meetings';
 import Service from './service';
 import UserList from './component';
 
@@ -18,6 +18,7 @@ const UserListContainer = (props) => {
     meeting,
     getAvailableActions,
     normalizeEmojiName,
+    isMeetingLocked,
     } = props;
 
   return (
@@ -32,6 +33,7 @@ const UserListContainer = (props) => {
       userActions={userActions}
       getAvailableActions={getAvailableActions}
       normalizeEmojiName={normalizeEmojiName}
+      isMeetingLocked={isMeetingLocked}
     >
       {children}
     </UserList>
@@ -48,4 +50,5 @@ export default createContainer(({ params }) => ({
   isBreakoutRoom: meetingIsBreakout(),
   getAvailableActions: Service.getAvailableActions,
   normalizeEmojiName: Service.normalizeEmojiName,
+  isMeetingLocked: Service.isMeetingLocked,
 }), UserListContainer);

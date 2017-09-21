@@ -121,6 +121,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
       case EjectUserFromMeetingCmdMsg.NAME =>
         routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+      case EjectUserFromVoiceCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromVoiceCmdMsg](envelope, jsonNode)
       case UserConnectedToGlobalAudioMsg.NAME =>
         routeVoiceMsg[UserConnectedToGlobalAudioMsg](envelope, jsonNode)
       case UserDisconnectedFromGlobalAudioMsg.NAME =>
@@ -209,6 +211,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
       case SyncSharedNotePubMsg.NAME =>
         routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
+      case ClearSharedNotePubMsg.NAME =>
+        routeGenericMsg[ClearSharedNotePubMsg](envelope, jsonNode)
       case UpdateSharedNoteReqMsg.NAME =>
         routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
       case CreateSharedNoteReqMsg.NAME =>

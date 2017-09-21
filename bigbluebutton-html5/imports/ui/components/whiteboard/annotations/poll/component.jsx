@@ -1,7 +1,7 @@
-import React from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-export default class PollDrawComponent extends React.Component {
+export default class PollDrawComponent extends Component {
   constructor(props) {
     super(props);
 
@@ -55,27 +55,30 @@ export default class PollDrawComponent extends React.Component {
     // calculating only the parts which have to be done just once and don't require
     // rendering / rerendering the text objects
 
+    const { points, result } = this.props.annotation;
+    const { slideWidth, slideHeight } = this.props;
+
     // x1 and y1 - coordinates of the top left corner of the annotation
     // initial width and height are the width and height of the annotation
     // all the points are given as percentages of the slide
-    const x1 = this.props.annotation.points[0];
-    const y1 = this.props.annotation.points[1];
-    const initialWidth = this.props.annotation.points[2];
-    const initialHeight = this.props.annotation.points[3];
+    const x1 = points[0];
+    const y1 = points[1];
+    const initialWidth = points[2];
+    const initialHeight = points[3];
 
     // calculating the data for the outer rectangle
     // 0.001 is needed to accomodate bottom and right borders of the annotation
-    const x = x1 / 100 * this.props.slideWidth;
-    const y = y1 / 100 * this.props.slideHeight;
-    const width = (initialWidth - 0.001) / 100 * this.props.slideWidth;
-    const height = (initialHeight - 0.001) / 100 * this.props.slideHeight;
+    const x = (x1 / 100) * slideWidth;
+    const y = (y1 / 100) * slideHeight;
+    const width = ((initialWidth - 0.001) / 100) * slideWidth;
+    const height = ((initialHeight - 0.001) / 100) * slideHeight;
 
     let votesTotal = 0;
     let maxNumVotes = 0;
     const textArray = [];
 
     // counting the total number of votes, finding the biggest number of votes
-    this.props.annotation.result.reduce((previousValue, currentValue, currentIndex, array) => {
+    result.reduce((previousValue, currentValue) => {
       votesTotal = previousValue + currentValue.numVotes;
       if (maxNumVotes < currentValue.numVotes) {
         maxNumVotes = currentValue.numVotes;
@@ -87,16 +90,16 @@ export default class PollDrawComponent extends React.Component {
     // filling the textArray with data to display
     // adding value of the iterator to each line needed to create unique
     // keys while rendering at the end
-    const arrayLength = this.props.annotation.result.length;
-    for (let i = 0; i < arrayLength; ++i) {
+    const arrayLength = result.length;
+    for (let i = 0; i < arrayLength; i += 1) {
       const _tempArray = [];
-      const _result = this.props.annotation.result[i];
+      const _result = result[i];
       _tempArray.push(_result.key, `${_result.numVotes}`);
       if (votesTotal === 0) {
         _tempArray.push('0%');
         _tempArray.push(i);
       } else {
-        const percResult = _result.numVotes / votesTotal * 100;
+        const percResult = (_result.numVotes / votesTotal) * 100;
         _tempArray.push(`${Math.round(percResult)}%`);
         _tempArray.push(i);
       }
@@ -106,15 +109,15 @@ export default class PollDrawComponent extends React.Component {
 
     // calculating the data for the inner rectangle
     const innerWidth = width * 0.95;
-    const innerHeight = height - width * 0.05;
-    const innerX = x + width * 0.025;
-    const innerY = y + width * 0.025;
+    const innerHeight = height - (width * 0.05);
+    const innerX = x + (width * 0.025);
+    const innerY = y + (width * 0.025);
     const thickness = (width - innerWidth) / 10;
 
     // calculating the maximum possible width and height of the each line
     // 25% of the height goes to the padding
     const maxLineWidth = innerWidth / 3;
-    const maxLineHeight = innerHeight * 0.75 / textArray.length;
+    const maxLineHeight = (innerHeight * 0.75) / textArray.length;
 
     const lineToMeasure = textArray[0];
 
@@ -146,6 +149,11 @@ export default class PollDrawComponent extends React.Component {
     this.checkSizes();
   }
 
+  // this might have to be changed if we want to reuse it for a presenter's poll popup
+  shouldComponentUpdate() {
+    return this.state.prepareToDisplay === true;
+  }
+
   componentDidUpdate() {
     if (this.state.prepareToDisplay) {
       this.checkSizes();
@@ -157,16 +165,16 @@ export default class PollDrawComponent extends React.Component {
     let maxLineHeight = this.state.maxLineHeight;
 
     // calculating the font size in this if / else block
-    if (this.state.fontSizeDirection != 0) {
+    if (this.state.fontSizeDirection !== 0) {
       const key = `${this.props.annotation.id}_key_${this.state.currentLine}`;
       const votes = `${this.props.annotation.id}_votes_${this.state.currentLine}`;
       const percent = `${this.props.annotation.id}_percent_${this.state.currentLine}`;
-      const keySizes = findDOMNode(this[key]).getBBox();
-      const voteSizes = findDOMNode(this[votes]).getBBox();
-      const percSizes = findDOMNode(this[percent]).getBBox();
+      const keySizes = this[key].getBBox();
+      const voteSizes = this[votes].getBBox();
+      const percSizes = this[percent].getBBox();
 
       // first check if we can still increase the font-size
-      if (this.state.fontSizeDirection == 1) {
+      if (this.state.fontSizeDirection === 1) {
         if (keySizes.width < maxLineWidth && keySizes.height < maxLineHeight &&
           voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight &&
           percSizes.width < maxLineWidth && percSizes.height < maxLineHeight) {
@@ -180,7 +188,7 @@ export default class PollDrawComponent extends React.Component {
           fontSizeDirection: -1,
           calcFontSize: this.state.calcFontSize - 1,
         });
-      } else if (this.state.fontSizeDirection == -1) {
+      } else if (this.state.fontSizeDirection === -1) {
         // check if the font-size is still bigger than allowed
         if (keySizes.width > maxLineWidth || keySizes.height > maxLineHeight ||
           voteSizes.width > maxLineWidth || voteSizes.height > maxLineHeight ||
@@ -213,11 +221,11 @@ export default class PollDrawComponent extends React.Component {
     let maxLeftWidth = 0;
     let maxRightWidth = 0;
     maxLineHeight = 0;
-    for (let i = 0; i < this.state.textArray.length; ++i) {
+    for (let i = 0; i < this.state.textArray.length; i += 1) {
       const key = `${this.props.annotation.id}_key_${i}`;
       const percent = `${this.props.annotation.id}_percent_${i}`;
-      const keySizes = findDOMNode(this[key]).getBBox();
-      const percSizes = findDOMNode(this[percent]).getBBox();
+      const keySizes = this[key].getBBox();
+      const percSizes = this[percent].getBBox();
 
       if (keySizes.width > maxLeftWidth) {
         maxLeftWidth = keySizes.width;
@@ -237,10 +245,10 @@ export default class PollDrawComponent extends React.Component {
     }
 
     const digitRef = `${this.props.annotation.id}_digit`;
-    const maxDigitWidth = findDOMNode(this[digitRef]).getBBox().width;
-    const maxDigitHeight = findDOMNode(this[digitRef]).getBBox().height;
+    const maxDigitWidth = this[digitRef].getBBox().width;
+    const maxDigitHeight = this[digitRef].getBBox().height;
 
-    this.setState({
+    return this.setState({
       maxLeftWidth,
       maxRightWidth,
       maxLineHeight,
@@ -251,6 +259,23 @@ export default class PollDrawComponent extends React.Component {
   }
 
   renderPoll() {
+    const {
+      innerRect,
+      outerRect,
+      textArray,
+      maxLeftWidth,
+      maxRightWidth,
+      maxNumVotes,
+      maxDigitWidth,
+      maxDigitHeight,
+      maxLineHeight,
+      backgroundColor,
+      calcFontSize,
+      thickness,
+    } = this.state;
+
+    const { annotation } = this.props;
+
     //* ********************************************************************************************
     //* *****************************************MAGIC NUMBER***************************************
     // There is no automatic vertical centering in SVG.
@@ -260,58 +285,51 @@ export default class PollDrawComponent extends React.Component {
     // This way the text element is moved down a little bit and we have to move it up a bit.
     // 1/6 of the maximum height of the digit seems to work fine.
     // Oleksandr Zhurbenko. June 22, 2016
-    const magicNumber = this.state.maxDigitHeight / 6;
+    const magicNumber = maxDigitHeight / 6;
 
     // maximum height and width of the line bar
-    const maxBarWidth = this.state.innerRect.width * 0.9 -
-      this.state.maxLeftWidth -
-      this.state.maxRightWidth;
-    const barHeight = this.state.innerRect.height * 0.75 / this.state.textArray.length;
+    const maxBarWidth = ((innerRect.width * 0.9)
+      - maxLeftWidth) - maxRightWidth;
+    const barHeight = (innerRect.height * 0.75) / textArray.length;
 
     // Horizontal padding
-    const horizontalPadding = this.state.innerRect.width * 0.1 / 4;
+    const horizontalPadding = (innerRect.width * 0.1) / 4;
 
     // Vertical padding
-    const verticalPadding = this.state.innerRect.height * 0.25 / (this.state.textArray.length + 1);
+    const verticalPadding = (innerRect.height * 0.25) / (textArray.length + 1);
 
     // Initial coordinates of the key column
-    let yLeft = this.state.innerRect.y + verticalPadding + barHeight / 2 - magicNumber;
-    const xLeft = this.state.innerRect.x + horizontalPadding + 1;
+    let yLeft = ((innerRect.y + verticalPadding) + (barHeight / 2)) - magicNumber;
+    const xLeft = (innerRect.x + horizontalPadding) + 1;
 
     // Initial coordinates of the line bar column
-    const xBar = this.state.innerRect.x + this.state.maxLeftWidth + horizontalPadding * 2;
-    let yBar = this.state.innerRect.y + verticalPadding;
+    const xBar = (innerRect.x + maxLeftWidth) + (horizontalPadding * 2);
+    let yBar = innerRect.y + verticalPadding;
 
     // Initial coordinates of the percentage column
-    let yRight = this.state.innerRect.y + verticalPadding + barHeight / 2 - magicNumber;
-    const xRight = this.state.innerRect.x +
-      horizontalPadding * 3 +
-      this.state.maxLeftWidth +
-      this.state.maxRightWidth +
-      maxBarWidth + 1;
+    let yRight = ((innerRect.y + verticalPadding) + (barHeight / 2)) - magicNumber;
+    const xRight = ((((innerRect.x + (horizontalPadding * 3)) +
+      maxLeftWidth) + maxRightWidth) + maxBarWidth + 1);
 
-    let yNumVotes = this.state.innerRect.y + verticalPadding - magicNumber;
+    let yNumVotes = (innerRect.y + verticalPadding) - magicNumber;
     const extendedTextArray = [];
-    for (let i = 0; i < this.state.textArray.length; i++) {
-      if (this.state.maxNumVotes == 0 || this.props.annotation.result[i].numVotes === 0) {
+    for (let i = 0; i < textArray.length; i += 1) {
+      let barWidth;
+      if (maxNumVotes === 0 || annotation.result[i].numVotes === 0) {
         barWidth = 1;
       } else {
-        barWidth = this.props.annotation.result[i].numVotes / this.state.maxNumVotes * maxBarWidth;
+        barWidth = (annotation.result[i].numVotes / maxNumVotes) * maxBarWidth;
       }
 
       // coordinates and color of the text inside the line bar
       // xNumVotesDefault and xNumVotesMovedRight are 2 different x coordinates for the text
       // since if the line bar is too small then we place the number to the right of the bar
-      const xNumVotesDefault = this.state.innerRect.x +
-        this.state.maxLeftWidth +
-        horizontalPadding * 2;
-      const xNumVotesMovedRight = xNumVotesDefault +
-        barWidth / 2 +
-        this.state.maxDigitWidth / 2;
+      const xNumVotesDefault = (innerRect.x + maxLeftWidth) + (horizontalPadding * 2);
+      const xNumVotesMovedRight = (xNumVotesDefault + (barWidth / 2)) + (maxDigitWidth / 2);
 
       let xNumVotes;
       let color;
-      if (barWidth < this.state.maxDigitWidth + 8) {
+      if (barWidth < maxDigitWidth + 8) {
         xNumVotes = xNumVotesMovedRight;
         color = '#333333';
       } else {
@@ -321,14 +339,14 @@ export default class PollDrawComponent extends React.Component {
 
       extendedTextArray[i] =
       {
-        key: `${this.props.annotation.id}_${this.state.textArray[i][3]}`,
+        key: `${annotation.id}_${textArray[i][3]}`,
         keyColumn: {
-          keyString: this.state.textArray[i][0],
+          keyString: textArray[i][0],
           xLeft,
           yLeft,
         },
         barColumn: {
-          votesString: this.state.textArray[i][1],
+          votesString: textArray[i][1],
           xBar,
           yBar,
           barWidth,
@@ -336,12 +354,12 @@ export default class PollDrawComponent extends React.Component {
           yNumVotes,
           xNumVotes,
           color,
-          numVotes: this.props.annotation.result[i].numVotes,
+          numVotes: annotation.result[i].numVotes,
         },
         percentColumn: {
           xRight,
           yRight,
-          percentString: this.state.textArray[i][2],
+          percentString: textArray[i][2],
         },
       };
 
@@ -355,35 +373,35 @@ export default class PollDrawComponent extends React.Component {
     return (
       <g>
         <rect
-          x={this.state.outerRect.x}
-          y={this.state.outerRect.y}
-          width={this.state.outerRect.width}
-          height={this.state.outerRect.height}
+          x={outerRect.x}
+          y={outerRect.y}
+          width={outerRect.width}
+          height={outerRect.height}
           strokeWidth="0"
-          fill={this.state.backgroundColor}
+          fill={backgroundColor}
         />
         <rect
-          x={this.state.innerRect.x}
-          y={this.state.innerRect.y}
-          width={this.state.innerRect.width}
-          height={this.state.innerRect.height}
+          x={innerRect.x}
+          y={innerRect.y}
+          width={innerRect.width}
+          height={innerRect.height}
           stroke="#333333"
-          fill={this.state.backgroundColor}
-          strokeWidth={this.state.thickness}
+          fill={backgroundColor}
+          strokeWidth={thickness}
         />
         <text
-          x={this.state.innerRect.x}
-          y={this.state.innerRect.y}
+          x={innerRect.x}
+          y={innerRect.y}
           fill="#333333"
           fontFamily="Arial"
-          fontSize={this.state.calcFontSize}
+          fontSize={calcFontSize}
           textAnchor="start"
         >
           {extendedTextArray.map(line =>
             (<tspan
               x={line.keyColumn.xLeft}
               y={line.keyColumn.yLeft}
-              dy={this.state.maxLineHeight / 2}
+              dy={maxLineHeight / 2}
               key={`${line.key}_key`}
             >
               {line.keyColumn.keyString}
@@ -399,22 +417,22 @@ export default class PollDrawComponent extends React.Component {
             height={line.barColumn.barHeight}
             stroke="#333333"
             fill="#333333"
-            strokeWidth={this.state.thickness - 1}
+            strokeWidth={thickness - 1}
           />),
         )}
         <text
-          x={this.state.innerRect.x}
-          y={this.state.innerRect.y}
+          x={innerRect.x}
+          y={innerRect.y}
           fill="#333333"
           fontFamily="Arial"
-          fontSize={this.state.calcFontSize}
+          fontSize={calcFontSize}
           textAnchor="end"
         >
           {extendedTextArray.map(line =>
             (<tspan
               x={line.percentColumn.xRight}
               y={line.percentColumn.yRight}
-              dy={this.state.maxLineHeight / 2}
+              dy={maxLineHeight / 2}
               key={`${line.key}_percent`}
             >
               {line.percentColumn.percentString}
@@ -422,17 +440,17 @@ export default class PollDrawComponent extends React.Component {
           )}
         </text>
         <text
-          x={this.state.innerRect.x}
-          y={this.state.innerRect.y}
+          x={innerRect.x}
+          y={innerRect.y}
           fill="#333333"
           fontFamily="Arial"
-          fontSize={this.state.calcFontSize}
+          fontSize={calcFontSize}
         >
           {extendedTextArray.map(line =>
             (<tspan
-              x={line.barColumn.xNumVotes + line.barColumn.barWidth / 2}
-              y={line.barColumn.yNumVotes + line.barColumn.barHeight / 2}
-              dy={this.state.maxLineHeight / 2}
+              x={line.barColumn.xNumVotes + (line.barColumn.barWidth / 2)}
+              y={line.barColumn.yNumVotes + (line.barColumn.barHeight / 2)}
+              dy={maxLineHeight / 2}
               key={`${line.key}_numVotes`}
               fill={line.barColumn.color}
             >
@@ -480,10 +498,11 @@ export default class PollDrawComponent extends React.Component {
   }
 
   renderTestStrings() {
-    // check whether we need to render just one line (which means we still calculating the font-size)
+    // check whether we need to render just one line, which means that
+    // we are still calculating the font-size
     // or if we finished with the font-size and we need to render all the strings in order to
     // determine the maxHeight, maxWidth and maxDigitWidth
-    if (this.state.fontSizeDirection != 0) {
+    if (this.state.fontSizeDirection !== 0) {
       return this.renderLine(this.state.lineToMeasure);
     }
     return (
@@ -517,3 +536,22 @@ export default class PollDrawComponent extends React.Component {
     );
   }
 }
+
+PollDrawComponent.propTypes = {
+  // Defines an annotation object, which contains all the basic info we need to draw a line
+  annotation: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    points: PropTypes.arrayOf(PropTypes.number).isRequired,
+    result: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        key: PropTypes.string.isRequired,
+        numVotes: PropTypes.number.isRequired,
+      }),
+    ).isRequired,
+  }).isRequired,
+  // Defines the width of the slide (svg coordinate system), which needed in calculations
+  slideWidth: PropTypes.number.isRequired,
+  // Defines the height of the slide (svg coordinate system), which needed in calculations
+  slideHeight: PropTypes.number.isRequired,
+};

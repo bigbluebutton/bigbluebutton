@@ -181,6 +181,7 @@ class MessageList extends Component {
               time={message.time}
               chatAreaId={this.props.id}
               lastReadMessageTime={this.props.lastReadMessageTime}
+              scrollArea={this.scrollArea}
             />
           ))}
         </div>

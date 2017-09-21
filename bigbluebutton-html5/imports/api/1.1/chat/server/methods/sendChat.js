@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import RedisPubSub from '/imports/startup/server/redis';
-import { translateHTML5ToFlash } from '/imports/api/common/server/helpers';
 import RegexWebUrl from '/imports/utils/regex-weburl';
 
 const HTML_SAFE_MAP = {

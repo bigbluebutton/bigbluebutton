@@ -15,7 +15,7 @@ const messages = defineMessages({
     description: 'Text for identifying your user',
   },
   locked: {
-    id: 'app.userlist.locked',
+    id: 'app.userList.locked',
     description: 'Text for identifying locked user',
   },
   guest: {
@@ -40,7 +40,9 @@ const propTypes = {
     image: PropTypes.string,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({}).isRequired,
+  meeting: PropTypes.shape({}).isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
 };
 
 const UserName = (props) => {
@@ -48,6 +50,8 @@ const UserName = (props) => {
     user,
     intl,
     compact,
+    isMeetingLocked,
+    meeting,
   } = props;
 
   if (compact) {
@@ -56,7 +60,13 @@ const UserName = (props) => {
 
   const userNameSub = [];
 
-  if (user.isLocked) {
+  if (compact) {
+    return null;
+  }
+
+  const isViewer = !!((!user.isPresenter && !user.isModerator));
+
+  if (isMeetingLocked(meeting.meetingId) && isViewer && user.isLocked) {
     userNameSub.push(<span>
       <Icon iconName="lock" />
       {intl.formatMessage(messages.locked)}
@@ -66,6 +76,7 @@ const UserName = (props) => {
   if (user.isGuest) {
     userNameSub.push(intl.formatMessage(messages.guest));
   }
+
 
   return (
     <div className={styles.userName}>

@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   creationComplete="onCreationComplete()"
 		   verticalScrollPolicy="off"
 		   horizontalScrollPolicy="off"
+		   clipContent="true"
 		   styleName="presentationSlideViewStyle"
 		   xmlns:views="org.bigbluebutton.modules.present.views.*">
 
@@ -49,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.SortField;
-			import mx.containers.Canvas;			
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
@@ -84,8 +85,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var pageCache:ArrayCollection = new ArrayCollection();
       
 			private function onCreationComplete():void {
-				slideLoader.width = this.width;
-				slideLoader.height = this.height;
+				//slideLoader.width = this.width;
+				//slideLoader.height = this.height;
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
 				
@@ -241,6 +242,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function switchToFitToPage(ftp:Boolean):void {
 				slideModel.switchToFitToPage(ftp);
+				slideModel.onMove(0, 0); // fake a move to reset some values
 				onZoomSlide(100);
 			}
 			
@@ -299,7 +301,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (page != null && page.swfData != null) {   
           LOGGER.debug("Positioning page [{0}]", [page.id]);
           slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
-          slideModel.calculateViewportNeededForRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
+          slideModel.calculateViewportNeededForRegion(page.widthRatio, page.heightRatio);
           slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.calculateViewportXY();
           slideModel.displayPresenterView();

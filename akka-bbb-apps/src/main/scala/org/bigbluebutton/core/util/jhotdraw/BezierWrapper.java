@@ -16,7 +16,7 @@ public class BezierWrapper {
     }
     
     //fit it
-    BezierPath endPath = Bezier.fitBezierPath(startingLine, 3d);
+    BezierPath endPath = Bezier.fitBezierPath(startingLine, 1d);
     
     //get raw path
     PathData rawPath = endPath.toRawPath();

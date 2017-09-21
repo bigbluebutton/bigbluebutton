@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
     title="{ResourceUtil.getInstance().getString('bbb.logout.title')}" showCloseButton="false" creationComplete="init()"
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
-    x="168" y="86" layout="vertical" width="400" height="110" horizontalAlign="center">
+    x="168" y="86" layout="vertical" width="400" horizontalAlign="center">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -89,12 +89,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function setReason(reason:String):void {
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["connection"];
-        logData.message = "User logged out.";
-        logData.reason = reason;
-        LOGGER.info(JSON.stringify(logData));
-        
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["connection"];
+				logData.message = "User logged out.";
+				logData.reason = reason;
+				LOGGER.info(JSON.stringify(logData));
+
 				switch (reason) {
 					case ConnectionFailedEvent.APP_SHUTDOWN:
 						message = ResourceUtil.getInstance().getString('bbb.logout.appshutdown');

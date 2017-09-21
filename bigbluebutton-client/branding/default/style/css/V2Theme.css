@@ -11,6 +11,7 @@
 @namespace sharednotes "org.bigbluebutton.modules.sharednotes.views.components.*";
 @namespace chat "org.bigbluebutton.modules.chat.views.*";
 @namespace skins "org.bigbluebutton.skins.*";
+@namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
 
 /*
 //------------------------------
@@ -62,6 +63,7 @@ global {
 mx|Application {
 	backgroundGradientColors : #F1F3F7, #F1F3F7;
 	backgroundColor          : #F1F3F7;
+	paddingTop               : 0;
 }
 
 /*
@@ -74,6 +76,7 @@ mx|Application {
 	horizontalGap : 60;
 	paddingLeft   : 30;
 	paddingRight  : 30;
+	verticalAlign : top;
 }
 
 .audioBroswerHintBoxStyle {
@@ -122,10 +125,41 @@ mx|Application {
 */
 
 mx|ApplicationControlBar {
+	borderSkin      : ClassReference(null);
 	cornerRadius    : 0;
 	fillAlphas      : 1, 1;
 	fillColors      : #FFFFFF, #FFFFFF;
 	highlightAlphas : 0, 0;
+	paddingBottom   : 0;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingTop      : 0;
+	verticalAlign   : top;
+}
+
+phonecomponents|MuteMeButton {
+	glowFilterColor : #1070D7;
+}
+
+.toolbarMainBox {
+	backgroundColor : #FFFFFF;
+	paddingTop      : 6;
+	paddingBottom   : 6;
+}
+
+.breakoutRoomRibbon {
+	backgroundColor : #1070D7;
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
+.topBoxStyle {
+	paddingTop    : 0;
+	paddingBottom : 0;
+	paddingLeft   : 8;
+	paddingRight  : 8;
 }
 
 .toolbarSeparator {
@@ -157,6 +191,10 @@ mx|ApplicationControlBar {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout");
 }
 
+.logoutButtonStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout_RTL");
+}
+
 .settingsButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
@@ -172,6 +210,17 @@ mx|ApplicationControlBar {
 	borderColorSelectedUp   : #1070D7;
 	borderColorSelectedOver : #0A5EAC;
 	borderColorSelectedDown : #1070D7;
+}
+
+.recordButtonStyleNormal, .recordButtonStyleStop, .recordButtonStyleStart {
+	fillColorOver           : #FFFFFF;
+	borderColorOver         : #DE2721;
+	fillColorSelectedUp     : #FFFFFF;
+	fillColorSelectedOver   : #FFFFFF;
+	fillColorSelectedDown   : #FFFFFF;
+	borderColorSelectedUp   : #DE2721;
+	borderColorSelectedOver : #DE2721;
+	borderColorSelectedDown : #DE2721;
 }
 
 .voiceConfDefaultButtonStyle, .voiceConfOverButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
@@ -270,8 +319,7 @@ mx|ApplicationControlBar {
 }
 
 .muteMeDefaultButtonStyle {
-	glowFilterColor : #1070D7;
-	iconAudio       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
+	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
 
 .muteMeOnButtonStyle {
@@ -354,6 +402,7 @@ mx|Button {
 	textRollOverColor           : #4E5A66;
 	textSelectedColor           : #4E5A66;
 	fontSize                    : 14;
+	fontWeight                  : normal;
 	skin                        : ClassReference("org.bigbluebutton.skins.ButtonSkin");
 
 	/* Normal state */
@@ -392,6 +441,10 @@ mx|Button {
 
 users|BreakoutRoomSettings {
 	headerHeight : 0;
+}
+
+users|JoinBreakoutRoomWindow {
+	iconRooms : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
 }
 
 users|RoomActionsRenderer {
@@ -435,6 +488,45 @@ users|RoomActionsRenderer {
 	backgroundColor : #CCCCCC;
 	verticalAlign   : middle;
 	horizontalAlign : center;
+}
+
+.roomNumberStyle {
+	color         : #25385D;
+	fontSize      : 30;
+	fontWeight    : bold;
+	verticalAlign : middle;
+	textAlign     : center;
+}
+
+.joinBreakoutRoomButton, .retryUploadButton {
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
+}
+
+/*
+//------------------------------
+//  BrowserPermissionHelper
+//------------------------------
+*/
+
+views|BrowserPermissionHelper {
+	backgroundColor : #FFFFFF;
+	borderStyle     : solid;
+	borderThickness : 0;
+	cornerRadius    : 4;
+}
+
+.broswerHelperTitleStyle {
+	color     : #05172A;
+	fontSize  : 16;
+	textAlign : center;
 }
 
 /*
@@ -481,6 +573,18 @@ chat|AddChatTabBox {
 .chatControlBarSendButtonStyle {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
 	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
+	cornerRadius      : 20;
+	borderStyle       : none;
+	borderThickness   : 0;
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+}
+
+.chatControlBarSendButtonStyleRTL {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_RTL");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled_RTL");
 	cornerRadius      : 20;
 	borderStyle       : none;
 	borderThickness   : 0;
@@ -580,6 +684,22 @@ mx|CheckBox {
 	verticalGap               : 0;
 }
 
+.sharedNotesColorPickerStyle {
+	backgroundColor           : #E5E6E7;
+	columnCount               : 5;
+	horizontalGap             : 0;
+	previewHeight             : 22;
+	previewWidth              : 45;
+	swatchGridBackgroundColor : #000000;
+	swatchGridBorderSize      : 0;
+	swatchHeight              : 60;
+	swatchHighlightColor      : #FFFFFF;
+	swatchHighlightSize       : 1;
+	swatchWidth               : 28;
+	textFieldWidth            : 72;
+	verticalGap               : 0;
+}
+
 /*
 //------------------------------
 //  ComboBox
@@ -590,6 +710,7 @@ mx|ComboBox {
 	cornerRadius        : 2;
 	color               : #5E6C73;
 	fontSize            : 12;
+	fontWeight          : normal;
 
 	/* Normal state */
 	fillColorUp         : #FFFFFF;
@@ -726,8 +847,12 @@ layout|LoadButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload_Template");
 }
 
-layout|BroadcastButton {
+.broadcastLayoutButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout");
+}
+
+.broadcastLayoutButtonStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout_RTL");
 }
 
 /*
@@ -736,10 +861,22 @@ layout|BroadcastButton {
 //------------------------------
 */
 
-.logoutWindowStyle {
+views|LogoutWindow, views|LoggedOutWindow {
 	headerHeight              : 32;
+	paddingBottom             : 8;
+	paddingLeft               : 8;
+	paddingRight              : 8;
+	paddingTop                : 8;
+	titleStyleName            : "logoutTitleWindowStyle";
 	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially  */
 	modalTransparencyDuration : 250;
+}
+
+.logoutTitleWindowStyle {
+	color         : #05172A;
+	fontSize      : 16;
+	textAlign     : center;
+	paddingBottom : 8;
 }
 
 /*
@@ -763,7 +900,8 @@ views|LockSettings {
 */
 
 views|MainApplicationShell {
-	verticalGap : 0;
+	paddingBottom : 0;
+	verticalGap   : 0;
 }
 
 .logsButton {
@@ -886,19 +1024,8 @@ flexlib|MDIWindow {
 //------------------------------
 */
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .permissionSettingsTextStyle, .inactivityWarningTextStyle {
 	fontSize : 14;
-}
-
-.micSettingsWindowOpenDialogLabelStyle {
-	fontSize   : 14;
-	fontWeight : bold;
-	color      : #CDD4DB;
-}
-
-.micSettingsWindowShareMicrophoneLabelStyle {
-	fontSize : 14;
-	color    : #5E6C72;
 }
 
 .inactivityWarningWindowCancelButtonStyle {
@@ -995,6 +1122,10 @@ mx|Panel {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
 }
 
+.presentationUploadProgressBar {
+	trackHeight : 12;
+}
+
 .presentationUploadButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload");
 }
@@ -1003,14 +1134,22 @@ mx|Panel {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Polling");
 }
 
-.presentationBackButtonStyle {
+.presentationBackButtonStyle, .presentationForwardButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
 }
 
-.presentationForwardButtonStyle {
+.presentationBackButtonDisabledStyle, .presentationForwardButtonDisabledStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
+}
+
+.presentationForwardButtonStyle, .presentationBackButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
+}
+
+.presentationForwardButtonDisabledStyle, .presentationBackButtonDisabledStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
 }
 
 .presentationFitToWidthButtonStyle {
@@ -1048,6 +1187,8 @@ mx|Panel {
 }
 
 .uploadFileButton {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
 	fillColorUp       : #1070D7;
 	fillColorOver     : #0A5EAC;
 	fillColorDown     : #1070D7;
@@ -1059,9 +1200,18 @@ mx|Panel {
 	borderThickness   : 0;
 }
 
-.uploadFileButton {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
+.uploadFileButtonRTL {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_RTL");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled_RTL");
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
 }
 
 .presentationNameLabel {
@@ -1075,6 +1225,19 @@ mx|Panel {
 
 .presentationUploadShowButtonStyle {
 	color : #2A2D33;
+}
+
+.presentationFilesList {
+	paddingBottom : 5;
+	paddingLeft   : 5;
+	paddingRight  : 5;
+	paddingTop    : 5;
+}
+
+.progressErrorLblStyle {
+	color     : #DE2721;
+	fontSize  : 16;
+	textAlign : center;
 }
 
 .presentationDownloadShowButtonStyle {
@@ -1100,7 +1263,7 @@ mx|Panel {
 }
 
 .slideViewBackground {
-	backgroundColor : #4E5A66;
+	backgroundColor : #E2E8ED;
 }
 
 /*
@@ -1139,6 +1302,18 @@ mx|ProgressBar {
 	borderColor : #CDD4DB;
 	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
 	trackSkin   : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+}
+
+/*
+//------------------------------
+//  QuoteView
+//------------------------------
+*/
+
+views|QuotesView {
+	iconQuote       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Quote");
+	verticalGap     : 20;
+	horizontalAlign : center;
 }
 
 /*
@@ -1204,16 +1379,12 @@ sharednotes|SharedNotesRichTextEditor {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
 }
 
-.sharedNotesNewButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Add_File");
-}
-
-.sharedNotesUndoButtonStyle {
+.sharedNotesUndoButtonStyle, .sharedNotesRedoButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo_Disabled");
 }
 
-.sharedNotesRedoButtonStyle {
+.sharedNotesRedoButtonStyle, .sharedNotesUndoButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo_Disabled");
 }
@@ -1274,23 +1445,28 @@ mx|Tab, .defaultTabStyle {
 */
 
 mx|TitleWindow {
-	closeButtonDisabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
-	closeButtonDownSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
-	closeButtonOverSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
-	closeButtonUpSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
-	borderColor             : #FFFFFF;
-	cornerRadius            : 4;
-	roundedBottomCorners    : true;
-	dropShadowEnabled       : true;
-	shadowDistance          : 0;
-	borderThickness         : 1;
-	paddingTop              : 5;
+	borderColor          : #FFFFFF;
+	cornerRadius         : 4;
+	roundedBottomCorners : true;
+	dropShadowEnabled    : true;
+	shadowDistance       : 0;
+	borderThickness      : 1;
+	paddingTop           : 10;
+	headerHeight         : 0;
 }
 
 .titleWindowStyle {
-	color     : #05172A;
-	fontSize  : 24;
-	textAlign : center;
+	color         : #05172A;
+	fontSize      : 24;
+	textAlign     : center;
+	paddingBottom : 8;
+}
+
+.titleWindowCloseButton {
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
 }
 
 /*
@@ -1355,6 +1531,9 @@ users|MediaItemRenderer {
 	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
 	glowFilterColor : #1070D7;
+	verticalAlign   : middle;
+	horizontalGap   : 8;
+	horizontalAlign : center;
 }
 
 users|NameItemRenderer {

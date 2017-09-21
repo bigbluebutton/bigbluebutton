@@ -26,14 +26,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.broadcastButton.toolTip')}"
 		   styleName="broadcastLayoutButtonStyle"
 		   click="onClick(event)">
+	
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
+	</fx:Declarations>
 
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.modules.layout.events.LayoutEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			
@@ -47,6 +54,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function refreshRole(amIModerator:Boolean):void {
 				this.visible = this.includeInLayout = this.enabled = amIModerator;
+			}
+			
+			private function localeChanged(event:LocaleChangeEvent) : void {
+				var styleNameExt : String = "";
+				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+					styleNameExt = "RTL";
+				}
+				
+				this.styleName = "broadcastLayoutButtonStyle" + styleNameExt;
 			}
 		]]>
 	</fx:Script>
