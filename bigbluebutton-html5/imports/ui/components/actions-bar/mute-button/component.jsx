@@ -22,7 +22,7 @@ const MuteAudio = ({
   intl,
   listenOnly,
 }) => {
-  if (!isInAudio) return null;
+  if (!isInAudio || listenOnly) return null;
   const muteLabel = intl.formatMessage(intlMessages.muteLabel);
   const unmuteLabel = intl.formatMessage(intlMessages.unmuteLabel);
 
@@ -35,22 +35,18 @@ const MuteAudio = ({
     className = styles.circleGlow;
   }
 
-  if (!listenOnly) {
-    return (
-      <Button
-        onClick={callback}
-        label={label}
-        color={'primary'}
-        icon={icon}
-        size={'lg'}
-        circle
-        className={className}
-        tabIndex={tabIndex}
-      />
-    );
-  }
-
-  return null;
+  return (
+    <Button
+      onClick={callback}
+      label={label}
+      color={'primary'}
+      icon={icon}
+      size={'lg'}
+      circle
+      className={className}
+      tabIndex={tabIndex}
+    />
+  );
 };
 
 export default injectIntl(MuteAudio);
