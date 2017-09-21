@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import styles from './styles.scss';
 import WhiteboardToolbarItem from './whiteboard-toolbar-item/component';
 
@@ -13,24 +14,8 @@ const ANNOTATION_TOOLS = TOOLBAR_CONFIG.tools;
 
 export default class WhiteboardToolbar extends Component {
 
-  static HEXToINTColor(hexColor) {
-    const _rrggbb = hexColor.slice(1);
-    const rrggbb = _rrggbb.substr(0, 2) + _rrggbb.substr(2, 2) + _rrggbb.substr(4, 2);
-    return parseInt(rrggbb, 16);
-  }
-
-  static INTToHEXColor(intColor) {
-    let hex;
-    hex = parseInt(intColor, 10).toString(16);
-    while (hex.length < 6) {
-      hex = `0${hex}`;
-    }
-
-    return `#${hex}`;
-  }
-
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
 
     this.state = {
       // a variable to control which list is currently open
@@ -86,7 +71,7 @@ export default class WhiteboardToolbar extends Component {
       this.props.actions.setInitialWhiteboardToolbarValues(
         annotationSelected.name,
         thicknessSelected * 2,
-        WhiteboardToolbar.HEXToINTColor(colorSelected),
+        HEXToINTColor(colorSelected),
         fontSizeSelected,
         {
           textShapeValue: '',
@@ -125,7 +110,7 @@ export default class WhiteboardToolbar extends Component {
     // divide by 2, since we need the radius for the thickness icon
     const thicknessSelected = drawSettings.whiteboardAnnotationThickness / 2;
     const fontSizeSelected = drawSettings.textFontSize;
-    const colorSelected = WhiteboardToolbar.INTToHEXColor(drawSettings.whiteboardAnnotationColor);
+    const colorSelected = INTToHEXColor(drawSettings.whiteboardAnnotationColor);
 
     let annotationSelected = {};
     for (let i = 0; i < this.props.annotations.length; i += 1) {
@@ -256,7 +241,7 @@ export default class WhiteboardToolbar extends Component {
   // changes a current selected color both in the state and in the session
   // and closes the color list
   handleColorChange(color) {
-    this.props.actions.setColor(WhiteboardToolbar.HEXToINTColor(color));
+    this.props.actions.setColor(HEXToINTColor(color));
 
     this.setState({
       prevColorSelected: this.state.colorSelected,
