@@ -15,10 +15,7 @@ const isModerator = () => {
   return (currentUser) ? mapUser(currentUser).isModerator : null;
 };
 
-const isBreakout = () => {
-  console.log('isBreakout', Breakouts.findOne({ breakoutId: Auth.meetingID }));
-  return Breakouts.findOne({ breakoutId: Auth.meetingID });
-};
+const isBreakout = () => Breakouts.findOne({ breakoutId: Auth.meetingID });
 
 export default {
   endMeeting,
