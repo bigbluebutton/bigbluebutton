@@ -11,7 +11,7 @@ export default createContainer(() => {
   const userId = Auth.userID;
   const voiceUser = VoiceUsers.findOne({ intId: userId });
 
-  const { muted, joined, talking } = voiceUser;
+  const { muted, joined, talking, listenOnly } = voiceUser;
 
   const callback = () => makeCall('toggleSelfVoice');
 
@@ -20,6 +20,7 @@ export default createContainer(() => {
     isMuted: muted,
     callback,
     isTalking: talking,
+    listenOnly,
   };
   return data;
 }, MuteAudioContainer);
