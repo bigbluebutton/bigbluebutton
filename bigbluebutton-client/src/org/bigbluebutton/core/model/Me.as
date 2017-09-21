@@ -20,6 +20,7 @@ package org.bigbluebutton.core.model
     public var authToken:String = "";
     public var layout:String = "";
     public var logoutURL:String = "";
+	public var logoutTimer:int=0;
     
     public var welcome:String = "";
     public var avatarURL:String = "";
