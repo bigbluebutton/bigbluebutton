@@ -4,7 +4,6 @@ import Users from '/imports/api/2.0/users';
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
 
-
 const DRAW_SETTINGS = 'drawSettings';
 
 const makeSetter = key => (value) => {
@@ -15,45 +14,43 @@ const makeSetter = key => (value) => {
   }
 };
 
-const actions = {
-  undoAnnotation: (whiteboardId) => {
-    makeCall('undoAnnotation', whiteboardId);
-  },
-
-  clearWhiteboard: (whiteboardId) => {
-    makeCall('clearWhiteboard', whiteboardId);
-  },
-
-  changeWhiteboardMode: (multiUser) => {
-    makeCall('changeWhiteboardAccess', multiUser);
-  },
-
-  setInitialWhiteboardToolbarValues: (tool, thickness, color, fontSize, textShape) => {
-    const _drawSettings = Storage.getItem(DRAW_SETTINGS);
-    if (!_drawSettings) {
-      const drawSettings = {
-        whiteboardAnnotationTool: tool,
-        whiteboardAnnotationThickness: thickness,
-        whiteboardAnnotationColor: color,
-        textFontSize: fontSize,
-        textShape,
-      };
-      Storage.setItem(DRAW_SETTINGS, drawSettings);
-    }
-  },
-
-  getCurrentDrawSettings: () => Storage.getItem(DRAW_SETTINGS),
-
-  setFontSize: makeSetter('textFontSize'),
-
-  setTool: makeSetter('whiteboardAnnotationTool'),
-
-  setThickness: makeSetter('whiteboardAnnotationThickness'),
-
-  setColor: makeSetter('whiteboardAnnotationColor'),
-
-  setTextShapeObject: makeSetter('textShape'),
+const undoAnnotation = (whiteboardId) => {
+  makeCall('undoAnnotation', whiteboardId);
 };
+
+const clearWhiteboard = (whiteboardId) => {
+  makeCall('clearWhiteboard', whiteboardId);
+};
+
+const changeWhiteboardMode = (multiUser) => {
+  makeCall('changeWhiteboardAccess', multiUser);
+};
+
+const setInitialWhiteboardToolbarValues = (tool, thickness, color, fontSize, textShape) => {
+  const _drawSettings = Storage.getItem(DRAW_SETTINGS);
+  if (!_drawSettings) {
+    const drawSettings = {
+      whiteboardAnnotationTool: tool,
+      whiteboardAnnotationThickness: thickness,
+      whiteboardAnnotationColor: color,
+      textFontSize: fontSize,
+      textShape,
+    };
+    Storage.setItem(DRAW_SETTINGS, drawSettings);
+  }
+};
+
+const getCurrentDrawSettings = () => Storage.getItem(DRAW_SETTINGS);
+
+const setFontSize = makeSetter('textFontSize');
+
+const setTool = makeSetter('whiteboardAnnotationTool');
+
+const setThickness = makeSetter('whiteboardAnnotationThickness');
+
+const setColor = makeSetter('whiteboardAnnotationColor');
+
+const setTextShapeObject = makeSetter('textShape');
 
 const getTextShapeActiveId = () => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
@@ -71,7 +68,16 @@ const isPresenter = () => {
 };
 
 export default {
-  actions,
+  undoAnnotation,
+  clearWhiteboard,
+  changeWhiteboardMode,
+  setInitialWhiteboardToolbarValues,
+  getCurrentDrawSettings,
+  setFontSize,
+  setTool,
+  setThickness,
+  setColor,
+  setTextShapeObject,
   getTextShapeActiveId,
   getMultiUserStatus,
   isPresenter,

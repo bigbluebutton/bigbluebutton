@@ -8,7 +8,18 @@ const WhiteboardToolbarContainer = ({ ...props }) => (
   );
 
 export default createContainer(() => ({
-  actions: WhiteboardToolbarService.actions,
+  actions: {
+    undoAnnotation: WhiteboardToolbarService.undoAnnotation,
+    clearWhiteboard: WhiteboardToolbarService.clearWhiteboard,
+    changeWhiteboardMode: WhiteboardToolbarService.changeWhiteboardMode,
+    setInitialWhiteboardToolbarValues: WhiteboardToolbarService.setInitialWhiteboardToolbarValues,
+    getCurrentDrawSettings: WhiteboardToolbarService.getCurrentDrawSettings,
+    setFontSize: WhiteboardToolbarService.setFontSize,
+    setTool: WhiteboardToolbarService.setTool,
+    setThickness: WhiteboardToolbarService.setThickness,
+    setColor: WhiteboardToolbarService.setColor,
+    setTextShapeObject: WhiteboardToolbarService.setTextShapeObject,
+  },
   textShapeActiveId: WhiteboardToolbarService.getTextShapeActiveId(),
   multiUser: WhiteboardToolbarService.getMultiUserStatus(),
   isPresenter: WhiteboardToolbarService.isPresenter(),
