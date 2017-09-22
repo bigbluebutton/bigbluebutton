@@ -11,33 +11,33 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
-import styles from './../styles.scss';
+import styles from './styles.scss';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
 
 const messages = defineMessages({
   presenter: {
-    id: 'app.userList.presenter',
+    id: 'app.userlist.presenter',
     description: 'Text for identifying presenter user',
   },
   you: {
-    id: 'app.userList.you',
+    id: 'app.userlist.you',
     description: 'Text for identifying your user',
   },
   locked: {
-    id: 'app.userList.locked',
+    id: 'app.userlist.locked',
     description: 'Text for identifying locked user',
   },
   guest: {
-    id: 'app.userList.guest',
+    id: 'app.userlist.guest',
     description: 'Text for identifying guest user',
   },
   menuTitleContext: {
-    id: 'app.userList.menuTitleContext',
+    id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
   userAriaLabel: {
-    id: 'app.userList.userAriaLabel',
+    id: 'app.userlist.userAriaLabel',
     description: 'aria label for each user in the userlist',
   },
 });
@@ -161,8 +161,8 @@ class UserListContent extends Component {
     const list = findDOMNode(this.list);
 
     if (isActionsOpen && dropdownVisible) {
-      const childrens = [].slice.call(list.children);
-      childrens.find(child => child.getAttribute('role') === 'menuitem').focus();
+      const children = [].slice.call(list.children);
+      children.find(child => child.getAttribute('role') === 'menuitem').focus();
     }
 
     return isActionsOpen && !dropdownVisible;

@@ -123,6 +123,10 @@ const sortChatsByIcon = (a, b) => {
   return 0;
 };
 
+const isPublicChat = chat => (
+  chat.id === 'public'
+);
+
 const sortChats = (a, b) => {
   let sort = sortChatsByIcon(a, b);
 
@@ -260,9 +264,9 @@ const isMeetingLocked = (id) => {
     const lockSettings = meeting.lockSettingsProp;
 
     if (lockSettings.disableCam
-        || lockSettings.disableMic
-        || lockSettings.disablePrivChat
-        || lockSettings.disablePubChat) {
+      || lockSettings.disableMic
+      || lockSettings.disablePrivChat
+      || lockSettings.disablePubChat) {
       isLocked = true;
     }
   }
@@ -277,4 +281,5 @@ export default {
   getAvailableActions,
   normalizeEmojiName,
   isMeetingLocked,
+  isPublicChat,
 };

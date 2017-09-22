@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import KEY_CODES from '/imports/utils/keyCodes';
-import styles from './../styles.scss';
+import styles from './styles.scss';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
 
@@ -17,6 +17,7 @@ const propTypes = {
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
+  isPublicChat: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -39,10 +40,10 @@ class UserContent extends Component {
     modifiedElement.focus();
   }
 
-  static removeFocusFromChilds(childs, numberOfItems) {
-    const modifiedChilds = childs;
+  static removeFocusFromChildren(children, numberOfItems) {
+    const modifiedChildren = children;
     for (let i = 0; i < numberOfItems; i += 1) {
-      modifiedChilds.childNodes[i].tabIndex = -1;
+      modifiedChildren.childNodes[i].tabIndex = -1;
     }
   }
 
@@ -70,7 +71,7 @@ class UserContent extends Component {
     if (event.keyCode === KEY_CODES.TAB) {
       if (this.focusedItemIndex !== -1) {
         this.focusedItemIndex = 0;
-        UserContent.removeFocusFromChilds(changedItems, numberOfItems);
+        UserContent.removeFocusFromChildren(changedItems, numberOfItems);
       }
     }
 
@@ -108,6 +109,7 @@ class UserContent extends Component {
     return (
       <div className={styles.content}>
         <UserMessages
+          isPublicChat={this.props.isPublicChat}
           openChats={this.props.openChats}
           compact={this.props.compact}
           intl={this.props.intl}

@@ -39,11 +39,11 @@ const listTransition = {
 
 const intlMessages = defineMessages({
   usersTitle: {
-    id: 'app.userList.usersTitle',
+    id: 'app.userlist.usersTitle',
     description: 'Title for the Header',
   },
   messagesTitle: {
-    id: 'app.userList.messagesTitle',
+    id: 'app.userlist.messagesTitle',
     description: 'Title for the messages list',
   },
   participantsTitle: {

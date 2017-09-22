@@ -1,11 +1,11 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import styles from './../styles.scss';
+import styles from './styles.scss';
 
 const intlMessages = defineMessages({
   participantsTitle: {
-    id: 'app.userList.participantsTitle',
+    id: 'app.userlist.participantsTitle',
     description: 'Title for the Users list',
   },
 });

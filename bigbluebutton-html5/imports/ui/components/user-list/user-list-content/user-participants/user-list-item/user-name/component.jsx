@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
-import styles from './../styles.scss';
+import styles from './styles.scss';
 
 
 const messages = defineMessages({
@@ -15,7 +15,7 @@ const messages = defineMessages({
     description: 'Text for identifying your user',
   },
   locked: {
-    id: 'app.userList.locked',
+    id: 'app.userlist.locked',
     description: 'Text for identifying locked user',
   },
   guest: {
@@ -64,7 +64,7 @@ const UserName = (props) => {
     return null;
   }
 
-  const isViewer = !!((!user.isPresenter && !user.isModerator));
+  const isViewer = !(user.isPresenter || user.isModerator);
 
   if (isMeetingLocked(meeting.meetingId) && isViewer && user.isLocked) {
     userNameSub.push(<span>

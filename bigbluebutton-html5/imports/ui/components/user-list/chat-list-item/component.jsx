@@ -14,11 +14,11 @@ const intlMessages = defineMessages({
     description: 'title for public chat',
   },
   unreadPlural: {
-    id: 'app.userList.chatListItem.unreadPlural',
+    id: 'app.userlist.chatListItem.unreadPlural',
     description: 'singular aria label for new message',
   },
   unreadSingular: {
-    id: 'app.userList.chatListItem.unreadSingular',
+    id: 'app.userlist.chatListItem.unreadSingular',
     description: 'plural aria label for new messages',
   },
 });
@@ -36,6 +36,7 @@ const propTypes = {
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({}).isRequired,
   tabIndex: PropTypes.number.isRequired,
+  isPublicChat: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -49,6 +50,7 @@ const ChatListItem = (props) => {
     compact,
     intl,
     tabIndex,
+    isPublicChat,
     } = props;
 
   const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
@@ -57,10 +59,6 @@ const ChatListItem = (props) => {
 
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
-
-  if (chat.name === 'Public Chat') {
-    chat.name = intl.formatMessage(intlMessages.titlePublic);
-  }
 
   return (
     <Link
@@ -82,7 +80,10 @@ const ChatListItem = (props) => {
             />}
         </div>
         <div className={styles.chatName}>
-          {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null}
+          {!compact ?
+            <span className={styles.chatNameMain}>
+              {isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+            </span> : null}
         </div>
         {(chat.unreadCounter > 0) ?
           <ChatUnreadMessages

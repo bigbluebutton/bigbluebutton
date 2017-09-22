@@ -45,8 +45,8 @@ export default class DropdownList extends Component {
   componentDidUpdate() {
     const { focusedIndex } = this.state;
 
-    const childrens = [].slice.call(this._menu.children);
-    this.menuRefs = childrens.filter(child => child.getAttribute('role') === 'menuitem');
+    const children = [].slice.call(this._menu.children);
+    this.menuRefs = children.filter(child => child.getAttribute('role') === 'menuitem');
 
     const activeRef = this.menuRefs[focusedIndex];
 
@@ -155,9 +155,9 @@ export default class DropdownList extends Component {
         style={style}
         className={cx(styles.list, className)}
         role="menu"
-        ref={(r) => {
-          this._menu = r;
-          return r;
+        ref={(menu) => {
+          this._menu = menu;
+          return menu;
         }}
       >
         {boundChildren}

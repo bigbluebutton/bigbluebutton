@@ -1,0 +1,8 @@
+@import "/imports/ui/components/user-list/styles.scss";
+
+.content {
+  @extend %flex-column;
+  flex-grow: 9;
+  overflow: hidden;
+}
+

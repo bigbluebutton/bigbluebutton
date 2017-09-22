@@ -19,6 +19,7 @@ const UserListContainer = (props) => {
     getAvailableActions,
     normalizeEmojiName,
     isMeetingLocked,
+    isPublicChat,
     } = props;
 
   return (
@@ -34,6 +35,7 @@ const UserListContainer = (props) => {
       getAvailableActions={getAvailableActions}
       normalizeEmojiName={normalizeEmojiName}
       isMeetingLocked={isMeetingLocked}
+      isPublicChat={isPublicChat}
     >
       {children}
     </UserList>
@@ -51,4 +53,5 @@ export default createContainer(({ params }) => ({
   getAvailableActions: Service.getAvailableActions,
   normalizeEmojiName: Service.normalizeEmojiName,
   isMeetingLocked: Service.isMeetingLocked,
+  isPublicChat: Service.isPublicChat,
 }), UserListContainer);

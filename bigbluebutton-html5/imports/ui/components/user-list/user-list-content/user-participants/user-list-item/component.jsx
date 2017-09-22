@@ -6,20 +6,6 @@ import _ from 'lodash';
 import UserListContent from './user-list-content/component';
 import UserAction from './user-action/component';
 
-const normalizeEmojiName = (emoji) => {
-  const emojisNormalized = {
-    agree: 'thumbs_up',
-    disagree: 'thumbs_down',
-    thumbsUp: 'thumbs_up',
-    thumbsDown: 'thumbs_down',
-    raiseHand: 'hand',
-    away: 'time',
-    neutral: 'undecided',
-  };
-
-  return emoji in emojisNormalized ? emojisNormalized[emoji] : emoji;
-};
-
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -41,6 +27,7 @@ const propTypes = {
   getAvailableActions: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
+  normalizeEmojiName: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -115,6 +102,7 @@ class UserListItem extends Component {
       intl,
       meeting,
       isMeetingLocked,
+      normalizeEmojiName,
     } = this.props;
 
     const actions = this.getUsersActions();

@@ -3,7 +3,7 @@ import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import styles from './../../styles.scss';
+import styles from './styles.scss';
 import ChatListItem from './../../chat-list-item/component';
 
 const propTypes = {
@@ -12,6 +12,7 @@ const propTypes = {
   compact: PropTypes.bool,
   intl: PropTypes.shape({}).isRequired,
   rovingIndex: PropTypes.func.isRequired,
+  isPublicChat: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -85,9 +86,9 @@ class UserMessages extends Component {
     if (!this.props.compact) {
       this._msgsList.addEventListener('keydown',
         event => this.props.rovingIndex(event,
-                                        this._msgsList,
-                                        this._msgItems,
-                                        this.props.openChats.length));
+          this._msgsList,
+          this._msgItems,
+          this.props.openChats.length));
     }
   }
 
@@ -97,6 +98,7 @@ class UserMessages extends Component {
       openChat,
       intl,
       compact,
+      isPublicChat,
     } = this.props;
 
     return (
@@ -127,6 +129,7 @@ class UserMessages extends Component {
             <div ref={(ref) => { this._msgItems = ref; }}>
               {openChats.map(chat => (
                 <ChatListItem
+                  isPublicChat={isPublicChat}
                   compact={compact}
                   key={chat.id}
                   openChat={openChat}

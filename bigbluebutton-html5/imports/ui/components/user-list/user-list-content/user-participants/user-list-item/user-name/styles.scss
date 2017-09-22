@@ -1,0 +1,38 @@
+@import "/imports/ui/components/user-list/styles.scss";
+
+.userName {
+  @extend %flex-column;
+  min-width: 0;
+  flex-grow: 1;
+  margin-left: $sm-padding-x;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.userNameMain {
+  @extend %no-margin;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.3s;
+  font-weight: 400;
+  color: $color-gray-dark;
+}
+
+.userNameSub {
+  @extend %no-margin;
+  font-size: 0.75rem;
+  font-weight: 200;
+  color: $color-gray;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  i {
+    line-height: 0;
+    font-size: 75%;
+  }
+}
+
+

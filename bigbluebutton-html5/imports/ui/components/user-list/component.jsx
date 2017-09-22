@@ -18,6 +18,7 @@ const propTypes = {
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
+  isPublicChat: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -61,6 +62,7 @@ class UserList extends Component {
           getAvailableActions={this.props.getAvailableActions}
           normalizeEmojiName={this.props.normalizeEmojiName}
           isMeetingLocked={this.props.isMeetingLocked}
+          isPublicChat={this.props.isPublicChat}
         />}
       </div>
     );

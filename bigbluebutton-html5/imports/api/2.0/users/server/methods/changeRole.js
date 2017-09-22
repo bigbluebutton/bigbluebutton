@@ -33,8 +33,8 @@ export default function changeRole(credentials, userId, role) {
   };
 
   const payload = {
-    userId: userId,
-    role: role,
+    userId,
+    role,
     changedBy: requesterUserId,
   };
 
