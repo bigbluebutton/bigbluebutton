@@ -1,4 +1,5 @@
 presentation:
+  defaultPresentationFile: 'default.pdf'
   uploadEndpoint: '/bigbluebutton/presentation/upload'
   uploadSizeMin: 0
   uploadSizeMax: 50000000

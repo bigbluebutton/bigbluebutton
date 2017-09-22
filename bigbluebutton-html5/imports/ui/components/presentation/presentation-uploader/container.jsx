@@ -16,6 +16,7 @@ export default createContainer(() => {
 
   return {
     presentations: currentPresentations,
+    defaultFileName: PRESENTATION_CONFIG.defaultPresentationFile,
     fileSizeMin: PRESENTATION_CONFIG.uploadSizeMin,
     fileSizeMax: PRESENTATION_CONFIG.uploadSizeMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
