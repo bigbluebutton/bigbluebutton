@@ -29,23 +29,27 @@ export default function addPresentation(meetingId, presentation) {
       'presentation.id': presentation.id,
       'presentation.name': presentation.name,
       'presentation.current': presentation.current,
+      'conversion.error': false,
+      'conversion.done': true,
+      'upload.date': new Date(),
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding presentation to collection: ${err}`);
+      Logger.error(`Adding presentation to collection: ${err}`);
+      return;
     }
 
     addSlides(meetingId, presentation.id, presentation.pages);
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
+      Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
+      Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
     }
   };
 

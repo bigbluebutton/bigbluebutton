@@ -30,3 +30,5 @@ acl:
     methods:
       - 'assignPresenter'
       - 'switchSlide'
+      - 'removePresentation'
+      - 'sharePresentation'
