@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import styles from './styles';
 
 const propTypes = {
   handleEndMeeting: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape(intlShape).isRequired,
   router: PropTypes.object.isRequired,
   showEndMeeting: PropTypes.bool.isRequired,
 };
