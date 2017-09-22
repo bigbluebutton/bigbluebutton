@@ -53,7 +53,7 @@ public class Meeting {
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
-	private String guestPolicy;
+	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;

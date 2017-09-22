@@ -440,6 +440,49 @@ class ApiController {
       errors.noConfigFound();
       respondWithErrors(errors);
     }
+
+    if(guest){
+      String policy = meeting.getGuestPolicy();
+      switch (policy){
+        case GuestPolicy.ASK_MODERATOR:
+          meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "PENDING" , fullName);
+          meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , authenticated);
+          //Ask moderator to join to join
+          meetingService.userWaitingEvent(meeting.getInternalId() , internalUserID , fullName);
+          allowed = "DENY" ;
+          break;
+        case GuestPolicy.ALWAYS_ACCEPT:
+          meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "ALLOWED" , fullName);
+          meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , authenticated);
+          allowed = "ALLOW" ;
+          //Do not ask to join
+          break;
+        case GuestPolicy.ALWAYS_ACCEPT_AUTH:
+          if("true".equals(auth)){
+            //If user is authenticated allow.
+            meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "ALLOWED" , fullName);
+            meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , authenticated);
+            allowed = "ALLOW" ;
+          }else{
+            //Else ask for permission
+            meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "PENDING" , fullName);
+            meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , authenticated);
+            meetingService.userWaitingEvent(meeting.getInternalId() , internalUserID , fullName);
+            allowed = "DENY" ;
+          }
+          break;
+        case GuestPolicy.ALWAYS_DENY:
+          allowed = "DENY" ;
+          //Do nothing.
+          break;
+        default:
+          //Handle No case found
+          allowed = "DENY" ;
+          break;
+      }
+
+    }
+
     UserSession us = new UserSession();
     us.authToken = authToken;
     us.internalUserId = internalUserID
