@@ -39,3 +39,5 @@ acl:
       - 'clearWhiteboard'
       - 'moveCursor'
       - 'sendAnnotation'
+      - 'removePresentation'
+      - 'sharePresentation'
