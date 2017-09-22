@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Presentations from '/imports/api/presentations';
+import Presentations from '/imports/api/2.0/presentations';
 
 // const OFFICE_DOC_CONVERSION_SUCCESS_KEY = 'OFFICE_DOC_CONVERSION_SUCCESS';
 const OFFICE_DOC_CONVERSION_FAILED_KEY = 'OFFICE_DOC_CONVERSION_FAILED';
@@ -21,6 +21,7 @@ const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 export default function handlePresentationConversionUpdate({ body }, meetingId) {
   const presentationId = body.presentationId;
   const status = body.messageKey;
+  const presentationName = body.presName;
 
   check(meetingId, String);
   check(presentationId, String);
@@ -34,8 +35,8 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
 
   switch (status) {
     case SUPPORTED_DOCUMENT_KEY:
-      statusModifier['presentation.id'] = presentationId;
-      statusModifier['presentation.name'] = body.presentation_name;
+      statusModifier.id = presentationId;
+      statusModifier.name = presentationName;
       break;
 
     case UNSUPPORTED_DOCUMENT_KEY:
@@ -43,14 +44,14 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     case OFFICE_DOC_CONVERSION_INVALID_KEY:
     case PAGE_COUNT_FAILED_KEY:
     case PAGE_COUNT_EXCEEDED_KEY:
-      statusModifier['presentation.id'] = presentationId;
-      statusModifier['presentation.name'] = body.presentation_name;
+      statusModifier.id = presentationId;
+      statusModifier.name = presentationName;
       statusModifier['conversion.error'] = true;
       break;
 
     case GENERATED_SLIDE_KEY:
       statusModifier['conversion.pagesCompleted'] = body.pagesCompleted;
-      statusModifier['conversion.numPages'] = body.numPages;
+      statusModifier['conversion.numPages'] = body.numberOfPages;
       break;
 
     default:

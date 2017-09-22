@@ -30,11 +30,5 @@ export default function removePresentation(credentials, presentationId) {
     presentationId,
   };
 
-  const header = {
-    meetingId,
-    name: EVENT_NAME,
-    userId: requesterUserId,
-  };
-
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
