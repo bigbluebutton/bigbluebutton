@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import styles from './styles.scss';
+import styles from './styles';
 import UserListHeader from './user-list-header/component';
 import UserContent from './user-list-content/component';
 

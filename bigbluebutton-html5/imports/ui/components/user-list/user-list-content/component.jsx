@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import KEY_CODES from '/imports/utils/keyCodes';
-import styles from './styles.scss';
+import styles from './styles';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
 

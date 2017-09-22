@@ -46,19 +46,19 @@ const propTypes = {
       );
     }
 
-    return true;
+    return null;
   },
   isOpen: PropTypes.bool,
-  onHide: PropTypes.bool,
-  onShow: PropTypes.bool,
+  onHide: PropTypes.func,
+  onShow: PropTypes.func,
   autoFocus: PropTypes.bool,
 };
 
 const defaultProps = {
   children: null,
   isOpen: false,
-  onShow: false,
-  onHide: false,
+  onShow: () => { },
+  onHide: () => { },
   autoFocus: false,
 };
 

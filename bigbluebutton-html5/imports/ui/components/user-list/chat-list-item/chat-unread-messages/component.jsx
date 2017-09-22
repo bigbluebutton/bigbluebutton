@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withRouter } from 'react-router';
-import styles from './styles.scss';
+import styles from './styles';
 
 const intlMessages = defineMessages({
   unreadPlural: {

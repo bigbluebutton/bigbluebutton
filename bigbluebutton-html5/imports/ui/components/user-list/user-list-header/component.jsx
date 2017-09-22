@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import styles from './styles.scss';
+import styles from './styles';
 
 const intlMessages = defineMessages({
   participantsTitle: {

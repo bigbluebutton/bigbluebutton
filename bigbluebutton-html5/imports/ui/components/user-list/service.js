@@ -5,7 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
+import { EMOJI_STATUSES, EMOJI_NORMALIZE } from '/imports/utils/statuses';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -37,21 +37,20 @@ const sortUsersByName = (a, b) => {
 };
 
 const sortUsersByEmoji = (a, b) => {
-  if ((EMOJI_STATUSES.indexOf(a.emoji.status) > -1)
-    && (EMOJI_STATUSES.indexOf(b.emoji.status) > -1)) {
+  const emojiA = a in EMOJI_STATUSES ? EMOJI_STATUSES[a] : a;
+  const emojiB = b in EMOJI_STATUSES ? EMOJI_STATUSES[b] : b;
+
+  if (emojiA && emojiB) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
     } else if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-
-    return sortUsersByName(a, b);
-  } else if (EMOJI_STATUSES.indexOf(a.emoji.status) > -1) {
+  } else if (emojiA) {
     return -1;
-  } else if (EMOJI_STATUSES.indexOf(b.emoji.status) > -1) {
+  } else if (emojiB) {
     return 1;
   }
-
   return 0;
 };
 
@@ -213,7 +212,7 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
   const allowedToChatPrivately = !user.isCurrent;
   const allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
   const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
-  const allowedToResetStatus = hasAuthority && user.emoji.status !== 'none';
+  const allowedToResetStatus = hasAuthority && user.emoji.status !== EMOJI_STATUSES.none;
 
   // if currentUser is a moderator, allow kicking other users
   const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
@@ -242,19 +241,9 @@ const getCurrentUser = () => {
   return (currentUser) ? mapUser(currentUser) : null;
 };
 
-const normalizeEmojiName = (emoji) => {
-  const emojisNormalized = {
-    agree: 'thumbs_up',
-    disagree: 'thumbs_down',
-    thumbsUp: 'thumbs_up',
-    thumbsDown: 'thumbs_down',
-    raiseHand: 'hand',
-    away: 'time',
-    neutral: 'undecided',
-  };
-
-  return emoji in emojisNormalized ? emojisNormalized[emoji] : emoji;
-};
+const normalizeEmojiName = emoji => (
+  emoji in EMOJI_NORMALIZE ? EMOJI_NORMALIZE[emoji] : emoji
+);
 
 const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id });
