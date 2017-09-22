@@ -31,51 +31,51 @@ const listTransition = {
 
 const intlMessages = defineMessages({
   usersTitle: {
-    id: 'app.userlist.usersTitle',
+    id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
   messagesTitle: {
-    id: 'app.userlist.messagesTitle',
+    id: 'app.userList.messagesTitle',
     description: 'Title for the messages list',
   },
   participantsTitle: {
-    id: 'app.userlist.participantsTitle',
+    id: 'app.userList.participantsTitle',
     description: 'Title for the Users list',
   },
   toggleCompactView: {
-    id: 'app.userlist.toggleCompactView.label',
+    id: 'app.userList.toggleCompactView.label',
     description: 'Toggle user list view mode',
   },
   ChatLabel: {
-    id: 'app.userlist.menu.chat.label',
+    id: 'app.userList.menu.chat.label',
     description: 'Save the changes and close the settings menu',
   },
   ClearStatusLabel: {
-    id: 'app.userlist.menu.clearStatus.label',
+    id: 'app.userList.menu.clearStatus.label',
     description: 'Clear the emoji status of this user',
   },
   MakePresenterLabel: {
-    id: 'app.userlist.menu.makePresenter.label',
+    id: 'app.userList.menu.makePresenter.label',
     description: 'Set this user to be the presenter in this meeting',
   },
   KickUserLabel: {
-    id: 'app.userlist.menu.kickUser.label',
+    id: 'app.userList.menu.kickUser.label',
     description: 'Forcefully remove this user from the meeting',
   },
   MuteUserAudioLabel: {
-    id: 'app.userlist.menu.muteUserAudio.label',
+    id: 'app.userList.menu.muteUserAudio.label',
     description: 'Forcefully mute this user',
   },
   UnmuteUserAudioLabel: {
-    id: 'app.userlist.menu.unmuteUserAudio.label',
+    id: 'app.userList.menu.unmuteUserAudio.label',
     description: 'Forcefully unmute this user',
   },
   PromoteUserLabel: {
-    id: 'app.userlist.menu.promoteUser.label',
+    id: 'app.userList.menu.promoteUser.label',
     description: 'Forcefully promote this viewer to a moderator',
   },
   DemoteUserLabel: {
-    id: 'app.userlist.menu.demoteUser.label',
+    id: 'app.userList.menu.demoteUser.label',
     description: 'Forcefully demote this moderator to a viewer',
   },
 });

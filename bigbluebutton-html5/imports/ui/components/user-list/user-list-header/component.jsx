@@ -5,7 +5,7 @@ import styles from './styles';
 
 const intlMessages = defineMessages({
   participantsTitle: {
-    id: 'app.userlist.participantsTitle',
+    id: 'app.userList.participantsTitle',
     description: 'Title for the Users list',
   },
 });

@@ -13,7 +13,7 @@ import styles from './styles';
 
 const intlMessages = defineMessages({
   userListLabel: {
-    id: 'app.userlist.label',
+    id: 'app.userList.label',
     description: 'Aria-label for Userlist Nav',
   },
   chatLabel: {
