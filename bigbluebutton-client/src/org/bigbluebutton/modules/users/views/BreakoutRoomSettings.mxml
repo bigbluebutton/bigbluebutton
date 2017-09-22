@@ -283,7 +283,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							  id="textArea"
 							  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"
 							  styleName="titleWindowStyle" />
-        <mx:Canvas width="100%" styleName="breakoutTipBox">
+        <mx:Canvas width="100%" styleName="breakoutTipBox" verticalScrollPolicy="off" horizontalScrollPolicy="off">
             <mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
         </mx:Canvas>
         
