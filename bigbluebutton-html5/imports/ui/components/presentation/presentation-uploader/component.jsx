@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, FormattedDate } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
 import cx from 'classnames';
@@ -10,8 +10,6 @@ import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
 import styles from './styles.scss';
-
-const DEFAULT_FILENAME = 'default.pdf';
 
 const propTypes = {
   defaultFileName: PropTypes.string.isRequired,
@@ -97,16 +95,15 @@ const intlMessages = defineMessages({
   },
 });
 
-const isProcessingOrUploading = item => item && (!item.conversion.done || !item.upload.done);
-
-function updateFileUploadState(id, state) {
+function deepMergeUpdateFileKey(id, key, value) {
   this.setState(({ presentations }) => {
     const fileIndex = presentations.findIndex(f => f.id === id);
-    return {
+
+    return fileIndex === -1 ? false : {
       presentations: update(presentations, {
         [fileIndex]: { $apply: file =>
           update(file, {
-            upload: { $apply: upload => update(upload, { $merge: state }) },
+            [key]: { $apply: toUpdate => update(toUpdate, { $merge: value }) },
           }),
         },
       }),
@@ -132,16 +129,21 @@ class PresentationUploader extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const presentationStateUpdated =
-      this.state.presentations.map(p =>
-        nextProps.presentations.find(_ => _.filename === p.filename));
+    const nextPresentations = nextProps.presentations;
+    const statePresentations = this.state.presentations;
 
-    const stillBusy = presentationStateUpdated.some(isProcessingOrUploading);
+    // Update only the id/conversion state when receiving new props
+    nextPresentations.forEach((file) => {
+      deepMergeUpdateFileKey.call(this, file.id, 'conversion', file.conversion);
+    });
+
+    const isUploading = statePresentations.some(_ => !_.upload.done);
+    const isConverting = nextPresentations.some(_ => !_.conversion.done);
 
     this.setState({
-      presentations: presentationStateUpdated,
-      preventClosing: stillBusy,
-      disableActions: stillBusy,
+      // Missing error checks will be done
+      preventClosing: isUploading || isConverting,
+      disableActions: isUploading || isConverting,
     });
   }
 
@@ -174,15 +176,22 @@ class PresentationUploader extends Component {
       conversion: { done: false, error: false },
       upload: { done: false, error: false, progress: 0 },
       onProgress: (event) => {
-        if (!event.lengthComputable) return;
+        if (!event.lengthComputable) {
+          deepMergeUpdateFileKey.call(this, file.name, 'upload', {
+            progress: 100,
+            done: true,
+          });
 
-        updateFileUploadState.call(this, file.name, {
+          return;
+        }
+
+        deepMergeUpdateFileKey.call(this, file.name, 'upload', {
           progress: (event.loaded / event.total) * 100,
           done: event.loaded === event.total,
         });
       },
       onError: (error) => {
-        updateFileUploadState.call(this, file.name, { error });
+        deepMergeUpdateFileKey.call(this, file.name, 'upload', { error });
       },
     }));
 
@@ -225,7 +234,8 @@ class PresentationUploader extends Component {
     const toRemove = presentations[toRemoveIndex];
 
     if (toRemove.isCurrent) {
-      const defaultPresentation = presentations.find(_ => _.filename === DEFAULT_FILENAME);
+      const defaultPresentation =
+        presentations.find(_ => _.filename === this.props.defaultFileName);
       this.handleCurrentChange(defaultPresentation);
     }
 
@@ -240,7 +250,7 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
 
     const presentationsSorted = presentations
-      .sort((a, b) => b.filename === DEFAULT_FILENAME);
+      .sort((a, b) => b.filename === this.props.defaultFileName);
 
     return (
       <div className={styles.fileList}>
@@ -304,7 +314,8 @@ class PresentationUploader extends Component {
     itemClassName[styles.tableItemAnimated] =
       !item.conversion.done && (!item.upload.done && item.upload.progress > 0);
 
-    const hideRemove = (item.isCurrent && item.upload.done) || item.filename === DEFAULT_FILENAME;
+    const hideRemove =
+      (item.isCurrent && item.upload.done) || item.filename === this.props.defaultFileName;
 
     return (
       <tr
@@ -408,5 +419,8 @@ class PresentationUploader extends Component {
     );
   }
 }
+
+PresentationUploader.propTypes = propTypes;
+PresentationUploader.defaultProps = defaultProps;
 
 export default injectIntl(PresentationUploader);

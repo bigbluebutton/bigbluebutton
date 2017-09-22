@@ -29,7 +29,7 @@ const getPresentations = () =>
     .find()
     .fetch()
     .map(presentation => ({
-      id: presentation.id,
+      id: presentation.name,
       filename: presentation.name,
       isCurrent: presentation.current,
       upload: { done: true, error: false },
@@ -39,9 +39,12 @@ const getPresentations = () =>
 const uploadPresentation = (file, meetingID, endpoint, onError, onProgress) => {
   const data = new FormData();
   data.append('presentation_name', file.filename);
+  data.append('Filename', file.filename);
   data.append('fileUpload', file);
   data.append('conference', meetingID);
   data.append('room', meetingID);
+  // TODO: Theres no way to set a presentation as downloadable.
+  data.append('is_downloadable', false);
 
   const opts = {
     method: 'POST',
@@ -68,9 +71,9 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
   const currentPresentation = newState.find(_ => _.isCurrent);
 
   return new Promise((resolve, reject) =>
-    removePresentations(presentationsToRemove)
-      .then(uploadPresentations.bind(null, presentationsToUpload, Auth.meetingID, uploadEndpoint))
+    uploadPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
       .then(call.bind(null, 'sharePresentation', currentPresentation.id, true))
+      .then(removePresentations.bind(null, presentationsToRemove))
       .then(resolve)
       .catch(reject),
   );
