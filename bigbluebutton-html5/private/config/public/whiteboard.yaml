@@ -8,59 +8,52 @@ whiteboard:
       end: 'DRAW_END'
   toolbar:
     colors:
-      - '#000000'
-      - '#ffffff'
-      - '#ff0000'
-      - '#ff8800'
-      - '#ccff00'
-      - '#00ff00'
-      - '#00ffff'
-      - '#0088ff'
-      - '#0000ff'
-      - '#8800ff'
-      - '#ff00ff'
-      - '#c0c0c0'
+      - value: '#000000'
+      - value: '#ffffff'
+      - value: '#ff0000'
+      - value: '#ff8800'
+      - value: '#ccff00'
+      - value: '#00ff00'
+      - value: '#00ffff'
+      - value: '#0088ff'
+      - value: '#0000ff'
+      - value: '#8800ff'
+      - value: '#ff00ff'
+      - value: '#c0c0c0'
     thickness:
-      - 14
-      - 12
-      - 10
-      - 8
-      - 6
-      - 4
-      - 2
+      - value: 14
+      - value: 12
+      - value: 10
+      - value: 8
+      - value: 6
+      - value: 4
+      - value: 2
     font_sizes: 
-      - 36
-      - 32
-      - 28
-      - 24
-      - 20
-      - 16
+      - value: 36
+      - value: 32
+      - value: 28
+      - value: 24
+      - value: 20
+      - value: 16
     tools:
       #text
-      - 
-        icon: 'text_tool'
-        name: 'text'
+      - icon: 'text_tool'
+        value: 'text'
       #line
-      -
-        icon: 'linte_tool'
-        name: 'line'
+      - icon: 'linte_tool'
+        value: 'line'
       #ellipse
-      -
-        icon: 'circle_tool'
-        name: 'ellipse'
+      - icon: 'circle_tool'
+        value: 'ellipse'
       #triangle
-      -
-        icon: 'triangle_tool'
-        name: 'triangle'
+      - icon: 'triangle_tool'
+        value: 'triangle'
       #rectangle
-      -
-        icon: 'rectangle_tool'
-        name: 'rectangle'
+      - icon: 'rectangle_tool'
+        value: 'rectangle'
       #pencil
-      -
-        icon: 'pen_tool'
-        name: 'pencil'
+      - icon: 'pen_tool'
+        value: 'pencil'
       #pan and zoom hand
-      -
-        icon: 'hand'
-        name: 'hand'
+      - icon: 'hand'
+        value: 'hand'
