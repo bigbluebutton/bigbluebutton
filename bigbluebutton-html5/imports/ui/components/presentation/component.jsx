@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
@@ -12,7 +12,7 @@ import Slide from './slide/component';
 import styles from './styles.scss';
 
 
-export default class PresentationArea extends React.Component {
+export default class PresentationArea extends Component {
   constructor() {
     super();
 
@@ -59,7 +59,7 @@ export default class PresentationArea extends React.Component {
       // if a user is a presenter - this means there is a whiteboard toolbar on the right
       // and we have to get the width/height of the refWhiteboardArea
       // (inner hidden div with absolute position)
-      if (this.props.userIsPresenter) {
+      if (this.props.userIsPresenter || this.props.multiUser) {
         clientHeight = refWhiteboardArea.clientHeight;
         clientWidth = refWhiteboardArea.clientWidth;
       }
