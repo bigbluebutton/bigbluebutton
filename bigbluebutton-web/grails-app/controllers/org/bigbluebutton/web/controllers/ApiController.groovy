@@ -1440,19 +1440,27 @@ class ApiController {
     Meeting meeting = null;
     UserSession userSession = null;
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
+    String respMessage = "Session " + sessionToken + " not found."
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
       reject = true;
-    else {
+      respMessage = "Session " + sessionToken + " not found."
+    }  else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
         reject = true
+        respMessage = "Meeting not found or ended for session " + sessionToken + "."
       }
       userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
       if (userSession == null) {
+        respMessage = "Session " + sessionToken + " not found."
         reject = true
+      } else  {
+        if (userSession.guestStatus.equals(GuestPolicy.DENY)) {
+          respMessage = "User denied for user with session " + sessionToken + "."
+          reject = true
+        }
       }
-
     }
 
     if (reject) {
@@ -1471,7 +1479,7 @@ class ApiController {
           render(contentType: "application/json") {
             response = {
               returncode = "FAILED"
-              message = "Could not find conference."
+              message = respMessage
               logoutURL = logoutUrl
             }
           }
