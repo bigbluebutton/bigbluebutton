@@ -14,14 +14,8 @@ const intlMessages = defineMessages({
   },
 });
 
-const MuteAudio = ({
-  isInAudio,
-  isMuted,
-  callback,
-  isTalking,
-  intl,
-  listenOnly,
-}) => {
+const MuteAudio = ({ isInAudio, isMuted, callback, isTalking, intl,
+  listenOnly }) => {
   if (!isInAudio || listenOnly) return null;
   const muteLabel = intl.formatMessage(intlMessages.muteLabel);
   const unmuteLabel = intl.formatMessage(intlMessages.unmuteLabel);
