@@ -3,7 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import WhiteboardToolbarService from './service';
 import WhiteboardToolbar from './component';
 
-const WhiteboardToolbarContainer = ({ ...props }) => (
+const WhiteboardToolbarContainer = props => (
   <WhiteboardToolbar {...props} />
   );
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import styles from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
 import ToolbarSubmenu from './toolbar-submenu/component';
@@ -13,7 +14,7 @@ const THICKNESS_RADIUSES = TOOLBAR_CONFIG.thickness;
 const FONT_SIZES = TOOLBAR_CONFIG.font_sizes;
 const ANNOTATION_TOOLS = TOOLBAR_CONFIG.tools;
 
-export default class WhiteboardToolbar extends Component {
+class WhiteboardToolbar extends Component {
 
   constructor() {
     super();
@@ -79,9 +80,6 @@ export default class WhiteboardToolbar extends Component {
   }
 
   componentDidMount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-
     if (this.state.annotationSelected.value !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
       this.thicknessListIconColor.beginElement();
@@ -96,11 +94,6 @@ export default class WhiteboardToolbar extends Component {
     // if color or thickness were changed
     // we might need to trigger svg animation for Color and Thickness icons
     this.animateSvgIcons(prevState);
-  }
-
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
   }
 
   setToolbarValues(drawSettings) {
@@ -548,3 +541,5 @@ WhiteboardToolbar.propTypes = {
   // defines the physical height of the whiteboard
   height: PropTypes.number.isRequired,
 };
+
+export default injectWbResizeEvent(WhiteboardToolbar);

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import WhiteboardOverlayService from './service';
 import WhiteboardOverlay from './component';
 
-const WhiteboardOverlayContainer = ({ ...props }) => {
+const WhiteboardOverlayContainer = (props) => {
   if (Object.keys(props.drawSettings).length > 0) {
     return (
       <WhiteboardOverlay {...props} />

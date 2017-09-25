@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
+import { defineMessages, injectIntl } from 'react-intl';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import cx from 'classnames';
-
 import KEY_CODES from '/imports/utils/keyCodes';
 import Button from '/imports/ui/components/button/component';
 
@@ -166,14 +166,6 @@ class UserList extends Component {
       this._usersList.addEventListener('keydown',
         event => this.rovingIndex(event, 'users'));
     }
-
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
   }
 
   renderHeader() {
@@ -359,4 +351,4 @@ class UserList extends Component {
 UserList.propTypes = propTypes;
 UserList.defaultProps = defaultProps;
 
-export default withRouter(injectIntl(UserList));
+export default withRouter(injectWbResizeEvent(injectIntl(UserList)));
