@@ -158,6 +158,7 @@ package org.bigbluebutton.main.model.users
 
         apiResponse.welcome = result.response.welcome;
         apiResponse.logoutUrl = processLogoutUrl(result.response);
+		apiResponse.logoutTimer = result.response.logoutTimer;
         apiResponse.defaultLayout = result.response.defaultLayout;
         apiResponse.avatarURL = result.response.avatarURL
         apiResponse.customdata = new Object();

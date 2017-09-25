@@ -223,6 +223,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           cancelBtn.visible = cancelBtn.includeInLayout = true;
           startBtn.visible = startBtn.includeInLayout = false;
           stopBtn.visible = stopBtn.includeInLayout = false;
+
+          var logData:Object = UsersUtil.initLogData();
+          logData.reason = event.reason;
+          logData.tags = ["screenshare"];
+          logData.message = "Unnatural end to screenshare";
+          LOGGER.warn(JSON.stringify(logData));
         } else {
           closeWindow();
         }
