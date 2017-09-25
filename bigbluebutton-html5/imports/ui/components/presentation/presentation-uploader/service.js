@@ -31,7 +31,7 @@ const getPresentations = () =>
     .map(presentation => ({
       id: presentation.name,
       filename: presentation.name,
-      isCurrent: presentation.current,
+      isCurrent: presentation.current || false,
       upload: { done: true, error: false },
       conversion: presentation.conversion || { done: true, error: false },
     }));

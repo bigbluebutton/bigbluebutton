@@ -206,13 +206,18 @@ class PresentationUploader extends Component {
     const newCurrentIndex = presentations.indexOf(item);
 
     const commands = {};
-    commands[currentIndex] = {
-      $apply: (_) => {
-        const p = _;
-        p.isCurrent = false;
-        return p;
-      },
-    };
+
+    // we can end up without a current presentation
+    if (currentIndex !== -1) {
+      commands[currentIndex] = {
+        $apply: (_) => {
+          const p = _;
+          p.isCurrent = false;
+          return p;
+        },
+      };
+    }
+
     commands[newCurrentIndex] = {
       $apply: (_) => {
         const p = _;
