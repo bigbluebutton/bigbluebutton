@@ -13,8 +13,12 @@ export default function kickUser(meetingId, userId) {
 
   const modifier = {
     $set: {
-      kicked: true,
       connectionStatus: 'offline',
+      listenOnly: false,
+      validated: false,
+      emoji: 'none',
+      presenter: false,
+      role: 'VIEWER',
     },
   };
 
