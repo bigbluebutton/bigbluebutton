@@ -6,7 +6,6 @@ package org.bigbluebutton.modules.videoconf.views
     import flash.utils.setTimeout;
     
     import mx.containers.Canvas;
-    import mx.core.UIComponent;
     import mx.core.IUIComponent;
     import mx.events.FlexEvent;
     

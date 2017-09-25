@@ -36,7 +36,8 @@ package org.bigbluebutton.modules.layout.managers
   
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;  
+  import flexlib.mdi.events.MDIManagerEvent;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
@@ -55,7 +56,6 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
-  import org.bigbluebutton.modules.layout.model.WindowLayout;
   import org.bigbluebutton.modules.layout.views.CustomLayoutNameWindow;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -255,6 +255,14 @@ package org.bigbluebutton.modules.layout.managers
       //trace(LOG + " switching to layout [" + name + "] ");
       var newLayout:LayoutDefinition = _layoutModel.getLayout(name);
       if (newLayout == null) return;
+
+      var logData:Object = UsersUtil.initLogData();
+      logData.reason = "Layout changed.";
+      logData.tags = ["layout"];
+      logData.message = "The layout was changed.";
+      logData.oldLayout = _currentLayout.name;
+      logData.newLayout = newLayout.name;
+      LOGGER.info(JSON.stringify(logData));
 
       //trace(LOG + " applying layout [" + newLayout.name + "] to windows.");
       applyLayout(newLayout);     

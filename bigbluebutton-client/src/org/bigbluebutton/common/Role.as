@@ -28,7 +28,7 @@ package org.bigbluebutton.common
     public static const VIEWER:String = "VIEWER";
     public static const PRESENTER:String = "PRESENTER";
     public static const MODERATOR:String = "MODERATOR";
-    public static const VOICE_ONLY:String = "MODERATOR";	
+    public static const VOICE_ONLY:String = "VOICE_ONLY";
     
     private static var userrole:String;
     

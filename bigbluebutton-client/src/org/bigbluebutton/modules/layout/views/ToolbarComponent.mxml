@@ -29,7 +29,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import flexlib.mdi.containers.MDICanvas;
+      
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;

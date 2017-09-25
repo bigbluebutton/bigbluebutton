@@ -54,19 +54,25 @@ export default class MessageListItem extends Component {
   }
 
   componentDidMount() {
-    const scrollArea = document.getElementById(this.props.chatAreaId);
-    eventsToBeBound.forEach(
-      e => scrollArea.addEventListener(e, this.handleMessageInViewport, false),
-    );
+    const { scrollArea } = this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
+      );
+    }
 
     this.handleMessageInViewport();
   }
 
   componentWillUnmount() {
-    const scrollArea = document.getElementById(this.props.chatAreaId);
-    eventsToBeBound.forEach(
-      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false),
-    );
+    const { scrollArea } = this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
+      );
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -158,6 +164,7 @@ export default class MessageListItem extends Component {
                   chatAreaId={this.props.chatAreaId}
                   lastReadMessageTime={this.props.lastReadMessageTime}
                   handleReadMessage={this.props.handleReadMessage}
+                  scrollArea={this.props.scrollArea}
                 />
               ))}
             </div>

@@ -463,7 +463,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
     svg_render_shape_ellipse(g, slide, shape)
   when 'text'
     svg_render_shape_text(g, slide, shape)
-  when 'poll'
+  when 'poll_result'
     svg_render_shape_poll(g, slide, shape)
   else
     BigBlueButton.logger.warn("Ignoring unhandled shape type #{shape[:type]}")
@@ -669,8 +669,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     end
   end
   if shape[:type] == 'poll_result'
-    shape[:num_responders] = event.at_xpath('num_responders').text
-    shape[:num_respondents] = event.at_xpath('num_respondents').text
+    shape[:num_responders] = event.at_xpath('num_responders').text.to_i
+    shape[:num_respondents] = event.at_xpath('num_respondents').text.to_i
     shape[:result] = event.at_xpath('result').text
   end
   if shape[:type] == 'text'

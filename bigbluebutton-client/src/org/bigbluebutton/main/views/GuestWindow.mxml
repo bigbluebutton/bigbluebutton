@@ -36,8 +36,6 @@ $Id: $
         <![CDATA[
             import com.asfusion.mate.events.Dispatcher;
             
-            import mx.controls.Button;
-            import mx.events.CloseEvent;
             import mx.managers.PopUpManager;
             
             import org.bigbluebutton.core.model.LiveMeeting;

@@ -10,7 +10,9 @@ package org.bigbluebutton.core.model
     public var numAdditionalSharedNotes:Number = 0;
     [Bindable]
     public var mainNoteVisible:Boolean = false;
-    
+    [Bindable]
+    public var isMaxNumOfNotes:Boolean = true;
+
     private var activeNotesIds:ArrayCollection = new ArrayCollection();
     
     public function SharedNotes() {

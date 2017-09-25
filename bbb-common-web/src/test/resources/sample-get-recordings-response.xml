@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <returncode>SUCCESS</returncode>
+    <recordings>
+        <recording>
+            <recordID>bc04628ab61776c9f65c695dc59f36abf8955bbc-1504087272607</recordID>
+            <meetingID>f01411a126dd7ea29c9c3859523bc1baac3c1e2f</meetingID>
+            <internalMeetingID>bc04628ab61776c9f65c695dc59f36abf8955bbc-1504087272607</internalMeetingID>
+            <name>тест</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1504087272607</startTime>
+            <endTime>1504087451081</endTime>
+            <participants>2</participants>
+            <metadata>
+                <gl-listed>false</gl-listed>
+                <gl-token>an-a02174f6-тест</gl-token>
+                <gl-webhooks-callback-url>https://demo.bigbluebutton.org/b/rooms/an-a02174f6/%D1%82%D0%B5%D1%81%D1%82/callback</gl-webhooks-callback-url>
+                <isBreakout>false</isBreakout>
+                <meeting-name>тест</meeting-name>
+                <meetingId>f01411a126dd7ea29c9c3859523bc1baac3c1e2f</meetingId>
+                <meetingName>тест</meetingName>
+                <room-id>an-a02174f6</room-id>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=bc04628ab61776c9f65c695dc59f36abf8955bbc-1504087272607</url>
+                    <processingTime>15016</processingTime>
+                    <length>0</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/bc04628ab61776c9f65c695dc59f36abf8955bbc-1504087272607/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504087272638/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/bc04628ab61776c9f65c695dc59f36abf8955bbc-1504087272607/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504087272638/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/bc04628ab61776c9f65c695dc59f36abf8955bbc-1504087272607/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504087272638/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+        <recording>
+            <recordID>b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984</recordID>
+            <meetingID>5bd0e35013bc9761d06f01d4bfd9b4ae1c8df289</meetingID>
+            <internalMeetingID>b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984</internalMeetingID>
+            <name>Prueba 2</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1504122319984</startTime>
+            <endTime>1504122655395</endTime>
+            <participants>4</participants>
+            <metadata>
+                <gl-listed>false</gl-listed>
+                <gl-token>vi-249c619c-Prueba 2</gl-token>
+                <gl-webhooks-callback-url>https://demo.bigbluebutton.org/b/rooms/vi-249c619c/Prueba%202/callback</gl-webhooks-callback-url>
+                <isBreakout>false</isBreakout>
+                <meeting-name>Prueba 2</meeting-name>
+                <meetingId>5bd0e35013bc9761d06f01d4bfd9b4ae1c8df289</meetingId>
+                <meetingName>Prueba 2</meetingName>
+                <room-id>vi-249c619c</room-id>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984</url>
+                    <processingTime>10915</processingTime>
+                    <length>1</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+        <recording>
+            <recordID>92054d4d63772d6cd6eb222b24ba4afe704a6e02-1504111840674</recordID>
+            <meetingID>c35c6b973eb05cbb9757b2f3a765ada07777ca32</meetingID>
+            <internalMeetingID>92054d4d63772d6cd6eb222b24ba4afe704a6e02-1504111840674</internalMeetingID>
+            <name>Let&amp;#39;s Talk English: Episode 5</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1504111840674</startTime>
+            <endTime>1504116188350</endTime>
+            <participants>2</participants>
+            <metadata>
+                <gl-listed>false</gl-listed>
+                <gl-token>es-4701f53c-Let&amp;#39;s Talk English: Episode 5</gl-token>
+                <gl-webhooks-callback-url>https://demo.bigbluebutton.org/b/rooms/es-4701f53c/Let&amp;#39;s%20Talk%20English:%20Episode%205/callback</gl-webhooks-callback-url>
+                <isBreakout>false</isBreakout>
+                <meeting-name>Let&amp;#39;s Talk English: Episode 5</meeting-name>
+                <meetingId>c35c6b973eb05cbb9757b2f3a765ada07777ca32</meetingId>
+                <meetingName>Let&amp;#39;s Talk English: Episode 5</meetingName>
+                <room-id>es-4701f53c</room-id>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=92054d4d63772d6cd6eb222b24ba4afe704a6e02-1504111840674</url>
+                    <processingTime>1135643</processingTime>
+                    <length>53</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/92054d4d63772d6cd6eb222b24ba4afe704a6e02-1504111840674/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504111840688/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/92054d4d63772d6cd6eb222b24ba4afe704a6e02-1504111840674/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504111840688/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/92054d4d63772d6cd6eb222b24ba4afe704a6e02-1504111840674/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504111840688/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+        <recording>
+            <recordID>6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093550964</recordID>
+            <meetingID>English 101</meetingID>
+            <internalMeetingID>6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093550964</internalMeetingID>
+            <name>English 101</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1504093550964</startTime>
+            <endTime>1504093678083</endTime>
+            <participants>1</participants>
+            <metadata>
+                <description>TEST</description>
+                <email>Test Antonio</email>
+                <isBreakout>false</isBreakout>
+                <meetingId>English 101</meetingId>
+                <meetingName>English 101</meetingName>
+                <title>English 101</title>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093550964</url>
+                    <processingTime>22380</processingTime>
+                    <length>1</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093550964/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504093550976/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093550964/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504093550976/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093550964/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504093550976/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+        <recording>
+            <recordID>81f4deea7881b1dc8df4016738e71b91e296346e-1504111142171</recordID>
+            <meetingID>c5ba1738a5c36c030b0ed0f561d0cb07b95bda42</meetingID>
+            <internalMeetingID>81f4deea7881b1dc8df4016738e71b91e296346e-1504111142171</internalMeetingID>
+            <name>kk</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1504111142171</startTime>
+            <endTime>1504112672948</endTime>
+            <participants>3</participants>
+            <metadata>
+                <gl-listed>false</gl-listed>
+                <gl-token>ma-e7684b5a-kk</gl-token>
+                <gl-webhooks-callback-url>https://demo.bigbluebutton.org/b/rooms/ma-e7684b5a/kk/callback</gl-webhooks-callback-url>
+                <isBreakout>false</isBreakout>
+                <meeting-name>kk</meeting-name>
+                <meetingId>c5ba1738a5c36c030b0ed0f561d0cb07b95bda42</meetingId>
+                <meetingName>kk</meetingName>
+                <room-id>ma-e7684b5a</room-id>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=81f4deea7881b1dc8df4016738e71b91e296346e-1504111142171</url>
+                    <processingTime>20933</processingTime>
+                    <length>4</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/81f4deea7881b1dc8df4016738e71b91e296346e-1504111142171/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504111142183/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/81f4deea7881b1dc8df4016738e71b91e296346e-1504111142171/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504111142183/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/81f4deea7881b1dc8df4016738e71b91e296346e-1504111142171/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504111142183/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+        <recording>
+            <recordID>6d380f36aa632afbdc0bf1334e6c5100b24c8b3a-1503352241858</recordID>
+            <meetingID>cc1a7a1d7c9c073a051f42de1ee541133a7e418b</meetingID>
+            <internalMeetingID>6d380f36aa632afbdc0bf1334e6c5100b24c8b3a-1503352241858</internalMeetingID>
+            <name>test</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1503352241858</startTime>
+            <endTime>1503352273297</endTime>
+            <participants>1</participants>
+            <metadata>
+                <gl-listed>false</gl-listed>
+                <gl-token>ff-23292c3b-test</gl-token>
+                <gl-webhooks-callback-url>https://test20.bigbluebutton.org/b/rooms/ff-23292c3b/test/callback</gl-webhooks-callback-url>
+                <isBreakout>false</isBreakout>
+                <meeting-name>test</meeting-name>
+                <meetingId>cc1a7a1d7c9c073a051f42de1ee541133a7e418b</meetingId>
+                <meetingName>test</meetingName>
+                <room-id>ff-23292c3b</room-id>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=6d380f36aa632afbdc0bf1334e6c5100b24c8b3a-1503352241858</url>
+                    <processingTime>11990</processingTime>
+                    <length>0</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://test20.bigbluebutton.org/presentation/6d380f36aa632afbdc0bf1334e6c5100b24c8b3a-1503352241858/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1503352243680/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://test20.bigbluebutton.org/presentation/6d380f36aa632afbdc0bf1334e6c5100b24c8b3a-1503352241858/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1503352243680/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://test20.bigbluebutton.org/presentation/6d380f36aa632afbdc0bf1334e6c5100b24c8b3a-1503352241858/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1503352243680/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+        <recording>
+            <recordID>b27af2f930d418879550e09c7548d1cdd0be25cf-1504122114653</recordID>
+            <meetingID>5bd0e35013bc9761d06f01d4bfd9b4ae1c8df289</meetingID>
+            <internalMeetingID>b27af2f930d418879550e09c7548d1cdd0be25cf-1504122114653</internalMeetingID>
+            <name>Prueba 2</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1504122114653</startTime>
+            <endTime>1504122278594</endTime>
+            <participants>2</participants>
+            <metadata>
+                <gl-listed>false</gl-listed>
+                <gl-token>vi-249c619c-Prueba 2</gl-token>
+                <gl-webhooks-callback-url>https://demo.bigbluebutton.org/b/rooms/vi-249c619c/Prueba%202/callback</gl-webhooks-callback-url>
+                <isBreakout>false</isBreakout>
+                <meeting-name>Prueba 2</meeting-name>
+                <meetingId>5bd0e35013bc9761d06f01d4bfd9b4ae1c8df289</meetingId>
+                <meetingName>Prueba 2</meetingName>
+                <room-id>vi-249c619c</room-id>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=b27af2f930d418879550e09c7548d1cdd0be25cf-1504122114653</url>
+                    <processingTime>14123</processingTime>
+                    <length>2</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122114653/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122114668/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122114653/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122114668/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122114653/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122114668/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+        <recording>
+            <recordID>6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093384390</recordID>
+            <meetingID>English 101</meetingID>
+            <internalMeetingID>6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093384390</internalMeetingID>
+            <name>English 101</name>
+            <isBreakout>false</isBreakout>
+            <published>true</published>
+            <state>published</state>
+            <startTime>1504093384390</startTime>
+            <endTime>1504093447265</endTime>
+            <participants>1</participants>
+            <metadata>
+                <description>test</description>
+                <email>Antonio</email>
+                <isBreakout>false</isBreakout>
+                <meetingId>English 101</meetingId>
+                <meetingName>English 101</meetingName>
+                <title>English 101</title>
+            </metadata>
+            <playback>
+                <format>
+                    <type>presentation</type>
+                    <url>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093384390</url>
+                    <processingTime>8584</processingTime>
+                    <length>0</length>
+                    <preview>
+                        <images>
+                            <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093384390/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504093384402/thumbnails/thumb-1.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093384390/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504093384402/thumbnails/thumb-2.png</image>
+                            <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/6e35e3b2778883f5db637d7a5dba0a427f692e91-1504093384390/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504093384402/thumbnails/thumb-3.png</image>
+                        </images>
+                    </preview>
+                </format>
+            </playback>
+        </recording>
+    </recordings>
+</response>

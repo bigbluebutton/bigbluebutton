@@ -991,17 +991,8 @@
     private var shiftPressed:Boolean = false;
     private var ctrlPressed:Boolean = false;
     private var preventTextInput:Boolean = false;
-    private var _maxPasteLength:int = 1024;
 
-    public function set maxPasteLength(value:int):void
-    {
-        _maxPasteLength = value;
-    }
-
-    public function get maxPasteLength():int
-    {
-        return _maxPasteLength;
-    }
+    [Bindable] public var colorPickerColours:Array = ['0x000000', '0x202020', '0x404040', '0x606060', '0x808080'];
 
     public function restoreVerticalScroll(oldVerticalScroll:Number):void
     {
@@ -1227,12 +1218,6 @@
     {
         if (e.text.length > 0) refreshSelection = true;
 
-        if (e.text.length > maxPasteLength)
-        {
-            e.preventDefault();
-            parentDocument.throwPasteWarning(e.text.length);
-        }
-
         if (preventTextInput) e.preventDefault();
     }
 
@@ -1333,9 +1318,11 @@
                         click="setTextStyles('underline', event.currentTarget.selected);"/>
             </mx:HBox>
             <mx:ColorPicker id="colorPicker"
-                    width="22"
-                    height="22"
-                    close="setTextStyles('color');"/>
+                    dataProvider="{colorPickerColours}"
+                    swatchPanelStyleName="sharedNotesColorPickerStyle"
+                    close="setTextStyles('color');"
+                    visible="false"
+                    includeInLayout="false"/>
             <mx:VRule height="{alignButtons.height}"/>
             <mx:ToggleButtonBar id="alignButtons"
                     buttonWidth="20"
@@ -1345,7 +1332,7 @@
                         <fx:Object icon="{getStyle('iconAlignLeft')}" action="left"/>
                         <fx:Object icon="{getStyle('iconAlignCenter')}" action="center"/>
                         <fx:Object icon="{getStyle('iconAlignRight')}" action="right"/>
-                        <fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/>
+                        <!--fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/-->
                     </fx:Array>
                 </mx:dataProvider>
             </mx:ToggleButtonBar>

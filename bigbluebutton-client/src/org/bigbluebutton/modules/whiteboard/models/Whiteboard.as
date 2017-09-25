@@ -1,8 +1,6 @@
 package org.bigbluebutton.modules.whiteboard.models
 {
   import mx.collections.ArrayCollection;
-  
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 
   public class Whiteboard
   {

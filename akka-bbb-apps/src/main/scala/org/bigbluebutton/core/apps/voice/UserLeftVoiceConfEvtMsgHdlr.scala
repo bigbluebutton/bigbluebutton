@@ -42,7 +42,7 @@ trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
   }
 
   def stopRecordingVoiceConference() {
-    if (VoiceUsers.findAll(liveMeeting.voiceUsers).length == 0 &&
+    if (VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length == 0 &&
       liveMeeting.props.recordProp.record &&
       MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
       MeetingStatus2x.stopRecordingVoice(liveMeeting.status)

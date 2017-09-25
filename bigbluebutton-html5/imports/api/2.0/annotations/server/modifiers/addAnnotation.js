@@ -1,4 +1,4 @@
-import { Match, check } from 'meteor/check';
+import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Annotations from '/imports/api/2.0/annotations';
 
@@ -8,50 +8,17 @@ const ANNOTATION_TYPE_PENCIL = 'pencil';
 export default function addAnnotation(meetingId, whiteboardId, userId, annotation) {
   check(meetingId, String);
   check(whiteboardId, String);
-  check(annotation, {
-    id: String,
-    status: String,
-    annotationType: String,
-    annotationInfo: {
-      x: Match.Maybe(Number), // Text Annotation Only.
-      y: Match.Maybe(Number), // Text Annotation Only.
-      text: Match.Maybe(String), // Text Annotation Only.
-      fontColor: Match.Maybe(Number), // Text Annotation Only.
-      calcedFontSize: Match.Maybe(Number), // Text Annotation Only.
-      textBoxWidth: Match.Maybe(Number), // Text Annotation Only.
-      textBoxHeight: Match.Maybe(Number), // Text Annotation Only.
-      fontSize: Match.Maybe(Number), // Text Annotation Only.
-      dataPoints: Match.Maybe(String), // Text Annotation Only.
-      color: Match.Maybe(Number), // Draw Annotation Only.
-      thickness: Match.Maybe(Number), // Draw Annotation Only.
-      transparency: Match.Maybe(Boolean), // Draw Annotation Only.
-      points: Match.Maybe([Number]), // Draw and Poll Annotation Only.
-      numResponders: Match.Maybe(Number), // Poll Only Annotation.
-      result: Match.Maybe([{
-        id: Number,
-        key: String,
-        numVotes: Number,
-      }]), // Poll Only Annotation.
-      numRespondents: Match.Maybe(Number), // Poll Only Annotation.
-      id: String,
-      whiteboardId: String,
-      status: String,
-      type: String,
-      commands: Match.Maybe([Number]),
-    },
-    wbId: String,
-    userId: String,
-    position: Number,
-  });
+  check(annotation, Object);
 
   const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
 
   const selector = {
     meetingId,
-    id: annotation.id,
+    id,
     userId,
   };
 
+  // annotationInfo will be added to the modifier in switch below, depending on the situation
   const modifier = {
     $set: {
       whiteboardId,
@@ -59,28 +26,38 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
       id,
       status,
       annotationType,
-      annotationInfo,
       wbId,
       position,
     },
+    $inc: { version: 1 },
   };
 
   const shapeType = annotation.annotationType;
 
   switch (shapeType) {
     case ANNOTATION_TYPE_TEXT:
+      // Replace flash new lines to html5 new lines if it's text
+      modifier.$set.annotationInfo = annotationInfo;
       modifier.$set.annotationInfo.text = annotation.annotationInfo.text.replace(/[\r]/g, '\n');
       break;
     case ANNOTATION_TYPE_PENCIL:
-      // On the draw_end he send us all the points, we don't need to push, we can simple
-      // set the new points.
-      if (annotation.status !== 'DRAW_END') {
-        // We don't want it to be update twice.
-        delete modifier.$set.annotationInfo;
-        modifier.$push = { 'annotationInfo.points': { $each: annotation.annotationInfo.points } };
+      // In the pencil draw update we need to add a coordinate to the existing array
+      // And update te rest of the properties
+      if (annotation.status === 'DRAW_UPDATE') {
+        modifier.$set['annotationInfo.color'] = annotationInfo.color;
+        modifier.$set['annotationInfo.thickness'] = annotationInfo.thickness;
+        modifier.$set['annotationInfo.id'] = annotationInfo.id;
+        modifier.$set['annotationInfo.whiteboardId'] = annotationInfo.whiteboardId;
+        modifier.$set['annotationInfo.status'] = annotationInfo.status;
+        modifier.$set['annotationInfo.transparency'] = annotationInfo.transparency;
+        modifier.$push = { 'annotationInfo.points': { $each: annotationInfo.points } };
+        break;
       }
+
+      modifier.$set.annotationInfo = annotationInfo;
       break;
     default:
+      modifier.$set.annotationInfo = annotationInfo;
       break;
   }
 

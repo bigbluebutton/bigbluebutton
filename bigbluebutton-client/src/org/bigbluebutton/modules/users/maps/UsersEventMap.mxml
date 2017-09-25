@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
+			
 			import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
 			import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
 			import org.bigbluebutton.modules.users.managers.UsersManager;
