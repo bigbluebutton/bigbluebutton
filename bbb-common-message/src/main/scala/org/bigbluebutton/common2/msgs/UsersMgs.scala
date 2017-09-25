@@ -61,7 +61,7 @@ object UserJoinedMeetingEvtMsg {
 case class UserJoinedMeetingEvtMsg(header: BbbClientMsgHeader,
                                    body: UserJoinedMeetingEvtMsgBody) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
-                                       guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
+                                       guest: Boolean, authed: Boolean, guestStatus: String, emoji: String,
                                        presenter: Boolean, locked: Boolean, avatar: String)
 
 /**

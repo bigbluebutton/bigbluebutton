@@ -90,16 +90,33 @@ public class MeetingService implements MessageListener {
 
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
-                           String authToken, String avatarURL, Boolean guest, Boolean authed) {
+                           String authToken, String avatarURL, Boolean guest,
+                           Boolean authed, String guestStatus) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, avatarURL, guest, authed));
+      externUserID, authToken, avatarURL, guest, authed, guestStatus));
+
+    Meeting m = getMeeting(meetingID);
+    if (m != null) {
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
+      m.userRegistered(ruser);
+    }
   }
 
-  public UserSession getUserSession(String token) {
+  public UserSession getUserSessionWithUserId(String userId) {
+    for (UserSession userSession : sessions.values()) {
+      if (userSession.internalUserId.equals(userId)) {
+        return userSession;
+      }
+    }
+
+    return null;
+  }
+
+  public UserSession getUserSessionWithAuthToken(String token) {
     return sessions.get(token);
   }
 
-  public UserSession removeUserSession(String token) {
+  public UserSession removeUserSessionWithAuthToken(String token) {
     UserSession user = sessions.remove(token);
     if (user != null) {
       log.debug("Found user [" + user.fullname + "] token=[" + token
@@ -113,19 +130,17 @@ public class MeetingService implements MessageListener {
    */
   public void purgeRegisteredUsers() {
     for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
-      Long now = System.nanoTime();
+      Long now = System.currentTimeMillis();
       Meeting meeting = entry.getValue();
 
       ConcurrentMap<String, User> users = meeting.getUsersMap();
 
-      for (AbstractMap.Entry<String, Long> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+      for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
         String registeredUserID = registeredUser.getKey();
-        Long registeredUserDate = registeredUser.getValue();
+        RegisteredUser registeredUserDate = registeredUser.getValue();
 
-        long registrationTime = registeredUserDate.longValue();
-        long elapsedTime = now - registrationTime;
-        if (elapsedTime >= 60000
-          && !users.containsKey(registeredUserID)) {
+        long elapsedTime = now - registeredUserDate.registeredOn;
+        if (elapsedTime >= 60000 && !users.containsKey(registeredUserID)) {
           meeting.userUnregistered(registeredUserID);
         }
       }
@@ -565,8 +580,14 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance);
+        message.name, message.role, message.avatarURL, message.guest,
+              message.guestStatus);
       m.userJoined(user);
+      m.setGuestStatusWithId(user.getInternalUserId(), message.guestStatus);
+      UserSession userSession = getUserSessionWithUserId(user.getInternalUserId());
+      if (userSession != null) {
+        userSession.guestStatus = message.guestStatus;
+      }
 
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", m.getInternalId());
@@ -577,7 +598,7 @@ public class MeetingService implements MessageListener {
       logData.put("username", user.getFullname());
       logData.put("role", user.getRole());
       logData.put("guest", user.isGuest());
-      logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+      logData.put("guestStatus", user.getGuestStatus());
       logData.put("event", "user_joined_message");
       logData.put("description", "User joined the meeting.");
 
@@ -605,7 +626,7 @@ public class MeetingService implements MessageListener {
         logData.put("username", user.getFullname());
         logData.put("role", user.getRole());
         logData.put("guest", user.isGuest());
-        logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+        logData.put("guestStatus", user.getGuestStatus());
         logData.put("event", "user_left_message");
         logData.put("description", "User left the meeting.");
 
@@ -620,7 +641,7 @@ public class MeetingService implements MessageListener {
           m.setEndTime(System.currentTimeMillis());
         }
 
-        Long userRegistered = m.userUnregistered(message.userId);
+        RegisteredUser userRegistered = m.userUnregistered(message.userId);
         if (userRegistered != null) {
           log.info("User unregistered from meeting");
         } else {

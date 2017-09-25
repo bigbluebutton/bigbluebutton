@@ -73,6 +73,10 @@ class UrlMappings {
 			action = [GET:'updateRecordingsHandler', POST:'updateRecordingsHandler']
 		}
 
+		"/api/guestWait"(controller:"api") {
+			action = [GET:'guestWaitHandler']
+		}
+
 		"/$controller/$action?/$id?(.${format})?"{
 			constraints {
 				// apply constraints here
