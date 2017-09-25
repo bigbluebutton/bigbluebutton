@@ -117,17 +117,32 @@ package org.bigbluebutton.modules.present.services.messaging
       );
     }
 
-    public function createNewPresentationPod():void {
+    public function requestNewPresentationPod(requesterId: String):void {
       var message:Object = {
         header: {name: "CreateNewPresentationPodPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {ownerId: UsersUtil.getMyUserID()}
+        body: {ownerId: requesterId}
       };
-        JSLog.warn("sender: creating a new presentation pod ", null);
+        JSLog.warn("sender: request the creation of a new presentation pod ", null);
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage2x(
         function(result:String):void { },
-        function(status:String):void { LOGGER.error("Error while creating a new presentation pod." + status); },
+        function(status:String):void { LOGGER.error("Error while requesting a new presentation pod." + status); },
+        JSON.stringify(message)
+      );
+    }
+
+    public function requestClosePresentationPod(requesterId: String, podId: String):void {
+      var message:Object = {
+        header: {name: "RemovePresentationPodPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: requesterId, podId: podId}
+      };
+        JSLog.warn("sender: closing a presentation pod ", null);
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error("Error while closing a presentation pod." + status); },
         JSON.stringify(message)
       );
     }

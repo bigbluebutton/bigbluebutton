@@ -47,6 +47,7 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
 case class PresentationPodManager(presentationPods: collection.immutable.Map[String, PresentationPod]) {
 
   def addPod(presPod: PresentationPod): PresentationPodManager = copy(presentationPods + (presPod.id -> presPod))
-  def removePod(id: String): PresentationPodManager = copy(presentationPods = presentationPods - id)
+  def removePod(podId: String): PresentationPodManager = copy(presentationPods = presentationPods - podId)
   def getNumberOfPods(): Int = presentationPods.size
+  def getPod(podId: String): Option[PresentationPod] = presentationPods.get(podId)
 }

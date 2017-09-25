@@ -22,4 +22,16 @@ object PresentationPodsApp {
     state.update(podManager)
   }
 
+  def removePresentationPod(state: MeetingState2x, podId: String): MeetingState2x = {
+    val podManager = state.presentationPodManager.removePod(podId)
+    state.update(podManager)
+  }
+
+  def getPresentationPod(state: MeetingState2x, podId: String): Option[PresentationPod] = {
+    state.presentationPodManager.getPod(podId)
+  }
+
+  def getNumberOfPresentationPods(state: MeetingState2x): Int = state.presentationPodManager.getNumberOfPods()
+
 }
+

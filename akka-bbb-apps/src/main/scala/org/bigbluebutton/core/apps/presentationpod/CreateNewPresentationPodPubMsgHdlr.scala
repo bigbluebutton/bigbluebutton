@@ -6,6 +6,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait CreateNewPresentationPodPubMsgHdlr {
+  this: PresentationPodHdlrs =>
 
   def handle(msg: CreateNewPresentationPodPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
@@ -29,7 +30,13 @@ trait CreateNewPresentationPodPubMsgHdlr {
     )
     bus.outGW.send(respMsg)
 
+    log.warning("CreateNewPresentationPodPubMsgHdlr new podId=" + pod.id)
+
+    log.warning("_____ pres pod add, before:" + state.presentationPodManager.getNumberOfPods())
     val pods = state.presentationPodManager.addPod(pod)
+
+    log.warning("_____ pres pod add, afterB:" + pods.getNumberOfPods())
+
     state.update(pods)
 
   }

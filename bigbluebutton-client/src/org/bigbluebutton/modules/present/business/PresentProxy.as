@@ -40,6 +40,8 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
 	import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+	import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
+	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.Presentation;
@@ -241,6 +243,24 @@ package org.bigbluebutton.modules.present.business
 			var currentPage:Page = PresentationModel.getInstance().getCurrentPage();
 			
 			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+		}
+
+		/**
+		 * Request the creation of a new presentation pod
+		 * @param e
+		 * 
+		 */
+		public function handleRequestNewPresentationPod(e: RequestNewPresentationPodEvent): void {
+			sender.requestNewPresentationPod(e.requesterId);
+		}
+
+		/**
+		 * Request the removal of a specific presentation pod
+		 * @param e
+		 * 
+		 */
+		public function handleRequestClosePresentationPod(e: RequestClosePresentationPodEvent): void {
+			sender.requestClosePresentationPod(e.requesterId, e.podId);
 		}
 	}
 }

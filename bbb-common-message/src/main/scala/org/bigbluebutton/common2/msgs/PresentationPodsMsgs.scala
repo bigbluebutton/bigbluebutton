@@ -8,7 +8,7 @@ case class CreateNewPresentationPodPubMsgBody(ownerId: String)
 
 object RemovePresentationPodPubMsg { val NAME = "RemovePresentationPodPubMsg"}
 case class RemovePresentationPodPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPodPubMsgBody) extends StandardMsg
-case class RemovePresentationPodPubMsgBody(podId: String)
+case class RemovePresentationPodPubMsgBody(requesterId: String, podId: String)
 
 // ------------ client to akka-apps ------------
 
@@ -25,7 +25,7 @@ case class CreateNewPresentationPodEvtMsgBody(ownerId: String, podId: String)
 
 object RemovePresentationPodEvtMsg { val NAME = "RemovePresentationPodEvtMsg"}
 case class RemovePresentationPodEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationPodEvtMsgBody) extends StandardMsg
-case class RemovePresentationPodEvtMsgBody(podId: String)
+case class RemovePresentationPodEvtMsgBody( ownerId: String, podId: String)
 
 
 // ------------ akka-apps to client ------------
