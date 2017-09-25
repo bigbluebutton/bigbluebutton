@@ -14,8 +14,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const MuteAudio = ({ isInAudio, isMuted, callback, isTalking, intl,
-  listenOnly }) => {
+const MuteAudio = ({ intl, toggleSelfVoice, voiceUserData }) => {
+  const { isInAudio, isMuted, isTalking, listenOnly } = voiceUserData;
+
   if (!isInAudio || listenOnly) return null;
   const muteLabel = intl.formatMessage(intlMessages.muteLabel);
   const unmuteLabel = intl.formatMessage(intlMessages.unmuteLabel);
@@ -31,7 +32,7 @@ const MuteAudio = ({ isInAudio, isMuted, callback, isTalking, intl,
 
   return (
     <Button
-      onClick={callback}
+      onClick={toggleSelfVoice}
       label={label}
       color={'primary'}
       icon={icon}
