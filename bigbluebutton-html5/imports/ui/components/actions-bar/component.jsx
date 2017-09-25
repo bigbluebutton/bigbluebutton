@@ -4,13 +4,9 @@ import EmojiContainer from './emoji-menu/container';
 import ActionsDropdown from './actions-dropdown/component';
 
 import AudioControlsContainer from '../audio/audio-controls/container';
-import JoinAudioOptionsContainer from '../audio/audio-menu/container';
+// import JoinAudioOptionsContainer from '../audio/audio-menu/container';
 
 export default class ActionsBar extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { isUserPresenter } = this.props;
 

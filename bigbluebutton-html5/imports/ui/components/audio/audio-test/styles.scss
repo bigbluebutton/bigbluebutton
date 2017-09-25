@@ -8,5 +8,12 @@
   font-weight: normal;
   i {
     color: $color-primary;
+    transition: all .2s ease-in-out;
+  }
+
+  &:hover {
+    i {
+      color: $color-white;
+    }
   }
 }
