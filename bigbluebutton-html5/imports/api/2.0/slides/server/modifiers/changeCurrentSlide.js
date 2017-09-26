@@ -47,7 +47,7 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
   const newSlide = Slides.findOne(newCurrent.selector);
 
   // if the oldCurrent and newCurrent have the same ids
-  if ((oldSlide && newSlide) && (oldSlide._id === newSlide._id)) {
+  if (oldSlide && newSlide && (oldSlide._id === newSlide._id)) {
     return;
   }
 
