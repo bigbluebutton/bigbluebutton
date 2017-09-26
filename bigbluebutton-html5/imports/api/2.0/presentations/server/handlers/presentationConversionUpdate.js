@@ -55,7 +55,6 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       break;
 
     default:
-      Logger.warn(`Presentation update status "${status}" not handled`);
       break;
   }
 
@@ -68,5 +67,18 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     $set: Object.assign({ meetingId }, statusModifier),
   };
 
-  return Presentations.upsert(selector, modifier);
+  const cb = (err, numChanged) => {
+    if (err) {
+      return Logger.error(`Updating conversion status presentation2x to collection: ${err}`);
+    }
+
+    const { insertedId } = numChanged;
+    if (insertedId) {
+      return Logger.info(`Updated presentation2x conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+    }
+
+    return Logger.info(`Upserted presentation2x conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+  };
+
+  return Presentations.upsert(selector, modifier, cb);
 }

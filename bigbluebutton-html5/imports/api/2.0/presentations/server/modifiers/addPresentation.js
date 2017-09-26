@@ -4,6 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 
 import addSlide from '/imports/api/2.0/slides/server/modifiers/addSlide';
+import changeCurrentPresentation from './changeCurrentPresentation';
 
 const addSlides = (meetingId, presentationId, slides) => {
   const slidesAdded = [];
@@ -61,6 +62,10 @@ export default function addPresentation(meetingId, presentation) {
 
     const { insertedId } = numChanged;
     if (insertedId) {
+      if (presentation.current) {
+        changeCurrentPresentation(meetingId, presentation.id);
+      }
+
       return Logger.info(`Added presentation2x id=${presentation.id} meeting=${meetingId}`);
     }
 

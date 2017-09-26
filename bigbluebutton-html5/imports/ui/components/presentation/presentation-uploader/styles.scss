@@ -137,6 +137,13 @@ $item-height: 1rem;
   &:focus, &:hover {
     color: $color-danger;
   }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: .65;
+    box-shadow: none;
+    pointer-events: none;
+  }
 }
 
 .dropzone {

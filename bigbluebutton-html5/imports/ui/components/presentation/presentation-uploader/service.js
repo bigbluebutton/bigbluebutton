@@ -1,7 +1,10 @@
 import Presentations from '/imports/api/2.0/presentations';
 import Auth from '/imports/ui/services/auth';
-import { call } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 
+const CONVERSION_TIMEOUT = 300000;
+
+// fetch doens't support progress. So we use xhr which support progress.
 const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   const xhr = new XMLHttpRequest();
 
@@ -29,12 +32,39 @@ const getPresentations = () =>
     .find()
     .fetch()
     .map(presentation => ({
-      id: presentation.name,
+      id: presentation.id,
       filename: presentation.name,
       isCurrent: presentation.current || false,
       upload: { done: true, error: false },
       conversion: presentation.conversion || { done: true, error: false },
     }));
+
+const observePresentationConversion = (meetingId, filename) => new Promise((resolve, reject) => {
+  const conversionTimeout = setTimeout(() => {
+    reject({
+      filename,
+      message: 'Conversion timeout.',
+    });
+  }, CONVERSION_TIMEOUT);
+
+  const didValidate = () => {
+    clearTimeout(conversionTimeout);
+    resolve(filename);
+  };
+
+  Tracker.autorun((c) => {
+    const query = Presentations.find({ meetingId, filename });
+
+    query.observeChanges({
+      changed: (id, fields) => {
+        if (fields.conversion.done) {
+          c.stop();
+          didValidate();
+        }
+      },
+    });
+  });
+});
 
 const uploadPresentation = (file, meetingID, endpoint, onError, onProgress) => {
   const data = new FormData();
@@ -51,7 +81,13 @@ const uploadPresentation = (file, meetingID, endpoint, onError, onProgress) => {
     body: data,
   };
 
-  return futch(endpoint, opts, onProgress).catch(onError);
+  return futch(endpoint, opts, onProgress)
+    .then(observePresentationConversion.bind(null, meetingID, file.filename))
+    // Trap the error so we can have parallel upload
+    .catch((error) => {
+      onError(error);
+      return observePresentationConversion(meetingID, file.filename);
+    });
 };
 
 const uploadPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
@@ -60,7 +96,7 @@ const uploadPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =
       .map(p => uploadPresentation(p.file, meetingID, uploadEndpoint, p.onError, p.onProgress)),
   );
 
-const removePresentation = presentationID => call('removePresentation', presentationID);
+const removePresentation = presentationID => makeCall('removePresentation', presentationID);
 
 const removePresentations = presentationsToRemove =>
   Promise.all(presentationsToRemove.map(p => removePresentation(p.id)));
@@ -72,7 +108,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
 
   return new Promise((resolve, reject) =>
     uploadPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
-      .then(call.bind(null, 'sharePresentation', currentPresentation.id, true))
+      .then(makeCall.bind(null, 'sharePresentation', currentPresentation.id, true))
       .then(removePresentations.bind(null, presentationsToRemove))
       .then(resolve)
       .catch(reject),

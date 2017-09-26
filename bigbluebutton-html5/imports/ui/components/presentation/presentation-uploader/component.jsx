@@ -89,27 +89,15 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.generatingThumbnail',
     defaultMessage: 'Generating thumbnails...',
   },
+  GENERATING_SVGIMAGES: {
+    id: 'app.presentationUploder.conversion.generatingSvg',
+    defaultMessage: 'Generating SVG images...',
+  },
   GENERATED_SLIDE: {
     id: 'app.presentationUploder.conversion.generatedSlides',
     defaultMessage: 'Slides generated...',
   },
 });
-
-function deepMergeUpdateFileKey(id, key, value) {
-  this.setState(({ presentations }) => {
-    const fileIndex = presentations.findIndex(f => f.id === id);
-
-    return fileIndex === -1 ? false : {
-      presentations: update(presentations, {
-        [fileIndex]: { $apply: file =>
-          update(file, {
-            [key]: { $apply: toUpdate => update(toUpdate, { $merge: value }) },
-          }),
-        },
-      }),
-    };
-  });
-}
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -126,15 +114,19 @@ class PresentationUploader extends Component {
     this.handleFiledrop = this.handleFiledrop.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+
+    this.updateFileKey = this.updateFileKey.bind(this);
+    this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     const nextPresentations = nextProps.presentations;
     const statePresentations = this.state.presentations;
 
-    // Update only the id/conversion state when receiving new props
+    // Update only the conversion state when receiving new props
     nextPresentations.forEach((file) => {
-      deepMergeUpdateFileKey.call(this, file.id, 'conversion', file.conversion);
+      this.updateFileKey(file.filename, 'id', file.id);
+      this.deepMergeUpdateFileKey(file.id, 'conversion', file.conversion);
     });
 
     const isUploading = statePresentations.some(_ => !_.upload.done);
@@ -147,6 +139,28 @@ class PresentationUploader extends Component {
     });
   }
 
+  updateFileKey(id, key, value, operation = '$set') {
+    this.setState(({ presentations }) => {
+      // Compare id and filename since non-uploaded files dont have a real id
+      const fileIndex = presentations.findIndex(f => f.id === id || f.filename === id);
+
+      return fileIndex === -1 ? false : {
+        presentations: update(presentations, {
+          [fileIndex]: { $apply: file =>
+            update(file, { [key]: {
+              [operation]: value,
+            } }),
+          },
+        }),
+      };
+    });
+  }
+
+  deepMergeUpdateFileKey(id, key, value) {
+    const applyValue = toUpdate => update(toUpdate, { $merge: value });
+    this.updateFileKey(id, key, applyValue, '$apply');
+  }
+
   handleConfirm() {
     const { presentations } = this.state;
 
@@ -155,7 +169,14 @@ class PresentationUploader extends Component {
       preventClosing: true,
     });
 
-    return this.props.handleSave(presentations);
+    return this.props.handleSave(presentations)
+      .catch((error) => {
+        this.setState({
+          disableActions: false,
+          preventClosing: true,
+          error,
+        });
+      });
   }
 
   handleDismiss() {
@@ -169,15 +190,15 @@ class PresentationUploader extends Component {
 
   handleFiledrop(files) {
     const presentationsToUpload = files.map(file => ({
-      id: file.name,
       file,
+      id: file.name,
       filename: file.name,
       isCurrent: false,
       conversion: { done: false, error: false },
       upload: { done: false, error: false, progress: 0 },
       onProgress: (event) => {
         if (!event.lengthComputable) {
-          deepMergeUpdateFileKey.call(this, file.name, 'upload', {
+          this.deepMergeUpdateFileKey(file.name, 'upload', {
             progress: 100,
             done: true,
           });
@@ -185,13 +206,13 @@ class PresentationUploader extends Component {
           return;
         }
 
-        deepMergeUpdateFileKey.call(this, file.name, 'upload', {
+        this.deepMergeUpdateFileKey(file.name, 'upload', {
           progress: (event.loaded / event.total) * 100,
           done: event.loaded === event.total,
         });
       },
       onError: (error) => {
-        deepMergeUpdateFileKey.call(this, file.name, 'upload', { error });
+        this.deepMergeUpdateFileKey(file.name, 'upload', { error });
       },
     }));
 
@@ -201,7 +222,9 @@ class PresentationUploader extends Component {
   }
 
   handleCurrentChange(item) {
-    const { presentations } = this.state;
+    const { presentations, disableActions } = this.state;
+    if (disableActions) return;
+
     const currentIndex = presentations.findIndex(p => p.isCurrent);
     const newCurrentIndex = presentations.indexOf(item);
 
@@ -234,9 +257,12 @@ class PresentationUploader extends Component {
   }
 
   handleRemove(item) {
-    const { presentations } = this.state;
+    const { presentations, disableActions } = this.state;
+    if (disableActions) return;
+
     const toRemoveIndex = presentations.indexOf(item);
     const toRemove = presentations[toRemoveIndex];
+
 
     if (toRemove.isCurrent) {
       const defaultPresentation =
@@ -314,10 +340,11 @@ class PresentationUploader extends Component {
 
     itemClassName[styles.tableItemNew] = item.id === item.filename;
     itemClassName[styles.tableItemUploading] = !item.upload.done;
-    itemClassName[styles.tableItemProcessing] = !item.conversion.done;
+    itemClassName[styles.tableItemProcessing] = !item.conversion.done && item.upload.done;
     itemClassName[styles.tableItemError] = item.conversion.error || item.upload.error;
     itemClassName[styles.tableItemAnimated] =
-      !item.conversion.done && (!item.upload.done && item.upload.progress > 0);
+      (!item.conversion.done && item.upload.done)
+      || (!item.upload.done && item.upload.progress > 0);
 
     const hideRemove =
       (item.isCurrent && item.upload.done) || item.filename === this.props.defaultFileName;
