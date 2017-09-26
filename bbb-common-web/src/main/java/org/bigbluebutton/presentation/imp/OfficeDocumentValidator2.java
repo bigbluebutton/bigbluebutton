@@ -24,6 +24,8 @@ public class OfficeDocumentValidator2 {
     if (FilenameUtils.isExtension(pres.getUploadedFile().getName(), FileTypeConstants.PPTX)) {
       String COMMAND = presCheckExec + " " + pres.getUploadedFile().getAbsolutePath();
 
+      log.info("Running pres check " + COMMAND);
+
       boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 
       if (done) {
