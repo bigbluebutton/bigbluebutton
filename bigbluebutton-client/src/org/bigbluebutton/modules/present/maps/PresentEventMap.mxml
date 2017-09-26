@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
       import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
       import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
+      import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
 		]]>
@@ -157,6 +158,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{PresentProxy}" method="handleRequestClosePresentationPod" arguments="{event}" />
 		</EventHandlers>
 
-
+		<EventHandlers type="{PresentationPodRemoved.PRESENTATION_POD_REMOVED}" >
+			<MethodInvoker generator="{PresentManager}" method="handlePresentationPodRemoved" arguments="{event}" />
+		</EventHandlers>
 	</fx:Declarations>
 </EventMap>

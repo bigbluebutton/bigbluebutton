@@ -39,6 +39,7 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
   import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+  import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
@@ -98,6 +99,9 @@ package org.bigbluebutton.modules.present.services.messaging
           break;
         case "CreateNewPresentationPodEvtMsg":
           handleCreateNewPresentationPodEvtMsg(message);
+          break;
+        case "RemovePresentationPodEvtMsg":
+          handleRemovePresentationPodEvtMsg(message);
           break;
       }
     }
@@ -260,10 +264,12 @@ package org.bigbluebutton.modules.present.services.messaging
       var ownerId: String = msg.body.ownerId;
       var podId: String = msg.body.podId;
       dispatcher.dispatchEvent(new NewPresentationPodCreated(podId, ownerId));
-
-      JSLog.warn("+++ receiver handleCreateNewPresentationPodEvtMsg received ownerId=" + ownerId + " podId=" + podId, {});
     }
 
- 
+    private function handleRemovePresentationPodEvtMsg(msg:Object): void {
+      var ownerId: String = msg.body.ownerId;
+      var podId: String = msg.body.podId;
+      dispatcher.dispatchEvent(new PresentationPodRemoved(podId, ownerId));
+    }
   }
 }

@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.present.managers
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.core.UsersUtil;
@@ -34,22 +35,25 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+	import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
 	import org.bigbluebutton.modules.present.model.PresentOptions;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+	import org.bigbluebutton.main.api.JSLog;
+
 	
 	public class PresentManager
 	{
 		private var globalDispatcher:Dispatcher;
-		private var presentWindow:PresentationWindow;
+		private var windows: Array = [];
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
 		}
 		
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
-			if (presentWindow != null){ 
+			if (windows.length >= 1) {
 				return;
 			}
 
@@ -59,26 +63,44 @@ package org.bigbluebutton.modules.present.managers
 		}
 
 		public function handleAddPresentationPod(e: NewPresentationPodCreated): void {
-			if (presentWindow != null){
-				return;
-			}
+//			JSLog.warn("+++ PresentManager::handleAddPresentationPod " + e.podId, {});
 
-			var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-			presentWindow = new PresentationWindow();
-			presentWindow.onPodCreated(e.podId, e.ownerId);
-			presentWindow.visible = presentOptions.showPresentWindow;
-			presentWindow.showControls = presentOptions.showWindowControls;
-			openWindow(presentWindow);
+			var podId: String = e.podId;
+			var ownerId: String = e.ownerId;
+			if(!windows.hasOwnProperty(podId)) {
+				var newWindow:PresentationWindow = new PresentationWindow();
+				newWindow.onPodCreated(podId, ownerId);
+
+				var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
+				newWindow.visible = true; // TODO
+				// newWindow.visible = presentOptions.showPresentWindow;
+				newWindow.showControls = presentOptions.showWindowControls;
+
+				windows[podId] = newWindow;
+
+				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				openEvent.window = newWindow;
+				globalDispatcher.dispatchEvent(openEvent);
+			}
 		}
-		
+
+		public function handlePresentationPodRemoved(e: PresentationPodRemoved): void {
+			var podId: String = e.podId;
+			var ownerId: String = e.ownerId;
+            
+				var destroyWindow:PresentationWindow = windows[podId];
+			if (destroyWindow != null) {
+				var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+				closeEvent.window = destroyWindow;
+				globalDispatcher.dispatchEvent(closeEvent);
+
+				delete windows[podId];
+			}
+		}
 		public function handleStopModuleEvent():void{
-			presentWindow.close();
-		}
-		
-		private function openWindow(window:IBbbModuleWindow):void{
-			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+			for (var key: String in windows) {
+				windows[key].close();
+			}
 		}
 
 		public function handleOpenUploadWindow(e:UploadEvent):void{
