@@ -30,35 +30,35 @@ export default class DropdownList extends Component {
   }
 
   componentDidMount() {
-    this._menu.addEventListener('keydown', event=>this.handleItemKeyDown(event));
+    this._menu.addEventListener('keydown', event => this.handleItemKeyDown(event));
   }
-  
+
   componentWillMount() {
     this.setState({
       focusedIndex: 0,
     });
   }
-  
+
   componentDidUpdate(prevProps, prevState) {
-    let { focusedIndex } = this.state;
+    const { focusedIndex } = this.state;
 
     this.menuRefs = [];
 
     for (let i = 0; i < (this._menu.children.length); i++) {
-      if (this._menu.children[i].getAttribute("role") === 'menuitem') {
+      if (this._menu.children[i].getAttribute('role') === 'menuitem') {
         this.menuRefs.push(this._menu.children[i]);
       }
     }
 
     const activeRef = this.menuRefs[focusedIndex];
-      
+
     if (activeRef) {
       activeRef.focus();
     }
   }
 
   handleItemKeyDown(event, callback) {
-    const { onActionsHide, getDropdownMenuParent, } = this.props;
+    const { onActionsHide, getDropdownMenuParent } = this.props;
     let nextFocusedIndex = this.state.focusedIndex;
 
     if (KEY_CODES.ARROW_UP === event.which) {
@@ -68,7 +68,7 @@ export default class DropdownList extends Component {
 
       if (nextFocusedIndex < 0) {
         nextFocusedIndex = this.menuRefs.length - 1;
-      }else if (nextFocusedIndex > this.menuRefs.length - 1) {
+      } else if (nextFocusedIndex > this.menuRefs.length - 1) {
         nextFocusedIndex = 0;
       }
     }
@@ -90,30 +90,30 @@ export default class DropdownList extends Component {
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
       const { dropdownHide } = this.props;
-          
+
       event.stopPropagation();
       event.preventDefault();
-          
+
       dropdownHide();
       if (getDropdownMenuParent) {
         getDropdownMenuParent().focus();
       }
     }
 
-    this.setState({focusedIndex: nextFocusedIndex});
-    
+    this.setState({ focusedIndex: nextFocusedIndex });
+
     if (typeof callback === 'function') {
       callback(event);
     }
   }
 
   handleItemClick(event, callback) {
-    const { getDropdownMenuParent,  onActionsHide} = this.props;
+    const { getDropdownMenuParent, onActionsHide } = this.props;
     const { dropdownHide } = this.props;
 
-    if ( getDropdownMenuParent ) {
+    if (getDropdownMenuParent) {
       onActionsHide();
-    }else{
+    } else {
       this.setState({ focusedIndex: null });
       dropdownHide();
     }
@@ -154,11 +154,13 @@ export default class DropdownList extends Component {
       });
 
     return (
-      <ul 
-        style={style} 
-        className={cx(styles.list, className)} 
-        role="menu" ref={(r) => this._menu = r}>
-          {boundChildren}
+      <ul
+        style={style}
+        className={cx(styles.list, className)}
+        role="menu"
+        ref={r => this._menu = r}
+      >
+        {boundChildren}
       </ul>
     );
   }

@@ -26,10 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.LockControlEvent;
       import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
-      import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
-      import org.bigbluebutton.modules.layout.events.ConnectionEvent;
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
       import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
       import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;

@@ -52,27 +52,27 @@ const defaultProps = {
 
 const messages = defineMessages({
   presenter: {
-    id: 'app.userlist.presenter',
+    id: 'app.userList.presenter',
     description: 'Text for identifying presenter user',
   },
   you: {
-    id: 'app.userlist.you',
+    id: 'app.userList.you',
     description: 'Text for identifying your user',
   },
   locked: {
-    id: 'app.userlist.locked',
+    id: 'app.userList.locked',
     description: 'Text for identifying locked user',
   },
   guest: {
-    id: 'app.userlist.guest',
+    id: 'app.userList.guest',
     description: 'Text for identifying guest user',
   },
   menuTitleContext: {
-    id: 'app.userlist.menuTitleContext',
+    id: 'app.userList.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
   userAriaLabel: {
-    id: 'app.userlist.userAriaLabel',
+    id: 'app.userList.userAriaLabel',
     description: 'aria label for each user in the userlist',
   },
 });
@@ -239,6 +239,8 @@ class UserListItem extends Component {
       user,
       intl,
       compact,
+      isMeetingLocked,
+      meeting,
     } = this.props;
 
     if (compact) {
@@ -246,8 +248,9 @@ class UserListItem extends Component {
     }
 
     const userNameSub = [];
+    const isViewer = !!((!user.isPresenter && !user.isModerator));
 
-    if (user.isLocked) {
+    if (isMeetingLocked(meeting.meetingId) && isViewer && user.isLocked) {
       userNameSub.push(<span>
         <Icon iconName="lock" />
         {intl.formatMessage(messages.locked)}

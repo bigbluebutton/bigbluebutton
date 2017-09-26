@@ -29,6 +29,10 @@ object UpdateSharedNoteReqMsg {val NAME = "UpdateSharedNoteReqMsg"}
 case class UpdateSharedNoteReqMsg(header: BbbClientMsgHeader, body: UpdateSharedNoteReqMsgBody) extends StandardMsg
 case class UpdateSharedNoteReqMsgBody(noteId: String, patch: String, operation: String)
 
+object ClearSharedNotePubMsg {val NAME = "ClearSharedNotePubMsg"}
+case class ClearSharedNotePubMsg(header: BbbClientMsgHeader, body: ClearSharedNotePubMsgBody) extends StandardMsg
+case class ClearSharedNotePubMsgBody(noteId: String)
+
 object CreateSharedNoteReqMsg {val NAME = "CreateSharedNoteReqMsg"}
 case class CreateSharedNoteReqMsg(header: BbbClientMsgHeader, body: CreateSharedNoteReqMsgBody) extends StandardMsg
 case class CreateSharedNoteReqMsgBody(noteName: String)

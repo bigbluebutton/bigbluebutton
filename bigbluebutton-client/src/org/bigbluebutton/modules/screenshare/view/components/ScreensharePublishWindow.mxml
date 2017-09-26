@@ -223,6 +223,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           cancelBtn.visible = cancelBtn.includeInLayout = true;
           startBtn.visible = startBtn.includeInLayout = false;
           stopBtn.visible = stopBtn.includeInLayout = false;
+
+          var logData:Object = UsersUtil.initLogData();
+          logData.reason = event.reason;
+          logData.tags = ["screenshare"];
+          logData.message = "Unnatural end to screenshare";
+          LOGGER.warn(JSON.stringify(logData));
         } else {
           closeWindow();
         }
@@ -327,7 +333,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         streaming = true;
 
         restartBtn.enabled = true;
-        pauseBtn.visible = pauseBtn.includeInLayout = true;
+
+        // Only allow pausing if specified in config.xml
+        pauseBtn.visible = pauseBtn.includeInLayout = dsOptions.enablePause;
+
         restartBtn.visible = restartBtn.includeInLayout = false;
 
         // Store capture dimensions so we can position cursor properly.

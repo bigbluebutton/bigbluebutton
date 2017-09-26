@@ -22,7 +22,6 @@ package org.bigbluebutton.modules.whiteboard.views
   import flash.geom.Point;
   import flash.utils.Timer;
   
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
   import org.bigbluebutton.modules.whiteboard.business.shapes.PencilDrawAnnotation;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;

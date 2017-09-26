@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<recording>
+    <id>b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984</id>
+    <state>published</state>
+    <published>true</published>
+    <start_time>1504122319984</start_time>
+    <end_time>1504122655395</end_time>
+    <participants>4</participants>
+    <meeting id="b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984" externalId="5bd0e35013bc9761d06f01d4bfd9b4ae1c8df289" name="Prueba 2" breakout="false"/>
+    <meta>
+        <isBreakout>false</isBreakout>
+        <meeting-name>Prueba 2</meeting-name>
+        <gl-webhooks-callback-url>https://demo.bigbluebutton.org/b/rooms/vi-249c619c/Prueba%202/callback</gl-webhooks-callback-url>
+        <room-id>vi-249c619c</room-id>
+        <meetingName>Prueba 2</meetingName>
+        <gl-token>vi-249c619c-Prueba 2</gl-token>
+        <meetingId>5bd0e35013bc9761d06f01d4bfd9b4ae1c8df289</meetingId>
+        <gl-listed>false</gl-listed>
+    </meta>
+    <breakout parentMeetingId="f3ffe06acedf425565cc024c8ebe89a6552e8782-1489172964374" sequence="2" meetingId="f2041d123b6a4b994e7ad87ee9d348496a73472c-1489173065780"/>
+    <breakoutRooms>
+        <breakoutRoom>32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780</breakoutRoom>
+        <breakoutRoom>721d83a3907548734d4a505992ebb94ec1454a91-1489173065780</breakoutRoom>
+    </breakoutRooms>
+    <playback>
+        <format>presentation</format>
+        <link>https://demo.bigbluebutton.org/playback/presentation/2.0/playback.html?meetingId=b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984</link>
+        <processing_time>10915</processing_time>
+        <duration>105862</duration>
+        <extensions>
+            <preview>
+                <images>
+                    <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-1.png</image>
+                    <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-2.png</image>
+                    <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-3.png</image>
+                </images>
+            </preview>
+            <preview2>
+                <images>
+                    <image width="176" height="136" alt="Welcome to">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-1.png</image>
+                    <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-2.png</image>
+                    <image width="176" height="136" alt="(this slide left blank for use as a whiteboard)">https://demo.bigbluebutton.org/presentation/b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984/presentation/d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1504122320002/thumbnails/thumb-3.png</image>
+                </images>
+            </preview2>
+            <breakoutRooms>
+                <breakoutRoom>32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780</breakoutRoom>
+                <breakoutRoom>721d83a3907548734d4a505992ebb94ec1454a91-1489173065780</breakoutRoom>
+            </breakoutRooms>
+        </extensions>
+        <size>531235</size>
+    </playback>
+    <raw_size>493084</raw_size>
+</recording>

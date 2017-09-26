@@ -18,13 +18,12 @@
  */
 package org.bigbluebutton.modules.screenshare.services
 {
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-
-    import org.bigbluebutton.core.BBB;
-    import org.bigbluebutton.core.UsersUtil;
-    import org.bigbluebutton.core.managers.ConnectionManager;
-    import org.as3commons.logging.api.ILogger;
-    import org.as3commons.logging.api.getClassLogger;
 
     public class MessageSender
     {	

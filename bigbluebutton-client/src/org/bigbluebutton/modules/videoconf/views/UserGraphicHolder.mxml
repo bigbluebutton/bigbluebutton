@@ -257,7 +257,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function updateButtons():void {
                 if (user != null) {
                   var voiceUser: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(user.intId);
-                  if (voiceUser != null) {
+                  if (voiceUser != null && !voiceUser.listenOnly) {
                     if (_rolledOverMuteBtn == voiceUser.muted) {
                       muteBtn.styleName = "muteOverlayBtn";
                     } else {

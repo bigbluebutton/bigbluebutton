@@ -19,8 +19,8 @@
 */
 package org.bigbluebutton.main.model
 {
-
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.RefreshGuestEvent;
 	import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;

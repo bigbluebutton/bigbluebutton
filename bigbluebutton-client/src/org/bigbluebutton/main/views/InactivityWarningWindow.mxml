@@ -39,14 +39,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 	<![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
-
+		
 		import mx.managers.PopUpManager;
-
+		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
-
-		import org.bigbluebutton.util.i18n.ResourceUtil;
 		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
 
 		private static const LOGGER:ILogger = getClassLogger(InactivityWarningWindow);
 

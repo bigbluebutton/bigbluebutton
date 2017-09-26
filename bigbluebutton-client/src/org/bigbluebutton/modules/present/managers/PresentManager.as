@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.present.managers
 	import mx.core.FlexGlobals;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
@@ -57,7 +58,9 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		public function handleStopModuleEvent():void{
-			presentWindow.close();
+			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+			event.window = presentWindow;
+			globalDispatcher.dispatchEvent(event);
 		}
 		
 		private function openWindow(window:IBbbModuleWindow):void{
