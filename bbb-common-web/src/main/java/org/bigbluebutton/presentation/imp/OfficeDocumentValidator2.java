@@ -22,7 +22,7 @@ public class OfficeDocumentValidator2 {
     boolean valid = true;
 
     if (FilenameUtils.isExtension(pres.getUploadedFile().getName(), FileTypeConstants.PPTX)) {
-      String COMMAND = presCheckExec + " " + pres.getUploadedFile().getAbsolutePath();
+      String COMMAND = "timeout 20 " + presCheckExec + " " + pres.getUploadedFile().getAbsolutePath();
 
       log.info("Running pres check " + COMMAND);
 
