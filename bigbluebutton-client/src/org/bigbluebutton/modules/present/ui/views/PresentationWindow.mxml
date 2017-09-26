@@ -444,6 +444,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					styleNameExt = "RTL";
 				}
 
+				// Base case when there is no presentation file in the presentation window
+				if (backButton == null || forwardButton == null) {
+					return;
+				}
+
 				// We use mouseEnabled here instead of enabled because the tab position gets lost when going through 
 				//the pages. Please don't change this if you don't know why this is.
 				if (pageNumber != 1) {
