@@ -236,6 +236,10 @@ package org.bigbluebutton.main.model.users
 		public function responseToGuest(e:ResponseModeratorEvent):void {
 			sender.responseToGuest(e.userid, e.resp);
 		}
+    
+    public function responseToAllGuest(e: ResponseModeratorEvent):void {
+      sender.responseToGuest(e.userid, e.resp);
+    }
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
 			sender.requestBreakoutJoinUrl(LiveMeeting.inst().meeting.internalId, e.breakoutMeetingId, e.userId);

@@ -61,7 +61,10 @@
 
     <mx:Label text="{username}" maxWidth="150" />
     <mx:Spacer width="100%" />
-    <mx:Button styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" click="onRejectUserBtnClick()" />
-    <mx:Button styleName="allowButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" click="onAllowUserBtnClick()" />
+    <mx:Button styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" 
+               click="onRejectUserBtnClick()" />
+    <mx:Button styleName="allowButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" 
+               click="onAllowUserBtnClick()" />
+  
 
 </mx:HBox>
