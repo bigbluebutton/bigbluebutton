@@ -30,7 +30,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
     </bean>
 
-    <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator"/>
+    <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
+        <property name="presCheckExec" value="${presCheckExec}"/>
+    </bean>
+
 
     <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"
           init-method="start" destroy-method="stop">

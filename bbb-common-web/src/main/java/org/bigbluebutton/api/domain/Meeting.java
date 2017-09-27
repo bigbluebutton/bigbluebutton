@@ -45,6 +45,7 @@ public class Meeting {
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
 	private String logoutUrl;
+	private int logoutTimer = 0;
 	private int maxUsers;
 	private boolean record;
 	private boolean autoStartRecording = false;
@@ -76,6 +77,7 @@ public class Meeting {
         moderatorPass = builder.moderatorPass;
         maxUsers = builder.maxUsers;
         logoutUrl = builder.logoutUrl;
+        logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
@@ -298,6 +300,10 @@ public class Meeting {
 	public int getMaxUsers() {
 		return maxUsers;
 	}
+	
+	public int getLogoutTimer() {
+		return logoutTimer;
+	}
 
 	public boolean isRecord() {
 		return record;
@@ -442,6 +448,7 @@ public class Meeting {
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
     	private String logoutUrl;
+    	private int logoutTimer;
     	private Map<String, String> metadata;
     	private String dialNumber;
     	private String defaultAvatarURL;
@@ -539,6 +546,12 @@ public class Meeting {
     		logoutUrl = l;
     		return this;
     	}
+    	
+    	public Builder withLogoutTimer(int l) {
+    		logoutTimer = l;
+    		return this;
+    	}
+    	
     	
     	public Builder withMetadata(Map<String, String> m) {
     		metadata = m;

@@ -90,7 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function testRTMP(e:PortTestEvent):void {
 				//- Cannot get locale string this early in loading process
-				portUpdateStr += "."
 				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
 			}
 

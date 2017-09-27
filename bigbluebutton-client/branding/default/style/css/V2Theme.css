@@ -1316,6 +1316,22 @@ views|QuotesView {
 	horizontalAlign : center;
 }
 
+.quoteSentenceStyle {
+	fontSize  : 32;
+	textAlign : center;
+}
+
+.quoteAttributionStyle {
+	fontSize  : 16;
+	textAlign : center;
+	color     : #4E5A66;
+}
+
+.quoteRule {
+	strokeWidth : 1;
+	color       : #BBBDBF;
+}
+
 /*
 //------------------------------
 //  RadioButton

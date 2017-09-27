@@ -43,8 +43,13 @@ public class ExternalProcessExecutor {
             InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
             timer.schedule(interrupter, timeoutMillis);
             p = Runtime.getRuntime().exec(COMMAND);
-            p.waitFor();
-            return true;
+            int result = p.waitFor();
+            if (result == 0) {
+                return true;
+            } else {
+                return false;
+            }
+
         } catch(Exception e) {
         	log.info("TIMEDOUT excuting : " + COMMAND);
             p.destroy();

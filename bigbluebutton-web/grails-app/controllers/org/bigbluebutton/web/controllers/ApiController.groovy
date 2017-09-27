@@ -1533,6 +1533,7 @@ class ApiController {
               mode = us.mode
               record = us.record
               isBreakout = meeting.isBreakout()
+              logoutTimer = meeting.getLogoutTimer()
               allowStartStopRecording = meeting.getAllowStartStopRecording()
               webcamsOnlyForModerator = meeting.getWebcamsOnlyForModerator()
               welcome = us.welcome

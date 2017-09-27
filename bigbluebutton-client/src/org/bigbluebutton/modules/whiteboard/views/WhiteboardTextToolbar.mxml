@@ -102,7 +102,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
 				closeMenus();
-				parent.removeChild(this);
+				if (parent) {
+					parent.removeChild(this);
+				}
 			}
 			
 			private function closeMenus() : void {

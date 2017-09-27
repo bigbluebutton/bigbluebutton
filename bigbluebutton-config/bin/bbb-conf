@@ -1857,7 +1857,7 @@ if [ $CLEAN ]; then
 	need_root
 	check_configuration
 	
-	echo "Restaring BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
+	echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
 	stop_bigbluebutton
 
