@@ -30,7 +30,14 @@ export function joinRouteHandler(nextState, replace, callback) {
 export function logoutRouteHandler(nextState, replace, callback) {
   Auth.logout()
     .then((logoutURL) => {
-      window.location = logoutURL || window.location.origin;
+      let formattedURL;
+      const protocolPattern = /^((http|https):\/\/)/;
+
+      if (!protocolPattern.test(logoutURL)) {
+        formattedURL = `http://${logoutURL}`;
+      }
+
+      window.location.href = formattedURL || window.location.origin;
       callback();
     })
     .catch(() => {
