@@ -1,9 +1,9 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.{ GuestApprovedVO, GuestsWaitingApprovedMsg }
-import org.bigbluebutton.core.models.{ GuestsWaiting, RegisteredUsers, Roles, Users2x }
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>
@@ -26,7 +26,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
       u <- RegisteredUsers.findWithUserId(g.intId, liveMeeting.registeredUsers)
     } yield {
       if (guest.approved) {
-        RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, false)
+        RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, GuestStatus.ALLOW)
         // send message to user that he has been approved
       }
       val event = MsgBuilder.buildGuestApprovedEvtMsg(

@@ -19,7 +19,6 @@ import scala.concurrent.{ ExecutionContextExecutor, Future }
 import scala.math._
 import spray.json.DefaultJsonProtocol
 
-
 trait ApiService extends SystemConfiguration {
   implicit val system: ActorSystem
   implicit def executor: ExecutionContextExecutor
