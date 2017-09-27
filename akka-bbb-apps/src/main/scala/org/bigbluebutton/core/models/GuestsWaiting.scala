@@ -69,7 +69,7 @@ object GuestStatus {
   val WAIT = "WAIT"
 
   def determineGuestStatus(guest: Boolean, guestPolicy: String, authenticated: Boolean): String = {
-    var guestStatus = GuestStatus.DENY
+    var guestStatus = GuestStatus.WAIT
     if (guest) {
       guestPolicy match {
         case GuestPolicyType.ASK_MODERATOR =>

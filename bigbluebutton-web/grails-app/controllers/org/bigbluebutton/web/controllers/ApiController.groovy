@@ -445,7 +445,7 @@ class ApiController {
 
     String guestStatus = GuestPolicy.ALLOW
 
-    if (guest){
+    if (guest) {
       String policy = meeting.getGuestPolicy();
       switch (policy){
         case GuestPolicy.ASK_MODERATOR:

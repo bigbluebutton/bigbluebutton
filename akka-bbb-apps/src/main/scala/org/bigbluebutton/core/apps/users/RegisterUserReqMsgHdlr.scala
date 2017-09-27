@@ -57,6 +57,8 @@ trait RegisterUserReqMsgHdlr {
         val guest = GuestWaiting(regUser.id, regUser.name, regUser.role)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
         notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
+      case GuestStatus.DENY =>
+        log.info("**** TODO: Handle DENY Guest Status")
     }
 
   }
