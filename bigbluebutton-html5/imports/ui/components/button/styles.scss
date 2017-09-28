@@ -54,9 +54,6 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   &,
   &:active {
     &:focus {
-      outline: thin dotted;
-      outline: 5px auto -webkit-focus-ring-color;
-      outline-offset: -2px;
     }
   }
 
@@ -91,9 +88,6 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 
   &:active {
     &:focus {
-      outline: thin dotted;
-      outline: 5px auto -webkit-focus-ring-color;
-      outline-offset: -2px;
     }
   }
 }
@@ -103,7 +97,6 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     opacity: .85;
     display: block;
     margin-top: $btn-spacing;
-    font-size: 90%;
     color: #fff;
     font-weight: normal;
     line-height: 1.5;
