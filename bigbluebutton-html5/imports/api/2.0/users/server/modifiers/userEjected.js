@@ -25,11 +25,11 @@ export default function userEjected(meetingId, userId) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Kicking user from collection: ${err}`);
+      return Logger.error(`Ejecting user from collection: ${err}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Kicked user id=${userId} meeting=${meetingId}`);
+      return Logger.info(`Ejected user id=${userId} meeting=${meetingId}`);
     }
 
     return null;
