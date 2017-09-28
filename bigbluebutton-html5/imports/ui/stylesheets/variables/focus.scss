@@ -38,18 +38,15 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
 .customListItemFocus {
   position: relative;
   display: inline-block;
-  border-left: $focus-border-size solid $color-white;
   border-right: $focus-border-size solid $color-white;
+  border-bottom: 1px solid $color-white; 
 
   &,
   &:active {
     &:focus {
       outline: none !important;
-      border-left: $focus-border-size solid $color-primary;
-      border-right: $focus-border-size solid $color-white;   
-      > i, span {
-        left: $focus-border-size;  
-      }  
+      border-right: $focus-border-size solid $color-primary;
+      border-bottom: 1px solid $color-primary;     
     }
   }
 }
@@ -69,7 +66,8 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   }
 }
 
-.customBtnFocus {
+
+.rectangleBtnFocus {
   border: none;
   position: relative;
   overflow: visible;
@@ -91,5 +89,30 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
     bottom: calc(.1em - .25em - .25em);
     border-radius: $focus-border-size;
     border: $focus-border-size solid $color-primary;
+  }
+}
+
+.circleBtnFocus {
+  border: none;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+
+      span:first-of-type::before {
+        position: absolute;
+        content: '';
+        top: calc(2px - 3px - 3px);
+        left: calc(2px - 3px - 3px);
+        right: calc(2px - 3px - 3px);
+        bottom: calc(2px - 3px - 3px);
+        border-radius: 50%;
+        border: $focus-border-size solid $color-primary;
+      }
+    }
   }
 }
