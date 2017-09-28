@@ -20,7 +20,9 @@ const propTypes = {
   }).isRequired,
 
   compact: PropTypes.bool.isRequired,
-  intl: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   userActions: PropTypes.shape({}).isRequired,
   router: PropTypes.shape({}).isRequired,
   isBreakoutRoom: PropTypes.bool.isRequired,

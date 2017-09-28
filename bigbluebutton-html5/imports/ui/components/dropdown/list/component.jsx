@@ -1,7 +1,6 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import UserAction from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-item/user-action/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 import styles from './styles';
 import ListItem from './item/component';
@@ -9,11 +8,12 @@ import ListSeparator from './separator/component';
 import ListTitle from './title/component';
 
 const propTypes = {
+  // We should recheck this proptype, sometimes we need to create an container and send to dropdown, but with this
+  // proptype, is not possible.
   children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
     if (propValue[key].type !== ListItem &&
       propValue[key].type !== ListSeparator &&
-      propValue[key].type !== ListTitle &&
-      propValue[key].type !== UserAction) {
+      propValue[key].type !== ListTitle) {
       return new Error(
         `Invalid prop \`${propFullName}\` supplied to` +
         ` \`${componentName}\`. Validation failed.`,

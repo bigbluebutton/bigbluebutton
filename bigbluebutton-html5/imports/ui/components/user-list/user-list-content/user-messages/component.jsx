@@ -10,7 +10,9 @@ const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
   openChat: PropTypes.string,
   compact: PropTypes.bool,
-  intl: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   rovingIndex: PropTypes.func.isRequired,
   isPublicChat: PropTypes.func.isRequired,
 };

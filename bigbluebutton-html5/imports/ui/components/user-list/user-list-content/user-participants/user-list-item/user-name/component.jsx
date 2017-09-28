@@ -40,7 +40,9 @@ const propTypes = {
     image: PropTypes.string,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
-  intl: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
 };
@@ -64,9 +66,7 @@ const UserName = (props) => {
     return null;
   }
 
-  const isViewer = !(user.isPresenter || user.isModerator);
-
-  if (isMeetingLocked(meeting.meetingId) && isViewer && user.isLocked) {
+  if (isMeetingLocked(meeting.meetingId) && user.isLocked) {
     userNameSub.push(<span>
       <Icon iconName="lock" />
       {intl.formatMessage(messages.locked)}

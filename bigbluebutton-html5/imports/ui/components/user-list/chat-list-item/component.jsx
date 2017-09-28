@@ -6,7 +6,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
-import ChatUnreadMessages from './chat-unread-messages/component';
+import ChatUnreadCounter from './chat-unread-messages/component';
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -34,7 +34,9 @@ const propTypes = {
   }).isRequired,
   openChat: PropTypes.string,
   compact: PropTypes.bool.isRequired,
-  intl: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   tabIndex: PropTypes.number.isRequired,
   isPublicChat: PropTypes.func.isRequired,
 };
@@ -55,7 +57,6 @@ const ChatListItem = (props) => {
 
   const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
   const isCurrentChat = chat.id === openChat;
-  const isSingleMessage = chat.unreadCounter === 1;
 
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
@@ -86,9 +87,8 @@ const ChatListItem = (props) => {
             </span> : null}
         </div>
         {(chat.unreadCounter > 0) ?
-          <ChatUnreadMessages
-            isSingleMessage={isSingleMessage}
-            unreadCounter={chat.unreadCounter}
+          <ChatUnreadCounter
+            counter={chat.unreadCounter}
           />
           : null}
       </div>

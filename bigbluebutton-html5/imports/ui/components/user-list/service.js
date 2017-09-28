@@ -6,6 +6,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import mapUser from '/imports/ui/services/user/mapUser';
 import { EMOJI_STATUSES, EMOJI_NORMALIZE } from '/imports/utils/statuses';
+import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -263,7 +264,22 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
+const setEmojiStatus = (user) => { makeCall('setEmojiStatus', user.id, 'none'); };
+
+const assignPresenter = (user) => { makeCall('assignPresenter', user.id); };
+
+const kickUser = (user) => { makeCall('kickUser', user.id); };
+
+const toggleVoice = (user) => { makeCall('toggleVoice', user.id); };
+
+const changeRole = (user, role) => { makeCall('changeRole', user.id, role); };
+
 export default {
+  setEmojiStatus,
+  assignPresenter,
+  kickUser,
+  toggleVoice,
+  changeRole,
   getUsers,
   getOpenChats,
   getCurrentUser,

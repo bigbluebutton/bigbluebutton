@@ -81,8 +81,8 @@ const getPublicMessages = () => {
   const publicMessages = Chats.find({
     type: { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
   }, {
-    sort: ['fromTime'],
-  }).fetch();
+      sort: ['fromTime'],
+    }).fetch();
 
   return publicMessages;
 };
@@ -95,8 +95,8 @@ const getPrivateMessages = (userID) => {
       { fromUserId: userID },
     ],
   }, {
-    sort: ['fromTime'],
-  }).fetch();
+      sort: ['fromTime'],
+    }).fetch();
 
   return reduceAndMapMessages(messages);
 };

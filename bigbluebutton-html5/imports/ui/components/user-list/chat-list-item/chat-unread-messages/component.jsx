@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withRouter } from 'react-router';
 import styles from './styles';
 
 const intlMessages = defineMessages({
@@ -16,28 +15,27 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  isSingleMessage: PropTypes.bool.isRequired,
-  unreadCounter: PropTypes.number.isRequired,
+  counter: PropTypes.number.isRequired,
   intl: PropTypes.shape({ formatMessage: PropTypes.func.isRequired }).isRequired,
 };
 
 const defaultProps = {
 };
 
-const ChatUnreadMessages = props => (
+const ChatUnreadCounter = props => (
   <div
     className={styles.unreadMessages}
-    aria-label={props.isSingleMessage
-      ? props.intl.formatMessage(intlMessages.unreadSingular, { 0: props.unreadCounter })
-      : props.intl.formatMessage(intlMessages.unreadPlural, { 0: props.unreadCounter })}
+    aria-label={props.counter > 0
+      ? props.intl.formatMessage(intlMessages.unreadSingular, { 0: props.counter })
+      : props.intl.formatMessage(intlMessages.unreadPlural, { 0: props.counter })}
   >
     <div className={styles.unreadMessagesText} aria-hidden="true">
-      {props.unreadCounter}
+      {props.counter}
     </div>
   </div>
 );
 
-ChatUnreadMessages.propTypes = propTypes;
-ChatUnreadMessages.defaultProps = defaultProps;
+ChatUnreadCounter.propTypes = propTypes;
+ChatUnreadCounter.defaultProps = defaultProps;
 
-export default withRouter(injectIntl(ChatUnreadMessages));
+export default injectIntl(ChatUnreadCounter);

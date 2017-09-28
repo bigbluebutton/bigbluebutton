@@ -9,15 +9,21 @@ const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
   compact: PropTypes.bool,
-  intl: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
   meeting: PropTypes.shape({}),
   isBreakoutRoom: PropTypes.bool,
-  makeCall: PropTypes.func.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   isPublicChat: PropTypes.func.isRequired,
+  setEmojiStatus: PropTypes.func.isRequired,
+  assignPresenter: PropTypes.func.isRequired,
+  kickUser: PropTypes.func.isRequired,
+  toggleVoice: PropTypes.func.isRequired,
+  changeRole: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -122,7 +128,11 @@ class UserContent extends Component {
           currentUser={this.props.currentUser}
           meeting={this.props.meeting}
           isBreakoutRoom={this.props.isBreakoutRoom}
-          makeCall={this.props.makeCall}
+          setEmojiStatus={this.props.setEmojiStatus}
+          assignPresenter={this.props.assignPresenter}
+          kickUser={this.props.kickUser}
+          toggleVoice={this.props.toggleVoice}
+          changeRole={this.props.changeRole}
           getAvailableActions={this.props.getAvailableActions}
           normalizeEmojiName={this.props.normalizeEmojiName}
           rovingIndex={this.rovingIndex}

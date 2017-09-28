@@ -9,11 +9,17 @@ import UserListItem from './user-list-item/component';
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
   compact: PropTypes.bool,
-  intl: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
   meeting: PropTypes.shape({}),
   isBreakoutRoom: PropTypes.bool,
-  makeCall: PropTypes.func.isRequired,
+  setEmojiStatus: PropTypes.func.isRequired,
+  assignPresenter: PropTypes.func.isRequired,
+  kickUser: PropTypes.func.isRequired,
+  toggleVoice: PropTypes.func.isRequired,
+  changeRole: PropTypes.func.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
@@ -106,12 +112,16 @@ class UserParticipants extends Component {
       currentUser,
       isBreakoutRoom,
       intl,
-      makeCall,
       meeting,
       getAvailableActions,
       normalizeEmojiName,
       isMeetingLocked,
       compact,
+      setEmojiStatus,
+      assignPresenter,
+      kickUser,
+      toggleVoice,
+      changeRole,
     } = this.props;
 
     const userActions =
@@ -123,37 +133,37 @@ class UserParticipants extends Component {
         },
         clearStatus: {
           label: () => intl.formatMessage(intlMessages.ClearStatusLabel),
-          handler: user => makeCall('setEmojiStatus', user.id, 'none'),
+          handler: user => setEmojiStatus(user.id, 'none'),
           icon: 'clear_status',
         },
         setPresenter: {
           label: () => intl.formatMessage(intlMessages.MakePresenterLabel),
-          handler: user => makeCall('assignPresenter', user.id),
+          handler: user => assignPresenter(user.id),
           icon: 'presentation',
         },
         kick: {
           label: user => intl.formatMessage(intlMessages.KickUserLabel, { 0: user.name }),
-          handler: user => makeCall('kickUser', user.id),
+          handler: user => kickUser(user.id),
           icon: 'circle_close',
         },
         mute: {
           label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
-          handler: user => makeCall('toggleVoice', user.id),
+          handler: user => toggleVoice(user.id),
           icon: 'audio_off',
         },
         unmute: {
           label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-          handler: user => makeCall('toggleVoice', user.id),
+          handler: user => toggleVoice(user.id),
           icon: 'audio_on',
         },
         promote: {
           label: user => intl.formatMessage(intlMessages.PromoteUserLabel, { 0: user.name }),
-          handler: user => makeCall('changeRole', user.id, 'MODERATOR'),
+          handler: user => changeRole(user.id, 'MODERATOR'),
           icon: 'promote',
         },
         demote: {
           label: user => intl.formatMessage(intlMessages.DemoteUserLabel, { 0: user.name }),
-          handler: user => makeCall('changeRole', user.id, 'VIEWER'),
+          handler: user => changeRole(user.id, 'VIEWER'),
           icon: 'user',
         },
       };

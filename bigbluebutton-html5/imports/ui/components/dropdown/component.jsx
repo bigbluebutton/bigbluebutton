@@ -15,6 +15,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const noop = () => {};
+
 const propTypes = {
   /**
    * The dropdown needs a trigger and a content component as children
@@ -57,8 +59,8 @@ const propTypes = {
 const defaultProps = {
   children: null,
   isOpen: false,
-  onShow: () => { },
-  onHide: () => { },
+  onShow: noop,
+  onHide: noop,
   autoFocus: false,
 };
 

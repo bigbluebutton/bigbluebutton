@@ -45,7 +45,9 @@ const messages = defineMessages({
 const propTypes = {
   compact: PropTypes.bool.isRequired,
   user: PropTypes.shape({}).isRequired,
-  intl: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   meeting: PropTypes.shape({}).isRequired,
