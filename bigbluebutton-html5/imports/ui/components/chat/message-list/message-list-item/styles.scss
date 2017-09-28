@@ -16,13 +16,27 @@
 }
 
 .systemMessage {
-  .item + &,
-  & + .item {
-    margin-bottom: $line-height-computed * 1.5;
+  padding: $line-height-computed 0;
+  border-bottom: 1px solid $color-gray-lighter;
+
+  .item + & {
+    border-top: 1px solid $color-gray-lighter;
+  }
+
+  &:last-child {
+    border-bottom: none;
   }
 
   .message {
-    color: $color-heading;
+    color: $color-gray;
+
+
+    // hide the <br> we dont want from the default WelcomeMessage
+    br:first-child,
+    br:last-child,
+    br + br {
+      display: none;
+    }
   }
 }
 
