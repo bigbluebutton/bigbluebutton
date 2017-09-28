@@ -782,7 +782,11 @@ function setPresentationTextFromJSON(images, presentationText) {
       var imgTxt = images[m].getAttribute("text").split("/"); // Text format: presentation/PRESENTATION_ID/textfiles/SLIDE_ID.txt
       var presentationId = imgTxt[1];
       var slideId = imgTxt[3].split(".")[0];
-      slidePlainText[imgId] = $('<div/>').text(presentationText[presentationId][slideId]).html();
+      if (presentationText[presentationId] && presentationText[presentationId][slideId]) {
+        slidePlainText[imgId] = $('<div/>').text(presentationText[presentationId][slideId]).html();
+      } else {
+        slidePlainText[imgId] = $('<div/>')
+      }
     }
   }
 }
