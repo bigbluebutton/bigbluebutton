@@ -43,7 +43,7 @@ public class OfficeToPdfConversionService {
 
   public OfficeToPdfConversionService() {
     final DefaultOfficeManagerBuilder configuration = new DefaultOfficeManagerBuilder();
-    configuration.setPortNumber(8100);
+    configuration.setPortNumbers(8100, 8101, 8102, 8103, 8104);
     officeManager = configuration.build();
     documentConverter = new OfficeDocumentConverter(officeManager);
   }
