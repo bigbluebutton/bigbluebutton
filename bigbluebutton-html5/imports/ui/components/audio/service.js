@@ -26,7 +26,7 @@ const init = () => {
 const exitAudio = () => AudioManager.exitAudio();
 const joinListenOnly = () => AudioManager.joinAudio(true);
 const joinMicrophone = () => AudioManager.joinAudio(false);
-const sendCallParameters = () => AudioManager.sendCallParameters();
+const sendCallParameters = () => AudioManager.bridge.sendCallParameters();
 
 export default {
   init,
