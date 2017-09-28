@@ -25,13 +25,13 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
       g <- GuestsWaiting.remove(liveMeeting.guestsWaiting, guest.guest)
       u <- RegisteredUsers.findWithUserId(g.intId, liveMeeting.registeredUsers)
     } yield {
-      if (guest.approved) {
-        RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, GuestStatus.ALLOW)
-        // send message to user that he has been approved
-      }
+
+      RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, GuestStatus.ALLOW)
+      // send message to user that he has been approved
+
       val event = MsgBuilder.buildGuestApprovedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        g.intId, guest.approved, approvedBy
+        g.intId, guest.status, approvedBy
       )
 
       outGW.send(event)

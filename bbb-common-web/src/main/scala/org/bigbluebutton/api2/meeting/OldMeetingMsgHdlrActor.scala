@@ -1,9 +1,13 @@
 package org.bigbluebutton.api2.meeting
 
+import java.util
+
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
+
+import collection.JavaConverters._
 
 
 object OldMeetingMsgHdlrActor {
@@ -34,6 +38,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStoppedEvtMsg => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: PresentationUploadTokenSysPubMsg => handlePresentationUploadTokenSysPubMsg(m)
+      case m: GuestsWaitingApprovedEvtMsg => handleGuestsWaitingApprovedEvtMsg(m)
+
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -107,7 +113,13 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename))
+   // olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename))
   }
 
+  def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {
+    val u: util.ArrayList[GuestsStatus] = new util.ArrayList[GuestsStatus]()
+    msg.body.guests.foreach(g => u.add(new GuestsStatus(g.guest, g.status)))
+    val m = new GuestStatusChangedEventMsg(msg.header.meetingId, u)
+    olgMsgGW.handle(m)
+  }
 }

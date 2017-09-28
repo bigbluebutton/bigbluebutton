@@ -34,7 +34,7 @@ object GuestsWaitingApprovedMsg { val NAME = "GuestsWaitingApprovedMsg" }
 case class GuestsWaitingApprovedMsg(header: BbbClientMsgHeader,
                                     body: GuestsWaitingApprovedMsgBody) extends StandardMsg
 case class GuestsWaitingApprovedMsgBody(guests: Vector[GuestApprovedVO], approvedBy: String)
-case class GuestApprovedVO(guest: String, approved: Boolean)
+case class GuestApprovedVO(guest: String, status: String)
 
 /**
   * Message sent to all clients that a guest has been approved to get into the meeting.
@@ -50,7 +50,7 @@ case class GuestsWaitingApprovedEvtMsgBody(guests: Vector[GuestApprovedVO], appr
 object GuestApprovedEvtMsg { val NAME = "GuestApprovedEvtMsg" }
 case class GuestApprovedEvtMsg(header: BbbClientMsgHeader,
                                        body: GuestApprovedEvtMsgBody) extends BbbCoreMsg
-case class GuestApprovedEvtMsgBody(approved: Boolean, approvedBy: String)
+case class GuestApprovedEvtMsgBody(status: String, approvedBy: String)
 
 /**
   * Message from user to set the guest policy.
