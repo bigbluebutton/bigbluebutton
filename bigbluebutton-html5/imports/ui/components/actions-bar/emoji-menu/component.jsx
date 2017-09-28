@@ -16,11 +16,22 @@ const propTypes = {
   actions: PropTypes.object.isRequired,
 };
 
-class EmojiMenu extends Component {
-  constructor(props) {
-    super(props);
-  }
+const normalizeEmojiName = (emoji) => {
+  const emojisNormalized = {
+    agree: 'thumbs_up',
+    disagree: 'thumbs_down',
+    thumbsUp: 'thumbs_up',
+    thumbsDown: 'thumbs_down',
+    raiseHand: 'hand',
+    away: 'time',
+    neutral: 'undecided',
+    none: 'hand',
+  };
 
+  return emoji in emojisNormalized ? emojisNormalized[emoji] : emoji;
+};
+
+class EmojiMenu extends Component {
   render() {
     const {
      userEmojiStatus,
@@ -36,7 +47,7 @@ class EmojiMenu extends Component {
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
             aria-label={intl.formatMessage(intlMessages.changeStatusLabel)}
             aria-describedby="currentStatus"
-            icon="hand"
+            icon={normalizeEmojiName(userEmojiStatus)}
             ghost={false}
             circle
             hideLabel={false}
