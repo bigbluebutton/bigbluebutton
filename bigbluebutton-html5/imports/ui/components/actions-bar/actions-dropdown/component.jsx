@@ -18,9 +18,6 @@ const propTypes = {
   mountModal: PropTypes.func.isRequired,
 };
 
-const defaultProps = {
-};
-
 const intlMessages = defineMessages({
   actionsLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
@@ -110,6 +107,5 @@ class ActionsDropdown extends Component {
 }
 
 ActionsDropdown.propTypes = propTypes;
-ActionsDropdown.defaultProps = defaultProps;
 
 export default withModalMounter(injectIntl(ActionsDropdown));
