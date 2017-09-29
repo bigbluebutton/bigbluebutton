@@ -27,7 +27,7 @@ export function joinRouteHandler(nextState, replace, callback) {
     });
 }
 
-export function logoutRouteHandler(nextState, replace, callback) {
+export function logoutRouteHandler(nextState, replace) {
   Auth.logout()
     .then((logoutURL = window.location.origin) => {
       const protocolPattern = /^((http|https):\/\/)/;
@@ -36,12 +36,9 @@ export function logoutRouteHandler(nextState, replace, callback) {
         protocolPattern.test(logoutURL) ?
           logoutURL :
           `http://${logoutURL}`;
-
-      callback();
     })
     .catch(() => {
       replace({ pathname: '/error/500' });
-      callback();
     });
 }
 
