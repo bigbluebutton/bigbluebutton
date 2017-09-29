@@ -336,17 +336,17 @@ class PresentationUploader extends Component {
   renderPresentationItem(item) {
     const { disableActions } = this.state;
 
+    const isProcessing = (!item.conversion.done && item.upload.done)
+      || (!item.upload.done && item.upload.progress > 0);
     const itemClassName = {};
 
     itemClassName[styles.tableItemNew] = item.id === item.filename;
     itemClassName[styles.tableItemUploading] = !item.upload.done;
     itemClassName[styles.tableItemProcessing] = !item.conversion.done && item.upload.done;
     itemClassName[styles.tableItemError] = item.conversion.error || item.upload.error;
-    itemClassName[styles.tableItemAnimated] =
-      (!item.conversion.done && item.upload.done)
-      || (!item.upload.done && item.upload.progress > 0);
+    itemClassName[styles.tableItemAnimated] = isProcessing;
 
-    const hideRemove = (item.upload.done) || item.filename === this.props.defaultFileName;
+    const hideRemove = isProcessing || item.filename === this.props.defaultFileName;
 
     return (
       <tr
