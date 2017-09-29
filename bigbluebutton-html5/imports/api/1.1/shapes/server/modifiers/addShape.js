@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
-import Shapes from './../../';
 import Logger from '/imports/startup/server/logger';
+import Shapes from './../../';
+
 
 const SHAPE_TYPE_TEXT = 'text';
 const SHAPE_TYPE_POLL_RESULT = 'poll_result';
@@ -26,6 +27,7 @@ export default function addShape(meetingId, whiteboardId, shape) {
       'shape.shape.type': shape.shape.type,
       'shape.shape.status': shape.shape.status,
     },
+    $inc: { 'shape.shape.version': 1 },
   };
 
   const shapeType = shape.shape_type;
@@ -49,6 +51,7 @@ export default function addShape(meetingId, whiteboardId, shape) {
 
     case SHAPE_TYPE_POLL_RESULT:
       shape.shape.result = JSON.parse(shape.shape.result);
+      break;
 
     default:
       modifier.$set = Object.assign(modifier.$set, {

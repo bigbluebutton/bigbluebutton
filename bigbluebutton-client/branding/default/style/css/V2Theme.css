@@ -143,8 +143,8 @@ phonecomponents|MuteMeButton {
 
 .toolbarMainBox {
 	backgroundColor : #FFFFFF;
-	paddingTop      : 4;
-	paddingBottom   : 4;
+	paddingTop      : 6;
+	paddingBottom   : 6;
 }
 
 .breakoutRoomRibbon {
@@ -156,8 +156,10 @@ phonecomponents|MuteMeButton {
 }
 
 .topBoxStyle {
-	paddingLeft  : 8;
-	paddingRight : 8;
+	paddingTop    : 0;
+	paddingBottom : 0;
+	paddingLeft   : 8;
+	paddingRight  : 8;
 }
 
 .toolbarSeparator {
@@ -1300,6 +1302,34 @@ mx|ProgressBar {
 	borderColor : #CDD4DB;
 	barSkin     : ClassReference("org.bigbluebutton.skins.ProgressBarSkin");
 	trackSkin   : ClassReference("org.bigbluebutton.skins.ProgressTrackSkin");
+}
+
+/*
+//------------------------------
+//  QuoteView
+//------------------------------
+*/
+
+views|QuotesView {
+	iconQuote       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Quote");
+	verticalGap     : 20;
+	horizontalAlign : center;
+}
+
+.quoteSentenceStyle {
+	fontSize  : 32;
+	textAlign : center;
+}
+
+.quoteAttributionStyle {
+	fontSize  : 16;
+	textAlign : center;
+	color     : #4E5A66;
+}
+
+.quoteRule {
+	strokeWidth : 1;
+	color       : #BBBDBF;
 }
 
 /*

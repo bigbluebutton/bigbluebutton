@@ -126,7 +126,7 @@ class RedisPubSub2x {
   }
 
   handleMessage(pattern, channel, message) {
-    Logger.warn(`2.0 handleMessage: ${message}`);
+    Logger.info(`2.0 handleMessage: ${message}`);
     const REDIS_CONFIG = Meteor.settings.redis;
     const { fromAkkaApps, toHTML5 } = REDIS_CONFIG.channels;
 
@@ -139,7 +139,7 @@ class RedisPubSub2x {
     const regex = new RegExp(fromAkkaApps);
     // We should only handle messages from this two channels, else, we simple ignore them.
     if (!regex.test(channel) && channel !== toHTML5) {
-      Logger.warn(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
+      Logger.info(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
       return;
     }
     this.queue.add({

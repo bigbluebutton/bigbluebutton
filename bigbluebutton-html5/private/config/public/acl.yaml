@@ -13,6 +13,7 @@ acl:
       - 'captions'
       - 'breakouts'
       - 'voiceUsers'
+      - 'whiteboard-multi-user'
     methods:
       - 'listenOnlyToggle'
       - 'userLogout'
@@ -29,7 +30,13 @@ acl:
       - 'endMeeting'
       - 'toggleVoice'
       - 'clearPublicChatHistory'
+      - 'changeRole'
   presenter:
     methods:
       - 'assignPresenter'
       - 'switchSlide'
+      - 'modifyWhiteboardAccess'
+      - 'undoAnnotation'
+      - 'clearWhiteboard'
+      - 'moveCursor'
+      - 'sendAnnotation'

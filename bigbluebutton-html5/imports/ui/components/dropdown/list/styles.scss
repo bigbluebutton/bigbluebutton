@@ -75,8 +75,8 @@
 }
 
 .itemLabel {
+  @extend %text-elipsis;
   color: $color-gray-dark;
   font-size: 90%;
   flex: 1;
-  white-space: nowrap;
 }

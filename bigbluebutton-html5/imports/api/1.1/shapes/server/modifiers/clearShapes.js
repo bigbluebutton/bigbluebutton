@@ -1,5 +1,5 @@
-import Shapes from './../../';
 import Logger from '/imports/startup/server/logger';
+import Shapes from './../../';
 
 export default function clearShapes(meetingId) {
   if (meetingId) {
