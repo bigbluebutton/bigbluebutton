@@ -47,29 +47,31 @@ const observePresentationConversion = (meetingId, filename) => new Promise((reso
     });
   }, CONVERSION_TIMEOUT);
 
-  const didValidate = () => {
+  const didValidate = (doc) => {
     clearTimeout(conversionTimeout);
-    resolve(filename);
+    resolve(doc);
   };
 
   Tracker.autorun((c) => {
-    const query = Presentations.find({ meetingId, filename });
+    /* FIXME: With two presentations with the same name this will not work as expected */
+    const query = Presentations.find({ meetingId });
 
-    query.observeChanges({
-      changed: (id, fields) => {
-        if (fields.conversion.done) {
+    query.observe({
+      changed: (newDoc) => {
+        if (newDoc.name !== filename) return;
+        if (newDoc.conversion.done) {
           c.stop();
-          didValidate();
+          didValidate(newDoc);
         }
       },
     });
   });
 });
 
-const uploadPresentation = (file, meetingID, endpoint, onError, onProgress) => {
+const uploadAndConvertPresentation = (file, meetingID, endpoint, onError, onProgress) => {
   const data = new FormData();
-  data.append('presentation_name', file.filename);
-  data.append('Filename', file.filename);
+  data.append('presentation_name', file.name);
+  data.append('Filename', file.name);
   data.append('fileUpload', file);
   data.append('conference', meetingID);
   data.append('room', meetingID);
@@ -82,19 +84,21 @@ const uploadPresentation = (file, meetingID, endpoint, onError, onProgress) => {
   };
 
   return futch(endpoint, opts, onProgress)
-    .then(observePresentationConversion.bind(null, meetingID, file.filename))
+    .then(() => observePresentationConversion(meetingID, file.name))
     // Trap the error so we can have parallel upload
     .catch((error) => {
       onError(error);
-      return observePresentationConversion(meetingID, file.filename);
+      return observePresentationConversion(meetingID, file.name);
     });
 };
 
-const uploadPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
+const uploadAndConvertPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
   Promise.all(
-    presentationsToUpload
-      .map(p => uploadPresentation(p.file, meetingID, uploadEndpoint, p.onError, p.onProgress)),
+    presentationsToUpload.map(p =>
+      uploadAndConvertPresentation(p.file, meetingID, uploadEndpoint, p.onError, p.onProgress)),
   );
+
+const setPresentation = presentationID => makeCall('setPresentation', presentationID);
 
 const removePresentation = presentationID => makeCall('removePresentation', presentationID);
 
@@ -107,8 +111,18 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
   const currentPresentation = newState.find(_ => _.isCurrent);
 
   return new Promise((resolve, reject) =>
-    uploadPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
-      .then(makeCall.bind(null, 'setPresentation', currentPresentation.id))
+    uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
+      .then((presentations) => {
+        if (!presentations.length && !currentPresentation) return Promise.resolve();
+
+        // If its a newly uploaded presentation we need to get its id from promise result
+        const currentPresentationId =
+          currentPresentation.id !== currentPresentation.filename ?
+          currentPresentation.id :
+          presentations[presentationsToUpload.findIndex(_ => _ === currentPresentation)].id;
+
+        return setPresentation(currentPresentationId);
+      })
       .then(removePresentations.bind(null, presentationsToRemove))
       .then(resolve)
       .catch(reject),

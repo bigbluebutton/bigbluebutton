@@ -122,21 +122,11 @@ class PresentationUploader extends Component {
 
   componentWillReceiveProps(nextProps) {
     const nextPresentations = nextProps.presentations;
-    const statePresentations = this.state.presentations;
 
     // Update only the conversion state when receiving new props
     nextPresentations.forEach((file) => {
       this.updateFileKey(file.filename, 'id', file.id);
       this.deepMergeUpdateFileKey(file.id, 'conversion', file.conversion);
-    });
-
-    const isUploading = statePresentations.some(_ => !_.upload.done);
-    const isConverting = nextPresentations.some(_ => !_.conversion.done);
-
-    this.setState({
-      // Missing error checks will be done
-      preventClosing: isUploading || isConverting,
-      disableActions: isUploading || isConverting,
     });
   }
 
@@ -171,6 +161,13 @@ class PresentationUploader extends Component {
     });
 
     return this.props.handleSave(presentations)
+      .then(() => {
+        alert('corolo');
+        this.setState({
+          disableActions: false,
+          preventClosing: false,
+        });
+      })
       .catch((error) => {
         this.setState({
           disableActions: false,
