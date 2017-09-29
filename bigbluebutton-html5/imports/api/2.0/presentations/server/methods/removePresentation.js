@@ -22,10 +22,6 @@ export default function removePresentation(credentials, presentationId) {
     throw new Meteor.Error('not-allowed', 'You are not allowed to remove the default slide');
   }
 
-  if (presenationToDelete.current) {
-    throw new Meteor.Error('not-allowed', 'You are not allowed to remove the current presentation');
-  }
-
   const payload = {
     presentationId,
   };
