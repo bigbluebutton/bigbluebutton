@@ -66,33 +66,7 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   }
 }
 
-
-.rectangleBtnFocus {
-  border: none;
-  position: relative;
-  overflow: visible;
-  display: inline-block;
-  
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-    }
-  }
-
-  &:focus::before {
-    position: absolute;
-    content: '';
-    top: calc(.1em - .25em - .25em);
-    left: calc(.1em - .25em - .25em);
-    right: calc(.1em - .25em - .25em);
-    bottom: calc(.1em - .25em - .25em);
-    border-radius: $focus-border-size;
-    border: $focus-border-size solid $color-primary;
-  }
-}
-
-.circleBtnFocus {
+.btnFocus {
   border: none;
   position: relative;
   overflow: visible;
@@ -110,7 +84,6 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
         left: calc(2px - 3px - 3px);
         right: calc(2px - 3px - 3px);
         bottom: calc(2px - 3px - 3px);
-        border-radius: 50%;
         border: $focus-border-size solid $color-primary;
       }
     }

@@ -37,7 +37,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
  * ==========
  */
 .button {
-  @extend .rectangleBtnFocus;
+  @extend .btnFocus;
 
   font-weight: $btn-font-weight;
   line-height: 1.5;
@@ -63,10 +63,28 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     box-shadow: none;
     pointer-events: none;
   }
+
+  &,
+  &:active {
+    &:focus {
+      span:first-of-type::before {
+        border-radius: $focus-border-size;
+      }
+    }
+  }
 }
 
 .buttonWrapper {
-  @extend .circleBtnFocus;
+  @extend .btnFocus;
+
+  &,
+  &:active {
+    &:focus {
+      span:first-of-type::before {
+        border-radius: 50%;
+      }
+    }
+  }
 
   line-height: 1.5;
   text-align: center;
