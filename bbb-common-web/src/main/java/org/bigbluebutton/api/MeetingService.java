@@ -457,6 +457,22 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  private void processGuestStatusChangedEventMsg(GuestStatusChangedEventMsg message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      for (GuestsStatus guest : message.guests) {
+        User user = m.getUserById(guest.userId);
+        if (user != null) user.setGuestStatus(guest.status);
+      }
+    }
+
+    for (GuestsStatus guest : message.guests) {
+      UserSession userSession = getUserSessionWithUserId(guest.userId);
+      if (userSession != null) userSession.guestStatus = guest.status;
+    }
+
+  }
+
   private void processPresentationUploadToken(PresentationUploadToken message) {
     uploadAuthzTokens.put(message.authzToken, message);
   }
@@ -839,6 +855,8 @@ public class MeetingService implements MessageListener {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
         } else if (message instanceof PresentationUploadToken) {
           processPresentationUploadToken((PresentationUploadToken) message);
+        } else if (message instanceof GuestStatusChangedEventMsg) {
+          processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         }
       }
     };

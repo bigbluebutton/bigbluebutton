@@ -54,5 +54,5 @@ object Boot extends App with SystemConfiguration with ApiService {
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
 
-  Http().bindAndHandle(routes, httpInterface, httpPort)
+  //Http().bindAndHandle(routes, httpInterface, httpPort)
 }
