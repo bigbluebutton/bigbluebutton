@@ -21,7 +21,7 @@ export default class SIPBridge extends BaseAudioBridge {
         managerCallback(message).then(() => resolve());
       }
 
-      this.callIntoConference(extension, callback, isListenOnly, stunTurnServers);
+      callIntoConference(extension, callback, isListenOnly, stunTurnServers);
     })
   }
 
