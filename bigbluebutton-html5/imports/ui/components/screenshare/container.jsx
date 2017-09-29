@@ -6,7 +6,7 @@ import ScreenshareComponent from './component';
 
 class ScreenshareContainer extends React.Component {
   render() {
-    if (this.props.isVideoBroadcasting()) {
+    if (true) {
       return <ScreenshareComponent {...this.props} />;
     }
   }
@@ -22,4 +22,3 @@ export default createContainer(() => ({
   presenterScreenshareHasStarted,
   presenterScreenshareHasEnded,
 }), ScreenshareContainer);
-
