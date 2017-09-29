@@ -40,4 +40,4 @@ acl:
       - 'moveCursor'
       - 'sendAnnotation'
       - 'removePresentation'
-      - 'sharePresentation'
+      - 'setPresentation'

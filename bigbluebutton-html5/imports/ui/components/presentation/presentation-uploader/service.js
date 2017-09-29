@@ -108,7 +108,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
 
   return new Promise((resolve, reject) =>
     uploadPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
-      .then(makeCall.bind(null, 'sharePresentation', currentPresentation.id, true))
+      .then(makeCall.bind(null, 'setPresentation', currentPresentation.id))
       .then(removePresentations.bind(null, presentationsToRemove))
       .then(resolve)
       .catch(reject),
