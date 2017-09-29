@@ -346,8 +346,7 @@ class PresentationUploader extends Component {
       (!item.conversion.done && item.upload.done)
       || (!item.upload.done && item.upload.progress > 0);
 
-    const hideRemove =
-      (item.isCurrent && item.upload.done) || item.filename === this.props.defaultFileName;
+    const hideRemove = (item.upload.done) || item.filename === this.props.defaultFileName;
 
     return (
       <tr
