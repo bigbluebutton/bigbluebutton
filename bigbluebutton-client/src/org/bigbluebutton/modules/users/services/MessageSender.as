@@ -615,9 +615,15 @@ package org.bigbluebutton.modules.users.services
     }
 
 
+    private function removeGuestsWaiting(userIds: Array): void {
+      for (var i:int = 0; i < userIds.length; i++) {
+        LiveMeeting.inst().guestsWaiting.remove(userIds[i]);
+      }
+    }
+    
     public function approveGuestAccess(userIds: Array, approve:Boolean):void {
 		var _guests: Array = new Array();
-		var status: String =GuestWaiting.DENY;
+		var status: String = GuestWaiting.DENY;
     if (approve) status = GuestWaiting.ALLOW;
     
 		for (var i:int = 0; i < userIds.length; i++) {

@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
   import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
   import org.bigbluebutton.core.events.NewGuestWaitingEvent;
   import org.bigbluebutton.core.events.UserEmojiChangedEvent;
@@ -194,6 +195,10 @@ package org.bigbluebutton.modules.users.services
           break;
         case "UserRoleChangedEvtMsg":
           handleUserRoleChangedEvtMsg(message);
+          break;
+        case "GuestsWaitingApprovedEvtMsg":
+          handleGuestsWaitingApprovedEvtMsg(message);
+          break;
       }
     }
     
@@ -290,6 +295,24 @@ package org.bigbluebutton.modules.users.services
       var guestsWaitingEvent:NewGuestWaitingEvent = new NewGuestWaitingEvent();
       dispatcher.dispatchEvent(guestsWaitingEvent);	
       
+    }
+    
+    private function removeGuestWaiting(userId: String): void {
+      LiveMeeting.inst().guestsWaiting.remove(userId);
+    }
+    
+    private function handleGuestsWaitingApprovedEvtMsg(msg: Object): void {
+      var body: Object = msg.body as Object;
+      var guests: Array = body.guests as Array;
+      
+      for (var i: int = 0; i < guests.length; i++) {
+        var guest: Object = guests[i] as Object;
+        removeGuestWaiting(guest.guest as String);
+      }
+      
+      var guestsWaitingEvent:GuestWaitingApprovedEvent = 
+        new GuestWaitingApprovedEvent(body.approvedBy as String);
+      dispatcher.dispatchEvent(guestsWaitingEvent);	
     }
     
     private function handleGetUsersMeetingRespMsg(msg: Object):void {

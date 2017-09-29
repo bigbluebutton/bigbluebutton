@@ -71,7 +71,7 @@ $Id: $
             }
             
             public function sendResponseToAllGuests(approved:Boolean):void {
-                //removeAllGuests();
+              removeAllGuests();
               var _guests: Array = LiveMeeting.inst().guestsWaiting.getGuests();
               var approvedGuests: Array = new Array();
               for (var i:int = 0; i < _guests.length; i++) {
@@ -105,9 +105,6 @@ $Id: $
             }
             
             public function removeAllGuests():void {
-                var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent(RemoveGuestEvent.REMOVE_ALL);
-                dispatcher.dispatchEvent(removeGuestEvent);
-                
                 closeWindow();
             }
             
