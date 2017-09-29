@@ -162,7 +162,6 @@ class PresentationUploader extends Component {
 
     return this.props.handleSave(presentations)
       .then(() => {
-        alert('corolo');
         this.setState({
           disableActions: false,
           preventClosing: false,
