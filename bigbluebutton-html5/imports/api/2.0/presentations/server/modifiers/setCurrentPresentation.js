@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Presentations from '/imports/api/2.0/presentations';
 import Logger from '/imports/startup/server/logger';
 
-export default function changeCurrentPresentation(meetingId, presentationId) {
+export default function setCurrentPresentation(meetingId, presentationId) {
   check(meetingId, String);
   check(presentationId, String);
 
