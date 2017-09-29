@@ -14,12 +14,12 @@ export default function removePresentation(credentials, presentationId) {
   check(requesterUserId, String);
   check(presentationId, String);
 
-  const presenationToDelete = Presentations.findOne({
+  const presentationToDelete = Presentations.findOne({
     meetingId,
     id: presentationId,
   });
 
-  if (presenationToDelete.name === PRESENTATION_CONFIG.defaultPresentationFile) {
+  if (presentationToDelete.name === PRESENTATION_CONFIG.defaultPresentationFile) {
     throw new Meteor.Error('not-allowed', 'You are not allowed to remove the default slide');
   }
 
