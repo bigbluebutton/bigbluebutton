@@ -5,9 +5,7 @@ import Service from './service';
 import PresentationUploader from './component';
 
 const PresentationUploaderContainer = props => (
-  <PresentationUploader {...props}>
-    {props.children}
-  </PresentationUploader>
+  <PresentationUploader {...props} />
 );
 
 export default createContainer(() => {

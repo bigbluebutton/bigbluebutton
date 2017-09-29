@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
 import cx from 'classnames';
@@ -12,6 +12,7 @@ import Checkbox from '/imports/ui/components/checkbox/component';
 import styles from './styles.scss';
 
 const propTypes = {
+  intl: PropTypes.shape(intlShape).isRequired,
   defaultFileName: PropTypes.string.isRequired,
   fileSizeMin: PropTypes.number.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
@@ -55,7 +56,7 @@ const intlMessages = defineMessages({
   },
   dismissDesc: {
     id: 'app.presentationUploder.dismissDesc',
-    defaultMessage: 'Closes and discarts your changes',
+    defaultMessage: 'Close the modal window and discard your changes',
   },
   dropzoneLabel: {
     id: 'app.presentationUploder.dropzoneLabel',
