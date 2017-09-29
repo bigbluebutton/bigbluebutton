@@ -30,7 +30,7 @@ class AudioManager {
       const privateKey = `_${key}`;
       this[privateKey] = {
         value: obj[key],
-        tracker: new Tracker.Dependency(),
+        tracker: new Tracker.Dependency,
       };
 
       Object.defineProperty(this, key, {
@@ -67,20 +67,20 @@ class AudioManager {
     const callOptions = {
       isListenOnly,
       dialplan: isEchoTest ? '9196' : null,
-    };
+    }
 
-    return this.fetchStunTurn().then(stunTurnServers =>
+    return this.fetchStunTurn().then((stunTurnServers) =>
       this.bridge.joinAudio(callOptions,
                             stunTurnServers,
-                            this.callStateCallback.bind(this)),
+                            this.callStateCallback.bind(this))
     ).catch((error) => {
-      console.error('error', error);
-    });
+      console.error('error', error)
+    })
   }
 
   exitAudio() {
     console.log('exitAudio', this);
-    return this.bridge.exitAudio();
+    return this.bridge.exitAudio()
   }
 
   toggleMuteMicrophone() {
@@ -148,16 +148,16 @@ class AudioManager {
       } else if (status === callDisconnected) {
         this.onAudioExit();
       }
-    });
+    })
   }
 
   fetchStunTurn() {
     return new Promise(async (resolve, reject) => {
       const url = `/bigbluebutton/api/stuns?sessionToken=${this.userData.sessionToken}`;
 
-      const response = await fetch(url)
+      let response = await fetch(url)
         .then(response => response.json())
-        .then(({ response, stunServers, turnServers }) => {
+        .then(({ response, stunServers, turnServers}) => {
           console.log(response, stunServers, turnServers);
           return new Promise((resolve) => {
             if (response) {
@@ -171,10 +171,10 @@ class AudioManager {
           });
         });
 
-      console.log(response);
-      if (response.error) return reject('Could not fetch the stuns/turns servers!');
+        console.log(response);
+      if(response.error) return reject(`Could not fetch the stuns/turns servers!`);
       resolve(response);
-    });
+    })
   }
 
   set userData(value) {
