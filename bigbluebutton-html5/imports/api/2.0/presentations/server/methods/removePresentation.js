@@ -3,6 +3,7 @@ import { check } from 'meteor/check';
 import Presentations from '/imports/api/2.0/presentations';
 
 export default function removePresentation(credentials, presentationId) {
+  const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RemovePresentationPubMsg';
@@ -18,7 +19,7 @@ export default function removePresentation(credentials, presentationId) {
     id: presentationId,
   });
 
-  if (presenationToDelete.name === 'default.pdf') {
+  if (presenationToDelete.name === PRESENTATION_CONFIG.defaultPresentationFile) {
     throw new Meteor.Error('not-allowed', 'You are not allowed to remove the default slide');
   }
 
