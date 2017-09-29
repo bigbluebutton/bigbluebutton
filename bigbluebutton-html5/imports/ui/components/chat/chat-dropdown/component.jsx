@@ -124,7 +124,7 @@ class ChatDropdown extends Component {
             icon="more"
             circle
             hideLabel
-            className={cx(styles.btn, styles.btnSettings)}
+            className={styles.btn}
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}
