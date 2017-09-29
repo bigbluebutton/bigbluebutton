@@ -114,7 +114,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{ScreenshareManager}" method="handleScreenShareClientPingMessage" arguments="{event}"/>
 		</EventHandlers>
 
-
 		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
 			<MethodInvoker generator="{ScreenshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
 		</EventHandlers>

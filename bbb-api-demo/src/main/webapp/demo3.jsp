@@ -224,8 +224,8 @@ if (request.getParameterMap().isEmpty()) {
 
 Passwords:  
 <ul>
-   <li>prof123 - login as professor (moderator privlidges)</li>
-   <li>student123 - login as student (viewer privlidges)</li>
+   <li>prof123 - login as professor (moderator privileges)</li>
+   <li>student123 - login as student (viewer privileges)</li>
 </ul>
 
 

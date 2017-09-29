@@ -12,7 +12,7 @@ import Checkbox from '/imports/ui/components/checkbox/component';
 import styles from './styles.scss';
 
 const propTypes = {
-  intl: PropTypes.shape(intlShape).isRequired,
+  intl: intlShape.isRequired,
   defaultFileName: PropTypes.string.isRequired,
   fileSizeMin: PropTypes.number.isRequired,
   fileSizeMax: PropTypes.number.isRequired,

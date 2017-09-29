@@ -11,15 +11,12 @@ const propTypes = {
     callback: PropTypes.func.isRequired,
     label: PropTypes.string.isRequired,
     description: PropTypes.string,
-    disabled: PropTypes.bool,
   }),
   dismiss: PropTypes.shape({
     callback: PropTypes.func,
     label: PropTypes.string.isRequired,
     description: PropTypes.string,
-    disabled: PropTypes.bool,
   }),
-  preventClosing: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -27,20 +24,17 @@ const defaultProps = {
   confirm: {
     label: 'Done',
     description: 'Saves changes and closes the modal',
-    disabled: false,
   },
   dismiss: {
     label: 'Cancel',
     description: 'Disregards changes and closes the modal',
-    disabled: false,
   },
-  preventClosing: false,
 };
 
 class ModalFullscreen extends Component {
   handleAction(name) {
     const action = this.props[name];
-    return this.props.modalHide(action.callback);
+    this.props.modalHide(action.callback);
   }
 
   render() {
@@ -50,13 +44,12 @@ class ModalFullscreen extends Component {
       dismiss,
       className,
       modalisOpen,
-      preventClosing,
       ...otherProps,
     } = this.props;
 
     return (
       <ModalBase
-        isOpen={modalisOpen || preventClosing}
+        isOpen={modalisOpen}
         className={cx(className, styles.modal)}
         contentLabel={title}
         {...otherProps}
@@ -67,14 +60,12 @@ class ModalFullscreen extends Component {
             <Button
               className={styles.dismiss}
               label={dismiss.label}
-              disabled={dismiss.disabled}
               onClick={this.handleAction.bind(this, 'dismiss')}
               aria-describedby={'modalDismissDescription'} />
             <Button
               color={'primary'}
               className={styles.confirm}
               label={confirm.label}
-              disabled={confirm.disabled}
               onClick={this.handleAction.bind(this, 'confirm')}
               aria-describedby={'modalConfirmDescription'} />
           </div>
