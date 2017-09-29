@@ -43,6 +43,12 @@ export default function setCurrentPresentation(meetingId, presentationId) {
   const oldPresentation = Presentations.findOne(oldCurrent.selector);
   const newPresentation = Presentations.findOne(newCurrent.selector);
 
+  // Prevent bug with presentation being unset, same happens in the slide
+  // See: https://github.com/bigbluebutton/bigbluebutton/pull/4431
+  if (oldPresentation && newPresentation && (oldPresentation._id === newPresentation._id)) {
+    return;
+  }
+
   if (newPresentation) {
     Presentations.update(newPresentation._id, newCurrent.modifier, newCurrent.callback);
   }
