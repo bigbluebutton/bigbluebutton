@@ -33,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
     <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
     <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-    <mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleRecievedChatHistoryEvent" />
+    <!--mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleRecievedChatHistoryEvent" /-->
     <mate:Listener type="{ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT}" method="handleClearPublicChatBoxMessages"/>
     <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
@@ -49,9 +49,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
-      import flash.events.TextEvent;     
+      
+      import flash.events.TextEvent;
+      
       import mx.binding.utils.BindingUtils;
+      
       import flashx.textLayout.formats.Direction;
+      
       import org.as3commons.lang.StringUtils;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
@@ -69,11 +73,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
       import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+      import org.bigbluebutton.modules.chat.events.GetWelcomeMessageEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatConversation;
+      import org.bigbluebutton.modules.chat.model.ChatModel;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
       import org.bigbluebutton.modules.chat.model.GroupChat;
       import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -228,16 +234,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         historyTimer = new Timer(5000, 1);
         historyTimer.addEventListener(TimerEvent.TIMER, loadChatHistory);
         historyTimer.start();
+       
       }
       
       private var historyTimer:Timer;
       
       private function loadChatHistory(event:TimerEvent):void {
-        var disp:Dispatcher  = new Dispatcher();
-        var chatHistEvent: ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.REQUEST_HISTORY);
-        chatHistEvent.chatId = chatId;
-        trace("QUERY CHAT HISTORY FOR " + chatId);
-        disp.dispatchEvent(chatHistEvent);
+        var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (chat != null) {
+          chatMessages.processChatHistory(chat.messages.source);
+          scrollToEndOfMessage();
+        }
+        
+        getWelcomeMessage();
+   //     var disp:Dispatcher  = new Dispatcher();
+   //     var chatHistEvent: ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.REQUEST_HISTORY);
+   //     chatHistEvent.chatId = chatId;
+   //     trace("QUERY CHAT HISTORY FOR " + chatId);
+   //     disp.dispatchEvent(chatHistEvent);
       }
       
       private function handleUserLeftEvent(event:UserLeftEvent):void {
@@ -256,6 +270,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               chatMessages.processChatHistory(groupChat.messages.source);
             }
             
+        }
+      }
+      
+      private function getWelcomeMessage():void {
+        if (chatId == ChatModel.MAIN_PUBLIC_CHAT) {
+          globalDispatcher.dispatchEvent(new GetWelcomeMessageEvent(chatId));
         }
       }
       
@@ -305,13 +325,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-//        if (chatId == event.chatId) {
-//          var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-//          if (chat != null) {
-//            chatMessages.processChatHistory(chat.messages.source);
-//            scrollToEndOfMessage();
-//          }
-//        }
+        if (chatId == event.chatId) {
+          chatMessages.newChatMessage(event.msg);
+          scrollToEndOfMessage();
+        }
       }
       
       private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {

@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+      import org.bigbluebutton.modules.chat.events.GetWelcomeMessageEvent;
       import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
@@ -56,7 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  </EventHandlers>
 	    
     <EventHandlers type="{ReceivedGroupChatsEvent.RECEIVED_GROUPCHATS_EVENT}">
-      <MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow" />  
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleReceivedGroupChatsEvent" />  
+      <MethodInvoker generator="{ChatMessageService}" method="handleReceivedGroupChatsEvent" />  
     </EventHandlers>
     
 	  <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
@@ -84,8 +86,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                      arguments="{event.chatId}"/>
 		</EventHandlers>    
 	  
-	  <EventHandlers type="{ChatHistoryEvent.RECEIVED_HISTORY}" >
-	    <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage"/>
+	  <EventHandlers type="{GetWelcomeMessageEvent.GET_WELCOME_MESSAGE}" >
+	    <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage" arguments="{event.chatId}"/>
 	  </EventHandlers>      
 	
 	  <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >

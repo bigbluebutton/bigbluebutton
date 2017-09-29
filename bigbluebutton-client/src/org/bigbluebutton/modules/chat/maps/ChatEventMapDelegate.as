@@ -32,23 +32,44 @@ package org.bigbluebutton.modules.chat.maps {
 		
 		private var dispatcher:IEventDispatcher;
 
+    private var windows:Array = [];
 		private var _chatWindow:ChatWindow;
 		private var _chatWindowOpen:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 		
 		private var chatOptions:ChatOptions;
 				
+    private var _windowMapper:Array = [];
+    
 		public function ChatEventMapDelegate() {
 			this.dispatcher = dispatcher;
 			_chatWindow = new ChatWindow();
 			globalDispatcher = new Dispatcher();
 		}
 
+    private function genWindowMappers():void{
+      for (var i:int = 0; i < chatOptions.maxNumWindows; i++) {
+        var winId: String = "gcWin-" + i;
+        _windowMapper[winId] = new GroupChatWindowMapper(winId);
+      }
+    }
+    
+    private function findGroupChatWindowMapper(winId: String):GroupChatWindowMapper {
+      if (_windowMapper.hasOwnProperty(winId)) {
+        return _windowMapper[winId];
+      }
+      return null;
+    }
+    
+    public function createNewGroupChat(chatId: String):void {
+      
+    }
+    
 		private function getChatOptions():void {
 			chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 		}
 		
-		public function openChatWindow():void {	
+		public function handleReceivedGroupChatsEvent():void {	
 			getChatOptions();
 			_chatWindow.chatOptions = chatOptions;
 		   	_chatWindow.title = ResourceUtil.getInstance().getString("bbb.chat.title");

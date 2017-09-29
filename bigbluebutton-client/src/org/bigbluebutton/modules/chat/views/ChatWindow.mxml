@@ -41,6 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.KeyboardUtil;
@@ -55,6 +56,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var disp:Dispatcher = new Dispatcher();
 			[Bindable] public var chatOptions:ChatOptions;
 			
+      private var _windowId: String;
+      
+      public function setWindowId(winId: String):void {
+        _windowId = winId;
+      }
+      
+      public function getWindowId():String {
+        return _windowId;
+      }
+      
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_RIGHT;
 			} 

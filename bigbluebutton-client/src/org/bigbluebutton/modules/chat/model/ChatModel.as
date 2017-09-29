@@ -13,7 +13,7 @@ package org.bigbluebutton.modules.chat.model
     
     private var convs:Object = new Object();
     
-    private var groupChats:Object = new Object();
+    private var groupChats:Array = [];
     
     
     private var dispatcher:Dispatcher = new Dispatcher();
@@ -24,6 +24,14 @@ package org.bigbluebutton.modules.chat.model
       } 
       
       return null;
+    }
+    
+    public function getGroupChatIds():Array {
+      var gcIds: Array = new Array();
+      for (var id:String in groupChats) {
+        gcIds.push(id);
+      }
+      return gcIds;
     }
     
     public function addGroupChatsList(gcs: Array):void {

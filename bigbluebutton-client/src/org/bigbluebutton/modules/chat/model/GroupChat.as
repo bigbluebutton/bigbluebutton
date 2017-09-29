@@ -62,7 +62,7 @@ package org.bigbluebutton.modules.chat.model
     
     public function addMessage(msg:ChatMessageVO):void {
       _messages.addItem(msg);
-      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(id, msg.fromUserId);
+      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(_id, msg);
       _dispatcher.dispatchEvent(pcEvent);
     }
     

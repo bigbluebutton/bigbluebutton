@@ -19,9 +19,7 @@
 package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
-  
   import mx.collections.ArrayCollection;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;

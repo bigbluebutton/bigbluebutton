@@ -172,7 +172,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		  private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 			  notifyUserOfNewMessage(ChatModel.MAIN_PUBLIC_CHAT);
-			  if (!UsersUtil.isMe(event.senderId)) {
+			  if (!UsersUtil.isMe(event.msg.fromUserId)) {
           publicNotification();
         }			
       }
