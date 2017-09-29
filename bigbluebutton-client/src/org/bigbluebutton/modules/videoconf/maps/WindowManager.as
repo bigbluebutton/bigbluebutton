@@ -18,14 +18,10 @@
  */
 package org.bigbluebutton.modules.videoconf.maps
 {
-  import flash.media.Video;
-  
   import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
   
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
-  import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
-  import mx.collections.ArrayList;
     
   public class WindowManager
   {

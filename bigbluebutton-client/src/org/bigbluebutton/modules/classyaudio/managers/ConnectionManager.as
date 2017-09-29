@@ -29,7 +29,6 @@ package org.bigbluebutton.modules.classyaudio.managers {
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.CallDisconnectedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.ConnectionStatusEvent;

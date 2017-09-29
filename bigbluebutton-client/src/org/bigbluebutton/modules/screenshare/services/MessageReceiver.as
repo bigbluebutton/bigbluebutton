@@ -23,14 +23,14 @@ package org.bigbluebutton.modules.screenshare.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
+  import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
+  import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
   import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
   import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
   import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
-  import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
-  import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
+  import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
   import org.bigbluebutton.modules.screenshare.services.red5.Connection;
   import org.bigbluebutton.modules.screenshare.services.red5.IMessageListener;
-  import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
   
   public class MessageReceiver implements IMessageListener
   {

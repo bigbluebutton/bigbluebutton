@@ -16,19 +16,19 @@ import cx from 'classnames';
 
 const intlMessages = defineMessages({
   userListLabel: {
-    id: 'app.userlist.Label',
+    id: 'app.userList.label',
     description: 'Aria-label for Userlist Nav',
   },
   chatLabel: {
-    id: 'app.chat.Label',
+    id: 'app.chat.label',
     description: 'Aria-label for Chat Section',
   },
   mediaLabel: {
-    id: 'app.media.Label',
+    id: 'app.media.label',
     description: 'Aria-label for Media Section',
   },
-  actionsbarLabel: {
-    id: 'app.actionsBar.Label',
+  actionsBarLabel: {
+    id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
   },
 });
@@ -162,7 +162,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         role="region"
-        aria-label={intl.formatMessage(intlMessages.actionsbarLabel)}
+        aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
       >
         {actionsbar}
       </section>

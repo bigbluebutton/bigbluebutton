@@ -18,9 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.DisplayObject;
 	import flash.display.Shape;
-	import flash.display.Sprite;
 	
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 

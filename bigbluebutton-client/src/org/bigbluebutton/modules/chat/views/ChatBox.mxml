@@ -48,38 +48,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.TextEvent;
-      
-      import mx.binding.utils.BindingUtils;
-      
-      import org.as3commons.lang.StringUtils;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.modules.chat.ChatUtil;
-      import org.bigbluebutton.modules.chat.events.ChatEvent;
-      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-      import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.model.ChatConversation;
-      import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-      import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import flash.events.TextEvent;
+		
+		import mx.binding.utils.BindingUtils;
+		
+		import flashx.textLayout.formats.Direction;
+		
+		import org.as3commons.lang.StringUtils;
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.core.Options;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.events.LockControlEvent;
+		import org.bigbluebutton.core.model.LiveMeeting;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.events.UserJoinedEvent;
+		import org.bigbluebutton.main.events.UserLeftEvent;
+		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+		import org.bigbluebutton.modules.chat.ChatUtil;
+		import org.bigbluebutton.modules.chat.events.ChatEvent;
+		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+		import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+		import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+		import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+		import org.bigbluebutton.modules.chat.model.ChatConversation;
+		import org.bigbluebutton.modules.chat.model.ChatOptions;
+		import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+		import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ChatBox);      
       
@@ -428,7 +430,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var modifier:String = ExternalInterface.call("determineModifier");
         
         addContextMenuItems();
+		
+		updateStyles();
       }
+		
+	  private function updateStyles():void {
+		  var styleNameExt : String = "";
+		  if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+			  styleNameExt = "RTL";
+		  }
+		  
+		  sendBtn.styleName = "chatControlBarSendButtonStyle" + styleNameExt;
+	  }
       
       private function sendStartCustomPollEvent(answers:Array):void {
         var dispatcher:Dispatcher = new Dispatcher();

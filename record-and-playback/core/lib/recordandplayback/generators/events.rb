@@ -95,22 +95,6 @@ module BigBlueButton
       return nil
     end
     
-    # Match the start and stop events.
-    def self.match_start_and_stop_video_events(start_events, stop_events)
-      BigBlueButton.logger.info("Task: Matching the start and stop events")
-      matched_events = []
-      stop_events.each do |stop|
-        start_evt = find_video_event_matched(start_events, stop)
-        if start_evt
-          start_evt[:stop_timestamp] = stop[:stop_timestamp]
-          matched_events << start_evt
-        else
-          matched_events << stop
-        end
-      end      
-      matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
-    end
-      
     # Get start video events  
     def self.get_start_video_events(events_xml)
       BigBlueButton.logger.info("Task: Getting start video events")
@@ -205,37 +189,27 @@ module BigBlueButton
     end
 
     def self.get_matched_start_and_stop_deskshare_events(events_path)
+      last_timestamp = BigBlueButton::Events.last_event_timestamp(events_path)
       deskshare_start_events = BigBlueButton::Events.get_start_deskshare_events(events_path)
       deskshare_stop_events = BigBlueButton::Events.get_stop_deskshare_events(events_path)
-      return BigBlueButton::Events.match_start_and_stop_deskshare_events(deskshare_start_events, deskshare_stop_events)
+      return BigBlueButton::Events.match_start_and_stop_deskshare_events(
+        deskshare_start_events,
+        deskshare_stop_events,
+        last_timestamp)
     end
 
-    # Determine if the start and stop event matched.
-    def self.deskshare_event_matched?(stop_events, start)
-      BigBlueButton.logger.info("Task: Determining if the start and stop DESKSHARE events matched")      
-      stop_events.each do |stop|
-        if (start[:stream] == stop[:stream])
-          start[:matched] = true
-          start[:stop_timestamp] = stop[:stop_timestamp]
-          return true
-        end      
-      end
-      return false
-    end
-    
     # Match the start and stop events.
-    def self.match_start_and_stop_deskshare_events(start_events, stop_events)
+    def self.match_start_and_stop_deskshare_events(start_events, stop_events, last_timestamp)
       BigBlueButton.logger.info("Task: Matching the start and stop deskshare events")
       matched_events = []
-      stop_events.each do |stop|
-        start_evt = find_video_event_matched(start_events, stop)
-        if start_evt
-          start_evt[:stop_timestamp] = stop[:stop_timestamp]
-          start_evt[:stream] = stop[:stream]
-          matched_events << start_evt
+      start_events.each do |start|
+        stop = find_video_event_matched(stop_events, start)
+        if stop
+          start[:stop_timestamp] = stop[:stop_timestamp]
         else
-          matched_events << stop
+          start[:stop_timestamp] = last_timestamp
         end
+        matched_events << start
       end
       matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
     end

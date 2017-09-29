@@ -38,12 +38,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flexlib.controls.tabBarClasses.SuperTab;
-			
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
-			import mx.controls.Button;
+			
+			import flexlib.controls.tabBarClasses.SuperTab;
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.Options;
