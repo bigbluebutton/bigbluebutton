@@ -1,29 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import Icon from '../icon/component';
 import styles from './styles';
-
-const propTypes = {
-  disabled: PropTypes.bool,
-  checked: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
-  className: PropTypes.string,
-  ariaLabelledBy: PropTypes.string,
-  ariaLabel: PropTypes.string,
-  ariaDescribedBy: PropTypes.string,
-  ariaDesc: PropTypes.string,
-};
-
-const defaultProps = {
-  disabled: false,
-  checked: false,
-  className: null,
-  ariaLabelledBy: null,
-  ariaLabel: null,
-  ariaDescribedBy: null,
-  ariaDesc: null,
-};
+import cx from 'classnames';
 
 export default class Checkbox extends Component {
   constructor(props) {
@@ -34,32 +13,24 @@ export default class Checkbox extends Component {
   }
 
   handleChange() {
-    if (this.props.disabled) return;
     this.onChange();
   }
 
   render() {
-    const {
-      ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy,
-      className, checked, disabled,
-    } = this.props;
+    const { ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy } = this.props;
 
     return (
-      <div className={cx({
-        [styles.disabled]: !!disabled,
-      }, styles.container, className)}
-      >
+      <div className={styles.container}>
         <input
           type="checkbox"
           onChange={this.handleChange}
-          checked={checked}
+          checked={this.props.checked}
           className={styles.input}
           aria-labelledby={ariaLabelledBy}
           aria-describedby={ariaDescribedBy}
-          disabled={disabled}
         />
-        <div role="presentation" onClick={this.handleChange}>
-          { checked ?
+        <div onClick={this.handleChange}>
+          { this.props.checked ?
             <Icon iconName="check" className={cx(styles.icon, styles.checked)} /> :
             <Icon iconName="circle" className={styles.icon} />
           }
@@ -70,6 +41,3 @@ export default class Checkbox extends Component {
     );
   }
 }
-
-Checkbox.propTypes = propTypes;
-Checkbox.defaultProps = defaultProps;

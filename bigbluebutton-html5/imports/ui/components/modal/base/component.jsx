@@ -44,14 +44,12 @@ export const withModalState = ComponentToWrap =>
       this.show = this.show.bind(this);
     }
 
-    hide(cb = () => {}) {
-      Promise.resolve(cb())
-        .then(() => this.setState({ isOpen: false }));
+    hide(cb) {
+      this.setState({ isOpen: false }, cb);
     }
 
-    show(cb = () => {}) {
-      Promise.resolve(cb())
-        .then(() => this.setState({ isOpen: true }));
+    show(cb) {
+      this.setState({ isOpen: false }, cb);
     }
 
     render() {

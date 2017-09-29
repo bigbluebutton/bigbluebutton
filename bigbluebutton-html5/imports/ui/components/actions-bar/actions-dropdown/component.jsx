@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -9,17 +8,6 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-
-import PresentationUploderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
-
-const propTypes = {
-  intl: intlShape.isRequired,
-  isUserPresenter: PropTypes.bool.isRequired,
-  mountModal: PropTypes.func.isRequired,
-};
-
-const defaultProps = {
-};
 
 const intlMessages = defineMessages({
   actionsLabel: {
@@ -52,20 +40,22 @@ const intlMessages = defineMessages({
   },
 });
 
+const presentation = () => { console.log('Should show the uploader component'); };
+
+const polling = () => { console.log('Should initiate a polling'); };
+
+const shareScreen = () => { console.log('Should start screen sharing'); };
+
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
-  }
-
-  handlePresentationClick() {
-    this.props.mountModal(<PresentationUploderContainer />);
   }
 
   render() {
     const { intl, isUserPresenter } = this.props;
 
-    if (!isUserPresenter) return null;
+    // if (!isUserPresenter) return null;
+    return null; // temporarily disabling the functionality
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>
@@ -85,12 +75,12 @@ class ActionsDropdown extends Component {
               icon="presentation"
               label={intl.formatMessage(intlMessages.presentationLabel)}
               description={intl.formatMessage(intlMessages.presentationDesc)}
-              onClick={this.handlePresentationClick}
+              onClick={presentation.bind(this)}
             />
 
             {/* These icons are unaligned because of the font issue
                 Check it later */}
-            {/* <DropdownListItem
+            <DropdownListItem
               icon="polling"
               label={intl.formatMessage(intlMessages.initPollLabel)}
               description={intl.formatMessage(intlMessages.initPollDesc)}
@@ -101,7 +91,7 @@ class ActionsDropdown extends Component {
               label={intl.formatMessage(intlMessages.desktopShareLabel)}
               description={intl.formatMessage(intlMessages.desktopShareDesc)}
               onClick={shareScreen.bind(this)}
-            /> */}
+            />
           </DropdownList>
         </DropdownContent>
       </Dropdown>
@@ -109,7 +99,4 @@ class ActionsDropdown extends Component {
   }
 }
 
-ActionsDropdown.propTypes = propTypes;
-ActionsDropdown.defaultProps = defaultProps;
-
-export default withModalMounter(injectIntl(ActionsDropdown));
+export default injectIntl(ActionsDropdown);
