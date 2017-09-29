@@ -13,6 +13,10 @@ const toggleMuteMicrophone = (cb) => {
 
 class AudioManager {
   constructor() {
+    this._inputDevice = {
+      tracker: new Tracker.Dependency,
+    };
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -20,8 +24,6 @@ class AudioManager {
       isListenOnly: false,
       isEchoTest: false,
       error: null,
-      inputDeviceId: null,
-      outputDeviceId: null,
     });
   }
 
@@ -66,16 +68,14 @@ class AudioManager {
 
     const callOptions = {
       isListenOnly,
-      dialplan: isEchoTest ? '9196' : null,
+      extension: isEchoTest ? '9196' : null,
+      inputStream: this.inputStream,
     }
 
-    return this.fetchStunTurn().then((stunTurnServers) =>
-      this.bridge.joinAudio(callOptions,
-                            stunTurnServers,
-                            this.callStateCallback.bind(this))
-    ).catch((error) => {
-      console.error('error', error)
-    })
+    console.log(this.inputStream);
+    console.log(this.inputDeviceId);
+
+    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
   }
 
   exitAudio() {
@@ -151,32 +151,6 @@ class AudioManager {
     })
   }
 
-  fetchStunTurn() {
-    return new Promise(async (resolve, reject) => {
-      const url = `/bigbluebutton/api/stuns?sessionToken=${this.userData.sessionToken}`;
-
-      let response = await fetch(url)
-        .then(response => response.json())
-        .then(({ response, stunServers, turnServers}) => {
-          console.log(response, stunServers, turnServers);
-          return new Promise((resolve) => {
-            if (response) {
-              resolve({ error: 404, stun: [], turn: [] });
-            }
-            console.log('krappa');
-            resolve({
-              stun: stunServers.map(server => server.url),
-              turn: turnServers.map(server => server.url),
-            });
-          });
-        });
-
-        console.log(response);
-      if(response.error) return reject(`Could not fetch the stuns/turns servers!`);
-      resolve(response);
-    })
-  }
-
   set userData(value) {
     console.log('set user data');
     this._userData = value;
@@ -186,6 +160,50 @@ class AudioManager {
   get userData() {
     return this._userData;
   }
+
+  changeInputDevice(value) {
+    if(this._inputDevice.audioContext) {
+      this._inputDevice.audioContext.close().then(() => {
+        this._inputDevice.audioContext = null;
+        this._inputDevice.scriptProcessor = null;
+        this._inputDevice.source = null;
+
+        this.changeInputDevice(value);
+      });
+      return;
+    }
+
+    console.log(value);
+    this._inputDevice.id = value;
+    this._inputDevice.audioContext = new AudioContext();
+    this._inputDevice.scriptProcessor = this._inputDevice.audioContext.createScriptProcessor(2048, 1, 1);
+    this._inputDevice.source = null;
+
+    const constraints = {
+      audio: {
+        deviceId: value,
+      },
+    };
+
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then((stream) => {
+        console.log('KAPPA', stream);
+        this._inputDevice.stream = stream
+        this._inputDevice.source = this._inputDevice.audioContext.createMediaStreamSource(stream);
+        this._inputDevice.source.connect(this._inputDevice.scriptProcessor);
+        this._inputDevice.scriptProcessor.connect(this._inputDevice.audioContext.destination);;
+      });
+  }
+
+  get inputStream () {
+    return this._inputDevice.stream;
+  }
+
+  get inputDeviceId () {
+    return this._inputDevice.id;
+  }
+  // set outputDeviceId
 }
 
 const audioManager = new AudioManager();

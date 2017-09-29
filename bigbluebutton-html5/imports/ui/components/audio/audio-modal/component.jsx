@@ -64,6 +64,7 @@ class AudioModal extends Component {
     this.handleJoinListenOnly = props.joinListenOnly;
     this.joinEchoTest = props.joinEchoTest;
     this.exitAudio = props.exitAudio;
+    this.changeInputDevice = props.changeInputDevice;
   }
 
   handleBack() {
@@ -118,6 +119,7 @@ class AudioModal extends Component {
         handleJoin={this.handleJoinMicrophone}
         joinEchoTest={this.joinEchoTest}
         exitAudio={this.exitAudio}
+        changeInputDevice={this.changeInputDevice}
         isConnecting={isConnecting}
         isConnected={isConnected}
         isEchoTest={isEchoTest}

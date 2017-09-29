@@ -51,6 +51,7 @@ class AudioSettings extends React.Component {
     this.handleJoin = props.handleJoin;
     this.joinEchoTest = props.joinEchoTest;
     this.exitAudio = props.exitAudio;
+    this.changeInputDevice = props.changeInputDevice;
 
     this.state = {
       inputDeviceId: undefined,
@@ -59,7 +60,7 @@ class AudioSettings extends React.Component {
   }
 
   componentDidMount() {
-    this.joinEchoTest();
+    // this.joinEchoTest();
   }
 
   componentWillUnmount() {
@@ -76,16 +77,18 @@ class AudioSettings extends React.Component {
     this.props.changeMenu(this.props.JOIN_AUDIO);
   }
 
-  handleInputChange(deviceId) {
+  handleInputChange(deviceId, device) {
     console.log(`INPUT DEVICE CHANGED: ${deviceId}`);
+    console.log(device);
+    this.changeInputDevice(deviceId);
     this.setState({
       inputDeviceId: deviceId,
     });
   }
 
   handleOutputChange(deviceId, device) {
-    console.log(device);
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
+    console.log(device);
     this.setState({
       outputDeviceId: deviceId,
     });
