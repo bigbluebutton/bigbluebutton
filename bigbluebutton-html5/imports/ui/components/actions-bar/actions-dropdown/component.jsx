@@ -10,7 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
-import PresentationUploderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -59,7 +59,7 @@ class ActionsDropdown extends Component {
   }
 
   handlePresentationClick() {
-    this.props.mountModal(<PresentationUploderContainer />);
+    this.props.mountModal(<PresentationUploaderContainer />);
   }
 
   render() {
