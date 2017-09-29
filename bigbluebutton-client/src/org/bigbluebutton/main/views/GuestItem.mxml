@@ -50,9 +50,10 @@
             }
 
             private function sendResponseToServer(accept:Boolean):void {
-                var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE);
-                respCommand.userid = userid;
-                respCommand.resp = accept;
+              var approvedGuests: Array = new Array();
+              approvedGuests.push(userid);
+                var respCommand:ResponseModeratorEvent = 
+                  new ResponseModeratorEvent(approvedGuests, accept);
                 dispatcher.dispatchEvent(respCommand);
             }
 

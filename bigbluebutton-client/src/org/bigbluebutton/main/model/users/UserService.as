@@ -232,13 +232,9 @@ package org.bigbluebutton.main.model.users
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
 			sender.createBreakoutRooms(LiveMeeting.inst().meeting.internalId, e.rooms, e.durationInMinutes, e.record);
 		}
-
-		public function responseToGuest(e:ResponseModeratorEvent):void {
-			sender.responseToGuest(e.userid, e.resp);
-		}
     
-    public function responseToAllGuest(e: ResponseModeratorEvent):void {
-      sender.responseToGuest(e.userid, e.resp);
+    public function handleApproveGuestAccess(e: ResponseModeratorEvent):void {
+      sender.approveGuestAccess(e.userIds, e.allow);
     }
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
