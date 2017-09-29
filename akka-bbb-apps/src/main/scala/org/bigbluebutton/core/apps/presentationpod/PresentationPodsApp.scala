@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.apps.presentationpod
 
+import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingState2x }
+import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -31,7 +32,19 @@ object PresentationPodsApp {
     state.presentationPodManager.getPod(podId)
   }
 
+  def getAllPresentationPodsInMeeting(state: MeetingState2x): Vector[PresentationPod] = {
+    state.presentationPodManager.getAllPresentationPodsInMeeting()
+  }
+
   def getNumberOfPresentationPods(state: MeetingState2x): Int = state.presentationPodManager.getNumberOfPods()
 
+  def translatePresentationPodToVO(pod: PresentationPod): PresentationPodVO = {
+    val presentationObjects = pod.presentations
+    val presentationVOs = presentationObjects.values.map(p => PresentationVO(p.id, p.name, p.current,
+      p.pages.values.toVector, p.downloadable)).toVector
+
+    PresentationPodVO(pod.id, pod.ownerId, pod.currentPresenter,
+      pod.authorizedPresenters, presentationVOs)
+  }
 }
 

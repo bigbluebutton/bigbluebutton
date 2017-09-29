@@ -91,15 +91,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.model.PresentOptions;
 		import org.bigbluebutton.modules.present.model.Presentation;
 		import org.bigbluebutton.modules.present.model.PresentationModel;
+		import org.bigbluebutton.modules.present.model.PresentationPodManager;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
       
 		private static const LOGGER:ILogger = getClassLogger(FileUploadWindow);      
-        
-      [Bindable] private var presentationNamesAC:ArrayCollection;
-	    [BIndable] public var maxFileSize:Number;
-		
+
+		[Bindable] private var presentationNamesAC:ArrayCollection;
+		[Bindable] public var maxFileSize:Number;
+		[Bindable] public var podId:String;
+
 		private var dispatcher:Dispatcher;
 
       private var thumbnailTimer:Timer = new Timer(5000);
@@ -130,7 +132,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			private function initData():void {
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-				presentationNamesAC = PresentationModel.getInstance().getPresentations();
+
+				presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations(); // GOOD
 				if (presentationNamesAC.length <= 0) {
 					selectFile();
 				}
@@ -218,6 +221,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
           uploadCmd.isDownloadable = isDownloadable;
+          uploadCmd.podId = podId;
+
+			import org.bigbluebutton.main.api.JSLog;
+			JSLog.warn("+++ FileUploadWindow:: startUpload: " + podId, {});
+			
           globalDispatch.dispatchEvent(uploadCmd);
           letUserDownload.visible = false;
         }       		

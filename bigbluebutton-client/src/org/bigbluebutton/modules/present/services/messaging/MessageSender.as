@@ -75,10 +75,12 @@ package org.bigbluebutton.modules.present.services.messaging
       );
     }
     
-    public function getPresentationInfo():void {
+    public function getPresentationInfo(podId: String):void {
+      JSLog.warn("sender: getPresentationInfo " + podId, {});
+        
       var message:Object = {
         header: {name: "GetPresentationInfoReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID()}
+        body: {userId: UsersUtil.getMyUserID(), podId: podId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -88,7 +90,23 @@ package org.bigbluebutton.modules.present.services.messaging
         JSON.stringify(message)
       );
     }
-    
+
+    public function requestAllPodsEvent():void {
+      JSLog.warn("sender: requestAllPodsEvent ", {});
+        
+      var message:Object = {
+        header: {name: "GetAllPresentationPodsReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error(status); },
+        JSON.stringify(message)
+      );
+    }
+
     public function removePresentation(presentationId:String):void {
       var message:Object = {
         header: {name: "RemovePresentationPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},

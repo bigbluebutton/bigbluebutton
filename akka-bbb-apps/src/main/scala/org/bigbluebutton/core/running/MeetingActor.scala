@@ -150,7 +150,7 @@ class MeetingActor(
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 
   // Create a default Presentation Pod
-  state = PresentationPodsApp.createDefaultPresentationPod(state)
+  //  state = PresentationPodsApp.createDefaultPresentationPod(state)
   log.debug("\n\n____NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
 
   /*******************************************************************/
@@ -282,7 +282,7 @@ class MeetingActor(
       // Presentation
       //      case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus, state)
       case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: GetPresentationInfoReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      //      case m: GetPresentationInfoReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
@@ -297,6 +297,8 @@ class MeetingActor(
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetPresentationInfoReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetAllPresentationPodsReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)

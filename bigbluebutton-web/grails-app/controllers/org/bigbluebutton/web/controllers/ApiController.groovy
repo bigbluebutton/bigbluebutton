@@ -168,7 +168,7 @@ class ApiController {
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(newMeeting);
+      uploadDocuments(newMeeting);  //
       respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
@@ -1798,7 +1798,7 @@ class ApiController {
      }
    }
 
-  def uploadDocuments(conf) {
+  def uploadDocuments(conf) { //
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
     String requestBody = request.inputStream == null ? null : request.inputStream.text;
@@ -1846,7 +1846,7 @@ class ApiController {
       fos.flush()
       fos.close()
 
-      processUploadedFile(meetingId, presId, presFilename, pres, current);
+      processUploadedFile("TWO", meetingId, presId, presFilename, pres, current);
     }
 
   }
@@ -1865,7 +1865,7 @@ class ApiController {
 
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
         def pres = new File(newFilePath)
-        processUploadedFile(meetingId, presId, presFilename, pres, current);
+        processUploadedFile("ONE", meetingId, presId, presFilename, pres, current);
       } else {
         log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
       }
@@ -1873,9 +1873,10 @@ class ApiController {
   }
 
 
-  def processUploadedFile(meetingId, presId, filename, presFile, current) {
+  def processUploadedFile(podId, meetingId, presId, filename, presFile, current) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
-    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseUrl, current);
+    // TODO add podId
+    UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId, filename, presentationBaseUrl, current);
     uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }

@@ -14,6 +14,7 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
+  import org.bigbluebutton.modules.present.model.PresentationPodManager;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
@@ -24,27 +25,29 @@ package org.bigbluebutton.modules.present.services
 	private static const LOGGER:ILogger = getClassLogger(PresentationService);      
     private static const NUM_PRELOAD:uint = 3;
     private var model:PresentationModel;
+    private var podManager: PresentationPodManager;
     private var sender:MessageSender;
     private var receiver:MessageReceiver;
     private var dispatcher:Dispatcher;
     
     public function PresentationService() {
       model = PresentationModel.getInstance();
+      podManager = PresentationPodManager.getInstance();
       receiver = new MessageReceiver(this);
       dispatcher = new Dispatcher();
     }
     
     public function pageChanged(pageId:String):void {
-      var np: Page = model.getPage(pageId);
-      if (np != null) {        
-        var oldPage: Page = PresentationModel.getInstance().getCurrentPage();
-        if (oldPage != null) oldPage.current = false;
-        
-        np.current = true
-//        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
-        var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id, NUM_PRELOAD);
-        dispatcher.dispatchEvent(changePageCommand);          
-      }       
+//      var np: Page = model.getPage(pageId);
+//      if (np != null) {        
+//        var oldPage: Page = PresentationModel.getInstance().getCurrentPage();
+//        if (oldPage != null) oldPage.current = false;
+//        
+//        np.current = true
+////        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
+//        var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id, NUM_PRELOAD);
+//        dispatcher.dispatchEvent(changePageCommand);          
+//      }       
     }
     
     public function pageMoved(pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
@@ -68,16 +71,16 @@ package org.bigbluebutton.modules.present.services
       return page;      
     }
     
-    public function addPresentations(presos:ArrayCollection):void {
+    public function addPresentations(podId: String, presos:ArrayCollection):void {
       for (var i:int = 0; i < presos.length; i++) {
         var pres:PresentationVO = presos.getItemAt(i) as PresentationVO;
-        addPresentation(pres);
+        addPresentation(podId, pres);
       }
     }
     
-    public function addPresentation(pres:PresentationVO):void {
+    public function addPresentation(podId: String, pres:PresentationVO):void {
       var presentation:Presentation = presentationVOToPresentation(pres);
-      model.addPresentation(presentation);    
+      podManager.getPod(podId).addPresentation(presentation);    
       LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
       if (presentation.current) {
@@ -112,29 +115,29 @@ package org.bigbluebutton.modules.present.services
     
     public function changeCurrentPresentation(presentationId:String):void {
       // We've switched presentations. Mark the old presentation as not current.
-      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
-      if (curPres != null) {
-        curPres.current = false;
-      } else {
-        LOGGER.debug("No previous active presentation.");
-      }
-      
-      var newPres:Presentation = PresentationModel.getInstance().getPresentation(presentationId);
-      if (newPres != null) {
-        LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
-        newPres.current = true;
-        
-        var event: PresentationChangedEvent = new PresentationChangedEvent(presentationId);
-        dispatcher.dispatchEvent(event);
-        
-        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
-        if (curPage != null) {
-          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
-          dispatcher.dispatchEvent(changePageCommand);
-        }
-      } else {
-        LOGGER.debug("Could not find presentation to make current. id="+presentationId);
-      }
+//      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
+//      if (curPres != null) {
+//        curPres.current = false;
+//      } else {
+//        LOGGER.debug("No previous active presentation.");
+//      }
+//      
+//      var newPres:Presentation = PresentationModel.getInstance().getPresentation(presentationId);
+//      if (newPres != null) {
+//        LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
+//        newPres.current = true;
+//        
+//        var event: PresentationChangedEvent = new PresentationChangedEvent(presentationId);
+//        dispatcher.dispatchEvent(event);
+//        
+//        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+//        if (curPage != null) {
+//          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
+//          dispatcher.dispatchEvent(changePageCommand);
+//        }
+//      } else {
+//        LOGGER.debug("Could not find presentation to make current. id="+presentationId);
+//      }
     }
     
     public function removeAllPresentations():void {

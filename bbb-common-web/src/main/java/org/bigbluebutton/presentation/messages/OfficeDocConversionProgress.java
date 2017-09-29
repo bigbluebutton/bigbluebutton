@@ -4,6 +4,7 @@ package org.bigbluebutton.presentation.messages;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 
 public class OfficeDocConversionProgress implements IDocConversionMsg {
+  public final String podId;
   public final String meetingId;
   public final String presId;
   public final String presInstance;
@@ -13,9 +14,10 @@ public class OfficeDocConversionProgress implements IDocConversionMsg {
   public final Boolean downloadable;
   public final String key;
 
-  public OfficeDocConversionProgress(String meetingId, String presId, String presInstance,
+  public OfficeDocConversionProgress(String podId, String meetingId, String presId, String presInstance,
                                      String filename, String uploaderId, String authzToken,
                                      Boolean downloadable, String key) {
+    this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
     this.presInstance = presInstance;

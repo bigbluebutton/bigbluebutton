@@ -23,7 +23,7 @@ trait PresentationPageCountErrorPubMsgHdlr {
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
-      val body = PresentationPageCountErrorEvtMsgBody(msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.numberOfPages, msg.body.maxNumberPages, msg.body.presName)
+      val body = PresentationPageCountErrorEvtMsgBody(msg.body.podId, msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.numberOfPages, msg.body.maxNumberPages, msg.body.presName)
       val event = PresentationPageCountErrorEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

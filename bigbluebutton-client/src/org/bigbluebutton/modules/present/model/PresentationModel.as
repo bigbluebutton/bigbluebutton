@@ -5,40 +5,48 @@ package org.bigbluebutton.modules.present.model
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
+  import org.bigbluebutton.main.api.JSLog;
   
   public class PresentationModel
   {
 	private static const LOGGER:ILogger = getClassLogger(PresentationModel);      
     
-    private static var instance:PresentationModel = null;
+//    private static var instance:PresentationModel = null;
     
     private var _presentations:ArrayCollection = new ArrayCollection();
+    private var _podId: String = ""; // TODO make this private
+    private var _ownerId: String = "";
     
     /**
      * This class is a singleton. Please initialize it using the getInstance() method.
      * 
      */		
-    public function PresentationModel(enforcer:SingletonEnforcer) {
-      if (enforcer == null){
-        throw new Error("There can only be 1 PresentationModel instance");
-      }
-      initialize();
-    }
-    
-    private function initialize():void {
+    public function PresentationModel(podId: String, ownerId: String) {
       
+      initialize(podId, ownerId);
     }
     
-    /**
-     * Return the single instance of the PresentationModel class
-     */
+    private function initialize(podId: String, ownerId: String):void {
+        _podId = podId;
+        _ownerId = ownerId;
+        JSLog.warn("+++ PresentationModel:: initialize2: " + _podId + "  " + _ownerId, {});
+    }
+    
+//    /**
+//     * Return the single instance of the PresentationModel class
+//     */
     public static function getInstance():PresentationModel{
-      if (instance == null){
-        instance = new PresentationModel(new SingletonEnforcer());
-      }
-      return instance;
+//      if (instance == null){
+//        instance = new PresentationModel();
+//      }
+//      return instance;
+        return null;
     }
     
+    public function getPodId(): String {
+        return _podId;
+    }
+
     public function addPresentation(p: Presentation):void {
       _presentations.addItem(p);
     }

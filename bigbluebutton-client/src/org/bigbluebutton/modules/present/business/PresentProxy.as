@@ -42,18 +42,22 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
 	import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+	import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.Presentation;
+	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.services.PresentationService;
 	import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
 	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
+	import org.bigbluebutton.main.api.JSLog;
 	
 	public class PresentProxy {
 		private static const LOGGER:ILogger = getClassLogger(PresentProxy);
-    
+
 		private var host:String;
 		private var conference:String;
 		private var room:String;
@@ -61,29 +65,36 @@ package org.bigbluebutton.modules.present.business
 		private var uploadService:FileUploadService;
 		private var slides:PresentationSlides;
 		private var sender:MessageSender;
-    private var _messageReceiver:MessageReceiver;
+		private var _messageReceiver:MessageReceiver;
     
-    private var presentationModel:PresentationModel;
-    private var service: PresentationService;
-    private var currentUploadCommand: UploadFileCommand;
-    
+		private var podManager: PresentationPodManager;
+		private var service: PresentationService;
+		private var currentUploadCommand: UploadFileCommand;
+
 		public function PresentProxy() {
-      presentationModel = PresentationModel.getInstance();
-      
+			JSLog.warn("+++ PresentProxy:: constructor: ", {});
+
+			podManager = PresentationPodManager.getInstance();
+
 			slides = new PresentationSlides();
-      sender = new MessageSender();
-      service = new PresentationService();
+			sender = new MessageSender();
+			service = new PresentationService();
 		}
-		
-    public function getCurrentPresentationInfo():void {
-      sender.getPresentationInfo();
-    }
-    
-		public function connect(e:PresentModuleEvent):void{
-      extractAttributes(e.data);
-			sender.getPresentationInfo();     
+
+		public function getCurrentPresentationInfo():void {
+			podManager.requestAllPodsPresentationInfo();
 		}
-		
+
+		public function handleRequestAllPodsEvent(e: RequestAllPodsEvent):void {
+			sender.requestAllPodsEvent();
+		}
+
+		public function connect(e:PresentModuleEvent):void {
+			extractAttributes(e.data);
+
+			podManager.requestAllPodsPresentationInfo(); // Instead of sender.getPresentationInfo();     
+		}
+
 		private function extractAttributes(a:Object):void{
 			host = a.host as String;
 			conference = a.conference as String;
@@ -105,42 +116,49 @@ package org.bigbluebutton.modules.present.business
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new GetListOfPresentationsReply(idAndName));
     }
+
+		private function handleRequestPresentationInfoPodEvent(e: RequestPresentationInfoPodEvent): void {
+			sender.getPresentationInfo(e.podId);
+		}
     
     public function handleChangePresentationCommand(cmd:ChangePresentationCommand):void {
-      var pres:Presentation = PresentationModel.getInstance().getPresentation(cmd.presId);
-      if (pres != null) {
-        sender.sharePresentation(pres.id);
-      }
+//      var pres:Presentation = PresentationModel.getInstance().getPresentation(cmd.presId);
+//      JSLog.warn("+++ PresentProxy:: sharePresentation2: " + pres.id, {});
+//		
+//		
+//      if (pres != null) {
+//        sender.sharePresentation(pres.id);
+//      }
     }
     
     public function handleGoToPageCommand(cmd:GoToPageCommand):void {
-      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getSpecificPageIds(cmd.pageId);
-      if (pageChangeVO != null) {
-        LOGGER.debug("Going to page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
-        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
-      } else {
-        LOGGER.debug("Could not go to selected page. Might not exist or is already current");
-      }
+//      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getSpecificPageIds(cmd.pageId);
+//      if (pageChangeVO != null) {
+//        LOGGER.debug("Going to page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+//        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
+//      } else {
+//        LOGGER.debug("Could not go to selected page. Might not exist or is already current");
+//      }
     }
     
     public function handleGoToPreviousPageCommand(cmd:GoToPrevPageCommand):void {
-      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getPrevPageIds();
-      if (pageChangeVO != null) {
-        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
-        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
-      } else {
-        LOGGER.debug("Could not find previous page to change to");
-      }
+//      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getPrevPageIds();
+//      if (pageChangeVO != null) {
+//        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+//        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
+//      } else {
+//        LOGGER.debug("Could not find previous page to change to");
+//      }
     }
     
     public function handleGoToNextPageCommand(cmd:GoToNextPageCommand):void {
-      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getNextPageIds();
-      if (pageChangeVO != null) {
-        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
-        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
-      } else {
-        LOGGER.debug("Could not find previous page to change to");
-      }
+//      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getNextPageIds();
+//      if (pageChangeVO != null) {
+//        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+//        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
+//      } else {
+//        LOGGER.debug("Could not find previous page to change to");
+//      }
     }
 
 		/**
@@ -156,7 +174,7 @@ package org.bigbluebutton.modules.present.business
 			}
 
 			if (currentUploadCommand != null && currentUploadCommand.filename == e.filename) {
-				uploadService.upload(currentUploadCommand.filename, currentUploadCommand.file, currentUploadCommand.isDownloadable);
+				uploadService.upload(currentUploadCommand.podId, currentUploadCommand.filename, currentUploadCommand.file, currentUploadCommand.isDownloadable);
 				currentUploadCommand = null;
 			} else {
 
@@ -184,7 +202,7 @@ package org.bigbluebutton.modules.present.business
 		 */
 		public function requestUploadToken(e:UploadFileCommand):void{
 			currentUploadCommand = e;
-			sender.requestPresentationUploadPermission("todo-podId", e.filename);
+			sender.requestPresentationUploadPermission(e.podId, e.filename);
 		}
 
 		/**
@@ -224,6 +242,8 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function sharePresentation(e:PresenterCommands):void{
+			JSLog.warn("+++ PresentProxy:: sharePresentation1: " + e.presentationName, {});
+			JSLog.warn("+++ PresentProxy:: sharePresentation2: " + e.podId, {});
       		sender.sharePresentation(e.presentationName);
 		}
 		
@@ -237,12 +257,12 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void{
-			var currentPresentation:Presentation = PresentationModel.getInstance().getCurrentPresentation();
-      if (currentPresentation == null) return;
-      
-			var currentPage:Page = PresentationModel.getInstance().getCurrentPage();
-			
-			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+//			var currentPresentation:Presentation = PresentationModel.getInstance().getCurrentPresentation();
+//      if (currentPresentation == null) return;
+//      
+//			var currentPage:Page = PresentationModel.getInstance().getCurrentPage();
+//			
+//			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 
 		/**

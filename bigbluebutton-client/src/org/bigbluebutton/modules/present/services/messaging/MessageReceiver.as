@@ -61,7 +61,19 @@ package org.bigbluebutton.modules.present.services.messaging
     
     public function onMessage(messageName:String, message:Object):void {
       //LOGGER.info("Presentation: received message " + messageName);
-      JSLog.warn("____Presentation received: " + messageName, message);
+        if (messageName == "ResizeAndMovePageEvtMsg" ||
+                messageName == "SendCursorPositionEvtMsg" ||
+                messageName == "GetWhiteboardAccessRespMsg" ||
+                messageName == "GetSharedNotesEvtMsg" ||
+                messageName == "SendCaptionHistoryRespMsg" ||
+                messageName == "GetGroupChatMsgsRespMsg" ||  
+                messageName == "DoLatencyTracerMsg" || 
+                messageName == "ServerToClientLatencyTracerMsg") {
+            
+        } else {
+          JSLog.warn("____Presentation received: " + messageName, message);
+        }
+      
       
       switch (messageName) {
         case "SetCurrentPageEvtMsg":
@@ -164,6 +176,12 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleSetCurrentPresentationEvtMsg(msg:Object):void {
+        
+        
+        
+        
+        
+        
       service.changeCurrentPresentation(msg.body.presentationId);
     }
     
@@ -173,8 +191,9 @@ package org.bigbluebutton.modules.present.services.messaging
     
     private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
       var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
+      var podId: String = msg.body.podId as String;
       
-      service.addPresentation(presVO);
+      service.addPresentation(podId, presVO);
       
       var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);
       dispatcher.dispatchEvent(uploadEvent);
@@ -243,7 +262,7 @@ package org.bigbluebutton.modules.present.services.messaging
       }
       
       service.removeAllPresentations();
-      service.addPresentations(presos);
+//      service.addPresentations(presos, podId); // TODO -- are they all on the same pod?
     }
 
     private function handlePresentationUploadTokenPassRespMsg(msg:Object):void {

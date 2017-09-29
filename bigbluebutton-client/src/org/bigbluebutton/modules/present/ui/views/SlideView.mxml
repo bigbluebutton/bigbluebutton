@@ -113,23 +113,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			public function setSlides():void {
-        var pres: Presentation = PresentationModel.getInstance().getCurrentPresentation();
-        if (pres != null) {
-          pageCache = pres.getPages();
-          /* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
-          var dataSortField:SortField = new SortField();
-          dataSortField.name = "num";
-          dataSortField.numeric = true;
-          
-          /* Create the Sort object and add the SortField object created earlier to the array of fields to sort on. */
-          var numericDataSort:Sort = new Sort();
-          numericDataSort.fields = [dataSortField];
-          
-          /* Set the ArrayCollection object's sort property to our custom sort, and refresh the ArrayCollection. */
-          pageCache.sort = numericDataSort;
-          pageCache.refresh();
-          thumbnailView.dataProvider = pageCache;
-        }				
+//        var pres: Presentation = PresentationModel.getInstance().getCurrentPresentation();
+//        if (pres != null) {
+//          pageCache = pres.getPages();
+//          /* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
+//          var dataSortField:SortField = new SortField();
+//          dataSortField.name = "num";
+//          dataSortField.numeric = true;
+//          
+//          /* Create the Sort object and add the SortField object created earlier to the array of fields to sort on. */
+//          var numericDataSort:Sort = new Sort();
+//          numericDataSort.fields = [dataSortField];
+//          
+//          /* Set the ArrayCollection object's sort property to our custom sort, and refresh the ArrayCollection. */
+//          pageCache.sort = numericDataSort;
+//          pageCache.refresh();
+//          thumbnailView.dataProvider = pageCache;
+//        }				
 			}
 			
       public function setSelectedSlide(slideNum:int):void {
@@ -206,11 +206,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
 				} else {          
-          var page:Page = PresentationModel.getInstance().getCurrentPage();
-          if (page != null) {
-            LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
-            positionPage(page);
-          }
+//          var page:Page = PresentationModel.getInstance().getCurrentPage();
+//          if (page != null) {
+//            LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
+//            positionPage(page);
+//          }
 				}				
 			}
 											
@@ -288,13 +288,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			private function handlePageChangedEvent(e:PageChangedEvent):void {
         LOGGER.debug("Got a page changed event for page [{0}]", [e.pageId]);
-        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-        if (page != null) {
-          if (! UsersUtil.amIPresenter()) {
-            // if we are presenter, we don't need to reposition our view of the page
-            positionPage(page);
-          }  
-        }       
+//        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
+//        if (page != null) {
+//          if (! UsersUtil.amIPresenter()) {
+//            // if we are presenter, we don't need to reposition our view of the page
+//            positionPage(page);
+//          }  
+//        }       
 			}
 			
       private function positionPage(page:Page):void {
@@ -315,22 +315,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
         LOGGER.debug("Got a page loaded event for page [{0}]", [e.pageId]);
-        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-        if (page != null) {
-          setSelectedSlide(page.num);
-          slideLoader.source = page.swfData;
-          LOGGER.debug("Displaying page [{0}]", [e.pageId]);
-//          positionPage(page);
-          if (whiteboardCanvas != null) {
-            whiteboardCanvas.displayWhiteboardById(page.id);
-          }
-          
-          //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
-          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-        }
+//        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
+//        if (page != null) {
+//          setSelectedSlide(page.num);
+//          slideLoader.source = page.swfData;
+//          LOGGER.debug("Displaying page [{0}]", [e.pageId]);
+////          positionPage(page);
+//          if (whiteboardCanvas != null) {
+//            whiteboardCanvas.displayWhiteboardById(page.id);
+//          }
+//          
+//          //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+//          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+//          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+//        }
 			}
 			
       private function becomeViewer():void {
@@ -392,11 +392,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{
 				whiteboardCanvas = overlay;
 				
-				var currPage:Page = PresentationModel.getInstance().getCurrentPage();
-				if (currPage != null) {
-					whiteboardCanvas.displayWhiteboardById(currPage.id);
-				}
-				
+//				var currPage:Page = PresentationModel.getInstance().getCurrentPage();
+//				if (currPage != null) {
+//					whiteboardCanvas.displayWhiteboardById(currPage.id);
+//				}
+//				
 				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
 				fitSlideToLoader();
 				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);

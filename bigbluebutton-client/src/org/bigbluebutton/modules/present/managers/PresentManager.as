@@ -36,7 +36,9 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
+	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 	import org.bigbluebutton.modules.present.model.PresentOptions;
+	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
@@ -57,16 +59,14 @@ package org.bigbluebutton.modules.present.managers
 				return;
 			}
 
-			var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
-			event.requesterId = UsersUtil.getMyUserID();
+			var event:RequestAllPodsEvent = new RequestAllPodsEvent(RequestAllPodsEvent.REQUEST_ALL_PODS);
 			globalDispatcher.dispatchEvent(event);
 		}
 
 		public function handleAddPresentationPod(e: NewPresentationPodCreated): void {
-//			JSLog.warn("+++ PresentManager::handleAddPresentationPod " + e.podId, {});
-
 			var podId: String = e.podId;
 			var ownerId: String = e.ownerId;
+
 			if(!windows.hasOwnProperty(podId)) {
 				var newWindow:PresentationWindow = new PresentationWindow();
 				newWindow.onPodCreated(podId, ownerId);
@@ -80,15 +80,20 @@ package org.bigbluebutton.modules.present.managers
 
 				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				openEvent.window = newWindow;
+                JSLog.warn("+++ PresentManager::handleAddPresentationPod openWindow req: " + podId, {});
 				globalDispatcher.dispatchEvent(openEvent);
+
+                PresentationPodManager.getInstance().handleAddPresentationPod(podId, ownerId); // GOOD
 			}
 		}
 
 		public function handlePresentationPodRemoved(e: PresentationPodRemoved): void {
 			var podId: String = e.podId;
 			var ownerId: String = e.ownerId;
-            
-				var destroyWindow:PresentationWindow = windows[podId];
+
+			PresentationPodManager.getInstance().handlePresentationPodRemoved(podId, ownerId); // GOOD
+
+			var destroyWindow:PresentationWindow = windows[podId];
 			if (destroyWindow != null) {
 				var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 				closeEvent.window = destroyWindow;
@@ -97,16 +102,22 @@ package org.bigbluebutton.modules.present.managers
 				delete windows[podId];
 			}
 		}
+
 		public function handleStopModuleEvent():void{
 			for (var key: String in windows) {
 				windows[key].close();
 			}
 		}
 
-		public function handleOpenUploadWindow(e:UploadEvent):void{
+
+
+		public function handleOpenUploadWindow(e:UploadEvent):void {
 			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
 			if (uploadWindow) {
+                import org.bigbluebutton.main.api.JSLog;
+                JSLog.warn("+++ PresentManager:: handleOpenUploadWindow: " + e.podId, {});
 				uploadWindow.maxFileSize = e.maxFileSize;
+				uploadWindow.podId = e.podId;
 				
 				var point1:Point = new Point();
 				point1.x = FlexGlobals.topLevelApplication.width / 2;
