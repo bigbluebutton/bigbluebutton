@@ -1,7 +1,9 @@
+import { check } from 'meteor/check';
 import addPresentation from '../modifiers/addPresentation';
 
-export default function handlePresentationChange({ header, body }) {
-  const { meetingId } = header;
+export default function handlePresentationAdded({ body }, meetingId) {
+  check(body, Object);
+
   const { presentation } = body;
 
   check(meetingId, String);
