@@ -17,11 +17,11 @@ class BBB {
   }
 
   getMyRole() {
-    return Users.findOne({ userId: this.getUserId() }).role
+    return Users.findOne({ userId: this.getUserId() }).role;
   }
 
   amIPresenter() {
-    return Users.findOne({ userId: this.getUserId() }).presenter
+    return Users.findOne({ userId: this.getUserId() }).presenter;
   }
 
   getMyAvatarURL() {

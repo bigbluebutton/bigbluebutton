@@ -19,10 +19,10 @@ export default class SIPBridge extends BaseAudioBridge {
 
       const callback = (message) => {
         managerCallback(message).then(() => resolve());
-      }
+      };
 
       this.callIntoConference(extension, callback, isListenOnly, stunTurnServers);
-    })
+    });
   }
 
   exitAudio() {
@@ -42,6 +42,6 @@ export default class SIPBridge extends BaseAudioBridge {
       };
 
       return attemptHangup();
-    })
+    });
   }
 }

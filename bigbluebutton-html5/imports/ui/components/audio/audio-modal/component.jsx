@@ -132,7 +132,7 @@ class AudioModal extends Component {
 
     const {
       intl,
-      isConnecting
+      isConnecting,
     } = this.props;
 
     return (

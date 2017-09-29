@@ -16,7 +16,7 @@ import Service from '../service';
 
 const AudioControlsContainer = props => <AudioControls {...props} />;
 
-export default withModalMounter(createContainer(({ mountModal }) => {
+export default withModalMounter(createContainer(({ mountModal }) =>
   // const APP_CONFIG = Meteor.settings.public.app;
   //
   // const { autoJoinAudio } = APP_CONFIG;
@@ -25,16 +25,15 @@ export default withModalMounter(createContainer(({ mountModal }) => {
   // let shouldShowUnmute = isConnected && !isListenOnly && isMuted;
   // let shouldShowJoin = !isConnected;
 
-  return {
-    mute: Service.isConnected() && !Service.isListenOnly(),
-    unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
-    join: Service.isConnected(),
+   ({
+     mute: Service.isConnected() && !Service.isListenOnly(),
+     unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
+     join: Service.isConnected(),
 
-    handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
-    handleJoinAudio: () => mountModal(<AudioModalContainer />),
-    handleLeaveAudio: () => Service.exitAudio(),
-  };
-}, AudioControlsContainer));
+     handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
+     handleJoinAudio: () => mountModal(<AudioModalContainer />),
+     handleLeaveAudio: () => Service.exitAudio(),
+   }), AudioControlsContainer));
 
 // AudioControlsContainer.propTypes = propTypes;
 // AudioControlsContainer.defaultProps = defaultProps;

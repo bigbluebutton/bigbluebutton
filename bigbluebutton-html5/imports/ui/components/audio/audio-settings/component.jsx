@@ -177,13 +177,13 @@ class AudioSettings extends React.Component {
             onClick={this.handleJoin}
             disabled={isConnecting}
           >
-            <span className={ isConnecting ? styles.calling : null}>
+            <span className={isConnecting ? styles.calling : null}>
               { isConnecting ? 'Calling echo test' : intl.formatMessage(intlMessages.enterSessionLabel)}
             </span>
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
 }
