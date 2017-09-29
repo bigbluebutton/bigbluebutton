@@ -4,10 +4,8 @@ import Users from '/imports/api/2.0/users';
 import Meetings from '/imports/api/2.0/meetings';
 
 class BBB {
-
   getUserId() {
-    const userID = Auth.userID;
-    return userID;
+    return Auth.userID;
   }
 
   getUsername() {
@@ -15,22 +13,32 @@ class BBB {
   }
 
   getExtension() {
-    const extension = Meetings.findOne().voiceProp.voiceConf;
-    return extension;
+    return Meetings.findOne().voiceProp.voiceConf;
+  }
+
+  getMyRole() {
+    return Users.findOne({ userId: this.getUserId() }).role
+  }
+
+  amIPresenter() {
+    return Users.findOne({ userId: this.getUserId() }).presenter
+  }
+
+  getMyAvatarURL() {
+    return Users.findOne({ userId: this.getUserId() }).avatar;
   }
 
   getMyUserInfo(callback) {
-    const result = {
+    return callback({
       myUserID: this.getUserId(),
       myUsername: this.getUsername(),
-      myInternalUserID: this.getUserId(),
-      myAvatarURL: null,
-      myRole: 'getMyRole',
-      amIPresenter: 'false',
+      myExternalUserID: this.getUserId(),
+      myAvatarURL: this.getMyAvatarURL(),
+      myRole: this.getMyRole(),
+      amIPresenter: this.amIPresenter(),
       voiceBridge: this.getExtension(),
       dialNumber: null,
-    };
-    return callback(result);
+    });
   }
 
   webRTCCallFailed(inEchoTest, errorcode, cause) {
@@ -47,7 +55,7 @@ class BBB {
 }
 
 export const initBBB = () => {
-  if (window.BBB == undefined) {
+  if (!window.BBB) {
     window.BBB = new BBB();
   }
 };

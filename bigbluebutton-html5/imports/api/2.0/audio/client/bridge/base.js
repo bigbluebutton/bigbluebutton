@@ -5,10 +5,6 @@ export default class BaseAudioBridge {
   exitAudio() {
   }
 
-  joinListenOnly() {
+  joinAudio() {
   }
-
-  joinMicrophone() {
-  }
-
 }

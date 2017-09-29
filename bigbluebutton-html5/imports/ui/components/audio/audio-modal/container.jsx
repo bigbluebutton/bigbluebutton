@@ -1,9 +1,10 @@
 import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import AudioControls from './component';
-import AudioModalContainer from '../audio-modal/container';
+// import AudioControls from './component';
+// import AudioModal from '../audio-modal/component';
+import AudioModal from './component';
 import Service from '../service';
 
 // const propTypes = {
@@ -14,7 +15,7 @@ import Service from '../service';
 //   children: null,
 // };
 
-const AudioControlsContainer = props => <AudioControls {...props} />;
+const AudioModalContainer = props => <AudioModal {...props} />;
 
 export default withModalMounter(createContainer(({ mountModal }) => {
   // const APP_CONFIG = Meteor.settings.public.app;
@@ -26,15 +27,21 @@ export default withModalMounter(createContainer(({ mountModal }) => {
   // let shouldShowJoin = !isConnected;
 
   return {
-    mute: Service.isConnected() && !Service.isListenOnly(),
-    unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
-    join: Service.isConnected(),
-
-    handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
-    handleJoinAudio: () => mountModal(<AudioModalContainer />),
-    handleLeaveAudio: () => Service.exitAudio(),
+    closeModal: () => mountModal(null),
+    joinMicrophone: () => {
+      Service.exitAudio().then(() => Service.joinMicrophone())
+                         .then(() => mountModal(null));
+    },
+    joinListenOnly: () => {
+      Service.joinMicrophone().then(a => mountModal(null))
+    },
+    joinEchoTest: () => Service.joinEchoTest(),
+    exitAudio: () => Service.exitAudio(),
+    isConnecting: Service.isConnecting(),
+    isConnected: Service.isConnected(),
+    isEchoTest: Service.isEchoTest(),
   };
-}, AudioControlsContainer));
+}, AudioModalContainer));
 
 // AudioControlsContainer.propTypes = propTypes;
 // AudioControlsContainer.defaultProps = defaultProps;

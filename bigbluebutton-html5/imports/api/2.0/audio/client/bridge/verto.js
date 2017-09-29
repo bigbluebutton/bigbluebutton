@@ -17,8 +17,8 @@ export default class VertoBridge extends BaseAudioBridge {
     window.vertoExitAudio();
   }
 
-  joinListenOnly() {
-    window.vertoJoinListenOnly(
+  joinAudio() {
+    window.vertoJoinMicrophone(
       'remote-media',
       this.voiceBridge,
       this.vertoUsername,

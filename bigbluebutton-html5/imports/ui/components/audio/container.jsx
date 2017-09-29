@@ -4,7 +4,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import PropTypes from 'prop-types';
 import Service from './service';
 import Audio from './component';
-import AudioModal from './audio-modal/component';
+import AudioModalContainer from './audio-modal/container';
 
 const propTypes = {
   children: PropTypes.element,
@@ -31,7 +31,7 @@ export default withModalMounter(createContainer(({ mountModal }) => {
     init: () => {
       Service.init();
       if (!autoJoinAudio || didMountAutoJoin) return;
-      mountModal(<AudioModal handleJoinListenOnly={Service.joinListenOnly} />);
+      mountModal(<AudioModalContainer />);
       didMountAutoJoin = true;
     },
   };

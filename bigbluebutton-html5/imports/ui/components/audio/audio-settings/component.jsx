@@ -34,6 +34,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.audioSettings.microphoneStreamLabel',
     description: 'Label for stream volume',
   },
+  enterSessionLabel: {
+    id: 'app.audio.enterSessionLabel',
+    description: 'enter session button label',
+  },
 });
 
 class AudioSettings extends React.Component {
@@ -43,13 +47,29 @@ class AudioSettings extends React.Component {
     this.chooseAudio = this.chooseAudio.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
-    this.handleClose = this.handleClose.bind(this);
     this.handleBack = props.handleBack;
+    this.handleJoin = props.handleJoin;
+    this.joinEchoTest = props.joinEchoTest;
+    this.exitAudio = props.exitAudio;
 
     this.state = {
       inputDeviceId: undefined,
       outputDeviceId: undefined,
     };
+  }
+
+  componentDidMount() {
+    this.joinEchoTest();
+  }
+
+  componentWillUnmount() {
+    const {
+      isEchoTest,
+    } = this.props;
+
+    if (isEchoTest) {
+      this.exitAudio();
+    }
   }
 
   chooseAudio() {
@@ -63,23 +83,26 @@ class AudioSettings extends React.Component {
     });
   }
 
-  handleOutputChange(deviceId) {
+  handleOutputChange(deviceId, device) {
+    console.log(device);
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
     this.setState({
       outputDeviceId: deviceId,
     });
   }
 
-  handleClose() {
-    this.setState({ isOpen: false });
-    this.props.mountModal(null);
-  }
+  // handleClose() {
+  //   this.setState({ isOpen: false });
+  //   this.props.mountModal(null);
+  // }
 
   render() {
     const {
+      isConnecting,
       intl,
     } = this.props;
 
+    // return this.renderCalling();
     return (
       <div>
         <div className={styles.form}>
@@ -143,15 +166,26 @@ class AudioSettings extends React.Component {
             className={styles.backBtn}
             label={intl.formatMessage(intlMessages.backLabel)}
             size={'md'}
-            ghost={true}
             color={'primary'}
             onClick={this.handleBack}
+            disabled={isConnecting}
+            ghost
           />
-          <EnterAudioContainer isFullAudio />
+          <Button
+            size={'md'}
+            color={'primary'}
+            onClick={this.handleJoin}
+            disabled={isConnecting}
+          >
+            <span className={ isConnecting ? styles.calling : null}>
+              { isConnecting ? 'Calling echo test' : intl.formatMessage(intlMessages.enterSessionLabel)}
+            </span>
+          </Button>
         </div>
       </div>
-    );
+    )
   }
+
 }
 
 export default withModalMounter(injectIntl(AudioSettings));

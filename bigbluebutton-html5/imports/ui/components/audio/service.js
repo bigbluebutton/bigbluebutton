@@ -6,6 +6,7 @@ import Meetings from '/imports/api/2.0/meetings';
 const init = () => {
   console.log('Running audio service init.');
   const userId = Auth.userID;
+  const sessionToken = Auth.sessionToken;
   const User = Users.findOne({ userId });
   const username = User.name;
   const Meeting = Meetings.findOne({ meetingId: User.meetingId });
@@ -16,6 +17,7 @@ const init = () => {
 
   const userData = {
     userId,
+    sessionToken,
     username,
     voiceBridge,
     microphoneLockEnforced,
@@ -27,8 +29,9 @@ const init = () => {
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
-  joinListenOnly: () => AudioManager.joinAudio(true),
+  joinListenOnly: () => AudioManager.joinAudio({ isListenOnly: true }),
   joinMicrophone: () => AudioManager.joinAudio(),
+  joinEchoTest: () => AudioManager.joinAudio({ isEchoTest: true }),
   toggleMuteMicrophone: () => AudioManager.toggleMuteMicrophone(),
   isConnected: () => AudioManager.isConnected,
   isMuted: () => AudioManager.isMuted,
@@ -36,4 +39,5 @@ export default {
   isListenOnly: () => AudioManager.isListenOnly,
   inputDeviceId: () => AudioManager.inputDeviceId,
   outputDeviceId: () => AudioManager.outputDeviceId,
+  isEchoTest: () => AudioManager.isEchoTest,
 }
