@@ -395,9 +395,7 @@ class PresentationUploader extends Component {
 
     const { disableActions } = this.state;
 
-    const hasSomeFileNotUploaded = this.state.presentations.some(_ => !_.upload.done);
-
-    if (hasSomeFileNotUploaded || disableActions) return null;
+    if (disableActions) return null;
 
     return (
       <Dropzone
