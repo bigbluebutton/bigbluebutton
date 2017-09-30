@@ -47,6 +47,10 @@ package org.bigbluebutton.modules.present.model
         return _podId;
     }
 
+    public function getOwnerId(): String {
+        return _ownerId;
+    }
+
     public function addPresentation(p: Presentation):void {
       _presentations.addItem(p);
     }

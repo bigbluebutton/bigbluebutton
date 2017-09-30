@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
       import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
       import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+      import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
       import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.model.PresentationPodManager;
@@ -171,6 +172,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		<EventHandlers type="{RequestAllPodsEvent.REQUEST_ALL_PODS}" >
 			<MethodInvoker generator="{PresentProxy}" method="handleRequestAllPodsEvent" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{GetAllPodsRespEvent.GET_ALL_PODS_RESP}" >
+			<MethodInvoker generator="{PresentManager}" method="handleGetAllPodsRespEvent" arguments="{event}" />
 		</EventHandlers>
 
 	</fx:Declarations>

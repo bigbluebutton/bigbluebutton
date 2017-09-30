@@ -24,7 +24,8 @@ package org.bigbluebutton.modules.present.managers
 	import flash.geom.Point;
 	
 	import mx.core.FlexGlobals;
-	
+	import mx.collections.ArrayCollection;
+
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -37,6 +38,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
 	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
+	import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
 	import org.bigbluebutton.modules.present.model.PresentOptions;
 	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
@@ -49,9 +51,11 @@ package org.bigbluebutton.modules.present.managers
 	{
 		private var globalDispatcher:Dispatcher;
 		private var windows: Array = [];
+		private var podsManager: PresentationPodManager;
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
+			podsManager = PresentationPodManager.getInstance();
 		}
 		
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
@@ -80,10 +84,10 @@ package org.bigbluebutton.modules.present.managers
 
 				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				openEvent.window = newWindow;
-                JSLog.warn("+++ PresentManager::handleAddPresentationPod openWindow req: " + podId, {});
+				JSLog.warn("+++ PresentManager::handleAddPresentationPod openWindow req: " + podId, {});
 				globalDispatcher.dispatchEvent(openEvent);
 
-                PresentationPodManager.getInstance().handleAddPresentationPod(podId, ownerId); // GOOD
+				podsManager.handleAddPresentationPod(podId, ownerId); // GOOD
 			}
 		}
 
@@ -91,7 +95,7 @@ package org.bigbluebutton.modules.present.managers
 			var podId: String = e.podId;
 			var ownerId: String = e.ownerId;
 
-			PresentationPodManager.getInstance().handlePresentationPodRemoved(podId, ownerId); // GOOD
+			podsManager.handlePresentationPodRemoved(podId, ownerId); // GOOD
 
 			var destroyWindow:PresentationWindow = windows[podId];
 			if (destroyWindow != null) {
@@ -101,6 +105,11 @@ package org.bigbluebutton.modules.present.managers
 
 				delete windows[podId];
 			}
+		}
+
+		public function handleGetAllPodsRespEvent(e: GetAllPodsRespEvent): void {
+			var podsAC:ArrayCollection = e.pods as ArrayCollection;
+			podsManager.handleGetAllPodsResp(podsAC);
 		}
 
 		public function handleStopModuleEvent():void{
@@ -114,14 +123,14 @@ package org.bigbluebutton.modules.present.managers
 		public function handleOpenUploadWindow(e:UploadEvent):void {
 			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
 			if (uploadWindow) {
-                import org.bigbluebutton.main.api.JSLog;
-                JSLog.warn("+++ PresentManager:: handleOpenUploadWindow: " + e.podId, {});
+				import org.bigbluebutton.main.api.JSLog;
+				JSLog.warn("+++ PresentManager:: handleOpenUploadWindow: " + e.podId, {});
 				uploadWindow.maxFileSize = e.maxFileSize;
 				uploadWindow.podId = e.podId;
 				
 				var point1:Point = new Point();
 				point1.x = FlexGlobals.topLevelApplication.width / 2;
-				point1.y = FlexGlobals.topLevelApplication.height / 2;  
+				point1.y = FlexGlobals.topLevelApplication.height / 2;
 				
 				uploadWindow.x = point1.x - (uploadWindow.width/2);
 				uploadWindow.y = point1.y - (uploadWindow.height/2);
