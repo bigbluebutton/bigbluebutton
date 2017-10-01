@@ -39,7 +39,10 @@
 			private var rolledOver:Boolean = false;
 
 			private function showPresentation():void {
-				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
+				import org.bigbluebutton.main.api.JSLog;
+				JSLog.warn("+++ UploadedPresentationRenderer::showPresentation " , data);
+				
+				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand('AAAAAUploadedPresentationRendererAAAA', data.id);
 				globalDispatch.dispatchEvent(changePresCommand);
 
 				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));

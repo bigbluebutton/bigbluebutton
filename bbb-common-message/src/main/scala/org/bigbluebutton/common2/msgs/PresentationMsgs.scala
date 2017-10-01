@@ -6,7 +6,7 @@ import org.bigbluebutton.common2.domain.PresentationVO
 // ------------ client to akka-apps ------------
 object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg"}
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
-case class SetCurrentPresentationPubMsgBody(presentationId: String)
+case class SetCurrentPresentationPubMsgBody(podId: String, presentationId: String)
 
 object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg"}
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
@@ -44,7 +44,7 @@ case class NewPresentationEvtMsgBody(presentation: PresentationVO)
 
 object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg"}
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
-case class SetCurrentPresentationEvtMsgBody(presentationId: String)
+case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
 
 object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg"}
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg

@@ -61,28 +61,19 @@ package org.bigbluebutton.modules.present.model {
         }
         
         public function getPod(podId: String): PresentationModel {
-//            return _presentationPods[podId];
-            
-            var resultingPod: PresentationModel = getFirstPod(); // TODO
+            var resultingPod: PresentationModel = null;
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
-                JSLog.warn("+++ PresentationPodManager:: getPod for podId=" + podId + "     " + pod.getPodId(), {});
 
+                JSLog.warn("+++ PresentationPodManager:: getPod podId=" + podId + " getPodId=" +  pod.getPodId(), {});
                 if (pod.getPodId() == podId) {
-                    JSLog.warn("+++ PresentationPodManager:: getPod SUCCESS for podId=" + podId , {});
                     return pod;
                 }
             }
-            JSLog.warn("+++ PresentationPodManager:: getPod FAIL for podId=" + podId , {});
+            JSLog.warn("+++ PresentationPodManager:: getPod FAIL for podId=" + podId + " size=" +  _presentationPods.length, {});
             return resultingPod;
         }
 
-
-        public function getFirstPod(): PresentationModel {
-            JSLog.warn("+++ PresentationPodManager:: getFirstPod size=" + _presentationPods.length, {});
-            return _presentationPods.getItemAt(0) as PresentationModel;
-        }
-        
         public function handleAddPresentationPod(podId: String, ownerId: String): void {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;

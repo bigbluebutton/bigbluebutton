@@ -122,13 +122,15 @@ package org.bigbluebutton.modules.present.business
 		}
     
     public function handleChangePresentationCommand(cmd:ChangePresentationCommand):void {
-//      var pres:Presentation = PresentationModel.getInstance().getPresentation(cmd.presId);
-//      JSLog.warn("+++ PresentProxy:: sharePresentation2: " + pres.id, {});
-//		
-//		
-//      if (pres != null) {
-//        sender.sharePresentation(pres.id);
-//      }
+		var presModel: PresentationModel = podManager.getPod(cmd.podId);
+        var pres:Presentation = presModel.getPresentation(cmd.presId);
+        JSLog.warn("+++ PresentProxy:: sharePresentation1: " + pres.id + "   " + cmd.podId, {});
+      JSLog.warn("+++ PresentProxy:: sharePresentation2: " + pres.id, {});
+		JSLog.warn("+++ PresentProxy:: sharePresentation: ", pres != null);
+
+      if (pres != null) {
+        sender.sharePresentation(cmd.podId, pres.id);
+      }
     }
     
     public function handleGoToPageCommand(cmd:GoToPageCommand):void {
@@ -244,7 +246,7 @@ package org.bigbluebutton.modules.present.business
 		public function sharePresentation(e:PresenterCommands):void{
 			JSLog.warn("+++ PresentProxy:: sharePresentation1: " + e.presentationName, {});
 			JSLog.warn("+++ PresentProxy:: sharePresentation2: " + e.podId, {});
-      		sender.sharePresentation(e.presentationName);
+      		sender.sharePresentation(e.podId, e.presentationName);
 		}
 		
 		public function removePresentation(e:RemovePresentationEvent):void {

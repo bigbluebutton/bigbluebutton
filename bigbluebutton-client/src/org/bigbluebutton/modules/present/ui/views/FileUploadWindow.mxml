@@ -93,6 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.model.PresentationModel;
 		import org.bigbluebutton.modules.present.model.PresentationPodManager;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
+		import org.bigbluebutton.main.api.JSLog;
 		
 		use namespace mx_internal;
       
@@ -120,7 +121,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			dispatcher = new Dispatcher();
 			updateStyles();
 		}
-		
+
+		public function setPodId(_podId: String): void {
+			podId = _podId;
+			presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations(); // GOOD
+			if (presentationNamesAC.length <= 0) {
+				selectFile();
+			}
+		}
+
 		private function updateStyles() : void {
 			var styleNameExt : String = "";
 			if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
@@ -133,10 +142,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function initData():void {
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 
-				presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations(); // GOOD
-				if (presentationNamesAC.length <= 0) {
-					selectFile();
-				}
+				JSLog.warn("+++ FileUploadWindow:: initData: " + podId, {});
+
 			}
 
       private function handleThumbnailsProgressEvent(event:CreatingThumbnailsEvent):void {	
@@ -223,7 +230,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           uploadCmd.isDownloadable = isDownloadable;
           uploadCmd.podId = podId;
 
-			import org.bigbluebutton.main.api.JSLog;
+			
 			JSLog.warn("+++ FileUploadWindow:: startUpload: " + podId, {});
 			
           globalDispatch.dispatchEvent(uploadCmd);
@@ -319,8 +326,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
+		  JSLog.warn("+++ FileUploadWindow:: handleConversionCompleted1: " + e.presId, {});
+		  JSLog.warn("+++ FileUploadWindow:: handleConversionCompleted2: " + e.podId, {});
         enableClosing();
-		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.presId));
+		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.podId, e.presId));
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
 

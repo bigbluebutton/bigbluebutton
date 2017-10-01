@@ -47,10 +47,10 @@ package org.bigbluebutton.modules.present.services.messaging
       );
     }
     
-    public function sharePresentation(presentationId:String):void {
+    public function sharePresentation(podId: String, presentationId:String):void {
       var message:Object = {
         header: {name: "SetCurrentPresentationPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {presentationId: presentationId}
+        body: {podId: podId, presentationId: presentationId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

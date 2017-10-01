@@ -46,5 +46,11 @@ object PresentationPodsApp {
     PresentationPodVO(pod.id, pod.ownerId, pod.currentPresenter,
       pod.authorizedPresenters, presentationVOs)
   }
+
+  def updatePresentationPod(state: MeetingState2x, pod: PresentationPod): MeetingState2x = {
+    val podManager = state.presentationPodManager.addPod(pod)
+    state.update(podManager)
+  }
+
 }
 

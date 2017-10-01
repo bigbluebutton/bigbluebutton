@@ -126,7 +126,8 @@ package org.bigbluebutton.modules.present.managers
 				import org.bigbluebutton.main.api.JSLog;
 				JSLog.warn("+++ PresentManager:: handleOpenUploadWindow: " + e.podId, {});
 				uploadWindow.maxFileSize = e.maxFileSize;
-				uploadWindow.podId = e.podId;
+//				uploadWindow.podId = e.podId;
+				uploadWindow.setPodId(e.podId);
 				
 				var point1:Point = new Point();
 				point1.x = FlexGlobals.topLevelApplication.width / 2;

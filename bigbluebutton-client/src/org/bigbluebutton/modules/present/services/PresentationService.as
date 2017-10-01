@@ -19,6 +19,7 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
   import org.bigbluebutton.modules.present.services.messaging.MessageSender;
+  import org.bigbluebutton.main.api.JSLog;
 
   public class PresentationService
   {
@@ -72,6 +73,8 @@ package org.bigbluebutton.modules.present.services
     }
     
     public function addPresentations(podId: String, presos:ArrayCollection):void {
+        JSLog.warn("+++ PresentationService:: addPresentations1: " + podId, {});
+        JSLog.warn("+++ PresentationService:: addPresentations2: " + presos.length, {});
       for (var i:int = 0; i < presos.length; i++) {
         var pres:PresentationVO = presos.getItemAt(i) as PresentationVO;
         addPresentation(podId, pres);
@@ -80,6 +83,7 @@ package org.bigbluebutton.modules.present.services
     
     public function addPresentation(podId: String, pres:PresentationVO):void {
       var presentation:Presentation = presentationVOToPresentation(pres);
+        JSLog.warn("+++ PresentationService:: addPresentatioN: " + podId, {});
       podManager.getPod(podId).addPresentation(presentation);    
       LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
@@ -113,31 +117,31 @@ package org.bigbluebutton.modules.present.services
       return presentation;
     }
     
-    public function changeCurrentPresentation(presentationId:String):void {
+    public function changeCurrentPresentation(podId: String, presentationId:String):void {
       // We've switched presentations. Mark the old presentation as not current.
-//      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
-//      if (curPres != null) {
-//        curPres.current = false;
-//      } else {
-//        LOGGER.debug("No previous active presentation.");
-//      }
-//      
-//      var newPres:Presentation = PresentationModel.getInstance().getPresentation(presentationId);
-//      if (newPres != null) {
-//        LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
-//        newPres.current = true;
-//        
-//        var event: PresentationChangedEvent = new PresentationChangedEvent(presentationId);
-//        dispatcher.dispatchEvent(event);
-//        
-//        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
-//        if (curPage != null) {
-//          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
-//          dispatcher.dispatchEvent(changePageCommand);
-//        }
-//      } else {
-//        LOGGER.debug("Could not find presentation to make current. id="+presentationId);
-//      }
+      var curPres:Presentation = podManager.getPod(podId).getCurrentPresentation();
+      if (curPres != null) {
+        curPres.current = false;
+      } else {
+        LOGGER.debug("No previous active presentation.");
+      }
+
+      var newPres:Presentation = podManager.getPod(podId).getPresentation(presentationId);
+      if (newPres != null) {
+        LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
+        newPres.current = true;
+
+        var event: PresentationChangedEvent = new PresentationChangedEvent(presentationId);
+        dispatcher.dispatchEvent(event);
+
+        var curPage:Page = podManager.getPod(podId).getCurrentPage();
+        if (curPage != null) {
+          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
+          dispatcher.dispatchEvent(changePageCommand);
+        }
+      } else {
+        LOGGER.debug("Could not find presentation to make current. id="+presentationId);
+      }
     }
     
     public function removeAllPresentations():void {

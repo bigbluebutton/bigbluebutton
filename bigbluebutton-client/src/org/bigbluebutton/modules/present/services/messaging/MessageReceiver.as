@@ -181,13 +181,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleSetCurrentPresentationEvtMsg(msg:Object):void {
-        
-        
-        
-        
-        
-        
-      service.changeCurrentPresentation(msg.body.presentationId);
+      service.changeCurrentPresentation(msg.body.podId, msg.body.presentationId);
     }
     
     private function handleRemovePresentationEvtMsg(msg:Object):void {
@@ -197,10 +191,13 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
       var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
       var podId: String = msg.body.podId as String;
-      
+
+        JSLog.warn("+++ Receiver:: handlePresentationConversionCompletedEvtMsg1: " + podId, {});
+        JSLog.warn("+++ Receiver:: handlePresentationConversionCompletedEvtMsg2: " + presVO.id, {});
+        JSLog.warn("+++ Receiver:: handlePresentationConversionCompletedEvtMsg3: " + presVO.name, {});
       service.addPresentation(podId, presVO);
       
-      var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);
+      var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(podId, presVO.id, presVO.name);
       dispatcher.dispatchEvent(uploadEvent);
     }
     

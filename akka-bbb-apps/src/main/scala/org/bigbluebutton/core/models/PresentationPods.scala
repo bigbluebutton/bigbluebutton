@@ -51,4 +51,5 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
   def getNumberOfPods(): Int = presentationPods.size
   def getPod(podId: String): Option[PresentationPod] = presentationPods.get(podId)
   def getAllPresentationPodsInMeeting(): Vector[PresentationPod] = presentationPods.values.toVector
+  def updatePresentationPod(presPod: PresentationPod): PresentationPodManager = addPod(presPod)
 }

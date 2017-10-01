@@ -122,7 +122,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] 
       		private var thumbY:Number;
-			public var uploadWindow:FileUploadWindow = null;
+//			public var uploadWindow:FileUploadWindow = null;
 			
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
