@@ -49,15 +49,12 @@ package org.bigbluebutton.modules.present.model {
         public static function getInstance():PresentationPodManager {
             if (instance == null) {
                 instance = new PresentationPodManager(new SingletonEnforcer());
-                instance.requestDefaultPresentationPod();
             }
 
             return instance;
         }
         
         public function requestDefaultPresentationPod(): void {
-            JSLog.warn("+++ PresentationPodManager::requestDefaultPresentationPod ", {});
-            
             var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
             event.requesterId = UsersUtil.getMyUserID();
             globalDispatcher.dispatchEvent(event);
@@ -141,6 +138,10 @@ package org.bigbluebutton.modules.present.model {
                 var newPod: PresentationModel = new PresentationModel(podVO.id, podVO.ownerId);
 
                 globalDispatcher.dispatchEvent(new NewPresentationPodCreated(newPod.getPodId(), newPod.getOwnerId()));
+            }
+
+            if (podsAC.length == 0) { // If there are no pods, request the creation of a default one
+                requestDefaultPresentationPod();
             }
         }
     
