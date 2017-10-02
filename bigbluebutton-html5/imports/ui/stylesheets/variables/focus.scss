@@ -1,4 +1,5 @@
 $focus-border-size: 3px;
+$focus-border-offset: -4px;
 $color-primary: #0F70D7 !default;
 $user-list-bg: #F3F6F9;
 $color-white: #FFF;
@@ -80,10 +81,10 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
       span:first-of-type::before {
         position: absolute;
         content: '';
-        top: -4px;
-        left: -4px;
-        right: -4px;
-        bottom: -4px;
+        top: $focus-border-offset;
+        left: $focus-border-offset;
+        right: $focus-border-offset;
+        bottom: $focus-border-offset;
         border: $focus-border-size solid $color-primary;
       }
     }
