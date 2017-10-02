@@ -40,3 +40,5 @@ acl:
       - 'clearWhiteboard'
       - 'moveCursor'
       - 'sendAnnotation'
+      - 'removePresentation'
+      - 'setPresentation'
