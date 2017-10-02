@@ -15,6 +15,10 @@ package org.bigbluebutton.modules.chat.maps
       return _gcWinId;
     }
     
+    public function isEmpty():Boolean {
+      return _chatBoxes.length == 0;
+    }
+    
     public function addChatBox(box: GroubChatBoxMapper):void {
       _chatBoxes[box.chatBoxId] = box;
     }

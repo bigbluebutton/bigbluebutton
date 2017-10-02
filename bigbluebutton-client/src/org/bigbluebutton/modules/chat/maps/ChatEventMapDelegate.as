@@ -24,7 +24,10 @@ package org.bigbluebutton.modules.chat.maps {
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.Options;
+	import org.bigbluebutton.core.model.LiveMeeting;
+	import org.bigbluebutton.modules.chat.model.ChatModel;
 	import org.bigbluebutton.modules.chat.model.ChatOptions;
+	import org.bigbluebutton.modules.chat.model.GroupChat;
 	import org.bigbluebutton.modules.chat.views.ChatWindow;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
@@ -32,7 +35,7 @@ package org.bigbluebutton.modules.chat.maps {
 		
 		private var dispatcher:IEventDispatcher;
 
-    private var windows:Array = [];
+    private var _windows:Array = [];
 		private var _chatWindow:ChatWindow;
 		private var _chatWindowOpen:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -62,7 +65,24 @@ package org.bigbluebutton.modules.chat.maps {
     }
     
     public function createNewGroupChat(chatId: String):void {
-      
+      if (ChatModel.MAIN_PUBLIC_CHAT == chatId){
+        var window:ChatWindow = new ChatWindow();
+        window.setWindowId(chatId);
+        window.chatOptions = chatOptions;
+        window.title = ResourceUtil.getInstance().getString("bbb.chat.title");
+        window.showCloseButton = false;
+        
+        // Setup a tracker for the state of this chat.
+        var gcBoxMapper:GroubChatBoxMapper = new GroubChatBoxMapper(chatId);
+        gcBoxMapper.chatBoxOpen = true;
+        var winMapper:GroupChatWindowMapper = _windowMapper["gcWin-0"];
+        winMapper.addChatBox(gcBoxMapper);
+      } else {
+        var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (gc != null && gc.access == GroupChat.PUBLIC) {
+          
+        }
+      }
     }
     
 		private function getChatOptions():void {
@@ -71,18 +91,22 @@ package org.bigbluebutton.modules.chat.maps {
 		
 		public function handleReceivedGroupChatsEvent():void {	
 			getChatOptions();
-			_chatWindow.chatOptions = chatOptions;
-		   	_chatWindow.title = ResourceUtil.getInstance().getString("bbb.chat.title");
-		   	_chatWindow.showCloseButton = false;
-		   	
-		   	// Use the GLobal Dispatcher so that this message will be heard by the
-		   	// main application.		   	
-			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			event.window = _chatWindow; 
-			globalDispatcher.dispatchEvent(event);		   	
-		   	_chatWindowOpen = true;		
+
+      var gcIds:Array = LiveMeeting.inst().chats.getGroupChatIds();
+      for (var i:int = 0; i < gcIds.length; i++) {
+        var cid:String = gcIds[i];
+        createNewGroupChat(cid);
+      }
 		}
 		
+    private function openChatWindow(window:ChatWindow):void {
+      // Use the GLobal Dispatcher so that this message will be heard by the
+      // main application.		   	
+      var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+      event.window = window; 
+      globalDispatcher.dispatchEvent(event);		
+    }
+    
 		public function closeChatWindow():void {
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			event.window = _chatWindow;

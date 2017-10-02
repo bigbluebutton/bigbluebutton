@@ -15,6 +15,10 @@ package org.bigbluebutton.modules.chat.model
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class GroupChat  {
+    
+    public static const PUBLIC:String = "PUBLIC_ACCESS";
+    public static const PRIVATE:String = "PRIVATE_ACCESS";
+    
     private var _id: String;
     private var _name: String;
     private var _access: String;

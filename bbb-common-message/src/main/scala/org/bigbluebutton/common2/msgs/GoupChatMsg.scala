@@ -12,6 +12,13 @@ case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String
                               font: String, size: Int, color: String, message: String)
 case class GroupChatInfo(id: String, name: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
+object OpenGroupChatWindowReqMsg { val NAME = "OpenGroupChatWindowReqMsg"}
+case class OpenGroupChatWindowReqMsg(header: BbbClientMsgHeader, body: OpenGroupChatWindowReqMsgBody) extends StandardMsg
+case class OpenGroupChatWindowReqMsgBody(requesterId: String)
+
+object OpenGroupChatWindowEvtMsg { val NAME = "OpenGroupChatWindowEvtMsg"}
+case class OpenGroupChatWindowEvtMsg(header: BbbClientMsgHeader, body: OpenGroupChatWindowEvtMsgBody) extends StandardMsg
+case class OpenGroupChatWindowEvtMsgBody(chatWindowId: String, openedBy: String)
 
 object GetGroupChatsReqMsg { val NAME = "GetGroupChatsReqMsg"}
 case class GetGroupChatsReqMsg(header: BbbClientMsgHeader, body: GetGroupChatsReqMsgBody) extends StandardMsg
