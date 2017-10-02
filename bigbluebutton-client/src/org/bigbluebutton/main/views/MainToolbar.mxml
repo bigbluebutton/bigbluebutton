@@ -400,7 +400,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
-					setStyle("backgroundColor", brandingOptions.toolbarColor);
+					mainBox.setStyle("backgroundColor", uint("0x" + brandingOptions.toolbarColor.substr(1)));
 				}
 			}
 			
