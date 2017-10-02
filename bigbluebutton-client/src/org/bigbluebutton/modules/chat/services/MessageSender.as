@@ -129,20 +129,22 @@ package org.bigbluebutton.modules.chat.services
       );
     }
     
-    public function createGroupChat():void {
+    public function createGroupChat(name: String, access: String, users: Array):void {
       LOGGER.debug("Sending [chat.CreateGroupChatReqMsg] to server.");
       
-      var corrId: String = "my-correlation-id";
-      var requesterId: String = UsersUtil.getMyUserID();
-      var name: String = "TEST GROUP CHAT";
-      var access: String = "PRIVATE_ACCESS";
-      var users: Array = new Array();
+      var myUserId: String = UsersUtil.getMyUserID();
+      
+      var now:Date = new Date();
+      var corrId: String = myUserId + "-" + now.time;
+
+      var name: String = name;
+      var access: String = access;
       var msg: Array = new Array();
       
       var message:Object = {
         header: {name: "CreateGroupChatReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
-          userId: UsersUtil.getMyUserID()},
-        body: {correlationId: corrId, requesterId: requesterId,
+          userId: myUserId},
+        body: {correlationId: corrId, requesterId: myUserId,
           name: name, access: access, users: users, msg: msg}
       };
       

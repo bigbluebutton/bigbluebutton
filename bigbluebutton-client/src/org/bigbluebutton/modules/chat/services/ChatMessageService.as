@@ -20,10 +20,12 @@ package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
   import flash.external.ExternalInterface;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
   import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -78,6 +80,10 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPrivateMessage(message:ChatMessageVO):void {
       sender.sendPrivateMessage(message);
+    }
+    
+    public function handleCreateGCReqEvent(event:CreateGroupChatReqEvent):void {
+      sender.createGroupChat(event.name, event.access, event.users);
     }
     
     public function getGroupChats():void {
