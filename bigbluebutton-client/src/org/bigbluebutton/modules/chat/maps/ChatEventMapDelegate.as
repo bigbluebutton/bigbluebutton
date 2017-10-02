@@ -36,8 +36,6 @@ package org.bigbluebutton.modules.chat.maps {
 		private var dispatcher:IEventDispatcher;
 
     private var _windows:Array = [];
-		private var _chatWindow:ChatWindow;
-		private var _chatWindowOpen:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 		
 		private var chatOptions:ChatOptions;
@@ -46,11 +44,12 @@ package org.bigbluebutton.modules.chat.maps {
     
 		public function ChatEventMapDelegate() {
 			this.dispatcher = dispatcher;
-			_chatWindow = new ChatWindow();
+      genWindowMappers();
 			globalDispatcher = new Dispatcher();
 		}
 
     private function genWindowMappers():void{
+      getChatOptions();
       for (var i:int = 0; i < chatOptions.maxNumWindows; i++) {
         var winId: String = "gcWin-" + i;
         _windowMapper[winId] = new GroupChatWindowMapper(winId);
@@ -63,6 +62,35 @@ package org.bigbluebutton.modules.chat.maps {
       }
       return null;
     }
+    
+    private function findUnusedWindowMapper():GroupChatWindowMapper {
+      for (var winId:String in _windowMapper) {
+        var wMapper: GroupChatWindowMapper = _windowMapper[winId];
+        if (wMapper.isEmpty()) return wMapper;
+      }
+      return null;
+    }
+    
+    private function openNewPublicGrouChatWindow(chatId: String, gc:GroupChat):void {
+      var wMapper:GroupChatWindowMapper = findUnusedWindowMapper();
+      if (wMapper != null) {
+        var window:ChatWindow = new ChatWindow();
+        window.setWindowId(chatId);
+        window.chatOptions = chatOptions;
+        window.title = gc.name;
+        window.showCloseButton = true;
+        
+        // Setup a tracker for the state of this chat.
+        var gcBoxMapper:GroubChatBoxMapper = new GroubChatBoxMapper(chatId);
+        gcBoxMapper.chatBoxOpen = true;
+
+        wMapper.addChatBox(gcBoxMapper);        
+        _windows[window.getWindowId()] = window;
+        
+        openChatWindow(window);
+      }
+    }
+    
     
     public function createNewGroupChat(chatId: String):void {
       if (ChatModel.MAIN_PUBLIC_CHAT == chatId){
@@ -77,10 +105,14 @@ package org.bigbluebutton.modules.chat.maps {
         gcBoxMapper.chatBoxOpen = true;
         var winMapper:GroupChatWindowMapper = _windowMapper["gcWin-0"];
         winMapper.addChatBox(gcBoxMapper);
+        
+        _windows[window.getWindowId()] = window;
+        
+        openChatWindow(window);
       } else {
         var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
         if (gc != null && gc.access == GroupChat.PUBLIC) {
-          
+          openNewPublicGrouChatWindow(chatId, gc);
         }
       }
     }
@@ -90,8 +122,6 @@ package org.bigbluebutton.modules.chat.maps {
 		}
 		
 		public function handleReceivedGroupChatsEvent():void {	
-			getChatOptions();
-
       var gcIds:Array = LiveMeeting.inst().chats.getGroupChatIds();
       for (var i:int = 0; i < gcIds.length; i++) {
         var cid:String = gcIds[i];
@@ -109,10 +139,9 @@ package org.bigbluebutton.modules.chat.maps {
     
 		public function closeChatWindow():void {
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-			event.window = _chatWindow;
+		//	event.window = _chatWindow;
 			globalDispatcher.dispatchEvent(event);
-		   	
-		   	_chatWindowOpen = false;
+
 		}
 	}
 }

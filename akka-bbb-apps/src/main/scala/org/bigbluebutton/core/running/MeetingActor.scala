@@ -139,6 +139,10 @@ class MeetingActor(
   state = GroupChatApp.createDefaultPublicGroupChat(state)
   state = GroupChatApp.genTestChatMsgHistory(state, BbbSystemConst.SYSTEM_USER, liveMeeting)
 
+  // Create a default publish group chat
+  state = GroupChatApp.createTestPublicGroupChat(state)
+  state = GroupChatApp.genTestChatMsgHistory(state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 
   /*******************************************************************/

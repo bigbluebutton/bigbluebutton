@@ -10,7 +10,6 @@ object GroupChatFactory {
     new GroupChat(id, name, access, createdBy, users, msgs)
   }
 
-
 }
 
 case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
@@ -39,5 +38,5 @@ case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, 
                             font: String, size: Int, color: String, message: String)
 
 case class GroupChatWindow(windowId: String, chatIds: Vector[String], keepOpen: Boolean, openedBy: String) {
-  
+
 }
