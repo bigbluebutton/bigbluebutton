@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.chat.maps {
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.model.ChatOptions;
   import org.bigbluebutton.modules.chat.model.GroupChat;
@@ -101,7 +102,7 @@ package org.bigbluebutton.modules.chat.maps {
       var winMapper:GroupChatWindowMapper = _windowMapper[MAIN_CHAT_WINID];
       winMapper.addChatBox(gcBoxMapper);
       
-      
+      globalDispatcher.dispatchEvent(new PrivateGroupChatCreatedEvent(chatId));
     }
     
     public function createNewGroupChat(chatId: String):void {

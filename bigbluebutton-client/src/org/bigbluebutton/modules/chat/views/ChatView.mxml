@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*">
   
   <fx:Declarations>
+    <mate:Listener type="{PrivateGroupChatCreatedEvent.PRIVATE_GROUP_CHAT_CREATED_EVENT}" method="handlePrivateGroupChatCreatedEvent"/>
     <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
     <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
     <mate:Listener type="{EventConstants.START_PRIVATE_CHAT}" method="handleStartPrivateChatMessageEvent"/>
@@ -41,14 +42,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
+      import com.asfusion.mate.events.Dispatcher;
+      
       import flash.events.Event;
       import flash.events.FocusEvent;
       import flash.media.Sound;
+      
       import mx.controls.Button;
       import mx.core.INavigatorContent;
+      
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.events.SuperTabEvent;
+      
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
@@ -59,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -178,6 +184,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       
+      private function handlePrivateGroupChatCreatedEvent(event:PrivateGroupChatCreatedEvent):void {
+        if (! userHasChatBox(event.chatId)) {
+          // Open a private chat tab.
+          openChatBoxFor(event.chatId, false);
+        }
+        
+        // See if the chatbox is not in focus and notify user about the message.
+        notifyUserOfNewMessage(event.chatId);
+        privateNotification(event.chatId);
+      }
+      
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         // This message is from me. Ignore as a chatbox has already been created for this
         // private chat and that chatbox will handle this message.
@@ -275,8 +292,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         focusSwitchTimer.start();
       }
       
-      private function userHasChatBox(userID:String):Boolean {
-        var chatBox:ChatBox = chatTabs.getChildByName(userID) as ChatBox;
+      private function userHasChatBox(chatId:String):Boolean {
+        var chatBox:ChatBox = chatTabs.getChildByName(chatId) as ChatBox;
         if (chatBox != null) return true;
         return false;
       }
