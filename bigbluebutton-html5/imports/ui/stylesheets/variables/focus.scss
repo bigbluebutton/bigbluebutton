@@ -80,10 +80,10 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
       span:first-of-type::before {
         position: absolute;
         content: '';
-        top: calc(2px - 3px - 3px);
-        left: calc(2px - 3px - 3px);
-        right: calc(2px - 3px - 3px);
-        bottom: calc(2px - 3px - 3px);
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
         border: $focus-border-size solid $color-primary;
       }
     }
