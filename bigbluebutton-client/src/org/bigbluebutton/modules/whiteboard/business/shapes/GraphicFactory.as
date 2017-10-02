@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.DisplayObject;
-
 	public class GraphicFactory
 	{
 		public static const SHAPE_FACTORY:String = "SHAPE_FACTORY";

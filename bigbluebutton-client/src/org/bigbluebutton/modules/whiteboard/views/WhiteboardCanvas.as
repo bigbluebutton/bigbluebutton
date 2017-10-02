@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import com.asfusion.mate.events.Listener;
 	
 	import flash.display.DisplayObject;
-	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	

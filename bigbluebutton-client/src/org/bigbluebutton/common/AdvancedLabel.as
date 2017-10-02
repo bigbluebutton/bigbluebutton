@@ -17,11 +17,10 @@
  *
  */
 package org.bigbluebutton.common {
+	import mx.controls.Text;
 	import mx.managers.IFocusManagerComponent;
 
-	import spark.components.Label;
-
-	public class AdvancedLabel extends Label implements IFocusManagerComponent {
+	public class AdvancedLabel extends Text implements IFocusManagerComponent {
 		public function AdvancedLabel() {
 			super();
 		}

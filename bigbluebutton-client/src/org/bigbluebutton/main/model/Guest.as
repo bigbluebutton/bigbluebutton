@@ -19,7 +19,6 @@
 */
 package org.bigbluebutton.main.model
 {
-
 	public class Guest
 	{
 		private var listOfGuests:Object = new Object();

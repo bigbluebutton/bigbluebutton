@@ -1,39 +1,90 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Ellipse from '../annotations/ellipse/component.jsx';
-import Line from '../annotations/line/component.jsx';
-import Poll from '../annotations/poll/component.jsx';
-import Rectangle from '../annotations/rectangle/component.jsx';
-import Text from '../annotations/text/component.jsx';
-import Triangle from '../annotations/triangle/component.jsx';
-import Pencil from '../annotations/pencil/component.jsx';
+import StaticAnnotation from './static-annotation/component';
+import ReactiveAnnotationContainer from './reactive-annotation/container';
+import Ellipse from '../annotations/ellipse/component';
+import Line from '../annotations/line/component';
+import Poll from '../annotations/poll/component';
+import Rectangle from '../annotations/rectangle/component';
+import Text from '../annotations/text/container';
+import Triangle from '../annotations/triangle/component';
+import Pencil from '../annotations/pencil/component';
 
-export default class WhiteboardAnnotationModel extends React.Component {
-  constructor(props) {
-    super(props);
+export default class AnnotationFactory extends Component {
+
+  static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject) {
+    return (
+      <StaticAnnotation
+        key={annotationInfo._id}
+        shapeId={annotationInfo._id}
+        drawObject={drawObject}
+        slideWidth={slideWidth}
+        slideHeight={slideHeight}
+      />
+    );
+  }
+
+  static renderReactiveAnnotation(annotationInfo, slideWidth, slideHeight, drawObject) {
+    return (
+      <ReactiveAnnotationContainer
+        key={annotationInfo._id}
+        shapeId={annotationInfo._id}
+        drawObject={drawObject}
+        slideWidth={slideWidth}
+        slideHeight={slideHeight}
+      />
+    );
+  }
+
+  constructor() {
+    super();
+    this.renderAnnotation = this.renderAnnotation.bind(this);
+  }
+
+  renderAnnotation(annotationInfo) {
+    const drawObject = this.props.annotationSelector[annotationInfo.annotationType];
+
+    if (annotationInfo.status === 'DRAW_END') {
+      return AnnotationFactory.renderStaticAnnotation(
+          annotationInfo,
+          this.props.slideWidth,
+          this.props.slideHeight,
+          drawObject,
+        );
+    }
+    return AnnotationFactory.renderReactiveAnnotation(
+          annotationInfo,
+          this.props.slideWidth,
+          this.props.slideHeight,
+          drawObject,
+        );
   }
 
   render() {
-    const Component = this.props.annotations[this.props.annotation.annotationType];
-    if (Component != null) {
-      return (
-        <Component
-          annotation={this.props.annotation.annotationInfo}
-          widthRatio={this.props.widthRatio}
-          heightRatio={this.props.heightRatio}
-          slideWidth={this.props.slideWidth}
-          slideHeight={this.props.slideHeight}
-        />
-      );
-    }
+    const { annotationsInfo } = this.props;
     return (
-      <g />
+      <g>
+        {annotationsInfo ?
+          annotationsInfo.map(annotationInfo => this.renderAnnotation(annotationInfo))
+        : null }
+      </g>
     );
   }
 }
 
-WhiteboardAnnotationModel.defaultProps = {
-  annotations: {
+AnnotationFactory.propTypes = {
+  // initial width and height of the slide are required
+  // to calculate the coordinates for each annotation
+  slideWidth: PropTypes.number.isRequired,
+  slideHeight: PropTypes.number.isRequired,
+
+  // array of annotations, optional
+  annotationsInfo: PropTypes.arrayOf(PropTypes.object).isRequired,
+  annotationSelector: PropTypes.objectOf(PropTypes.func).isRequired,
+};
+
+AnnotationFactory.defaultProps = {
+  annotationSelector: {
     ellipse: Ellipse,
     line: Line,
     poll_result: Poll,

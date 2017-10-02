@@ -76,6 +76,7 @@ mx|Application {
 	horizontalGap : 60;
 	paddingLeft   : 30;
 	paddingRight  : 30;
+	verticalAlign : top;
 }
 
 .audioBroswerHintBoxStyle {
@@ -142,8 +143,8 @@ phonecomponents|MuteMeButton {
 
 .toolbarMainBox {
 	backgroundColor : #FFFFFF;
-	paddingTop      : 4;
-	paddingBottom   : 4;
+	paddingTop      : 6;
+	paddingBottom   : 6;
 }
 
 .breakoutRoomRibbon {
@@ -155,8 +156,10 @@ phonecomponents|MuteMeButton {
 }
 
 .topBoxStyle {
-	paddingLeft  : 8;
-	paddingRight : 8;
+	paddingTop    : 0;
+	paddingBottom : 0;
+	paddingLeft   : 8;
+	paddingRight  : 8;
 }
 
 .toolbarSeparator {
@@ -188,14 +191,17 @@ phonecomponents|MuteMeButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout");
 }
 
+.logoutButtonStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout_RTL");
+}
+
 .settingsButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
 .webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
 .deskshareDefaultButtonStyle, .deskshareOverButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
-.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle,
-.recordButtonStyleNormal, .recordButtonStyleStop, .recordButtonStyleStart {
+.muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
 	fillColorOver           : #FFFFFF;
 	borderColorOver         : #1070D7;
 	fillColorSelectedUp     : #1070D7;
@@ -204,6 +210,17 @@ phonecomponents|MuteMeButton {
 	borderColorSelectedUp   : #1070D7;
 	borderColorSelectedOver : #0A5EAC;
 	borderColorSelectedDown : #1070D7;
+}
+
+.recordButtonStyleNormal, .recordButtonStyleStop, .recordButtonStyleStart {
+	fillColorOver           : #FFFFFF;
+	borderColorOver         : #DE2721;
+	fillColorSelectedUp     : #FFFFFF;
+	fillColorSelectedOver   : #FFFFFF;
+	fillColorSelectedDown   : #FFFFFF;
+	borderColorSelectedUp   : #DE2721;
+	borderColorSelectedOver : #DE2721;
+	borderColorSelectedDown : #DE2721;
 }
 
 .voiceConfDefaultButtonStyle, .voiceConfOverButtonStyle, .voiceConfActiveButtonStyle, .voiceConfInactiveButtonStyle {
@@ -294,10 +311,7 @@ phonecomponents|MuteMeButton {
 }
 
 .recordButtonStyleStart {
-	icon             : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On_Blue");
-	selectedUpIcon   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
-	selectedOverIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
-	selectedDownIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
 .recordButtonStyleStop {
@@ -388,6 +402,7 @@ mx|Button {
 	textRollOverColor           : #4E5A66;
 	textSelectedColor           : #4E5A66;
 	fontSize                    : 14;
+	fontWeight                  : normal;
 	skin                        : ClassReference("org.bigbluebutton.skins.ButtonSkin");
 
 	/* Normal state */
@@ -429,11 +444,7 @@ users|BreakoutRoomSettings {
 }
 
 users|JoinBreakoutRoomWindow {
-	horizontalAlign : center;
-	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
-	paddingBottom   : 24;
-	paddingTop      : 0;
-	verticalGap     : 18;
+	iconRooms : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join_Room");
 }
 
 users|RoomActionsRenderer {
@@ -487,7 +498,7 @@ users|RoomActionsRenderer {
 	textAlign     : center;
 }
 
-.joinBreakoutRoomButton {
+.joinBreakoutRoomButton, .retryUploadButton {
 	fillColorUp       : #1070D7;
 	fillColorOver     : #0A5EAC;
 	fillColorDown     : #1070D7;
@@ -562,6 +573,18 @@ chat|AddChatTabBox {
 .chatControlBarSendButtonStyle {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
 	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
+	cornerRadius      : 20;
+	borderStyle       : none;
+	borderThickness   : 0;
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+}
+
+.chatControlBarSendButtonStyleRTL {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_RTL");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled_RTL");
 	cornerRadius      : 20;
 	borderStyle       : none;
 	borderThickness   : 0;
@@ -687,6 +710,7 @@ mx|ComboBox {
 	cornerRadius        : 2;
 	color               : #5E6C73;
 	fontSize            : 12;
+	fontWeight          : normal;
 
 	/* Normal state */
 	fillColorUp         : #FFFFFF;
@@ -823,8 +847,12 @@ layout|LoadButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload_Template");
 }
 
-layout|BroadcastButton {
+.broadcastLayoutButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout");
+}
+
+.broadcastLayoutButtonStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout_RTL");
 }
 
 /*
@@ -1094,6 +1122,10 @@ mx|Panel {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
 }
 
+.presentationUploadProgressBar {
+	trackHeight : 12;
+}
+
 .presentationUploadButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload");
 }
@@ -1102,14 +1134,22 @@ mx|Panel {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Polling");
 }
 
-.presentationBackButtonStyle {
+.presentationBackButtonStyle, .presentationForwardButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
 }
 
-.presentationForwardButtonStyle {
+.presentationBackButtonDisabledStyle, .presentationForwardButtonDisabledStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Left_Disabled");
+}
+
+.presentationForwardButtonStyle, .presentationBackButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
+}
+
+.presentationForwardButtonDisabledStyle, .presentationBackButtonDisabledStyleRTL {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Arrow_Right_Disabled");
 }
 
 .presentationFitToWidthButtonStyle {
@@ -1147,6 +1187,8 @@ mx|Panel {
 }
 
 .uploadFileButton {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
 	fillColorUp       : #1070D7;
 	fillColorOver     : #0A5EAC;
 	fillColorDown     : #1070D7;
@@ -1158,9 +1200,18 @@ mx|Panel {
 	borderThickness   : 0;
 }
 
-.uploadFileButton {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go");
-	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled");
+.uploadFileButtonRTL {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_RTL");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Go_Disabled_RTL");
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	fillColorDisabled : #F0F2F6;
+	color             : #FFFFFF;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+	borderStyle       : none;
+	borderThickness   : 0;
 }
 
 .presentationNameLabel {
@@ -1174,6 +1225,19 @@ mx|Panel {
 
 .presentationUploadShowButtonStyle {
 	color : #2A2D33;
+}
+
+.presentationFilesList {
+	paddingBottom : 5;
+	paddingLeft   : 5;
+	paddingRight  : 5;
+	paddingTop    : 5;
+}
+
+.progressErrorLblStyle {
+	color     : #DE2721;
+	fontSize  : 16;
+	textAlign : center;
 }
 
 .presentationDownloadShowButtonStyle {
@@ -1242,6 +1306,34 @@ mx|ProgressBar {
 
 /*
 //------------------------------
+//  QuoteView
+//------------------------------
+*/
+
+views|QuotesView {
+	iconQuote       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Quote");
+	verticalGap     : 20;
+	horizontalAlign : center;
+}
+
+.quoteSentenceStyle {
+	fontSize  : 32;
+	textAlign : center;
+}
+
+.quoteAttributionStyle {
+	fontSize  : 16;
+	textAlign : center;
+	color     : #4E5A66;
+}
+
+.quoteRule {
+	strokeWidth : 1;
+	color       : #BBBDBF;
+}
+
+/*
+//------------------------------
 //  RadioButton
 //------------------------------
 */
@@ -1303,16 +1395,12 @@ sharednotes|SharedNotesRichTextEditor {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
 }
 
-.sharedNotesNewButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Add_File");
-}
-
-.sharedNotesUndoButtonStyle {
+.sharedNotesUndoButtonStyle, .sharedNotesRedoButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Undo_Disabled");
 }
 
-.sharedNotesRedoButtonStyle {
+.sharedNotesRedoButtonStyle, .sharedNotesUndoButtonStyleRTL {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Redo_Disabled");
 }
@@ -1373,17 +1461,14 @@ mx|Tab, .defaultTabStyle {
 */
 
 mx|TitleWindow {
-	closeButtonDisabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
-	closeButtonDownSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
-	closeButtonOverSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
-	closeButtonUpSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
-	borderColor             : #FFFFFF;
-	cornerRadius            : 4;
-	roundedBottomCorners    : true;
-	dropShadowEnabled       : true;
-	shadowDistance          : 0;
-	borderThickness         : 1;
-	paddingTop              : 5;
+	borderColor          : #FFFFFF;
+	cornerRadius         : 4;
+	roundedBottomCorners : true;
+	dropShadowEnabled    : true;
+	shadowDistance       : 0;
+	borderThickness      : 1;
+	paddingTop           : 10;
+	headerHeight         : 0;
 }
 
 .titleWindowStyle {
@@ -1391,6 +1476,13 @@ mx|TitleWindow {
 	fontSize      : 24;
 	textAlign     : center;
 	paddingBottom : 8;
+}
+
+.titleWindowCloseButton {
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Disabled");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
 }
 
 /*
@@ -1455,6 +1547,9 @@ users|MediaItemRenderer {
 	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
 	glowFilterColor : #1070D7;
+	verticalAlign   : middle;
+	horizontalGap   : 8;
+	horizontalAlign : center;
 }
 
 users|NameItemRenderer {

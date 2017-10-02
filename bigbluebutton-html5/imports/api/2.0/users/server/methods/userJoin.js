@@ -17,13 +17,7 @@ export default function userJoin(meetingId, userId, authToken) {
     authToken,
   };
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId,
-  };
-
   Logger.info(`User '${userId}' is joining meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }

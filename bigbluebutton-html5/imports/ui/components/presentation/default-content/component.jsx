@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styles from './styles.scss';
 import { FormattedMessage, FormattedDate } from 'react-intl';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import styles from './styles.scss';
 import Button from '../../button/component';
 
 export default class DefaultContent extends Component {
-  handleClick() {
+  static handleClick() {
     console.log('dummy handler');
   }
 
@@ -44,61 +43,61 @@ export default class DefaultContent extends Component {
               <p>
                 <Button
                   label={'Small'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   size={'sm'}
                 />&nbsp;
                 <Button
                   label={'Medium'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                 />&nbsp;
                 <Button
                   label={'Large'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   size={'lg'}
                 />
               </p>
               <p>
                 <Button
                   label={'Default'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                 />&nbsp;
                 <Button
                   label={'Primary'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'primary'}
                 />&nbsp;
                 <Button
                   label={'Danger'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'danger'}
                 />&nbsp;
                 <Button
                   label={'Success'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'success'}
                 />
               </p>
               <p>
                 <Button
                   label={'Default'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   ghost
                 />&nbsp;
                 <Button
                   label={'Primary'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'primary'}
                   ghost
                 />&nbsp;
                 <Button
                   label={'Danger'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'danger'}
                   ghost
                 />&nbsp;
                 <Button
                   label={'Success'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'success'}
                   ghost
                 />
@@ -106,19 +105,19 @@ export default class DefaultContent extends Component {
               <p>
                 <Button
                   label={'With Icon'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   icon={'add'}
                 />&nbsp;
                 <Button
                   label={'Ghost With Icon'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'primary'}
                   icon={'add'}
                   ghost
                 />&nbsp;
                 <Button
                   label={'Icon Right'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'danger'}
                   icon={'add'}
                   ghost
@@ -126,7 +125,7 @@ export default class DefaultContent extends Component {
                 />&nbsp;
                 <Button
                   label={'Icon Right'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'success'}
                   icon={'add'}
                   iconRight
@@ -135,7 +134,7 @@ export default class DefaultContent extends Component {
               <p>
                 <Button
                   label={'Medium'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'primary'}
                   icon={'unmute'}
                   ghost
@@ -143,7 +142,7 @@ export default class DefaultContent extends Component {
                 />&nbsp;
                 <Button
                   label={'Large'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'danger'}
                   icon={'unmute'}
                   size={'lg'}
@@ -152,14 +151,14 @@ export default class DefaultContent extends Component {
                 /><br />
                 <Button
                   label={'Small'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   icon={'unmute'}
                   size={'sm'}
                   circle
                 />&nbsp;
                 <Button
                   label={'Icon Right'}
-                  onClick={this.handleClick}
+                  onClick={DefaultContent.handleClick}
                   color={'success'}
                   icon={'unmute'}
                   size={'sm'}

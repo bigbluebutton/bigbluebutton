@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles.scss';
 import cx from 'classnames';
+import styles from './styles.scss';
 
 const COLORS = [
   'default', 'primary', 'danger', 'success',
@@ -16,8 +16,15 @@ const defaultProps = {
 };
 
 export default class NotificationsBar extends Component {
-  constructor(props) {
-    super(props);
+
+  componentDidMount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
   }
 
   render() {

@@ -35,10 +35,10 @@
 .icon-bbb-unmute:before {
   content: "\e931";
 }
-.icon-bbb_file:before {
+.icon-bbb-file:before {
   content: "\e92e";
 }
-.icon-bbb_upload:before {
+.icon-bbb-upload:before {
   content: "\e92f";
 }
 .icon-bbb-fullscreen:before {
@@ -63,7 +63,7 @@
   content: "\e91e";
 }
 .icon-bbb-rectangle_tool:before {
-  content: "\e92f";
+  content: "\e91f";
 }
 .icon-bbb-text_tool:before {
   content: "\e920";

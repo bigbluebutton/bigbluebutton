@@ -10,7 +10,7 @@ export default class DropdownListTitle extends Component {
 
   constructor(props) {
     super(props);
-    this.labelID = _.uniqueId("labelContext-");
+    this.labelID = _.uniqueId('labelContext-');
   }
 
   render() {

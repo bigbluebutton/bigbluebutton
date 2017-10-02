@@ -73,6 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 		
 		<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
 	
 		<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
 		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
@@ -112,17 +113,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.FullscreenToggledEvent;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-			import org.bigbluebutton.core.events.FullscreenToggledEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -187,7 +189,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var _showToolbar:Boolean = true;
 			private const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
 			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
-			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
 			[Bindable] private var footerHeight:Number = 60;
@@ -204,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var heightWatch:ChangeWatcher;
 			private var resizeExecuting:Boolean = false;
 
-      private var _respTimer:ResponsivenessTimer;
+  			private var _respTimer:ResponsivenessTimer;
       
 			public function getLogWindow() : LogWindow
 			{
@@ -221,11 +222,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				updateCopyrightText();
 				loadBackground();
+				initQuote();
 				
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;
-					toolbarPaddingTop = 0;
 					calculateCanvasHeight();
 				}
 				toolbar.displayToolbar();
@@ -248,6 +249,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
 					copyrightText = String(brandingOptions.copyright).replace("{0}", appVersion);
+				}
+			}
+			
+			private function initQuote() : void {
+				if (brandingOptions.showQuote) {
+					quoteView.init();
+				} else {
+					quoteView.dispose();
 				}
 			}
 
@@ -667,16 +676,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
 					browserPermissionHelper.currentState = "chromeCam";
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates.
-					point1.x = width / 2;
-					point1.y = height / 2;
-					if (Capabilities.os.indexOf("Mac") >= 0) {
-						browserPermissionHelper.x = (mdiCanvas.width - browserPermissionHelper.width);
-					} else {
-						browserPermissionHelper.x = 20;
-					}
-					browserPermissionHelper.y = 20;
+					browserPermissionHelper.x = 20;
+					browserPermissionHelper.y = 150;
 				}
 			}
 
@@ -690,16 +691,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         handleExitApplicationEvent();
                         return;
                     }
-                    var logoutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(mdiCanvas, LoggedOutWindow, false) as LoggedOutWindow;
-                    if (logoutWindow) {
+                    var loggedOutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(mdiCanvas, LoggedOutWindow, false) as LoggedOutWindow;
+                    if (loggedOutWindow) {
                         var point1:Point = new Point();
                         // Calculate position of TitleWindow in Application's coordinates. 
                         point1.x = width / 2;
                         point1.y = height / 2;
-                        logoutWindow.x = point1.x - (logoutWindow.width / 2);
-                        logoutWindow.y = point1.y - (logoutWindow.height / 2);
+                        loggedOutWindow.x = point1.x - (loggedOutWindow.width / 2);
+                        loggedOutWindow.y = point1.y - (loggedOutWindow.height / 2);
 
-                        logoutWindow.setReason(reason);
+                        loggedOutWindow.setReason(reason);
                         mdiCanvas.removeAllPopUps();
                         removeToolBars();
                     }
@@ -765,9 +766,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = tabIndexer.startIndex + addedBtns.numChildren + 10;
+					var newComponentTabIndex:int = tabIndexer.startIndex + addedBtns.numChildren + 10;
+					(event.button as UIComponent).tabIndex = newComponentTabIndex;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
+					
+					//need to force the fullscreen button to be after it
+					fullScreenBtn.tabIndex = newComponentTabIndex + 1;
 				}
 			}
 			
@@ -890,24 +895,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					controlBar.styleName = "darkControlBarStyle";
                 }
             }
+			
+			private function onLocaleChanged(e:LocaleChangeEvent) : void {
+				if (ResourceUtil.getInstance().isRTLEnabled()) {
+					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
+				}
+			}
 
 		]]>
 	</fx:Script>
 
 	<fx:Declarations>
 		<common:TabIndexer id="tabIndexer" startIndex="100000"
-						   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
+						   tabIndices="{[warningBtn, langSelector, logBtn, fullScreenBtn]}"/>
 	</fx:Declarations>
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
-					   width="100%" 
+					   width="100%"
 					   height="{toolbarHeight}" 
 					   visible="{_showToolbar}"
 					   includeInLayout="{showToolbarOpt}"
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
-					   paddingTop="{toolbarPaddingTop}"
 					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
@@ -919,8 +929,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  height="150"
 					  width="100%">
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
-		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
-		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15" labelWidth="280" textAlign="center"/>
+		<views:QuotesView id="quoteView" horizontalCenter="0" y="{this.height/2 - quoteView.height - 100}"/>
 	</views:MainCanvas>	
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" styleName="defaultControlBarStyle" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >

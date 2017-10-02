@@ -63,49 +63,6 @@ $user-icons-color-hover: $color-gray;
   height: 100vh;
 }
 
-.header {
-  @extend %flex-column;
-  justify-content: left;
-  flex-grow: 0;
-  display: flex;
-  flex-direction: row;
-  padding: 0 $md-padding-x;
-  margin: $md-padding-x 0;
-}
-
-.headerTitle {
-  flex: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: $color-heading;
-}
-
-.btnToggle {
-  flex: 0;
-  padding: 0;
-  margin: 0;
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  text-align: right;
-
-  & > i {
-    color: $color-heading;
-    text-align: right;
-  }
-
-  &:hover, &:focus, &:active {
-    background-color: transparent;
-  }
-}
-
-.content {
-  @extend %flex-column;
-  flex-grow: 9;
-  overflow: hidden;
-}
-
 .lists {
   @extend %flex-column;
   @extend %no-margin;
@@ -129,11 +86,6 @@ $user-icons-color-hover: $color-gray;
   color: $color-gray-light;
 }
 
-.scrollableList {
-  @include scrollbox-vertical($user-list-bg);
-  @extend .customListFocus;
-}
-
 .participants, .messages {
   flex-grow: 0;
   display: flex;
@@ -151,13 +103,6 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
   overflow-x: hidden;
   overflow-y: auto;
-}
-
-.separator {
-  margin: 1rem auto;
-  width: 2.2rem;
-  border: 0;
-  border-top: 1px solid $color-gray-lighter;
 }
 
 .enter, .appear {

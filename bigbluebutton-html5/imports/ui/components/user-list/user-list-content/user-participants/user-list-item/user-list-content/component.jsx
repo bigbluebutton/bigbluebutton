@@ -1,54 +1,19 @@
 import React, { Component } from 'react';
+import { defineMessages } from 'react-intl';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
+import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import { findDOMNode } from 'react-dom';
-import { withRouter } from 'react-router';
-import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
-import _ from 'lodash';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
-import styles from './styles.scss';
-
-const normalizeEmojiName = (emoji) => {
-  const emojisNormalized = {
-    agree: 'thumbs_up',
-    disagree: 'thumbs_down',
-    thumbsUp: 'thumbs_up',
-    thumbsDown: 'thumbs_down',
-    raiseHand: 'hand',
-    away: 'time',
-    neutral: 'undecided',
-  };
-
-  return emoji in emojisNormalized ? emojisNormalized[emoji] : emoji;
-};
-
-const propTypes = {
-  user: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    isPresenter: PropTypes.bool.isRequired,
-    isVoiceUser: PropTypes.bool.isRequired,
-    isModerator: PropTypes.bool.isRequired,
-    image: PropTypes.string,
-  }).isRequired,
-
-  currentUser: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-  }).isRequired,
-
-  userActions: PropTypes.shape(),
-};
-
-const defaultProps = {
-  shouldShowActions: false,
-};
+import styles from './styles';
+import UserName from './../user-name/component';
+import UserIcons from './../user-icons/component';
 
 const messages = defineMessages({
   presenter: {
@@ -77,7 +42,31 @@ const messages = defineMessages({
   },
 });
 
-class UserListItem extends Component {
+const propTypes = {
+  compact: PropTypes.bool.isRequired,
+  user: PropTypes.shape({}).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  normalizeEmojiName: PropTypes.func.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  meeting: PropTypes.shape({}).isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
+};
+
+
+class UserListContent extends Component {
+
+  /**
+   * Return true if the content fit on the screen, false otherwise.
+   *
+   * @param {number} contentOffSetTop
+   * @param {number} contentOffsetHeight
+   * @return True if the content fit on the screen, false otherwise.
+   */
+  static checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
+    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
+  }
 
   constructor(props) {
     super(props);
@@ -114,45 +103,6 @@ class UserListItem extends Component {
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
 
-  getAvailableActions() {
-    const {
-      currentUser,
-      user,
-      userActions,
-      router,
-      isBreakoutRoom,
-    } = this.props;
-
-    const {
-      openChat,
-      clearStatus,
-      setPresenter,
-      kick,
-      mute,
-      unmute,
-    } = userActions;
-
-    const hasAuthority = currentUser.isModerator || user.isCurrent;
-    const allowedToChatPrivately = !user.isCurrent;
-    const allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
-    const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
-    const allowedToResetStatus = hasAuthority && user.emoji.status !== 'none';
-
-    // if currentUser is a moderator, allow kicking other users
-    const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
-
-    const allowedToSetPresenter = currentUser.isModerator && !user.isPresenter;
-
-    return _.compact([
-      (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
-      (allowedToMuteAudio ? this.renderUserAction(unmute, user) : null),
-      (allowedToUnmuteAudio ? this.renderUserAction(mute, user) : null),
-      (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
-      (allowedToSetPresenter ? this.renderUserAction(setPresenter, user) : null),
-      (allowedToKick ? this.renderUserAction(kick, user) : null),
-    ]);
-  }
-
   onActionsHide() {
     this.setState({
       isActionsOpen: false,
@@ -166,15 +116,10 @@ class UserListItem extends Component {
     return findDOMNode(this.dropdown);
   }
 
-  /**
-   * Return true if the content fit on the screen, false otherwise.
-   *
-   * @param {number} contentOffSetTop
-   * @param {number} contentOffsetHeight
-   * @return True if the content fit on the screen, false otherwise.
-   */
-  checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
-    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
+  handleScroll() {
+    this.setState({
+      isActionsOpen: false,
+    });
   }
 
   /**
@@ -193,7 +138,8 @@ class UserListItem extends Component {
       };
 
       const isDropdownVisible =
-        this.checkIfDropdownIsVisible(dropdownContent.offsetTop, dropdownContent.offsetHeight);
+        UserListContent.checkIfDropdownIsVisible(dropdownContent.offsetTop,
+          dropdownContent.offsetHeight);
 
       if (!isDropdownVisible) {
         const offsetPageTop =
@@ -217,119 +163,35 @@ class UserListItem extends Component {
     const list = findDOMNode(this.list);
 
     if (isActionsOpen && dropdownVisible) {
-      for (let i = 0; i < list.children.length; i++) {
-        if (list.children[i].getAttribute('role') === 'menuitem') {
-          list.children[i].focus();
-          break;
-        }
-      }
+      const children = [].slice.call(list.children);
+      children.find(child => child.getAttribute('role') === 'menuitem').focus();
     }
 
     return isActionsOpen && !dropdownVisible;
   }
 
-  handleScroll() {
-    this.setState({
-      isActionsOpen: false,
-    });
-  }
-
-  renderUserName() {
-    const {
-      user,
-      intl,
-      compact,
-    } = this.props;
-
-    if (compact) {
-      return null;
-    }
-
-    const userNameSub = [];
-
-    if (user.isLocked) {
-      userNameSub.push(<span>
-        <Icon iconName="lock" />
-        {intl.formatMessage(messages.locked)}
-      </span>);
-    }
-
-    if (user.isGuest) {
-      userNameSub.push(intl.formatMessage(messages.guest));
-    }
-
-    return (
-      <div className={styles.userName}>
-        <span className={styles.userNameMain}>
-          {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
-        </span>
-        {
-          userNameSub.length ?
-            <span className={styles.userNameSub}>
-              {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-            </span>
-          : null
-        }
-      </div>
-    );
-  }
-
-  renderUserIcons() {
-    const {
-      user,
-      compact,
-    } = this.props;
-
-    if (compact) {
-      return null;
-    }
-
-    if (!user.isSharingWebcam) {
-      // Prevent rendering the markup when there is no icon to show
-      return null;
-    }
-
-    return (
-      <div className={styles.userIcons}>
-        {
-          user.isSharingWebcam ?
-            <span className={styles.userIconsContainer}>
-              <Icon iconName="video" />
-            </span>
-            : null
-        }
-      </div>
-    );
-  }
-
-  renderUserAction(action, ...parameters) {
-    const userAction = (
-      <DropdownListItem
-        key={_.uniqueId('action-item-')}
-        icon={action.icon}
-        label={action.label}
-        defaultMessage={action.label}
-        onClick={action.handler.bind(this, ...parameters)}
-        placeInTabOrder
-      />
-    );
-
-    return userAction;
-  }
-
   render() {
     const {
       compact,
-    } = this.props;
-
-    const userItemContentsStyle = {};
-    userItemContentsStyle[styles.userItemContentsCompact] = compact;
-    userItemContentsStyle[styles.active] = this.state.isActionsOpen;
-
-    const {
       user,
       intl,
+      normalizeEmojiName,
+      actions,
+      isMeetingLocked,
+      meeting,
     } = this.props;
+
+    const {
+      isActionsOpen,
+      dropdownVisible,
+      dropdownDirection,
+      dropdownOffset,
+    } = this.state;
+
+    const userItemContentsStyle = {};
+
+    userItemContentsStyle[styles.userItemContentsCompact] = compact;
+    userItemContentsStyle[styles.active] = isActionsOpen;
 
     const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
@@ -345,7 +207,6 @@ class UserListItem extends Component {
         3: user.emoji.status,
       });
 
-    const actions = this.getAvailableActions();
     const contents = (
       <div
         className={!actions.length ? cx(styles.userListItem, userItemContentsStyle) : null}
@@ -367,8 +228,17 @@ class UserListItem extends Component {
                 user.name.toLowerCase().slice(0, 2)}
             </UserAvatar>
           </div>
-          {this.renderUserName()}
-          {this.renderUserIcons()}
+          {<UserName
+            user={user}
+            compact={compact}
+            intl={intl}
+            meeting={meeting}
+            isMeetingLocked={isMeetingLocked}
+          />}
+          {<UserIcons
+            user={user}
+            compact={compact}
+          />}
         </div>
       </div>
     );
@@ -376,8 +246,6 @@ class UserListItem extends Component {
     if (!actions.length) {
       return contents;
     }
-
-    const { dropdownOffset, dropdownDirection, dropdownVisible } = this.state;
 
     return (
       <Dropdown
@@ -426,7 +294,5 @@ class UserListItem extends Component {
   }
 }
 
-UserListItem.propTypes = propTypes;
-UserListItem.defaultProps = defaultProps;
-
-export default withRouter(injectIntl(UserListItem));
+UserListContent.propTypes = propTypes;
+export default UserListContent;
