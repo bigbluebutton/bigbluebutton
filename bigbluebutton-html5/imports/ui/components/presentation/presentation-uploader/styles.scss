@@ -140,9 +140,10 @@ $item-height: 1rem;
 
   &[aria-disabled="true"] {
     cursor: not-allowed;
-    opacity: .65;
+    opacity: .5;
     box-shadow: none;
     pointer-events: none;
+    cursor: not-allowed;
   }
 }
 

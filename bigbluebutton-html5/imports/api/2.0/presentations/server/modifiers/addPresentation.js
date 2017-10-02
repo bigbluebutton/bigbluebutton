@@ -21,19 +21,21 @@ export default function addPresentation(meetingId, presentation) {
     id: String,
     name: String,
     current: Boolean,
-    pages: [{
-      id: String,
-      num: Number,
-      thumbUri: String,
-      swfUri: String,
-      txtUri: String,
-      svgUri: String,
-      current: Boolean,
-      xOffset: Number,
-      yOffset: Number,
-      widthRatio: Number,
-      heightRatio: Number,
-    }],
+    pages: [
+      {
+        id: String,
+        num: Number,
+        thumbUri: String,
+        swfUri: String,
+        txtUri: String,
+        svgUri: String,
+        current: Boolean,
+        xOffset: Number,
+        yOffset: Number,
+        widthRatio: Number,
+        heightRatio: Number,
+      },
+    ],
     downloadable: Boolean,
   });
 
@@ -43,10 +45,11 @@ export default function addPresentation(meetingId, presentation) {
   };
 
   const modifier = {
-    $set: Object.assign(
-      { meetingId },
-      flat(presentation, { safe: true }),
-    ),
+    $set: Object.assign({
+      meetingId,
+      'conversion.done': true,
+      'conversion.error': false,
+    }, flat(presentation, { safe: true })),
   };
 
   const cb = (err, numChanged) => {

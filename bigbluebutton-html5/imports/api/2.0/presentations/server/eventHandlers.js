@@ -9,6 +9,5 @@ RedisPubSub.on('SyncGetPresentationInfoRespMsg', handlePresentationInfoReply);
 RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionUpdateEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionCompletedEvtMsg', handlePresentationAdded);
-RedisPubSub.on('NewPresentationEvtMsg', handlePresentationAdded);
 RedisPubSub.on('RemovePresentationEvtMsg', handlePresentationRemove);
 RedisPubSub.on('SetCurrentPresentationEvtMsg', handlePresentationCurrentSet);
