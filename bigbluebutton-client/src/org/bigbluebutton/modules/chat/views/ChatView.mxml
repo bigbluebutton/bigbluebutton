@@ -187,7 +187,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // to the chatbox. Succeeding messages will be handled by that chatbox.
         if (! userHasChatBox(event.senderId)) {
           // Open a private chat tab.
-          openChatBoxFor(event.senderId, false).handleFirstPrivateMessage(event);         
+          openChatBoxFor(event.senderId, false).handleFirstPrivateMessage(event);
         }
         
         // See if the chatbox is not in focus and notify user about the message.
@@ -196,7 +196,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function notifyUserOfNewMessage(chatId:String):void {
-        trace("CHATVIEW - notify user of new chat message for chatId=" + chatId);
         var newChatNotificationTimer:Timer = new Timer(10, 1);
         newChatNotificationTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
           if (! isChatBoxCurrentlySelected(chatId)) {

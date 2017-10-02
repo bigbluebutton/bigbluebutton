@@ -77,7 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatConversation;
       import org.bigbluebutton.modules.chat.model.ChatModel;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -507,7 +507,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
           cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
           
-          var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(
+          var publicEvent:SendGroupChatMessageEvent = new SendGroupChatMessageEvent(
             chatId, cm);
           globalDispatcher.dispatchEvent(publicEvent);
         }

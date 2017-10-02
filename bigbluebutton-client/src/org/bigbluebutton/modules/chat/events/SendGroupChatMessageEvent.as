@@ -22,16 +22,16 @@ package org.bigbluebutton.modules.chat.events
   
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   
-  public class SendPublicChatMessageEvent extends Event
+  public class SendGroupChatMessageEvent extends Event
   {
-    public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'sendPublicChatMessageEvent';
+    public static const SEND_GROUP_CHAT_MESSAGE_EVENT:String = 'sendPublicChatMessageEvent';
     
     public var chatMessage:ChatMessageVO;
     public var chatId:String;
     
-    public function SendPublicChatMessageEvent(chatId:String, chatMessage:ChatMessageVO)
+    public function SendGroupChatMessageEvent(chatId:String, chatMessage:ChatMessageVO)
     {
-      super(SEND_PUBLIC_CHAT_MESSAGE_EVENT, false, false);
+      super(SEND_GROUP_CHAT_MESSAGE_EVENT, false, false);
       this.chatId = chatId;
       this.chatMessage = chatMessage;
     }

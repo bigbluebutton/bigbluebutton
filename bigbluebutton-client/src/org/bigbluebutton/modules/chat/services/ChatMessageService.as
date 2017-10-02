@@ -20,36 +20,33 @@ package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
   import flash.external.ExternalInterface;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
-  import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-  import org.bigbluebutton.modules.chat.model.ChatConversation;
-  import org.bigbluebutton.modules.chat.model.ChatModel;
+  import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
-
+  
   public class ChatMessageService
   {
-	private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
+    private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var dispatcher:IEventDispatcher;
     
-    public function sendPublicMessageFromApi(event:SendPublicChatMessageEvent):void
+    public function sendPublicMessageFromApi(event:SendGroupChatMessageEvent):void
     {
-
+      
       
       //sendPublicMessage(event.chatId, msgVO);
     }    
     
     public function sendPrivateMessageFromApi(message:Object):void
     {
-	  LOGGER.debug("sendPrivateMessageFromApi");
+      LOGGER.debug("sendPrivateMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.fromUserId = message.fromUserID;
       msgVO.fromUsername = message.fromUsername;
@@ -63,10 +60,10 @@ package org.bigbluebutton.modules.chat.services
       msgVO.message = message.message;
       
       sendPrivateMessage(msgVO);
-
+      
     }
     
-    public function sendPublicMessage(event:SendPublicChatMessageEvent):void {
+    public function sendPublicMessage(event:SendGroupChatMessageEvent):void {
       LOGGER.debug("sendPublicMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.fromUserId = event.chatMessage.fromUserId;
@@ -98,7 +95,7 @@ package org.bigbluebutton.modules.chat.services
         sender.getGroupChatMsgHistory(gcId);
       }
     }
-
+    
     public function clearPublicChatMessages():void {
       sender.clearPublicChatMessages();
     }
@@ -106,7 +103,7 @@ package org.bigbluebutton.modules.chat.services
     private static const SPACE:String = " ";
     
     public function sendWelcomeMessage(chatId:String):void {
-	  LOGGER.debug("sendWelcomeMessage");
+      LOGGER.debug("sendWelcomeMessage");
       var welcome:String = LiveMeeting.inst().me.welcome;
       if (welcome != "") {
         var welcomeMsg:ChatMessageVO = new ChatMessageVO();

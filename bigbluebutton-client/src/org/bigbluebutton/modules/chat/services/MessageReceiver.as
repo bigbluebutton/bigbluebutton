@@ -125,18 +125,18 @@ package org.bigbluebutton.modules.chat.services
         }
       }
       
-      var chatMsgs: Array = new Array();
+      var groupChat: GroupChat = new GroupChat(chatId, name, access,
+        createdBy, new ArrayCollection(chatUsers), new ArrayCollection());
+      
+      LiveMeeting.inst().chats.addGroupChat(groupChat);
+      
       if (msgs.length > 0) {
         for (var j: int = 0; j < msgs.length; j++) {
           var m: Object = msgs[i] as Object;
-          chatMsgs.push(processNewChatMessage(m));
+          var chatMsg:ChatMessageVO = processNewChatMessage(m);
+          groupChat.addMessage(chatMsg);
         }
       }
-      
-      var groupChat: GroupChat = new GroupChat(chatId, name, access,
-        createdBy, new ArrayCollection(chatUsers), new ArrayCollection(chatMsgs));
-      
-      LiveMeeting.inst().chats.addGroupChat(groupChat);
     }
     
     private function handleGetChatHistoryRespMsg(message:Object):void {
@@ -145,10 +145,8 @@ package org.bigbluebutton.modules.chat.services
       var rawMessages:Array = message.body.msgs as Array;
       var processedMessages:Array = new Array();
       
-      trace("HISTORY LENGTH = " + rawMessages.length);
       for (var i:int = 0; i < rawMessages.length; i++) {
         var rawMsg: Object = rawMessages[i] as Object;
-        trace("PROCESS MESSAGE " + i);
         processedMessages.push(processNewChatMessage(rawMsg));
       }
       
