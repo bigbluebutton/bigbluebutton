@@ -74,17 +74,17 @@ package org.bigbluebutton.modules.chat.maps {
     private function openNewPublicGrouChatWindow(chatId: String, gc:GroupChat):void {
       var wMapper:GroupChatWindowMapper = findUnusedWindowMapper();
       if (wMapper != null) {
-        var window:ChatWindow = new ChatWindow();
-        window.setWindowId(chatId);
-        window.chatOptions = chatOptions;
-        window.title = gc.name;
-        window.showCloseButton = true;
-        
         // Setup a tracker for the state of this chat.
         var gcBoxMapper:GroubChatBoxMapper = new GroubChatBoxMapper(chatId);
         gcBoxMapper.chatBoxOpen = true;
-
-        wMapper.addChatBox(gcBoxMapper);        
+        wMapper.addChatBox(gcBoxMapper);    
+        
+        var window:ChatWindow = new ChatWindow();
+        window.setWindowId(wMapper.gcWinId);
+        window.setMainChatId(chatId);
+        window.chatOptions = chatOptions;
+        window.title = gc.name;
+        window.showCloseButton = true;
         _windows[window.getWindowId()] = window;
         
         openChatWindow(window);
@@ -94,17 +94,18 @@ package org.bigbluebutton.modules.chat.maps {
     
     public function createNewGroupChat(chatId: String):void {
       if (ChatModel.MAIN_PUBLIC_CHAT == chatId){
-        var window:ChatWindow = new ChatWindow();
-        window.setWindowId(chatId);
-        window.chatOptions = chatOptions;
-        window.title = ResourceUtil.getInstance().getString("bbb.chat.title");
-        window.showCloseButton = false;
-        
         // Setup a tracker for the state of this chat.
         var gcBoxMapper:GroubChatBoxMapper = new GroubChatBoxMapper(chatId);
         gcBoxMapper.chatBoxOpen = true;
         var winMapper:GroupChatWindowMapper = _windowMapper["gcWin-0"];
         winMapper.addChatBox(gcBoxMapper);
+        
+        var window:ChatWindow = new ChatWindow();
+        window.setWindowId(winMapper.gcWinId);
+        window.setMainChatId(chatId);
+        window.chatOptions = chatOptions;
+        window.title = ResourceUtil.getInstance().getString("bbb.chat.title");
+        window.showCloseButton = false;
         
         _windows[window.getWindowId()] = window;
         

@@ -58,12 +58,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private var _windowId: String;
       
+      // The chatId that would be displayed when this window opens.
+      [Bindable] private var _mainChatId:String;
+      
+      [Bindable] private var _openAddTabBox:Boolean = false;
+      
       public function setWindowId(winId: String):void {
         _windowId = winId;
       }
       
       public function getWindowId():String {
         return _windowId;
+      }
+      
+      public function setMainChatId(chatId: String):void {
+        _mainChatId = chatId;
+      }
+      
+      public function setOpenAddTabBox(open:Boolean):void {
+        _openAddTabBox = open;
       }
       
 			public function getPrefferedPosition():String{
@@ -184,5 +197,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}" includeInLayout="false"/>
+	<views:ChatView id="chatView" chatOptions="{chatOptions}" mainChatId="{_mainChatId}"
+                  openTabBox="{_openAddTabBox}" includeInLayout="false"/>
 </CustomMdiWindow>

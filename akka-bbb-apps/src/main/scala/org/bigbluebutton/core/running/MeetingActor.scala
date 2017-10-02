@@ -136,12 +136,12 @@ class MeetingActor(
   var lastRttTestSentOn = System.currentTimeMillis()
 
   // Create a default publish group chat
-  state = GroupChatApp.createDefaultPublicGroupChat(state)
-  state = GroupChatApp.genTestChatMsgHistory(state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+  state = GroupChatApp.createDefaultPublicGroupChat(GroupChatApp.MAIN_PUBLIC_CHAT, state)
+  state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
 
   // Create a default publish group chat
-  state = GroupChatApp.createTestPublicGroupChat(state)
-  state = GroupChatApp.genTestChatMsgHistory(state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+  state = GroupChatApp.createDefaultPublicGroupChat("TEST_GROUP_CHAT", state)
+  state = GroupChatApp.genTestChatMsgHistory("TEST_GROUP_CHAT", state, BbbSystemConst.SYSTEM_USER, liveMeeting)
 
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 

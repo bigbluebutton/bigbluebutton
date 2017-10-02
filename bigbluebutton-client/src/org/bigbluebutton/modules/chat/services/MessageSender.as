@@ -77,7 +77,7 @@ package org.bigbluebutton.modules.chat.services
       );
     }
     
-    public function sendPublicMessage(cm:ChatMessageVO):void {
+    public function sendPublicMessage(chatId: String, cm:ChatMessageVO):void {
       LOGGER.debug("Sending [chat.sendPublicMessage] to server. [{0}]", [cm.message]);
       var sender: GroupChatUser = new GroupChatUser(UsersUtil.getMyUserID(), 
         UsersUtil.getMyUsername());
@@ -91,7 +91,7 @@ package org.bigbluebutton.modules.chat.services
       var message:Object = {
         header: {name: "SendGroupChatMessageMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {chatId: ChatModel.MAIN_PUBLIC_CHAT, msg: msgFromUser}
+        body: {chatId: chatId, msg: msgFromUser}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -108,7 +108,7 @@ package org.bigbluebutton.modules.chat.services
     public function sendPrivateMessage(cm:ChatMessageVO):void {
       LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");
       LOGGER.debug("Sending fromUserID [{0}] to toUserID [{1}]", [cm.fromUserId, cm.toUserId]);
-      sendPublicMessage(cm);
+ //     sendPublicMessage(cm);
     }
 
     public function clearPublicChatMessages():void {

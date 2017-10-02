@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.chat.services
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.model.GroupChat;
@@ -39,19 +40,11 @@ package org.bigbluebutton.modules.chat.services
     public var receiver:MessageReceiver;
     public var dispatcher:IEventDispatcher;
     
-    public function sendPublicMessageFromApi(message:Object):void
+    public function sendPublicMessageFromApi(event:SendPublicChatMessageEvent):void
     {
-      LOGGER.debug("sendPublicMessageFromApi");
-      var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.fromUserId = message.fromUserID;
-      msgVO.fromUsername = message.fromUsername;
-      msgVO.fromColor = message.fromColor;
-      msgVO.fromTime = message.fromTime;
-      msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
 
-      msgVO.message = message.message;
       
-      sendPublicMessage(msgVO);
+      //sendPublicMessage(event.chatId, msgVO);
     }    
     
     public function sendPrivateMessageFromApi(message:Object):void
@@ -73,8 +66,17 @@ package org.bigbluebutton.modules.chat.services
 
     }
     
-    public function sendPublicMessage(message:ChatMessageVO):void {
-      sender.sendPublicMessage(message);
+    public function sendPublicMessage(event:SendPublicChatMessageEvent):void {
+      LOGGER.debug("sendPublicMessageFromApi");
+      var msgVO:ChatMessageVO = new ChatMessageVO();
+      msgVO.fromUserId = event.chatMessage.fromUserId;
+      msgVO.fromUsername = event.chatMessage.fromUsername;
+      msgVO.fromColor = event.chatMessage.fromColor;
+      msgVO.fromTime = event.chatMessage.fromTime;
+      msgVO.fromTimezoneOffset = event.chatMessage.fromTimezoneOffset;
+      
+      msgVO.message = event.chatMessage.message;
+      sender.sendPublicMessage(event.chatId, msgVO);
     }
     
     public function sendPrivateMessage(message:ChatMessageVO):void {

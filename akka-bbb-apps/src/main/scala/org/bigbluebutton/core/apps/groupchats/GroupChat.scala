@@ -45,9 +45,9 @@ object GroupChatApp {
     }
   }
 
-  def createDefaultPublicGroupChat(state: MeetingState2x): MeetingState2x = {
+  def createDefaultPublicGroupChat(chatId: String, state: MeetingState2x): MeetingState2x = {
     val createBy = GroupChatUser(BbbSystemConst.SYSTEM_USER, BbbSystemConst.SYSTEM_USER)
-    val defaultPubGroupChat = GroupChatFactory.create(MAIN_PUBLIC_CHAT, MAIN_PUBLIC_CHAT,
+    val defaultPubGroupChat = GroupChatFactory.create(chatId, chatId,
       GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
     val groupChats = state.groupChats.add(defaultPubGroupChat)
     state.update(groupChats)
@@ -61,11 +61,11 @@ object GroupChatApp {
     state.update(groupChats)
   }
 
-  def genTestChatMsgHistory(state: MeetingState2x, userId: String, liveMeeting: LiveMeeting): MeetingState2x = {
+  def genTestChatMsgHistory(chatId: String, state: MeetingState2x, userId: String, liveMeeting: LiveMeeting): MeetingState2x = {
     def addH(state: MeetingState2x, userId: String, liveMeeting: LiveMeeting, msg: GroupChatMsgFromUser): MeetingState2x = {
       val newState = for {
         sender <- GroupChatApp.findGroupChatUser(userId, liveMeeting.users2x)
-        chat <- state.groupChats.find(MAIN_PUBLIC_CHAT)
+        chat <- state.groupChats.find(chatId)
       } yield {
 
         val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg)

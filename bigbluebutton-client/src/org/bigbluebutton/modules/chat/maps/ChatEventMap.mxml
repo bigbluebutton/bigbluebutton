@@ -74,7 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  </EventHandlers>
 	  
 	    <EventHandlers type="{SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}">        
-	 		<MethodInvoker generator="{ChatMessageService}" method="sendPublicMessage" arguments="{event.chatMessage}"/>		
+	 		<MethodInvoker generator="{ChatMessageService}" method="sendPublicMessage" arguments="{event}"/>		
 	    </EventHandlers>
 	    
 	    <EventHandlers type="{SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT}">        

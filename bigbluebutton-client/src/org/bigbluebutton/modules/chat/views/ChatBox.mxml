@@ -493,7 +493,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
           sendStartCustomPollEvent(answers);
         } else {
-          var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
           var cm:ChatMessageVO = new ChatMessageVO();
           cm.fromUserId = UsersUtil.getMyUserID();
           cm.fromUsername = UsersUtil.getMyUsername();
@@ -508,8 +507,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
           cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
           
-          publicEvent.chatMessage = cm;
-          globalDispatcher.dispatchEvent(publicEvent);			
+          var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(
+            chatId, cm);
+          globalDispatcher.dispatchEvent(publicEvent);
         }
       }
       
