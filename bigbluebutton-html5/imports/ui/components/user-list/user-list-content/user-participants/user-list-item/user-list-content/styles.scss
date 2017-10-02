@@ -66,6 +66,7 @@
 }
 
 .userListItem {
+  @extend .customUserItemFocus;
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;

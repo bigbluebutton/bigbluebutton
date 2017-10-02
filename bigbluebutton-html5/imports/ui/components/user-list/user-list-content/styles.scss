@@ -6,3 +6,6 @@
   overflow: hidden;
 }
 
+.scrollableList {
+  @extend .customListFocus;
+}
