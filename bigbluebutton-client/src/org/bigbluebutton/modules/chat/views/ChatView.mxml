@@ -66,7 +66,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.model.ChatModel;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
+      import org.bigbluebutton.modules.chat.model.GroupChat;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       
@@ -185,6 +187,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePrivateGroupChatCreatedEvent(event:PrivateGroupChatCreatedEvent):void {
+        if (mainChatId != ChatModel.MAIN_PUBLIC_CHAT) {
+          // We only open private group chats in the main
+          // window.
+          return;
+        }
+        
         if (! userHasChatBox(event.chatId)) {
           // Open a private chat tab.
           openChatBoxFor(event.chatId, false);
@@ -331,7 +339,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else {
           chatBox.chatId = groupChatId;
           chatBox.publicChat = false;
-          chatBox.label = UsersUtil.getUserName(groupChatId);
+          chatBox.label = "FOO CHAT";
           chatBox.displayHowToCloseMessage();
         }
         
