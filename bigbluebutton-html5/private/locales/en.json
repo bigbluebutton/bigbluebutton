@@ -200,6 +200,8 @@
     "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
     "app.audioModal.audioChoiceDesc": "Select how to join the audio in this meeting",
     "app.audioModal.closeLabel": "Close",
+    "app.audioModal.yes": "Yes",
+    "app.audioModal.no": "No",
     "app.audio.joinAudio": "Join Audio",
     "app.audio.leaveAudio": "Leave Audio",
     "app.audio.enterSessionLabel": "Enter Session",

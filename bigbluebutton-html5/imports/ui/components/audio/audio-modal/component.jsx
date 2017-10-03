@@ -4,6 +4,7 @@ import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles';
 import AudioSettings from '../audio-settings/component';
+import EchoTest from '../echo-test/component';
 
 const intlMessages = defineMessages({
   backLabel: {
@@ -54,28 +55,59 @@ class AudioModal extends Component {
     super(props);
 
     this.state = {
-      settings: false,
+      content: null,
     };
 
-    this.handleBack = this.handleBack.bind(this);
+    const {
+      isConnecting,
+      isConnected,
+      isEchoTest,
+      inputDeviceId,
+    } = this.props;
+
+    this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
+    this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
     this.handleClose = props.closeModal;
     this.handleJoinMicrophone = props.joinMicrophone;
     this.handleJoinListenOnly = props.joinListenOnly;
     this.joinEchoTest = props.joinEchoTest;
     this.exitAudio = props.exitAudio;
     this.changeInputDevice = props.changeInputDevice;
+
+    this.contents = {
+      echoTest: <EchoTest
+        handleNo={this.handleGoToAudioOptions}
+        handleYes={this.handleJoinMicrophone}/>,
+      settings: <AudioSettings
+        handleBack={this.handleBack}
+        handleJoin={this.handleJoinMicrophone}
+        joinEchoTest={this.joinEchoTest}
+        exitAudio={this.exitAudio}
+        changeInputDevice={this.changeInputDevice}
+        isConnecting={isConnecting}
+        isConnected={isConnected}
+        isEchoTest={isEchoTest}
+        inputDeviceId={inputDeviceId}
+      />,
+    };
   }
 
-  handleBack() {
+  handleGoToAudioOptions() {
     this.setState({
-      settings: false,
+      content: null,
     });
   }
 
   handleGoToAudioSettings() {
     this.setState({
-      settings: true,
+      content: 'settings',
+    });
+  }
+
+  handleGoToEchoTest() {
+    this.setState({
+      content: 'echoTest',
     });
   }
 
@@ -92,7 +124,7 @@ class AudioModal extends Component {
           icon={'unmute'}
           circle
           size={'jumbo'}
-          onClick={this.handleGoToAudioSettings}
+          onClick={this.handleGoToEchoTest}
         />
         <Button
           className={styles.audioBtn}
@@ -106,30 +138,9 @@ class AudioModal extends Component {
     );
   }
 
-  renderAudioSettings() {
-    const {
-      isConnecting,
-      isConnected,
-      isEchoTest,
-    } = this.props;
-
-    return (
-      <AudioSettings
-        handleBack={this.handleBack}
-        handleJoin={this.handleJoinMicrophone}
-        joinEchoTest={this.joinEchoTest}
-        exitAudio={this.exitAudio}
-        changeInputDevice={this.changeInputDevice}
-        isConnecting={isConnecting}
-        isConnected={isConnected}
-        isEchoTest={isEchoTest}
-      />
-    );
-  }
-
   render() {
     const {
-      settings,
+      content,
     } = this.state;
 
     const {
@@ -141,17 +152,16 @@ class AudioModal extends Component {
       <ModalBase overlayClassName={styles.overlay} className={styles.modal}>
         <header className={styles.header}>
           <h3 className={styles.title}>{intl.formatMessage(intlMessages.audioChoiceLabel)}</h3>
-          { !settings ?
-            <Button
-              className={styles.closeBtn}
-              label={intl.formatMessage(intlMessages.closeLabel)}
-              icon={'close'}
-              size={'md'}
-              hideLabel
-              onClick={this.handleClose}
-            /> : null }
+          <Button
+            className={styles.closeBtn}
+            label={intl.formatMessage(intlMessages.closeLabel)}
+            icon={'close'}
+            size={'md'}
+            hideLabel
+            onClick={this.handleClose}
+          />
         </header>
-        { settings ? this.renderAudioSettings() : this.renderAudioOptions() }
+        { content ? this.contents[content] : this.renderAudioOptions() }
       </ModalBase>
     );
   }

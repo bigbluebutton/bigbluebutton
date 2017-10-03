@@ -6,6 +6,8 @@ export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
     this.userData = userData;
+
+    console.log('userdata', userData);
     this.isConnected = false;
     this.callStates = {
       callStarted: 'iceConnectionCompleted',

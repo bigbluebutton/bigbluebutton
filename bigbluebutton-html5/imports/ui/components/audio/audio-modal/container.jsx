@@ -41,6 +41,7 @@ export default withModalMounter(createContainer(({ mountModal }) =>
      isConnecting: Service.isConnecting(),
      isConnected: Service.isConnected(),
      isEchoTest: Service.isEchoTest(),
+     inputDeviceId: Service.inputDeviceId(),
    }), AudioModalContainer));
 
 // AudioControlsContainer.propTypes = propTypes;

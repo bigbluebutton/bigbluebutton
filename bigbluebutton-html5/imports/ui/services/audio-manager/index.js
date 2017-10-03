@@ -13,9 +13,23 @@ const toggleMuteMicrophone = (cb) => {
 
 class AudioManager {
   constructor() {
+
+
+    navigator.mediaDevices.enumerateDevices().then(kappa => console.log(kappa))
     this._inputDevice = {
       tracker: new Tracker.Dependency,
     };
+
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        console.log('kappa');
+        const deviceLabel = stream.getAudioTracks()[0].label;
+        navigator.mediaDevices.enumerateDevices().then(devices => {
+          const device = devices.find(device => device.label === deviceLabel);
+          this.changeInputDevice(device.deviceId);
+        })
+      });
 
     this.defineProperties({
       isMuted: false,
@@ -192,7 +206,8 @@ class AudioManager {
         this._inputDevice.stream = stream
         this._inputDevice.source = this._inputDevice.audioContext.createMediaStreamSource(stream);
         this._inputDevice.source.connect(this._inputDevice.scriptProcessor);
-        this._inputDevice.scriptProcessor.connect(this._inputDevice.audioContext.destination);;
+        this._inputDevice.scriptProcessor.connect(this._inputDevice.audioContext.destination);
+        this._inputDevice.tracker.changed();
       });
   }
 
@@ -201,6 +216,7 @@ class AudioManager {
   }
 
   get inputDeviceId () {
+    this._inputDevice.tracker.depend();
     return this._inputDevice.id;
   }
   // set outputDeviceId

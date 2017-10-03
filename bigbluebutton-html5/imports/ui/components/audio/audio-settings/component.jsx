@@ -53,8 +53,10 @@ class AudioSettings extends React.Component {
     this.exitAudio = props.exitAudio;
     this.changeInputDevice = props.changeInputDevice;
 
+
+    console.log('inputDeviceId', props.inputDeviceId);
     this.state = {
-      inputDeviceId: undefined,
+      inputDeviceId: props.inputDeviceId,
       outputDeviceId: undefined,
     };
   }
