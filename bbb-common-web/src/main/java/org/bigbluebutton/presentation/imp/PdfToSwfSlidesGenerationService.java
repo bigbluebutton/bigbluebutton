@@ -102,6 +102,7 @@ public class PdfToSwfSlidesGenerationService {
       builder.messageKey(ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
 
       Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("podId", pres.getPodId());
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -110,7 +111,7 @@ public class PdfToSwfSlidesGenerationService {
       String logStr = gson.toJson(logData);
       log.warn("-- analytics -- " + logStr);
 
-      DocPageCountFailed progress = new DocPageCountFailed(pres.getMeetingId(),
+      DocPageCountFailed progress = new DocPageCountFailed(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
         pres.getName(), "notUsedYet", "notUsedYet",
         pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
@@ -123,6 +124,7 @@ public class PdfToSwfSlidesGenerationService {
       builder.messageKey(ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY);
 
       Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("podId", pres.getPodId());
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -133,7 +135,7 @@ public class PdfToSwfSlidesGenerationService {
       String logStr = gson.toJson(logData);
       log.warn("-- analytics -- " + logStr);
 
-      DocPageCountExceeded  progress = new DocPageCountExceeded(pres.getMeetingId(),
+      DocPageCountExceeded  progress = new DocPageCountExceeded(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
         pres.getName(), "notUsedYet", "notUsedYet",
         pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY,
@@ -196,6 +198,7 @@ public class PdfToSwfSlidesGenerationService {
         notifier.sendConversionUpdateMessage(slidesCompleted, pres);
       } catch (ExecutionException e) {
         Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -208,6 +211,7 @@ public class PdfToSwfSlidesGenerationService {
         log.error(e.getMessage());
       } catch (InterruptedException e) {
         Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -220,6 +224,7 @@ public class PdfToSwfSlidesGenerationService {
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
         Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -234,6 +239,7 @@ public class PdfToSwfSlidesGenerationService {
 
       long pageConvEnd = System.currentTimeMillis();
       Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("podId", pres.getPodId());
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -252,6 +258,7 @@ public class PdfToSwfSlidesGenerationService {
         slide.generateBlankSlide();
 
         Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -267,6 +274,7 @@ public class PdfToSwfSlidesGenerationService {
 
     long presConvEnd = System.currentTimeMillis();
     Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("podId", pres.getPodId());
     logData.put("meetingId", pres.getMeetingId());
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());

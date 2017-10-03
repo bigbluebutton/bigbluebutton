@@ -96,6 +96,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
       case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
+      case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
 
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)

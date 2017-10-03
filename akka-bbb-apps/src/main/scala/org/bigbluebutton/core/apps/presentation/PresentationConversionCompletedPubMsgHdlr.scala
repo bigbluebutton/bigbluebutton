@@ -24,7 +24,7 @@ trait PresentationConversionCompletedPubMsgHdlr {
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
-      val body = PresentationConversionCompletedEvtMsgBody(msg.body.messageKey, msg.body.code, msg.body.presentation)
+      val body = PresentationConversionCompletedEvtMsgBody(msg.body.podId, msg.body.messageKey, msg.body.code, msg.body.presentation)
       val event = PresentationConversionCompletedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

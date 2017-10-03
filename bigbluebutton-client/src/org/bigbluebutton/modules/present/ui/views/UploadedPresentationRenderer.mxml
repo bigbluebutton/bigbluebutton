@@ -39,7 +39,7 @@
 			private var rolledOver:Boolean = false;
 
 			private function showPresentation():void {
-				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
+				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand('AAAAAUploadedPresentationRendererAAAA', data.id);
 				globalDispatch.dispatchEvent(changePresCommand);
 
 				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));

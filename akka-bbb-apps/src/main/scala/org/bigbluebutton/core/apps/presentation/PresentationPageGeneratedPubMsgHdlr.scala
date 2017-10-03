@@ -23,7 +23,7 @@ trait PresentationPageGeneratedPubMsgHdlr {
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
-      val body = PresentationPageGeneratedEvtMsgBody(msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.numberOfPages, msg.body.pagesCompleted, msg.body.presName)
+      val body = PresentationPageGeneratedEvtMsgBody(msg.body.podId, msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.numberOfPages, msg.body.pagesCompleted, msg.body.presName)
       val event = PresentationPageGeneratedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

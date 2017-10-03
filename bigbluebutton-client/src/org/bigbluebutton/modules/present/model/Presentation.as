@@ -19,7 +19,7 @@ package org.bigbluebutton.modules.present.model
       _id = id;
       _name = name;
       _current = current;
-      _pages = pages
+      _pages = pages;
       _downloadable = downloadable;
     }
     
