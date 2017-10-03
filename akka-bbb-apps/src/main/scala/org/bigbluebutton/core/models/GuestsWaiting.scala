@@ -58,6 +58,41 @@ object GuestPolicyType {
   val ALWAYS_ACCEPT = "ALWAYS_ACCEPT"
   val ALWAYS_DENY = "ALWAYS_DENY"
   val ASK_MODERATOR = "ASK_MODERATOR"
+  val ALWAYS_ACCEPT_AUTH = "ALWAYS_ACCEPT_AUTH"
 
-  val policyTypes = Set(ALWAYS_ACCEPT, ALWAYS_ACCEPT, ASK_MODERATOR)
+  val policyTypes = Set(ALWAYS_ACCEPT, ALWAYS_ACCEPT, ASK_MODERATOR, ALWAYS_ACCEPT_AUTH)
 }
+
+object GuestStatus {
+  val ALLOW = "ALLOW"
+  val DENY = "DENY"
+  val WAIT = "WAIT"
+
+  def determineGuestStatus(guest: Boolean, guestPolicy: String, authenticated: Boolean): String = {
+    var guestStatus = GuestStatus.WAIT
+    if (guest) {
+      guestPolicy match {
+        case GuestPolicyType.ASK_MODERATOR =>
+          guestStatus = GuestStatus.WAIT
+        case GuestPolicyType.ALWAYS_ACCEPT =>
+          // Do not ask to join
+          guestStatus = GuestStatus.ALLOW
+        case GuestPolicyType.ALWAYS_ACCEPT_AUTH =>
+          if (authenticated) {
+            // if authenticated, allow.
+            guestStatus = GuestStatus.ALLOW
+          } else {
+            // ask for permission
+            guestStatus = GuestStatus.WAIT
+          }
+        case GuestPolicyType.ALWAYS_DENY =>
+          guestStatus = GuestStatus.DENY
+        case _ =>
+          //Handle No case found
+          guestStatus = GuestStatus.DENY
+      }
+    }
+    guestStatus
+  }
+}
+

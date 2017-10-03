@@ -1,0 +1,12 @@
+@import "/imports/ui/components/user-list/styles.scss";
+
+.chatThumbnail {
+  @extend %flex-column;
+  color: $color-gray-light;
+  justify-content: center;
+  font-size: 175%;
+}
+
+.chatIcon {
+  flex: 0 0 2.2rem;
+}

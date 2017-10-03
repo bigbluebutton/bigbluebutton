@@ -19,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OfficeDocumentValidator {
-  private static Logger log = LoggerFactory
-      .getLogger(OfficeDocumentValidator.class);
+  private static Logger log = LoggerFactory.getLogger(OfficeDocumentValidator.class);
 
   public boolean isValid(UploadedPresentation pres) {
     boolean valid = true;

@@ -45,6 +45,7 @@ public class Meeting {
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
 	private String logoutUrl;
+	private int logoutTimer = 0;
 	private int maxUsers;
 	private boolean record;
 	private boolean autoStartRecording = false;
@@ -53,12 +54,12 @@ public class Meeting {
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
-	private String guestPolicy;
+	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
-	private final ConcurrentMap<String, Long> registeredUsers;
+	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<String>();
@@ -76,6 +77,7 @@ public class Meeting {
         moderatorPass = builder.moderatorPass;
         maxUsers = builder.maxUsers;
         logoutUrl = builder.logoutUrl;
+        logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
@@ -95,7 +97,7 @@ public class Meeting {
         userCustomData = new HashMap<String, Object>();
 
         users = new ConcurrentHashMap<String, User>();
-        registeredUsers = new ConcurrentHashMap<String, Long>();
+        registeredUsers = new ConcurrentHashMap<String, RegisteredUser>();
 
         configs = new ConcurrentHashMap<String, Config>();
     }
@@ -149,6 +151,38 @@ public class Meeting {
 
 	public ConcurrentMap<String, User> getUsersMap() {
 	    return users;
+	}
+
+	public void setGuestStatusWithId(String userId, String guestStatus) {
+    	User user = getUserById(userId);
+    	if (user != null) {
+    		user.setGuestStatus(guestStatus);
+		}
+
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.setGuestStatus(guestStatus);
+		}
+
+	}
+
+	public RegisteredUser getRegisteredUserWithAuthToken(String authToken) {
+		for (RegisteredUser ruser : registeredUsers.values()) {
+			if (ruser.authToken.equals(authToken)) {
+				return ruser;
+			}
+		}
+
+		return null;
+	}
+
+	public String getGuestStatusWithAuthToken(String authToken) {
+		RegisteredUser rUser = getRegisteredUserWithAuthToken(authToken);
+		if (rUser != null) {
+			return rUser.getGuestStatus();
+		}
+
+		return GuestPolicy.DENY;
 	}
 
 	public long getStartTime() {
@@ -265,6 +299,10 @@ public class Meeting {
 
 	public int getMaxUsers() {
 		return maxUsers;
+	}
+	
+	public int getLogoutTimer() {
+		return logoutTimer;
 	}
 
 	public boolean isRecord() {
@@ -410,6 +448,7 @@ public class Meeting {
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
     	private String logoutUrl;
+    	private int logoutTimer;
     	private Map<String, String> metadata;
     	private String dialNumber;
     	private String defaultAvatarURL;
@@ -508,6 +547,12 @@ public class Meeting {
     		return this;
     	}
     	
+    	public Builder withLogoutTimer(int l) {
+    		logoutTimer = l;
+    		return this;
+    	}
+    	
+    	
     	public Builder withMetadata(Map<String, String> m) {
     		metadata = m;
     		return this;
@@ -523,17 +568,16 @@ public class Meeting {
     	}
     }
 
-    public void userRegistered(String internalUserID) {
-        this.registeredUsers.put(internalUserID, new Long(System.nanoTime()));
+    public void userRegistered(RegisteredUser user) {
+        this.registeredUsers.put(user.userId, user);
     }
 
-    public Long userUnregistered(String userid) {
-        String internalUserIDSeed = userid.split("_")[0];
-        Long r = (Long) this.registeredUsers.remove(internalUserIDSeed);
+    public RegisteredUser userUnregistered(String userid) {
+		RegisteredUser r = (RegisteredUser) this.registeredUsers.remove(userid);
         return r;
     }
 
-    public ConcurrentMap<String, Long> getRegisteredUsers() {
+    public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
         return registeredUsers;
     }
 }

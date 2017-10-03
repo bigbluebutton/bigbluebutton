@@ -54,7 +54,7 @@ object FakeUserGenerator {
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, waitingForAcceptance = true)
+      authToken, avatarURL, guest, authed, guestStatus = GuestStatus.ALLOW)
     RegisteredUsers.add(users, ru)
     ru
   }

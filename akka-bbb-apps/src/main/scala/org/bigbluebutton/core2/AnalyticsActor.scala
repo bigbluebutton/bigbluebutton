@@ -47,6 +47,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserEjectedFromMeetingEvtMsg => logMessage(msg)
       case m: EjectUserFromVoiceConfSysMsg => logMessage(msg)
       case m: CreateBreakoutRoomSysCmdMsg => logMessage(msg)
+      case m: RequestBreakoutJoinURLReqMsg => logMessage(msg)
       case m: EndAllBreakoutRoomsMsg => logMessage(msg)
       case m: TransferUserToMeetingRequestMsg => logMessage(msg)
       case m: UserLeftVoiceConfToClientEvtMsg => logMessage(msg)
@@ -87,6 +88,14 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: GroupChatMessageBroadcastEvtMsg => logMessage(msg)
       case m: GetGroupChatMsgsReqMsg => logMessage(msg)
       case m: GetGroupChatMsgsRespMsg => logMessage(msg)
+      case m: CreateGroupChatReqMsg => logMessage(msg)
+      case m: GroupChatCreatedEvtMsg => logMessage(msg)
+      case m: GetGroupChatsReqMsg => logMessage(msg)
+      case m: GetGroupChatsRespMsg => logMessage(msg)
+
+      // Guest Management
+      case m: GuestsWaitingApprovedMsg => logMessage(msg)
+      case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
 
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)

@@ -135,6 +135,7 @@ package org.bigbluebutton.core.model
     public function updateUsers(breakoutId: String, users: Array): void {
       var breakout: BreakoutRoom = getBreakoutRoom(breakoutId);
       if (breakout != null) {
+		breakout.initUsers();
         if (users != null) {
           for (var i: int = 0; i < users.length; i++) {
             var user: Object = users[i] as Object;
@@ -143,7 +144,6 @@ package org.bigbluebutton.core.model
           }
         }
       }
-      dispatcher.dispatchEvent(new BreakoutRoomsListUpdatedEvent());
     }
     
     public function setBreakoutRoomInListen(listen:Boolean, breakoutMeetingId:String):void {

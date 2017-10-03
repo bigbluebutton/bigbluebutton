@@ -252,14 +252,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleOfficeDocumentConversionFailed(e:OfficeDocConvertFailedEvent):void {
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["presentation-conversion"];
+        logData.filename = fileToUpload.name;
+        logData.message = "Presentation conversion failed";
+        LOGGER.warn(JSON.stringify(logData));
+
         enableClosing();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.failed'));
       }
-		
-		private function handleOfficeDocumentConversionInvalid(e:OfficeDocConvertInvalidEvent):void {
-			enableClosing();
-			displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.invalid'));
-		}
+
+      private function handleOfficeDocumentConversionInvalid(e:OfficeDocConvertInvalidEvent):void {
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["presentation-conversion"];
+        logData.filename = fileToUpload.name;
+        logData.message = "Presentation conversion invalid";
+        LOGGER.warn(JSON.stringify(logData));
+
+        enableClosing();
+        displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.failed'));
+      }
 
       private function handleOfficeDocumentConversionSuccess(e:OfficeDocConvertSuccessEvent):void {
 		buildProgressLabel(ResourceUtil.getInstance().getString('bbb.presentation.document.converted'));

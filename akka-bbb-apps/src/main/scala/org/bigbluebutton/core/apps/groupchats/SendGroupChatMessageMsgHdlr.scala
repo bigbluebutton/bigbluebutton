@@ -29,15 +29,14 @@ trait SendGroupChatMessageMsgHdlr {
       val envelope = makeEnvelope(MessageTypes.BROADCAST_TO_MEETING, GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
       val header = makeHeader(GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
 
-      val cmsgs = GroupChatMsgToUser(msg.id, msg.timestamp, msg.correlationId,
-        msg.sender, msg.font, msg.size, msg.color, msg.message)
+      val cmsgs = GroupChatApp.toMessageToUser(msg)
       val body = GroupChatMessageBroadcastEvtMsgBody(chatId, cmsgs)
       val event = GroupChatMessageBroadcastEvtMsg(header, body)
 
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    GroupChatApp.sender(msg.header.userId, liveMeeting.users2x) match {
+    GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x) match {
       case Some(s) => log.debug("Found sender")
       case None    => log.debug("NOT FOUND sender")
     }
@@ -52,7 +51,7 @@ trait SendGroupChatMessageMsgHdlr {
     }
 
     val newState = for {
-      sender <- GroupChatApp.sender(msg.header.userId, liveMeeting.users2x)
+      sender <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
       chat <- state.groupChats.find(msg.body.chatId)
     } yield {
       val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)

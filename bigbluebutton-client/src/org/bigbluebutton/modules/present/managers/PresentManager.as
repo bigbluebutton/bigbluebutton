@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.present.managers
 	import mx.collections.ArrayCollection;
 
 	import org.bigbluebutton.common.IBbbModuleWindow;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.core.Options;
@@ -116,6 +117,10 @@ package org.bigbluebutton.modules.present.managers
 			for (var key: String in windows) {
 				windows[key].close();
 			}
+			
+//			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+//			event.window = presentWindow;
+//			globalDispatcher.dispatchEvent(event);
 		}
 
 

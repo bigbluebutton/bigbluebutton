@@ -5,9 +5,11 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object GroupChatFactory {
   def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
-  def create(id: String, name: String, access: String, createdBy: GroupChatUser): GroupChat = {
-    new GroupChat(id, name, access, createdBy, Map.empty, Vector.empty)
+  def create(id: String, name: String, access: String, createdBy: GroupChatUser,
+             users: Vector[GroupChatUser], msgs: Vector[GroupChatMessage]): GroupChat = {
+    new GroupChat(id, name, access, createdBy, users, msgs)
   }
+
 }
 
 case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
@@ -21,10 +23,10 @@ case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
 }
 
 case class GroupChat(id: String, name: String, access: String, createdBy: GroupChatUser,
-                     users: collection.immutable.Map[String, GroupChatUser],
+                     users: Vector[GroupChatUser],
                      msgs:  Vector[GroupChatMessage]) {
-  def add(user: GroupChatUser): GroupChat = copy(users = users + (user.id -> user))
-  def remove(userId: String): GroupChat = copy(users = users - userId)
+  def add(user: GroupChatUser): GroupChat = copy(users = users :+ user)
+  def remove(userId: String): GroupChat = copy(users = users.filterNot(u => u.id == userId))
   def add(msg: GroupChatMessage): GroupChat = copy(msgs = msgs :+ msg)
   def delete(msgId: String): GroupChat = copy(msgs = msgs.filterNot(m => m.id == msgId))
   def update(msg: GroupChatMessage): GroupChat = add(msg)
@@ -34,3 +36,7 @@ case class GroupChat(id: String, name: String, access: String, createdBy: GroupC
 case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, createdOn: Long,
                             updatedOn: Long, sender: GroupChatUser,
                             font: String, size: Int, color: String, message: String)
+
+case class GroupChatWindow(windowId: String, chatIds: Vector[String], keepOpen: Boolean, openedBy: String) {
+
+}

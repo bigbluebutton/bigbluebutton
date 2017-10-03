@@ -19,11 +19,11 @@
 package org.bigbluebutton.core.connection.messages.breakoutrooms {
 	import org.bigbluebutton.core.connection.messages.BbbCommonMsg;
 
-	public class RequestBreakoutJoinURLMsg extends BbbCommonMsg {
+	public class RequestBreakoutJoinURLReqMsg extends BbbCommonMsg {
 
-		public var body:RequestBreakoutJoinURLMsgBody;
+		public var body:RequestBreakoutJoinURLReqBody;
 
-		public function RequestBreakoutJoinURLMsg(body:RequestBreakoutJoinURLMsgBody) {
+		public function RequestBreakoutJoinURLReqMsg(body:RequestBreakoutJoinURLReqBody) {
 			super();
 			this.body = body;
 		}

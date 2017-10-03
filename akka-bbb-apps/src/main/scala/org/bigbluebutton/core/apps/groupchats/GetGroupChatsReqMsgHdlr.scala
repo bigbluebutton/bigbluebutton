@@ -6,17 +6,20 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait GetGroupChatsReqMsgHdlr {
+  this: GroupChatHdlrs =>
 
   def handle(msg: GetGroupChatsReqMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
+    log.debug("RECEIVED GetGroupChatsReqMsg")
+
     def buildGetGroupChatsRespMsg(meetingId: String, userId: String,
-                                  publicChats: Vector[GroupChatInfo], privateChats: Vector[GroupChatInfo]): BbbCommonEnvCoreMsg = {
+                                  allChats: Vector[GroupChatInfo]): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(GetGroupChatsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetGroupChatsRespMsg.NAME, meetingId, userId)
 
-      val body = GetGroupChatsRespMsgBody(userId, publicChats, privateChats)
+      val body = GetGroupChatsRespMsgBody(userId, allChats)
       val event = GetGroupChatsRespMsg(header, body)
 
       BbbCommonEnvCoreMsg(envelope, event)
@@ -24,10 +27,12 @@ trait GetGroupChatsReqMsgHdlr {
 
     val publicChats = state.groupChats.findAllPublicChats()
     val privateChats = state.groupChats.findAllPrivateChatsForUser(msg.header.userId)
-    val pubChats = publicChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy))
-    val privChats = privateChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy))
+    val pubChats = publicChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy, pc.users))
+    val privChats = privateChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy, pc.users))
 
-    val respMsg = buildGetGroupChatsRespMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, pubChats, privChats)
+    val allChats = pubChats ++ privChats
+
+    val respMsg = buildGetGroupChatsRespMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, allChats)
 
     bus.outGW.send(respMsg)
 

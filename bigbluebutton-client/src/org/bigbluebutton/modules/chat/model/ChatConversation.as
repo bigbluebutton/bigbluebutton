@@ -20,15 +20,9 @@ package org.bigbluebutton.modules.chat.model
 {
   import com.adobe.utils.StringUtil;
   import com.asfusion.mate.events.Dispatcher;
-  
-  import flash.system.Capabilities;
-  
-  import mx.collections.ArrayCollection;
-  
+  import flash.system.Capabilities; 
+  import mx.collections.ArrayCollection;  
   import org.bigbluebutton.modules.chat.ChatUtil;
-  import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-  import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
   
@@ -62,13 +56,6 @@ package org.bigbluebutton.modules.chat.model
         newCM.lastTime = previousCM.time;
       }
       messages.addItem(newCM);
-      trace("NUM MESSAGES = " + messages.length);
-      
-      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-      pcEvent.id = id;
-      pcEvent.senderId = newCM.senderId;
-      _dispatcher.dispatchEvent(pcEvent);
-      
     }
     
     public function newPrivateChatMessage(msg:ChatMessageVO):void {
@@ -79,12 +66,6 @@ package org.bigbluebutton.modules.chat.model
         newCM.lastTime = previousCM.time;
       }
       messages.addItem(newCM);
-      trace("NUM MESSAGES = " + messages.length);
-      
-      var pcEvent:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
-      pcEvent.chatId = id;
-      pcEvent.senderId = newCM.senderId;
-      _dispatcher.dispatchEvent(pcEvent);     
     }
     
     public function processChatHistory(messageVOs:Array):void {
@@ -107,10 +88,6 @@ package org.bigbluebutton.modules.chat.model
           newCM.lastTime = previousCM.time;
         }
       }
-      
-      var chEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
-      chEvent.chatId = id;
-      _dispatcher.dispatchEvent(chEvent);
     }
     
     private function convertChatMessage(msgVO:ChatMessageVO):ChatMessage {
@@ -146,10 +123,10 @@ package org.bigbluebutton.modules.chat.model
       var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\n");
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-        allText += "[" + item.time + "] ";
         if (StringUtil.trim(item.name) != "") {
-          allText += item.name + ": ";
+          allText += item.name + "\t";
         }
+        allText += item.time + "\t";
         allText += item.text + returnStr;
       }
       return allText;
@@ -164,9 +141,6 @@ package org.bigbluebutton.modules.chat.model
       
       messages.removeAll();
       messages.addItem(cm);
-      
-      var welcomeEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
-      _dispatcher.dispatchEvent(welcomeEvent);
     }
   }
 }

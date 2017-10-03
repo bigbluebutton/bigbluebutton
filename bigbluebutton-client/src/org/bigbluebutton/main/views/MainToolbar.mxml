@@ -217,6 +217,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					sequence = StringUtils.substringBefore(sequence, ")");
 					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
 				}
+				
+				if (LiveMeeting.inst().me.logoutTimer > 0 ) {
+					idleLogoutButton.startTimer(LiveMeeting.inst().me.logoutTimer);
+				} else {
+					rightBox.removeChild(idleLogoutButton);
+				}
 
 				logFlashPlayerCapabilities();
 			}
@@ -580,8 +586,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   styleName="helpLinkButtonStyle"
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
+				<views:IdleLogoutButton id="idleLogoutButton" height="30" visible="false" includeInLayout="{idleLogoutButton.visible}"/>
 				<mx:Button id="btnLogout" styleName="logoutButtonStyle"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="30"/>
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}"
+						   right="10" height="30" click="confirmLogout()"/>
 			</mx:HBox>
 		</mx:HBox>
 

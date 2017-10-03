@@ -8,9 +8,10 @@ public class UserJoined implements IMessage {
   public final String role;
   public final String avatarURL;
   public final Boolean guest;
-  public final Boolean waitingForAcceptance;
+  public final String guestStatus;
   
-  public UserJoined(String meetingId, String userId, String externalUserId, String name, String role, String avatarURL, Boolean guest, Boolean waitingForAcceptance) {
+  public UserJoined(String meetingId, String userId, String externalUserId, String name, String role,
+                    String avatarURL, Boolean guest, String guestStatus) {
   	this.meetingId = meetingId;
   	this.userId = userId;
   	this.externalUserId = externalUserId;
@@ -18,6 +19,6 @@ public class UserJoined implements IMessage {
   	this.role = role;
   	this.avatarURL = avatarURL;
   	this.guest = guest;
-  	this.waitingForAcceptance = waitingForAcceptance;
+  	this.guestStatus = guestStatus;
   }
 }

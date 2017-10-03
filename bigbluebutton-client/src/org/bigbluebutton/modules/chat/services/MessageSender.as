@@ -37,14 +37,13 @@ package org.bigbluebutton.modules.chat.services
     
     public var dispatcher:IEventDispatcher;
     
-    public function getPublicChatMessages():void {
-      LOGGER.debug("Sending [chat.getPublicMessages] to server.");
+    public function getGroupChats():void {
+      LOGGER.debug("Sending [chat.GetGroupChatsReqMsg] to server.");
       var message:Object = {
-        header: {name: "GetGroupChatMsgsReqMsg", 
+        header: {name: "GetGroupChatsReqMsg", 
           meetingId: UsersUtil.getInternalMeetingID(), 
             userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID(),
-            chatId: ChatModel.MAIN_PUBLIC_CHAT}
+        body: {requesterId: UsersUtil.getMyUserID()}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -58,7 +57,27 @@ package org.bigbluebutton.modules.chat.services
       );
     }
     
-    public function sendPublicMessage(cm:ChatMessageVO):void {
+    public function getGroupChatMsgHistory(chatId: String):void {
+      trace("SENDING CHAT HISTORY REQUEST FOR CHAT ID = " + chatId);
+      var message:Object = {
+        header: {name: "GetGroupChatMsgsReqMsg", 
+          meetingId: UsersUtil.getInternalMeetingID(), 
+            userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID(), chatId: chatId}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
+    }
+    
+    public function sendPublicMessage(chatId: String, cm:ChatMessageVO):void {
       LOGGER.debug("Sending [chat.sendPublicMessage] to server. [{0}]", [cm.message]);
       var sender: GroupChatUser = new GroupChatUser(UsersUtil.getMyUserID(), 
         UsersUtil.getMyUsername());
@@ -72,7 +91,7 @@ package org.bigbluebutton.modules.chat.services
       var message:Object = {
         header: {name: "SendGroupChatMessageMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {chatId: ChatModel.MAIN_PUBLIC_CHAT, msg: msgFromUser}
+        body: {chatId: chatId, msg: msgFromUser}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -89,7 +108,7 @@ package org.bigbluebutton.modules.chat.services
     public function sendPrivateMessage(cm:ChatMessageVO):void {
       LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");
       LOGGER.debug("Sending fromUserID [{0}] to toUserID [{1}]", [cm.fromUserId, cm.toUserId]);
-      sendPublicMessage(cm);
+ //     sendPublicMessage(cm);
     }
 
     public function clearPublicChatMessages():void {
@@ -97,6 +116,36 @@ package org.bigbluebutton.modules.chat.services
       var message:Object = {
         header: {name: "ClearPublicChatHistoryPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
         body: {}
+      };
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        },
+        JSON.stringify(message)
+      );
+    }
+    
+    public function createGroupChat(name: String, access: String, users: Array):void {
+      LOGGER.debug("Sending [chat.CreateGroupChatReqMsg] to server.");
+      
+      var myUserId: String = UsersUtil.getMyUserID();
+      
+      var now:Date = new Date();
+      var corrId: String = myUserId + "-" + now.time;
+
+      var name: String = name;
+      var access: String = access;
+      var msg: Array = new Array();
+      
+      var message:Object = {
+        header: {name: "CreateGroupChatReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+          userId: myUserId},
+        body: {correlationId: corrId, requesterId: myUserId,
+          name: name, access: access, users: users, msg: msg}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

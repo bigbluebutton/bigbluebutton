@@ -37,10 +37,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.util.ParamsUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -49,6 +45,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.util.ParamsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParamsProcessorUtil {
     private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
@@ -70,6 +70,7 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultClientUrl;
+    private String defaultGuestWaitURL;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -347,6 +348,7 @@ public class ParamsProcessorUtil {
         boolean record = processRecordMeeting(params.get("record"));
         int maxUsers = processMaxUser(params.get("maxParticipants"));
         int meetingDuration = processMeetingDuration(params.get("duration"));
+        int logoutTimer = processMeetingDuration(params.get("logoutTimer"));
 
         // set is breakout room property
         boolean isBreakout = false;
@@ -442,6 +444,7 @@ public class ParamsProcessorUtil {
                 .withMaxUsers(maxUsers).withModeratorPass(modPass)
                 .withViewerPass(viewerPass).withRecording(record)
                 .withDuration(meetingDuration).withLogoutUrl(logoutUrl)
+                .withLogoutTimer(logoutTimer)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(defaultAvatarURL)
@@ -451,7 +454,7 @@ public class ParamsProcessorUtil {
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
-								.withGuestPolicy(guestPolicy)
+                .withGuestPolicy(guestPolicy)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -487,7 +490,12 @@ public class ParamsProcessorUtil {
 	public String getDefaultClientUrl() {
 		return defaultClientUrl;
 	}
-	
+
+	public String getDefaultGuestWaitURL() {
+		return defaultGuestWaitURL;
+		//return defaultServerUrl + "/guestWait";
+	}
+
 	public String getDefaultConfigXML() {
 		defaultConfigXML = getConfig(defaultConfigURL);
 		
@@ -804,6 +812,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultClientUrl(String defaultClientUrl) {
 		this.defaultClientUrl = defaultClientUrl;
+	}
+
+	public void setDefaultGuestWaitURL(String url) {
+		this.defaultGuestWaitURL = url;
 	}
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
