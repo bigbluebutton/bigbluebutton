@@ -17,19 +17,15 @@
  *
  */
 package org.bigbluebutton.core.connection.messages.breakoutrooms {
+	import org.bigbluebutton.core.connection.messages.BbbCommonMsg;
 
-	public class RequestBreakoutJoinURLMsgBody {
+	public class RequestBreakoutJoinURLReqMsg extends BbbCommonMsg {
 
-		public var meetingId:String;
+		public var body:RequestBreakoutJoinURLReqBody;
 
-		public var breakoutId:String;
-
-		public var userId:String;
-
-		public function RequestBreakoutJoinURLMsgBody(meetingId:String, breakoutMeetingId:String, userId:String) {
-			this.meetingId = meetingId;
-			this.breakoutId = breakoutMeetingId;
-			this.userId = userId;
+		public function RequestBreakoutJoinURLReqMsg(body:RequestBreakoutJoinURLReqBody) {
+			super();
+			this.body = body;
 		}
 	}
 }
