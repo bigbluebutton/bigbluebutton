@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
-import Logger from '/imports/startup/server/logger';
 
 export default function kickVoiceUser(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -18,8 +17,6 @@ export default function kickVoiceUser(credentials, userId) {
     userId,
     ejectedBy: requesterUserId,
   };
-
-  Logger.warn(`Voice user '${userId}' was kicked by '${requesterUserId}' from meeting '${meetingId}'`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
