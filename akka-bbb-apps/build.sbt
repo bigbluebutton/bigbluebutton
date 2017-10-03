@@ -38,8 +38,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-val akkaVersion       = "2.4.12"
-val akkaHttpVersion   = "10.0.7"
+val akkaVersion       = "2.5.1"
 val scalaTestVersion  = "3.0.1"
 
 libraryDependencies ++= {
@@ -63,10 +62,6 @@ libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % akkaVersion
 
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-slf4j_2.12
 libraryDependencies += "com.typesafe.akka" % "akka-slf4j_2.12" % akkaVersion
-
-libraryDependencies += "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
-libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
-libraryDependencies += "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
 
 // https://mvnrepository.com/artifact/com.github.etaty/rediscala_2.12
 libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
