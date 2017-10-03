@@ -1,8 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis2x';
-import VoiceUsers from '/imports/api/2.0/voice-users';
-import kickVoiceUser from '/imports/api/2.0/voice-users/server/methods/kickVoiceUser';
 
 export default function kickUser(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -19,15 +17,6 @@ export default function kickUser(credentials, userId) {
     userId,
     ejectedBy: requesterUserId,
   };
-
-  const userVoice = VoiceUsers.findOne({
-    intId: userId,
-    meetingId,
-  });
-
-  if (userVoice.joined) {
-    kickVoiceUser(credentials, userId);
-  }
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }
