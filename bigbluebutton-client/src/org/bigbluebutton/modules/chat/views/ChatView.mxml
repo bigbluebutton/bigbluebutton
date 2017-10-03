@@ -58,6 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
       import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
@@ -321,7 +322,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           return getChatBoxForUser(groupChatId);
         } else {
           return createChatBoxFor(groupChatId, publicChat);
-        }				
+        }
       }
       
       private function createChatBoxFor(groupChatId:String, publicChat:Boolean = false):ChatBox {
@@ -337,10 +338,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           chatBox.publicChat = true;
           publicBox = chatBox; // keep a reference to the public chat box
         } else {
-          chatBox.chatId = groupChatId;
-          chatBox.publicChat = false;
-          chatBox.label = "FOO CHAT";
-          chatBox.displayHowToCloseMessage();
+          var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(groupChatId);
+          if (gc != null) {
+            chatBox.chatId = groupChatId;
+            chatBox.publicChat = false;
+            // We want to display other user's name without ours.
+            chatBox.label = gc.getNameAsUsers(UsersUtil.getMyUserID());
+            chatBox.displayHowToCloseMessage();
+          }
         }
         
         chatBox.chatWithUsername = groupChatId;

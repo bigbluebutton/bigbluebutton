@@ -37,9 +37,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import mx.collections.ArrayCollection;
       import mx.controls.Alert;
       import mx.events.CloseEvent;
+      
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.core.EventConstants;
@@ -54,7 +56,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+      import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
+      import org.bigbluebutton.modules.chat.model.GroupChat;
+      import org.bigbluebutton.modules.chat.views.model.ChatUser;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(AddChatTabBox);      
@@ -77,13 +82,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {
         handler.handleUserJoinedEvent(event);
+        handler.populateAllUsers()
+        users = removeMe(handler.users);
+      }
+      
+      private function removeMe(users:ArrayCollection):ArrayCollection {
+        var myUserId:String = UsersUtil.getMyUserID();
+        var filteredUsers:Array = new Array();
+        
+        for (var i:int = 0; i < users.length; i++) {
+          var user:ChatUser = users[i] as ChatUser;
+          if (user.userId != myUserId) {
+            filteredUsers.push(user);
+          }
+        }
+        
+        return new ArrayCollection(filteredUsers);
       }
       
       private function onCreationComplete():void{
         clrBtnVisible = UsersUtil.amIModerator();
         
         handler.populateAllUsers()
-        users = handler.users;
+        users = removeMe(handler.users);
         chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
         
         if (!chatOptions.privateEnabled) {
@@ -132,10 +153,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         usersList.selectedIndex = -1;
         
-        var e:CoreEvent = new CoreEvent(EventConstants.START_PRIVATE_CHAT);
-        e.message.chatWith = chatWithIntId;
-        var gd:Dispatcher = new Dispatcher();
-        gd.dispatchEvent(e);
+          var testChatName:String = "Test Private Chat";
+          var access:String = GroupChat.PRIVATE;
+          var users:Array = new Array();
+          users.push(chatWithIntId);
+          
+          var createEvent:CreateGroupChatReqEvent = 
+            new CreateGroupChatReqEvent(testChatName, access, users);
+          globalDispatcher.dispatchEvent(createEvent);
         
       }
       

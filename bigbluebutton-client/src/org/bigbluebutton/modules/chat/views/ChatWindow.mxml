@@ -199,9 +199,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       public function onCreateGCBtnClick():void {
-        var testChatName:String = "Test Private Chat";
-        var access:String = GroupChat.PRIVATE;
-        var users:Array = LiveMeeting.inst().users.getUserIds();
+        var testChatName:String = "New Public Chat";
+        var access:String = GroupChat.PUBLIC;
+        var users:Array = new Array();
         
         var createEvent:CreateGroupChatReqEvent = 
           new CreateGroupChatReqEvent(testChatName, access, users);
