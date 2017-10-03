@@ -181,7 +181,7 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCountFailed]) {
-      val event = MsgBuilder.buildbuildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
+      val event = MsgBuilder.buildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCountExceeded]) {
       val event = MsgBuilder.buildPresentationPageCountExceededSysPubMsg(msg.asInstanceOf[DocPageCountExceeded])

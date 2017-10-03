@@ -18,7 +18,7 @@ class MeetingInactivityTrackerTests extends UnitSpec {
     )
 
     val active = inactivityTracker.isMeetingInactive(nowInMinutes)
-    assert(active == false)
+    assert(active == true)
   }
 
   "A MeetingInactivityTrackerHelper" should "be return meeting is active" in {

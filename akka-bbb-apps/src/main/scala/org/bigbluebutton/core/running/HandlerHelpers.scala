@@ -36,7 +36,7 @@ trait HandlerHelpers extends SystemConfiguration {
         role = regUser.role,
         guest = regUser.guest,
         authed = regUser.authed,
-        waitingForAcceptance = regUser.waitingForAcceptance,
+        guestStatus = regUser.guestStatus,
         emoji = "none",
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,

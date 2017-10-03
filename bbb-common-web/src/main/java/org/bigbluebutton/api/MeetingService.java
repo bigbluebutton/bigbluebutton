@@ -37,29 +37,11 @@ import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.RedisStorageService;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
-import org.bigbluebutton.api.messaging.messages.CreateMeeting;
-import org.bigbluebutton.api.messaging.messages.EndBreakoutRoom;
-import org.bigbluebutton.api.messaging.messages.EndMeeting;
-import org.bigbluebutton.api.messaging.messages.IMessage;
-import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
-import org.bigbluebutton.api.messaging.messages.MeetingEnded;
-import org.bigbluebutton.api.messaging.messages.MeetingStarted;
-import org.bigbluebutton.api.messaging.messages.RegisterUser;
-import org.bigbluebutton.api.messaging.messages.UserJoined;
-import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
-import org.bigbluebutton.api.messaging.messages.UserLeft;
-import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
-import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
-import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
-import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
-import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
-import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
-import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.StunTurnService;
@@ -94,9 +76,12 @@ public class MeetingService implements MessageListener {
 
   private IBbbWebApiGWApp gw;
 
+  private  HashMap<String, PresentationUploadToken> uploadAuthzTokens;
+
   public MeetingService() {
     meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
     sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);
+    uploadAuthzTokens = new HashMap<String, PresentationUploadToken>();
   }
 
   public void addUserSession(String token, UserSession user) {
@@ -105,16 +90,33 @@ public class MeetingService implements MessageListener {
 
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
-                           String authToken, String avatarURL, Boolean guest, Boolean authed) {
+                           String authToken, String avatarURL, Boolean guest,
+                           Boolean authed, String guestStatus) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, avatarURL, guest, authed));
+      externUserID, authToken, avatarURL, guest, authed, guestStatus));
+
+    Meeting m = getMeeting(meetingID);
+    if (m != null) {
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
+      m.userRegistered(ruser);
+    }
   }
 
-  public UserSession getUserSession(String token) {
+  public UserSession getUserSessionWithUserId(String userId) {
+    for (UserSession userSession : sessions.values()) {
+      if (userSession.internalUserId.equals(userId)) {
+        return userSession;
+      }
+    }
+
+    return null;
+  }
+
+  public UserSession getUserSessionWithAuthToken(String token) {
     return sessions.get(token);
   }
 
-  public UserSession removeUserSession(String token) {
+  public UserSession removeUserSessionWithAuthToken(String token) {
     UserSession user = sessions.remove(token);
     if (user != null) {
       log.debug("Found user [" + user.fullname + "] token=[" + token
@@ -128,19 +130,17 @@ public class MeetingService implements MessageListener {
    */
   public void purgeRegisteredUsers() {
     for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
-      Long now = System.nanoTime();
+      Long now = System.currentTimeMillis();
       Meeting meeting = entry.getValue();
 
       ConcurrentMap<String, User> users = meeting.getUsersMap();
 
-      for (AbstractMap.Entry<String, Long> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+      for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
         String registeredUserID = registeredUser.getKey();
-        Long registeredUserDate = registeredUser.getValue();
+        RegisteredUser registeredUserDate = registeredUser.getValue();
 
-        long registrationTime = registeredUserDate.longValue();
-        long elapsedTime = now - registrationTime;
-        if (elapsedTime >= 60000
-          && !users.containsKey(registeredUserID)) {
+        long elapsedTime = now - registeredUserDate.registeredOn;
+        if (elapsedTime >= 60000 && !users.containsKey(registeredUserID)) {
           meeting.userUnregistered(registeredUserID);
         }
       }
@@ -163,6 +163,17 @@ public class MeetingService implements MessageListener {
 
       processRecording(m.getInternalId());
     }
+  }
+
+  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
+    Boolean valid = uploadAuthzTokens.containsKey(authzToken);
+    return valid;
+  }
+
+  public Boolean authzTokenIsValidAndExpired(String authzToken) {  // Note we DO expire the token
+    Boolean valid = uploadAuthzTokens.containsKey(authzToken);
+    expirePresentationUploadToken(authzToken);
+    return valid;
   }
 
   private void processMeetingForRemoval(Meeting m) {
@@ -446,6 +457,30 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  private void processGuestStatusChangedEventMsg(GuestStatusChangedEventMsg message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      for (GuestsStatus guest : message.guests) {
+        User user = m.getUserById(guest.userId);
+        if (user != null) user.setGuestStatus(guest.status);
+      }
+    }
+
+    for (GuestsStatus guest : message.guests) {
+      UserSession userSession = getUserSessionWithUserId(guest.userId);
+      if (userSession != null) userSession.guestStatus = guest.status;
+    }
+
+  }
+
+  private void processPresentationUploadToken(PresentationUploadToken message) {
+    uploadAuthzTokens.put(message.authzToken, message);
+  }
+
+  private void expirePresentationUploadToken(String usedToken) {
+    uploadAuthzTokens.remove(usedToken);
+  }
+
   public void addUserCustomData(String meetingId, String userID,
                                 Map<String, String> userCustomData) {
     Meeting m = getMeeting(meetingId);
@@ -561,8 +596,14 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance);
+        message.name, message.role, message.avatarURL, message.guest,
+              message.guestStatus);
       m.userJoined(user);
+      m.setGuestStatusWithId(user.getInternalUserId(), message.guestStatus);
+      UserSession userSession = getUserSessionWithUserId(user.getInternalUserId());
+      if (userSession != null) {
+        userSession.guestStatus = message.guestStatus;
+      }
 
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", m.getInternalId());
@@ -573,7 +614,7 @@ public class MeetingService implements MessageListener {
       logData.put("username", user.getFullname());
       logData.put("role", user.getRole());
       logData.put("guest", user.isGuest());
-      logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+      logData.put("guestStatus", user.getGuestStatus());
       logData.put("event", "user_joined_message");
       logData.put("description", "User joined the meeting.");
 
@@ -601,7 +642,7 @@ public class MeetingService implements MessageListener {
         logData.put("username", user.getFullname());
         logData.put("role", user.getRole());
         logData.put("guest", user.isGuest());
-        logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+        logData.put("guestStatus", user.getGuestStatus());
         logData.put("event", "user_left_message");
         logData.put("description", "User left the meeting.");
 
@@ -616,7 +657,7 @@ public class MeetingService implements MessageListener {
           m.setEndTime(System.currentTimeMillis());
         }
 
-        Long userRegistered = m.userUnregistered(message.userId);
+        RegisteredUser userRegistered = m.userUnregistered(message.userId);
         if (userRegistered != null) {
           log.info("User unregistered from meeting");
         } else {
@@ -812,6 +853,10 @@ public class MeetingService implements MessageListener {
           processStunTurnInfoRequested((StunTurnInfoRequested) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
+        } else if (message instanceof PresentationUploadToken) {
+          processPresentationUploadToken((PresentationUploadToken) message);
+        } else if (message instanceof GuestStatusChangedEventMsg) {
+          processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         }
       }
     };

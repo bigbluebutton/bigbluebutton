@@ -70,6 +70,7 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultClientUrl;
+    private String defaultGuestWaitURL;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -489,7 +490,12 @@ public class ParamsProcessorUtil {
 	public String getDefaultClientUrl() {
 		return defaultClientUrl;
 	}
-	
+
+	public String getDefaultGuestWaitURL() {
+		return defaultGuestWaitURL;
+		//return defaultServerUrl + "/guestWait";
+	}
+
 	public String getDefaultConfigXML() {
 		defaultConfigXML = getConfig(defaultConfigURL);
 		
@@ -806,6 +812,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultClientUrl(String defaultClientUrl) {
 		this.defaultClientUrl = defaultClientUrl;
+	}
+
+	public void setDefaultGuestWaitURL(String url) {
+		this.defaultGuestWaitURL = url;
 	}
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {

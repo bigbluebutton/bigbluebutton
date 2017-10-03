@@ -54,15 +54,15 @@ package org.bigbluebutton.modules.polling.service
 			
 
     private function generatePollId():String {
-      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
-      if (curPres != null) {
-        var date:Date = new Date();
-
-        var pollId:String;
-        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
-
-        return pollId;
-      }
+//      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
+//      if (curPres != null) {
+//        var date:Date = new Date();
+//
+//        var pollId:String;
+//        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+//
+//        return pollId;
+//      }
       
       return null;
     }

@@ -1,31 +1,27 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.{ OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.bus.MessageBus
 
 trait UndoWhiteboardPubMsgHdlr {
-  this: MeetingActor =>
+  this: WhiteboardApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleUndoWhiteboardPubMsg(msg: UndoWhiteboardPubMsg): Unit = {
+  def handle(msg: UndoWhiteboardPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: UndoWhiteboardPubMsg, removedAnnotationId: String): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(UndoWhiteboardEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UndoWhiteboardEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
+      val header = BbbClientMsgHeader(UndoWhiteboardEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
       val body = UndoWhiteboardEvtMsgBody(msg.body.whiteboardId, msg.header.userId, removedAnnotationId)
       val event = UndoWhiteboardEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-
-      //record(event)
+      bus.outGW.send(msgEvent)
     }
 
     for {
-      lastAnnotation <- undoWhiteboard(msg.body.whiteboardId, msg.header.userId)
+      lastAnnotation <- undoWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting)
     } yield {
       broadcastEvent(msg, lastAnnotation.id)
     }

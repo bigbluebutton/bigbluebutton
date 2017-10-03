@@ -1,7 +1,6 @@
 import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/2.0/meetings';
 import Service from './service';
 import UserList from './component';
@@ -16,7 +15,15 @@ const UserListContainer = (props) => {
     isBreakoutRoom,
     children,
     meeting,
+    getAvailableActions,
+    normalizeEmojiName,
     isMeetingLocked,
+    isPublicChat,
+    setEmojiStatus,
+    assignPresenter,
+    kickUser,
+    toggleVoice,
+    changeRole,
     } = props;
 
   return (
@@ -27,9 +34,16 @@ const UserListContainer = (props) => {
       openChats={openChats}
       openChat={openChat}
       isBreakoutRoom={isBreakoutRoom}
-      makeCall={makeCall}
+      setEmojiStatus={setEmojiStatus}
+      assignPresenter={assignPresenter}
+      kickUser={kickUser}
+      toggleVoice={toggleVoice}
+      changeRole={changeRole}
       userActions={userActions}
+      getAvailableActions={getAvailableActions}
+      normalizeEmojiName={normalizeEmojiName}
       isMeetingLocked={isMeetingLocked}
+      isPublicChat={isPublicChat}
     >
       {children}
     </UserList>
@@ -44,5 +58,13 @@ export default createContainer(({ params }) => ({
   openChat: params.chatID,
   userActions: Service.userActions,
   isBreakoutRoom: meetingIsBreakout(),
+  getAvailableActions: Service.getAvailableActions,
+  normalizeEmojiName: Service.normalizeEmojiName,
   isMeetingLocked: Service.isMeetingLocked,
+  isPublicChat: Service.isPublicChat,
+  setEmojiStatus: Service.setEmojiStatus,
+  assignPresenter: Service.assignPresenter,
+  kickUser: Service.kickUser,
+  toggleVoice: Service.toggleVoice,
+  changeRole: Service.changeRole,
 }), UserListContainer);

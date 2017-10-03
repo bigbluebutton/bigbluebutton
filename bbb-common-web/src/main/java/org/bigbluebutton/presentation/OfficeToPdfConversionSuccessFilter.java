@@ -60,6 +60,7 @@ public class OfficeToPdfConversionSuccessFilter {
     msg.put("room", pres.getMeetingId());
     msg.put("returnCode", "CONVERT");
     msg.put("presentationId", pres.getId());
+    msg.put("podId", pres.getPodId());
     msg.put("presentationName", pres.getId());
     msg.put("filename", pres.getName());
     msg.put("message", conversionMessagesMap.get(pres.getConversionStatus()));
@@ -72,8 +73,8 @@ public class OfficeToPdfConversionSuccessFilter {
 
 
   public void sendProgress(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getMeetingId(),
-      pres.getId(), pres.getId(),
+    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(),
+      pres.getMeetingId(),pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.getConversionStatus());
     gw.sendDocConversionMsg(progress);

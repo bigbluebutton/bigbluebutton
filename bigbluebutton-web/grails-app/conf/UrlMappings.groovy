@@ -1,8 +1,12 @@
 class UrlMappings {
 
 	static mappings = {
-		"/presentation/upload"(controller:"presentation") {
+		"/presentation/$authzToken/upload"(controller:"presentation") {
 			action = [POST:'upload']
+		}
+
+		"/presentation/checkPresentation"(controller:"presentation") {
+			action = [GET:'checkPresentationBeforeUploading']
 		}
 
 		"/presentation/test-convert"(controller:"presentation") {
@@ -67,6 +71,10 @@ class UrlMappings {
 
 		"/api/updateRecordings"(controller:"api") {
 			action = [GET:'updateRecordingsHandler', POST:'updateRecordingsHandler']
+		}
+
+		"/api/guestWait"(controller:"api") {
+			action = [GET:'guestWaitHandler']
 		}
 
 		"/$controller/$action?/$id?(.${format})?"{

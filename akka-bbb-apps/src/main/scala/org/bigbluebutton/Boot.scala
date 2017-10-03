@@ -2,6 +2,8 @@ package org.bigbluebutton
 
 import akka.event.Logging
 import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.stream.{ ActorMaterializer, Materializer }
 import org.bigbluebutton.endpoint.redis.{ AppsRedisSubscriberActor, KeepAliveRedisPublisher, RedisPublisher, RedisRecorderActor }
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
@@ -9,10 +11,12 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
 import org.bigbluebutton.core2.{ AnalyticsActor, FromAkkaAppsMsgSenderActor }
 
-object Boot extends App with SystemConfiguration {
+object Boot extends App with SystemConfiguration with ApiService {
 
   implicit val system = ActorSystem("bigbluebutton-apps-system")
   implicit val executor = system.dispatcher
+  override implicit val materializer = ActorMaterializer()
+
   val logger = Logging(system, getClass)
 
   val eventBus = new InMsgBusGW(new IncomingEventBusImp())
@@ -49,4 +53,6 @@ object Boot extends App with SystemConfiguration {
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver, incomingJsonMessageBus), "redis-subscriber")
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
+
+  //Http().bindAndHandle(routes, httpInterface, httpPort)
 }

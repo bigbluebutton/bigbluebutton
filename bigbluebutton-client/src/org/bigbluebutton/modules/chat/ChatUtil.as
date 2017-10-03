@@ -23,8 +23,9 @@ package org.bigbluebutton.modules.chat
   import flash.xml.XMLNodeType;
   
   import org.as3commons.lang.StringUtils;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.util.i18n.ResourceUtil;
-
+  
   public class ChatUtil
   {
     private static var urlPattern : RegExp = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/gi;
@@ -53,10 +54,10 @@ package org.bigbluebutton.modules.chat
     }
     
     public static function cleanup(message:String):String{
-		return XML( new XMLNode( XMLNodeType.TEXT_NODE, message ) ).toXMLString();
+      return XML( new XMLNode( XMLNodeType.TEXT_NODE, message ) ).toXMLString();
     }
     
-	public static function parseURLs( message : String ) : String{
+    public static function parseURLs( message : String ) : String{
       //var urlPattern : RegExp = /(http|ftp|https|www)(:\/\/[^\s\-_]+)?(\.[^\s\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[^\s\-\@?^=%&\/~\+#\(\)])?/g;
       
       var resultArray : Array = [];
@@ -66,30 +67,35 @@ package org.bigbluebutton.modules.chat
         item.foundValue = result[0];
         item.index = result.index;
         item.length = item.foundValue.length;
-
+        
         // We push the last result into resultArray
         resultArray.push(item);
-			
+        
         // We try to find the next match
         urlPattern.lastIndex = item.index + item.length;
       }
-
-	  // Replacing matched patterns with HTML links
+      
+      // Replacing matched patterns with HTML links
       var parsedString : String = message;
-	  for (var i : int = resultArray.length - 1; i >= 0; i--)
+      for (var i : int = resultArray.length - 1; i >= 0; i--)
       {
         var value : String = resultArray[i].foundValue;
         var newValue : String;
-		if (!StringUtils.startsWith(value, 'www')){
-			newValue = '<a href="event:' + value + '"> <u>' + value + '</u></a> ';
+        if (!StringUtils.startsWith(value, 'www')){
+          newValue = '<a href="event:' + value + '"> <u>' + value + '</u></a> ';
         }
         else{
-			newValue = '<a href="event:http://' + value + '"> <u>' + value + '</u></a> '; 
+          newValue = '<a href="event:http://' + value + '"> <u>' + value + '</u></a> '; 
         }
         parsedString = StringUtils.replaceAt(parsedString, newValue, resultArray[i].index, resultArray[i].index + resultArray[i].length)
       }
-
+      
       return parsedString;
+    }
+    
+    public static function genCorrelationId():String {
+      var now: Date = new Date();
+      return UsersUtil.getMyUserID() + "-" + now.time;
     }
   }
 }
