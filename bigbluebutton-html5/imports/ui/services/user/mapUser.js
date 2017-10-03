@@ -6,7 +6,9 @@ const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
 const mapUser = (user) => {
   const userId = Auth.userID;
-  const voiceUser = VoiceUsers.findOne({ intId: user.userId });
+  const voiceUser = VoiceUsers.findOne({ intId: user.userId }) || {
+    muted: false, talking: false, listenOnly: false };
+
   const { muted, talking, listenOnly } = voiceUser;
 
   const mappedUser = {
