@@ -26,7 +26,6 @@ trait CreateGroupChatReqMsgHdlr {
         }
       }
 
-      log.debug("CREATING CHAT ")
       val gc = GroupChatApp.createGroupChat(msg.body.name, msg.body.access, createdBy, users, msgs)
       sendMessages(msg, gc, liveMeeting, bus)
 

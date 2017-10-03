@@ -48,6 +48,20 @@ package org.bigbluebutton.modules.chat.model
       return _name;
     }
     
+    public function getNameAsUsers(exceptUserId:String):String {
+      if (users.length == 0) return _name;
+      
+      var tempName:String = "";
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:GroupChatUser = _users[i] as GroupChatUser;
+        if (user.id != exceptUserId) {
+          tempName += user.name + ",";
+        }        
+      }
+      
+      return tempName.slice(0,-1); 
+    }
+    
     public function get access(): String {
       return _access;
     }
@@ -78,7 +92,6 @@ package org.bigbluebutton.modules.chat.model
         }
       }
       
-      trace("RECEIVED CHAT HISTORY FROM SERVER FOR CHAT = " + _id);
       var chEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
       chEvent.chatId = id;
       _dispatcher.dispatchEvent(chEvent);
