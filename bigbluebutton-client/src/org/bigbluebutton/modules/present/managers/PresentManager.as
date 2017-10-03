@@ -24,59 +24,115 @@ package org.bigbluebutton.modules.present.managers
 	import flash.geom.Point;
 	
 	import mx.core.FlexGlobals;
-	
+	import mx.collections.ArrayCollection;
+
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+	import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
+	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
+	import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
 	import org.bigbluebutton.modules.present.model.PresentOptions;
+	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+
 	
 	public class PresentManager
 	{
 		private var globalDispatcher:Dispatcher;
-		private var presentWindow:PresentationWindow;
+		private var windows: Array = [];
+		private var podsManager: PresentationPodManager;
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
+			podsManager = PresentationPodManager.getInstance();
 		}
 		
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
-			if (presentWindow != null){ 
+			if (windows.length >= 1) {
 				return;
 			}
-			var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-			presentWindow = new PresentationWindow();
-			presentWindow.visible = presentOptions.showPresentWindow;
-			presentWindow.showControls = presentOptions.showWindowControls;
-			openWindow(presentWindow);
-		}
-		
-		public function handleStopModuleEvent():void{
-			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-			event.window = presentWindow;
-			globalDispatcher.dispatchEvent(event);
-		}
-		
-		private function openWindow(window:IBbbModuleWindow):void{
-			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			event.window = window;
+
+			var event:RequestAllPodsEvent = new RequestAllPodsEvent(RequestAllPodsEvent.REQUEST_ALL_PODS);
 			globalDispatcher.dispatchEvent(event);
 		}
 
-		public function handleOpenUploadWindow(e:UploadEvent):void{
+		public function handleAddPresentationPod(e: NewPresentationPodCreated): void {
+			var podId: String = e.podId;
+			var ownerId: String = e.ownerId;
+
+			if(!windows.hasOwnProperty(podId)) {
+				var newWindow:PresentationWindow = new PresentationWindow();
+				newWindow.onPodCreated(podId, ownerId);
+
+				var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
+				newWindow.visible = true; // TODO
+				// newWindow.visible = presentOptions.showPresentWindow;
+				newWindow.showControls = presentOptions.showWindowControls;
+
+				windows[podId] = newWindow;
+
+				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				openEvent.window = newWindow;
+				globalDispatcher.dispatchEvent(openEvent);
+
+				podsManager.handleAddPresentationPod(podId, ownerId);
+			}
+		}
+
+		public function handlePresentationPodRemoved(e: PresentationPodRemoved): void {
+			var podId: String = e.podId;
+			var ownerId: String = e.ownerId;
+
+			podsManager.handlePresentationPodRemoved(podId, ownerId); // GOOD
+
+			var destroyWindow:PresentationWindow = windows[podId];
+			if (destroyWindow != null) {
+				var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+				closeEvent.window = destroyWindow;
+				globalDispatcher.dispatchEvent(closeEvent);
+
+				delete windows[podId];
+			}
+		}
+
+		public function handleGetAllPodsRespEvent(e: GetAllPodsRespEvent): void {
+			var podsAC:ArrayCollection = e.pods as ArrayCollection;
+			podsManager.handleGetAllPodsResp(podsAC);
+		}
+
+		public function handleStopModuleEvent():void{
+			for (var key: String in windows) {
+				windows[key].close();
+			}
+			
+//			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+//			event.window = presentWindow;
+//			globalDispatcher.dispatchEvent(event);
+		}
+
+
+
+		public function handleOpenUploadWindow(e:UploadEvent):void {
 			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
 			if (uploadWindow) {
 				uploadWindow.maxFileSize = e.maxFileSize;
+//				uploadWindow.podId = e.podId;
+				uploadWindow.setPodId(e.podId);
 				
 				var point1:Point = new Point();
 				point1.x = FlexGlobals.topLevelApplication.width / 2;
-				point1.y = FlexGlobals.topLevelApplication.height / 2;  
+				point1.y = FlexGlobals.topLevelApplication.height / 2;
 				
 				uploadWindow.x = point1.x - (uploadWindow.width/2);
 				uploadWindow.y = point1.y - (uploadWindow.height/2);

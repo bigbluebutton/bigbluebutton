@@ -377,6 +377,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.CONVERT_SUCCESS;
       payload.presentationName = event.presName;
       payload.presentationId = event.presId;
+      payload.podId = event.podId;
       broadcastEvent(payload);
     }
 

@@ -22,6 +22,7 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 
 public final class UploadedPresentation {
+  private final String podId;
   private final String meetingId;
   private final String id;
   private final String name;
@@ -33,7 +34,8 @@ public final class UploadedPresentation {
   private boolean isDownloadable = false;
   private boolean current = false;
 
-  public UploadedPresentation(String meetingId, String id, String name, String baseUrl, Boolean current) {
+  public UploadedPresentation(String podId, String meetingId, String id, String name, String baseUrl, Boolean current) {
+    this.podId = podId;
     this.meetingId = meetingId;
     this.id = id;
     this.name = name;
@@ -52,6 +54,10 @@ public final class UploadedPresentation {
 
   public String getMeetingId() {
     return meetingId;
+  }
+
+  public String getPodId() {
+    return podId;
   }
 
   public String getId() {

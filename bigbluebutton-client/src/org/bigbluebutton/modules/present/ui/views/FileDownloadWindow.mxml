@@ -50,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function initData():void {
-				downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
+//				downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
 			}
 			
 			private function onCancelClicked():void {

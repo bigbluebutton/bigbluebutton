@@ -1,6 +1,7 @@
 package org.bigbluebutton.presentation.messages;
 
 public class DocPageCountExceeded implements IDocConversionMsg {
+  public final String podId;
   public final String meetingId;
   public final String presId;
   public final String presInstance;
@@ -12,10 +13,11 @@ public class DocPageCountExceeded implements IDocConversionMsg {
   public final Integer numPages;
   public final Integer maxNumPages;
 
-  public DocPageCountExceeded(String meetingId, String presId, String presInstance,
+  public DocPageCountExceeded(String podId, String meetingId, String presId, String presInstance,
                               String filename, String uploaderId, String authzToken,
                               Boolean downloadable, String key,
                               Integer numPages, Integer maxNumPages) {
+    this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
     this.presInstance = presInstance;

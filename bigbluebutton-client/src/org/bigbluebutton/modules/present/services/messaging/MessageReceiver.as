@@ -38,10 +38,15 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+  import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+  import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
+  import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
+  import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
+
   
   public class MessageReceiver implements IMessageListener {
     private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
@@ -57,7 +62,7 @@ package org.bigbluebutton.modules.present.services.messaging
     
     public function onMessage(messageName:String, message:Object):void {
       //LOGGER.info("Presentation: received message " + messageName);
-      
+
       switch (messageName) {
         case "SetCurrentPageEvtMsg":
           handleSetCurrentPageEvtMsg(message);
@@ -92,11 +97,20 @@ package org.bigbluebutton.modules.present.services.messaging
         case "PresentationUploadTokenFailRespMsg":
           handlePresentationUploadTokenFailRespMsg(message);
           break;
+        case "CreateNewPresentationPodEvtMsg":
+          handleCreateNewPresentationPodEvtMsg(message);
+          break;
+        case "RemovePresentationPodEvtMsg":
+          handleRemovePresentationPodEvtMsg(message);
+          break;
+        case "GetAllPresentationPodsRespMsg":
+          handleGetAllPresentationPodsRespMsg(message);
+          break;
       }
     }
     
     private function handleSetCurrentPageEvtMsg(msg:Object):void {
-      service.pageChanged(msg.body.pageId);
+      service.pageChanged(msg.body.podId, msg.body.pageId);
     }
     
     private function validatePage(map:Object):Boolean {
@@ -153,7 +167,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleSetCurrentPresentationEvtMsg(msg:Object):void {
-      service.changeCurrentPresentation(msg.body.presentationId);
+      service.changeCurrentPresentation(msg.body.podId, msg.body.presentationId);
     }
     
     private function handleRemovePresentationEvtMsg(msg:Object):void {
@@ -162,10 +176,11 @@ package org.bigbluebutton.modules.present.services.messaging
     
     private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
       var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
+      var podId: String = msg.body.podId as String;
+
+      service.addPresentation(podId, presVO);
       
-      service.addPresentation(presVO);
-      
-      var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);
+      var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(podId, presVO.id, presVO.name);
       dispatcher.dispatchEvent(uploadEvent);
     }
     
@@ -174,13 +189,32 @@ package org.bigbluebutton.modules.present.services.messaging
       var pages:Array = presentation.pages as Array;
       for (var k:int = 0; k < pages.length; k++) {
         var page:Object = pages[k] as Object;
-        var pg:PageVO = extractPage(page)
+        var pg:PageVO = extractPage(page);
         presoPages.addItem(pg);
       }
       
       var preso:PresentationVO = new PresentationVO(presentation.id, presentation.name, 
                                    presentation.current, presoPages, presentation.downloadable);
       return preso;
+    }
+
+    private function processPresentationPod(presentationPod:Object):PresentationPodVO {
+      var presentationVOs:ArrayCollection = new ArrayCollection();
+      var presentations:Array = presentationPod.presentations as Array;
+      for (var k:int = 0; k < presentations.length; k++) {
+        var aPres:PresentationVO = processUploadedPresentation(presentations[k] as Object);
+        presentationVOs.addItem(aPres);
+      }
+        
+      var authorizedPresenters:ArrayCollection = new ArrayCollection();
+      var authPresArray:Array = presentationPod.authorizedPresenters as Array;
+      for (var m:int = 0; m < authorizedPresenters.length; m++) {
+        presentationVOs.addItem(authPresArray[m] as String);
+      }  
+
+      var podVO:PresentationPodVO = new PresentationPodVO(presentationPod.id, presentationPod.ownerId,
+                presentationPod.currentPresenter, authorizedPresenters, presentationVOs);
+      return podVO;
     }
     
     private function handlePresentationPageGeneratedEvtMsg(msg:Object):void {
@@ -227,12 +261,12 @@ package org.bigbluebutton.modules.present.services.messaging
       var presentations:Array = msg.body.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
         var presentation:Object = presentations[j] as Object;
-        var presVO: PresentationVO = processUploadedPresentation(presentation)
+        var presVO: PresentationVO = processUploadedPresentation(presentation);
         presos.addItem(presVO);
       }
       
       service.removeAllPresentations();
-      service.addPresentations(presos);
+//      service.addPresentations(presos, podId); // TODO -- are they all on the same pod?
     }
 
     private function handlePresentationUploadTokenPassRespMsg(msg:Object):void {
@@ -247,6 +281,32 @@ package org.bigbluebutton.modules.present.services.messaging
       var podId: String = msg.body.podId;
       var filename: String = msg.body.filename;
       dispatcher.dispatchEvent(new PresentationUploadTokenFail(podId, filename));
+    }
+
+    private function handleCreateNewPresentationPodEvtMsg(msg:Object): void {
+      var ownerId: String = msg.body.ownerId;
+      var podId: String = msg.body.podId;
+      dispatcher.dispatchEvent(new NewPresentationPodCreated(podId, ownerId));
+    }
+
+    private function handleRemovePresentationPodEvtMsg(msg:Object): void {
+      var ownerId: String = msg.body.ownerId;
+      var podId: String = msg.body.podId;
+      dispatcher.dispatchEvent(new PresentationPodRemoved(podId, ownerId));
+    }
+
+    private function handleGetAllPresentationPodsRespMsg(msg: Object): void {
+      var podsAC:ArrayCollection = new ArrayCollection();
+      var podsArr:Array = msg.body.pods as Array;
+      for (var j:int = 0; j < podsArr.length; j++) {
+        var podObj:Object = podsArr[j] as Object;
+        var podVO: PresentationPodVO = processPresentationPod(podObj);
+        podsAC.addItem(podVO);
+      }
+
+      var event: GetAllPodsRespEvent = new GetAllPodsRespEvent(GetAllPodsRespEvent.GET_ALL_PODS_RESP);
+      event.pods = podsAC;
+      dispatcher.dispatchEvent(event);
     }
   }
 }

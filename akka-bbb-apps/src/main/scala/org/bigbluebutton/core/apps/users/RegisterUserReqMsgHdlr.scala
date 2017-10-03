@@ -22,11 +22,14 @@ trait RegisterUserReqMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
+    val guestPolicy = liveMeeting.guestsWaiting.getGuestPolicy().policy
     val guestStatus = GuestStatus.determineGuestStatus(
       msg.body.guest,
-      liveMeeting.guestsWaiting.getGuestPolicy().policy,
+      guestPolicy,
       msg.body.authed
     )
+
+    println("********* GUEST MANAGEMENT guestStatus=" + guestStatus + " policy=" + guestPolicy)
 
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.role, msg.body.authToken,
@@ -53,6 +56,8 @@ trait RegisterUserReqMsgHdlr {
     }
 
     guestStatus match {
+      case GuestStatus.ALLOW =>
+      // do nothing. Let the user go through.
       case GuestStatus.WAIT =>
         val guest = GuestWaiting(regUser.id, regUser.name, regUser.role)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)

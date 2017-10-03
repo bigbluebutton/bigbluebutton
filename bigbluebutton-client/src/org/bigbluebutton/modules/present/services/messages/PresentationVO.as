@@ -13,7 +13,7 @@ package org.bigbluebutton.modules.present.services.messages
       _id = id;
       _name = name;
       _current = current;
-      _pages = pages
+      _pages = pages;
       _downloadable = downloadable;
     }
     

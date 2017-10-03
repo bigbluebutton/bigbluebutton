@@ -17,7 +17,7 @@ trait PresentationConversionUpdatePubMsgHdlr {
       val envelope = BbbCoreEnvelope(PresentationConversionUpdateEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(PresentationConversionUpdateEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = PresentationConversionUpdateEvtMsgBody(msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.presName)
+      val body = PresentationConversionUpdateEvtMsgBody(msg.body.podId, msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.presName)
       val event = PresentationConversionUpdateEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
