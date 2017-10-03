@@ -1,8 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
-import VoiceUsers from '/imports/api/2.0/voice-users';
-import removeVoiceUser from '/imports/api/2.0/voice-users/server/modifiers/removeVoiceUser';
 
 export default function userEjected(meetingId, userId) {
   check(meetingId, String);
@@ -24,18 +22,6 @@ export default function userEjected(meetingId, userId) {
       role: 'VIEWER',
     },
   };
-
-  const user = VoiceUsers.findOne({ meetingId, voiceUserId: userId });
-
-  if (user) {
-    const voiceUser = {
-      voiceConf: user.voiceConf,
-      voiceUserId: user.voiceUserId,
-      intId: user.intId,
-    };
-
-    removeVoiceUser(meetingId, voiceUser);
-  }
 
   const cb = (err, numChanged) => {
     if (err) {
