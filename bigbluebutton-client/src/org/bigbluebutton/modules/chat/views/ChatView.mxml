@@ -209,7 +209,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         // See if the chatbox is not in focus and notify user about the message.
         notifyUserOfNewMessage(event.senderId);
-        privateNotification(event);
+       // privateNotification(event);
       }
       
       private function notifyUserOfNewMessage(chatId:String):void {
@@ -370,10 +370,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       // Activates an audio alert for screen-reader users on private message reception
-      private function privateNotification(event:PrivateChatMessageEvent):void{
-        if (! UsersUtil.isMe(event.senderId)) {
+      private function privateNotification(chatId:String):void{
+       // if (! UsersUtil.isMe(event.senderId)) {
           playSound();
-        }
+       // }
       }
       
       private function playSound():void {
