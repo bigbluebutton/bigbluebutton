@@ -29,7 +29,7 @@ object GuestsWaiting {
 class GuestsWaiting {
   private var guests: collection.immutable.HashMap[String, GuestWaiting] = new collection.immutable.HashMap[String, GuestWaiting]
 
-  private var guestPolicy = GuestPolicy(GuestPolicyType.ASK_MODERATOR, "SYSTEM")
+  private var guestPolicy = GuestPolicy(GuestPolicyType.ALWAYS_ACCEPT, "SYSTEM")
 
   private def toVector: Vector[GuestWaiting] = guests.values.toVector
 
@@ -60,7 +60,7 @@ object GuestPolicyType {
   val ASK_MODERATOR = "ASK_MODERATOR"
   val ALWAYS_ACCEPT_AUTH = "ALWAYS_ACCEPT_AUTH"
 
-  val policyTypes = Set(ALWAYS_ACCEPT, ALWAYS_ACCEPT, ASK_MODERATOR, ALWAYS_ACCEPT_AUTH)
+  val policyTypes = Set(ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR, ALWAYS_ACCEPT_AUTH)
 }
 
 object GuestStatus {
@@ -68,14 +68,28 @@ object GuestStatus {
   val DENY = "DENY"
   val WAIT = "WAIT"
 
+  def defaultGuestStatus(guestPolicy: String): String = {
+    guestPolicy match {
+      case GuestPolicyType.ASK_MODERATOR =>
+        GuestStatus.WAIT
+      case GuestPolicyType.ALWAYS_ACCEPT =>
+        GuestStatus.ALLOW
+      case GuestPolicyType.ALWAYS_DENY =>
+        GuestStatus.DENY
+      case _ =>
+        //Handle No case found
+        GuestStatus.DENY
+    }
+  }
+
   def determineGuestStatus(guest: Boolean, guestPolicy: String, authenticated: Boolean): String = {
-    var guestStatus = GuestStatus.WAIT
+    var guestStatus = defaultGuestStatus(guestPolicy)
+
     if (guest) {
       guestPolicy match {
         case GuestPolicyType.ASK_MODERATOR =>
           guestStatus = GuestStatus.WAIT
         case GuestPolicyType.ALWAYS_ACCEPT =>
-          // Do not ask to join
           guestStatus = GuestStatus.ALLOW
         case GuestPolicyType.ALWAYS_ACCEPT_AUTH =>
           if (authenticated) {

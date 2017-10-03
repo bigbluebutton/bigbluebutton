@@ -92,7 +92,7 @@ case class MeetingConfig(
   duration:           MeetingDuration,
   defaultAvatarURL:   String,
   defaultConfigToken: String,
-  guestPolicy:        String           = GuestPolicyType.ASK_MODERATOR
+  guestPolicy:        String           = GuestPolicyType.ALWAYS_ACCEPT
 )
 
 case class MeetingName(name: String)
