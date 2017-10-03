@@ -8,7 +8,7 @@ import kickVoiceUser from '/imports/api/2.0/voice-users/server/methods/kickVoice
 export default function kickUser(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'UserEjectedFromMeetingEvtMsg';
+  const EVENT_NAME = 'EjectUserFromMeetingCmdMsg';
 
   const { requesterUserId, meetingId } = credentials;
 
@@ -32,5 +32,5 @@ export default function kickUser(credentials, userId) {
 
   Logger.warn(`User '${userId}' was kicked by '${requesterUserId}' from meeting '${meetingId}'`);
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, 'nodeJSapp', payload);
 }
