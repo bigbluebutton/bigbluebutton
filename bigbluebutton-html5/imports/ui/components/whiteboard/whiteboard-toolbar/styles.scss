@@ -120,22 +120,22 @@ $number-of-vertical-main-toolbar-buttons: 5;
 
 .annotationList {
   width: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+  right: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width});
 }
 
 .thicknessList {
   width: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+  right: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width});
 }
 
 .fontSizeList {
   width: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+  right: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width});
 }
 
 .colorList {
   width: calc(#{$number-of-color-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-color-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+  right: calc(#{$number-of-color-list-buttons} * #{$toolbar-button-width});
 }
 
 //Undo and Clear All buttons shouldn't be active
