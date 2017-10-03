@@ -40,7 +40,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
       import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+      import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+      import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+      import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
+      import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
+      import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+      import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
+      import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
+      import org.bigbluebutton.modules.present.model.PresentationPodManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
 		]]>
 	</fx:Script>
@@ -53,8 +61,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 			<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
-      <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
-	    <MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
+			<MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+			<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
 		</EventHandlers>
 		
 		<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
@@ -141,5 +149,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{GoToNextPageCommand.GO_TO_NEXT_PAGE}">
 	    <MethodInvoker generator="{PresentProxy}" method="handleGoToNextPageCommand" arguments="{event}" />
 	  </EventHandlers>
+
+		<EventHandlers type="{NewPresentationPodCreated.PRESENTATION_NEW_POD_CREATED}" >
+			<MethodInvoker generator="{PresentManager}" method="handleAddPresentationPod" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD}" >
+			<MethodInvoker generator="{PresentProxy}" method="handleRequestNewPresentationPod" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{RequestClosePresentationPodEvent.REQUEST_CLOSE_PRES_POD}" >
+			<MethodInvoker generator="{PresentProxy}" method="handleRequestClosePresentationPod" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{PresentationPodRemoved.PRESENTATION_POD_REMOVED}" >
+			<MethodInvoker generator="{PresentManager}" method="handlePresentationPodRemoved" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{RequestPresentationInfoPodEvent.REQUEST_PRES_INFO}" >
+			<MethodInvoker generator="{PresentProxy}" method="handleRequestPresentationInfoPodEvent" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{RequestAllPodsEvent.REQUEST_ALL_PODS}" >
+			<MethodInvoker generator="{PresentProxy}" method="handleRequestAllPodsEvent" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{GetAllPodsRespEvent.GET_ALL_PODS_RESP}" >
+			<MethodInvoker generator="{PresentManager}" method="handleGetAllPodsRespEvent" arguments="{event}" />
+		</EventHandlers>
+
 	</fx:Declarations>
 </EventMap>

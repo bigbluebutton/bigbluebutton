@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import java.io.{ PrintWriter, StringWriter }
 
 import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
+import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
@@ -109,6 +110,7 @@ class MeetingActor(
   val chatApp2x = new ChatApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatHdlrs
+  val presentationPodsApp = new PresentationPodHdlrs
   val pollApp = new PollApp2x
   val wbApp = new WhiteboardApp2x
 
@@ -131,7 +133,13 @@ class MeetingActor(
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
-  var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
+  var state = new MeetingState2x(
+    new GroupChats(Map.empty),
+    new PresentationPodManager(Map.empty),
+    None,
+    inactivityTracker,
+    expiryTracker
+  )
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
@@ -144,6 +152,10 @@ class MeetingActor(
   state = GroupChatApp.genTestChatMsgHistory("TEST_GROUP_CHAT", state, BbbSystemConst.SYSTEM_USER, liveMeeting)
 
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
+
+  // Create a default Presentation Pod
+  //  state = PresentationPodsApp.createDefaultPresentationPod(state)
+  log.debug("NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -272,8 +284,9 @@ class MeetingActor(
       case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
 
       // Presentation
-      case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: GetPresentationInfoReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      //      case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus, state)
+      //      case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      //      case m: GetPresentationInfoReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
@@ -284,6 +297,13 @@ class MeetingActor(
       case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
+
+      // Presentation Pods
+      case m: CreateNewPresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: RemovePresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetPresentationInfoReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetAllPresentationPodsReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetCurrentPresentationPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)

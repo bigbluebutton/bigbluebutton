@@ -100,6 +100,8 @@ class PresentationController {
          file.transferTo(pres)
          
          def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
+         def podId = params.pod_id
+         log.debug "@AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..." + podId
 
          if(isDownloadable) {
            log.debug "@Creating download directory..."
@@ -113,7 +115,7 @@ class PresentationController {
          }
 
          def presentationBaseUrl = presentationService.presentationBaseUrl
-         UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId,
+         UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
                  presFilename, presentationBaseUrl, false /* default presentation */);
 
          if(isDownloadable) {

@@ -91,15 +91,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.model.PresentOptions;
 		import org.bigbluebutton.modules.present.model.Presentation;
 		import org.bigbluebutton.modules.present.model.PresentationModel;
+		import org.bigbluebutton.modules.present.model.PresentationPodManager;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
       
 		private static const LOGGER:ILogger = getClassLogger(FileUploadWindow);      
-        
-      [Bindable] private var presentationNamesAC:ArrayCollection;
-	    [BIndable] public var maxFileSize:Number;
-		
+
+		[Bindable] private var presentationNamesAC:ArrayCollection;
+		[Bindable] public var maxFileSize:Number;
+		[Bindable] public var podId:String;
+
 		private var dispatcher:Dispatcher;
 
       private var thumbnailTimer:Timer = new Timer(5000);
@@ -118,7 +120,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			dispatcher = new Dispatcher();
 			updateStyles();
 		}
-		
+
+		public function setPodId(_podId: String): void {
+			podId = _podId;
+			presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations(); // GOOD
+			if (presentationNamesAC.length <= 0) {
+				selectFile();
+			}
+		}
+
 		private function updateStyles() : void {
 			var styleNameExt : String = "";
 			if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
@@ -130,10 +140,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			private function initData():void {
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-				presentationNamesAC = PresentationModel.getInstance().getPresentations();
-				if (presentationNamesAC.length <= 0) {
-					selectFile();
-				}
 			}
 
       private function handleThumbnailsProgressEvent(event:CreatingThumbnailsEvent):void {	
@@ -218,6 +224,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
           uploadCmd.isDownloadable = isDownloadable;
+          uploadCmd.podId = podId;
+
           globalDispatch.dispatchEvent(uploadCmd);
           letUserDownload.visible = false;
         }       		
@@ -324,7 +332,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
         enableClosing();
-		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.presId));
+		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.podId, e.presId));
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
 

@@ -8,10 +8,12 @@ package org.bigbluebutton.modules.present.events
     
     public var presId:String;
     public var presName:String;
+    public var podId:String;
     
-    public function ConversionCompletedEvent(presentationId:String, presentationName:String)
+    public function ConversionCompletedEvent(destPodId: String, presentationId:String, presentationName:String)
     {
       super(CONVERSION_COMPLETED, true, false);
+      podId = destPodId;
       presId = presentationId;
       presName = presentationName;
     }
