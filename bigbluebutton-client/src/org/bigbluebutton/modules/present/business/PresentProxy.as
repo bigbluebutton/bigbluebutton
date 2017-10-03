@@ -178,6 +178,9 @@ package org.bigbluebutton.modules.present.business
 			if (currentUploadCommand != null && currentUploadCommand.filename == e.filename) {
 				uploadService.upload(currentUploadCommand.podId, currentUploadCommand.filename, currentUploadCommand.file, currentUploadCommand.isDownloadable);
 				currentUploadCommand = null;
+				
+				// TODO
+				uploadService = null; // reset upload service so we can use new token for consecutive upload
 			} else {
 
 			}
@@ -236,19 +239,17 @@ package org.bigbluebutton.modules.present.business
 //			service.load(fullUri, slides, slideUri);
 			LOGGER.debug('number of slides={0}', [slides.size()]);
 		}
-		
+
 		/**
 		 * It may take a few seconds for the process to complete on the server, so we allow for some time 
 		 * before notifying viewers the presentation has been loaded 
 		 * @param e
 		 * 
-		 */		
-		public function sharePresentation(e:PresenterCommands):void{
-			JSLog.warn("+++ PresentProxy:: sharePresentation1: " + e.presentationName, {});
-			JSLog.warn("+++ PresentProxy:: sharePresentation2: " + e.podId, {});
-      		sender.sharePresentation(e.podId, e.presentationName);
+		 */
+		public function sharePresentation(e:PresenterCommands):void {
+			sender.sharePresentation(e.podId, e.presentationName);
 		}
-		
+
 		public function removePresentation(e:RemovePresentationEvent):void {
 			sender.removePresentation(e.presentationName);
 		}

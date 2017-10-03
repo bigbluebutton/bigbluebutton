@@ -18,9 +18,10 @@ package org.bigbluebutton.modules.present.model
     public var xOffset: Number;
     public var yOffset: Number;
     public var widthRatio: Number;
-    public var heightRatio: Number
+    public var heightRatio: Number;
     
 	private var _pageLoadedListener:Function;
+    private var _parentPodId: String;
     private var _swfLoader:URLLoader;
     private var _swfLoaded:Boolean = false;
     private var _txtLoader:URLLoader;
@@ -73,13 +74,14 @@ package org.bigbluebutton.modules.present.model
       return _txtUri;
     }
     
-    public function loadPage(pageLoadedListener:Function, preloadCount:uint):void {
+    public function loadPage(pageLoadedListener:Function, podId: String, preloadCount:uint):void {
       if (_swfLoaded && _txtLoaded) {
-		  pageLoadedListener(_id, preloadCount);
+		  pageLoadedListener(podId, _id, preloadCount);
 		  return;
 	  }
 	  
 	  _pageLoadedListener = pageLoadedListener;
+      _parentPodId = podId;
 	  _preloadCount = preloadCount;
 	  
 	  if (!_swfLoaded) loadSwf();
@@ -101,7 +103,7 @@ package org.bigbluebutton.modules.present.model
       _swfLoaded = true;
       if (_txtLoaded) {
         if (_pageLoadedListener != null) {
-          _pageLoadedListener(_id, _preloadCount);
+          _pageLoadedListener(_parentPodId, _id, _preloadCount);
         }
         _preloadCount = 0;
 	  }
@@ -122,7 +124,7 @@ package org.bigbluebutton.modules.present.model
       _txtLoaded = true;
       if (_swfLoaded) {
         if (_pageLoadedListener != null) {
-          _pageLoadedListener(_id, _preloadCount);
+          _pageLoadedListener(_parentPodId, _id, _preloadCount);
         }
         _preloadCount = 0;
       }

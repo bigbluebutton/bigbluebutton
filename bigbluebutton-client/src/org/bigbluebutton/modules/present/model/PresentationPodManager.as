@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.present.model {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 
-                JSLog.warn("+++ PresentationPodManager:: getPod podId=" + podId + " getPodId=" +  pod.getPodId(), {});
+                // JSLog.warn("+++ PresentationPodManager:: getPod podId=" + podId + " getPodId=" +  pod.getPodId(), {});
                 if (pod.getPodId() == podId) {
                     return pod;
                 }

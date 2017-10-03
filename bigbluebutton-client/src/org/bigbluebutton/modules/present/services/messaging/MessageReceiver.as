@@ -70,6 +70,7 @@ package org.bigbluebutton.modules.present.services.messaging
                 messageName == "SendCaptionHistoryRespMsg" ||
                 messageName == "GetGroupChatMsgsRespMsg" ||  
                 messageName == "DoLatencyTracerMsg" || 
+                messageName == "PresentationConversionUpdateEvtMsg" ||
                 messageName == "ServerToClientLatencyTracerMsg") {
             
         } else {
@@ -124,7 +125,10 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleSetCurrentPageEvtMsg(msg:Object):void {
-      service.pageChanged(msg.body.pageId);
+      JSLog.warn("__--__Presentation received: handleSetCurrentPageEvtMsg" + msg.body.podId, {});
+      JSLog.warn("__--__Presentation received: handleSetCurrentPageEvtMsg" + msg.body.pageId, {});
+        
+      service.pageChanged(msg.body.podId, msg.body.pageId);
     }
     
     private function validatePage(map:Object):Boolean {
@@ -192,9 +196,6 @@ package org.bigbluebutton.modules.present.services.messaging
       var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
       var podId: String = msg.body.podId as String;
 
-        JSLog.warn("+++ Receiver:: handlePresentationConversionCompletedEvtMsg1: " + podId, {});
-        JSLog.warn("+++ Receiver:: handlePresentationConversionCompletedEvtMsg2: " + presVO.id, {});
-        JSLog.warn("+++ Receiver:: handlePresentationConversionCompletedEvtMsg3: " + presVO.name, {});
       service.addPresentation(podId, presVO);
       
       var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(podId, presVO.id, presVO.name);

@@ -339,13 +339,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {
-				var presentationModel: PresentationModel = PresentationPodManager.getInstance().getPod(podId); // GOOD
-				var curPage:Page = presentationModel.getCurrentPage();
-				if (curPage != null) {
-					displaySlideNumber(curPage.num);
-					currentSlideWidth = event.slideWidth;
-					currentSlideHeight = event.slideHeight;
-					fitSlideToWindowMaintainingAspectRatio();
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					var curPage:Page = presentationModel.getCurrentPage();
+					if (curPage != null) {
+						displaySlideNumber(curPage.num);
+						currentSlideWidth = event.slideWidth;
+						currentSlideHeight = event.slideHeight;
+						fitSlideToWindowMaintainingAspectRatio();
+					}
 				}
 			}
 			
@@ -386,34 +388,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				uploadPres.visible = isPresenter;
 				downloadPres.visible = !isPresenter;
 
-//				var page:Page = PresentationModel.getInstance().getCurrentPage();
-//				if (page != null) {
-//					displaySlideNumber(page.num);		
-//				}
-//				displaySlideNavigationControls(isPresenter, !!page);
-//				
-//				setControlBarState("presenter");
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					var page:Page = presentationModel.getCurrentPage();
+					if (page != null) {
+						displaySlideNumber(page.num);
+					}
+					displaySlideNavigationControls(isPresenter, !!page);
+
+					setControlBarState("presenter");
+				}
 			}
-			
-            private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
-//				currentPresentation = PresentationModel.getInstance().getCurrentPresentationName();
-//
-//                slideView.setSlides();
-//                slideView.visible = true;
-//                var page : Page = PresentationModel.getInstance().getCurrentPage();
-//                if (page != null) {
-//                    displaySlideNumber(page.num); 
-//                }
-//
-//                if (UsersUtil.amIPresenter()) {
-//                    displaySlideNavigationControls(true, !!page);
-//                }
-//                else {
-//                    displaySlideNavigationControls(false, !!page)
-//                }
-//                onResetZoom();
-//                updateDownloadBtn();
-            }
+
+			private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
+				if (podId != e.podId) {
+					return;
+				}
+
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					currentPresentation = presentationModel.getCurrentPresentationName();
+
+					slideView.setSlides(podId);
+					slideView.visible = true;
+					var page : Page = presentationModel.getCurrentPage();
+					if (page != null) {
+						displaySlideNumber(page.num);
+					}
+
+					if (UsersUtil.amIPresenter()) {
+						displaySlideNavigationControls(true, !!page);
+					}
+					else {
+						displaySlideNavigationControls(false, !!page)
+					}
+					onResetZoom();
+					updateDownloadBtn();
+				}
+			}
 
 			
 			private function displaySlideNavigationControls(isPresenter:Boolean, activePresentation:Boolean):void {
@@ -471,22 +483,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					backButton.mouseEnabled = false;
 					backButton.styleName = "presentationBackButtonDisabledStyle" + styleNameExt;
 				}
-				
-//				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
-//					forwardButton.mouseEnabled = true;
-//					forwardButton.styleName = "presentationForwardButtonStyle" + styleNameExt;
-//				} else {
-//					forwardButton.mouseEnabled = false;
-//					forwardButton.styleName = "presentationForwardButtonDisabledStyle" + styleNameExt;
-//				}
+
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					if (pageNumber < presentationModel.getNumberOfPages()) {
+						forwardButton.mouseEnabled = true;
+						forwardButton.styleName = "presentationForwardButtonStyle" + styleNameExt;
+					} else {
+						forwardButton.mouseEnabled = false;
+						forwardButton.styleName = "presentationForwardButtonDisabledStyle" + styleNameExt;
+					}
+				}
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
         		disableSlideNavigationButtons(currentSlide);
-//				btnSlideNum.label = "" + currentSlide + '/' + PresentationModel.getInstance().getNumberOfPages();
-//				btnSlideNum.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.accessibilityName', [currentSlide, PresentationModel.getInstance().getNumberOfPages()])
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					btnSlideNum.label = "" + currentSlide + '/' + presentationModel.getNumberOfPages();
+					btnSlideNum.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.accessibilityName',
+							[currentSlide, presentationModel.getNumberOfPages()])
+				}
 			}
-			
       
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;
@@ -505,15 +523,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function goToPreviousSlide():void {
-//				if (PresentationModel.getInstance().getCurrentPage().num > 1) {
-//					dispatchEvent(new GoToPrevPageCommand());
-//				}
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null && presentationModel.getCurrentPage().num > 1) {
+					dispatchEvent(new GoToPrevPageCommand());
+				}
 			}
 			
 			private function goToNextSlide():void {
-//				if (PresentationModel.getInstance().getCurrentPage().num < PresentationModel.getInstance().getNumberOfPages()) {
-//					dispatchEvent(new GoToNextPageCommand());
-//				}
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null && presentationModel.getCurrentPage().num < presentationModel.getNumberOfPages()) {
+					dispatchEvent(new GoToNextPageCommand());
+				}
 			}
 			
       private function showPercentageInDataTip(val:String):String {			
@@ -664,9 +684,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function updateStyles():void {
-//				if (PresentationModel.getInstance().getCurrentPage()) {
-//					disableSlideNavigationButtons(PresentationModel.getInstance().getCurrentPage().num);
-//				}
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null && presentationModel.getCurrentPage()) {
+					disableSlideNavigationButtons(presentationModel.getCurrentPage().num);
+				}
 			}
 
 			private function onPollStartButtonClicked():void {
@@ -850,14 +871,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 
-//				var downloadablePresentations:ArrayCollection = PresentationModel.getInstance().getDownloadablePresentations();
-//				if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
-//					LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-//					downloadPres.visible = true;
-//				} else {
-//					LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-//					downloadPres.visible = false;
-//				}
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					var downloadablePresentations:ArrayCollection = presentationModel.getDownloadablePresentations();
+					if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
+						LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
+						downloadPres.visible = true;
+					} else {
+						LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
+						downloadPres.visible = false;
+					}
+				}
 			}
 
 			public function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void {

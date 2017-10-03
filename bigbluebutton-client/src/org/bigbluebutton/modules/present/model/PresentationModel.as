@@ -52,6 +52,7 @@ package org.bigbluebutton.modules.present.model
     }
 
     public function addPresentation(p: Presentation):void {
+        JSLog.warn("+++ PresentationModel:: addPresentation: ", {});
       _presentations.addItem(p);
     }
     

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.presentation
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.util.RandomStringGenerator
 
 trait PresentationUploadTokenReqMsgHdlr {
   this: PresentationApp2x =>
@@ -14,7 +15,7 @@ trait PresentationUploadTokenReqMsgHdlr {
 
     // TODO move these in Pods
     def generateToken(podId: String, userId: String): String = {
-      "LALA-" + podId + "-" + userId
+      "LALA-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
     }
 
     def userIsAllowedToUploadInPod(podId: String, userId: String): Boolean = {

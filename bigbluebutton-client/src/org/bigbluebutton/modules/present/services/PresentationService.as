@@ -25,43 +25,41 @@ package org.bigbluebutton.modules.present.services
   {
 	private static const LOGGER:ILogger = getClassLogger(PresentationService);      
     private static const NUM_PRELOAD:uint = 3;
-    private var model:PresentationModel;
     private var podManager: PresentationPodManager;
     private var sender:MessageSender;
     private var receiver:MessageReceiver;
     private var dispatcher:Dispatcher;
     
     public function PresentationService() {
-      model = PresentationModel.getInstance();
       podManager = PresentationPodManager.getInstance();
       receiver = new MessageReceiver(this);
       dispatcher = new Dispatcher();
     }
     
-    public function pageChanged(pageId:String):void {
-//      var np: Page = model.getPage(pageId);
-//      if (np != null) {        
-//        var oldPage: Page = PresentationModel.getInstance().getCurrentPage();
-//        if (oldPage != null) oldPage.current = false;
-//        
-//        np.current = true
-////        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
-//        var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id, NUM_PRELOAD);
-//        dispatcher.dispatchEvent(changePageCommand);          
-//      }       
+    public function pageChanged(podId: String, pageId:String):void {
+      var np: Page = podManager.getPod(podId).getPage(pageId);
+      if (np != null) {        
+        var oldPage: Page = podManager.getPod(podId).getCurrentPage();
+        if (oldPage != null) oldPage.current = false;
+
+        np.current = true;
+//        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
+        var changePageCommand: ChangePageCommand = new ChangePageCommand(podId, np.id, NUM_PRELOAD);
+        dispatcher.dispatchEvent(changePageCommand);          
+      }       
     }
     
     public function pageMoved(pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-      var np: Page = model.getPage(pageId);
-      if (np != null) {
-        np.xOffset = xOffset;
-        np.yOffset = yOffset;
-        np.widthRatio = widthRatio;
-        np.heightRatio = heightRatio;
-//        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
-        var event: PageChangedEvent = new PageChangedEvent(np.id);
-        dispatcher.dispatchEvent(event);           
-      }       
+//      var np: Page = model.getPage(pageId);
+//      if (np != null) {
+//        np.xOffset = xOffset;
+//        np.yOffset = yOffset;
+//        np.widthRatio = widthRatio;
+//        np.heightRatio = heightRatio;
+////        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
+//        var event: PageChangedEvent = new PageChangedEvent(np.id);
+//        dispatcher.dispatchEvent(event);           
+//      }       
     }
     
     private function copyPageVOToPage(p: PageVO):Page {
@@ -73,8 +71,6 @@ package org.bigbluebutton.modules.present.services
     }
     
     public function addPresentations(podId: String, presos:ArrayCollection):void {
-        JSLog.warn("+++ PresentationService:: addPresentations1: " + podId, {});
-        JSLog.warn("+++ PresentationService:: addPresentations2: " + presos.length, {});
       for (var i:int = 0; i < presos.length; i++) {
         var pres:PresentationVO = presos.getItemAt(i) as PresentationVO;
         addPresentation(podId, pres);
@@ -83,22 +79,22 @@ package org.bigbluebutton.modules.present.services
     
     public function addPresentation(podId: String, pres:PresentationVO):void {
       var presentation:Presentation = presentationVOToPresentation(pres);
-        JSLog.warn("+++ PresentationService:: addPresentatioN: " + podId, {});
+      JSLog.warn("+++ PresentationService:: addPresentatioN: " + podId, {});
       podManager.getPod(podId).addPresentation(presentation);    
       LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
       if (presentation.current) {
         LOGGER.debug("Making presentation [{0}] current [{1}]", [presentation.id, presentation.current]); 
-        var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
+        var event: PresentationChangedEvent = new PresentationChangedEvent(podId, pres.id);
         dispatcher.dispatchEvent(event);
         
         var curPage:Page = presentation.getCurrentPage();
         if (curPage != null) {
-          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
+          var changePageCommand: ChangePageCommand = new ChangePageCommand(podId, curPage.id, NUM_PRELOAD);
           dispatcher.dispatchEvent(changePageCommand);          
           
           LOGGER.debug("Sending page moved event to position page [{0}] current=[{1}]", [curPage.id, curPage.current]);
-          var pageChangedEvent: PageChangedEvent = new PageChangedEvent(curPage.id);
+          var pageChangedEvent: PageChangedEvent = new PageChangedEvent(podId, curPage.id);
           dispatcher.dispatchEvent(pageChangedEvent); 
         }        
       }
@@ -109,7 +105,7 @@ package org.bigbluebutton.modules.present.services
       var pages:ArrayCollection = presVO.getPages() as ArrayCollection;
       for (var k:int = 0; k < pages.length; k++) {
         var page:PageVO = pages[k] as PageVO;
-        var pg:Page = copyPageVOToPage(page)
+        var pg:Page = copyPageVOToPage(page);
         presoPages.addItem(pg);
       }          
       
@@ -131,12 +127,14 @@ package org.bigbluebutton.modules.present.services
         LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
         newPres.current = true;
 
-        var event: PresentationChangedEvent = new PresentationChangedEvent(presentationId);
+
+        var event: PresentationChangedEvent = new PresentationChangedEvent(podId, presentationId);
         dispatcher.dispatchEvent(event);
 
         var curPage:Page = podManager.getPod(podId).getCurrentPage();
+          JSLog.warn("+++ PresentationService:: changeCurrentPresentation3: " + curPage.id, curPage != null);
         if (curPage != null) {
-          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
+          var changePageCommand: ChangePageCommand = new ChangePageCommand(podId, curPage.id, NUM_PRELOAD);
           dispatcher.dispatchEvent(changePageCommand);
         }
       } else {
@@ -145,24 +143,24 @@ package org.bigbluebutton.modules.present.services
     }
     
     public function removeAllPresentations():void {
-      model.removeAllPresentations();
+//      model.removeAllPresentations();
     }
     
 	public function removePresentation(presentationID:String):void {
-		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
-		removedEvent.presentationName = presentationID;
-		dispatcher.dispatchEvent(removedEvent);
-		
-		var currPresentation:Presentation = model.getCurrentPresentation();
-		
-		if(currPresentation && presentationID == currPresentation.id) {
-			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
-			dispatcher.dispatchEvent(uploadEvent);
-		}
-		
-		model.removePresentation(presentationID);
-		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT);
-		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
+//		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
+//		removedEvent.presentationName = presentationID;
+//		dispatcher.dispatchEvent(removedEvent);
+//		
+//		var currPresentation:Presentation = model.getCurrentPresentation();
+//		
+//		if(currPresentation && presentationID == currPresentation.id) {
+//			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
+//			dispatcher.dispatchEvent(uploadEvent);
+//		}
+//		
+//		model.removePresentation(presentationID);
+//		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT);
+//		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
 	}
   }
 }

@@ -141,9 +141,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			private function initData():void {
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-
-				JSLog.warn("+++ FileUploadWindow:: initData: " + podId, {});
-
 			}
 
       private function handleThumbnailsProgressEvent(event:CreatingThumbnailsEvent):void {	
@@ -230,9 +227,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           uploadCmd.isDownloadable = isDownloadable;
           uploadCmd.podId = podId;
 
-			
-			JSLog.warn("+++ FileUploadWindow:: startUpload: " + podId, {});
-			
           globalDispatch.dispatchEvent(uploadCmd);
           letUserDownload.visible = false;
         }       		
@@ -326,8 +320,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
-		  JSLog.warn("+++ FileUploadWindow:: handleConversionCompleted1: " + e.presId, {});
-		  JSLog.warn("+++ FileUploadWindow:: handleConversionCompleted2: " + e.podId, {});
         enableClosing();
 		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.podId, e.presId));
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
