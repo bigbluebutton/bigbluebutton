@@ -30,6 +30,7 @@ acl:
       - 'endMeeting'
       - 'toggleVoice'
       - 'clearPublicChatHistory'
+      - 'changeRole'
   presenter:
     methods:
       - 'assignPresenter'
@@ -39,3 +40,5 @@ acl:
       - 'clearWhiteboard'
       - 'moveCursor'
       - 'sendAnnotation'
+      - 'removePresentation'
+      - 'setPresentation'

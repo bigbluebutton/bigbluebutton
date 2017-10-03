@@ -47,6 +47,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserEjectedFromMeetingEvtMsg => logMessage(msg)
       case m: EjectUserFromVoiceConfSysMsg => logMessage(msg)
       case m: CreateBreakoutRoomSysCmdMsg => logMessage(msg)
+      case m: RequestBreakoutJoinURLReqMsg => logMessage(msg)
       case m: EndAllBreakoutRoomsMsg => logMessage(msg)
       case m: TransferUserToMeetingRequestMsg => logMessage(msg)
       case m: UserLeftVoiceConfToClientEvtMsg => logMessage(msg)

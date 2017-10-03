@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.model.users
 {
+  import com.adobe.utils.ArrayUtil;
+  
   import flash.events.EventDispatcher;
   
   public class User2x extends EventDispatcher {
@@ -33,7 +35,7 @@ package org.bigbluebutton.core.model.users
       dest.locked = source.locked;
       dest.presenter = source.presenter;
       dest.avatar = source.avatar;
-      dest.breakoutRooms = new Array();
+      dest.breakoutRooms = ArrayUtil.copyArray(source.breakoutRooms); 
       dest.isLeavingFlag = source.isLeavingFlag;
       
       return dest;
