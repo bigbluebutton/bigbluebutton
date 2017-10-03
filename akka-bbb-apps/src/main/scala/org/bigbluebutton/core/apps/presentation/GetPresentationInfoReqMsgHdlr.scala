@@ -3,14 +3,16 @@ package org.bigbluebutton.core.apps.presentation
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait GetPresentationInfoReqMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleGetPresentationInfoReqMsg(msg: GetPresentationInfoReqMsg): Unit = {
+  def handle(
+    msg:         GetPresentationInfoReqMsg,
+    liveMeeting: LiveMeeting, bus: MessageBus
+  ): Unit = {
     log.debug("Received GetPresentationInfoReqMsg")
 
     def broadcastEvent(msg: GetPresentationInfoReqMsg, presentations: Vector[Presentation]): Unit = {
@@ -25,9 +27,9 @@ trait GetPresentationInfoReqMsgHdlr {
       val body = GetPresentationInfoRespMsgBody(presVOs)
       val event = GetPresentationInfoRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
     }
 
-    broadcastEvent(msg, getPresentationInfo())
+    broadcastEvent(msg, getPresentationInfo(liveMeeting))
   }
 }

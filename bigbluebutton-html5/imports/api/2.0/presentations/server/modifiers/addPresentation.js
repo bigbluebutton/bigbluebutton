@@ -4,6 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 
 import addSlide from '/imports/api/2.0/slides/server/modifiers/addSlide';
+import setCurrentPresentation from './setCurrentPresentation';
 
 const addSlides = (meetingId, presentationId, slides) => {
   const slidesAdded = [];
@@ -20,19 +21,21 @@ export default function addPresentation(meetingId, presentation) {
     id: String,
     name: String,
     current: Boolean,
-    pages: [{
-      id: String,
-      num: Number,
-      thumbUri: String,
-      swfUri: String,
-      txtUri: String,
-      svgUri: String,
-      current: Boolean,
-      xOffset: Number,
-      yOffset: Number,
-      widthRatio: Number,
-      heightRatio: Number,
-    }],
+    pages: [
+      {
+        id: String,
+        num: Number,
+        thumbUri: String,
+        swfUri: String,
+        txtUri: String,
+        svgUri: String,
+        current: Boolean,
+        xOffset: Number,
+        yOffset: Number,
+        widthRatio: Number,
+        heightRatio: Number,
+      },
+    ],
     downloadable: Boolean,
   });
 
@@ -42,10 +45,11 @@ export default function addPresentation(meetingId, presentation) {
   };
 
   const modifier = {
-    $set: Object.assign(
-      { meetingId },
-      flat(presentation, { safe: true }),
-    ),
+    $set: Object.assign({
+      meetingId,
+      'conversion.done': true,
+      'conversion.error': false,
+    }, flat(presentation, { safe: true })),
   };
 
   const cb = (err, numChanged) => {
@@ -57,6 +61,10 @@ export default function addPresentation(meetingId, presentation) {
 
     const { insertedId } = numChanged;
     if (insertedId) {
+      if (presentation.current) {
+        setCurrentPresentation(meetingId, presentation.id);
+      }
+
       return Logger.info(`Added presentation2x id=${presentation.id} meeting=${meetingId}`);
     }
 

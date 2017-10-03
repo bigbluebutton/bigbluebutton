@@ -2,9 +2,10 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
+import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
-import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 //import java.util.concurrent.TimeUnit
 
@@ -57,10 +58,8 @@ class MeetingActor(
     with GuestsApp
     with LayoutApp2x
     with VoiceApp2x
-    with PollApp2x
     with BreakoutApp2x
     with UsersApp2x
-    with WhiteboardApp2x
 
     with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
@@ -101,12 +100,17 @@ class MeetingActor(
     "actorMonitor-" + props.meetingProp.intId
   )
 
-  val presentationApp2x = new PresentationApp2x(liveMeeting, outGW)
-  val screenshareApp2x = new ScreenshareApp2x(liveMeeting, outGW)
-  val captionApp2x = new CaptionApp2x(liveMeeting, outGW)
-  val sharedNotesApp2x = new SharedNotesApp2x(liveMeeting, outGW)
-  val chatApp2x = new ChatApp2x(liveMeeting, outGW)
+  val msgBus = MessageBus(eventBus, outGW)
+
+  val presentationApp2x = new PresentationApp2x
+  val screenshareApp2x = new ScreenshareApp2x
+  val captionApp2x = new CaptionApp2x
+  val sharedNotesApp2x = new SharedNotesApp2x
+  val chatApp2x = new ChatApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
+  val groupChatApp = new GroupChatHdlrs
+  val pollApp = new PollApp2x
+  val wbApp = new WhiteboardApp2x
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -127,9 +131,19 @@ class MeetingActor(
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
-  var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+  var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
   var lastRttTestSentOn = System.currentTimeMillis()
+
+  // Create a default publish group chat
+  state = GroupChatApp.createDefaultPublicGroupChat(GroupChatApp.MAIN_PUBLIC_CHAT, state)
+  state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+
+  // Create a default publish group chat
+  state = GroupChatApp.createDefaultPublicGroupChat("TEST_GROUP_CHAT", state)
+  state = GroupChatApp.genTestChatMsgHistory("TEST_GROUP_CHAT", state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+
+  log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -204,23 +218,23 @@ class MeetingActor(
       case m: ChangeUserRoleCmdMsg           => usersApp.handleChangeUserRoleCmdMsg(m)
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg       => handleSendCursorPositionPubMsg(m)
-      case m: ClearWhiteboardPubMsg          => handleClearWhiteboardPubMsg(m)
-      case m: UndoWhiteboardPubMsg           => handleUndoWhiteboardPubMsg(m)
-      case m: ModifyWhiteboardAccessPubMsg   => handleModifyWhiteboardAccessPubMsg(m)
-      case m: GetWhiteboardAccessReqMsg      => handleGetWhiteboardAccessReqMsg(m)
-      case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
-      case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
+      case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ClearWhiteboardPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
+      case m: UndoWhiteboardPubMsg           => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWhiteboardAccessPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
+      case m: GetWhiteboardAccessReqMsg      => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
-      case m: StartPollReqMsg                => handleStartPollReqMsg(m)
-      case m: StartCustomPollReqMsg          => handleStartCustomPollReqMsg(m)
-      case m: StopPollReqMsg                 => handleStopPollReqMsg(m)
-      case m: ShowPollResultReqMsg           => handleShowPollResultReqMsg(m)
-      case m: HidePollResultReqMsg           => handleHidePollResultReqMsg(m)
-      case m: GetCurrentPollReqMsg           => handleGetCurrentPollReqMsg(m)
-      case m: RespondToPollReqMsg            => handleRespondToPollReqMsg(m)
+      case m: StartPollReqMsg                => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StartCustomPollReqMsg          => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StopPollReqMsg                 => pollApp.handle(m, liveMeeting, msgBus)
+      case m: ShowPollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: HidePollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: GetCurrentPollReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: RespondToPollReqMsg            => pollApp.handle(m, liveMeeting, msgBus)
 
       // Breakout
       case m: BreakoutRoomsListMsg =>
@@ -258,48 +272,56 @@ class MeetingActor(
       case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
 
       // Presentation
-      case m: SetCurrentPresentationPubMsg => presentationApp2x.handleSetCurrentPresentationPubMsg(m)
-      case m: GetPresentationInfoReqMsg => presentationApp2x.handleGetPresentationInfoReqMsg(m)
-      case m: SetCurrentPagePubMsg => presentationApp2x.handleSetCurrentPagePubMsg(m)
-      case m: ResizeAndMovePagePubMsg => presentationApp2x.handleResizeAndMovePagePubMsg(m)
-      case m: RemovePresentationPubMsg => presentationApp2x.handleRemovePresentationPubMsg(m)
-      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handlePreuploadedPresentationsPubMsg(m)
-      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handlePresentationConversionUpdatePubMsg(m)
-      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handlePresentationPageCountErrorPubMsg(m)
-      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handlePresentationPageGeneratedPubMsg(m)
-      case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handlePresentationConversionCompletedPubMsg(m)
+      case m: SetCurrentPresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetPresentationInfoReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetCurrentPagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: RemovePresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationUploadTokenReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
 
       // Caption
-      case m: EditCaptionHistoryPubMsg => captionApp2x.handleEditCaptionHistoryPubMsg(m)
-      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handleUpdateCaptionOwnerPubMsg(m)
-      case m: SendCaptionHistoryReqMsg => captionApp2x.handleSendCaptionHistoryReqMsg(m)
+      case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: SendCaptionHistoryReqMsg => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // SharedNotes
-      case m: GetSharedNotesPubMsg => sharedNotesApp2x.handleGetSharedNotesPubMsg(m)
-      case m: SyncSharedNotePubMsg => sharedNotesApp2x.handleSyncSharedNotePubMsg(m)
-      case m: ClearSharedNotePubMsg => sharedNotesApp2x.handleClearSharedNotePubMsg(m)
-      case m: UpdateSharedNoteReqMsg => sharedNotesApp2x.handleUpdateSharedNoteReqMsg(m)
-      case m: CreateSharedNoteReqMsg => sharedNotesApp2x.handleCreateSharedNoteReqMsg(m)
-      case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handleDestroySharedNoteReqMsg(m)
+      case m: GetSharedNotesPubMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: SyncSharedNotePubMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: ClearSharedNotePubMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateSharedNoteReqMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: CreateSharedNoteReqMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg => handleGetGuestsWaitingApprovalReqMsg(m)
       case m: SetGuestPolicyCmdMsg => handleSetGuestPolicyMsg(m)
       case m: GuestsWaitingApprovedMsg => handleGuestsWaitingApprovedMsg(m)
       case m: GetGuestPolicyReqMsg => handleGetGuestPolicyReqMsg(m)
+
       // Chat
-      case m: GetChatHistoryReqMsg => chatApp2x.handleGetChatHistoryReqMsg(m)
-      case m: SendPublicMessagePubMsg => chatApp2x.handleSendPublicMessagePubMsg(m)
-      case m: SendPrivateMessagePubMsg => chatApp2x.handleSendPrivateMessagePubMsg(m)
-      case m: ClearPublicChatHistoryPubMsg => chatApp2x.handleClearPublicChatHistoryPubMsg(m)
+      case m: GetChatHistoryReqMsg => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: SendPublicMessagePubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: SendPrivateMessagePubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: ClearPublicChatHistoryPubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
 
       // Screenshare
-      case m: ScreenshareStartedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareStartedVoiceConfEvtMsg(m)
-      case m: ScreenshareStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(m)
-      case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
-      case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
-      case m: GetScreenshareStatusReqMsg => screenshareApp2x.handleGetScreenshareStatusReqMsg(m)
+      case m: ScreenshareStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: ScreenshareStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetScreenshareStatusReqMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
+
+      // GroupChat
+      case m: CreateGroupChatReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetGroupChatMsgsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetGroupChatsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: SendGroupChatMessageMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
@@ -313,10 +335,10 @@ class MeetingActor(
     usersApp.handleSyncGetUsersMeetingRespMsg()
 
     // sync all presentations
-    presentationApp2x.handleSyncGetPresentationInfoRespMsg()
+    presentationApp2x.handle(liveMeeting, msgBus)
 
     // sync access of whiteboard (multi user)
-    handleSyncWhiteboardAccessRespMsg()
+    wbApp.handle(liveMeeting, msgBus)
 
     // TODO send all chat
     // TODO send all lock settings
@@ -325,7 +347,7 @@ class MeetingActor(
 
   def handlePresenterChange(msg: AssignPresenterReqMsg): Unit = {
     // Stop poll if one is running as presenter left
-    handleStopPollReqMsg(msg.header.userId)
+    pollApp.stopPoll(msg.header.userId, liveMeeting, msgBus)
 
     // switch user presenter status for old and new presenter
     usersApp.handleAssignPresenterReqMsg(msg)
@@ -333,7 +355,8 @@ class MeetingActor(
     // request screenshare to end
     screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
       liveMeeting.props.voiceProp.voiceConf,
-      liveMeeting.props.screenshareProps.screenshareConf
+      liveMeeting.props.screenshareProps.screenshareConf,
+      liveMeeting, msgBus
     )
 
   }

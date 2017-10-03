@@ -36,6 +36,10 @@ package org.bigbluebutton.modules.chat.model {
 
 		[Bindable]
 		public var maxMessageLength:uint = 1024;
+    
+    public var maxNumWindows:uint = 9;
+    
+    public var maxNumChatPerWindow:uint = 10; 
 
 		public function ChatOptions() {
 			name = "ChatModule";

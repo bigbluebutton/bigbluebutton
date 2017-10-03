@@ -185,6 +185,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
       case RemovePresentationPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
+      case PresentationUploadTokenReqMsg.NAME =>
+        routeGenericMsg[PresentationUploadTokenReqMsg](envelope, jsonNode)
       case PreuploadedPresentationsSysPubMsg.NAME =>
         routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
@@ -263,6 +265,16 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
       case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+
+      // GroupChats
+      case GetGroupChatsReqMsg.NAME =>
+        routeGenericMsg[GetGroupChatsReqMsg](envelope, jsonNode)
+      case SendGroupChatMessageMsg.NAME =>
+        routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
+      case GetGroupChatMsgsReqMsg.NAME =>
+        routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
+      case CreateGroupChatReqMsg.NAME =>
+        routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

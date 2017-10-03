@@ -2,7 +2,7 @@ name := "bbb-common-web"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.0.2-SNAPSHOT"
 
 scalaVersion  := "2.12.2"
 

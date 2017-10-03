@@ -2,14 +2,11 @@ package org.bigbluebutton.core.apps.chat
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ChatModel
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
 
-trait ClearPublicChatHistoryPubMsgHdlr {
-  this: ChatApp2x =>
-
-  val outGW: OutMsgRouter
-
-  def handleClearPublicChatHistoryPubMsg(msg: ClearPublicChatHistoryPubMsg): Unit = {
+trait ClearPublicChatHistoryPubMsgHdlr extends LogHelper {
+  def handle(msg: ClearPublicChatHistoryPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     def broadcastEvent(msg: ClearPublicChatHistoryPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(ClearPublicChatHistoryEvtMsg.NAME, routing)
@@ -18,9 +15,7 @@ trait ClearPublicChatHistoryPubMsgHdlr {
       val body = ClearPublicChatHistoryEvtMsgBody()
       val event = ClearPublicChatHistoryEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-
-      //record(event)
+      bus.outGW.send(msgEvent)
     }
 
     ChatModel.clearPublicChatHistory(liveMeeting.chatModel)

@@ -32,6 +32,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsgBody;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLReqMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLReqBody;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.users.GuestWaiting;
@@ -144,11 +146,9 @@ package org.bigbluebutton.modules.users.services
 		}
 
 		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
-      var message:Object = {
-        header: {name: "RequestBreakoutJoinURLReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
-          userId: UsersUtil.getMyUserID()},
-        body: {meetingId: parentMeetingId, breakoutId: breakoutMeetingId, userId: UsersUtil.getMyUserID()}
-      };
+			var body:RequestBreakoutJoinURLReqBody = new RequestBreakoutJoinURLReqBody(parentMeetingId, breakoutMeetingId, userId);
+			var message:RequestBreakoutJoinURLReqMsg = new RequestBreakoutJoinURLReqMsg(body);
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage2x(function(result:String):void { // On successful result
 			}, function(status:String):void { // status - On error occurred
@@ -614,40 +614,20 @@ package org.bigbluebutton.modules.users.services
        );
     }
 
-    public function responseToGuest(userId:String, response:Boolean):void {
-      LOGGER.debug("responseToGuest - userId:[" + userId + "] response:[" + response + "]");
 
-	  var _guests: Array = new Array();
-	  _guests.push({guest: userId, approved: response});
-	  
-	  var message:Object = {
-		  header: {name: "GuestsWaitingApprovedMsg", meetingId: UsersUtil.getInternalMeetingID(), 
-			  userId: UsersUtil.getMyUserID()},
-		  body: {guests: _guests, approvedBy: UsersUtil.getMyUserID()}
-	  };
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage2x(
-         function(result:String):void { // On successful result
-           LOGGER.debug(result);
-         },
-         function(status:String):void { // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured response guest.";
-                LOGGER.info(JSON.stringify(logData));
-         },
-		 JSON.stringify(message)
-       );
+    private function removeGuestsWaiting(userIds: Array): void {
+      for (var i:int = 0; i < userIds.length; i++) {
+        LiveMeeting.inst().guestsWaiting.remove(userIds[i]);
+      }
     }
-
-    public function responseToAllGuests(response:Boolean):void {
-		var _guestsWaiting: Array = LiveMeeting.inst().guestsWaiting.getGuests();
+    
+    public function approveGuestAccess(userIds: Array, approve:Boolean):void {
 		var _guests: Array = new Array();
-		
-		for (var i:int = 0; i < _guests.length; i++) {
-			var _guest: GuestWaiting = _guestsWaiting[i] as GuestWaiting;
-			_guests.push({guest: _guest.intId, approved: response});
+		var status: String = GuestWaiting.DENY;
+    if (approve) status = GuestWaiting.ALLOW;
+    
+		for (var i:int = 0; i < userIds.length; i++) {
+			_guests.push({guest: userIds[i], status: status});
 		}
 		
 		var message:Object = {

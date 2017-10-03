@@ -81,6 +81,10 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[UserBroadcastCamStoppedEvtMsg](envelope, jsonNode)
       case CreateBreakoutRoomSysCmdMsg.NAME =>
         route[CreateBreakoutRoomSysCmdMsg](envelope, jsonNode)
+      case PresentationUploadTokenSysPubMsg.NAME =>
+        route[PresentationUploadTokenSysPubMsg](envelope, jsonNode)
+      case GuestsWaitingApprovedEvtMsg.NAME =>
+        route[GuestsWaitingApprovedEvtMsg](envelope, jsonNode)
 
       case _ =>
         //log.debug("************ Cannot route envelope name " + envelope.name)

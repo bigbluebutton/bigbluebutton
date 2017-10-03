@@ -13,6 +13,7 @@ object Boot extends App with SystemConfiguration {
 
   implicit val system = ActorSystem("bigbluebutton-apps-system")
   implicit val executor = system.dispatcher
+
   val logger = Logging(system, getClass)
 
   val eventBus = new InMsgBusGW(new IncomingEventBusImp())
@@ -49,4 +50,5 @@ object Boot extends App with SystemConfiguration {
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver, incomingJsonMessageBus), "redis-subscriber")
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
+
 }

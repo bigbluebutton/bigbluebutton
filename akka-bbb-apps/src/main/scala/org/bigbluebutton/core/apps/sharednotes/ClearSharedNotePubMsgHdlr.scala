@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.sharednotes
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait ClearSharedNotePubMsgHdlr {
   this: SharedNotesApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleClearSharedNotePubMsg(msg: ClearSharedNotePubMsg): Unit = {
+  def handle(msg: ClearSharedNotePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: ClearSharedNotePubMsg, noteReport: NoteReport): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -18,7 +17,7 @@ trait ClearSharedNotePubMsgHdlr {
       val body = SyncSharedNoteEvtMsgBody(msg.body.noteId, noteReport)
       val event = SyncSharedNoteEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
     }
 
     liveMeeting.notesModel.clearNote(msg.body.noteId) match {

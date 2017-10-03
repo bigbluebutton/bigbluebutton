@@ -38,6 +38,8 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
+	import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.Presentation;
@@ -61,6 +63,7 @@ package org.bigbluebutton.modules.present.business
     
     private var presentationModel:PresentationModel;
     private var service: PresentationService;
+    private var currentUploadCommand: UploadFileCommand;
     
 		public function PresentProxy() {
       presentationModel = PresentationModel.getInstance();
@@ -137,21 +140,51 @@ package org.bigbluebutton.modules.present.business
         LOGGER.debug("Could not find previous page to change to");
       }
     }
-				
+
 		/**
 		 * Start uploading the selected file 
 		 * @param e
 		 * 
-		 */		
-		public function startUpload(e:UploadFileCommand):void{
-      		LOGGER.debug("Uploading presentation [{0}]", [e.filename]);
-      
+		 */
+		public function startUpload(e: PresentationUploadTokenPass):void {
+			LOGGER.debug("Uploading presentation [{0}]", [e.filename]);
+
 			if (uploadService == null) {
-        uploadService = new FileUploadService(host + "/bigbluebutton/presentation/upload", conference, room);
-      }
-			uploadService.upload(e.filename, e.file, e.isDownloadable);
+				uploadService = new FileUploadService(host + "/bigbluebutton/presentation/" + e.token + "/upload", conference, room);
+			}
+
+			if (currentUploadCommand != null && currentUploadCommand.filename == e.filename) {
+				uploadService.upload(currentUploadCommand.filename, currentUploadCommand.file, currentUploadCommand.isDownloadable);
+				currentUploadCommand = null;
+			} else {
+
+			}
 		}
-		
+
+		/**
+		 * Cancel uploading the selected file
+		 * @param e
+		 *
+		 */
+		public function cancelUpload(e: PresentationUploadTokenFail):void {
+			LOGGER.debug("Cancel uploading presentation [{0}]", [e.filename]);
+
+			currentUploadCommand = null;
+
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+		}
+
+		/**
+		 * Request an authorization token to proceed with uploading of the selected file
+		 * @param e
+		 *
+		 */
+		public function requestUploadToken(e:UploadFileCommand):void{
+			currentUploadCommand = e;
+			sender.requestPresentationUploadPermission("todo-podId", e.filename);
+		}
+
 		/**
 		 * Start downloading the selected file
 		 * @param e

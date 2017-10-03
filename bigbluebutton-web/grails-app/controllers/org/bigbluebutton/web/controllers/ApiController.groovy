@@ -42,6 +42,7 @@ import org.bigbluebutton.api.domain.Config;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
+import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ClientConfigService;
@@ -198,6 +199,7 @@ class ApiController {
       }
     }
   }
+
 
   /**********************************************
    * JOIN API
@@ -440,6 +442,39 @@ class ApiController {
       errors.noConfigFound();
       respondWithErrors(errors);
     }
+
+    String guestStatus = GuestPolicy.ALLOW
+
+    if (guest) {
+      String policy = meeting.getGuestPolicy();
+      switch (policy){
+        case GuestPolicy.ASK_MODERATOR:
+          guestStatus = GuestPolicy.WAIT ;
+          break;
+        case GuestPolicy.ALWAYS_ACCEPT:
+          guestStatus = GuestPolicy.ALLOW ;
+          //Do not ask to join
+          break;
+        case GuestPolicy.ALWAYS_ACCEPT_AUTH:
+          if (authenticated){
+            //If user is authenticated allow.
+            guestStatus = GuestPolicy.ALLOW ;
+          }else{
+            //Else ask for permission
+            guestStatus = GuestPolicy.WAIT ;
+          }
+          break;
+        case GuestPolicy.ALWAYS_DENY:
+          guestStatus = GuestPolicy.DENY;
+          //Do nothing.
+          break;
+        default:
+          //Handle No case found
+          guestStatus = GuestPolicy.DENY ;
+          break;
+      }
+    }
+
     UserSession us = new UserSession();
     us.authToken = authToken;
     us.internalUserId = internalUserID
@@ -458,7 +493,8 @@ class ApiController {
     us.welcome = meeting.getWelcomeMessage()
     us.guest = guest
     us.authed = authenticated
-    us.logoutUrl = meeting.getLogoutUrl();
+    us.guestStatus = guestStatus
+    us.logoutUrl = meeting.getLogoutUrl()
     us.configXML = configxml;
 
     if (! StringUtils.isEmpty(params.defaultLayout)) {
@@ -476,7 +512,7 @@ class ApiController {
 
     // Register user into the meeting.
     meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
-            us.authToken, us.avatarURL, us.guest, us.authed)
+            us.authToken, us.avatarURL, us.guest, us.authed, guestStatus)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored
@@ -491,9 +527,6 @@ class ApiController {
         respondWithErrors(errors, REDIRECT_RESPONSE);
         return;
     }
-
-    // Mark user as registered
-    meeting.userRegistered(internalUserID);
 
     //Identify which of these to logs should be used. sessionToken or user-token
     log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken]+ "]")
@@ -516,9 +549,22 @@ class ApiController {
       clientURL = params.clientURL;
     }
 
+    String msgKey = "successfullyJoined"
+    String msgValue = "You have joined successfully."
+    String destUrl = clientURL + "?sessionToken=" + sessionToken
+    if (guestStatus.equals(GuestPolicy.WAIT)) {
+      clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
+      destUrl = clientURL + "?sessionToken=" + sessionToken
+      msgKey = "guestWait"
+      msgValue = "Guest waiting for approval to join meeting."
+    } else if (guestStatus.equals(GuestPolicy.DENY)) {
+      destUrl = meeting.getLogoutUrl()
+      msgKey = "guestDeny"
+      msgValue = "Guest denied to join meeting."
+    }
+
     if (redirectClient){
-      String destUrl = clientURL + "?sessionToken=" + sessionToken
-      log.info("Successfully joined. Redirecting to ${destUrl}");
+      log.info("Redirecting to ${destUrl}");
       redirect(url: destUrl);
     } else {
       log.info("Successfully joined. Sending XML response.");
@@ -528,12 +574,14 @@ class ApiController {
           render(contentType:"text/xml") {
             response() {
               returncode(RESP_CODE_SUCCESS)
-              messageKey("successfullyJoined")
-              message("You have joined successfully.")
+              messageKey(msgKey)
+              message(msgValue)
               meeting_id() { mkp.yield(us.meetingID) }
               user_id(us.internalUserId)
               auth_token(us.authToken)
               session_token(session[sessionToken])
+              guestStatus(guestStatus)
+              url(destUrl)
             }
           }
         }
@@ -1220,7 +1268,7 @@ class ApiController {
       if (!session[sessionToken]) {
           reject = true
       } else {
-          us = meetingService.getUserSession(sessionToken);
+          us = meetingService.getUserSessionWithAuthToken(sessionToken);
           if (us == null) reject = true
       }
     }
@@ -1258,6 +1306,124 @@ class ApiController {
     }
   }
 
+  /**********************************************
+   * GUEST WAIT API
+   *********************************************/
+  def guestWaitHandler = {
+    String API_CALL = 'guestWait'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    ApiErrors errors = new ApiErrors()
+    boolean reject = false;
+
+    if (StringUtils.isEmpty(params.sessionToken)) {
+      println("SessionToken is missing.")
+    }
+
+    String sessionToken = StringUtils.strip(params.sessionToken)
+
+    UserSession us = null;
+    Meeting meeting = null;
+    UserSession userSession = null;
+
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
+      reject = true;
+    else {
+      us = meetingService.getUserSessionWithAuthToken(sessionToken);
+      meeting = meetingService.getMeeting(us.meetingID);
+      if (meeting == null || meeting.isForciblyEnded()) {
+        reject = true
+      }
+      userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      if (userSession == null) {
+        reject = true
+      }
+
+    }
+
+    // Determine the logout url so we can send the user there.
+    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+
+    if (us != null) {
+      logoutUrl = us.logoutUrl
+    }
+
+    if (reject) {
+      log.info("No session for user in conference.")
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          render(contentType: "application/json") {
+            response = {
+              returncode = "FAILED"
+              message = "Could not process waiting guest."
+              logoutURL = logoutUrl
+            }
+          }
+        }
+      }
+    } else {
+      //check if exists the param redirect
+      boolean redirectClient = true;
+      String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+
+      if(! StringUtils.isEmpty(params.redirect)) {
+        try{
+          redirectClient = Boolean.parseBoolean(params.redirect);
+        }catch(Exception e){
+          redirectClient = true;
+        }
+      }
+
+      if(!StringUtils.isEmpty(params.clientURL)){
+        clientURL = params.clientURL;
+      }
+
+      String guestWaitStatus = userSession.guestStatus
+      String msgKey = "guestAllowed"
+      String msgValue = "Guest allowed to join meeting."
+      String destUrl = clientURL + "?sessionToken=" + sessionToken
+      if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
+        clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
+        destUrl = clientURL + "?sessionToken=" + sessionToken
+        msgKey = "guestWait"
+        msgValue = "Guest waiting for approval to join meeting."
+        // We force the response to not do a redirect. Otherwise,
+        // the client would just be redirecting into this endpoint.
+        redirectClient = false
+      } else if (guestWaitStatus.equals(GuestPolicy.DENY)) {
+        destUrl = meeting.getLogoutUrl()
+        msgKey = "guestDeny"
+        msgValue = "Guest denied to join meeting."
+      }
+
+      if (redirectClient){
+        log.info("Redirecting to ${destUrl}");
+        redirect(url: destUrl);
+      } else {
+        log.info("Successfully joined. Sending XML response.");
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            render(contentType:"text/xml") {
+              response() {
+                returncode(RESP_CODE_SUCCESS)
+                messageKey(msgKey)
+                message(msgValue)
+                meeting_id() { mkp.yield(us.meetingID) }
+                user_id(us.internalUserId)
+                auth_token(us.authToken)
+                session_token(session[sessionToken])
+                guestStatus(guestWaitStatus)
+                url(destUrl)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
   /***********************************************
    * ENTER API
    ***********************************************/
@@ -1272,14 +1438,28 @@ class ApiController {
 
     UserSession us = null;
     Meeting meeting = null;
+    UserSession userSession = null;
 
-    if (meetingService.getUserSession(sessionToken) == null)
+    String respMessage = "Session " + sessionToken + " not found."
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
       reject = true;
-    else {
-      us = meetingService.getUserSession(sessionToken);
+      respMessage = "Session " + sessionToken + " not found."
+    }  else {
+      us = meetingService.getUserSessionWithAuthToken(sessionToken);
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
         reject = true
+        respMessage = "Meeting not found or ended for session " + sessionToken + "."
+      }
+      userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      if (userSession == null) {
+        respMessage = "Session " + sessionToken + " not found."
+        reject = true
+      } else  {
+        if (userSession.guestStatus.equals(GuestPolicy.DENY)) {
+          respMessage = "User denied for user with session " + sessionToken + "."
+          reject = true
+        }
       }
     }
 
@@ -1299,7 +1479,7 @@ class ApiController {
           render(contentType: "application/json") {
             response = {
               returncode = "FAILED"
-              message = "Could not find conference."
+              message = respMessage
               logoutURL = logoutUrl
             }
           }
@@ -1344,6 +1524,7 @@ class ApiController {
               authToken = us.authToken
               role = us.role
               guest = us.guest
+              guestStatus = userSession.guestStatus
               conference = us.conference
               room = us.room
               voicebridge = us.voicebridge
@@ -1394,10 +1575,10 @@ class ApiController {
       println("Session token = [" + sessionToken + "]")
     }
 
-    if (meetingService.getUserSession(sessionToken) == null)
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
       reject = true;
     else {
-      us = meetingService.getUserSession(sessionToken);
+      us = meetingService.getUserSessionWithAuthToken(sessionToken);
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
         reject = true
@@ -1473,7 +1654,7 @@ class ApiController {
 
     if (sessionToken != null) {
       log.info("Found session for user in conference.")
-      UserSession us = meetingService.removeUserSession(sessionToken);
+      UserSession us = meetingService.removeUserSessionWithAuthToken(sessionToken);
       session.removeAttribute(sessionToken)
     }
 

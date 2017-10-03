@@ -12,8 +12,8 @@ object Model1x2xConverter {
   }
 
   def defaultUserVO(intId: String, extId: String, name: String, role: String, guest: Boolean, authed: Boolean,
-                    waitingForAcceptance: Boolean, lockStatus: Boolean, vu: VoiceUserVO): UserVO = {
-    new UserVO(intId, extId, name, role, guest, authed, waitingForAcceptance = waitingForAcceptance,
+                    guestStatus: String, lockStatus: Boolean, vu: VoiceUserVO): UserVO = {
+    new UserVO(intId, extId, name, role, guest, authed, guestStatus = guestStatus,
       emojiStatus = "none", presenter = false,
       hasStream = false, locked = lockStatus,
       webcamStreams = new ListSet[String](), phoneUser = false, vu,
@@ -28,7 +28,7 @@ object Model1x2xConverter {
   def toUserVO(u: UserState, vu: VoiceUserVO, webcams: Vector[String]): UserVO = {
 
     new UserVO(id = u.intId, externalId = u.extId, name = u.name, role = u.role,
-      guest = u.guest, authed = u.authed, waitingForAcceptance = u.waitingForAcceptance, emojiStatus = u.emoji,
+      guest = u.guest, authed = u.authed, guestStatus = u.guestStatus, emojiStatus = u.emoji,
       presenter = u.presenter, hasStream = webcams.length > 0, locked = u.locked, webcamStreams = webcams.toSet,
       phoneUser = false, voiceUser = vu, listenOnly = vu.listenOnly, avatarURL = u.avatar,
       joinedWeb = true)

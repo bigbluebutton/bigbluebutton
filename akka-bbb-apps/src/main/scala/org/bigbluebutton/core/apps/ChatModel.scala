@@ -20,9 +20,5 @@ object ChatModel {
 }
 
 class ChatModel {
-
-  //val directChats = new DirectChats
-  //val publicChats = new PublicChats
-
   private val messages = new ArrayBuffer[ChatMessageVO]()
 }
