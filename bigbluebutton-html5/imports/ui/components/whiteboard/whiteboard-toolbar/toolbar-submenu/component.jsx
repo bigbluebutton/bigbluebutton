@@ -130,5 +130,5 @@ ToolbarSubmenu.propTypes = {
     }),
   ]).isRequired,
   label: PropTypes.string.isRequired,
-  customIcon: PropTypes.node.isRequired,
+  customIcon: PropTypes.bool.isRequired,
 };
