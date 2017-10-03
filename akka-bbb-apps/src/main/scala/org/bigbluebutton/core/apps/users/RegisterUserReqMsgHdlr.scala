@@ -29,6 +29,8 @@ trait RegisterUserReqMsgHdlr {
       msg.body.authed
     )
 
+    println("****** GUEST POLICY = " + guestPolicy + " guestStatus = " + guestStatus)
+
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.role, msg.body.authToken,
       msg.body.avatarURL, msg.body.guest, msg.body.authed, guestStatus)
