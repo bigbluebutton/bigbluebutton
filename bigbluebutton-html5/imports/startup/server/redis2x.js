@@ -104,6 +104,11 @@ class RedisPubSub2x {
       userId,
     };
 
+    console.log('HEADER:');
+    console.log(JSON.stringify(header));
+    console.log('BODY:');
+    console.log(JSON.stringify(payload));
+
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
     return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
