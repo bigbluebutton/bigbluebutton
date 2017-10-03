@@ -5,7 +5,6 @@ package org.bigbluebutton.modules.present.model
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
-  import org.bigbluebutton.main.api.JSLog;
   
   public class PresentationModel
   {
@@ -29,7 +28,6 @@ package org.bigbluebutton.modules.present.model
     private function initialize(podId: String, ownerId: String):void {
         _podId = podId;
         _ownerId = ownerId;
-        JSLog.warn("+++ PresentationModel:: initialize2: " + _podId + "  " + _ownerId, {});
     }
     
 //    /**
@@ -52,7 +50,6 @@ package org.bigbluebutton.modules.present.model
     }
 
     public function addPresentation(p: Presentation):void {
-        JSLog.warn("+++ PresentationModel:: addPresentation: ", {});
       _presentations.addItem(p);
     }
     

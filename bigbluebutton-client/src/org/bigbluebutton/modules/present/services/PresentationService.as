@@ -19,7 +19,6 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
   import org.bigbluebutton.modules.present.services.messaging.MessageSender;
-  import org.bigbluebutton.main.api.JSLog;
 
   public class PresentationService
   {
@@ -79,7 +78,7 @@ package org.bigbluebutton.modules.present.services
     
     public function addPresentation(podId: String, pres:PresentationVO):void {
       var presentation:Presentation = presentationVOToPresentation(pres);
-      JSLog.warn("+++ PresentationService:: addPresentatioN: " + podId, {});
+
       podManager.getPod(podId).addPresentation(presentation);    
       LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
@@ -132,7 +131,6 @@ package org.bigbluebutton.modules.present.services
         dispatcher.dispatchEvent(event);
 
         var curPage:Page = podManager.getPod(podId).getCurrentPage();
-          JSLog.warn("+++ PresentationService:: changeCurrentPresentation3: " + curPage.id, curPage != null);
         if (curPage != null) {
           var changePageCommand: ChangePageCommand = new ChangePageCommand(podId, curPage.id, NUM_PRELOAD);
           dispatcher.dispatchEvent(changePageCommand);

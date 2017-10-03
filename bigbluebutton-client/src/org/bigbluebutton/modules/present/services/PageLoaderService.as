@@ -9,7 +9,6 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.model.PresentationPodManager;
-  import org.bigbluebutton.main.api.JSLog;
 
   public class PageLoaderService
   {
@@ -18,7 +17,7 @@ package org.bigbluebutton.modules.present.services
 	
     public function loadPage(cmd: ChangePageCommand):void {
       var page:Page = PresentationPodManager.getInstance().getPod(cmd.podId).getPage(cmd.pageId);
-      JSLog.warn("+++ PageLoaderService:: loadPage1: " + cmd.podId + "_____" + cmd.pageId, page != null);
+
       if (page != null) {
         LOGGER.debug("Loading page [{0}]", [cmd.pageId]);
         page.loadPage(pageLoadedListener, cmd.podId, cmd.preloadCount);
@@ -28,8 +27,7 @@ package org.bigbluebutton.modules.present.services
     
     public function pageLoadedListener(podId: String, pageId:String, preloadCount:uint):void {
       var page: Page = PresentationPodManager.getInstance().getPod(podId).getPage(pageId);
-        
-      JSLog.warn("+++ PageLoaderService:: pageLoadedListener1: " + podId + "_____" + pageId, {});
+
       if (page != null) {
         if (page.current) {
           // The page has been loaded and still the current displayed page.

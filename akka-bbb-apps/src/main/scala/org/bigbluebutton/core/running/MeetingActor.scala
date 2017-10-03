@@ -155,7 +155,7 @@ class MeetingActor(
 
   // Create a default Presentation Pod
   //  state = PresentationPodsApp.createDefaultPresentationPod(state)
-  log.debug("\n\n____NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
+  log.debug("NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData

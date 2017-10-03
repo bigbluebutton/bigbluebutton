@@ -114,7 +114,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.main.api.JSLog;
              		
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
@@ -188,21 +187,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getOwnerId(): String { return this.ownerId; }
 
 			private function onPresentationPodControlsClicked():void {
-				JSLog.warn("+++ onPresentationPodControlsClicked: ", {});
 				presentationPodControls.selectedItem.handler();
 			}
 
 			private function newPresentationWindowHandler(): void {
-				JSLog.warn("+++ newPresentationWindowHandler: ", {});
-
 				var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
 				event.requesterId = UsersUtil.getMyUserID();
 				localDispatcher.dispatchEvent(event);
 			}
 
 			private function closePresentationWindowHandler(): void {
-				JSLog.warn("+++ closePresentationWindowHandler: ", {});
-
 				var event:RequestClosePresentationPodEvent = new RequestClosePresentationPodEvent(RequestClosePresentationPodEvent.REQUEST_CLOSE_PRES_POD);
 				event.requesterId = UsersUtil.getMyUserID();
 				event.podId = this.podId;
@@ -210,7 +204,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function setPresenterInPodHandler(): void {
-				JSLog.warn("+++ setPresenterInPodHandler: ", {});
+				// TODO
 			}
 
 			private function onCreationComplete():void{
@@ -454,9 +448,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
-				JSLog.warn("+++ notifyOthersOfSharingPresentation1: " + presentationName, {});
-				
-				
+				// TODO
 				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = presentationName;
 					shareEvent.podId = podId;

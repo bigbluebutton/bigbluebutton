@@ -30,12 +30,9 @@ trait CreateNewPresentationPodPubMsgHdlr {
     )
     bus.outGW.send(respMsg)
 
-    log.warning("CreateNewPresentationPodPubMsgHdlr new podId=" + pod.id)
-
-    log.warning("_____ pres pod add, before:" + state.presentationPodManager.getNumberOfPods())
     val pods = state.presentationPodManager.addPod(pod)
 
-    log.warning("_____ pres pod add, afterB:" + pods.getNumberOfPods())
+    log.warning("_____ pres pod add, after:" + pods.getNumberOfPods())
 
     state.update(pods)
 

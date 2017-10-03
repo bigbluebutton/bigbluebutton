@@ -26,13 +26,9 @@ trait GetAllPresentationPodsReqMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    log.debug("___________C_____________________")
-
     val requesterId = msg.body.requesterId
 
     val pods = PresentationPodsApp.getAllPresentationPodsInMeeting(state)
-
-    log.debug("___________D_____________________" + requesterId)
 
     val podsVO = pods.map(pod => PresentationPodsApp.translatePresentationPodToVO(pod))
     val event = buildGetAllPresentationPodsRespMsg(podsVO, requesterId)

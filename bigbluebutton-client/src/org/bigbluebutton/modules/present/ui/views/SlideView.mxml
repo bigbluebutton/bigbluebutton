@@ -69,7 +69,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.main.api.JSLog;
 
 			private static const LOGGER:ILogger = getClassLogger(SlideView);      
       
@@ -289,7 +288,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handlePageChangedEvent(e:PageChangedEvent):void {
-				JSLog.warn("+++--- SlideView:: handlePageChangedEvent: " + e.podId, {});
 				LOGGER.debug("Got a page changed event for page [{0}]", [e.pageId]);
 				var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
 				if (page != null) {
@@ -318,8 +316,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
         LOGGER.debug("Got a page loaded event for page [{0}]", [e.pageId]);
-
-				JSLog.warn("+++--- SlideView:: handlePageLoadedEvent: " + e.pageId  + "   " + e.podId, {});
         var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
         if (page != null) {
           setSelectedSlide(page.num);
@@ -383,17 +379,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
 
-				JSLog.warn("+++--- SlideView:: handleSlideLoadedCompleteEvent: ", {});
         		LOGGER.debug("Page has been loaded by swfLoader.");
 				slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);
 				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);
 			}
 
 			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
-
-
-				JSLog.warn("+++--- SlideView:: dispatchNewSlideDisplayedEvent: ", {});
-				
 				var dispEvent:DisplaySlideEvent = new DisplaySlideEvent(DisplaySlideEvent.DISPLAY_SLIDE_EVENT);
 				dispEvent.slideWidth = slideRealWidth;
 				dispEvent.slideHeight = slideRealHeight;

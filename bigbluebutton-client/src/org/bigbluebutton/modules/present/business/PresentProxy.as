@@ -53,7 +53,6 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
 	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
-	import org.bigbluebutton.main.api.JSLog;
 	
 	public class PresentProxy {
 		private static const LOGGER:ILogger = getClassLogger(PresentProxy);
@@ -72,7 +71,6 @@ package org.bigbluebutton.modules.present.business
 		private var currentUploadCommand: UploadFileCommand;
 
 		public function PresentProxy() {
-			JSLog.warn("+++ PresentProxy:: constructor: ", {});
 
 			podManager = PresentationPodManager.getInstance();
 
@@ -124,9 +122,6 @@ package org.bigbluebutton.modules.present.business
     public function handleChangePresentationCommand(cmd:ChangePresentationCommand):void {
 		var presModel: PresentationModel = podManager.getPod(cmd.podId);
         var pres:Presentation = presModel.getPresentation(cmd.presId);
-        JSLog.warn("+++ PresentProxy:: sharePresentation1: " + pres.id + "   " + cmd.podId, {});
-      JSLog.warn("+++ PresentProxy:: sharePresentation2: " + pres.id, {});
-		JSLog.warn("+++ PresentProxy:: sharePresentation: ", pres != null);
 
       if (pres != null) {
         sender.sharePresentation(cmd.podId, pres.id);

@@ -24,15 +24,12 @@ trait GetPresentationInfoReqMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    log.debug("___________A_____________________")
-
     val requesterId = msg.body.userId
     val podId = msg.body.podId
 
     for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)
     } yield {
-      log.debug("___________b_____________________" + podId)
       val presInPod = pod.presentations
 
       val presVOs = presInPod.values.map { p =>

@@ -45,7 +45,6 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-	import org.bigbluebutton.main.api.JSLog;
 
 	
 	public class PresentManager
@@ -85,10 +84,9 @@ package org.bigbluebutton.modules.present.managers
 
 				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				openEvent.window = newWindow;
-				JSLog.warn("+++ PresentManager::handleAddPresentationPod openWindow req: " + podId, {});
 				globalDispatcher.dispatchEvent(openEvent);
 
-				podsManager.handleAddPresentationPod(podId, ownerId); // GOOD
+				podsManager.handleAddPresentationPod(podId, ownerId);
 			}
 		}
 
@@ -128,8 +126,6 @@ package org.bigbluebutton.modules.present.managers
 		public function handleOpenUploadWindow(e:UploadEvent):void {
 			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
 			if (uploadWindow) {
-				import org.bigbluebutton.main.api.JSLog;
-				JSLog.warn("+++ PresentManager:: handleOpenUploadWindow: " + e.podId, {});
 				uploadWindow.maxFileSize = e.maxFileSize;
 //				uploadWindow.podId = e.podId;
 				uploadWindow.setPodId(e.podId);

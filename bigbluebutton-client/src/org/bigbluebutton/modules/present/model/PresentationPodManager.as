@@ -15,7 +15,6 @@ package org.bigbluebutton.modules.present.model {
     import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
     import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
 
-    import org.bigbluebutton.main.api.JSLog;
     
     public class PresentationPodManager {
         private static const LOGGER:ILogger = getClassLogger(PresentationPodManager);
@@ -40,7 +39,6 @@ package org.bigbluebutton.modules.present.model {
         }
     
         private function initialize():void {
-            JSLog.warn("+++ PresentationPodManager:: initialize: ", {});
         }
     
         /**
@@ -65,12 +63,10 @@ package org.bigbluebutton.modules.present.model {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 
-                // JSLog.warn("+++ PresentationPodManager:: getPod podId=" + podId + " getPodId=" +  pod.getPodId(), {});
                 if (pod.getPodId() == podId) {
                     return pod;
                 }
             }
-            JSLog.warn("+++ PresentationPodManager:: getPod FAIL for podId=" + podId + " size=" +  _presentationPods.length, {});
             return resultingPod;
         }
 
@@ -78,35 +74,28 @@ package org.bigbluebutton.modules.present.model {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
                 if (pod.getPodId() == podId) {
-                    JSLog.warn("+++ (DUPLICATE FOUND) PresentationPodManager::handleAddPresentationPod " + podId, {});
                     return;
                 }
             }
 
             var newPod: PresentationModel = new PresentationModel(podId, ownerId);
             _presentationPods.addItem(newPod);
-            JSLog.warn("+++ after (SUCCESS) PresentationPodManager::handleAddPresentationPod " + podId + " size=" + _presentationPods.length, {});
         }
         
         public function handlePresentationPodRemoved(podId: String, ownerId: String): void {
-            JSLog.warn("+++ PresentationPodManager::handlePresentationPodRemoved " + podId, {});
 
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
-                JSLog.warn("+++ PresentationPodManager:: remove for podId=" + podId + "    final size= " + _presentationPods.length, {});
 
                 if (pod.getPodId() == podId) {
                     _presentationPods.removeItemAt(i);
-                    JSLog.warn("+++ (SUCCESS) PresentationPodManager:: remove for podId=" + podId + "    final size= " + _presentationPods.length, {});
                     return;
                 }
             }
-            JSLog.warn("+++ (FAIL) PresentationPodManager:: remove for podId=" + podId + "    final size= " + _presentationPods.length, {});
             
         }
         
         public function requestAllPodsPresentationInfo(): void {
-            JSLog.warn("+++ PresentationPodManager:: requestAllPodsPresentationInfo" + _presentationPods.length, {});
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 

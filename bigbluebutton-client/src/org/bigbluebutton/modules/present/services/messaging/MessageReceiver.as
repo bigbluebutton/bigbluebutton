@@ -46,7 +46,6 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
-  import org.bigbluebutton.main.api.JSLog;
 
   
   public class MessageReceiver implements IMessageListener {
@@ -63,21 +62,7 @@ package org.bigbluebutton.modules.present.services.messaging
     
     public function onMessage(messageName:String, message:Object):void {
       //LOGGER.info("Presentation: received message " + messageName);
-        if (messageName == "ResizeAndMovePageEvtMsg" ||
-                messageName == "SendCursorPositionEvtMsg" ||
-                messageName == "GetWhiteboardAccessRespMsg" ||
-                messageName == "GetSharedNotesEvtMsg" ||
-                messageName == "SendCaptionHistoryRespMsg" ||
-                messageName == "GetGroupChatMsgsRespMsg" ||  
-                messageName == "DoLatencyTracerMsg" || 
-                messageName == "PresentationConversionUpdateEvtMsg" ||
-                messageName == "ServerToClientLatencyTracerMsg") {
-            
-        } else {
-          JSLog.warn("____Presentation received: " + messageName, message);
-        }
-      
-      
+
       switch (messageName) {
         case "SetCurrentPageEvtMsg":
           handleSetCurrentPageEvtMsg(message);
@@ -125,9 +110,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleSetCurrentPageEvtMsg(msg:Object):void {
-      JSLog.warn("__--__Presentation received: handleSetCurrentPageEvtMsg" + msg.body.podId, {});
-      JSLog.warn("__--__Presentation received: handleSetCurrentPageEvtMsg" + msg.body.pageId, {});
-        
       service.pageChanged(msg.body.podId, msg.body.pageId);
     }
     

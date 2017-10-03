@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
-  import org.bigbluebutton.main.api.JSLog;
   
   public class MessageSender {
     
@@ -76,8 +75,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     public function getPresentationInfo(podId: String):void {
-      JSLog.warn("sender: getPresentationInfo " + podId, {});
-        
       var message:Object = {
         header: {name: "GetPresentationInfoReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
         body: {userId: UsersUtil.getMyUserID(), podId: podId}
@@ -92,8 +89,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
 
     public function requestAllPodsEvent():void {
-      JSLog.warn("sender: requestAllPodsEvent ", {});
-        
       var message:Object = {
         header: {name: "GetAllPresentationPodsReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
         body: {requesterId: UsersUtil.getMyUserID()}
@@ -140,7 +135,6 @@ package org.bigbluebutton.modules.present.services.messaging
         header: {name: "CreateNewPresentationPodPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
         body: {ownerId: requesterId}
       };
-        JSLog.warn("sender: request the creation of a new presentation pod ", null);
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage2x(
@@ -155,7 +149,6 @@ package org.bigbluebutton.modules.present.services.messaging
         header: {name: "RemovePresentationPodPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
         body: {requesterId: requesterId, podId: podId}
       };
-        JSLog.warn("sender: closing a presentation pod ", null);
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage2x(
