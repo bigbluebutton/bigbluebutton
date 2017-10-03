@@ -150,7 +150,7 @@ Button.audioBtn:last-of-type {
 }
 
 .select {
-  @extend .customSelectFocus;
+  @extend %customSelectFocus;
   background-color: $color-white;
   border: 0;
   border-bottom: 0.1rem solid $color-text;

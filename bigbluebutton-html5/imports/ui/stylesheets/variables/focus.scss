@@ -5,7 +5,7 @@ $user-list-bg: #F3F6F9;
 $color-white: #FFF;
 $list-item-bg-hover: darken($user-list-bg, 7%);
 
-.customListFocus {
+%customListFocus {
   border: $focus-border-size solid $user-list-bg;
   border-radius: $focus-border-size;
 
@@ -15,8 +15,8 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   }
 }
 
-.customUserItemFocus,
-.customChatItemFocus {
+%customUserItemFocus,
+%customChatItemFocus {
   border: $focus-border-size solid $user-list-bg;
   border-radius: $focus-border-size;
 
@@ -36,7 +36,7 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   }
 }
 
-.customListItemFocus {
+%customListItemFocus {
   position: relative;
   display: inline-block;
   border-right: $focus-border-size solid $color-white;
@@ -52,9 +52,9 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   }
 }
 
-.customInputFocus,
-.customSelectFocus,
-.customLinkFocus {
+%customInputFocus,
+%customSelectFocus,
+%customLinkFocus {
   border: $focus-border-size solid $color-white;
 
   &,
@@ -67,7 +67,7 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   }
 }
 
-.btnFocus {
+%btnFocus {
   border: none;
   position: relative;
   overflow: visible;

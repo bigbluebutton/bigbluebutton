@@ -7,5 +7,5 @@
 }
 
 .scrollableList {
-  @extend .customListFocus;
+  @extend %customListFocus;
 }

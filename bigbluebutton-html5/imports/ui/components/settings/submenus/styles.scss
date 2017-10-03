@@ -53,7 +53,7 @@
 }
 
 .select {
-  @extend .customSelectFocus;
+  @extend %customSelectFocus;
   background-color: #fff;
   border: $focus-border-size solid #fff;
   border-radius: $focus-border-size;
@@ -91,7 +91,7 @@
 }
 
 .swatch {
-  @extend .customSelectFocus;
+  @extend %customSelectFocus;
   position: absolute;
   float: right;
   background: #fff;
