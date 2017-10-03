@@ -32,5 +32,5 @@ export default function kickUser(credentials, userId) {
 
   Logger.warn(`User '${userId}' was kicked by '${requesterUserId}' from meeting '${meetingId}'`);
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, 'nodeJSapp', payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }
