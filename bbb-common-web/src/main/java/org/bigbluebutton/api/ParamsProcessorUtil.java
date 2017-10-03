@@ -349,7 +349,11 @@ public class ParamsProcessorUtil {
         int maxUsers = processMaxUser(params.get("maxParticipants"));
         int meetingDuration = processMeetingDuration(params.get("duration"));
         int logoutTimer = processMeetingDuration(params.get("logoutTimer"));
-
+        
+        // Banner parameters
+        String bannerText = params.get("bannerText");
+        String bannerColor = params.get("bannerColor");
+        
         // set is breakout room property
         boolean isBreakout = false;
         if (!StringUtils.isEmpty(params.get("isBreakout"))) {
@@ -445,6 +449,7 @@ public class ParamsProcessorUtil {
                 .withViewerPass(viewerPass).withRecording(record)
                 .withDuration(meetingDuration).withLogoutUrl(logoutUrl)
                 .withLogoutTimer(logoutTimer)
+                .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(defaultAvatarURL)

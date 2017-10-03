@@ -143,12 +143,20 @@ phonecomponents|MuteMeButton {
 
 .toolbarMainBox {
 	backgroundColor : #FFFFFF;
-	paddingTop      : 6;
-	paddingBottom   : 6;
+	paddingTop      : 0;
+	paddingBottom   : 0;
+	verticalGap     : 0;
 }
 
 .breakoutRoomRibbon {
 	backgroundColor : #1070D7;
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
+.bannerStyle {
 	color           : #FFFFFF;
 	fontSize        : 16;
 	verticalAlign   : middle;

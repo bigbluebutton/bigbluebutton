@@ -808,9 +808,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateToolbarHeight():void {
 				if (toolbarHeight != 0) {
-					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0 + 10);
+					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0);
 					if (UsersUtil.isBreakout()) {
 						toolbarHeight += toolbar.breakoutRibbon.height;
+					}
+					if (toolbar.banner.includeInLayout) {
+						toolbarHeight += toolbar.banner.height;
 					}
 				}
 				calculateCanvasHeight();

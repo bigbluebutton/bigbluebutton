@@ -1537,8 +1537,13 @@ class ApiController {
               allowStartStopRecording = meeting.getAllowStartStopRecording()
               webcamsOnlyForModerator = meeting.getWebcamsOnlyForModerator()
               welcome = us.welcome
-              if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
+              if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage)) {
                 modOnlyMessage = meeting.moderatorOnlyMessage
+              }
+              if (! StringUtils.isEmpty(meeting.bannerText)) {
+              	bannerText = meeting.getBannerText()
+              	bannerColor = meeting.getBannerColor()
+              }
               logoutUrl = us.logoutUrl
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL

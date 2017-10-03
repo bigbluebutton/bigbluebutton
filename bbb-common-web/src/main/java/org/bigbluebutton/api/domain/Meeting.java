@@ -47,6 +47,8 @@ public class Meeting {
 	private String logoutUrl;
 	private int logoutTimer = 0;
 	private int maxUsers;
+	private String bannerColor = "#FFFFFF";
+	private String bannerText = "";
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
@@ -76,6 +78,8 @@ public class Meeting {
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
         maxUsers = builder.maxUsers;
+        bannerColor = builder.bannerColor;
+        bannerText = builder.bannerText;
         logoutUrl = builder.logoutUrl;
         logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
@@ -304,6 +308,14 @@ public class Meeting {
 	public int getLogoutTimer() {
 		return logoutTimer;
 	}
+	
+	public String getBannerColor() {
+		return bannerColor;
+	}
+	
+	public String getBannerText() {
+		return bannerText;
+	}
 
 	public boolean isRecord() {
 		return record;
@@ -425,8 +437,6 @@ public class Meeting {
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
 
-
-
 	/***
 	 * Meeting Builder
 	 *
@@ -448,6 +458,8 @@ public class Meeting {
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
     	private String logoutUrl;
+    	private String bannerColor;
+    	private String bannerText;
     	private int logoutTimer;
     	private Map<String, String> metadata;
     	private String dialNumber;
@@ -552,6 +564,15 @@ public class Meeting {
     		return this;
     	}
     	
+    	public Builder withBannerColor(String c) {
+    		bannerColor = c;
+    		return this;
+    	}
+    	
+    	public Builder withBannerText(String t) {
+    		bannerText = t;
+    		return this;
+    	}
     	
     	public Builder withMetadata(Map<String, String> m) {
     		metadata = m;
