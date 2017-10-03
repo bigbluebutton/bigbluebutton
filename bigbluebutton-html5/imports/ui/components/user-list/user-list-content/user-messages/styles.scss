@@ -11,6 +11,7 @@
 
 .scrollableList {
   @include scrollbox-vertical($user-list-bg);
+  @extend %customListFocus;
 }
 
 .separator {
