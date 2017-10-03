@@ -104,7 +104,6 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().me.authToken = result.authToken;
         LiveMeeting.inst().me.layout = result.defaultLayout;
 		LiveMeeting.inst().me.logoutURL = result.logoutUrl;
-		LiveMeeting.inst().me.logoutTimer = result.logoutTimer;
         LiveMeeting.inst().me.role = result.role;
         LiveMeeting.inst().me.welcome = result.welcome;
         LiveMeeting.inst().me.avatarURL = result.avatarURL;
@@ -130,7 +129,11 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.metadata = result.metadata;
         LiveMeeting.inst().meeting.muteOnStart = meetingOptions.muteOnStart;
         
-				
+		LiveMeeting.inst().meeting.logoutTimer = result.logoutTimer;
+		
+		LiveMeeting.inst().meeting.bannerColor = result.bannerColor;
+		LiveMeeting.inst().meeting.bannerText = result.bannerText;
+
 				// assign the meeting name to the document title
 				ExternalInterface.call("setTitle", result.meetingName);
 				

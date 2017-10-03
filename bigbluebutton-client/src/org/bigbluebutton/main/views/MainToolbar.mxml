@@ -195,6 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					initBandwidthToolTip();
 				}
 			}
+
 			private function handleRemainingTimeUpdate(e:MeetingTimeRemainingEvent):void {
 				// Display timer only if there is less than 30 minutes remaining
 				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
@@ -218,13 +219,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
 				}
 				
-				if (LiveMeeting.inst().me.logoutTimer > 0 ) {
-					idleLogoutButton.startTimer(LiveMeeting.inst().me.logoutTimer);
+				if (LiveMeeting.inst().meeting.logoutTimer > 0 ) {
+					idleLogoutButton.startTimer(LiveMeeting.inst().meeting.logoutTimer);
 				} else {
 					rightBox.removeChild(idleLogoutButton);
 				}
+				
+				initBanner();
 
 				logFlashPlayerCapabilities();
+			}
+			
+			private function initBanner() : void {
+				if (!StringUtils.isEmpty(LiveMeeting.inst().meeting.bannerText)) {
+					banner.visible = banner.includeInLayout = true;
+					banner.setStyle("backgroundColor", uint("0x" + LiveMeeting.inst().meeting.bannerColor.substr(1))); 
+					bannerLabel.text = LiveMeeting.inst().meeting.bannerText;
+				}
 			}
 
       private function refreshModeratorButtonsVisibility(e:*):void {
@@ -400,7 +411,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
-					mainBox.setStyle("backgroundColor", uint("0x" + brandingOptions.toolbarColor.substr(1)));
+					topBox.setStyle("backgroundColor", uint("0x" + brandingOptions.toolbarColor.substr(1)));
 				}
 			}
 			
@@ -535,6 +546,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="top">
 		<!-- Breakout room  Ribbon-->
+		<mx:HBox id="banner" visible="false" includeInLayout="false" styleName="bannerStyle" width="100%" height="30">
+			<mx:Label id="bannerLabel" width="100%" textAlign="center"/>
+		</mx:HBox>
 		<mx:HBox id="breakoutRibbon" width="100%" height="30"
 				 styleName="breakoutRoomRibbon" 
 				 visible="false" includeInLayout="false" >
@@ -545,7 +559,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 		</mx:HBox>
 		<!-- Top bar -->
-		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
+		<mx:HBox id="topBox" width="100%" verticalAlign="middle" height="50" horizontalScrollPolicy="off" styleName="topBoxStyle">
 			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
 				<mx:VRule id="logoSperatator" styleName="toolbarSeparator" height="10" />
