@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles.scss';
 
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
+const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
+
 export default class TextDrawListener extends Component {
   constructor() {
     super();
@@ -31,12 +36,12 @@ export default class TextDrawListener extends Component {
     this.currentWidth = undefined;
     this.currentHeight = undefined;
 
-    // current text shape status, it may change between "DRAW_START", "DRAW_UPDATE", "DRAW_END"
+    // current text shape status, it may change between DRAW_START, DRAW_UPDATE, DRAW_END
     this.currentStatus = '';
 
-    this.mouseDownHandler = this.mouseDownHandler.bind(this);
-    this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
-    this.mouseUpHandler = this.mouseUpHandler.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleMouseUp = this.handleMouseUp.bind(this);
     this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
   }
@@ -50,27 +55,29 @@ export default class TextDrawListener extends Component {
   // While the user was drawing it. So we are resetting the state.
   componentWillReceiveProps(nextProps) {
     const { drawSettings } = this.props;
-    const _drawsettings = nextProps.drawSettings;
+    const nextDrawsettings = nextProps.drawSettings;
 
-    if (drawSettings.textShapeActiveId !== '' && _drawsettings.textShapeActiveId === '') {
+    if (drawSettings.textShapeActiveId !== '' && nextDrawsettings.textShapeActiveId === '') {
       this.resetState();
     }
   }
 
   componentDidUpdate(prevProps) {
     const { drawSettings } = this.props;
-    const _drawsettings = prevProps.drawSettings;
-    const _textShapeValue = prevProps.drawSettings.textShapeValue;
+    const prevDrawsettings = prevProps.drawSettings;
+    const prevTextShapeValue = prevProps.drawSettings.textShapeValue;
 
     // Updating the component in cases when:
     // Either color / font-size or text value has changed
     // and excluding the case when the textShapeActiveId changed to ''
-    if ((drawSettings.textFontSize !== _drawsettings.textFontSize ||
-      drawSettings.color !== _drawsettings.color ||
-      drawSettings.textShapeValue !== _textShapeValue) &&
-      drawSettings.textShapeActiveId !== '') {
+    const fontSizeChanged = drawSettings.textFontSize !== prevDrawsettings.textFontSize;
+    const colorChanged = drawSettings.color !== prevDrawsettings.color;
+    const textShapeValueChanged = drawSettings.textShapeValue !== prevTextShapeValue;
+    const textShapeIdNotEmpty = drawSettings.textShapeActiveId !== '';
+
+    if ((fontSizeChanged || colorChanged || textShapeValueChanged) && textShapeIdNotEmpty) {
       const { getCurrentShapeId } = this.props.actions;
-      this.currentStatus = 'DRAW_UPDATE';
+      this.currentStatus = DRAW_UPDATE;
 
       this.handleDrawText(
         { x: this.currentX, y: this.currentY },
@@ -85,8 +92,8 @@ export default class TextDrawListener extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.sendLastMessage);
-    window.removeEventListener('mouseup', this.mouseUpHandler);
-    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+    window.removeEventListener('mouseup', this.handleMouseUp);
+    window.removeEventListener('mousemove', this.handleMouseMove, true);
 
     // sending the last message on componentDidUnmount
     // for example in case when you switched a tool while drawing text shape
@@ -94,30 +101,27 @@ export default class TextDrawListener extends Component {
   }
 
   // main mouse down handler
-  // calls a mouseDown<AnnotationName> handler based on the tool selected
-  mouseDownHandler(event) {
+  handleMouseDown(event) {
     this.mouseDownText(event);
   }
 
   // main mouse up handler
-  // calls a mouseUp<AnnotationName> handler based on the tool selected
-  mouseUpHandler(event) {
-    window.removeEventListener('mouseup', this.mouseUpHandler);
-    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+  handleMouseUp(event) {
+    window.removeEventListener('mouseup', this.handleMouseUp);
+    window.removeEventListener('mousemove', this.handleMouseMove, true);
     this.mouseUpText(event);
   }
 
   // main mouse move handler
-  // calls a mouseMove<AnnotationName> handler based on the tool selected
-  mouseMoveHandler(event) {
+  handleMouseMove(event) {
     this.mouseMoveText(event);
   }
 
   mouseDownText(event) {
     // if our current drawing state is not drawing the box and not writing the text
     if (!this.state.isDrawing && !this.state.isWritingText) {
-      window.addEventListener('mouseup', this.mouseUpHandler);
-      window.addEventListener('mousemove', this.mouseMoveHandler, true);
+      window.addEventListener('mouseup', this.handleMouseUp);
+      window.addEventListener('mousemove', this.handleMouseMove, true);
 
       // saving initial X and Y coordinates for further displaying of the textarea
       this.initialX = event.nativeEvent.offsetX;
@@ -137,21 +141,23 @@ export default class TextDrawListener extends Component {
   }
 
   sendLastMessage() {
-    if (this.state.isWritingText) {
-      const { getCurrentShapeId } = this.props.actions;
-      this.currentStatus = 'DRAW_END';
-
-      this.handleDrawText(
-        { x: this.currentX, y: this.currentY },
-        this.currentWidth,
-        this.currentHeight,
-        this.currentStatus,
-        getCurrentShapeId(),
-        this.props.drawSettings.textShapeValue,
-      );
-
-      this.resetState();
+    if (!this.state.isWritingText) {
+      return;
     }
+
+    const { getCurrentShapeId } = this.props.actions;
+    this.currentStatus = DRAW_END;
+
+    this.handleDrawText(
+      { x: this.currentX, y: this.currentY },
+      this.currentWidth,
+      this.currentHeight,
+      this.currentStatus,
+      getCurrentShapeId(),
+      this.props.drawSettings.textShapeValue,
+    );
+
+    this.resetState();
   }
 
   resetState() {
@@ -206,39 +212,41 @@ export default class TextDrawListener extends Component {
 
   mouseUpText() {
     // TODO - find if the size is large enough to display the text area
-    if (this.state.isDrawing && !this.state.isWritingText) {
-      const { generateNewShapeId,
-        getCurrentShapeId,
-        setTextShapeActiveId,
-      } = this.props.actions;
-
-      // coordinates and width/height of the textarea in percentages of the current slide
-      // saving them in the class since they will be used during all updates
-      this.currentX = (this.state.textBoxX / this.props.slideWidth) * 100;
-      this.currentY = (this.state.textBoxY / this.props.slideHeight) * 100;
-      this.currentWidth = (this.state.textBoxWidth / this.props.slideWidth) * 100;
-      this.currentHeight = (this.state.textBoxHeight / this.props.slideHeight) * 100;
-      this.currentStatus = 'DRAW_START';
-      this.handleDrawText(
-        { x: this.currentX, y: this.currentY },
-        this.currentWidth,
-        this.currentHeight,
-        this.currentStatus,
-        generateNewShapeId(),
-        '',
-      );
-
-      setTextShapeActiveId(getCurrentShapeId());
-
-      this.setState({
-        isWritingText: true,
-        isDrawing: false,
-        textBoxX: undefined,
-        textBoxY: undefined,
-        textBoxWidth: 0,
-        textBoxHeight: 0,
-      });
+    if (!this.state.isDrawing && this.state.isWritingText) {
+      return;
     }
+
+    const { generateNewShapeId,
+      getCurrentShapeId,
+      setTextShapeActiveId,
+    } = this.props.actions;
+
+    // coordinates and width/height of the textarea in percentages of the current slide
+    // saving them in the class since they will be used during all updates
+    this.currentX = (this.state.textBoxX / this.props.slideWidth) * 100;
+    this.currentY = (this.state.textBoxY / this.props.slideHeight) * 100;
+    this.currentWidth = (this.state.textBoxWidth / this.props.slideWidth) * 100;
+    this.currentHeight = (this.state.textBoxHeight / this.props.slideHeight) * 100;
+    this.currentStatus = DRAW_START;
+    this.handleDrawText(
+      { x: this.currentX, y: this.currentY },
+      this.currentWidth,
+      this.currentHeight,
+      this.currentStatus,
+      generateNewShapeId(),
+      '',
+    );
+
+    setTextShapeActiveId(getCurrentShapeId());
+
+    this.setState({
+      isWritingText: true,
+      isDrawing: false,
+      textBoxX: undefined,
+      textBoxY: undefined,
+      textBoxWidth: 0,
+      textBoxHeight: 0,
+    });
   }
 
   handleDrawText(startPoint, width, height, status, id, text) {
@@ -277,7 +285,7 @@ export default class TextDrawListener extends Component {
         role="presentation"
         className={styles.text}
         style={{ width: '100%', height: '100%' }}
-        onMouseDown={this.mouseDownHandler}
+        onMouseDown={this.handleMouseDown}
       >
         {this.state.isDrawing ?
           <svg
@@ -334,7 +342,7 @@ TextDrawListener.propTypes = {
     // Defines a function which generates a new shape id
     generateNewShapeId: PropTypes.func.isRequired,
     // Defines a function which receives a thickness num and normalizes it before we send a message
-    normalizeThickness: PropTypes.func.isRequired,
+    normalizeFont: PropTypes.func.isRequired,
     // Defines a function which we use to publish a message to the server
     sendAnnotation: PropTypes.func.isRequired,
     // Defines a function which resets the current state of the text shape drawing

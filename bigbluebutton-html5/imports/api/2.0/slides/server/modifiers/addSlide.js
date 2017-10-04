@@ -93,6 +93,14 @@ export default function addSlide(meetingId, presentationId, slide) {
 
   return fetchImageSizes(imageUri)
     .then(({ width, height }) => {
+      // there is a rare case when for a very long not-active meeting
+      // the presentation files just disappear
+      // in that case just set the whole calculatedData to undefined
+      if (!width && !height) {
+        modifier.$set.calculatedData = undefined;
+        return Slides.upsert(selector, modifier, cb);
+      }
+
       // pre-calculating the width, height, and vieBox coordinates / dimensions
       // to unload the client-side
       const slideData = {
