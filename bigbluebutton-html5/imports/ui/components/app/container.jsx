@@ -74,7 +74,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
-      if (fields.ejected && fields.connectionStatus === 'offline') {
+      if (fields.ejected) {
         sendToError(403, intl.formatMessage(intlMessages.kickedMessage));
       }
     },

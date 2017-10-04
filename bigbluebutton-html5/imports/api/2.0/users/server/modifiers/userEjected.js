@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
+import removeUser from './removeUser';
 
 export default function userEjected(meetingId, userId) {
   check(meetingId, String);
@@ -14,12 +15,6 @@ export default function userEjected(meetingId, userId) {
   const modifier = {
     $set: {
       ejected: true,
-      connectionStatus: 'offline',
-      listenOnly: false,
-      validated: false,
-      emoji: 'none',
-      presenter: false,
-      role: 'VIEWER',
     },
   };
 
@@ -35,5 +30,7 @@ export default function userEjected(meetingId, userId) {
     return null;
   };
 
-  return Users.update(selector, modifier, cb);
+  Users.update(selector, modifier, cb);
+
+  return removeUser(meetingId, userId);
 }
