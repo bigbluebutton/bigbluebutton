@@ -8,7 +8,7 @@ package org.bigbluebutton.lib.common.services {
 		function get connection():NetConnection;
 		function connect(uri:String, ... parameters):void;
 		function disconnect(onUserCommand:Boolean):void;
-		function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object = null):void;
+		function sendMessage2x(onSuccess:Function, onFailure:Function, message:Object):void;
 		function init(callback:DefaultConnectionCallback):void;
 		function get connectionSuccessSignal():ISignal;
 		function get connectionFailureSignal():ISignal;

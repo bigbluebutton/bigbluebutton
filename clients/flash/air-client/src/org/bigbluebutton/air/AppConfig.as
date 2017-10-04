@@ -1,6 +1,5 @@
 package org.bigbluebutton.air {
 	
-	import org.bigbluebutton.air.main.commands.AuthenticationCommandAIR;
 	import org.bigbluebutton.air.main.commands.ConnectingFinishedCommandAIR;
 	import org.bigbluebutton.air.main.commands.DisconnectUserCommandAIR;
 	import org.bigbluebutton.air.main.models.IUISession;
@@ -15,7 +14,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
-	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
@@ -26,7 +24,9 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.main.commands.PresenterSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.MeetingData;
 	import org.bigbluebutton.lib.main.models.UserSession;
 	import org.bigbluebutton.lib.main.services.BigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
@@ -59,6 +59,7 @@ package org.bigbluebutton.air {
 			// Singleton mapping
 			injector.map(IUISession).toSingleton(UISession);
 			injector.map(IUserSession).toSingleton(UserSession);
+			injector.map(IMeetingData).toSingleton(MeetingData);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
@@ -75,7 +76,6 @@ package org.bigbluebutton.air {
 			injector.map(IVideoConnection).toType(VideoConnection);
 			// Signal to Command mapping
 			signalCommandMap.map(ConnectSignal).toCommand(ConnectCommand);
-			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommandAIR);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
 			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);

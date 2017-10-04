@@ -6,16 +6,6 @@ package org.bigbluebutton.lib.presentation.services {
 	import org.bigbluebutton.lib.presentation.models.Slide;
 	
 	public class PresentMessageReceiver implements IMessageListener {
-		private static const SO_NAME:String = "presentationSO";
-		
-		private static const PRESENTER:String = "presenter";
-		
-		private static const SHARING:String = "sharing";
-		
-		private static const UPDATE_MESSAGE:String = "updateMessage";
-		
-		private static const CURRENT_PAGE:String = "currentPage";
-		
 		private static const OFFICE_DOC_CONVERSION_SUCCESS_KEY:String = "OFFICE_DOC_CONVERSION_SUCCESS";
 		
 		private static const OFFICE_DOC_CONVERSION_FAILED_KEY:String = "OFFICE_DOC_CONVERSION_FAILED";
@@ -43,26 +33,12 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		public function onMessage(messageName:String, message:Object):void {
 			switch (messageName) {
-				case "PresentationCursorUpdateCommand":
-					handlePresentationCursorUpdateCommand(message);
-					break;
-				case "moveCallback":
-					handleMoveCallback(message);
-					break;
-				case "goToSlideCallback":
-					handleGoToSlideCallback(message);
-					break;
-				case "conversionCompletedUpdateMessageCallback":
-					handleConversionCompletedUpdateMessageCallback(message);
-					break;
+
 				case "conversionUpdateMessageCallback":
 					handleConversionUpdateMessageCallback(message);
 					break;
 				case "generatedSlideUpdateMessageCallback":
 					handleGeneratedSlideUpdateMessageCallback(message);
-					break;
-				case "getPresentationInfoReply":
-					handleGetPresentationInfoReply(message)
 					break;
 				case "pageCountExceededUpdateMessageCallback":
 					handlePageCountExceededUpdateMessageCallback(message);
@@ -72,59 +48,71 @@ package org.bigbluebutton.lib.presentation.services {
 					break;
 				case "sharePresentationCallback":
 					handleSharePresentationCallback(message);
+					
+					
+					
+					
+				case "GetPresentationInfoRespMsg":
+					handleGetPresentationInfoRespMsg(message)
+					break;
+				case "PresentationConversionCompletedEvtMsg":
+					handlePresentationConversionCompletedEvtMsg(message);
+					break;
+				case "SetCurrentPageEvtMsg":
+					handleSetCurrentPageEvtMsg(message);
+					break;
+				case "ResizeAndMovePageEvtMsg":
+					handleResizeAndMovePageEvtMsg(message);
+					break;
 				default:
 					break;
 			}
 		}
 		
-		private function handleGetPresentationInfoReply(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			if (msg.presentations) {
-				for (var i:int = 0; i < msg.presentations.length; i++) {
-					addPresentation(msg.presentations[i]);
+		private function handleGetPresentationInfoRespMsg(msg:Object):void {
+			trace("PresentMessageReceiver::handleGetPresentationInfoRespMsg()");
+			var presentations:Array = msg.body.presentations as Array;
+			if (msg.body.presentations) {
+				for (var i:int = 0; i < presentations.length; i++) {
+					addPresentation(presentations[i]);
 				}
 			}
 		}
 		
-		private function handleGoToSlideCallback(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handleGoToSlideCallback() -- going to slide number [" + msg.num + "]");
-			userSession.presentationList.currentPresentation.currentSlideNum = int(msg.num);
+		private function addPresentation(presentationObject:Object):void {
+			var length:int = presentationObject.pages.length;
+			var presentation:Presentation = userSession.presentationList.addPresentation(presentationObject.name, presentationObject.id, length, presentationObject.current, presentationObject.downloadable);
+			// Add all the slides to the presentation:
+			for (var i:int = 0; i < length; i++) {
+				var s:Object = presentationObject.pages[i];
+				presentation.add(new Slide(s.id, s.num, s.swfUri, s.thumbUri, s.txtUri, s.current, s.xOffset, s.yOffset, s.widthRatio, s.heightRatio));
+			}
+			if (presentation.current) {
+				presentation.show();
+			}
 		}
 		
-		private function handleMoveCallback(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handleMoveCallback()");
-			userSession.presentationList.setViewedRegion(msg.xOffset, msg.yOffset, msg.widthRatio, msg.heightRatio);
-		/* Properties of msg:
-		   current
-		   heightRatio
-		   id
-		   num
-		   pngUri
-		   swfUri
-		   thumbUri
-		   txtUri
-		   widthRatio
-		   xOffset
-		   yOffset
-		   /*
-		
-		   /*
-		   var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
-		   e.xOffset = xOffset;
-		   e.yOffset = yOffset;
-		   e.slideToCanvasWidthRatio = widthRatio;
-		   e.slideToCanvasHeightRatio = heightRatio;
-		   dispatcher.dispatchEvent(e);
-		 */
+		public function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
+			trace("PresentMessageReceiver::handlePresentationConversionCompletedEvtMsg() -- new presentation [" + msg.body.presentation.name + "] uploaded");
+			addPresentation(msg.body.presentation);
 		}
 		
-		private function handlePresentationCursorUpdateCommand(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handlePresentationCursorUpdateCommand() -- cursing moving [" + msg.xPercent + ", " + msg.yPercent + "]");
-			userSession.presentationList.cursorUpdate(msg.xPercent, msg.yPercent);
+		private function handleSetCurrentPageEvtMsg(msg:Object):void {
+			trace("PresentMessageReceiver::handleSetCurrentPageEvtMsg() -- going to slide number [" + msg.body.pageId + "]");
+			userSession.presentationList.currentPresentation.setCurrentSlide(msg.body.pageId);
 		}
+		
+		private function handleResizeAndMovePageEvtMsg(msg:Object):void {
+			trace("PresentMessageReceiver::handleResizeAndMovePageEvtMsg()");
+			userSession.presentationList.setViewedRegion(msg.body.presentationId, msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio);
+		}
+		
+		
+		
+		
+		
+		
+
 		
 		private function handleRemovePresentationCallback(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
@@ -158,30 +146,6 @@ package org.bigbluebutton.lib.presentation.services {
 		   uploadEvent.completedSlides = pagesCompleted;
 		   dispatcher.dispatchEvent(uploadEvent);
 		 */
-		}
-		
-		public function handleConversionCompletedUpdateMessageCallback(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handleConversionCompletedUpdateMessageCallback() -- new presentation [" + msg.presentation.name + "] uploaded");
-			addPresentation(msg.presentation);
-		}
-		
-		private function addPresentation(presentationObject:Object):void {
-			var length:int = presentationObject.pages.length;
-			trace("PresentMessageReceiver::handleGetPresentationInfoReply() -- adding presentation [" + presentationObject.name + "] to the presentation list");
-			var presentation:Presentation = userSession.presentationList.addPresentation(presentationObject.name, presentationObject.id, length, presentationObject.current);
-			// Add all the slides to the presentation:
-			for (var i:int = 0; i < length; i++) {
-				var s:Object = presentationObject.pages[i];
-				if (s.swfUri) {
-					presentation.add(new Slide(s.num, s.swfUri, s.thumbUri, s.txtUri, s.current, s.xOffset, s.yOffset, s.widthRatio, s.heightRatio));
-				} else if (s.swf_uri) {
-					presentation.add(new Slide(s.num, s.swf_uri, s.thumb_uri, s.txt_uri, s.current, s.x_offset, s.y_offset, s.width_ratio, s.height_ratio));
-				}
-			}
-			if (presentation.current) {
-				presentation.show();
-			}
 		}
 		
 		public function handleConversionUpdateMessageCallback(m:Object):void {

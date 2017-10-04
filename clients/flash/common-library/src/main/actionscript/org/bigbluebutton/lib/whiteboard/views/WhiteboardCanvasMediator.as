@@ -53,7 +53,7 @@ package org.bigbluebutton.lib.whiteboard.views {
 		
 		private function drawAllAnnotations():void {
 			trace("++ draw draw Draw");
-			var annotations:Array = userSession.presentationList.currentPresentation.getSlideAt(userSession.presentationList.currentPresentation.currentSlideNum).annotations;
+			var annotations:Array = userSession.presentationList.currentPresentation.currentSlide.annotations;
 			for (var i:int = 0; i < annotations.length; i++) {
 				var an:IAnnotation = annotations[i] as IAnnotation;
 				an.draw(view, _zoom);

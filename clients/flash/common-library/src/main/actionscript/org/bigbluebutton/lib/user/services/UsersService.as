@@ -1,8 +1,8 @@
 package org.bigbluebutton.lib.user.services {
 	
-	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	
@@ -15,7 +15,7 @@ package org.bigbluebutton.lib.user.services {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var authenticationSignal:AuthenticationSignal;
+		public var meetingData:IMeetingData;
 		
 		[Inject]
 		public var disconnectUserSignal:DisconnectUserSignal;
@@ -31,9 +31,10 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function setupMessageSenderReceiver():void {
 			usersMessageReceiver.userSession = userSession;
-			usersMessageReceiver.authenticationSignal = authenticationSignal;
+			usersMessageReceiver.meetingData = meetingData;
 			usersMessageReceiver.disconnectUserSignal = disconnectUserSignal;
 			usersMessageSender.userSession = userSession;
+			usersMessageSender.conferenceParameters = conferenceParameters;
 			userSession.mainConnection.addMessageListener(usersMessageReceiver);
 			userSession.logoutSignal.add(logout);
 		}
@@ -148,6 +149,9 @@ package org.bigbluebutton.lib.user.services {
 		public function validateToken():void {
 			usersMessageSender.validateToken(conferenceParameters.internalUserID, conferenceParameters.authToken);
 		}
-	
+		
+		public function joinMeeting():void {
+			usersMessageSender.joinMeeting();
+		}
 	}
 }

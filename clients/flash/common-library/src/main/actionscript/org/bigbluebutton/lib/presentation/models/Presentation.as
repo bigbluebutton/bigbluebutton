@@ -1,5 +1,7 @@
 package org.bigbluebutton.lib.presentation.models {
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.lib.whiteboard.models.AnnotationStatus;
 	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
 	import org.osflash.signals.ISignal;
@@ -10,24 +12,27 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _id:String = "";
 		
-		private var _slides:Vector.<Slide> = new Vector.<Slide>();
+		private var _slides:ArrayCollection;
 		
 		private var _changePresentation:Function;
 		
-		private var _currentSlideNum:int = -1;
+		private var _currentSlide:Slide;
 		
 		private var _current:Boolean = false;
+		
+		private var _downloadable:Boolean = false;
 		
 		private var _slideChangeSignal:ISignal = new Signal();
 		
 		private var _loaded:Boolean = false;
 		
-		public function Presentation(fileName:String, id:String, changePresentation:Function, numOfSlides:int, isCurrent:Boolean):void {
+		public function Presentation(fileName:String, id:String, changePresentation:Function, numOfSlides:int, isCurrent:Boolean, downloadable:Boolean):void {
 			_fileName = fileName;
 			_id = id;
-			_slides = new Vector.<Slide>(numOfSlides);
+			_slides = new ArrayCollection();
 			_changePresentation = changePresentation;
 			_current = isCurrent;
+			_downloadable = downloadable;
 		}
 		
 		public function get fileName():String {
@@ -38,22 +43,25 @@ package org.bigbluebutton.lib.presentation.models {
 			return _id;
 		}
 		
-		public function get slides():Vector.<Slide> {
+		public function get slides():ArrayCollection {
 			return _slides;
 		}
 		
-		public function getSlideAt(num:int):Slide {
-			if (_slides.length > num) {
-				return _slides[num];
+		public function getSlideById(slideId:String):Slide {
+			for each (var slide:Slide in _slides) {
+				if (slide.id == slideId) {
+					return slide;
+				}
 			}
-			trace("getSlideAt failed: Slide index out of bounds");
+			
+			trace("getSlideById failed: Slide not found");
 			return null;
 		}
 		
 		public function add(slide:Slide):void {
-			_slides[slide.slideNumber - 1] = slide;
+			_slides.addItem(slide);
 			if (slide.current == true) {
-				_currentSlideNum = slide.slideNumber - 1;
+				_currentSlide = slide;
 			}
 		}
 		
@@ -74,17 +82,8 @@ package org.bigbluebutton.lib.presentation.models {
 			return _loaded;
 		}
 		
-		public function set currentSlideNum(n:int):void {
-			if (_currentSlideNum >= 0) {
-				_slides[_currentSlideNum].current = false;
-			}
-			_currentSlideNum = n - 1;
-			_slides[_currentSlideNum].current = true;
-			_slideChangeSignal.dispatch();
-		}
-		
-		public function get currentSlideNum():int {
-			return _currentSlideNum;
+		public function get currentSlide():Slide {
+			return _currentSlide;
 		}
 		
 		public function set current(b:Boolean):void {
@@ -103,6 +102,29 @@ package org.bigbluebutton.lib.presentation.models {
 			_slides = new Vector.<Slide>();
 		}
 		
+		public function setCurrentSlide(slideId:String):void {
+			if (_currentSlide) {
+				_currentSlide.current = false;
+				_currentSlide = null;
+			}
+			var newCurrentSlide:Slide = getSlideById(slideId);
+			if (newCurrentSlide) {
+				newCurrentSlide.current = true;
+				_currentSlide = newCurrentSlide;
+			}
+			_slideChangeSignal.dispatch();
+		}
+		
+		public function setViewedRegion(slideId:String, x:Number, y:Number, widthPercent:Number, heightPercent:Number):Boolean {
+			var slide:Slide = getSlideById(slideId);
+			if (slide != null) {
+				slide.setViewedRegion(x, y, widthPercent, heightPercent);
+				return true;
+			}
+			return false;
+		}
+		
+		/*
 		public function addAnnotationHistory(slideNum:int, annotationHistory:Array):Boolean {
 			var slide:Slide = getSlideAt(slideNum);
 			if (slide != null) {
@@ -143,14 +165,6 @@ package org.bigbluebutton.lib.presentation.models {
 			}
 			return null;
 		}
-		
-		public function setViewedRegion(slideNum:Number, x:Number, y:Number, widthPercent:Number, heightPercent:Number):Boolean {
-			var slide:Slide = getSlideAt(slideNum);
-			if (slide != null) {
-				slide.setViewedRegion(x, y, widthPercent, heightPercent);
-				return true;
-			}
-			return false;
-		}
+		*/
 	}
 }

@@ -58,12 +58,7 @@ package org.bigbluebutton.lib.common.services {
 		
 		public function connect(uri:String, ... parameters):void {
 			_uri = uri;
-			// The connect call needs to be done properly. At the moment lock settings
-			// are not implemented in the mobile client, so parameters[7] and parameters[8]
-			// are "faked" in order to connect (without them, I couldn't get the connect 
-			// call to work...) - Adam
-			parameters[7] = false;
-			parameters[8] = false;
+			
 			try {
 				trace("Trying to connect to [" + uri + "] ...");
 				trace("parameters: " + parameters);
@@ -156,21 +151,26 @@ package org.bigbluebutton.lib.common.services {
 			sendConnectionFailedSignal(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
-		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object = null):void {
-			trace(LOG + "SENDING MESSAGE: [" + service + "]");
-			var responder:Responder = new Responder(function(result:Object):void { // On successful result
-				onSuccess("SUCCESSFULLY SENT: [" + service + "].");
-			}, function(status:Object):void { // status - On error occurred
-				var errorReason:String = "FAILED TO SEND: [" + service + "]:";
-				for (var x:Object in status) {
-					errorReason += "\n - " + x + " : " + status[x];
+		public function sendMessage2x(onSuccess:Function, onFailure:Function, message:Object):void {
+			
+			var service: String = "onMessageFromClient";
+			
+			var responder:Responder = new Responder(
+				function(result:Object):void { // On successful result
+					onSuccess("Successfully sent [" + service + "]."); 
+				},
+				function(status:Object):void { // status - On error occurred
+					var errorReason:String = "Failed to send [" + service + "]:\n"; 
+					for (var x:Object in status) { 
+						errorReason += "\t" + x + " : " + status[x]; 
+					} 
 				}
-				onFailure(errorReason);
-			});
+			);
+			
 			if (message == null) {
 				_netConnection.call(service, responder);
 			} else {
-				_netConnection.call(service, responder, message);
+				_netConnection.call(service, responder, JSON.stringify(message));
 			}
 		}
 	}

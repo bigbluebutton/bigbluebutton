@@ -1,9 +1,11 @@
 package org.bigbluebutton.lib.user.services {
 	
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class UsersMessageSender {
 		public var userSession:IUserSession;
+		public var conferenceParameters:IConferenceParameters;
 		
 		// The default callbacks of userSession.mainconnection.sendMessage
 		private var defaultSuccessResponse:Function = function(result:String):void {
@@ -17,6 +19,15 @@ package org.bigbluebutton.lib.user.services {
 		public function UsersMessageSender() {
 		}
 		
+		public function joinMeeting():void {
+			var message:Object = {
+				header: {name: "UserJoinMeetingReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {userId: conferenceParameters.internalUserID, authToken: conferenceParameters.authToken}
+			};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
 		public function kickUser(userID:String):void {
 			trace("UsersMessageSender::kickUser() -- Sending [participants.kickUser] message to server.. with message [userID:" + userID + "]");
 			var message:Object = new Object();
@@ -25,8 +36,14 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function queryForParticipants():void {
-			trace("UsersMessageSender::queryForParticipants() -- Sending [participants.getParticipants] message to server");
-			userSession.mainConnection.sendMessage("participants.getParticipants", defaultSuccessResponse, defaultFailureResponse);
+			trace("UsersMessageSender::queryForParticipants() -- Sending [GetUsersMeetingReqMsg] message to server");
+			
+			var message:Object = {
+				header: {name: "GetUsersMeetingReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {userId: conferenceParameters.internalUserID}
+			};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
@@ -130,11 +147,13 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function validateToken(internalUserID:String, authToken:String):void {
-			trace("UsersMessageSender::validateToken() -- Sending [validateToken] message to server");
-			var message:Object = new Object();
-			message["userId"] = internalUserID;
-			message["authToken"] = authToken;
-			userSession.mainConnection.sendMessage("validateToken", defaultSuccessResponse, defaultFailureResponse, message);
+			trace("UsersMessageSender::validateToken() -- Sending [ValidateAuthTokenReqMsg] message to server");
+			var message:Object = {
+				header: {name: "ValidateAuthTokenReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {userId: internalUserID, authToken: authToken}
+			};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 	}
 }

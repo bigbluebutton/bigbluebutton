@@ -22,6 +22,7 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		public function setupMessageSenderReceiver():void {
 			presentMessageSender.userSession = userSession;
+			presentMessageSender.conferenceParameters = conferenceParameters;
 			presentMessageReceiver.userSession = userSession;
 			userSession.mainConnection.addMessageListener(presentMessageReceiver);
 		}
@@ -30,24 +31,20 @@ package org.bigbluebutton.lib.presentation.services {
 			presentMessageSender.getPresentationInfo();
 		}
 		
-		public function gotoSlide(id:String):void {
-			presentMessageSender.gotoSlide(id);
+		public function setCurrentPage(presentationId: String, pageId: String):void {
+			presentMessageSender.setCurrentPage(presentationId, pageId);
 		}
 		
-		public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-			presentMessageSender.move(xOffset, yOffset, widthRatio, heightRatio);
+		public function move(presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
+			presentMessageSender.move(presentationId, pageId, xOffset, yOffset, widthRatio, heightRatio);
 		}
 		
-		public function removePresentation(name:String):void {
-			presentMessageSender.removePresentation(name);
+		public function removePresentation(presentationId:String):void {
+			presentMessageSender.removePresentation(presentationId);
 		}
 		
-		public function sendCursorUpdate(xPercent:Number, yPercent:Number):void {
-			presentMessageSender.sendCursorUpdate(xPercent, yPercent);
-		}
-		
-		public function sharePresentation(share:Boolean, presentationName:String):void {
-			presentMessageSender.sharePresentation(share, presentationName);
+		public function setCurrentPresentation(presentationId:String):void {
+			presentMessageSender.setCurrentPresentation(presentationId);
 		}
 	}
 }

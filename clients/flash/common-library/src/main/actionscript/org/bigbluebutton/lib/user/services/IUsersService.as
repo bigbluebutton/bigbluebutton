@@ -28,5 +28,6 @@ package org.bigbluebutton.lib.user.services {
 		function mute(user:User):void;
 		function unmute(user:User):void;
 		function validateToken():void;
+		function joinMeeting():void;
 	}
 }
