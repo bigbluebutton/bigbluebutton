@@ -22,20 +22,18 @@ export default class VideoDock extends Component {
 
   render() {
     return (
-      <div className={styles.videoDock} ref={(videoDock) => { this.videoDock = videoDock; }}>
-        <canvas ref={(canvas) => { this.canvas = canvas; }} />
+      <div onClick={this.props.updateData} className={styles.videoDock} ref={(videoDock) => { this.videoDock = videoDock; }}>
+        <canvas className={styles.canvas} ref={(canvas) => { this.canvas = canvas; }} />
       </div>
     );
   }
 
   onMessage(evt) {
-    console.log('Eventão', evt);
-
-    if (evt.origin === 'http://127.0.0.1:8080') {
-      // if not data is available, we wait 60ms.
+    if (evt.origin === 'http://127.0.0.1:8080' || evt.origin === 'http://localhost:8080') {
+      // if no data is available, we wait 60ms.
       if (typeof evt.data === 'string') {
         if (evt.data.includes('false')) {
-          setTimeout(() => (this.askNextYuvFrame(evt)), 10000);
+          setTimeout(() => (this.askNextYuvFrame(evt)), 60);
           this.frameCount = 0;
           return;
         } else if (evt.data.includes('ready')) {
@@ -46,7 +44,6 @@ export default class VideoDock extends Component {
 
       switch (this.frameCount) {
         case 0:
-          // this.yuvFrame.y = new Uint8Array(evt.data);
           var fileReader = new FileReader();
           fileReader.onload = (event) => {
             this.yuvFrame.y = new Uint8Array(event.target.result);
@@ -56,7 +53,6 @@ export default class VideoDock extends Component {
           break;
 
         case 1:
-          // this.yuvFrame.u = new Uint8Array(evt.data);
           var fileReader = new FileReader();
           fileReader.onload = (event) => {
             this.yuvFrame.u = new Uint8Array(event.target.result);
@@ -65,7 +61,6 @@ export default class VideoDock extends Component {
           this.frameCount++;
           break;
         case 2:
-          // this.yuvFrame.v = new Uint8Array(evt.data);
           var fileReader = new FileReader();
           fileReader.onload = (event) => {
             this.yuvFrame.v = new Uint8Array(event.target.result);
@@ -75,8 +70,6 @@ export default class VideoDock extends Component {
           break;
         case 3:
           const options = JSON.parse(evt.data);
-          console.log('yuvFrame', this.yuvFrame);
-          console.log('options', options);
 
           const format = YUVBuffer.format({
             width: options.width,
@@ -98,14 +91,13 @@ export default class VideoDock extends Component {
           }
 
           this.frameCount = 0;
-          setTimeout(() => (this.askNextYuvFrame(evt)), 10000);
+          setTimeout(() => (this.askNextYuvFrame(evt)), 30);
           break;
       }
     }
   }
 
   askNextYuvFrame(evt) {
-    console.log('Requisitando frame');
     evt.source.postMessage('yuvFrame', '*');
   }
 }

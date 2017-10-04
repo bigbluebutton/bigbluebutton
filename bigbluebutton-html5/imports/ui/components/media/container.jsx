@@ -2,16 +2,6 @@ import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Media from './component';
 import MediaService from './service';
-import PresentationAreaContainer from '../presentation/container';
-import VideoDockContainer from '../video-dock/container';
-import ScreenshareContainer from '../screenshare/container';
-import DefaultContent from '../presentation/default-content/component';
-
-const defaultProps = {
-  overlay: null, // <VideoDockContainer/>,
-  content: <PresentationAreaContainer />,
-  defaultContent: <DefaultContent />,
-};
 
 class MediaContainer extends Component {
   constructor(props) {
@@ -50,25 +40,4 @@ class MediaContainer extends Component {
   }
 }
 
-MediaContainer.defaultProps = defaultProps;
-
-export default createContainer(() => {
-  const data = {};
-  data.currentPresentation = MediaService.getPresentationInfo();
-
-  data.content = <DefaultContent />;
-
-  if (MediaService.shouldShowWhiteboard()) {
-    data.content = <PresentationAreaContainer />;
-  }
-
-  if (MediaService.shouldShowScreenshare()) {
-    data.content = <ScreenshareContainer />;
-  }
-
-  if (MediaService.shouldShowOverlay()) {
-    data.overlay = <VideoDockContainer />;
-  }
-
-  return data;
-}, MediaContainer);
+export default createContainer(() => MediaService.getData(), MediaContainer);

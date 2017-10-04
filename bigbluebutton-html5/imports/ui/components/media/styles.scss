@@ -31,6 +31,17 @@
   width: 30%;
   right: 2%;
   bottom: 2%;
+  cursor: pointer;
+
+  @include mq($large-up) {
+    flex-basis: 15%;
+  }
+}
+
+.overlayWrapperFullscreen {
+  position: absolute;
+  width: 100%;
+  cursor: pointer;
 
   @include mq($large-up) {
     flex-basis: 15%;

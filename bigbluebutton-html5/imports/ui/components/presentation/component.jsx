@@ -29,10 +29,10 @@ export default class PresentationArea extends React.Component {
             enterActive: styles.enterActive,
             appear: styles.appear,
             appearActive: styles.appearActive,
-          } }
+          }}
           className={styles.presentationTransitions}
-          transitionAppear={true}
-          transitionEnter={true}
+          transitionAppear
+          transitionEnter
           transitionLeave={false}
           transitionAppearTimeout={400}
           transitionEnterTimeout={400}
@@ -53,7 +53,7 @@ export default class PresentationArea extends React.Component {
                 <rect x={x} y={y} width="100%" height="100%" fill="none" />
               </clipPath>
             </defs>
-            <g clipPath="url(#viewBox)">
+            <g onClick={this.props.updateData} clipPath="url(#viewBox)">
               <Slide id="slideComponent" currentSlide={this.props.currentSlide} />
               <AnnotationGroupContainer
                 width={slideObj.width}

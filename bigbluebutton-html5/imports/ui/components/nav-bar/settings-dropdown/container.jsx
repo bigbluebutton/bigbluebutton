@@ -39,15 +39,18 @@ export default class SettingsDropdownContainer extends Component {
   }
 
   handleFullscreenChange() {
+    if (document.fullscreenElement
+     || document.webkitFullscreenElement
+     || document.mozFullScreenElement
+     || document.msFullscreenElement) {
+      this.setState({ isFullScreen: true });
+    } else {
+      this.setState({ isFullScreen: false });
+    }
+  }
+
+  handleVideo() {
     IosHandler.goToVideoREMOVETHIS();
-    // if (document.fullscreenElement
-    //   || document.webkitFullscreenElement
-    //   || document.mozFullScreenElement
-    //   || document.msFullscreenElement) {
-    //   this.setState({ isFullScreen: true });
-    // } else {
-    //   this.setState({ isFullScreen: false });
-    // }
   }
 
   render() {
@@ -56,6 +59,7 @@ export default class SettingsDropdownContainer extends Component {
 
     return (
       <SettingsDropdown
+        handleVideo={this.handleVideo}
         handleToggleFullscreen={handleToggleFullscreen}
         isFullScreen={isFullScreen}
       />

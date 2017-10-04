@@ -11,9 +11,11 @@ class VideoDockContainer extends Component {
 
   render() {
     return (
-      <VideoDock>
-        {this.props.children}
-      </VideoDock>
+      <div>
+        <VideoDock updateData={this.props.updateData}>
+          {this.props.children}
+        </VideoDock>
+      </div>
     );
   }
 }

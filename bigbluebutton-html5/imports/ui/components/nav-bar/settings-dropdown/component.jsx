@@ -103,10 +103,12 @@ class SettingsDropdown extends Component {
     }
 
     return (
-      <Dropdown autoFocus={true}
-                isOpen={this.state.isSettingOpen}
-                onShow={this.onActionsShow}
-                onHide={this.onActionsHide}>
+      <Dropdown
+        autoFocus
+        isOpen={this.state.isSettingOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+      >
         <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
@@ -128,6 +130,12 @@ class SettingsDropdown extends Component {
               label={fullScreenLabel}
               description={fullScreenDesc}
               onClick={this.props.handleToggleFullscreen}
+            />
+            <DropdownListItem
+              icon="video"
+              label="Video demo"
+              description="Use to setup the video demo"
+              onClick={this.props.handleVideo}
             />
             <DropdownListItem
               icon="settings"
