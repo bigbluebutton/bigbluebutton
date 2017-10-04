@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/2.0/users';
-import removeUser from './removeUser';
 
 export default function userEjected(meetingId, userId) {
   check(meetingId, String);
@@ -30,7 +29,5 @@ export default function userEjected(meetingId, userId) {
     return null;
   };
 
-  Users.update(selector, modifier, cb);
-
-  return removeUser(meetingId, userId);
+  return Users.update(selector, modifier, cb);
 }
