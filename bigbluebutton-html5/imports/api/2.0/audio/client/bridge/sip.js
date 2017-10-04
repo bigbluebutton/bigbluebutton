@@ -1,7 +1,5 @@
 import BaseAudioBridge from './base';
 
-const RETRY_INTERVAL = Meteor.settings.public.media.WebRTCHangupRetryInterval;
-
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
@@ -9,43 +7,35 @@ export default class SIPBridge extends BaseAudioBridge {
 
     console.log('userdata', userData);
     this.isConnected = false;
-    this.callStates = {
-      callStarted: 'iceConnectionCompleted',
-      callEnded: 'bye',
-      callDisconnected: 'failed',
-    };
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       extension = extension || this.userData.voiceBridge;
 
       const callback = (message) => {
         managerCallback(message).then(() => resolve());
       };
 
-      this.makeCall({ extension, isListenOnly, inputStream }, callback);
+      return this.doCall({ extension, isListenOnly, inputStream }, callback)
+                 .catch(reason => {
+                   callback({ status: 'failed', error: reason });
+                   reject(reason);
+                 });
     });
   }
 
   exitAudio() {
     return new Promise((resolve) => {
-      const attemptHangup = () => {
-        if (this.isConnected) {
-          console.log('Attempting to hangup on WebRTC call');
-          window.webrtc_hangup(() => resolve());
-        } else {
-          console.log('RETRYING hangup on WebRTC call in ' +
-            `${RETRY_INTERVAL} ms`);
-          setTimeout(attemptHangup, RETRY_INTERVAL);
-        }
-      };
-
-      return attemptHangup();
+      this.currentSession.on('bye', () => {
+        this.hangup = true;
+        resolve();
+      });
+      this.currentSession.bye();
     });
   }
 
-  makeCall({ isListenOnly, extension, inputStream }, callback) {
+  doCall({ isListenOnly, extension, inputStream }, callback) {
     const {
       userId,
       username,
@@ -102,8 +92,6 @@ export default class SIPBridge extends BaseAudioBridge {
         turnServers: turn,
       });
 
-      console.log(this.userAgent);
-
       this.userAgent.removeAllListeners('connected');
       this.userAgent.removeAllListeners('disconnected');
 
@@ -117,6 +105,7 @@ export default class SIPBridge extends BaseAudioBridge {
         this.userAgent.stop();
         this.userAgent = null;
         console.log('DISCONNECTED');
+        reject('CONNECTION_ERROR');
       })
 
       this.userAgent.start();
@@ -150,45 +139,33 @@ export default class SIPBridge extends BaseAudioBridge {
   setupEventHandlers(currentSession, callback) {
     return new Promise((resolve) => {
       console.log('SETUPEVENTHANDLERS');
-      currentSession.mediaHandler.on('iceGatheringComplete', function() {
-        callback({ status: 'iceGatheringComplete' });
-      });
 
-      currentSession.on('connecting', () => {
-        callback({})
-      	console.log('connecting');
-      });
+      const {
+        causes,
+      } = window.SIP.C;
 
-      currentSession.on('progress', (response) => {
-        console.log('progress');
-      });
-
-      currentSession.on('failed', (response, cause) => {
-        console.log('failed', cause);
-      });
-
-      currentSession.on('bye', (request) => {
-        console.log('bye');
-        callback({ status: 'bye' });
-      });
-
-      currentSession.on('accepted', (data) => {
-        console.log('accepted');
-      });
-
-      currentSession.mediaHandler.on('iceConnectionFailed', () => {
-        console.log('iceConnectionFailed');
-      });
-
-      currentSession.mediaHandler.on('iceConnectionConnected', () => {
-        console.log('iceConnectionConnected');
-      });
+      currentSession.on('terminated', (message, cause) => {
+        console.log('TERMINATED', message, cause);
+        if (!message && !cause) {
+          return callback({ status: 'ended'})
+        } else if(cause) {
+          if (cause === causes.REQUEST_TIMEOUT) {
+            return callback({ status: 'failed' , error: 'REQUEST_TIMEOUT'});
+          } else if (cause === causes.CONNECTION_ERROR) {
+            return callback({ status: 'failed' , error: 'CONNECTION_ERROR'});
+          }
+        }
+        return callback({ status: 'failed' , error: 'ERROR', message: cause});
+      })
 
       currentSession.mediaHandler.on('iceConnectionCompleted', () => {
         console.log('iceConnectionCompleted');
-        callback({ status: 'iceConnectionCompleted' });
+        this.hangup = false;
+        callback({ status: 'started' });
         resolve();
       });
+
+      this.currentSession = currentSession;
     })
   }
 }

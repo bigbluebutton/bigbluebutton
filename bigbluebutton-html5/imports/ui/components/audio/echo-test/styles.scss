@@ -1,111 +1,18 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/components/modal/simple/styles";
 
-.header {
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: 2rem;
-}
-
-.content {
-  display: flex;
-  justify-content: center;
-  padding: 0;
-  margin-top: 1.5rem;
-
-  .audioBtn:first-child {
+.button {
+  &:first-child {
     margin-right: 3rem;
 
     @include mq($small-only) {
       margin-right: 1rem;
     }
   }
-}
 
-//
-
-.overlay {
-  @extend .overlay;
-}
-
-.modal {
-  @extend .modal;
-  padding: 1.5rem;
-}
-
-.closeBtn {
-  right: 0;
-  top: 0;
-  position: absolute;
-  background-color: $color-white;
-  border: none;
-  padding: .75rem;
-
-
-  i {
-    color: $color-gray-light;
-  }
-
-  &:focus,
-  &:hover{
-    background-color: $color-white;
-    i{
-      color: $color-primary;
-    }
-  }
-}
-
-Button.audioBtn {
-  i{
-    color: #3c5764;
-  }
-}
-
-// Modifies the audio button icon colour
-Button.audioBtn span:first-child {
-  color: #1b3c4b;
-  background-color: #f1f8ff;
-  box-shadow: none;
-  border: 5px solid  #f1f8ff;
-}
-
-// When hovering over a button of class audioBtn, change the border colour of first span-child
-Button.audioBtn:hover span:first-child,
-Button.audioBtn:focus span:first-child {
-  border: 5px solid $color-primary;
-  background-color: #f1f8ff;
-}
-
-// Modifies the button label text
-Button.audioBtn span:last-child {
-  color: black;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-// Button.audioBtn:first-of-type {
-//   margin-right: 5%;
-// }
-//
-// Button.audioBtn:last-of-type {
-//   margin-left: 5%;
-// }
-
-.title {
-  text-align: center;
-  font-weight: 400;
-  font-size: 1.3rem;
-  white-space: normal;
-
-  @include mq($small-only) {
+  span:last-child {
+    color: black;
     font-size: 1rem;
-    padding: 0 1rem;
+    font-weight: 600;
   }
-}
-
-.audioNote {
-  color: $color-text;
-  display: inline-block;
-  font-size: 0.9rem;
 }

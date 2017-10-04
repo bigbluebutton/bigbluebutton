@@ -96,6 +96,13 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
       outline-offset: -2px;
     }
   }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: .65;
+    box-shadow: none;
+    pointer-events: none;
+  }
 }
 
 .label {

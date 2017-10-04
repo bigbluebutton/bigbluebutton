@@ -212,6 +212,7 @@
     "app.audio.audioSettings.microphoneSourceLabel": "Microphone source",
     "app.audio.audioSettings.speakerSourceLabel": "Speaker source",
     "app.audio.audioSettings.microphoneStreamLabel": "Your audio stream volume",
+    "app.audio.audioSettings.retryLabel": "Retry",
     "app.audio.listenOnly.backLabel": "Back",
     "app.audio.listenOnly.closeLabel": "Close",
     "app.error.kicked": "You have been kicked out of the meeting",

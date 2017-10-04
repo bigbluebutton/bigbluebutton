@@ -5,17 +5,26 @@ import SIPBridge from '/imports/api/2.0/audio/client/bridge/sip';
 
 const USE_SIP = Meteor.settings.public.media.useSIPAudio;
 
-const toggleMuteMicrophone = (cb) => {
-  cb();
+const ERROR_CODES = {
+  REQUEST_TIMEOUT: {
+    message: 'Request Timeout',
+  },
+  CONNECTION_ERROR: {
+    message: 'Connection Error',
+  },
+  ERROR: {
+    message: 'An Error Occurred',
+  },
 };
 
-// const collection = new Mongo.Collection(null);
+CALL_STATES = {
+  STARTED: 'started',
+  ENDED: 'ended',
+  FAILED: 'failed',
+};
 
 class AudioManager {
   constructor() {
-
-
-    navigator.mediaDevices.enumerateDevices().then(kappa => console.log(kappa))
     this._inputDevice = {
       tracker: new Tracker.Dependency,
     };
@@ -23,7 +32,6 @@ class AudioManager {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
-        console.log('kappa');
         const deviceLabel = stream.getAudioTracks()[0].label;
         navigator.mediaDevices.enumerateDevices().then(devices => {
           const device = devices.find(device => device.label === deviceLabel);
@@ -53,19 +61,13 @@ class AudioManager {
         set: (value) => {
           this[privateKey].value = value;
           this[privateKey].tracker.changed();
-          // console.log('set', privateKey, value);
-          // this.update(privateKey, value);
         },
         get: () => {
           this[privateKey].tracker.depend();
           return this[privateKey].value;
-          // console.log('get', privateKey, collection.findOne({})[privateKey]);
-          // return collection.findOne({})[privateKey];
         },
       });
     });
-
-    // return collection.insert(obj);
   }
 
   joinAudio(options = {}, callbacks = {}) {
@@ -83,10 +85,10 @@ class AudioManager {
     const callOptions = {
       isListenOnly,
       extension: isEchoTest ? '9196' : null,
-      inputStream: this.inputStream,
+      inputStream: isListenOnly ? this.createListenOnlyStream() : this.inputStream,
     }
 
-    console.log(this.inputStream);
+    console.log(callOptions.inputStream);
     console.log(this.inputDeviceId);
 
     return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
@@ -99,7 +101,10 @@ class AudioManager {
 
   toggleMuteMicrophone() {
     console.log('toggleMuteMicrophone', this);
-    toggleMuteMicrophone(this.onToggleMicrophoneMute.bind(this));
+    makeCall('toggleSelfVoice').then((res) => {
+      console.log(res);
+      this.onToggleMicrophoneMute();
+    });
   }
 
   callbackToAudioBridge(message) {
@@ -123,6 +128,7 @@ class AudioManager {
 
   onAudioExit() {
     this.isConnected = false;
+    this.isConnecting = false;
 
     if (this.isListenOnly) {
       makeCall('listenOnlyToggle', false);
@@ -145,21 +151,29 @@ class AudioManager {
   //   collection.update(query, modifier);
   // }
 
-  callStateCallback({ status }) {
-    console.log('CALLSTATECALLBACK =====================', status);
+  callStateCallback(response) {
     return new Promise((resolve) => {
       const {
-        callStarted,
-        callEnded,
-        callDisconnected,
-      } = this.bridge.callStates;
+        STARTED,
+        ENDED,
+        FAILED,
+      } = CALL_STATES;
 
-      if (status === callStarted) {
+      const {
+        status,
+        error,
+      } = response;
+
+      console.log('CALLSTATECALLBACK =====================', response);
+
+      if (status === STARTED) {
         this.onAudioJoin();
-        resolve(callStarted);
-      } else if (status === callEnded) {
+        resolve(STARTED);
+      } else if (status === ENDED) {
+        console.log('ENDED');
         this.onAudioExit();
-      } else if (status === callDisconnected) {
+      } else if (status === FAILED) {
+        console.log('FAILED');
         this.onAudioExit();
       }
     })
@@ -173,6 +187,15 @@ class AudioManager {
 
   get userData() {
     return this._userData;
+  }
+
+  createListenOnlyStream() {
+    if (this.listenOnlyAudioContext) {
+      this.listenOnlyAudioContext.close();
+    }
+
+    this.listenOnlyAudioContext = new window.AudioContext;
+    return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
   }
 
   changeInputDevice(value) {
@@ -219,7 +242,6 @@ class AudioManager {
     this._inputDevice.tracker.depend();
     return this._inputDevice.id;
   }
-  // set outputDeviceId
 }
 
 const audioManager = new AudioManager();

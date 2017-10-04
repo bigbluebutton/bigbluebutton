@@ -28,12 +28,21 @@ export default withModalMounter(createContainer(({ mountModal }) =>
 
    ({
      closeModal: () => mountModal(null),
-     joinMicrophone: () => Service.joinMicrophone().then(() => mountModal(null)),
-      //  Service.exitAudio().then(() => Service.joinMicrophone())
-      //                    .then(() => mountModal(null));
-    //  },
+     joinMicrophone: () => {
+       console.log('JOIN MIC FROM CONTAINER');
+       Service.exitAudio().then(() => Service.joinMicrophone())
+                          .then(() => mountModal(null));
+     },
      joinListenOnly: () => {
-       Service.joinMicrophone().then(a => mountModal(null));
+       Service.joinListenOnly().then(() => mountModal(null))
+                               .catch(reason => console.error(reason));
+     },
+
+     leaveEchoTest: () => {
+       if (!Service.isEchoTest()) {
+         return Promise.resolve();
+       }
+       return Service.exitAudio();
      },
      changeInputDevice: (inputDeviceId) => Service.changeInputDevice(inputDeviceId),
      joinEchoTest: () => Service.joinEchoTest(),

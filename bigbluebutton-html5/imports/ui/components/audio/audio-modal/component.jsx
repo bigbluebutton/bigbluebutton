@@ -68,28 +68,17 @@ class AudioModal extends Component {
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
-    this.handleClose = props.closeModal;
+    this.closeModal = props.closeModal.bind(this);
     this.handleJoinMicrophone = props.joinMicrophone;
     this.handleJoinListenOnly = props.joinListenOnly;
     this.joinEchoTest = props.joinEchoTest;
     this.exitAudio = props.exitAudio;
+    this.leaveEchoTest = props.leaveEchoTest;
     this.changeInputDevice = props.changeInputDevice;
 
     this.contents = {
-      echoTest: <EchoTest
-        handleNo={this.handleGoToAudioOptions}
-        handleYes={this.handleJoinMicrophone}/>,
-      settings: <AudioSettings
-        handleBack={this.handleBack}
-        handleJoin={this.handleJoinMicrophone}
-        joinEchoTest={this.joinEchoTest}
-        exitAudio={this.exitAudio}
-        changeInputDevice={this.changeInputDevice}
-        isConnecting={isConnecting}
-        isConnected={isConnected}
-        isEchoTest={isEchoTest}
-        inputDeviceId={inputDeviceId}
-      />,
+      echoTest: () => this.renderEchoTest(),
+      settings: () => this.renderAudioSettings(),
     };
   }
 
@@ -100,15 +89,30 @@ class AudioModal extends Component {
   }
 
   handleGoToAudioSettings() {
-    this.setState({
-      content: 'settings',
-    });
+    this.leaveEchoTest().then(() => {
+      this.setState({
+        content: 'settings',
+      });
+    })
   }
 
   handleGoToEchoTest() {
-    this.setState({
-      content: 'echoTest',
-    });
+    this.joinEchoTest().then(() => {
+      this.setState({
+        content: 'echoTest',
+      });
+    })
+  }
+
+  componentWillUnmount() {
+    const {
+      isConnected,
+      isEchoTest,
+    } = this.props;
+
+    if (isEchoTest) {
+      this.exitAudio();
+    }
   }
 
   renderAudioOptions() {
@@ -117,7 +121,7 @@ class AudioModal extends Component {
     } = this.props;
 
     return (
-      <div className={styles.content}>
+      <span>
         <Button
           className={styles.audioBtn}
           label={intl.formatMessage(intlMessages.microphoneLabel)}
@@ -134,36 +138,95 @@ class AudioModal extends Component {
           size={'jumbo'}
           onClick={this.handleJoinListenOnly}
         />
-      </div>
+      </span>
     );
   }
 
   render() {
-    const {
-      content,
-    } = this.state;
-
     const {
       intl,
       isConnecting,
     } = this.props;
 
     return (
-      <ModalBase overlayClassName={styles.overlay} className={styles.modal}>
-        <header className={styles.header}>
-          <h3 className={styles.title}>{intl.formatMessage(intlMessages.audioChoiceLabel)}</h3>
-          <Button
-            className={styles.closeBtn}
-            label={intl.formatMessage(intlMessages.closeLabel)}
-            icon={'close'}
-            size={'md'}
-            hideLabel
-            onClick={this.handleClose}
-          />
-        </header>
-        { content ? this.contents[content] : this.renderAudioOptions() }
+      <ModalBase
+        overlayClassName={styles.overlay}
+        className={styles.modal}
+        onRequestClose={this.closeModal}>
+          { isConnecting ? null :
+            <header className={styles.header}>
+              <h3 className={styles.title}>{intl.formatMessage(intlMessages.audioChoiceLabel)}</h3>
+              <Button
+                className={styles.closeBtn}
+                label={intl.formatMessage(intlMessages.closeLabel)}
+                icon={'close'}
+                size={'md'}
+                hideLabel
+                onClick={this.closeModal}
+              />
+            </header>
+          }
+        <div className={styles.content}>
+          { this.renderContent() }
+        </div>
       </ModalBase>
     );
+  }
+
+  renderContent() {
+    const {
+      isConnecting,
+      isEchoTest,
+    } = this.props;
+
+    const {
+      content,
+    } = this.state;
+
+    if (isConnecting) {
+      return (
+        <span className={styles.connecting}>Connecting</span>
+      )
+    }
+    return content ? this.contents[content]() : this.renderAudioOptions();
+  }
+
+  renderEchoTest() {
+    const {
+      isConnecting,
+    } = this.props;
+
+    return (
+      <EchoTest
+        isConnecting={isConnecting}
+        joinEchoTest={this.joinEchoTest}
+        leaveEchoTest={this.leaveEchoTest}
+        handleNo={this.handleGoToAudioSettings}
+        handleYes={this.handleJoinMicrophone}/>
+    );
+  }
+
+  renderAudioSettings () {
+    const {
+      isConnecting,
+      isConnected,
+      isEchoTest,
+      inputDeviceId
+    } = this.props;
+
+    return (
+      <AudioSettings
+        handleBack={this.handleGoToAudioOptions}
+        handleRetry={this.handleGoToEchoTest}
+        joinEchoTest={this.joinEchoTest}
+        exitAudio={this.exitAudio}
+        changeInputDevice={this.changeInputDevice}
+        isConnecting={isConnecting}
+        isConnected={isConnected}
+        isEchoTest={isEchoTest}
+        inputDeviceId={inputDeviceId}
+      />
+    )
   }
 }
 

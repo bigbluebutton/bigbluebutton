@@ -18,34 +18,39 @@ class EchoTest extends Component {
   constructor(props) {
     super(props);
 
-    this.handleYes = this.handleYes.bind(this);
-    this.handleNo = this.handleNo.bind(this);
+    this.handleYes = props.handleYes.bind(this);
+    this.handleNo = props.handleNo.bind(this);
+    this.joinEchoTest = props.joinEchoTest.bind(this);
+    this.leaveEchoTest = props.leaveEchoTest.bind(this);
   }
 
   render() {
     const {
       intl,
+      isConnecting,
     } = this.props;
 
     return (
-      <div className={styles.content}>
+      <span>
         <Button
-          className={styles.audioBtn}
+          className={styles.button}
           label={intl.formatMessage(intlMessages.no)}
           icon={'thumbs_down'}
           circle
+          color={'danger'}
           size={'jumbo'}
           onClick={this.handleNo}
         />
         <Button
-          className={styles.audioBtn}
+          className={styles.button}
           label={intl.formatMessage(intlMessages.yes)}
           icon={'thumbs_up'}
           circle
+          color={'success'}
           size={'jumbo'}
           onClick={this.handleYes}
         />
-      </div>
+      </span>
     );
   }
 }
