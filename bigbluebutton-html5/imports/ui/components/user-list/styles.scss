@@ -76,23 +76,6 @@ $user-icons-color-hover: $color-gray;
   height: 100vh;
 }
 
-.header {
-  @extend %flex-column;
-  justify-content: left;
-  flex-grow: 0;
-  display: flex;
-  flex-direction: row;
-  padding: 0 $md-padding-x;
-  margin: $md-padding-x 0;
-}
-
-.headerTitle {
-  flex: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: $color-heading;
-}
-
 .btnToggle {
   flex: 0;
   padding: 0;
@@ -117,6 +100,7 @@ $user-icons-color-hover: $color-gray;
   @extend %flex-column;
   flex-grow: 9;
   overflow: hidden;
+  padding-top: $md-padding-x;
 }
 
 .lists {

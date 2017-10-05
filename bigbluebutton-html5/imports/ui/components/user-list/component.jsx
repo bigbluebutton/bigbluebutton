@@ -6,7 +6,6 @@ import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import cx from 'classnames';
 
 import KEY_CODES from '/imports/utils/keyCodes';
-import Button from '/imports/ui/components/button/component';
 
 import styles from './styles.scss';
 
@@ -89,6 +88,24 @@ class UserList extends Component {
     this.focusedItemIndex = -1;
   }
 
+  componentDidMount() {
+    if (!this.state.compact) {
+      this._msgsList.addEventListener('keydown',
+        event => this.rovingIndex(event, 'messages'));
+
+      this._usersList.addEventListener('keydown',
+        event => this.rovingIndex(event, 'users'));
+    }
+
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   focusList(list) {
     document.activeElement.tabIndex = -1;
     this.focusedItemIndex = -1;
@@ -158,55 +175,6 @@ class UserList extends Component {
     this.setState({ compact: !this.state.compact });
   }
 
-  componentDidMount() {
-    if (!this.state.compact) {
-      this._msgsList.addEventListener('keydown',
-        event => this.rovingIndex(event, 'messages'));
-
-      this._usersList.addEventListener('keydown',
-        event => this.rovingIndex(event, 'users'));
-    }
-
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  renderHeader() {
-    const { intl } = this.props;
-
-    return (
-      <div className={styles.header}>
-        {
-          !this.state.compact ?
-            <div className={styles.headerTitle} role="banner">
-              {intl.formatMessage(intlMessages.participantsTitle)}
-            </div> : null
-        }
-        {/* <Button
-          label={intl.formatMessage(intlMessages.toggleCompactView)}
-          hideLabel
-          icon={!this.state.compact ? 'left_arrow' : 'right_arrow'}
-          className={styles.btnToggle}
-          onClick={this.handleToggleCompactView}
-        /> */}
-      </div>
-    );
-  }
-
-  renderContent() {
-    return (
-      <div className={styles.content}>
-        {this.renderMessages()}
-        {this.renderParticipants()}
-      </div>
-    );
-  }
-
   renderMessages() {
     const {
       openChats,
@@ -223,6 +191,7 @@ class UserList extends Component {
             </div> : <hr className={styles.separator} />
         }
         <div
+          role="section"
           tabIndex={0}
           className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
@@ -349,8 +318,10 @@ class UserList extends Component {
   render() {
     return (
       <div className={styles.userList}>
-        {this.renderHeader()}
-        {this.renderContent()}
+        <div className={styles.content}>
+          {this.renderMessages()}
+          {this.renderParticipants()}
+        </div>
       </div>
     );
   }
