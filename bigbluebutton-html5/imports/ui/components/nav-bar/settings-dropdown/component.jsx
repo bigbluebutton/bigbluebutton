@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
-import styles from '../styles';
+import _ from 'lodash';
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
+import iosService from '/imports/ui/services/ios-handler/index';
 
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -17,6 +17,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import styles from '../styles';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -78,15 +79,11 @@ class SettingsDropdown extends Component {
   }
 
   onActionsShow() {
-    this.setState({
-      isSettingOpen: true,
-    });
+    this.setState({ isSettingOpen: true });
   }
 
   onActionsHide() {
-    this.setState({
-      isSettingOpen: false,
-    });
+    this.setState({ isSettingOpen: false });
   }
 
   render() {
@@ -102,6 +99,48 @@ class SettingsDropdown extends Component {
       fullScreenIcon = 'exit_fullscreen';
     }
 
+    const dropdownOptions = _.compact([
+      (<DropdownListItem
+        key={_.uniqueId('settings-item-')}
+        icon={fullScreenIcon}
+        label={fullScreenLabel}
+        description={fullScreenDesc}
+        onClick={this.props.handleToggleFullscreen}
+      />),
+      (iosService.isIos() ?
+        <DropdownListItem
+          key={_.uniqueId('settings-item-')}
+          icon="video"
+          label="Video demo"
+          description="Use to setup the video demo"
+          onClick={this.props.handleVideo}
+        /> : null),
+      (<DropdownListItem
+        key={_.uniqueId('settings-item-')}
+        icon="settings"
+        label={intl.formatMessage(intlMessages.settingsLabel)}
+        description={intl.formatMessage(intlMessages.settingsDesc)}
+        onClick={() => mountModal(<SettingsMenuContainer />)}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('settings-item-')}
+        icon="about"
+        label={intl.formatMessage(intlMessages.aboutLabel)}
+        description={intl.formatMessage(intlMessages.aboutDesc)}
+        onClick={() => mountModal(<AboutContainer />)}
+      />),
+      (<DropdownListSeparator
+        key={_.uniqueId('settings-item-')}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('settings-item-')}
+        icon="logout"
+        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+        onClick={() => mountModal(<LogoutConfirmation />)}
+      />),
+    ]);
+
     return (
       <Dropdown
         autoFocus
@@ -112,50 +151,18 @@ class SettingsDropdown extends Component {
         <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
+            // FIXME: Without onClick react proptypes keep warning
             icon="more"
             ghost
             circle
-            hideLabel
-            className={cx(styles.btn, styles.btnSettings)}
-
-            // FIXME: Without onClick react proptypes keep warning
+            hideLabel={cx(styles.btn, styles.btnSettings)}
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}
           />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>
-            <DropdownListItem
-              icon={fullScreenIcon}
-              label={fullScreenLabel}
-              description={fullScreenDesc}
-              onClick={this.props.handleToggleFullscreen}
-            />
-            <DropdownListItem
-              icon="video"
-              label="Video demo"
-              description="Use to setup the video demo"
-              onClick={this.props.handleVideo}
-            />
-            <DropdownListItem
-              icon="settings"
-              label={intl.formatMessage(intlMessages.settingsLabel)}
-              description={intl.formatMessage(intlMessages.settingsDesc)}
-              onClick={() => mountModal(<SettingsMenuContainer />)}
-            />
-            <DropdownListItem
-              icon="about"
-              label={intl.formatMessage(intlMessages.aboutLabel)}
-              description={intl.formatMessage(intlMessages.aboutDesc)}
-              onClick={() => mountModal(<AboutContainer />)}
-            />
-            <DropdownListSeparator />
-            <DropdownListItem
-              icon="logout"
-              label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-              description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-              onClick={() => mountModal(<LogoutConfirmation />)}
-            />
+            {dropdownOptions}
           </DropdownList>
         </DropdownContent>
       </Dropdown>

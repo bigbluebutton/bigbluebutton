@@ -15,6 +15,7 @@ class IosHandler {
     if (this.isIosApp) {
       return this.messageHandler.postMessage(JSON.stringify(message));
     }
+    return null;
   }
 
   leaveRoom() {
@@ -56,7 +57,7 @@ class IosHandler {
       method: 'requestMicrophoneLevelStop',
     };
 
-    return this.postMessage(message)
+    return this.postMessage(message);
   }
 
   goToRoom(url, meetingId) {
@@ -75,6 +76,10 @@ class IosHandler {
     };
 
     return this.postMessage(message);
+  }
+
+  isIos() {
+    return window.navigator.userAgent === 'BigBlueButton';
   }
 
   sendCallParameters() {
@@ -97,4 +102,4 @@ class IosHandler {
 }
 
 const iosHandler = new IosHandler();
-export default iosHandler
+export default iosHandler;
