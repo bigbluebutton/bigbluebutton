@@ -1227,6 +1227,12 @@ mx|Panel {
 	color : #2A2D33;
 }
 
+.pollVoteLabel {
+	textAlign  : center;
+	fontSize   : 16;
+	fontWeight : bold;
+}
+
 .presentationFilesList {
 	paddingBottom : 5;
 	paddingLeft   : 5;
