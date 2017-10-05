@@ -2,12 +2,12 @@ import React from 'react';
 import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import BaseMenu from '../base/component';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
-import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import BaseMenu from '../base/component';
+import styles from '../styles.scss';
 
 const MIN_FONTSIZE = 0;
 const MAX_FONTSIZE = 4;
@@ -96,7 +96,8 @@ class ApplicationMenu extends BaseMenu {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < MAX_FONTSIZE;
-    const fs = (canIncreaseFontSize) ? availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
+    const fs = (canIncreaseFontSize) ?
+      availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
   }
 
@@ -104,7 +105,8 @@ class ApplicationMenu extends BaseMenu {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
-    const fs = (canDecreaseFontSize) ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
+    const fs = (canDecreaseFontSize) ?
+      availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
   }
 
