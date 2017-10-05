@@ -1,11 +1,22 @@
 import React, { Component } from 'react';
-import ScreenshareContainer from '/imports/ui/components/screenshare/container';
-import styles from './styles.scss';
 import YUVCanvas from 'yuv-canvas';
 import YUVBuffer from 'yuv-buffer';
 import PropTypes from 'prop-types';
+import styles from './styles.scss';
+
+const propTypes = {
+  updateData: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+
+};
 
 export default class VideoDock extends Component {
+
+  static askNextYuvFrame(evt) {
+    evt.source.postMessage('yuvFrame', '*');
+  }
 
   constructor(props) {
     super(props);
@@ -20,20 +31,12 @@ export default class VideoDock extends Component {
     window.addEventListener('message', this.onMessage.bind(this));
   }
 
-  render() {
-    return (
-      <div onClick={this.props.updateData} className={styles.videoDock} ref={(videoDock) => { this.videoDock = videoDock; }}>
-        <canvas className={styles.canvas} ref={(canvas) => { this.canvas = canvas; }} />
-      </div>
-    );
-  }
-
   onMessage(evt) {
     if (evt.origin === 'http://127.0.0.1:8080' || evt.origin === 'http://localhost:8080') {
       // if no data is available, we wait 60ms.
       if (typeof evt.data === 'string') {
         if (evt.data.includes('false')) {
-          setTimeout(() => (this.askNextYuvFrame(evt)), 60);
+          setTimeout(() => (VideoDock.askNextYuvFrame(evt)), 60);
           this.frameCount = 0;
           return;
         } else if (evt.data.includes('ready')) {
@@ -42,36 +45,38 @@ export default class VideoDock extends Component {
         }
       }
 
+      const fileReader = new FileReader();
+      let options;
+      let format;
+      let frame;
+
       switch (this.frameCount) {
         case 0:
-          var fileReader = new FileReader();
           fileReader.onload = (event) => {
             this.yuvFrame.y = new Uint8Array(event.target.result);
           };
           fileReader.readAsArrayBuffer(evt.data);
-          this.frameCount++;
+          this.frameCount = +1;
           break;
 
         case 1:
-          var fileReader = new FileReader();
           fileReader.onload = (event) => {
             this.yuvFrame.u = new Uint8Array(event.target.result);
           };
           fileReader.readAsArrayBuffer(evt.data);
-          this.frameCount++;
+          this.frameCount = +1;
           break;
         case 2:
-          var fileReader = new FileReader();
           fileReader.onload = (event) => {
             this.yuvFrame.v = new Uint8Array(event.target.result);
           };
           fileReader.readAsArrayBuffer(evt.data);
-          this.frameCount++;
+          this.frameCount = +1;
           break;
         case 3:
-          const options = JSON.parse(evt.data);
+          options = JSON.parse(evt.data);
 
-          const format = YUVBuffer.format({
+          format = YUVBuffer.format({
             width: options.width,
             height: options.height,
             chromaHeight: options.height / 2,
@@ -80,7 +85,8 @@ export default class VideoDock extends Component {
             displayHeight: this.videoDock.clientHeight,
           });
 
-          const frame = { format,
+          frame = {
+            format,
             y: { bytes: this.yuvFrame.y, stride: options.strideY },
             u: { bytes: this.yuvFrame.u, stride: options.strideU },
             v: { bytes: this.yuvFrame.v, stride: options.strideV },
@@ -91,13 +97,27 @@ export default class VideoDock extends Component {
           }
 
           this.frameCount = 0;
-          setTimeout(() => (this.askNextYuvFrame(evt)), 30);
+          setTimeout(() => (VideoDock.askNextYuvFrame(evt)), 30);
           break;
+        default:
+          this.frameCount = 0;
       }
     }
   }
 
-  askNextYuvFrame(evt) {
-    evt.source.postMessage('yuvFrame', '*');
+  render() {
+    return (
+      <div
+        role="region"
+        onClick={this.props.updateData}
+        className={styles.videoDock}
+        ref={(videoDock) => { this.videoDock = videoDock; }}
+      >
+        <canvas className={styles.canvas} ref={(canvas) => { this.canvas = canvas; }} />
+      </div>
+    );
   }
 }
+
+VideoDock.propTypes = propTypes;
+VideoDock.defaultProps = defaultProps;
