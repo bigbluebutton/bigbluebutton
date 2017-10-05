@@ -1295,6 +1295,19 @@ poll|PollResultsModal {
 	fontSize : 14;
 }
 
+.pollHintBoxStyle {
+	horizontalAlign : center;
+	verticalAlign   : middle;
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
+}
+
+.pollHintTextStyle {
+	textAlign  : center;
+	fontWeight : bold;
+}
+
 /*
 //------------------------------
 //  ProgressBar

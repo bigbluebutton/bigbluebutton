@@ -70,6 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
 			
 			import flashx.textLayout.formats.Direction;
 			
@@ -694,6 +695,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (pollResultsPopUp) {
 						pollResultsPopUp.setPoll(e.poll);
 					}
+					PopUpManager.centerPopUp(pollResultsPopUp);
 				} else {
 					//switch to vote state
 					setControlBarState("vote");
