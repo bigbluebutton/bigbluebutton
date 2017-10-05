@@ -19,8 +19,12 @@
   padding: $line-height-computed 0;
   border-bottom: 1px solid $color-gray-lighter;
 
-  .item + & {
+  .item:not(&) + & {
     border-top: 1px solid $color-gray-lighter;
+  }
+
+  & + & {
+    margin-top: -$line-height-computed;
   }
 
   &:last-child {
