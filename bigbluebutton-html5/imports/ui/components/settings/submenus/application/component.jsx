@@ -148,7 +148,7 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
-          <div className={styles.row}>
+          {/*<div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement} >
                 <label className={styles.label}>
@@ -167,7 +167,7 @@ class ApplicationMenu extends BaseMenu {
                 />
               </div>
             </div>
-          </div>
+          </div>*/}
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
