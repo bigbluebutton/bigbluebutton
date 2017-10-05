@@ -150,7 +150,8 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
-          {/*<div className={styles.row}>
+          {/* TODO: Uncomment after the release
+          <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement} >
                 <label className={styles.label}>
