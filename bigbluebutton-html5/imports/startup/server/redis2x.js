@@ -5,7 +5,32 @@ import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
 import Logger from './logger';
 
+const makeEnvelope = (channel, eventName, header, body) => {
+  const envelope = {
+    envelope: {
+      name: eventName,
+      routing: {
+        sender: 'bbb-apps-akka',
+        // sender: 'html5-server', // TODO
+      },
+    },
+    core: {
+      header,
+      body,
+    },
+  };
+
+  return JSON.stringify(envelope);
+};
+
 class RedisPubSub2x {
+
+  static handlePublishError(err) {
+    if (err) {
+      Logger.error(err);
+    }
+  }
+
   constructor(config = {}) {
     this.config = config;
 
@@ -29,7 +54,7 @@ class RedisPubSub2x {
     this.sub.psubscribe(this.config.channels.fromAkkaApps); // 2.0
     this.sub.psubscribe(this.config.channels.toHTML5); // 2.0
 
-    Logger.info(`Subscribed to '${this.config.channels.fromBBBApps}'`);
+    Logger.info(`Subscribed to '${this.config.channels.fromAkkaApps}'`);
   }
 
   updateConfig(config) {
@@ -40,40 +65,54 @@ class RedisPubSub2x {
     return this.emitter.on(...args);
   }
 
-  publish(channel, eventName, meetingId, payload = {}, header = {}) {
-    const header2x = {
+  publishVoiceMessage(channel, eventName, voiceConf, payload) {
+    const header = {
+      name: eventName,
+      voiceConf,
+    };
+
+    const envelope = makeEnvelope(channel, eventName, header, payload);
+
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
+  }
+
+  publishSystemMessage(channel, eventName, payload) {
+    const header = {
+      name: eventName,
+    };
+
+    const envelope = makeEnvelope(channel, eventName, header, payload);
+
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
+  }
+
+  publishMeetingMessage(channel, eventName, meetingId, payload) {
+    const header = {
       name: eventName,
       meetingId,
     };
 
-    const msgHeader = header === {} ? header2x : header;
+    const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    const envelope = {
-      envelope: {
-        name: eventName,
-        routing: {
-          sender: 'bbb-apps-akka',
-          // sender: 'html5-server', // TODO
-        },
-      },
-      core: {
-        header: msgHeader,
-        body: payload,
-      },
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
+  }
+
+  publishUserMessage(channel, eventName, meetingId, userId, payload) {
+    const header = {
+      name: eventName,
+      meetingId,
+      userId,
     };
 
-    Logger.warn(`<<<<<<Publishing 2.0   ${eventName} to ${channel} ${JSON.stringify(envelope)}`);
-    return this.pub.publish(channel, JSON.stringify(envelope), (err) => {
-      if (err) {
-        Logger.error('Tried to publish to %s', channel, envelope);
-      }
-    });
+    const envelope = makeEnvelope(channel, eventName, header, payload);
+
+    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
   }
 
   handleSubscribe() {
     if (this.didSendRequestEvent) return;
 
-    // populate collections with pre-existing data
+      // populate collections with pre-existing data
     const REDIS_CONFIG = Meteor.settings.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
     const EVENT_NAME = 'GetAllMeetingsReqMsg';
@@ -82,18 +121,12 @@ class RedisPubSub2x {
       requesterId: 'nodeJSapp',
     };
 
-    const header = {
-      name: EVENT_NAME,
-    };
-
-    // We need to send an empty string in the this.publish as third param,
-    // the bbb does not support null or undefined meetingId.
-    this.publish(CHANNEL, EVENT_NAME, '', body, header);
+    this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
     this.didSendRequestEvent = true;
   }
 
   handleMessage(pattern, channel, message) {
-    Logger.warn(`2.0 handleMessage: ${message}`);
+    Logger.info(`2.0 handleMessage: ${message}`);
     const REDIS_CONFIG = Meteor.settings.redis;
     const { fromAkkaApps, toHTML5 } = REDIS_CONFIG.channels;
 
@@ -103,9 +136,10 @@ class RedisPubSub2x {
 
     Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName} | CHANNEL ${channel}`);
 
+    const regex = new RegExp(fromAkkaApps);
     // We should only handle messages from this two channels, else, we simple ignore them.
-    if (channel !== fromAkkaApps && channel !== toHTML5) {
-      Logger.warn(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
+    if (!regex.test(channel) && channel !== toHTML5) {
+      Logger.info(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
       return;
     }
     this.queue.add({

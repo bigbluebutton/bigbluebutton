@@ -32,7 +32,6 @@
 <%@ page import="java.io.*"%>
 <%@ page import="java.nio.channels.FileChannel"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
-
 <%@ include file="bbb_api_conf.jsp"%> 
 
 <%!//

@@ -22,7 +22,7 @@ const intlMessages = defineMessages({
     description: 'Toggle button label',
   },
   newMessages: {
-    id: 'app.navbar.toggleUserList.newMessages',
+    id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
   },
 });

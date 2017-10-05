@@ -15,8 +15,6 @@
 					   method="onRollOver" />
 		<mate:Listener type="{PresentationRollEvent.PRESENTATION_ROLL_OUT}"
 					   method="onRollOut" />
-		<mate:Listener type="{PresentationRollEvent.PRESENTATION_SELECT}"
-					   method="onSelect" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -26,10 +24,12 @@
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+			import org.bigbluebutton.modules.present.events.DownloadEvent;
 			import org.bigbluebutton.modules.present.events.PresentationRollEvent;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+
 
 			private static const LOGGER:ILogger = getClassLogger(UploadedPresentationRenderer);
 
@@ -37,10 +37,6 @@
 
 			[Bindable]
 			private var rolledOver:Boolean = false;
-
-			[Bindable]
-			private var selected:Boolean = false;
-
 
 			private function showPresentation():void {
 				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
@@ -69,33 +65,33 @@
 				rolledOver = false;
 			}
 
-			private function onSelect(e:PresentationRollEvent):void {
-				if (e.presentationId == data.id) {
-					selected = true;
-				} else {
-					selected = false;
-				}
+			private function downloadPresentation():void {
+				var downloadEvent:DownloadEvent = new DownloadEvent(DownloadEvent.DOWNLOAD_PRESENTATION);
+				downloadEvent.fileNameToDownload = data.id as String;
+				globalDispatch.dispatchEvent(downloadEvent);
 			}
 		]]>
 	</fx:Script>
 	<mx:Label id="presentationNameLabel"
-			  width="{this.width-isDownloadable.width-showBtn.width-deleteBtn.width-30}"
-			  text="{data.name as String}"
-			  styleName="{rolledOver || selected ? 'presentationNameLabelOver' : 'presentationNameLabelUp'}" />
-	<mx:Image id="isDownloadable"
-			  visible="{data.downloadable as Boolean}"
-			  source="{rolledOver || selected ? getStyle('iconSaveWhite') : getStyle('iconSave')}"
-			  toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}"
-			  verticalAlign="middle" />
+			  width="{this.width-downloadButton.width-showBtn.width-deleteBtn.width-50}"
+			  truncateToFit="true"
+			  styleName="presentationNameLabel"
+			  text="{data.name as String}" />
+	<mx:Button id="downloadButton"
+			   height="32"
+			   visible="{data.downloadable as Boolean}"
+			   styleName="presentationUploadDownloadButtonStyle"
+			   click="downloadPresentation()"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}" />
 	<mx:Button id="showBtn"
+			   height="32"
 			   label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}"
 			   styleName="presentationUploadShowButtonStyle"
-			   height="26"
 			   click="showPresentation()"
 			   enabled="{!data.current}" />
 	<mx:Button id="deleteBtn"
-			   label=""
+			   height="32"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}"
 			   styleName="presentationUploadDeleteButtonStyle"
 			   click="deletePresentation()"

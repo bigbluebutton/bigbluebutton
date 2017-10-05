@@ -46,7 +46,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private ConnectionInvokerService connInvokerService;
 	private MessagePublisher red5InGW;
 	private IClientInGW clientInGW;
-
+	private Integer maxMessageLength = 1024;
 
 	private final String APP = "BBB";
 	private final String CONN = "RED5-";
@@ -155,11 +155,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		}
 
 		Boolean guest  = false;
-		if (params.length >= 9 && ((Boolean) params[9])) {
+		if (params.length >= 8 && ((Boolean) params[8])) {
 			guest = true;
 		}
 
-		String authToken = ((String) params[10]).toString();
+		String authToken = ((String) params[9]).toString();
 
 		String userId = internalUserID;
 		String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -261,8 +261,13 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	public void onMessageFromClient(String json) {
 		//System.out.println("onMessageFromClient \n" + json);
-		ConnInfo connInfo = getConnInfo();
-		clientInGW.handleMsgFromClient(connInfo, json);
+		if (json.length() < maxMessageLength) {
+			ConnInfo connInfo = getConnInfo();
+			clientInGW.handleMsgFromClient(connInfo, json);
+		} else {
+			log.warn("Message longer than max={} - {}", maxMessageLength, json.substring(0, maxMessageLength));
+		}
+
 	}
 
 	private ConnInfo getConnInfo() {
@@ -291,5 +296,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public void setClientInGW(IClientInGW clientInGW) {
 		this.clientInGW = clientInGW;
 	}
-	
+
+	public void setMaxMessageLength(Integer length) {
+		maxMessageLength = length;
+	}
 }

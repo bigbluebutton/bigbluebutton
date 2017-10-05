@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:fx="http://ns.adobe.com/mxml/2009"
-		layout="vertical"
-		showCloseButton="false"
+		xmlns:common="org.bigbluebutton.common.*" 
 		xmlns:mate="http://mate.asfusion.com/"
+		layout="vertical"
+		horizontalAlign="center"
+		showCloseButton="false"
 		minWidth="250"
-		creationComplete="init()" >
+		creationComplete="init()">
 
 	<fx:Script>
 		<![CDATA[
@@ -44,16 +46,15 @@
 
 		]]>
 	</fx:Script>
-	<mx:TextArea borderSkin="{null}"
-				 text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
-				 editable="false" styleName="titleWindowStyle"
-				 width="100%" />
-	
+
+	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
+						  styleName="titleWindowStyle"
+						  width="{this.width - 40}" />
+
 	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 
-	<mx:ControlBar width="100%" horizontalAlign="center">
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" width="100" click="onOkClicked()"/>
-		<mx:Spacer width="10"/>
-		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" width="100" click="onCancelClicked()"/>
+	<mx:ControlBar width="100%" horizontalAlign="right">
+		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" click="onOkClicked()"/>
+		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" click="onCancelClicked()"/>
 	</mx:ControlBar>
 </mx:TitleWindow>

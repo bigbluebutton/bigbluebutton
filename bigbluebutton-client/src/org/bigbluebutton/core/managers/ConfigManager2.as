@@ -84,11 +84,11 @@ package org.bigbluebutton.core.managers {
 
             if (xml.returncode == "FAILED") {
 
-                trace("Getting configXML failed [{0}]", [xml]);
+               // trace("Getting configXML failed [{0}]", [xml]);
 
                 dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.response.logoutURL));
             } else {
-                trace("Getting configXML passed [{0}]", [xml]);
+              //  trace("Getting configXML passed [{0}]", [xml]);
                 _config = new Config(new XML(e.target.data));
 
                 trace("Initializing logging.");

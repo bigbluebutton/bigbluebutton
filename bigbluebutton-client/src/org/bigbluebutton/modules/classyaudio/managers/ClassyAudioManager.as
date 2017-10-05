@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -124,7 +125,6 @@ package org.bigbluebutton.modules.classyaudio.managers
 			var e:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 			e.button = new PushToTalkButton();
 			e.module="Microphone";
-			//e.tabIndex = 2;
 			dispatcher.dispatchEvent(e);
 		}
 		

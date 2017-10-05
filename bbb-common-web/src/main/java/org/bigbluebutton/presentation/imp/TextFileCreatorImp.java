@@ -24,7 +24,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.google.gson.Gson;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -94,7 +97,17 @@ public class TextFileCreatorImp implements TextFileCreator {
         boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
         if (!done) {
           success = false;
-          log.warn("Failed to create textfiles: " + COMMAND);
+
+          Map<String, Object> logData = new HashMap<String, Object>();
+          logData.put("meetingId", pres.getMeetingId());
+          logData.put("presId", pres.getId());
+          logData.put("filename", pres.getName());
+          logData.put("message", "Failed to create text files.");
+
+          Gson gson = new Gson();
+          String logStr = gson.toJson(logData);
+          log.warn("-- analytics -- " + logStr);
+
           break;
         }
       }

@@ -12,7 +12,6 @@ package org.bigbluebutton.modules.layout.services {
 	import org.bigbluebutton.main.model.users.IMessageListener;
 	import org.bigbluebutton.modules.layout.events.LayoutEvent;
 	import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
-	import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
 	import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -37,9 +36,6 @@ package org.bigbluebutton.modules.layout.services {
 				case "BroadcastLayoutEvtMsg":
 					handleBroadcastLayoutEvtMsg(message);
 					break;
-				case "LockLayoutEvtMsg":
-					handleLockLayoutEvtMsg(message);
-					break;
 					/*
 				case "getCurrentLayoutResponse":
 					handleGetCurrentLayoutResponse(message);
@@ -59,11 +55,6 @@ package org.bigbluebutton.modules.layout.services {
 				onReceivedFirstLayout(message.body);
 			});
 			_applyFirstLayoutTimer.start();
-		}
-
-		private function handleLockLayoutEvtMsg(message:Object):void {
-			if (message.body.hasOwnProperty("locked") && message.body.hasOwnProperty("setById"))
-				lockLayout(message.body.locked, message.body.setById);
 		}
 
 		private function handleBroadcastLayoutEvtMsg(message:Object):void {
@@ -105,7 +96,6 @@ package org.bigbluebutton.modules.layout.services {
 				handleSyncLayout(message);
 			}
 
-			handleLayoutLocked(message);
 			_dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
 		}
 
@@ -130,16 +120,6 @@ package org.bigbluebutton.modules.layout.services {
 			redefineLayout.remote = true;
 
 			_dispatcher.dispatchEvent(redefineLayout);
-		}
-
-		private function handleLayoutLocked(message:Object):void {
-			if (message.hasOwnProperty("locked") && message.hasOwnProperty("setById"))
-				lockLayout(message.locked, message.setById);
-		}
-
-		private function lockLayout(locked:Boolean, setById:String):void {
-			LOGGER.debug("LayoutService: received locked layout message. locked = [{0}] by= [{1}]", [locked, setById]);
-			_dispatcher.dispatchEvent(new LayoutLockedEvent(locked, setById));
 		}
 	}
 }

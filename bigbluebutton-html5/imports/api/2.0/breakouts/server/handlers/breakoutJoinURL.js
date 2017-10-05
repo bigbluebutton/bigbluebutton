@@ -12,10 +12,12 @@ const getUrlParams = (urlToParse) => {
   return parsedUrl.query;
 };
 
+
 export default function handleBreakoutJoinURL({ body }) {
   const {
     noRedirectJoinURL,
     userId,
+    breakoutId,
   } = body;
 
   check(noRedirectJoinURL, String);
@@ -23,18 +25,17 @@ export default function handleBreakoutJoinURL({ body }) {
   const urlParams = getUrlParams(noRedirectJoinURL);
 
   const selector = {
-    externalMeetingId: urlParams.meetingID,
+    breakoutId,
   };
 
-  let breakout = Breakouts.findOne(selector);
-
   const res = Meteor.http.call('get', noRedirectJoinURL);
+
   xmlParser.parseString(res.content, (err, parsedXML) => {
     if (err) {
       return Logger.error(`An Error occured when parsing xml response for: ${noRedirectJoinURL}`);
     }
 
-    breakout = Breakouts.findOne(selector);
+    const breakout = Breakouts.findOne(selector);
 
     const { response } = parsedXML;
     const users = breakout.users;
@@ -45,6 +46,7 @@ export default function handleBreakoutJoinURL({ body }) {
         meetingId: response.meeting_id[0],
         userId: response.user_id[0],
         authToken: response.auth_token[0],
+        sessionToken: response.session_token[0],
       },
     };
 

@@ -39,12 +39,10 @@ public class ScreenshareRecordCommand extends FreeswitchCommand {
 		if (record)
 			action = "record";
 
-		System.out.println("\n\n\n\n\n SCREENSHARE RECORD " + record + "\n\n\n\n");
 		return SPACE + getRoom() + SPACE + action + SPACE + recordPath;
 	}
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 		//Test for Known Conference
-		System.out.println("\n\n\n\n\nLALALALLALA\n\n\n\n");
 	}
 }

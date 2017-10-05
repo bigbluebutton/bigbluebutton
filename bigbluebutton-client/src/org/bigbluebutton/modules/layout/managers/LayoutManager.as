@@ -36,7 +36,8 @@ package org.bigbluebutton.modules.layout.managers
   
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;  
+  import flexlib.mdi.events.MDIManagerEvent;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
@@ -47,17 +48,14 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
-  import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
-  import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
-  import org.bigbluebutton.modules.layout.model.WindowLayout;
   import org.bigbluebutton.modules.layout.views.CustomLayoutNameWindow;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -258,6 +256,14 @@ package org.bigbluebutton.modules.layout.managers
       var newLayout:LayoutDefinition = _layoutModel.getLayout(name);
       if (newLayout == null) return;
 
+      var logData:Object = UsersUtil.initLogData();
+      logData.reason = "Layout changed.";
+      logData.tags = ["layout"];
+      logData.message = "The layout was changed.";
+      logData.oldLayout = _currentLayout.name;
+      logData.newLayout = newLayout.name;
+      LOGGER.info(JSON.stringify(logData));
+
       //trace(LOG + " applying layout [" + newLayout.name + "] to windows.");
       applyLayout(newLayout);     
     }
@@ -349,16 +355,6 @@ package org.bigbluebutton.modules.layout.managers
 
     private function get detectContainerChange():Boolean {
       return _applyingLayoutCounter == 0;
-    }
-
-    public function handleLockLayoutEvent(e: LockLayoutEvent):void {
-      
-    }
-    
-    
-    public function handleLayoutLockedEvent(e: LayoutLockedEvent):void {
-      _locked = e.locked;
-      checkPermissionsOverAllWindows();
     }
 
     public function lockSettingsChanged():void {

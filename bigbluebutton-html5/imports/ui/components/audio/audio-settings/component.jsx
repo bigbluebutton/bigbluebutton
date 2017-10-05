@@ -1,14 +1,49 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import styles from '../audio-modal/styles.scss';
-
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
 import EnterAudioContainer from '/imports/ui/components/audio/enter-audio/container';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
-import cx from 'classnames';
+import styles from '../audio-modal/styles';
+
+
+const intlMessages = defineMessages({
+  backLabel: {
+    id: 'app.audio.backLabel',
+    description: 'audio settings back button label',
+  },
+  titleLabel: {
+    id: 'app.audio.audioSettings.titleLabel',
+    description: 'audio setting title label',
+  },
+  titleLabeliOS: {
+    id: 'app.audio.audioSettings.titleLabel.iOS',
+    description: 'audio setting title label for iOS devices',
+  },
+  descriptionLabel: {
+    id: 'app.audio.audioSettings.descriptionLabel',
+    description: 'audio settings description label',
+  },
+  descriptionLabeliOS: {
+    id: 'app.audio.audioSettings.descriptionLabel.iOS',
+    description: 'audio settings description label for iOS devices',
+  },
+  micSourceLabel: {
+    id: 'app.audio.audioSettings.microphoneSourceLabel',
+    description: 'Label for mic source',
+  },
+  speakerSourceLabel: {
+    id: 'app.audio.audioSettings.speakerSourceLabel',
+    description: 'Label for speaker source',
+  },
+  streamVolumeLabel: {
+    id: 'app.audio.audioSettings.microphoneStreamLabel',
+    description: 'Label for stream volume',
+  },
+});
 
 class AudioSettings extends React.Component {
   constructor(props) {
@@ -102,16 +137,18 @@ class AudioSettings extends React.Component {
                 onChange={this.handleInputChange} />
             </div>
           </div>
-          <div className={styles.col}>
-            <div className={styles.formElement}>
-              <label className={cx(styles.label, styles.labelSmall)}>
-                {intl.formatMessage(intlMessages.speakerSourceLabel)}
-              </label>
-              <DeviceSelector
-                  value={this.state.outputDeviceId}
-                  className={styles.select}
-                  kind="audiooutput"
-                  onChange={this.handleOutputChange} />
+
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  {intl.formatMessage(intlMessages.streamVolumeLabel)}
+                  <AudioStreamVolume
+                    deviceId={this.state.inputDeviceId}
+                    className={styles.audioMeter}
+                  />
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -164,43 +201,8 @@ class AudioSettings extends React.Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
-
-const intlMessages = defineMessages({
-  backLabel: {
-    id: 'app.audio.backLabel',
-    description: 'audio settings back button label',
-  },
-  titleLabel: {
-    id: 'app.audio.audioSettings.titleLabel',
-    description: 'audio setting title label',
-  },
-  titleLabeliOS: {
-    id: 'app.audio.audioSettings.titleLabel.iOS',
-    description: 'audio setting title label for iOS devices',
-  },
-  descriptionLabel: {
-    id: 'app.audio.audioSettings.descriptionLabel',
-    description: 'audio settings description label',
-  },
-  descriptionLabeliOS: {
-    id: 'app.audio.audioSettings.descriptionLabel.iOS',
-    description: 'audio settings description label for iOS devices',
-  },
-  micSourceLabel: {
-    id: 'app.audio.audioSettings.microphoneSourceLabel',
-    description: 'Label for mic source',
-  },
-  speakerSourceLabel: {
-    id: 'app.audio.audioSettings.speakerSourceLabel',
-    description: 'Label for speaker source',
-  },
-  streamVolumeLabel: {
-    id: 'app.audio.audioSettings.microphoneStreamLabel',
-    description: 'Label for stream volume',
-  },
-});
 
 export default withModalMounter(injectIntl(AudioSettings));

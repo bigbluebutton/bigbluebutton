@@ -17,7 +17,7 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
   redis.clientSetname("BbbWebPub")
 
   def publish(channel: String, data: String) {
-    log.debug("PUBLISH TO \n[" + channel + "]: \n " + data + "\n")
+    //log.debug("PUBLISH TO \n[" + channel + "]: \n " + data + "\n")
     redis.publish(channel, ByteString(data))
   }
 

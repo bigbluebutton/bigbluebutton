@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
-	import flash.utils.Dictionary;
 
 	public class ChatEvent extends Event
 	{

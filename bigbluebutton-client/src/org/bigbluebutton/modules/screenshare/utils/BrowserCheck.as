@@ -20,10 +20,9 @@
 package org.bigbluebutton.modules.screenshare.utils
 {
 	import flash.external.ExternalInterface;
-	import org.bigbluebutton.core.BBB;
-	import flash.system.Capabilities;
-	import org.as3commons.logging.api.getClassLogger;
+	
 	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 
 	public class BrowserCheck {
 		private static const LOGGER:ILogger = getClassLogger(BrowserCheck);

@@ -29,6 +29,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.TokenValidEvent;
+	import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
@@ -76,6 +77,7 @@ package org.bigbluebutton.main.model.users
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();
+			sender.getLockSettings();
 
 			if (!LiveMeeting.inst().meeting.isBreakout) {
 				sender.queryForBreakoutRooms(LiveMeeting.inst().meeting.internalId);
@@ -101,7 +103,8 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().me.externalId = result.extUserId;
         LiveMeeting.inst().me.authToken = result.authToken;
         LiveMeeting.inst().me.layout = result.defaultLayout;
-        LiveMeeting.inst().me.logoutURL = result.logoutUrl;
+		LiveMeeting.inst().me.logoutURL = result.logoutUrl;
+		LiveMeeting.inst().me.logoutTimer = result.logoutTimer;
         LiveMeeting.inst().me.role = result.role;
         LiveMeeting.inst().me.welcome = result.welcome;
         LiveMeeting.inst().me.avatarURL = result.avatarURL;
@@ -148,7 +151,11 @@ package org.bigbluebutton.main.model.users
     public function tokenValidEventHandler(event: TokenValidEvent): void {
       sender.joinMeeting();
     }
-    
+
+    public function tokenValidReconnectEventHandler(event: TokenValidReconnectEvent): void {
+      sender.joinMeetingAfterReconnect();
+    }
+
 	public function logoutEndMeeting():void{
 		if (this.isModerator()) {
 			var myUserId: String = UsersUtil.getMyUserID();
@@ -161,8 +168,10 @@ package org.bigbluebutton.main.model.users
     }
     
     public function disconnect(onUserAction:Boolean):void {
-      _connectionManager.disconnect(onUserAction);
+		if (_connectionManager) {
+	      _connectionManager.disconnect(onUserAction);
 		}
+	}
 
 		public function activityResponse():void {
 			sender.activityResponse();
@@ -187,6 +196,7 @@ package org.bigbluebutton.main.model.users
 				reconnecting = false;
 			} else {
         onAllowedToJoin();
+
       }
 		}
 

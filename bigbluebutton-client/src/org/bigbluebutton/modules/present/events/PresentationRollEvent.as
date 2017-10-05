@@ -24,8 +24,6 @@ package org.bigbluebutton.modules.present.events {
 
 		public static const PRESENTATION_ROLL_OUT:String = "PresentationRollOut";
 
-		public static const PRESENTATION_SELECT:String = "PresentationSelect";
-
 		public var presentationId:String;
 
 		public function PresentationRollEvent(type:String, p:String) {

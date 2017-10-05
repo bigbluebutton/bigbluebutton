@@ -22,12 +22,12 @@ package org.bigbluebutton.modules.users.services
   
   import flash.utils.setTimeout;
   
-  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
   import org.bigbluebutton.core.events.NewGuestWaitingEvent;
@@ -48,6 +48,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
@@ -146,6 +147,12 @@ package org.bigbluebutton.modules.users.services
         case "UserLockedInMeetingEvtMsg":
           handleUserLocked(message);
           break;
+        case "GetLockSettingsRespMsg":
+          handleGetLockSettings(message);
+          break;
+        case "LockSettingsNotInitializedRespMsg":
+          handleLockSettingsNotInitialized(message);
+          break;
         // Breakout room feature
         case "BreakoutRoomsListEvtMsg":
           handleBreakoutRoomsList(message)
@@ -186,6 +193,8 @@ package org.bigbluebutton.modules.users.services
         case "guest_access_denied":
           handleGuestAccessDenied(message);
           break;
+        case "UserRoleChangedEvtMsg":
+          handleUserRoleChangedEvtMsg(message);
       }
     }
     
@@ -347,16 +356,41 @@ package org.bigbluebutton.modules.users.services
       user2x.avatar = avatar;
       
       LOGGER.debug("USER JOINED = " + JSON.stringify(user2x));
-      
+
+      var oldUser: User2x = LiveMeeting.inst().users.getUser(intId);
+      var wasPresenterBefore: Boolean = false;
+      if (oldUser != null && oldUser.presenter) {
+        wasPresenterBefore = true;
+      }
+
+      // remove remaining instance of the user before adding
+      LiveMeeting.inst().users.remove(intId);
       LiveMeeting.inst().users.add(user2x);
-      
+
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user2x.intId;
       dispatcher.dispatchEvent(joinEvent);
+
+      if (UsersUtil.isMe(intId)) {
+        if (wasPresenterBefore != presenter) {
+          UsersUtil.setUserAsPresent(intId, false);
+          sendSwitchedPresenterEvent(false, intId);
+
+          var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+          e.userID = intId;
+          e.presenterName = name;
+          e.assignedBy = intId;
+          dispatcher.dispatchEvent(e);
+          dispatcher.dispatchEvent(new UserStatusChangedEvent(intId));
+        }
+        
+        LiveMeeting.inst().me.locked = locked;
+        UsersUtil.applyLockSettings();
+      }
     }
     
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {
-      var body: Object = msg.body as Object
+      var body: Object = msg.body as Object;
       var users: Array = body.users as Array;
       LOGGER.debug("Num USERs = " + users.length);
       
@@ -464,7 +498,11 @@ package org.bigbluebutton.modules.users.services
       if(user.locked != locked) {
         if (UsersUtil.isMe(user.intId)) {
           LiveMeeting.inst().me.locked = locked;
+          
+          UsersUtil.applyLockSettings();
         }
+        
+        user.locked = locked;
         
         dispatcher.dispatchEvent(new UserStatusChangedEvent(user.intId));
       }
@@ -473,7 +511,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
-      //LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.msg]);
+      LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.body]);
       var body:Object = msg.body as Object;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(
@@ -487,6 +525,27 @@ package org.bigbluebutton.modules.users.services
       UsersUtil.setLockSettings(lockSettings);
     }
     
+    private function handleGetLockSettings(msg:Object):void {
+      LOGGER.debug("handleGetLockSettings {0} \n", [msg.body]);
+      
+      var body:Object = msg.body as Object;
+      
+      var lockSettings:LockSettingsVO = new LockSettingsVO(
+        body.disableCam as Boolean,
+        body.disableMic as Boolean,
+        body.disablePrivChat as Boolean,
+        body.disablePubChat as Boolean,
+        body.lockedLayout as Boolean,
+        body.lockOnJoin as Boolean,
+        body.lockOnJoinConfigurable as Boolean);
+      UsersUtil.setLockSettings(lockSettings);
+    }
+    
+	private function handleLockSettingsNotInitialized(msg:Object):void {
+		LOGGER.debug("handleLockSettingsNotInitialized received");
+		UsersUtil.lockSettingsNotInitialized();
+	}
+	
     private function sendRecordingStatusUpdate(recording:Boolean):void {
       LiveMeeting.inst().meetingStatus.isRecording = recording;
       
@@ -552,19 +611,7 @@ package org.bigbluebutton.modules.users.services
       
       LiveMeeting.inst().voiceUsers.setListenOnlyForUser(userId, listenOnly);
     }
-    
-    
-    private function userTalk(userId:String, talking:Boolean):void { 
-      LiveMeeting.inst().voiceUsers.setMutedForUser(userId, talking);
-      
-      var event:CoreEvent = new CoreEvent(EventConstants.USER_TALKING);
-      event.message.userID = userId;
-      event.message.talking = talking;
-      globalDispatcher.dispatchEvent(event);  
-      
-    }
-    
-    
+
     /**
      * This meeting is in the process of ending by the server
      */
@@ -726,8 +773,11 @@ package org.bigbluebutton.modules.users.services
       var body: Object = msg.body as Object;
       var breakoutId: String = body.breakoutId as String;
       var users: Array = body.users as Array;
-      
-      LiveMeeting.inst().breakoutRooms.updateUsers(breakoutId, users);
+	  
+	  LiveMeeting.inst().breakoutRooms.updateUsers(breakoutId, users);
+	  LiveMeeting.inst().users.updateBreakoutRooms(LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId).sequence, users);
+
+	  dispatcher.dispatchEvent(new BreakoutRoomsUsersListUpdatedEvent());
     }
     
     private function handleMeetingTimeRemainingUpdateEvtMsg(msg:Object):void {
@@ -762,7 +812,10 @@ package org.bigbluebutton.modules.users.services
       
       switchUserFromBreakoutToMainVoiceConf(breakoutId);
       var breakoutRoom: BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId);
-      LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(breakoutId);    
+      LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(breakoutId);
+	  LiveMeeting.inst().users.removeBreakoutRoomFromUsers(breakoutRoom.sequence);
+	  
+	  dispatcher.dispatchEvent(new BreakoutRoomsUsersListUpdatedEvent());
     }
     
     private function switchUserFromBreakoutToMainVoiceConf(breakoutId: String): void {
@@ -805,6 +858,21 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.getMyUserID() == map.userId) {
         dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
       }
+    }
+
+    public function handleUserRoleChangedEvtMsg(msg:Object):void {
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var userId: String = body.userId as String;
+      var role: String = body.role as String;
+
+      LiveMeeting.inst().users.setRoleForUser(userId, role);
+      if (UsersUtil.isMe(userId)) {
+        LiveMeeting.inst().me.role = role;
+        dispatcher.dispatchEvent(new ChangeMyRole(role));
+      }
+
+      dispatcher.dispatchEvent(new UserStatusChangedEvent(userId));
     }
   }
 }

@@ -19,8 +19,10 @@
 
 package org.bigbluebutton.modules.screenshare.managers {
     import com.asfusion.mate.events.Dispatcher;
+    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -150,7 +152,7 @@ package org.bigbluebutton.modules.screenshare.managers {
 
             if (force || (options.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) || !options.tryWebRTCFirst) {
               usingJava = true;
-              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), module.tunnel());
+              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), BBB.initConnectionManager().isTunnelling);
               sharing = true;
               service.requestShareToken();
             } else {

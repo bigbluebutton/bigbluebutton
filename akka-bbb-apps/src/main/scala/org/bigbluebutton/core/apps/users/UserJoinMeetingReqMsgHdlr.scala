@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
+import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 
@@ -17,6 +18,9 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers with BreakoutHdlrHelpers 
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()
     }
+
+    // fresh user joined (not due to reconnection). Clear (pop) the cached voice user
+    VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, msg.body.userId)
 
     newState
   }

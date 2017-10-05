@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.modules.whiteboard
 {
-
-  
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
@@ -81,6 +79,12 @@ package org.bigbluebutton.modules.whiteboard
     public function doMouseMove(mouseX:Number, mouseY:Number):void {
       for (var ob:int = 0; ob < drawListeners.length; ob++) {
         (drawListeners[ob] as IDrawListener).onMouseMove(mouseX, mouseY, wbTool);
+      }
+    }
+
+    public function stopDrawing(mouseX:Number, mouseY:Number): void {
+      for (var ob:int = 0; ob < drawListeners.length; ob++) {
+        (drawListeners[ob] as IDrawListener).stopDrawing(mouseX, mouseY);
       }
     }
 

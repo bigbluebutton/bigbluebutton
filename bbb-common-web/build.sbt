@@ -57,11 +57,22 @@ libraryDependencies += "commons-io" % "commons-io" % "2.4"
 libraryDependencies += "org.apache.commons" % "commons-pool2" % "2.3"
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
 libraryDependencies += "com.zaxxer" % "nuprocess" % "1.1.0"
-libraryDependencies += "com.artofsolving" % "jodconverter" % "2.2.1"
-libraryDependencies += "org.openoffice" % "unoil" % "3.2.1"
-libraryDependencies += "org.openoffice" % "ridl" % "3.2.1"
-libraryDependencies += "org.openoffice" % "juh" % "3.2.1"
-libraryDependencies += "org.openoffice" % "jurt" % "3.2.1"
+
+// https://mvnrepository.com/artifact/org.jodconverter/jodconverter-core
+libraryDependencies += "org.jodconverter" % "jodconverter-core" % "4.0.0-RELEASE"
+
+// https://mvnrepository.com/artifact/org.libreoffice/unoil
+libraryDependencies += "org.libreoffice" % "unoil" % "5.3.2"
+
+// https://mvnrepository.com/artifact/org.libreoffice/ridl
+libraryDependencies += "org.libreoffice" % "ridl" % "5.3.2"
+
+// https://mvnrepository.com/artifact/org.libreoffice/juh
+libraryDependencies += "org.libreoffice" % "juh" % "5.3.2"
+
+// https://mvnrepository.com/artifact/org.libreoffice/jurt
+libraryDependencies += "org.libreoffice" % "jurt" % "5.3.2"
+
 
 libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.15"
 
@@ -87,6 +98,9 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.12
 libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.12" % akkaVersion % "test"
+
+// https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml_2.12
+libraryDependencies += "org.scala-lang.modules" % "scala-xml_2.12" % "1.0.6"
 
 
 seq(Revolver.settings: _*)

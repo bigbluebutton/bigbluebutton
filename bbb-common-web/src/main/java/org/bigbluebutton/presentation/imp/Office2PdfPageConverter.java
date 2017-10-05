@@ -23,47 +23,55 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigbluebutton.presentation.PageConverter;
+import com.google.gson.Gson;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.artofsolving.jodconverter.*;
-import com.artofsolving.jodconverter.openoffice.connection.*;
-import com.artofsolving.jodconverter.openoffice.converter.*;
+import org.jodconverter.OfficeDocumentConverter;
 
-public class Office2PdfPageConverter implements PageConverter {
+public class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
-  public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres){
-    SocketOpenOfficeConnection connection = new SocketOpenOfficeConnection(8100);
-
+  public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
+                         final OfficeDocumentConverter converter){
     try {
-      connection.connect();
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Converting Office doc to PDF.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.info("-- analytics -- " + logStr);
 
-      log.debug("Converting " + presentationFile.getAbsolutePath() + " to " + output.getAbsolutePath());
 
-      DefaultDocumentFormatRegistry registry = new DefaultDocumentFormatRegistry();
-      OpenOfficeDocumentConverter converter = new OpenOfficeDocumentConverter(connection, registry);
-
-      DocumentFormat pdf = registry.getFormatByFileExtension("pdf");
-      Map<String, Object> pdfOptions = new HashMap<String, Object>();
-      pdfOptions.put("ReduceImageResolution", Boolean.TRUE);
-      pdfOptions.put("MaxImageResolution", Integer.valueOf(300));
-      pdf.setExportOption(DocumentFamily.TEXT, "FilterData", pdfOptions);
-
-      converter.convert(presentationFile, output, pdf);
-      connection.disconnect();
-
+      final long startTime = System.currentTimeMillis();
+      converter.convert(presentationFile, output);
       if (output.exists()) {
         return true;
       } else {
-        log.warn("Failed to convert: " + output.getAbsolutePath() + " does not exist.");
+        logData = new HashMap<String, Object>();
+        logData.put("meetingId", pres.getMeetingId());
+        logData.put("presId", pres.getId());
+        logData.put("filename", pres.getName());
+        logData.put("message", "Failed to convert Office doc to PDF.");
+        gson = new Gson();
+        logStr = gson.toJson(logData);
+        log.warn("-- analytics -- " + logStr);
+
         return false;
       }
-
-    } catch(Exception e) {
-      log.error("Exception: Failed to convert " + output.getAbsolutePath());
+    } catch (Exception e) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("message", "Failed to convert Office doc to PDF.");
+      logData.put("exception", e.getMessage());
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.error("-- analytics -- " + logStr);
       return false;
     }
   }

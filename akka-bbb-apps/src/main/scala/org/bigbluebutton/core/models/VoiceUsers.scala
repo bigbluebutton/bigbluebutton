@@ -13,6 +13,8 @@ object VoiceUsers {
 
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
+  def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
+
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
   }
@@ -23,6 +25,10 @@ object VoiceUsers {
 
   def findWithIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
     users.toVector.find(u => u.intId == intId)
+  }
+
+  def recoverVoiceUser(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
+    users.removeFromCache(intId)
   }
 
   def userMuted(users: VoiceUsers, voiceUserId: String, muted: Boolean): Option[VoiceUserState] = {

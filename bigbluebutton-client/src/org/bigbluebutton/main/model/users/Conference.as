@@ -20,6 +20,7 @@ package org.bigbluebutton.main.model.users {
   
   import mx.collections.ArrayCollection;
   import mx.collections.Sort;
+  
   import org.as3commons.lang.ArrayUtils;
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;

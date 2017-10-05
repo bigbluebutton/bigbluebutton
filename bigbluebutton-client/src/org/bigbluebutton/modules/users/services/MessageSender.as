@@ -32,8 +32,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.connection.messages.breakoutrooms.CreateBreakoutRoomsMsgBody;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsg;
   import org.bigbluebutton.core.connection.messages.breakoutrooms.EndAllBreakoutRoomsMsgBody;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsg;
-  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLMsgBody;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLReqMsg;
+  import org.bigbluebutton.core.connection.messages.breakoutrooms.RequestBreakoutJoinURLReqBody;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.users.GuestWaiting;
@@ -73,11 +73,29 @@ package org.bigbluebutton.modules.users.services
       }, function(status:String):void { // status - On error occurred
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["apps"];
-        logData.message = "Error occurred assigning a presenter.";
+        logData.message = "Error occurred when user joining.";
         LOGGER.info(JSON.stringify(logData));
       }, JSON.stringify(message));
     }
-    
+
+    public function joinMeetingAfterReconnect(): void {
+      LOGGER.info("Sending JOIN MEETING AFTER RECONNECT message");
+
+      var message:Object = {
+        header: {name: "UserJoinMeetingAfterReconnectReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(function(result:String):void { // On successful result
+      }, function(status:String):void { // status - On error occurred
+          var logData:Object = UsersUtil.initLogData();
+          logData.tags = ["apps"];
+          logData.message = "Error occurred when user joining after reconnect.";
+          LOGGER.info(JSON.stringify(logData));
+      }, JSON.stringify(message));
+    }
+
     public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:String):void {
       var message:Object = {
         header: {name: "AssignPresenterReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
@@ -128,11 +146,9 @@ package org.bigbluebutton.modules.users.services
 		}
 
 		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
-      var message:Object = {
-        header: {name: "RequestBreakoutJoinURLReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
-          userId: UsersUtil.getMyUserID()},
-        body: {meetingId: parentMeetingId, breakoutId: breakoutMeetingId, userId: UsersUtil.getMyUserID()}
-      };
+			var body:RequestBreakoutJoinURLReqBody = new RequestBreakoutJoinURLReqBody(parentMeetingId, breakoutMeetingId, userId);
+			var message:RequestBreakoutJoinURLReqMsg = new RequestBreakoutJoinURLReqMsg(body);
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage2x(function(result:String):void { // On successful result
 			}, function(status:String):void { // status - On error occurred
@@ -427,27 +443,6 @@ package org.bigbluebutton.modules.users.services
         },
         JSON.stringify(message)
       ); 
-    }
-    
-    public function getRoomLockState():void{
-      var message:Object = {
-        header: {name: "IsMeetingLockedReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
-          userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID()}
-      };
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage2x(
-        function(result:String):void { // On successful result
-        },	                   
-        function(status:String):void { // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.message = "Error occured getting lock state.";
-                LOGGER.info(JSON.stringify(logData));
-        },
-        JSON.stringify(message)
-      );    
     }    
 
     /**
