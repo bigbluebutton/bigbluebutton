@@ -22,13 +22,13 @@ app:
   # Name displayed in the brower URL
   basename: '/html5client'
 
-  defaultLocale: 'en'
   #default settings for session storage
   defaultSettings:
     application:
       chatAudioNotifications: false
       chatPushNotifications: false
       fontSize: "16px"
+      locale: "en"
     audio:
       inputDeviceId: undefined
       outputDeviceId: undefined
