@@ -4,7 +4,7 @@ import StaticAnnotationService from './service';
 
 export default class StaticAnnotation extends React.Component {
 
-  // finished Annotations (status == 'DRAW_END' ) should never update
+  // completed annotations should never update
   shouldComponentUpdate() {
     return false;
   }

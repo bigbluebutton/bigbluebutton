@@ -3,22 +3,19 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import styles from '../styles';
 
-export default class WhiteboardToolbarItem extends Component {
+export default class ToolbarMenuItem extends Component {
   constructor() {
     super();
 
-    this._onClick = this._onClick.bind(this);
+    this.handleItemClick = this.handleItemClick.bind(this);
   }
 
-  _onClick() {
+  handleItemClick() {
     const { objectToReturn, onItemClick } = this.props;
     // if there is a submenu name, then pass it to onClick
-    // if not - it's probably "Undo", "Clear All", "Multi-user", etc. No submenu here.
-    if (objectToReturn) {
-      onItemClick(objectToReturn);
-    } else {
-      onItemClick();
-    }
+    // if not - it's probably "Undo", "Clear All", "Multi-user", etc.
+    // in the second case we'll pass undefined and it will work fine anyway
+    onItemClick(objectToReturn);
   }
 
   render() {
@@ -31,42 +28,40 @@ export default class WhiteboardToolbarItem extends Component {
           size={'md'}
           label={this.props.label}
           icon={this.props.icon ? this.props.icon : null}
-          customIcon={this.props.customIcon}
-          onClick={this._onClick}
+          customIcon={this.props.customIcon ? this.props.customIcon : null}
+          onClick={this.handleItemClick}
           onBlur={this.props.onBlur}
           className={this.props.className}
-          onMouseEnter={this.props.onMouseEnter}
-          onMouseLeave={this.props.onMouseLeave}
         />
-        {this.props.renderSubMenu ? this.props.renderSubMenu() : null}
+        {this.props.children}
       </div>
     );
   }
 }
 
-WhiteboardToolbarItem.propTypes = {
+ToolbarMenuItem.propTypes = {
+  // objectToReturn, children and onBlur are passed only with menu items that have submenus
+  // thus they are optional
+  onBlur: PropTypes.func,
+  children: PropTypes.node,
   objectToReturn: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object,
     PropTypes.number,
   ]),
   onItemClick: PropTypes.func.isRequired,
+  // we can have either icon from the bigbluebutton-font or our custom svg/html
+  // thus they are optional
   icon: PropTypes.string,
   customIcon: PropTypes.node,
   label: PropTypes.string.isRequired,
-  onBlur: PropTypes.func,
   className: PropTypes.string.isRequired,
-  onMouseEnter: PropTypes.func,
-  onMouseLeave: PropTypes.func,
-  renderSubMenu: PropTypes.func,
 };
 
-WhiteboardToolbarItem.defaultProps = {
+ToolbarMenuItem.defaultProps = {
   objectToReturn: null,
   icon: '',
-  customIcon: (<p />),
+  customIcon: null,
   onBlur: null,
-  onMouseLeave: null,
-  onMouseEnter: null,
-  renderSubMenu: null,
+  children: null,
 };
