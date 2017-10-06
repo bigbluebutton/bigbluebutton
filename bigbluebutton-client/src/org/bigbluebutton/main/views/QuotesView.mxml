@@ -52,11 +52,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function showNewQuote():void {
-				var quote:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.' + Math.ceil(Math.random() * 5));
+				var randomQuoteId:int = Math.ceil(Math.random() * 5);
+				var quote:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.sentence.' + randomQuoteId);
+				var attribution:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.attribution.' + randomQuoteId);
 				if (StringUtils.isEmpty(quote)) {
 					quote = "Research is creating new knowledge."
 				}
+				if (StringUtils.isEmpty(attribution)) {
+					quote = "Neil Armstrong"
+				}
 				quoteLabel.text = "“ " + quote + " ”";
+				quoteAttribution.text = attribution;
 				dissolveIn.play();
 			}
 
@@ -78,7 +84,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Image source="{getStyle('iconQuote')}" />
 
 	<s:Label id="quoteLabel"
-			 width="620"
-			 fontSize="36"
-			 textAlign="center" />
+			 styleName="quoteSentenceStyle"
+			 width="620" />
+
+	<s:Label id="quoteAttribution"
+			 styleName="quoteAttributionStyle"
+			 width="620" />
+
+	<mx:HRule width="120" />
 </mx:VBox>

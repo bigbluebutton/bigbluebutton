@@ -42,6 +42,7 @@
 }
 
 .input {
+  @extend %customInputFocus;
   flex: 1;
   background: #fff;
   border: $border-size solid $color-gray-lighter;

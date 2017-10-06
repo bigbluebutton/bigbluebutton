@@ -12,7 +12,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
   participantsTitle: {
-    id: 'app.userlist.participantsTitle',
+    id: 'app.userList.participantsTitle',
     description: 'heading label for participants submenu',
   },
   muteAllLabel: {

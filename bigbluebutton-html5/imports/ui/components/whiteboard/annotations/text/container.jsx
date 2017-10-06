@@ -3,7 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import TextShapeService from './service';
 import TextDrawComponent from './component';
 
-const TextDrawContainer = ({ ...props }) => (
+const TextDrawContainer = props => (
   <TextDrawComponent {...props} />
 );
 

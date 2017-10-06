@@ -10,20 +10,28 @@ export default function changeUserLock(meetingId, payload) {
     lockedBy: String,
   });
 
+  const { userId, locked, lockedBy } = payload;
+
   const selector = {
-    userId: payload.userId,
+    userId,
   };
 
   const modifier = {
     $set: {
-      locked: payload.locked,
+      locked,
     },
   };
 
-  const cb = (err) => {
+  const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Changing user lock setting: ${err}`);
     }
+
+    if (!numChanged) {
+      return Logger.info(`User's userId=${userId} lock status wasn't updated`);
+    }
+
+    return Logger.info(`User's userId=${userId} lock status was changed to: ${locked} by user userId=${lockedBy}`);
   };
 
   return Users.upsert(selector, modifier, cb);

@@ -27,15 +27,18 @@ export function joinRouteHandler(nextState, replace, callback) {
     });
 }
 
-export function logoutRouteHandler(nextState, replace, callback) {
+export function logoutRouteHandler(nextState, replace) {
   Auth.logout()
-    .then((logoutURL) => {
-      window.location = logoutURL || window.location.origin;
-      callback();
+    .then((logoutURL = window.location.origin) => {
+      const protocolPattern = /^((http|https):\/\/)/;
+
+      window.location.href =
+        protocolPattern.test(logoutURL) ?
+          logoutURL :
+          `http://${logoutURL}`;
     })
     .catch(() => {
       replace({ pathname: '/error/500' });
-      callback();
     });
 }
 

@@ -1227,6 +1227,12 @@ mx|Panel {
 	color : #2A2D33;
 }
 
+.pollVoteLabel {
+	textAlign  : center;
+	fontSize   : 16;
+	fontWeight : bold;
+}
+
 .presentationFilesList {
 	paddingBottom : 5;
 	paddingLeft   : 5;
@@ -1289,6 +1295,19 @@ poll|PollResultsModal {
 	fontSize : 14;
 }
 
+.pollHintBoxStyle {
+	horizontalAlign : center;
+	verticalAlign   : middle;
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
+}
+
+.pollHintTextStyle {
+	textAlign  : center;
+	fontWeight : bold;
+}
+
 /*
 //------------------------------
 //  ProgressBar
@@ -1314,6 +1333,22 @@ views|QuotesView {
 	iconQuote       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Quote");
 	verticalGap     : 20;
 	horizontalAlign : center;
+}
+
+.quoteSentenceStyle {
+	fontSize  : 32;
+	textAlign : center;
+}
+
+.quoteAttributionStyle {
+	fontSize  : 16;
+	textAlign : center;
+	color     : #4E5A66;
+}
+
+.quoteRule {
+	strokeWidth : 1;
+	color       : #BBBDBF;
 }
 
 /*

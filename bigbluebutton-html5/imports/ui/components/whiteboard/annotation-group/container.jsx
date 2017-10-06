@@ -4,7 +4,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import AnnotationGroupService from './service';
 import AnnotationGroup from './component';
 
-const AnnotationGroupContainer = ({ ...props }) => (
+const AnnotationGroupContainer = props => (
   <AnnotationGroup
     annotationsInfo={props.annotationsInfo}
     slideWidth={props.width}

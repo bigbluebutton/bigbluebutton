@@ -1,6 +1,7 @@
 @import "../styles.scss";
 
 .chatListItem {
+  @extend %customChatItemFocus;
   @extend %list-item;
   cursor: pointer;
   padding: 0;
@@ -22,31 +23,6 @@
     padding-top: $sm-padding-y * 1.85;
     padding-bottom: $sm-padding-y * 1.85;
   }
-}
-
-.unreadMessages {
-  @extend %flex-column;
-  justify-content: center;
-}
-
-.unreadMessagesText {
-  @extend %flex-column;
-  @extend %no-margin;
-  justify-content: center;
-  color: $color-white;
-  line-height: calc(1rem + 1px);
-  padding: 0 0.5rem;
-  text-align: center;
-  border-radius: 0.5rem/50%;
-  font-size: 0.8rem;
-  background-color: $unread-messages-bg;
-}
-
-.chatThumbnail {
-  @extend %flex-column;
-  color: $color-gray-light;
-  justify-content: center;
-  font-size: 175%;
 }
 
 .chatIcon {
