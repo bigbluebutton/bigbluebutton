@@ -13,10 +13,10 @@ app:
   skipCheck: false
 
   # Default global variables
-  appName: "BigBlueButton HTML5 Client"
-  bbbServerVersion: "1.1-beta"
-  copyright: "©2017 BigBlueButton Inc."
-  html5ClientBuild: "HTML5_CLIENT_VERSION"
+  appName: 'BigBlueButton HTML5 Client'
+  bbbServerVersion: '1.1-beta'
+  copyright: '©2017 BigBlueButton Inc.'
+  html5ClientBuild: 'HTML5_CLIENT_VERSION'
   lockOnJoin: true
 
   # Name displayed in the brower URL
@@ -27,18 +27,18 @@ app:
     application:
       chatAudioNotifications: false
       chatPushNotifications: false
-      fontSize: "16px"
-      locale: "en"
+      fontSize: '16px'
+      locale: 'en'
     audio:
       inputDeviceId: undefined
       outputDeviceId: undefined
     video:
       viewParticipantsWebcams: true
     cc:
-      backgroundColor: "#FFFFFF"
-      fontColor: "#000000"
+      backgroundColor: '#FFFFFF'
+      fontColor: '#000000'
       enabled: false
-      fontFamily: "Calibri"
+      fontFamily: 'Calibri'
       fontSize: '16px'
       # locale: undefined
       takeOwnership: false
