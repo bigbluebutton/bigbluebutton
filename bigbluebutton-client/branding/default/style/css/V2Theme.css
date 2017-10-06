@@ -250,6 +250,16 @@ phonecomponents|MuteMeButton {
 	iconColorDown   : #FFFFFF;
 }
 
+.mainActionButton, .cameraDisplaySettingsWindowStartBtn {
+	borderThickness   : 0;
+	color             : #FFFFFF;
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
+}
+
 .voiceConfDefaultButtonStyle {
 	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Audio_Disabled");
@@ -1697,7 +1707,7 @@ videoconf|UserGraphicHolder {
 }
 
 .cameraDisplaySettingsWindowStartBtn {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
 }
 

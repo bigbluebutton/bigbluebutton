@@ -81,6 +81,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	<mx:Label text="{oldLocalesReminder1}"/>
 	<mx:Label text="{oldLocalesReminder2}"/>
-	<mx:Button id="okBtn" label="OK" click="redirect()"/>
+	<mx:Button id="okBtn" styleName="mainActionButton" label="OK" click="redirect()"/>
 
 </mx:TitleWindow>
