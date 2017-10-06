@@ -68,22 +68,22 @@
 			
 			private var options:UsersOptions;
 			private var myMenu:Menu = null;
-			
-      private function onCreationComplete():void{
-        refreshRole(UsersUtil.amIModerator());
-        
-        this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
-        
-        BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
-        BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
-        BindingUtils.bindSetter(updateButtons, muteInd, "visible");
-        BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
-        BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
-        BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
-        
-        options = Options.getOptions(UsersOptions) as UsersOptions;
-      }
-			
+
+			private function onCreationComplete():void {
+				options = Options.getOptions(UsersOptions) as UsersOptions;
+
+				refreshRole(UsersUtil.amIModerator());
+
+				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+
+				BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
+				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
+				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
+				BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
+				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
+				BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
+			}
+
 			private function dataChangeHandler(e:Event):void {
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (data != null) {
@@ -171,29 +171,29 @@
 				e.internalUserID = data.userId;
 				dispatchEvent(e);
 			}
-			
+
 			private function updateButtons(voiceMuted:Boolean = false):void {
 				// reset the mute image filter so the talking indicator doesn't stick
 				muteImg.filters = null;
-				
+
 				var ls:LockSettingsVO = UsersUtil.getLockSettings();
-				
+
 				if (data != null) {
 					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
-					
-					if (!data.inVoiceConf) {
-							muteImg.visible = false;
-							muteImg.includeInLayout = false;
-							muteBtn.visible = false;
-							muteBtn.includeInLayout = true;
+
+					if ( !data.inVoiceConf || ( options.moderatorUnmute == false && UsersUtil.amIModerator() && !UsersUtil.isMe(data.userId) ) ) {
+						muteImg.visible = false;
+						muteImg.includeInLayout = false;
+						muteBtn.visible = false;
+						muteBtn.includeInLayout = true;
 					} else {
-            if (data.listenOnly) {
-              muteImg.source = getStyle("iconSound");
-              muteImg.visible = true;
-              muteImg.includeInLayout = true;
-              muteBtn.visible = false;
-              muteBtn.includeInLayout = false;             
-            } else if (data.locked && ls.getDisableMic()) {
+						if (data.listenOnly) {
+							muteImg.source = getStyle("iconSound");
+							muteImg.visible = true;
+							muteImg.includeInLayout = true;
+							muteBtn.visible = false;
+							muteBtn.includeInLayout = false;
+						} else if (data.locked && ls.getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -205,20 +205,20 @@
 							muteBtn.includeInLayout = rolledOver;
 							muteBtn.enabled = true;
 
-							if(data.talking && !rolledOver){
+							if (data.talking && !rolledOver) {
 								muteImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
-							}else{
+							} else {
 								muteImg.filters = [];
 							}
 						}
 					}
-					
-					if (data.role == Role.MODERATOR){
+
+					if (data.role == Role.MODERATOR) {
 						lockImg.visible = false;
 						lockImg.includeInLayout = true;
 						lockBtn.visible = false;
 						lockBtn.includeInLayout = false;
-					} else if(moderator && ls.isAnythingLocked()) {
+					} else if (moderator && ls.isAnythingLocked()) {
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
@@ -230,7 +230,7 @@
 						lockBtn.visible = false;
 						lockBtn.includeInLayout = false;
 					}
-					
+
 					if (data.hasStream) {
 						// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
 						if (data.me || data.isViewingAllStreams()) {
@@ -253,20 +253,19 @@
 
 					if (!rolledOver) {
 						if (data.inVoiceConf) {
-              if (data.listenOnly) {
-                muteImg.source = getStyle("iconSound");
-              } else if (data.muted) {
-                muteImg.source = getStyle("iconAudioMuted");
-              } else {
-                muteImg.source = getStyle("iconAudio");
-              }
+							if (data.listenOnly) {
+								muteImg.source = getStyle("iconSound");
+							} else if (data.muted) {
+								muteImg.source = getStyle("iconAudioMuted");
+							} else {
+								muteImg.source = getStyle("iconAudio");
+							}
 						}
-						
-						
-						if ( data.locked && !data.presenter && ls.isAnythingLocked() ) {
+
+
+						if (data.locked && !data.presenter && ls.isAnythingLocked()) {
 							lockImg.source = getStyle("iconLock");
-						}
-						else {
+						} else {
 							lockImg.source = null;
 						}
 					} else {
@@ -274,7 +273,7 @@
 							muteBtn.setStyle("icon", getStyle("iconAudio"));
 						else
 							muteBtn.setStyle("icon", getStyle("iconAudioMuted"));
-						
+
 						if (data.locked == rolledOverLock)
 							lockBtn.setStyle("icon", getStyle("iconUnlock"));
 						else
