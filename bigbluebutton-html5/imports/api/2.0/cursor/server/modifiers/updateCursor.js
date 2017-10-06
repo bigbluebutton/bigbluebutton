@@ -24,16 +24,17 @@ export default function updateCursor(meetingId, userId, x = -1, y = -1) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Upserting cursor to collection: ${err}`);
+      Logger.error(`Upserting cursor to collection: ${err}`);
+      return;
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Initialized cursor meeting=${meetingId}`);
+      Logger.info(`Initialized cursor meeting=${meetingId}`);
     }
 
     if (numChanged) {
-      return Logger.debug(`Updated cursor meeting=${meetingId}`);
+      Logger.debug(`Updated cursor meeting=${meetingId}`);
     }
   };
 

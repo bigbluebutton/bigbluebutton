@@ -22,11 +22,12 @@ export default function handleChangeRole({ body }, meetingId) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Changed user role: ${err}`);
+      Logger.error(`Changed user role: ${err}`);
+      return;
     }
 
     if (numChanged) {
-      return Logger.info(`Changed user role ${role} id=${userId} meeting=${meetingId} by changedBy=${changedBy}`);
+      Logger.info(`Changed user role ${role} id=${userId} meeting=${meetingId} by changedBy=${changedBy}`);
     }
   };
 

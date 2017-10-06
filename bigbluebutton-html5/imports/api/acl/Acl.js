@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import deepMerge from '/imports/utils/deepMerge';
 
-export class Acl {
+export default class Acl {
 
   constructor(config, Users) {
     this.Users = Users;

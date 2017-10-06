@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import publishVote from './methods/publishVote';
 import mapToAcl from '/imports/startup/mapToAcl';
+import publishVote from './methods/publishVote';
 
 Meteor.methods(mapToAcl(['methods.publishVote'], {
   publishVote,
