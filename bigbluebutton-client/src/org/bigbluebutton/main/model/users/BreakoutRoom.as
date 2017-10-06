@@ -48,6 +48,10 @@ package org.bigbluebutton.main.model.users {
     public function BreakoutRoom() {
       users = new ArrayCollection();
     }
+	
+	public function initUsers(): void {
+      users = new ArrayCollection();
+	}
     
     public function get numberOfUsers():int {
       return users.length;

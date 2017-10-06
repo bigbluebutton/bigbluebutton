@@ -1,5 +1,7 @@
 package org.bigbluebutton.modules.users.views
 {
+  import com.adobe.utils.ArrayUtil;
+  
   import mx.collections.ArrayCollection;
   import mx.collections.Sort;
   
@@ -243,7 +245,6 @@ package org.bigbluebutton.modules.users.views
       }
       
       dataGrid.refresh();
-
     }
     
     public function handleUserTalkingEvent(userId: String, talking: Boolean): void {
@@ -305,6 +306,13 @@ package org.bigbluebutton.modules.users.views
       }
       dataGrid.refresh();
     }
+	
+	public function handleBreakoutRoomsUsersListUpdatedEvent() : void {
+		for (var i : int; i < users.length; i++) {
+			BBBUser2x(users[i]).breakoutRooms = ArrayUtil.copyArray(LiveMeeting.inst().users.getUser(BBBUser2x(users[i]).userId).breakoutRooms);
+		}
+		dataGrid.refresh();
+	}
     
     private function findUser(userId: String): BBBUser2x {
       for (var i: int = 0; i < users.length; i++) {

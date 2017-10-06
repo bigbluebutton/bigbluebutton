@@ -43,7 +43,7 @@ const UserAvatar = ({
       [styles.presenter]: presenter,
       [styles.muted]: muted,
       [styles.listenOnly]: listenOnly,
-      [styles.talking]: talking,
+      [styles.talking]: (talking && !muted),
       [styles.voice]: voice,
     }, className)}
     style={{

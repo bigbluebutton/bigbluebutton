@@ -4,7 +4,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import PresentationToolbarService from './service';
 import PresentationToolbar from './component';
 
-const PresentationToolbarContainer = ({ ...props }) => {
+const PresentationToolbarContainer = (props) => {
   const {
     currentSlideNum,
     userIsPresenter,

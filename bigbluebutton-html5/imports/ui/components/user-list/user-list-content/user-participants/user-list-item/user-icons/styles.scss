@@ -1,0 +1,21 @@
+@import "/imports/ui/components/user-list/styles.scss";
+
+.userIconsContainer {
+  @extend %flex-column;
+  text-align: center;
+  flex-basis: 1rem;
+  justify-content: center;
+  transition: 0.3s all;
+  margin-left: $sm-padding-x / 2;
+}
+
+.userIcons {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  margin-left: $sm-padding-x / 2;
+  text-align: right;
+  font-size: 1rem;
+  flex-shrink: 1;
+  color: $user-icons-color;
+}

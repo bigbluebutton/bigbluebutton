@@ -62,7 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					quote = "Neil Armstrong"
 				}
 				quoteLabel.text = "“ " + quote + " ”";
-				quoteAttribution.text = "- " + attribution;
+				quoteAttribution.text = attribution;
 				dissolveIn.play();
 			}
 

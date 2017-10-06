@@ -1227,6 +1227,12 @@ mx|Panel {
 	color : #2A2D33;
 }
 
+.pollVoteLabel {
+	textAlign  : center;
+	fontSize   : 16;
+	fontWeight : bold;
+}
+
 .presentationFilesList {
 	paddingBottom : 5;
 	paddingLeft   : 5;
@@ -1287,6 +1293,19 @@ poll|PollResultsModal {
 .pollResondersLabelStyle {
 	color    : #5E6C72;
 	fontSize : 14;
+}
+
+.pollHintBoxStyle {
+	horizontalAlign : center;
+	verticalAlign   : middle;
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
+}
+
+.pollHintTextStyle {
+	textAlign  : center;
+	fontWeight : bold;
 }
 
 /*

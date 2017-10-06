@@ -91,9 +91,6 @@ $number-of-vertical-main-toolbar-buttons: 5;
   i {
     color: $color-white;
   }
-}
-
-.fontSizeListButton {
   padding: initial;
 }
 
@@ -108,14 +105,11 @@ $number-of-vertical-main-toolbar-buttons: 5;
 }
 
 .textThickness {
-  font-family: "Arial";
+  font-family: Arial, sans-serif;
   font-weight: normal;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   margin: auto;
   color: $color-white;
-
-  //color transiton should match color transition for the svg Color and Thickness icons in the component.jsx
-  transition: color 0.4s, font-size 0.3s;
 }
 
 .annotationList {
