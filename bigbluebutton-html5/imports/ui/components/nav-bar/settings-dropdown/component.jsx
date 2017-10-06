@@ -107,7 +107,7 @@ class SettingsDropdown extends Component {
         description={fullscreenDesc}
         onClick={this.props.handleToggleFullscreen}
       />),
-      (iosService.isIos() ?
+      (iosService.isIosApp ?
         <DropdownListItem
           key={_.uniqueId('settings-item-')}
           icon="video"

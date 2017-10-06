@@ -170,7 +170,6 @@ export default class PresentationArea extends Component {
             appear: styles.appear,
             appearActive: styles.appearActive,
           }}
-          className={styles.presentationTransitions}
           transitionAppear
           transitionEnter
           transitionLeave={false}

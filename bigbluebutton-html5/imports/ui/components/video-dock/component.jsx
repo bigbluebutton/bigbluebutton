@@ -8,10 +8,6 @@ const propTypes = {
   updateData: PropTypes.func.isRequired,
 };
 
-const defaultProps = {
-
-};
-
 export default class VideoDock extends Component {
 
   static askNextYuvFrame(evt) {
@@ -120,4 +116,3 @@ export default class VideoDock extends Component {
 }
 
 VideoDock.propTypes = propTypes;
-VideoDock.defaultProps = defaultProps;
