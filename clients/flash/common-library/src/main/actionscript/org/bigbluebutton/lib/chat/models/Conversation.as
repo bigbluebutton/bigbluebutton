@@ -30,14 +30,10 @@ package org.bigbluebutton.lib.chat.models {
 				cm.lastSenderId = getLastSender();
 				cm.lastTime = getLastTime();
 			}
-			cm.senderId = msg.fromUserID;
-			cm.senderLanguage = msg.fromLang;
-			cm.receiverLanguage = ChatUtil.getUserLang();
-			cm.translatedText = msg.message;
-			cm.senderText = msg.message;
+			cm.senderId = msg.fromUserId;
 			cm.name = msg.fromUsername;
 			cm.senderColor = uint(msg.fromColor);
-			cm.translatedColor = uint(msg.fromColor);
+			cm.message = msg.message;
 			cm.fromTime = msg.fromTime;
 			cm.fromTimezoneOffset = msg.fromTimezoneOffset;
 			var sentTime:Date = new Date();
@@ -61,7 +57,7 @@ package org.bigbluebutton.lib.chat.models {
 			var allText:String = "";
 			for (var i:int = 0; i < messages.length; i++) {
 				var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-				allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
+				allText += "\n" + item.name + " - " + item.time + " : " + item.message;
 			}
 			return allText;
 		}

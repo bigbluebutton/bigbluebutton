@@ -1,8 +1,5 @@
 package org.bigbluebutton.lib.user.views {
-	import mx.collections.ArrayCollection;
-	
 	import org.bigbluebutton.lib.main.models.IMeetingData;
-	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;

@@ -10,6 +10,7 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
+	import org.bigbluebutton.air.users.views.UserDetailsView;
 	
 	public class PageEnum {
 		public static const MAIN:String = "main";
@@ -56,10 +57,9 @@ package org.bigbluebutton.air.common {
 				dic[CHATSETTINGS] = ChatSettingsView;
 				dic[LOCKSETTINGS] = LockSettingsView;
 				//		dic[PROFILE] = ProfileView;
-				//		dic[USER_DETAILS] = UserDetailsView;
+				dic[USER_DETAILS] = UserDetailsView;
 				//		dic[VIDEO_CHAT] = VideoChatView;
 				//		dic[CHATROOMS] = ChatRoomsView;
-				//		dic[PARTICIPANTS] = ParticipantsView;
 				//		dic[SELECT_PARTICIPANT] = SelectParticipantView;
 				//		dic[DISCONNECT] = DisconnectPageView;
 				//		dic[DESKSHARE] = DeskshareView;

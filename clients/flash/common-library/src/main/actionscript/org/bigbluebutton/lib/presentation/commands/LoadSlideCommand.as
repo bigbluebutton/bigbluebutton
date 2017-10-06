@@ -25,8 +25,13 @@ package org.bigbluebutton.lib.presentation.commands {
 		
 		override public function execute():void {
 			if (slide != null) {
-				_loadSlideService = new LoadSlideService(slide);
-				whiteboardService.getAnnotationHistory(presentationID, slide.slideNumber);
+				if (!slide.loadRequested) {
+					slide.loadRequested = true;
+					_loadSlideService = new LoadSlideService(slide);
+					whiteboardService.getAnnotationHistory(presentationID, slide.slideNumber);
+				} else {
+					trace("LoadSlideCommand: load request has already been received, ignoring the repeat request");
+				}
 			} else {
 				trace("LoadSlideCommand: requested slide is null and cannot be loaded");
 			}

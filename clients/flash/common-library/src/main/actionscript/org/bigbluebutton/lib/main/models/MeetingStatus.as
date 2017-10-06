@@ -1,7 +1,14 @@
 package org.bigbluebutton.lib.main.models {
+	import org.osflash.signals.Signal;
 	
 	public class MeetingStatus {
 		private var _lockSettings:LockSettings2x = new LockSettings2x();
+		
+		private var _lockSettingsChangeSignal:Signal = new Signal();
+		
+		public function get lockSettingsChangeSignal():Signal {
+			return _lockSettingsChangeSignal;
+		}
 		
 		public function get lockSettings():LockSettings2x {
 			return _lockSettings;
@@ -14,6 +21,7 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function changeLockSettings(newSettings:LockSettings2x):void {
 			_lockSettings = newSettings; 
+			_lockSettingsChangeSignal.dispatch(newSettings);
 		}
 	}
 }

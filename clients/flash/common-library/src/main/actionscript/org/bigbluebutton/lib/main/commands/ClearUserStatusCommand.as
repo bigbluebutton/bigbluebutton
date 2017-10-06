@@ -18,11 +18,11 @@ package org.bigbluebutton.lib.main.commands {
 		public var userService:IUsersService;
 		
 		[Inject]
-		public var userID:String;
+		public var userId:String;
 		
 		override public function execute():void {
 			trace("ClearUserStatusCommand.execute() - clear status");
-			userService.clearUserStatus(userID);
+			userService.clearUserStatus(userId);
 		}
 	}
 }

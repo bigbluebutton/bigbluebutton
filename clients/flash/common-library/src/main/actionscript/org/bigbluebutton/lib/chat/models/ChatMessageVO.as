@@ -1,11 +1,8 @@
 package org.bigbluebutton.lib.chat.models {
 	
 	public class ChatMessageVO {
-		// The type of chat (PUBLIC or PRIVATE)
-		public var chatType:String;
-		
 		// The sender
-		public var fromUserID:String;
+		public var fromUserId:String;
 		
 		public var fromUsername:String;
 		
@@ -18,10 +15,8 @@ package org.bigbluebutton.lib.chat.models {
 		// sent. This is used by the receiver to convert to locale time.
 		public var fromTimezoneOffset:Number;
 		
-		public var fromLang:String;
-		
 		// The receiver. 
-		public var toUserID:String = "public_chat_userid";
+		public var toUserId:String = "public_chat_userid";
 		
 		public var toUsername:String = "public_chat_username";
 		
@@ -29,15 +24,13 @@ package org.bigbluebutton.lib.chat.models {
 		
 		public function toObj():Object {
 			var m:Object = new Object();
-			m.chatType = chatType;
-			m.fromUserID = fromUserID;
+			m.fromUserId = fromUserId;
 			m.fromUsername = fromUsername;
 			m.fromColor = fromColor;
 			m.fromTime = fromTime;
 			m.fromTimezoneOffset = fromTimezoneOffset;
-			m.fromLang = fromLang;
 			m.message = message;
-			m.toUserID = toUserID;
+			m.toUserId = toUserId;
 			m.toUsername = toUsername;
 			return m;
 		}

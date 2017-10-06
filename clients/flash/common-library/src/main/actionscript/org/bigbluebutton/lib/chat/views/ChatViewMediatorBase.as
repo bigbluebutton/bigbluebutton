@@ -9,8 +9,9 @@ package org.bigbluebutton.lib.chat.views {
 	import org.bigbluebutton.lib.chat.models.Conversation;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
+	import org.bigbluebutton.lib.user.models.User2x;
+	import org.bigbluebutton.lib.user.models.UserChangeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -26,17 +27,16 @@ package org.bigbluebutton.lib.chat.views {
 		public var chatMessagesSession:IChatMessagesSession;
 		
 		[Inject]
-		public var userSession:IUserSession;
+		public var meetingData:IMeetingData;
 		
 		protected var _publicChat:Boolean = true;
 		
-		protected var _user:User;
+		protected var _user:User2x;
 		
 		override public function initialize():void {
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
-			userSession.userList.userRemovedSignal.add(userRemoved);
-			userSession.userList.userAddedSignal.add(userAdded);
+			meetingData.users.userChangeSignal.add(onUserChange);
 			
 			view.textInput.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
@@ -56,12 +56,23 @@ package org.bigbluebutton.lib.chat.views {
 			view.textInput.enabled = true;
 		}
 		
+		private function onUserChange(user:User2x, prop:int):void {
+			switch (prop) {
+				case UserChangeEnum.JOIN:
+					userAdded(user);
+					break;
+				case UserChangeEnum.LEAVE:
+					userRemoved(user);
+					break;
+			}
+		}
+		
 		/**
 		 * When user left the conference, add '[Offline]' to the username
 		 * and disable text input
 		 */
-		protected function userRemoved(userID:String):void {
-			if (view != null && _user && _user.userId == userID) {
+		protected function userRemoved(user:User2x):void {
+			if (view != null && _user && _user.intId == user.intId) {
 				view.textInput.enabled = false;
 			}
 		}
@@ -70,8 +81,8 @@ package org.bigbluebutton.lib.chat.views {
 		 * When user returned(refreshed the page) to the conference, remove '[Offline]' from the username
 		 * and enable text input
 		 */
-		protected function userAdded(newuser:User):void {
-			if ((view != null) && (_user != null) && (_user.userId == newuser.userId)) {
+		protected function userAdded(newuser:User2x):void {
+			if ((view != null) && (_user != null) && (_user.intId == newuser.intId)) {
 				view.textInput.enabled = true;
 			}
 		}
@@ -91,20 +102,17 @@ package org.bigbluebutton.lib.chat.views {
 				var currentDate:Date = new Date();
 				//TODO get info from the right source
 				var m:ChatMessageVO = new ChatMessageVO();
-				m.fromUserID = userSession.userId;
-				m.fromUsername = userSession.userList.getUser(userSession.userId).name;
+				m.fromUserId = meetingData.users.me.intId;
+				m.fromUsername = meetingData.users.me.name;
 				m.fromColor = "0";
 				m.fromTime = currentDate.time;
 				m.fromTimezoneOffset = currentDate.timezoneOffset;
-				m.fromLang = "en";
 				m.message = message;
-				m.toUserID = _publicChat ? "public_chat_userid" : _user.userId;
+				m.toUserId = _publicChat ? "public_chat_userid" : _user.intId;
 				m.toUsername = _publicChat ? "public_chat_username" : _user.name;
 				if (_publicChat) {
-					m.chatType = "PUBLIC_CHAT";
 					chatMessageService.sendPublicMessage(m);
 				} else {
-					m.chatType = "PRIVATE_CHAT";
 					chatMessageService.sendPrivateMessage(m);
 				}
 			}
@@ -113,8 +121,7 @@ package org.bigbluebutton.lib.chat.views {
 		override public function destroy():void {
 			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);
-			userSession.userList.userRemovedSignal.remove(userRemoved);
-			userSession.userList.userAddedSignal.remove(userAdded);
+			meetingData.users.userChangeSignal.remove(onUserChange);
 			
 			view.textInput.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.removeEventListener(MouseEvent.CLICK, sendButtonClickHandler);

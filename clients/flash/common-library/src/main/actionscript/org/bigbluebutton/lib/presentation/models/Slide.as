@@ -9,6 +9,8 @@ package org.bigbluebutton.lib.presentation.models {
 	import org.osflash.signals.Signal;
 	
 	public class Slide {
+		public var loadRequested:Boolean = false;
+		
 		private var _loaded:Boolean = false;
 		
 		private var _id:String;

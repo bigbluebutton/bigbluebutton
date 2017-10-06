@@ -5,77 +5,89 @@ package org.bigbluebutton.lib.chat.services {
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.common.models.IMessageListener;
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class ChatMessageReceiver implements IMessageListener {
-		public var userSession:IUserSession;
+		private const LOG:String = "ChatMessageReceiver::";
 		
-		public var chatMessagesSession:IChatMessagesSession;
+		private var userSession:IUserSession;
 		
-		public function ChatMessageReceiver(userSession:IUserSession, chatMessagesSession:IChatMessagesSession) {
+		private var conferenceParameters:IConferenceParameters;
+		
+		private var chatMessagesSession:IChatMessagesSession;
+		
+		public function ChatMessageReceiver(userSession:IUserSession, conferenceParameters:IConferenceParameters, chatMessagesSession:IChatMessagesSession) {
 			this.userSession = userSession;
+			this.conferenceParameters = conferenceParameters;
 			this.chatMessagesSession = chatMessagesSession;
 		}
 		
 		public function onMessage(messageName:String, message:Object):void {
 			switch (messageName) {
-				case "ChatReceivePublicMessageCommand":
-					handleChatReceivePublicMessageCommand(message);
+				case "GetChatHistoryRespMsg":
+					handleGetChatHistoryRespMsg(message);
 					break;
-				case "ChatReceivePrivateMessageCommand":
-					handleChatReceivePrivateMessageCommand(message);
+				case "SendPublicMessageEvtMsg":
+					handleSendPublicMessageEvtMsg(message);
 					break;
-				case "ChatRequestMessageHistoryReply":
-					handleChatRequestMessageHistoryReply(message);
+				case "SendPrivateMessageEvtMsg":
+					handleSendPrivateMessageEvtMsg(message);
+					break;
+				case "ClearPublicChatHistoryEvtMsg":
+					handleClearPublicChatHistoryEvtMsg(message);
 					break;
 				default:
 					//   LogUtil.warn("Cannot handle message [" + messageName + "]");
 			}
 		}
 		
-		private function handleChatRequestMessageHistoryReply(message:Object):void {
-			var messages:Array = JSON.parse(message.msg as String) as Array;
+		private function handleGetChatHistoryRespMsg(msg:Object):void {
+			trace(LOG + "Received [GetChatHistoryRespMsg] from server.");
+			var messages:Array = msg.body.history as Array;
 			var msgCount:Number = messages.length;
+			
 			chatMessagesSession.publicConversation.messages = new ArrayCollection();
 			chatMessagesSession.publicConversation.newMessages = 0; //resetNewMessages();
 			for (var i:int = 0; i < msgCount; i++) {
-				handleChatReceivePublicMessageCommand(messages[i]);
+				var cm:ChatMessageVO = processIncomingChatMessage(messages[i]);
+				chatMessagesSession.newPublicMessage(cm);
 			}
 			userSession.loadedMessageHistorySignal.dispatch();
 		}
 		
-		private function handleChatReceivePublicMessageCommand(message:Object):void {
-			trace("Handling public chat message [" + message.message + "]");
-			var msg:ChatMessageVO = new ChatMessageVO();
-			msg.chatType = message.chatType;
-			msg.fromUserID = message.fromUserID;
-			msg.fromUsername = message.fromUsername;
-			msg.fromColor = message.fromColor;
-			msg.fromLang = message.fromLang;
-			msg.fromTime = message.fromTime;
-			msg.fromTimezoneOffset = message.fromTimezoneOffset;
-			msg.toUserID = message.toUserID;
-			msg.toUsername = message.toUsername;
-			msg.message = message.message;
-			chatMessagesSession.newPublicMessage(msg);
+		private function handleSendPublicMessageEvtMsg(msg:Object):void {
+			trace(LOG + "Received [SendPublicMessageEvtMsg] from server.");
+			var cm:ChatMessageVO = processIncomingChatMessage(msg.body.message);
+			
+			chatMessagesSession.newPublicMessage(cm);
 		}
 		
-		private function handleChatReceivePrivateMessageCommand(message:Object):void {
-			trace("Handling private chat message");
+		private function handleSendPrivateMessageEvtMsg(msg:Object):void {
+			trace(LOG + "Received [SendPrivateMessageEvtMsg] from server.");
+			var cm:ChatMessageVO = processIncomingChatMessage(msg.body.message);
+			
+			var userId:String = (cm.fromUserId == userSession.userId ? cm.toUserId : cm.fromUserId);
+			var userName:String = (cm.fromUserId == userSession.userId ? cm.toUsername : cm.fromUsername);
+			chatMessagesSession.newPrivateMessage(userId, userName, cm);
+		}
+		
+		private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
+			trace(LOG + "Received [ClearPublicChatHistoryEvtMsg] from server.");
+			trace("ClearPublicChatHistoryEvtMsg isn't being handled yet");
+		}
+		
+		private function processIncomingChatMessage(rawMessage:Object):ChatMessageVO {
 			var msg:ChatMessageVO = new ChatMessageVO();
-			msg.chatType = message.chatType;
-			msg.fromUserID = message.fromUserID;
-			msg.fromUsername = message.fromUsername;
-			msg.fromColor = message.fromColor;
-			msg.fromLang = message.fromLang;
-			msg.fromTime = message.fromTime;
-			msg.fromTimezoneOffset = message.fromTimezoneOffset;
-			msg.toUserID = message.toUserID;
-			msg.toUsername = message.toUsername;
-			msg.message = message.message;
-			var userId:String = (msg.fromUserID == userSession.userId ? msg.toUserID : msg.fromUserID);
-			var userName:String = (msg.fromUserID == userSession.userId ? msg.toUsername : msg.fromUsername);
-			chatMessagesSession.newPrivateMessage(userId, userName, msg);
+			msg.fromUserId = rawMessage.fromUserId;
+			msg.fromUsername = rawMessage.fromUsername;
+			msg.fromColor = rawMessage.fromColor;
+			msg.fromTime = rawMessage.fromTime;
+			msg.fromTimezoneOffset = rawMessage.fromTimezoneOffset;
+			msg.toUserId = rawMessage.toUserId;
+			msg.toUsername = rawMessage.toUsername;
+			msg.message = rawMessage.message;
+			return msg;
 		}
 	}
 }

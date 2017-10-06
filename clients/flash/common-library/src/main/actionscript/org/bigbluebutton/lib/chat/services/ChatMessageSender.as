@@ -1,63 +1,72 @@
 package org.bigbluebutton.lib.chat.services {
 	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.osflash.signals.ISignal;
-	import org.osflash.signals.Signal;
 	
 	public class ChatMessageSender {
 		private const LOG:String = "ChatMessageSender::";
 		
-		public var userSession:IUserSession;
+		private var userSession:IUserSession;
+		
+		private var conferenceParameters:IConferenceParameters;
 		
 		private var successSendingMessageSignal:ISignal;
 		
 		private var failureSendingMessageSignal:ISignal;
 		
-		public function ChatMessageSender(userSession:IUserSession, successSendMessageSignal:ISignal, failureSendingMessageSignal:ISignal) {
+		public function ChatMessageSender(userSession:IUserSession, conferenceParameters:IConferenceParameters, successSendMessageSignal:ISignal, failureSendingMessageSignal:ISignal) {
 			this.userSession = userSession;
+			this.conferenceParameters = conferenceParameters;
 			this.successSendingMessageSignal = successSendMessageSignal;
 			this.failureSendingMessageSignal = failureSendingMessageSignal;
 		}
 		
 		public function getPublicChatMessages():void {
-			trace(LOG + "Sending [chat.getPublicMessages] to server.");
-			userSession.mainConnection.sendMessage("chat.sendPublicChatHistory", function(result:String):void { // On successful result
-				publicChatMessagesOnSuccessSignal.dispatch(result);
-			}, function(status:String):void { // status - On error occurred
-				publicChatMessagesOnFailureSignal.dispatch(status);
-			});
+			trace(LOG + "Sending [GetChatHistoryReqMsg] to server.");
+			var message:Object = {
+				header: {name: "GetChatHistoryReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function sendPublicMessage(message:ChatMessageVO):void {
-			trace(LOG + "Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
-			userSession.mainConnection.sendMessage("chat.sendPublicMessage", function(result:String):void { // On successful result
-				successSendingMessageSignal.dispatch(result);
-			}, function(status:String):void { // status - On error occurred
-				failureSendingMessageSignal.dispatch(status);
-			}, message.toObj());
+		public function sendPublicMessage(cm:ChatMessageVO):void {
+			trace(LOG + "Sending [SendPublicMessagePubMsg] to server. [" + cm + "]");
+			var message:Object = {
+				header: {name: "SendPublicMessagePubMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {message: cm}
+			};
+			userSession.mainConnection.sendMessage2x(sendChatSuccessResponse, sendChatFailureResponse, message);
 		}
 		
-		public function sendPrivateMessage(message:ChatMessageVO):void {
-			trace(LOG + "Sending [chat.sendPrivateMessage] to server.");
-			trace(LOG + "Sending fromUserID [" + message.fromUserID + "] to toUserID [" + message.toUserID + "]");
-			userSession.mainConnection.sendMessage("chat.sendPrivateMessage", function(result:String):void { // On successful result
-				successSendingMessageSignal.dispatch(result);
-			}, function(status:String):void { // status - On error occurred
-				failureSendingMessageSignal.dispatch(status);
-			}, message.toObj());
+		public function sendPrivateMessage(cm:ChatMessageVO):void {
+			trace(LOG + "Sending [SendPrivateMessagePubMsg] to server.");
+			trace(LOG + "Sending fromUserID [" + cm.fromUserId + "] to toUserID [" + cm.toUserId + "]");
+			var message:Object = {
+				header: {name: "SendPrivateMessagePubMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {message: cm}
+			};
+			userSession.mainConnection.sendMessage2x(sendChatSuccessResponse, sendChatFailureResponse, message);
 		}
 		
-		private var _publicChatMessagesOnSuccessSignal:Signal = new Signal();
+		// The default callbacks of userSession.mainconnection.sendMessage
+		private function defaultSuccessResponse(result:String):void {
+			trace(result);
+		};
 		
-		private var _publicChatMessagesOnFailureSignal:Signal = new Signal();
+		private function defaultFailureResponse(status:String):void {
+			trace(status);
+		};
 		
-		public function get publicChatMessagesOnSuccessSignal():Signal {
-			return _publicChatMessagesOnSuccessSignal;
-		}
+		// The callbacks when sending chat messages
+		private function sendChatSuccessResponse(result:String):void {
+			successSendingMessageSignal.dispatch(result);
+		};
 		
-		public function get publicChatMessagesOnFailureSignal():Signal {
-			return _publicChatMessagesOnFailureSignal;
-		}
+		private function sendChatFailureResponse(status:String):void {
+			failureSendingMessageSignal.dispatch(status);
+		};
 	}
 }

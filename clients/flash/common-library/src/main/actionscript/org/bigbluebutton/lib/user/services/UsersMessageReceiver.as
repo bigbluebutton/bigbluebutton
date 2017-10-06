@@ -3,11 +3,11 @@ package org.bigbluebutton.lib.user.services {
 	
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
-	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class UsersMessageReceiver implements IMessageListener {
@@ -16,6 +16,8 @@ package org.bigbluebutton.lib.user.services {
 		public var userSession:IUserSession;
 		
 		public var meetingData:IMeetingData;
+		
+		public var conferenceParameters:IConferenceParameters;
 		
 		public var disconnectUserSignal:DisconnectUserSignal;
 		
@@ -235,12 +237,15 @@ package org.bigbluebutton.lib.user.services {
 			user.presenter = newUser.presenter;
 			user.avatar = newUser.avatar;
 			
+			if (user.intId == conferenceParameters.internalUserID) {
+				meetingData.users.me = user;
+			}
 			meetingData.users.add(user);
 		}
 		
 		private function handleUserLeftMeetingEvtMsg(msg:Object):void {
 			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + msg.body.intId + "] has left the meeting");
-			meetingData.users.remove(msg.user.intId);
+			meetingData.users.remove(msg.intId);
 		}		
 		
 		private function handleUserLockedInMeetingEvtMsg(msg:Object):void {

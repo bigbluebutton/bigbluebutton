@@ -4,7 +4,7 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.views.TopToolbarMediatorBase;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class TopToolbarMediatorAIR extends TopToolbarMediatorBase {
 		
@@ -19,7 +19,7 @@ package org.bigbluebutton.air.main.views {
 					if (data.publicChat) {
 						view.titleLabel.text = "Public Chat";
 					} else {
-						var user:User = userSession.userList.getUserByUserId(data.userId);
+						var user:User2x = meetingData.users.getUser(data.intId);
 						view.titleLabel.text = user.name;
 					}
 				}
@@ -27,6 +27,13 @@ package org.bigbluebutton.air.main.views {
 				view.titleLabel.text = "Participants";
 			} else if (uiSession && uiSession.currentPage.indexOf("Settings") > 0) {
 				view.titleLabel.text = uiSession.currentPage.replace(/([A-Z])/g, ' $1');
+			} else if (uiSession.currentPage == PageEnum.USER_DETAILS) {
+				var userId:String = uiSession.currentPageDetails as String;
+				
+				if (userId != null) {
+					var user:User2x = meetingData.users.getUser(userId);
+					view.titleLabel.text = user.name;
+				}
 			} else {
 				view.titleLabel.text = conferenceParameters.meetingName;
 			}

@@ -38,8 +38,8 @@ package org.bigbluebutton.lib.chat.services {
 		}
 		
 		public function setupMessageSenderReceiver():void {
-			chatMessageSender = new ChatMessageSender(userSession, _sendMessageOnSuccessSignal, _sendMessageOnFailureSignal);
-			chatMessageReceiver = new ChatMessageReceiver(userSession, chatMessagesSession);
+			chatMessageSender = new ChatMessageSender(userSession, conferenceParameters, _sendMessageOnSuccessSignal, _sendMessageOnFailureSignal);
+			chatMessageReceiver = new ChatMessageReceiver(userSession, conferenceParameters, chatMessagesSession);
 			userSession.mainConnection.addMessageListener(chatMessageReceiver);
 		}
 		
@@ -64,18 +64,16 @@ package org.bigbluebutton.lib.chat.services {
 			var welcome:String = conferenceParameters.welcome;
 			if (welcome != "") {
 				var msg:ChatMessageVO = new ChatMessageVO();
-				msg.chatType = "PUBLIC_CHAT"
-				msg.fromUserID = " ";
+				msg.fromUserId = " ";
 				msg.fromUsername = " ";
 				msg.fromColor = "86187";
-				msg.fromLang = "en";
 				msg.fromTime = new Date().time;
 				msg.fromTimezoneOffset = new Date().timezoneOffset;
-				msg.toUserID = " ";
+				msg.toUserId = " ";
 				msg.toUsername = " ";
 				msg.message = welcome;
 				// imitate new public message being sent
-				chatMessageReceiver.onMessage("ChatReceivePublicMessageCommand", msg);
+				chatMessagesSession.newPublicMessage(msg);
 			}
 		}
 	}

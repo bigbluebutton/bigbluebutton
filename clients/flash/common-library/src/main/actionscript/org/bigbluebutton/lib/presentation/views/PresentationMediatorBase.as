@@ -129,9 +129,12 @@ package org.bigbluebutton.lib.presentation.views {
 		}
 		
 		protected function setPresentation(p:Presentation):void {
-			_currentPresentation = p;
 			if (_currentPresentation != null) {
 				_currentPresentation.slideChangeSignal.remove(slideChangeHandler);
+			}
+			
+			_currentPresentation = p;
+			if (_currentPresentation != null) {
 				_currentPresentation.slideChangeSignal.add(slideChangeHandler);
 				setCurrentSlide();
 			}
@@ -151,6 +154,9 @@ package org.bigbluebutton.lib.presentation.views {
 			userSession.presentationList.viewedRegionChangeSignal.remove(viewedRegionChangeHandler);
 			if (_currentPresentation != null) {
 				_currentPresentation.slideChangeSignal.remove(slideChangeHandler);
+			}
+			if (_currentSlide != null) {
+				_currentSlide.slideLoadedSignal.remove(slideLoadedHandler);
 			}
 			super.destroy();
 			view = null;
