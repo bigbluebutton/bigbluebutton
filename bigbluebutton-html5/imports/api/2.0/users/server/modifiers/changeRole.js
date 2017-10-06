@@ -14,15 +14,12 @@ export default function changeRole({ body }, meetingId) {
     userId,
   };
 
-  const userRoles = [
-    'viewer',
-    role === 'MODERATOR' ? 'moderator' : false,
-  ].filter(Boolean);
-
   const modifier = {
     $set: {
       role,
-      roles: userRoles,
+    },
+    $push: {
+      roles: (role === 'MODERATOR' ? 'moderator' : 'viewer'),
     },
   };
 
