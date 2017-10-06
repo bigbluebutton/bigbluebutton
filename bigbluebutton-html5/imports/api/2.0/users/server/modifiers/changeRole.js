@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import Users from '/imports/api/2.0/users';
 
-export default function handleChangeRole({ body }, meetingId) {
+export default function changeRole({ body }, meetingId) {
   const { userId, role, changedBy } = body;
 
   check(userId, String);
