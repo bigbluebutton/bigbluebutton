@@ -104,10 +104,10 @@ class UserParticipants extends Component {
 
   componentDidMount() {
     if (!this.props.compact) {
-      this._usersList.addEventListener('keydown',
+      this.refScrollContainer.addEventListener('keydown',
         event => this.props.rovingIndex(event,
-          this._usersList,
-          this._userItems,
+          this.refScrollContainer,
+          this.refScrollItems,
           this.props.users.length));
     }
   }
@@ -179,10 +179,7 @@ class UserParticipants extends Component {
       };
 
     return (
-      <div
-        className={styles.participants}
-        ref={(ref) => { if (ref != null) { this.refScrollContainer = ref; } }}
-      >
+      <div className={styles.participants}>
         {
           !compact ?
             <div className={styles.smallTitle} role="banner">
@@ -194,7 +191,8 @@ class UserParticipants extends Component {
           className={styles.scrollableList}
           role="tabpanel"
           tabIndex={0}
-          ref={(ref) => { this._usersList = ref; }}
+          refScrollContainer
+          ref={(ref) => { this.refScrollContainer = ref; }}
         >
           <CSSTransitionGroup
             transitionName={listTransition}
@@ -207,7 +205,7 @@ class UserParticipants extends Component {
             component="div"
             className={cx(styles.participantsList, styles.scrollableList)}
           >
-            <div ref={(ref) => { this._userItems = ref; }}>
+            <div ref={(ref) => { this.refScrollItems = ref; }}>
               {
                 users.map(user => (
                   <UserListItem

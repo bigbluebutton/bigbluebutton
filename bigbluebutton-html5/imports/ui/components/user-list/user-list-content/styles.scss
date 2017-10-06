@@ -1,4 +1,5 @@
 @import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
 
 .content {
   @extend %flex-column;
@@ -8,4 +9,5 @@
 
 .scrollableList {
   @extend %customListFocus;
+  @include scrollbox-vertical();
 }
