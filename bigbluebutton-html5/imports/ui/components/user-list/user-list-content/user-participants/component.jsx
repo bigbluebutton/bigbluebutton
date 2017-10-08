@@ -96,6 +96,12 @@ const intlMessages = defineMessages({
 
 class UserParticipants extends Component {
 
+  constructor() {
+    super();
+
+    this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
+  }
+
   componentDidMount() {
     if (!this.props.compact) {
       this._usersList.addEventListener('keydown',
@@ -104,6 +110,10 @@ class UserParticipants extends Component {
           this._userItems,
           this.props.users.length));
     }
+  }
+
+  getScrollContainerRef() {
+    return this.refScrollContainer;
   }
 
   render() {
@@ -169,7 +179,10 @@ class UserParticipants extends Component {
       };
 
     return (
-      <div className={styles.participants}>
+      <div
+        className={styles.participants}
+        ref={(ref) => { if (ref != null) { this.refScrollContainer = ref; } }}
+      >
         {
           !compact ?
             <div className={styles.smallTitle} role="banner">
@@ -208,6 +221,7 @@ class UserParticipants extends Component {
                     getAvailableActions={getAvailableActions}
                     normalizeEmojiName={normalizeEmojiName}
                     isMeetingLocked={isMeetingLocked}
+                    getScrollContainerRef={this.getScrollContainerRef}
                   />
                 ))
               }
