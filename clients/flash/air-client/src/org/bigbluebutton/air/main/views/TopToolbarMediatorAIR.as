@@ -13,14 +13,14 @@ package org.bigbluebutton.air.main.views {
 		
 		override protected function setTitle():void {
 			if (uiSession.currentPage == PageEnum.CHAT) {
-				var data:Object = uiSession.currentPageDetails;
+				var chatData:Object = uiSession.currentPageDetails;
 				
-				if (data != null) {
-					if (data.publicChat) {
+				if (chatData != null) {
+					if (chatData.publicChat) {
 						view.titleLabel.text = "Public Chat";
 					} else {
-						var user:User2x = meetingData.users.getUser(data.intId);
-						view.titleLabel.text = user.name;
+						var userC:User2x = meetingData.users.getUser(chatData.intId);
+						view.titleLabel.text = userC.name;
 					}
 				}
 			} else if (uiSession.currentPage == PageEnum.PARTICIPANTS) {
@@ -28,12 +28,7 @@ package org.bigbluebutton.air.main.views {
 			} else if (uiSession && uiSession.currentPage.indexOf("Settings") > 0) {
 				view.titleLabel.text = uiSession.currentPage.replace(/([A-Z])/g, ' $1');
 			} else if (uiSession.currentPage == PageEnum.USER_DETAILS) {
-				var userId:String = uiSession.currentPageDetails as String;
-				
-				if (userId != null) {
-					var user:User2x = meetingData.users.getUser(userId);
-					view.titleLabel.text = user.name;
-				}
+				view.titleLabel.text = "User Details";
 			} else {
 				view.titleLabel.text = conferenceParameters.meetingName;
 			}

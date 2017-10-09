@@ -1,23 +1,32 @@
 package org.bigbluebutton.air.users.views {
-	import mx.core.FlexGlobals;
+	import mx.core.ScrollPolicy;
+	import mx.graphics.SolidColor;
 	
 	import spark.components.Button;
 	import spark.components.Group;
 	import spark.components.HGroup;
 	import spark.components.Image;
+	import spark.components.Label;
 	import spark.components.Scroller;
 	import spark.components.SkinnableContainer;
 	import spark.components.VGroup;
 	import spark.layouts.VerticalLayout;
+	import spark.primitives.Rect;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
 	import org.bigbluebutton.air.users.views.models.UserDetailsVM;
+	import org.bigbluebutton.lib.common.views.ParticipantIcon;
 	import org.bigbluebutton.lib.user.models.EmojiStatus;
-	import org.bigbluebutton.lib.user.models.User2x;
-	import org.bigbluebutton.lib.user.models.UserRole;
+	import org.bigbluebutton.lib.user.utils.UserUtils;
 	
 	public class UserDetailsView extends NoTabView {
+		private var _participantIcon:ParticipantIcon;
+		
+		private var _participantLabel:Label;
+		
+		private var _participantBackground:Rect;
+		
 		private var _showCameraButton:Button;
 		
 		public function get showCameraButton():Button {
@@ -85,10 +94,28 @@ package org.bigbluebutton.air.users.views {
 			var sGroup:VGroup = new VGroup();
 			sGroup.percentWidth = 100;
 			sGroup.percentHeight = 100;
+			sGroup.horizontalAlign = "center";
 			sGroup.setStyle("horizontalScrollPolicy", "off");
 			scroller.viewport = sGroup;
 			
-			// add an Initials Circle
+			var participantHolder:Group = new Group();
+			participantHolder.percentWidth = 100;
+			sGroup.addElement(participantHolder);
+			
+			_participantBackground = new Rect();
+			_participantBackground.percentHeight = 100;
+			_participantBackground.percentWidth = 100;
+			_participantBackground.fill = new SolidColor();
+			participantHolder.addElement(_participantBackground);
+			
+			_participantIcon = new ParticipantIcon();
+			_participantIcon.horizontalCenter = 0;
+			_participantIcon.styleName = "participantIconSettings";
+			participantHolder.addElement(_participantIcon);
+			
+			_participantLabel = new Label();
+			_participantLabel.horizontalCenter = 0;
+			participantHolder.addElement(_participantLabel);
 			
 			_showCameraButton = new Button();
 			_showCameraButton.percentWidth = 90;
@@ -164,6 +191,10 @@ package org.bigbluebutton.air.users.views {
 					roleText.text = "";
 				}
 				*/
+				
+				_participantIcon.displayInitials = UserUtils.getInitials(_viewModel.userName);
+				_participantLabel.text = _viewModel.userName;
+				
 				if (_viewModel.userEmoji != EmojiStatus.NO_STATUS && _viewModel.amIModerator) {
 					clearStatusButton.includeInLayout = true;
 					clearStatusButton.visible = true;
@@ -214,6 +245,23 @@ package org.bigbluebutton.air.users.views {
 					lockButton.includeInLayout = false;
 				}
 			}
+		}
+		
+		override protected function updateDisplayList(w:Number, h:Number):void {
+			super.updateDisplayList(w, h);
+			
+			setParticipantStyle();
+		}
+		
+		private function setParticipantStyle():void {
+			var groupsPadding:Number = getStyle("groupsPadding");
+			
+			SolidColor(_participantBackground.fill).color = getStyle("headerBackground");
+			_participantIcon.top = groupsPadding * 1.75;
+			_participantLabel.setStyle("color", _participantIcon.getStyle("color"));
+			_participantLabel.setStyle("fontSize", _participantIcon.getStyle("fontSize") * 0.65);
+			_participantLabel.setStyle("paddingBottom", groupsPadding);
+			_participantLabel.y = _participantIcon.y + _participantIcon.height + groupsPadding;
 		}
 	}
 }

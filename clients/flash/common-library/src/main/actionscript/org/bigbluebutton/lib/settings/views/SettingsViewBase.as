@@ -69,8 +69,8 @@ package org.bigbluebutton.lib.settings.views {
 			
 			_settingsList = new List();
 			_settingsList.percentWidth = 100;
-			// @fixme height must be dynamic depending on the resolùution
-			_settingsList.height = 560;
+			// TODO @fixme height must be dynamic depending on the resolùution
+			//_settingsList.height = 560;
 			_settingsList.itemRenderer = new ClassFactory(getItemRendererClass());
 			
 			var listLayout:VerticalLayout = new VerticalLayout();
@@ -92,6 +92,8 @@ package org.bigbluebutton.lib.settings.views {
 		}
 		
 		private function setParticipantStyle():void {
+			var groupsPadding:Number = getStyle("groupsPadding")
+			
 			SolidColor(_participantBackground.fill).color = getStyle("headerBackground");
 			_participantIcon.top = getStyle("groupsPadding") * 1.75;
 			_participantLabel.setStyle("color", _participantIcon.getStyle("color"));

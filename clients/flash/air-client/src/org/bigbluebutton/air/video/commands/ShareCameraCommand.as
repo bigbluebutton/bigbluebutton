@@ -89,13 +89,15 @@ package org.bigbluebutton.air.video.commands {
 		}
 		
 		private function enableCamera(position:String):void {
-			userSession.videoConnection.camera = setupCamera(position);
-			userSession.videoConnection.selectCameraQuality(userSession.videoConnection.selectedCameraQuality);
-			var userId:String = userSession.userId;
-			if (userSession.videoConnection.camera) {
-				var streamName:String = buildStreamName(userSession.videoConnection.camera.width, userSession.videoConnection.camera.height, userId);
-				usersService.addStream(userId, streamName);
-				userSession.videoConnection.startPublishing(userSession.videoConnection.camera, streamName);
+			if (position && userSession.videoConnection.selectedCameraQuality) {
+				userSession.videoConnection.camera = setupCamera(position);
+				userSession.videoConnection.selectCameraQuality(userSession.videoConnection.selectedCameraQuality);
+				var userId:String = userSession.userId;
+				if (userSession.videoConnection.camera) {
+					var streamName:String = buildStreamName(userSession.videoConnection.camera.width, userSession.videoConnection.camera.height, userId);
+					usersService.addStream(userId, streamName);
+					userSession.videoConnection.startPublishing(userSession.videoConnection.camera, streamName);
+				}
 			}
 		}
 		

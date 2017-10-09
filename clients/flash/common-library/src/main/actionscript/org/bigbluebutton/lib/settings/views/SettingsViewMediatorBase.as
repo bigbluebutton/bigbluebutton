@@ -3,7 +3,7 @@ package org.bigbluebutton.lib.settings.views {
 	
 	import spark.events.IndexChangeEvent;
 	
-	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.user.utils.UserUtils;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
@@ -14,13 +14,13 @@ package org.bigbluebutton.lib.settings.views {
 		public var view:SettingsViewBase;
 		
 		[Inject]
-		public var userSession:IUserSession;
+		public var meetingData:IMeetingData;
 		
 		protected var dataProvider:ArrayCollection;
 		
 		override public function initialize():void {
-			view.participantIcon.displayInitials = UserUtils.getInitials(userSession.userList.me.name);
-			view.participantLabel.text = userSession.userList.me.name;
+			view.participantIcon.displayInitials = UserUtils.getInitials(meetingData.users.me.name);
+			view.participantLabel.text = meetingData.users.me.name;
 			view.settingsList.dataProvider = dataProvider = new ArrayCollection([{label: "Audio", icon: "icon-unmute", page: "audio"}, {label: "Video", icon: "icon-video", page: "camera"}, {label: "Application", icon: "icon-application", page: "chat"}, {label: "Participants", icon: "icon-user", page: "lock"}, {label: "Leave Session", icon: "icon-logout", page: "exit"}]);
 			
 			view.settingsList.addEventListener(IndexChangeEvent.CHANGE, onListIndexChangeEvent);

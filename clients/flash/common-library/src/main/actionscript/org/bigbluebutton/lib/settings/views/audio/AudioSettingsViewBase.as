@@ -67,7 +67,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 			addElement(microphoneGroup);
 			
 			var microphoneLabel:Label = new Label();
-			microphoneLabel.text = "Enable mirohpone";
+			microphoneLabel.text = "Enable microphone";
 			microphoneLabel.percentWidth = 100;
 			microphoneGroup.addElement(microphoneLabel);
 			
@@ -85,7 +85,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 			addElement(gainGroup);
 			
 			var gainLabel:Label = new Label();
-			gainLabel.text = "Mirohpone level";
+			gainLabel.text = "Microphone level";
 			gainGroup.addElement(gainLabel);
 			
 			// Gain sub-group
