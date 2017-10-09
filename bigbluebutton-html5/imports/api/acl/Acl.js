@@ -1,3 +1,5 @@
+
+import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import deepMerge from '/imports/utils/deepMerge';
 
@@ -15,6 +17,9 @@ export default class Acl {
   }
 
   checkToken(credentials) {
+    // skip token check in client `can` calls since we dont have the authToken in the collection
+    if (!Meteor.isServer) return true;
+
     const { meetingId, requesterUserId: userId, requesterToken: authToken } = credentials;
 
     const User = this.Users.findOne({
