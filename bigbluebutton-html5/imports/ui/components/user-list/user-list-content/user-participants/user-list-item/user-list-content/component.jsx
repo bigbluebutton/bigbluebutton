@@ -52,6 +52,7 @@ const propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
+  getScrollContainerRef: PropTypes.func.isRequired,
 };
 
 
@@ -90,7 +91,7 @@ class UserListContent extends Component {
 
   onActionsShow() {
     const dropdown = findDOMNode(this.dropdown);
-    const scrollContainer = dropdown.parentElement.parentElement;
+    const scrollContainer = this.props.getScrollContainerRef();
     const dropdownTrigger = dropdown.children[0];
 
     this.setState({
@@ -109,7 +110,8 @@ class UserListContent extends Component {
       dropdownVisible: false,
     });
 
-    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
+    const scrollContainer = this.props.getScrollContainerRef();
+    scrollContainer.removeEventListener('scroll', this.handleScroll, false);
   }
 
   getDropdownMenuParent() {
@@ -131,7 +133,7 @@ class UserListContent extends Component {
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
-      const scrollContainer = dropdown.parentElement.parentElement;
+      const scrollContainer = this.props.getScrollContainerRef();
 
       const nextState = {
         dropdownVisible: true,

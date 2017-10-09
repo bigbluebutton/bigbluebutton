@@ -1,12 +1,7 @@
 @import "/imports/ui/components/user-list/styles.scss";
 
 .smallTitle {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 $sm-padding-x;
-  margin: 0 0 ($lg-padding-x / 2) 0;
-  color: $color-gray-light;
+  @extend .smallTitle;
 }
 
 .scrollableList {
