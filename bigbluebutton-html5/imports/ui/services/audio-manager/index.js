@@ -198,12 +198,17 @@ class AudioManager {
       this.listenOnlyAudioContext.close();
     }
 
-    this.listenOnlyAudioContext = new window.AudioContext;
+    if ('webkitAudioContext' in window) {
+      this.listenOnlyAudioContext = new window.webkitAudioContext();
+    } else {
+      this.listenOnlyAudioContext = new window.AudioContext();
+    }
+
     return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
   }
 
   changeInputDevice(value) {
-    if(this._inputDevice.audioContext) {
+    if (this._inputDevice.audioContext) {
       this._inputDevice.audioContext.close().then(() => {
         this._inputDevice.audioContext = null;
         this._inputDevice.scriptProcessor = null;
@@ -216,8 +221,13 @@ class AudioManager {
 
     console.log(value);
     this._inputDevice.id = value;
-    this._inputDevice.audioContext = new AudioContext();
-    this._inputDevice.scriptProcessor = this._inputDevice.audioContext.createScriptProcessor(2048, 1, 1);
+    if ('webkitAudioContext' in window) {
+      this._inputDevice.audioContext = new window.webkitAudioContext();
+    } else {
+      this._inputDevice.audioContext = new AudioContext();
+    }
+    this._inputDevice.scriptProcessor = this._inputDevice.audioContext
+                                            .createScriptProcessor(2048, 1, 1);
     this._inputDevice.source = null;
 
     const constraints = {
