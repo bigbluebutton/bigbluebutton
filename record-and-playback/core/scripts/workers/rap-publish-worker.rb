@@ -54,7 +54,7 @@ module BigBlueButton
             raw_size = {}
             start_time = {}
             end_time = {}
-            metadata_xml_path = "#{published_dir}/#{@publish_type}/#{@meeting_id}/metadata.xml"
+            metadata_xml_path = "#{published_dir}/#{@format_name}/#{@meeting_id}/metadata.xml"
             if File.exists? metadata_xml_path
               begin
                 doc = Hash.from_xml(File.open(metadata_xml_path))
