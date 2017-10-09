@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ModalBase, { withModalState } from '../base/component';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
 import cx from 'classnames';
+import ModalBase, { withModalState } from '../base/component';
+import styles from './styles.scss';
 
 const propTypes = {
   title: PropTypes.string.isRequired,
@@ -68,7 +68,7 @@ class ModalFullscreen extends Component {
               className={styles.dismiss}
               label={dismiss.label}
               disabled={dismiss.disabled}
-              onClick={this.handleAction.bind(this, 'dismiss')}
+              onClick={this.handleAction}
               aria-describedby={'modalDismissDescription'}
             />
             <Button
@@ -76,7 +76,7 @@ class ModalFullscreen extends Component {
               className={styles.confirm}
               label={confirm.label}
               disabled={confirm.disabled}
-              onClick={this.handleAction.bind(this, 'confirm')}
+              onClick={this.handleAction}
               aria-describedby={'modalConfirmDescription'}
             />
           </div>
