@@ -290,13 +290,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var currentSlider:Slider=Slider(event.currentTarget);
 				mic.gain = currentSlider.value
 			}
-			
-			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";			
       
 			private function onHelpButtonClicked():void {
 				var helpOptions : HelpOptions = Options.getOptions(HelpOptions) as HelpOptions;
-				DEFAULT_HELP_URL =  helpOptions.url;
-				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
+				navigateToURL(new URLRequest(helpOptions.url));
 			}
      
       private function yesButtonClicked():void {
