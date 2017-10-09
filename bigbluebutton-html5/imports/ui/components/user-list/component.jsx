@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
+
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import styles from './styles';
 import UserListHeader from './user-list-header/component';
@@ -53,10 +54,10 @@ class UserList extends Component {
   render() {
     return (
       <div className={styles.userList}>
-        <UserListHeader
+        {/* <UserListHeader
           intl={this.props.intl}
           compact={this.state.compact}
-        />
+        /> */}
         {<UserContent
           intl={this.props.intl}
           openChats={this.props.openChats}

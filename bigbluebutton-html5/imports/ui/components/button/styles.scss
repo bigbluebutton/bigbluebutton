@@ -46,6 +46,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   vertical-align: middle;
   cursor: pointer;
   user-select: none;
+  transition: all .2s ease-in-out;
 
   &:hover,
   &:focus {
@@ -99,7 +100,6 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     opacity: .85;
     display: block;
     margin-top: $btn-spacing;
-    font-size: 90%;
     color: #fff;
     font-weight: normal;
     line-height: 1.5;
