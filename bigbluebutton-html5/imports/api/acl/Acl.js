@@ -1,8 +1,7 @@
 import { check } from 'meteor/check';
 import deepMerge from '/imports/utils/deepMerge';
 
-export class Acl {
-
+export default class Acl {
   constructor(config, Users) {
     this.Users = Users;
     this.config = config;
@@ -12,11 +11,19 @@ export class Acl {
     check(permission, String);
     const permissions = this.getPermissions(credentials);
 
-    if (permissions) {
-      return this.fetchPermission(permission, permissions);
-    }
+    return this.checkToken(credentials) && this.fetchPermission(permission, permissions);
+  }
 
-    return false;
+  checkToken(credentials) {
+    const { meetingId, requesterUserId: userId, requesterToken: authToken } = credentials;
+
+    const User = this.Users.findOne({
+      meetingId,
+      userId,
+      authToken,
+    });
+
+    return !!User; // if he found a user means the meeting/user/token is valid
   }
 
   fetchPermission(permission, permissions) {
