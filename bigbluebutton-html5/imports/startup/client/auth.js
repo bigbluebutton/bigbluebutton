@@ -5,30 +5,73 @@ import { logClient } from '/imports/ui/services/api';
 const STATUS_CONNECTING = 'connecting';
 
 export function joinRouteHandler(nextState, replace, callback) {
-  if (!nextState || !nextState.params.authToken) {
+  const { sessionToken } = nextState.location.query;
+  console.log(`sessionToken=${sessionToken}`);
+
+  if (!nextState || !sessionToken) {
     replace({ pathname: '/error/404' });
     callback();
   }
 
-  const { meetingID, userID, authToken } = nextState.params;
-  Auth.set(meetingID, userID, authToken);
-  replace({ pathname: '/' });
-  callback();
-};
+  // use enter api to get params for the client
+  const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
 
-export function logoutRouteHandler(nextState, replace, callback) {
-  const { meetingID, userID, authToken } = nextState.params;
+  fetch(url)
+    .then(response => response.json())
+    .then((data) => {
+      const { meetingID, internalUserID, authToken, logoutUrl } = data.response;
 
-  Auth.logout()
-    .then(logoutURL => {
-      window.location = logoutURL || window.location.origin;
-      callback();
-    })
-    .catch(reason => {
-      replace({ pathname: '/error/500' });
+      Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
+      replace({ pathname: '/' });
       callback();
     });
-};
+}
+
+export function logoutRouteHandler(nextState, replace) {
+  Auth.logout()
+    .then((logoutURL = window.location.origin) => {
+      const protocolPattern = /^((http|https):\/\/)/;
+
+      window.location.href =
+        protocolPattern.test(logoutURL) ?
+          logoutURL :
+          `http://${logoutURL}`;
+    })
+    .catch(() => {
+      replace({ pathname: '/error/500' });
+    });
+}
+
+/**
+ * Check if should revalidate the auth
+ * @param {Object} status
+ * @param {String} lastStatus
+ */
+export function shouldAuthenticate(status, lastStatus) {
+  return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
+}
+
+/**
+ * Check if the isn't the first connection try, preventing to authenticate on login.
+ * @param {Object} status
+ * @param {string} lastStatus
+ */
+export function updateStatus(status, lastStatus) {
+  return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
+}
+
+function _addReconnectObservable() {
+  let lastStatus = null;
+
+  Tracker.autorun(() => {
+    lastStatus = updateStatus(Meteor.status(), lastStatus);
+
+    if (shouldAuthenticate(Meteor.status(), lastStatus)) {
+      Auth.authenticate(true);
+      lastStatus = Meteor.status().status;
+    }
+  });
+}
 
 export function authenticatedRouteHandler(nextState, replace, callback) {
   const credentialsSnapshot = {
@@ -45,12 +88,16 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
 
   Auth.authenticate()
     .then(callback)
-    .catch(reason => {
-      logClient('error', { error: reason, method: 'authenticatedRouteHandler', credentialsSnapshot });
+    .catch((reason) => {
+      logClient('error', {
+        error: reason,
+        method: 'authenticatedRouteHandler',
+        credentialsSnapshot,
+      });
 
       // make sure users who did not connect are not added to the meeting
       // do **not** use the custom call - it relies on expired data
-      Meteor.call('userLogout', credentialsSnapshot, (error, result) => {
+      Meteor.call('userLogout', credentialsSnapshot, (error) => {
         if (error) {
           console.error('error');
         }
@@ -59,36 +106,4 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });
-};
-
-function _addReconnectObservable() {
-  let lastStatus = null;
-
-  Tracker.autorun(() => {
-
-    lastStatus = updateStatus(Meteor.status(), lastStatus);
-
-    if (shouldAuthenticate(Meteor.status(), lastStatus)) {
-      Auth.authenticate(true);
-      lastStatus = Meteor.status().status;
-    }
-  });
-}
-
-/**
- * Check if should revalidate the auth
- * @param {Object} status 
- * @param {String} lastStatus 
- */
-export function shouldAuthenticate(status, lastStatus) {
-  return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
-}
-
-/**
- * Check if the isn't the first connection try, preventing to authenticate on login.
- * @param {Object} status 
- * @param {string} lastStatus 
- */
-export function updateStatus(status, lastStatus) {
-  return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
 }

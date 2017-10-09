@@ -34,10 +34,9 @@ package org.bigbluebutton.modules.layout.model
     }
     
     public function hasLayout(name:String):Boolean {
-      var layoutName:LayoutDefinition = _layouts.getLayout(name);
-      
-      if (layoutName != null) return true;
-      
+      if (_layouts.indexOf(name) != -1) {
+        return true;
+      }
       return false;
     }
     
@@ -47,6 +46,10 @@ package org.bigbluebutton.modules.layout.model
     
     public function addLayout(layout: LayoutDefinition):void {
       _layouts.push(layout);
+    }
+
+    public function removeLayout(layout: LayoutDefinition):void {
+      if (layout != null) _layouts.splice(_layouts.indexOf(layout.name));
     }
     
     public function getLayoutNames():Array {

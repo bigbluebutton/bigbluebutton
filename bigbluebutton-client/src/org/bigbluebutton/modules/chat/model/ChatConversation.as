@@ -18,68 +18,129 @@
  */
 package org.bigbluebutton.modules.chat.model
 {
-  import flash.system.Capabilities;
-  
-  import mx.collections.ArrayCollection;
-  
+  import com.adobe.utils.StringUtil;
+  import com.asfusion.mate.events.Dispatcher;
+  import flash.system.Capabilities; 
+  import mx.collections.ArrayCollection;  
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-
+  import org.bigbluebutton.util.i18n.ResourceUtil;
+  
   public class ChatConversation
   { 
+    
+    private var _dispatcher:Dispatcher = new Dispatcher();
+    
     [Bindable]
     public var messages:ArrayCollection = new ArrayCollection();
+    
+    private var id: String;
+    
+    public function ChatConversation(id: String) {
+      this.id = id;
+    }
+    
+    public function getId(): String {
+      return id;
+    }
     
     public function numMessages():int {
       return messages.length;
     }
-	
+    
     public function newChatMessage(msg:ChatMessageVO):void {
-      var cm:ChatMessage = new ChatMessage();
-	  
-      if (messages.length == 0) {
-        cm.lastSenderId = "";
-        cm.lastTime = cm.time;
-      } else {
-        cm.lastSenderId = getLastSender();
-        cm.lastTime = getLastTime();
+      var newCM:ChatMessage = convertChatMessage(msg);
+      if (messages.length > 0) {
+        var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
+        newCM.lastSenderId = previousCM.senderId;
+        newCM.lastTime = previousCM.time;
       }
-      cm.senderId = msg.fromUserID;
+      messages.addItem(newCM);
+    }
+    
+    public function newPrivateChatMessage(msg:ChatMessageVO):void {
+      var newCM:ChatMessage = convertChatMessage(msg);
+      if (messages.length > 0) {
+        var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
+        newCM.lastSenderId = previousCM.senderId;
+        newCM.lastTime = previousCM.time;
+      }
+      messages.addItem(newCM);
+    }
+    
+    public function processChatHistory(messageVOs:Array):void {
+      if (messageVOs.length > 0) {
+        var previousCM:ChatMessage = convertChatMessage(messageVOs[0] as ChatMessageVO);;
+        var newCM:ChatMessage;
+        messages.addItemAt(previousCM, 0);
+        
+        for (var i:int=1; i < messageVOs.length; i++) {
+          newCM = convertChatMessage(messageVOs[i] as ChatMessageVO);
+          newCM.lastSenderId = previousCM.senderId;
+          newCM.lastTime = previousCM.time;
+          messages.addItemAt(newCM, i);
+          previousCM = newCM;
+        }
+        
+        if (messageVOs.length < messages.length) {
+          newCM = messages.getItemAt(messageVOs.length) as ChatMessage;
+          newCM.lastSenderId = previousCM.senderId;
+          newCM.lastTime = previousCM.time;
+        }
+      }
+    }
+    
+    private function convertChatMessage(msgVO:ChatMessageVO):ChatMessage {
+      var cm:ChatMessage = new ChatMessage();
       
-      cm.text = msg.message;
+      cm.lastSenderId = "";
+      cm.lastTime = "";
       
-      cm.name = msg.fromUsername;
-      cm.senderColor = uint(msg.fromColor);
+      cm.senderId = msgVO.fromUserId;
       
-      cm.fromTime = msg.fromTime;		
-      cm.fromTimezoneOffset = msg.fromTimezoneOffset;
+      cm.text = msgVO.message;
       
+      cm.name = msgVO.fromUsername;
+      cm.senderColor = uint(msgVO.fromColor);
+      
+      // Welcome message will skip time
+      if (msgVO.fromTime != -1) {
+        cm.fromTime = msgVO.fromTime;
+        cm.fromTimezoneOffset = msgVO.fromTimezoneOffset;
+        cm.time = convertTimeNumberToString(msgVO.fromTime);
+      }
+      return cm
+    }
+    
+    private function convertTimeNumberToString(time:Number):String {
       var sentTime:Date = new Date();
-      sentTime.setTime(cm.fromTime);
-      cm.time = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
-      
-      messages.addItem(cm); 
+      sentTime.setTime(time);
+      return ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
     }
     
     public function getAllMessageAsString():String{
       var allText:String = "";
-      var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\r");
+      var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\n");
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-        allText += item.name + " - " + item.time + " : " + item.text + returnStr;
+        if (StringUtil.trim(item.name) != "") {
+          allText += item.name + "\t";
+        }
+        allText += item.time + "\t";
+        allText += item.text + returnStr;
       }
       return allText;
     }
     
-    private function getLastSender():String {
-      var msg:ChatMessage = messages.getItemAt(messages.length - 1) as ChatMessage;
-      return msg.senderId;
+    public function clearPublicChat():void {
+      var cm:ChatMessage = new ChatMessage();
+      cm.time = convertTimeNumberToString(new Date().time);
+      cm.text = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.clearBtn.chatMessage')+"</i></b>";
+      cm.name = "";
+      cm.senderColor = uint(0x000000);
+      
+      messages.removeAll();
+      messages.addItem(cm);
     }
-    
-    private function getLastTime():String {
-      var msg:ChatMessage = messages.getItemAt(messages.length - 1) as ChatMessage;
-      return msg.time;
-    }
-            
   }
 }

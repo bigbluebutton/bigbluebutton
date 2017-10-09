@@ -18,9 +18,6 @@
  */
 package org.bigbluebutton.modules.chat.views
 {
-  import flash.display.CapsStyle;
-  import flash.display.Graphics;
-  import flash.display.JointStyle;
   import flash.display.Sprite;
   
   import mx.controls.List;
@@ -47,6 +44,8 @@ package org.bigbluebutton.modules.chat.views
       super.measure();
       //sovled on forum by Flex HarUI
       measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
+
+      //dispatchEvent(new ChatEvent(ChatEvent.RESIZE_CHAT_TOOLBAR));
     }
     
     public function scrollToBottom():void {

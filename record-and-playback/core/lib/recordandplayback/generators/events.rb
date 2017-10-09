@@ -60,6 +60,15 @@ module BigBlueButton
       end  
       metadata
     end
+
+    # Get the external meeting id
+    def self.get_external_meeting_id(events_xml)
+      BigBlueButton.logger.info("Task: Getting external meeting id")
+      metadata = get_meeting_metadata(events_xml)
+      external_meeting_id = {}
+      external_meeting_id = metadata['meetingId'] if !metadata['meetingId'].nil?
+      external_meeting_id
+    end
     
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)
@@ -86,22 +95,6 @@ module BigBlueButton
       return nil
     end
     
-    # Match the start and stop events.
-    def self.match_start_and_stop_video_events(start_events, stop_events)
-      BigBlueButton.logger.info("Task: Matching the start and stop events")
-      matched_events = []
-      stop_events.each do |stop|
-        start_evt = find_video_event_matched(start_events, stop)
-        if start_evt
-          start_evt[:stop_timestamp] = stop[:stop_timestamp]
-          matched_events << start_evt
-        else
-          matched_events << stop
-        end
-      end      
-      matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
-    end
-      
     # Get start video events  
     def self.get_start_video_events(events_xml)
       BigBlueButton.logger.info("Task: Getting start video events")
@@ -195,35 +188,32 @@ module BigBlueButton
       return video_edl
     end
 
-        
-    # Determine if the start and stop event matched.
-    def self.deskshare_event_matched?(stop_events, start)
-      BigBlueButton.logger.info("Task: Determining if the start and stop DESKSHARE events matched")      
-      stop_events.each do |stop|
-        if (start[:stream] == stop[:stream])
-          start[:matched] = true
-          start[:stop_timestamp] = stop[:stop_timestamp]
-          return true
-        end      
-      end
-      return false
+    def self.get_matched_start_and_stop_deskshare_events(events_path)
+      last_timestamp = BigBlueButton::Events.last_event_timestamp(events_path)
+      deskshare_start_events = BigBlueButton::Events.get_start_deskshare_events(events_path)
+      deskshare_stop_events = BigBlueButton::Events.get_stop_deskshare_events(events_path)
+      return BigBlueButton::Events.match_start_and_stop_deskshare_events(
+        deskshare_start_events,
+        deskshare_stop_events,
+        last_timestamp)
     end
-    
+
     # Match the start and stop events.
-    def self.match_start_and_stop_deskshare_events(start_events, stop_events)
-      BigBlueButton.logger.info("Task: Matching start and stop DESKSHARE events")      
-      combined_events = []
+    def self.match_start_and_stop_deskshare_events(start_events, stop_events, last_timestamp)
+      BigBlueButton.logger.info("Task: Matching the start and stop deskshare events")
+      matched_events = []
       start_events.each do |start|
-        if not video_event_matched?(stop_events, start) 
-          stop_event = {:stop_timestamp => stop[:stop_timestamp], :stream => stop[:stream], :matched => false}
-          combined_events << stop_event
+        stop = find_video_event_matched(stop_events, start)
+        if stop
+          start[:stop_timestamp] = stop[:stop_timestamp]
         else
-          stop_events = stop_events - [stop_event]
+          start[:stop_timestamp] = last_timestamp
         end
-      end      
-      return combined_events.concat(start_events)
-    end    
-    
+        matched_events << start
+      end
+      matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
+    end
+
     def self.get_start_deskshare_events(events_xml)
       BigBlueButton.logger.info("Task: Getting start DESKSHARE events")      
       start_events = []
@@ -276,6 +266,24 @@ module BigBlueButton
             }
           }
         when 'DeskshareStoppedEvent'
+          # Fill in the original/expected video duration when available
+          duration = event.at_xpath('duration')
+          if !duration.nil?
+            duration = duration.text.to_i
+            filename = event.at_xpath('file').text
+            filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+            deskshare_edl.each do |entry|
+              if !entry[:areas][:deskshare].nil?
+                entry[:areas][:deskshare].each do |file|
+                  if file[:filename] == filename
+                    file[:original_duration] = duration * 1000
+                  end
+                end
+              end
+            end
+          end
+
+          # Terminating entry
           deskshare_edl << {
             :timestamp => timestamp,
             :areas => { :deskshare => [] }
@@ -320,7 +328,8 @@ module BigBlueButton
           videos.each do |video|
             new_entry[:areas][area] << {
               :filename => video[:filename],
-              :timestamp => video[:timestamp] + offset
+              :timestamp => video[:timestamp] + offset,
+              :original_duration => video[:original_duration]
             }
           end
         end
@@ -374,6 +383,7 @@ module BigBlueButton
 
         # Find the last EDL event from before or at the recording start
         loop do
+          break if input_i + 1 >= edl.length
           break if edl[input_i+1][:timestamp] > start_stop_event[:start_timestamp]
           input_i += 1
         end
@@ -393,6 +403,7 @@ module BigBlueButton
         # Add the intervening events up to the stop
         loop do
           input_i += 1
+          break if input_i >= edl.length
           break if edl[input_i][:timestamp] >= start_stop_event[:stop_timestamp]
 
           new_edl[output_i] = edl_entry_offset.call(edl[input_i], 0)

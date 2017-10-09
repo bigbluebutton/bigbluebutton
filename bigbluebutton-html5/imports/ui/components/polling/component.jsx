@@ -15,6 +15,16 @@ class PollingComponent extends React.Component {
     super(props);
   }
 
+  componentDidMount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   getStyles() {
     const number = this.props.poll.answers.length + 1;
     const buttonStyle =
@@ -40,7 +50,7 @@ class PollingComponent extends React.Component {
           </p>
         </div>
         {poll.answers.map((pollAnswer, index) =>
-          <div
+          (<div
             key={index}
             style={calculatedStyles}
             className={styles.pollButtonWrapper}
@@ -66,11 +76,11 @@ class PollingComponent extends React.Component {
             >
               {`Select this option to vote for ${pollAnswer.key}`}
             </div>
-          </div>
+          </div>),
         )}
       </div>
     );
   }
-};
+}
 
 export default injectIntl(PollingComponent);

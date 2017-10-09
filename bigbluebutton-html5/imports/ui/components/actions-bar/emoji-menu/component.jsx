@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
@@ -18,7 +19,6 @@ const propTypes = {
 class EmojiMenu extends Component {
   constructor(props) {
     super(props);
-
   }
 
   render() {
@@ -29,8 +29,8 @@ class EmojiMenu extends Component {
    } = this.props;
 
     return (
-      <Dropdown autoFocus={true}>
-        <DropdownTrigger placeInTabOrder={true}>
+      <Dropdown autoFocus>
+        <DropdownTrigger tabIndex={0}>
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
@@ -38,16 +38,19 @@ class EmojiMenu extends Component {
             aria-describedby="currentStatus"
             icon="hand"
             ghost={false}
-            circle={true}
+            circle
             hideLabel={false}
             color="primary"
             size="lg"
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
-            onClick={() => null}>
+            onClick={() => null}
+          >
             <div id="currentStatus" hidden>
-              {intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus}) }
+              {
+                intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus })
+              }
             </div>
           </Button>
         </DropdownTrigger>
@@ -97,15 +100,15 @@ class EmojiMenu extends Component {
             />
             <DropdownListItem
               icon="thumbs_up"
-              label={intl.formatMessage(intlMessages.thumbsupLabel)}
-              description={intl.formatMessage(intlMessages.thumbsupDesc)}
+              label={intl.formatMessage(intlMessages.thumbsUpLabel)}
+              description={intl.formatMessage(intlMessages.thumbsUpDesc)}
               onClick={() => actions.setEmojiHandler('thumbsUp')}
               tabIndex={-1}
             />
             <DropdownListItem
               icon="thumbs_down"
-              label={intl.formatMessage(intlMessages.thumbsdownLabel)}
-              description={intl.formatMessage(intlMessages.thumbsdownDesc)}
+              label={intl.formatMessage(intlMessages.thumbsDownLabel)}
+              description={intl.formatMessage(intlMessages.thumbsDownDesc)}
               onClick={() => actions.setEmojiHandler('thumbsDown')}
               tabIndex={-1}
             />
@@ -200,20 +203,20 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.emojiMenu.applauseDesc',
     description: 'adds context to applause option',
   },
-  thumbsupLabel: {
-    id: 'app.actionsBar.emojiMenu.thumbsupLabel',
+  thumbsUpLabel: {
+    id: 'app.actionsBar.emojiMenu.thumbsUpLabel',
     description: 'thumbs up emoji label',
   },
-  thumbsupDesc: {
-    id: 'app.actionsBar.emojiMenu.thumbsupDesc',
+  thumbsUpDesc: {
+    id: 'app.actionsBar.emojiMenu.thumbsUpDesc',
     description: 'adds context to thumbs up option',
   },
-  thumbsdownLabel: {
-    id: 'app.actionsBar.emojiMenu.thumbsdownLabel',
+  thumbsDownLabel: {
+    id: 'app.actionsBar.emojiMenu.thumbsDownLabel',
     description: 'thumbs down emoji label',
   },
-  thumbsdownDesc: {
-    id: 'app.actionsBar.emojiMenu.thumbsdownDesc',
+  thumbsDownDesc: {
+    id: 'app.actionsBar.emojiMenu.thumbsDownDesc',
     description: 'adds context to thumbs down option',
   },
   changeStatusLabel: {
@@ -223,7 +226,7 @@ const intlMessages = defineMessages({
   currentStatusDesc: {
     id: 'app.actionsBar.currentStatusDesc',
     description: 'Aria description for status button',
-  }
+  },
 });
 
 EmojiMenu.propTypes = propTypes;

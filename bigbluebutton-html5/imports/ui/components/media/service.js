@@ -1,15 +1,13 @@
-import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
-import { isVideoBroadcasting } from '../deskshare/service';
+import Presentations from '/imports/api/2.0/presentations';
+import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 
-let getPresentationInfo = () => {
-  let currentPresentation;
-  currentPresentation = Presentations.findOne({
-      'presentation.current': true,
-    });
+const getPresentationInfo = () => {
+  const currentPresentation = Presentations.findOne({
+    current: true,
+  });
 
   return {
-    current_presentation: (currentPresentation != null ? true : false),
+    current_presentation: (currentPresentation != null),
 
   };
 };
@@ -18,7 +16,7 @@ function shouldShowWhiteboard() {
   return true;
 }
 
-function shouldShowDeskshare() {
+function shouldShowScreenshare() {
   return isVideoBroadcasting();
 }
 
@@ -29,6 +27,6 @@ function shouldShowOverlay() {
 export default {
   getPresentationInfo,
   shouldShowWhiteboard,
-  shouldShowDeskshare,
+  shouldShowScreenshare,
   shouldShowOverlay,
 };

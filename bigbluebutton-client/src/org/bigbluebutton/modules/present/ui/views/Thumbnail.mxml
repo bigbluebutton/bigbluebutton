@@ -20,11 +20,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
-    horizontalAlign="center"
-    verticalGap="0" borderStyle="none" backgroundAlpha="0" >
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 horizontalAlign="center"
+		 verticalGap="0" borderStyle="none" backgroundAlpha="0" >
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			private var t:TextField = new TextField();
 			
@@ -48,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.rawChildren.addChild(t);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
     <mx:Image id="image" width="100" height="100" complete="drawNumber()"/>
 </mx:VBox>

@@ -13,17 +13,15 @@ class EnterAudio extends React.Component {
     } = this.props;
 
     return (
-      <div>
-        <Button
-          label={intl.formatMessage(intlMessages.enterSessionLabel)}
-          size={'md'}
-          color={'primary'}
-          onClick={this.props.handleJoin}
-        />
-      </div>
+      <Button
+        label={intl.formatMessage(intlMessages.enterSessionLabel)}
+        size={'md'}
+        color={'primary'}
+        onClick={this.props.handleJoin}
+      />
     );
   }
-};
+}
 
 const intlMessages = defineMessages({
   enterSessionLabel: {

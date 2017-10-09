@@ -1,16 +1,15 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Media from './component';
 import MediaService from './service';
-import Button from '../button/component';
 import PresentationAreaContainer from '../presentation/container';
 import VideoDockContainer from '../video-dock/container';
-import DeskshareContainer from '../deskshare/container';
+import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
-  overlay: null, //<VideoDockContainer/>,
-  content: <PresentationAreaContainer/>,
+  overlay: null, // <VideoDockContainer/>,
+  content: <PresentationAreaContainer />,
   defaultContent: <DefaultContent />,
 };
 
@@ -20,7 +19,7 @@ class MediaContainer extends Component {
 
     const { overlay, content, defaultContent } = this.props;
     this.state = {
-      overlay: overlay,
+      overlay,
       content: this.props.current_presentation ? content : defaultContent,
     };
 
@@ -28,7 +27,7 @@ class MediaContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.current_presentation != this.props.current_presentation) {
+    if (nextProps.current_presentation !== this.props.current_presentation) {
       if (nextProps.current_presentation) {
         this.setState({ content: this.props.content });
       } else {
@@ -54,7 +53,7 @@ class MediaContainer extends Component {
 MediaContainer.defaultProps = defaultProps;
 
 export default createContainer(() => {
-  let data = {};
+  const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
 
   data.content = <DefaultContent />;
@@ -63,8 +62,8 @@ export default createContainer(() => {
     data.content = <PresentationAreaContainer />;
   }
 
-  if (MediaService.shouldShowDeskshare()) {
-    data.content = <DeskshareContainer />;
+  if (MediaService.shouldShowScreenshare()) {
+    data.content = <ScreenshareContainer />;
   }
 
   if (MediaService.shouldShowOverlay()) {

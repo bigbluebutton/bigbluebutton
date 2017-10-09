@@ -1,10 +1,10 @@
-import AuthSingleton from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/users';
-import Slides from '/imports/api/slides';
-import { makeCall } from '/imports/ui/services/api/index.js';
+import AuthSingleton from '/imports/ui/services/auth';
+import Users from '/imports/api/2.0/users';
+import Slides from '/imports/api/2.0/slides';
+import { makeCall } from '/imports/ui/services/api';
 
-let getSlideData = (params) => {
-  const { currentSlideNum, presentationId } = params;
+const getSlideData = (params) => {
+  const { presentationId } = params;
 
   // Get userId and meetingId
   const userId = AuthSingleton.userID;
@@ -12,42 +12,42 @@ let getSlideData = (params) => {
 
   // Find the user object of this specific meeting and userid
   const currentUser = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
+    meetingId,
+    userId,
   });
 
   let userIsPresenter;
-  if (currentUser && currentUser.user) {
-    userIsPresenter = currentUser.user.presenter;
+  if (currentUser) {
+    userIsPresenter = currentUser.presenter;
   }
 
   // Get total number of slides in this presentation
   const numberOfSlides = Slides.find({
-    meetingId: meetingId,
-    presentationId: presentationId,
+    meetingId,
+    presentationId,
   }).fetch().length;
 
   return {
-    userIsPresenter: userIsPresenter,
-    numberOfSlides: numberOfSlides,
+    userIsPresenter,
+    numberOfSlides,
   };
 };
 
 const previousSlide = (currentSlideNum) => {
   if (currentSlideNum > 1) {
-    makeCall('switchSlideMessage', currentSlideNum - 1);
+    makeCall('switchSlide', currentSlideNum - 1);
   }
 };
 
 const nextSlide = (currentSlideNum, numberOfSlides) => {
   if (currentSlideNum < numberOfSlides) {
-    makeCall('switchSlideMessage', currentSlideNum + 1);
+    makeCall('switchSlide', currentSlideNum + 1);
   }
 };
 
 const skipToSlide = (event) => {
-  const requestedSlideNum = parseInt(event.target.value);
-  makeCall('switchSlideMessage', requestedSlideNum);
+  const requestedSlideNum = parseInt(event.target.value, 10);
+  makeCall('switchSlide', requestedSlideNum);
 };
 
 export default {

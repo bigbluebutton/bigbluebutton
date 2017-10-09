@@ -20,8 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
-  <mx:Script>
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx">
+  <fx:Script>
     <![CDATA[
 		import org.bigbluebutton.core.EventConstants;
 		import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
@@ -51,143 +51,143 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
 		import org.bigbluebutton.modules.present.events.UploadEvent;
     ]]>
-  </mx:Script>
+  </fx:Script>
   <!--
     Listen for events we are interested to forward to the external container..
   -->
   
-
-  <EventHandlers type="{IsUserPublishingCamRequest.IS_USER_PUBLISHING_CAM_REQ}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleIsUserPublishingCamRequest" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{StreamStartedEvent.STREAM_STARTED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleStreamStartedEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStartedEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStoppedEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{AmISharingWebcamQueryEvent.AM_I_SHARING_CAM_QUERY}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmISharingCamQueryEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{BBBEvent.USER_VOICE_MUTED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceMutedEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{BBBEvent.USER_LOCKED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLockedEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{BBBEvent.USER_VOICE_LEFT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLeftEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{BBBEvent.USER_VOICE_JOINED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedVoiceEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{EventConstants.GET_MY_ROLE_RESP}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{GetMyUserInfoRequestEvent.GET_MY_USER_INFO_REQUEST}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyUserInfoRequest" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchedLayoutEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{UserJoinedEvent.JOINED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{UserLeftEvent.LEFT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{LogoutEvent.USER_KICKED_OUT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserKickedOutEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{EventConstants.NEW_PRIVATE_CHAT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPrivateChatEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{EventConstants.NEW_PUBLIC_CHAT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPublicChatEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{EventConstants.START_PRIVATE_CHAT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleStartPrivateChatEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleOpenExternalUploadWindow" arguments="{event}" />
-  </EventHandlers>
-  
-  <!-- Conversion Message Update -->
-  <EventHandlers type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionSuccess" arguments="{event}" />
-  </EventHandlers>
-
-	<EventHandlers type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" >
-		<MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionInvalid" arguments="{event}" />
-	</EventHandlers>
+	<fx:Declarations>
+	  <EventHandlers type="{IsUserPublishingCamRequest.IS_USER_PUBLISHING_CAM_REQ}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleIsUserPublishingCamRequest" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{StreamStartedEvent.STREAM_STARTED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleStreamStartedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStartedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStoppedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{AmISharingWebcamQueryEvent.AM_I_SHARING_CAM_QUERY}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmISharingCamQueryEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BBBEvent.USER_VOICE_MUTED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceMutedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BBBEvent.USER_LOCKED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLockedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BBBEvent.USER_VOICE_LEFT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLeftEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{BBBEvent.USER_VOICE_JOINED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedVoiceEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{EventConstants.GET_MY_ROLE_RESP}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
+	  </EventHandlers>
 	
-  <EventHandlers type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionFailed" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleSupportedDocument" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUnsupportedDocument" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{ConversionPageCountError.PAGE_COUNT_ERROR}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handlePageCountFailed" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleThumbnailsUpdate" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handlePageCountExceeded" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleConvertSuccess" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{ConversionUpdateEvent.CONVERSION_UPDATE}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleConvertUpdate" arguments="{event}" />
-  </EventHandlers>
-
-  <EventHandlers type="{GetListOfPresentationsReply.GET_LIST_OF_PRESENTATIONS_REPLY}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetListOfPresentationsReply" arguments="{event}" />
-  </EventHandlers>
-  
+	  <EventHandlers type="{GetMyUserInfoRequestEvent.GET_MY_USER_INFO_REQUEST}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyUserInfoRequest" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchedLayoutEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{UserJoinedEvent.JOINED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{UserLeftEvent.LEFT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LogoutEvent.USER_KICKED_OUT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserKickedOutEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{EventConstants.NEW_PRIVATE_CHAT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPrivateChatEvent" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{EventConstants.NEW_PUBLIC_CHAT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPublicChatEvent" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{EventConstants.START_PRIVATE_CHAT}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleStartPrivateChatEvent" arguments="{event}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleOpenExternalUploadWindow" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <!-- Conversion Message Update -->
+	  <EventHandlers type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionSuccess" arguments="{event}" />
+	  </EventHandlers>
+	
+		<EventHandlers type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" >
+			<MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionInvalid" arguments="{event}" />
+		</EventHandlers>
+		
+	  <EventHandlers type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionFailed" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleSupportedDocument" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleUnsupportedDocument" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ConversionPageCountError.PAGE_COUNT_ERROR}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handlePageCountFailed" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleThumbnailsUpdate" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handlePageCountExceeded" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleConvertSuccess" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{ConversionUpdateEvent.CONVERSION_UPDATE}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleConvertUpdate" arguments="{event}" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{GetListOfPresentationsReply.GET_LIST_OF_PRESENTATIONS_REPLY}" >
+	    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetListOfPresentationsReply" arguments="{event}" />
+	  </EventHandlers>
+	</fx:Declarations>
 </EventMap>

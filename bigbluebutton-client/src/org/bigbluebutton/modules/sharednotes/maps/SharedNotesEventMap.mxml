@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+  BigBlueButton is free software; you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free Software
+  Foundation; either version 2.1 of the License, or (at your option) any later
+  version.
+
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License along
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+-->
+
+<EventMap xmlns="http://mate.asfusion.com/"
+		  xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
+			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
+			import org.bigbluebutton.modules.sharednotes.events.StopSharedNotesModuleEvent;
+			import org.bigbluebutton.modules.sharednotes.managers.SharedNotesManager;
+			import org.bigbluebutton.modules.sharednotes.services.MessageReceiver;
+			import org.bigbluebutton.modules.sharednotes.services.MessageSender;
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!--
+		This is the main event map for the chat module, think of it as the application controller.
+		-->
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<!--
+			The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+			-->
+			<ObjectBuilder generator="{SharedNotesEventMapDelegate}"/>
+			<ObjectBuilder generator="{SharedNotesManager}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{StartSharedNotesModuleEvent.START_SHAREDNOTES_MODULE_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="setModuleAttributes" arguments="{event.attributes}"/>
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addMainWindow"/>
+			<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{StopSharedNotesModuleEvent.STOP_SHAREDNOTES_MODULE_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="stopSharedNotesRemoveAll"/>
+			<!-- <MethodInvoker generator="{SharedNotesManager}" method="disconnectFromSharedNotes"/> -->
+		</EventHandlers>
+	
+		<EventHandlers type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{CurrentDocumentEvent.CURRENT_DOCUMENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addRemoteDocuments" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SendPatchEvent.SEND_PATCH_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="patchDocument" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="createAdditionalNotes" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="createAdditionalNotes" arguments="{[event.payload.notesId, event.payload.noteName]}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.	DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="requestAdditionalNotesSet" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{SharedNotesEvent.SYNC_NOTE_REQUEST_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="sharedNotesSyncNoteRequest" arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{SharedNotesEvent.CLEAR_NOTE_REQUEST_EVENT}">
+			<MethodInvoker generator="{SharedNotesManager}" method="sharedNotesClearNoteRequest" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+			<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAllAdditionalNotes" arguments="{event}"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}">
+			<EventAnnouncer generator="{GetCurrentDocumentEvent}" type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}"/>
+		</EventHandlers>
+	
+		<Injectors target="{SharedNotesManager}">
+			<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
+			<PropertyInjector targetKey="sender" source="{MessageSender}"/>
+		</Injectors>
+	
+		<Injectors target="{MessageReceiver}">
+			<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+		</Injectors>
+
+	</fx:Declarations>
+</EventMap>

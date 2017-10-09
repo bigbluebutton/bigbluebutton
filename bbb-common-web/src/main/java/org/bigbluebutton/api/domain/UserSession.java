@@ -32,6 +32,8 @@ public class UserSession {
   public String role = null;
   public String conference = null;
   public String room = null;
+  public Boolean guest = false;
+  public Boolean authed = false;
   public String voicebridge = null;
   public String webvoiceconf = null;
   public String mode = null;
@@ -41,7 +43,7 @@ public class UserSession {
   public String defaultLayout = "NOLAYOUT";
   public String avatarURL;
   public String configXML;
-  
+  public String guestStatus = GuestPolicy.ALLOW;
   private AtomicInteger connections = new AtomicInteger(0);
   
  

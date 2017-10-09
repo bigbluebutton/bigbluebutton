@@ -21,20 +21,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-	       xmlns:mx="http://www.adobe.com/2006/mxml" 
+	       xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:common="org.bigbluebutton.common.*"
 		   showCloseButton="true"
-		   height="350"
-		   width="430"
+		   height="550"
+		   width="500"
 		   initialize="init()"
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}" >
 		   
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{MDIWindowEvent.CLOSE}" method="focusButton" />
+	<fx:Declarations>
+		<mate:Listener type="{MDIWindowEvent.CLOSE}" method="focusButton" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -252,10 +255,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SHORTCUT_BUTTON));
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer id="headerIndexer" startIndex="115" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn]}"/>
-	<common:TabIndexer startIndex="119" tabIndices="{[categories, keyList]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="headerIndexer" startIndex="115" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn]}"/>
+		<common:TabIndexer startIndex="119" tabIndices="{[categories, keyList]}"/>
+	</fx:Declarations>
 
 	<mx:ComboBox id="categories" accessibilityName="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.dropdown.accessibilityName')}" 
 				 editable="false" 

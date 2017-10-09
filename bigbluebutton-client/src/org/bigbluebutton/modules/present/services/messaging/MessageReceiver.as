@@ -36,16 +36,20 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-  import org.bigbluebutton.modules.present.events.UploadEvent;
-  import org.bigbluebutton.modules.present.model.PresentationModel;
-  import org.bigbluebutton.modules.present.model.Presenter;
+  import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
+  import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+  import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+  import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
+  import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
+  import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
+
   
   public class MessageReceiver implements IMessageListener {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
        
     private var service:PresentationService;
     private var dispatcher:Dispatcher;
@@ -58,69 +62,61 @@ package org.bigbluebutton.modules.present.services.messaging
     
     public function onMessage(messageName:String, message:Object):void {
       //LOGGER.info("Presentation: received message " + messageName);
-      
+
       switch (messageName) {
-        case "PresentationCursorUpdateCommand":
-          handlePresentationCursorUpdateCommand(message);
-          break;			
-        case "goToSlideCallback":
-          handleGotoSlideCallback(message);
-          break;			
-        case "moveCallback":
-          handleMoveCallback(message);
-          break;	
-        case "sharePresentationCallback":
-          handleSharePresentationCallback(message);
+        case "SetCurrentPageEvtMsg":
+          handleSetCurrentPageEvtMsg(message);
           break;
-        case "removePresentationCallback":
-          handleRemovePresentationCallback(message);
+        case "ResizeAndMovePageEvtMsg":
+          handleResizeAndMovePageEvtMsg(message);
           break;
-        case "conversionCompletedUpdateMessageCallback":
-          handleConversionCompletedUpdateMessageCallback(message);
+        case "SetCurrentPresentationEvtMsg":
+          handleSetCurrentPresentationEvtMsg(message);
           break;
-        case "generatedSlideUpdateMessageCallback":
-          handleGeneratedSlideUpdateMessageCallback(message);
+        case "RemovePresentationEvtMsg":
+          handleRemovePresentationEvtMsg(message);
           break;
-        case "pageCountExceededUpdateMessageCallback":
-          handlePageCountExceededUpdateMessageCallback(message);
+        case "PresentationConversionCompletedEvtMsg":
+          handlePresentationConversionCompletedEvtMsg(message);
           break;
-        case "conversionUpdateMessageCallback":
-          handleConversionUpdateMessageCallback(message);
+        case "PresentationPageGeneratedEvtMsg":
+          handlePresentationPageGeneratedEvtMsg(message);
           break;
-        case "getPresentationInfoReply":
-          handleGetPresentationInfoReply(message);
+        case "PresentationPageCountErrorEvtMsg":
+          handlePresentationPageCountErrorEvtMsg(message);
           break;
-        case "getSlideInfoReply":
-          handleGetSlideInfoReply(message);
+        case "PresentationConversionUpdateEvtMsg":
+          handlePresentationConversionUpdateEvtMsg(message);
           break;
-      }
-    }  
-    
-    private function handleGetSlideInfoReply(msg:Object):void {
-      LOGGER.debug("*** handleGetSlideInfoReply {0} [DISABLED: SHouldn't be getting this!!] **** \n", [msg.msg]);
-     
-    }
-    
-    private function handlePresentationCursorUpdateCommand(msg:Object):void {    
-//      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");      
-      var map:Object = JSON.parse(msg.msg);      
-      if (map.hasOwnProperty("xPercent") && map.hasOwnProperty("yPercent")) {
-        service.cursorMoved(map.xPercent, map.yPercent);
+        case "GetPresentationInfoRespMsg":
+          handleGetPresentationInfoRespMsg(message);
+          break;
+        case "PresentationUploadTokenPassRespMsg":
+          handlePresentationUploadTokenPassRespMsg(message);
+          break;
+        case "PresentationUploadTokenFailRespMsg":
+          handlePresentationUploadTokenFailRespMsg(message);
+          break;
+        case "CreateNewPresentationPodEvtMsg":
+          handleCreateNewPresentationPodEvtMsg(message);
+          break;
+        case "RemovePresentationPodEvtMsg":
+          handleRemovePresentationPodEvtMsg(message);
+          break;
+        case "GetAllPresentationPodsRespMsg":
+          handleGetAllPresentationPodsRespMsg(message);
+          break;
       }
     }
     
-    private function handleGotoSlideCallback(msg:Object) : void {
-      var map:Object = JSON.parse(msg.msg);
-
-      var page:PageVO = extractPage(map);
-      service.pageChanged(page);
-
+    private function handleSetCurrentPageEvtMsg(msg:Object):void {
+      service.pageChanged(msg.body.podId, msg.body.pageId);
     }
     
     private function validatePage(map:Object):Boolean {
       var missing:Array = new Array();
       
-      if (! map.hasOwnProperty("id")) missing.push("Missing [id] param."); 
+      if (! map.hasOwnProperty("id")) missing.push("Missing [id] param.");
       if (! map.hasOwnProperty("num")) missing.push("Missing [num] param.");
       if (! map.hasOwnProperty("current")) missing.push("Missing [current] param.");
       if (! map.hasOwnProperty("swfUri")) missing.push("Missing [swfUri] param.");
@@ -150,8 +146,6 @@ package org.bigbluebutton.modules.present.services.messaging
     
     
     private function extractPage(map:Object):PageVO {
-      validatePage(map);
-      
       var page:PageVO = new PageVO();
       page.id = map.id;
       page.num = map.num;
@@ -163,102 +157,97 @@ package org.bigbluebutton.modules.present.services.messaging
       page.xOffset = map.xOffset;
       page.yOffset = map.yOffset;
       page.widthRatio = map.widthRatio;
-      page.heightRatio = map.heightRatio; 
+      page.heightRatio = map.heightRatio;
       
       return page;
     }
     
-    private function handleMoveCallback(msg:Object):void{  
-      var map:Object = JSON.parse(msg.msg);      
-      if (validatePage(map)) {
-        service.pageMoved(extractPage(map));
-      }
+    private function handleResizeAndMovePageEvtMsg(msg:Object):void {
+      service.pageMoved(msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio);
     }
     
-    private function handleSharePresentationCallback(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
-      if (map.hasOwnProperty("presentation")) {
-        var pres:Object = map.presentation as Object;
-        var presVO: PresentationVO = processUploadedPresentation(pres)
-        service.changePresentation(presVO);
-      }
+    private function handleSetCurrentPresentationEvtMsg(msg:Object):void {
+      service.changeCurrentPresentation(msg.body.podId, msg.body.presentationId);
     }
     
-    private function handleRemovePresentationCallback(msg:Object):void {
-	  var map:Object = JSON.parse(msg.msg);
-	  
-	  if(map.hasOwnProperty("presentationID")) {
-        service.removePresentation(map.presentationID);
-	  }
+    private function handleRemovePresentationEvtMsg(msg:Object):void {
+      service.removePresentation(msg.body.presentationId);
     }
     
-    private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void { 
-      var map:Object = JSON.parse(msg.msg);      
-      var pres:Object = map.presentation as Object;
-      var presVO: PresentationVO = processUploadedPresentation(pres)
+    private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
+      var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
+      var podId: String = msg.body.podId as String;
+
+      service.addPresentation(podId, presVO);
       
-      service.addPresentation(presVO);
-      
-      var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);
+      var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(podId, presVO.id, presVO.name);
       dispatcher.dispatchEvent(uploadEvent);
-              
     }
     
     private function processUploadedPresentation(presentation:Object):PresentationVO {
-      var presoPages:ArrayCollection = new ArrayCollection();      
+      var presoPages:ArrayCollection = new ArrayCollection();
       var pages:Array = presentation.pages as Array;
       for (var k:int = 0; k < pages.length; k++) {
         var page:Object = pages[k] as Object;
-        var pg:PageVO = extractPage(page)
+        var pg:PageVO = extractPage(page);
         presoPages.addItem(pg);
       }
       
       var preso:PresentationVO = new PresentationVO(presentation.id, presentation.name, 
-                                   presentation.current, presoPages);
+                                   presentation.current, presoPages, presentation.downloadable);
       return preso;
     }
-    
-    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		  
-      var map:Object = JSON.parse(msg.msg);
-      var numPages:Number = map.numberOfPages;
-      var pagesDone:Number = map.pagesCompleted;
-      
-      dispatcher.dispatchEvent(new ConversionUpdateEvent(numPages, pagesDone));	
+
+    private function processPresentationPod(presentationPod:Object):PresentationPodVO {
+      var presentationVOs:ArrayCollection = new ArrayCollection();
+      var presentations:Array = presentationPod.presentations as Array;
+      for (var k:int = 0; k < presentations.length; k++) {
+        var aPres:PresentationVO = processUploadedPresentation(presentations[k] as Object);
+        presentationVOs.addItem(aPres);
+      }
+        
+      var authorizedPresenters:ArrayCollection = new ArrayCollection();
+      var authPresArray:Array = presentationPod.authorizedPresenters as Array;
+      for (var m:int = 0; m < authorizedPresenters.length; m++) {
+        presentationVOs.addItem(authPresArray[m] as String);
+      }  
+
+      var podVO:PresentationPodVO = new PresentationPodVO(presentationPod.id, presentationPod.ownerId,
+                presentationPod.currentPresenter, authorizedPresenters, presentationVOs);
+      return podVO;
     }
     
-    private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {     
-      LOGGER.debug("handlePageCountExceededUpdateMessageCallback " + JSON.stringify(msg.msg));
-      var map:Object = JSON.parse(msg.msg);
-      dispatcher.dispatchEvent(new ConversionPageCountMaxed(map.maxNumberPages as Number));
+    private function handlePresentationPageGeneratedEvtMsg(msg:Object):void {
+      dispatcher.dispatchEvent(new ConversionUpdateEvent(msg.body.numberOfPages, msg.body.pagesCompleted));
     }
     
-    private function handleConversionUpdateMessageCallback(msg:Object) : void {
-      var map:Object = JSON.parse(msg.msg);
-      
-      var uploadEvent:UploadEvent;
-      
-      switch (map.messageKey) {
+    private function handlePresentationPageCountErrorEvtMsg(msg:Object):void {
+      dispatcher.dispatchEvent(new ConversionPageCountMaxed(msg.body.maxNumberPages as Number));
+    }
+    
+    private function handlePresentationConversionUpdateEvtMsg(msg:Object):void {
+      switch (msg.body.messageKey) {
         case Constants.OFFICE_DOC_CONVERSION_SUCCESS_KEY :
           dispatcher.dispatchEvent(new OfficeDocConvertSuccessEvent());
           break;
         case Constants.OFFICE_DOC_CONVERSION_FAILED_KEY :
           dispatcher.dispatchEvent(new OfficeDocConvertFailedEvent());
           break;
-		case Constants.OFFICE_DOC_CONVERSION_INVALID_KEY :
-			dispatcher.dispatchEvent(new OfficeDocConvertInvalidEvent());
-			break;
+        case Constants.OFFICE_DOC_CONVERSION_INVALID_KEY :
+          dispatcher.dispatchEvent(new OfficeDocConvertInvalidEvent());
+          break;
         case Constants.SUPPORTED_DOCUMENT_KEY :
           dispatcher.dispatchEvent(new ConversionSupportedDocEvent());
           break;
         case Constants.UNSUPPORTED_DOCUMENT_KEY :
           dispatcher.dispatchEvent(new ConversionUnsupportedDocEvent());
           break;
-        case Constants.GENERATING_THUMBNAIL_KEY :	
+        case Constants.GENERATING_THUMBNAIL_KEY :
           dispatcher.dispatchEvent(new CreatingThumbnailsEvent());
-          break;		
+          break;
         case Constants.PAGE_COUNT_FAILED_KEY :
           dispatcher.dispatchEvent(new ConversionPageCountError());
-          break;	
+          break;
         case Constants.GENERATED_THUMBNAIL_KEY :
           break;
         default:
@@ -266,35 +255,58 @@ package org.bigbluebutton.modules.present.services.messaging
       }		
 
     }	
-      
-    private function handleGetPresentationInfoReply(msg:Object) : void {
-//      trace(LOG + "*** handleGetPresentationInfoReply " + msg.msg + " **** \n");
-      var map:Object = JSON.parse(msg.msg);
-      
-      var presenterMap:Object = map.presenter as Object;
-      if (presenterMap.hasOwnProperty("userId") && presenterMap.hasOwnProperty("name") &&
-        presenterMap.hasOwnProperty("assignedBy")) {
-//        trace(LOG + "Got presenter information");
-        var presenter: Presenter = new Presenter(presenterMap.userId, presenterMap.name, presenterMap.assignedBy);
-        PresentationModel.getInstance().setPresenter(presenter);        
-      }
-      
-//      trace(LOG + "Getting presentations information");
-      
+            
+    private function handleGetPresentationInfoRespMsg(msg:Object):void {
       var presos:ArrayCollection = new ArrayCollection();
-      var presentations:Array = map.presentations as Array;
+      var presentations:Array = msg.body.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
-        var presentation:Object = presentations[j] as Object;     
-//        trace(LOG + "Processing presentation information");
-        var presVO: PresentationVO = processUploadedPresentation(presentation)
+        var presentation:Object = presentations[j] as Object;
+        var presVO: PresentationVO = processUploadedPresentation(presentation);
         presos.addItem(presVO);
       }
       
       service.removeAllPresentations();
-      service.addPresentations(presos);
+//      service.addPresentations(presos, podId); // TODO -- are they all on the same pod?
     }
-    
 
-    
+    private function handlePresentationUploadTokenPassRespMsg(msg:Object):void {
+      var podId: String = msg.body.podId as String;
+      var authzToken: String = msg.body.authzToken as String;
+      var filename: String = msg.body.filename as String;
+
+      dispatcher.dispatchEvent(new PresentationUploadTokenPass(podId, authzToken, filename));
+    }
+
+    private function handlePresentationUploadTokenFailRespMsg(msg:Object):void {
+      var podId: String = msg.body.podId;
+      var filename: String = msg.body.filename;
+      dispatcher.dispatchEvent(new PresentationUploadTokenFail(podId, filename));
+    }
+
+    private function handleCreateNewPresentationPodEvtMsg(msg:Object): void {
+      var ownerId: String = msg.body.ownerId;
+      var podId: String = msg.body.podId;
+      dispatcher.dispatchEvent(new NewPresentationPodCreated(podId, ownerId));
+    }
+
+    private function handleRemovePresentationPodEvtMsg(msg:Object): void {
+      var ownerId: String = msg.body.ownerId;
+      var podId: String = msg.body.podId;
+      dispatcher.dispatchEvent(new PresentationPodRemoved(podId, ownerId));
+    }
+
+    private function handleGetAllPresentationPodsRespMsg(msg: Object): void {
+      var podsAC:ArrayCollection = new ArrayCollection();
+      var podsArr:Array = msg.body.pods as Array;
+      for (var j:int = 0; j < podsArr.length; j++) {
+        var podObj:Object = podsArr[j] as Object;
+        var podVO: PresentationPodVO = processPresentationPod(podObj);
+        podsAC.addItem(podVO);
+      }
+
+      var event: GetAllPodsRespEvent = new GetAllPodsRespEvent(GetAllPodsRespEvent.GET_ALL_PODS_RESP);
+      event.pods = podsAC;
+      dispatcher.dispatchEvent(event);
+    }
   }
 }

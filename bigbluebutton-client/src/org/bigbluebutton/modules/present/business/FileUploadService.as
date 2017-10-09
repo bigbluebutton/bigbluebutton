@@ -29,9 +29,10 @@ package org.bigbluebutton.modules.present.business
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	import org.bigbluebutton.core.UsersUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
 	import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
 	import org.bigbluebutton.modules.present.events.UploadProgressEvent;
@@ -70,8 +71,10 @@ package org.bigbluebutton.modules.present.business
 		 * @param file - The FileReference class of the file we wish to send
 		 * 
 		 */		
-		public function upload(presentationName:String, file:FileReference):void {
+		public function upload(podId: String, presentationName:String, file:FileReference, downloadable:Boolean):void {
 			sendVars.presentation_name = presentationName;
+			sendVars.is_downloadable = downloadable;
+			sendVars.pod_id = podId;
 			var fileToUpload : FileReference = new FileReference();
 			fileToUpload = file;
 			

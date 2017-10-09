@@ -4,16 +4,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.bigbluebutton.common.messages.MessagingConstants;
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class MessageReceiver {
-	private static Logger log = Red5LoggerFactory.getLogger(MessageReceiver.class, "bigbluebutton");
-	
+
 	private ReceivedMessageHandler handler;
 	
 	private Jedis jedis;
@@ -29,7 +26,7 @@ public class MessageReceiver {
 	}
 	
 	public void start() {
-		log.info("Ready to receive messages from Redis pubsub.");
+		//log.info("Ready to receive messages from Redis pubsub.");
 		try {
 			receiveMessage = true;
 			jedis = new Jedis(host, port);
@@ -44,7 +41,7 @@ public class MessageReceiver {
 			    			jedis.psubscribe(new PubSubListener(),
 				    				MessagingConstants.FROM_BBB_APPS_PATTERN);
 			    		} catch(JedisConnectionException ex) {
-			    			log.warn("Exception on Jedis connection. Resubscribing to pubsub.");
+			    			//log.warn("Exception on Jedis connection. Resubscribing to pubsub.");
 			    			start();
 			    		}
 			    		 
@@ -53,7 +50,7 @@ public class MessageReceiver {
 			};
 			msgReceiverExec.execute(messageReceiver);
 		} catch (Exception e) {
-			log.error("Error subscribing to channels: " + e.getMessage());
+			//log.error("Error subscribing to channels: " + e.getMessage());
 		}			
 	}
 	
@@ -87,7 +84,7 @@ public class MessageReceiver {
 
 		@Override
 		public void onPSubscribe(String pattern, int subscribedChannels) {
-			log.debug("Subscribed to the pattern: " + pattern);
+			//log.debug("Subscribed to the pattern: " + pattern);
 		}
 
 		@Override

@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormattedTime } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -47,25 +48,31 @@ export default class MessageListItem extends Component {
 
   handleMessageInViewport() {
     window.requestAnimationFrame(() => {
-      const node = this.refs.item;
+      const node = this.item;
       this.setState({ preventRender: !isElementInViewport(node) });
     });
   }
 
   componentDidMount() {
-    const scrollArea = document.getElementById(this.props.chatAreaId);
-    eventsToBeBound.forEach(
-      e => scrollArea.addEventListener(e, this.handleMessageInViewport, false)
-    );
+    const { scrollArea } = this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
+      );
+    }
 
     this.handleMessageInViewport();
   }
 
   componentWillUnmount() {
-    const scrollArea = document.getElementById(this.props.chatAreaId);
-    eventsToBeBound.forEach(
-      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false)
-    );
+    const { scrollArea } = this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
+      );
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -87,6 +94,31 @@ export default class MessageListItem extends Component {
     return !nextState.preventRender && nextState.pendingChanges;
   }
 
+  renderSystemMessage() {
+    const {
+      messages,
+    } = this.props;
+
+    return (
+      <div className={cx(styles.item, styles.systemMessage)}>
+        <div className={styles.content} ref={(ref) => { this.item = ref; }}>
+          <div className={styles.messages}>
+            {messages.map((message, i) => (
+              <Message
+                className={styles.message}
+                key={i}
+                text={message.text}
+                time={message.time}
+                chatAreaId={this.props.chatAreaId}
+                handleReadMessage={this.props.handleReadMessage}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const {
       user,
@@ -101,23 +133,29 @@ export default class MessageListItem extends Component {
     }
 
     return (
-      <div  className={styles.item}>
-        <div className={styles.wrapper} ref="item">
-          <div className={styles.avatar}>
-            <UserAvatar user={user} />
+      <div className={styles.item}>
+        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+          <div className={styles.avatarWrapper}>
+            <UserAvatar
+              className={styles.avatar}
+              color={user.color}
+              moderator={user.isModerator}
+            >
+              {user.name.toLowerCase().slice(0, 2)}
+            </UserAvatar>
           </div>
           <div className={styles.content}>
             <div className={styles.meta}>
-              <div className={!user.isOnline ? styles.name : styles.logout}>
+              <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
                 {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
               </div>
               <time className={styles.time} dateTime={dateTime}>
-                <FormattedTime value={dateTime}/>
+                <FormattedTime value={dateTime} />
               </time>
             </div>
             <div className={styles.messages}>
-              {messages.map((message, i) => (
+              {messages.map(message => (
                 <Message
                   className={styles.message}
                   key={message.id}
@@ -126,34 +164,10 @@ export default class MessageListItem extends Component {
                   chatAreaId={this.props.chatAreaId}
                   lastReadMessageTime={this.props.lastReadMessageTime}
                   handleReadMessage={this.props.handleReadMessage}
+                  scrollArea={this.props.scrollArea}
                 />
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  renderSystemMessage() {
-    const {
-      messages,
-    } = this.props;
-
-    return (
-      <div className={cx(styles.item, styles.systemMessage)}>
-        <div className={styles.content} ref="item">
-          <div className={styles.messages}>
-            {messages.map((message, i) => (
-              <Message
-                className={styles.message}
-                key={i}
-                text={message.text}
-                time={message.time}
-                chatAreaId={this.props.chatAreaId}
-                handleReadMessage={this.props.handleReadMessage}
-              />
-            ))}
           </div>
         </div>
       </div>

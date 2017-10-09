@@ -18,103 +18,131 @@
  */
 package org.bigbluebutton.modules.whiteboard.models
 {
-	import flash.events.IEventDispatcher;
+
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import flash.events.EventDispatcher;
 	
 	import mx.collections.ArrayCollection;
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.modules.present.model.Page;
-	import org.bigbluebutton.modules.present.model.PresentationModel;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
+	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 
-	public class WhiteboardModel
+	public class WhiteboardModel extends EventDispatcher
 	{
 		private static const LOGGER:ILogger = getClassLogger(WhiteboardModel);      
 		private var _whiteboards:ArrayCollection = new ArrayCollection();
-
-    private var _dispatcher:IEventDispatcher;
-        
-    public function WhiteboardModel(dispatcher:IEventDispatcher) {
-      _dispatcher = dispatcher;
-    }		
 		
-    private function getWhiteboard(id:String):Whiteboard {
-       for (var i:int = 0; i < _whiteboards.length; i++) {
-         var wb:Whiteboard = _whiteboards.getItemAt(i) as Whiteboard;
-         if (wb.id == id) return wb;
-       }
-       return null;
+		private var _multiUser:Boolean = false;
+
+    private var _dispatcher:Dispatcher = new Dispatcher();
+    
+    private var _lastTraceSentOn: Date = new Date();
+    private var _lastTraceReceivedOn: Date = new Date();
+    private var _roundTripTime: Number = 0;
+
+    public function sentLastTrace(date: Date):void {
+      _lastTraceSentOn = date;
     }
     
-		public function addAnnotation(annotation:Annotation):void {
-     // LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
+    public function get lastTraceSentOn(): Date {
+      return _lastTraceSentOn;
+    }
+    
+    public function set lastTraceReceivedTimestamp(ts: Number): void {
+      var tsDate: Date = new Date(ts);
+      var now: Date = new Date();
+      _roundTripTime = now.time - tsDate.time;
+      
+      _dispatcher.dispatchEvent(new RoundTripLatencyReceivedEvent());
+    }
+    
+    public function get latencyInSec(): Number {
+      return _roundTripTime;
+      
+      //if (_lastTraceReceivedOn.time < _lastTraceSentOn.time) {
+      //  var now: Date = new Date();
+      //  return (now.time - _lastTraceSentOn.time) / 1000;
+      //} else {
+      //  return (_lastTraceReceivedOn.time - _lastTraceSentOn.time) / 1000;
+      //}
+    }
+    
+
+    private function getWhiteboard(id:String, requestHistory:Boolean=true):Whiteboard {
       var wb:Whiteboard;
-      if (annotation.status == DrawObject.DRAW_START || annotation.type == DrawObject.POLL
-		  || annotation.status == TextObject.TEXT_CREATED) {
-        wb = getWhiteboard(annotation.whiteboardId);
-        if (wb != null) {
-          wb.addAnnotation(annotation);
-        } else {
-          wb = new Whiteboard(annotation.whiteboardId);
-          wb.addAnnotation(annotation);
-          _whiteboards.addItem(wb);
-        }         
-       } else {
-         wb = getWhiteboard(annotation.whiteboardId);
-         if (wb != null) {
-           wb.updateAnnotation(annotation);
-         }
-       }
-			 
+      
+      for (var i:int = 0; i < _whiteboards.length; i++) {
+        wb = _whiteboards.getItemAt(i) as Whiteboard;
+        if (wb.id == id) return wb;
+      }
+      
+      wb = new Whiteboard(id);
+      _whiteboards.addItem(wb);
+      
+      if (requestHistory) {
+        _dispatcher.dispatchEvent(new GetWhiteboardShapesCommand(id));
+      }
+      
+      return wb;
+    }
+    
+    public function addAnnotation(annotation:Annotation):void {
+      // LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
+      var wb:Whiteboard = getWhiteboard(annotation.whiteboardId);;
+      if (annotation.status == AnnotationStatus.DRAW_START || annotation.type == AnnotationType.POLL) {
+        wb.addAnnotation(annotation);
+      } else {
+        wb.updateAnnotation(annotation);
+      }
       // LOGGER.debug("*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
-       var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
-       event.annotation = annotation;
-       _dispatcher.dispatchEvent(event);
-//       trace(LOG + "*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
-		}
+      var event:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.NEW_ANNOTATION);
+      event.annotation = annotation;
+      dispatchEvent(event);
+    }
 		
     private function addShapes(wb:Whiteboard, shapes:Array):void {
       for (var i:int = 0; i < shapes.length; i++) {
         var an:Annotation = shapes[i] as Annotation;
-        wb.addAnnotation(an);
+        wb.addAnnotationAt(an, i);
       }  
     }
     
     
-    public function addAnnotationFromHistory(whiteboardId:String, annotation:Array):void {                
+    public function addAnnotationFromHistory(whiteboardId:String, annotations:Array):void {
       //LOGGER.debug("addAnnotationFromHistory: wb id=[{0}]", [whiteboardId]);
-      var wb:Whiteboard = getWhiteboard(whiteboardId);
-      if (wb != null) {
-       // LOGGER.debug("Whiteboard is already present. Adding shapes.");
-        addShapes(wb, annotation);
-      } else {
-       // LOGGER.debug("Whiteboard is NOT present. Creating WB and adding shapes.");
-        wb = new Whiteboard(whiteboardId);
-        addShapes(wb, annotation);
-        _whiteboards.addItem(wb);
-      } 
-
-      _dispatcher.dispatchEvent(new WhiteboardShapesEvent(wb.id));
+      var wb:Whiteboard = getWhiteboard(whiteboardId, false);
+      if (wb != null && !wb.historyLoaded) {
+        // LOGGER.debug("Whiteboard is already present. Adding shapes.");
+        if (annotations.length > 0) {
+          addShapes(wb, annotations);
+          
+          var e:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.RECEIVED_ANNOTATION_HISTORY);
+          e.wbId = wb.id;
+          dispatchEvent(e);
+        }
+        
+        wb.historyLoaded = true;
+      }
     }
         
-		public function removeAnnotation(id:String):void {
-			
+		public function removeAnnotation(wbId:String, shapeId:String):void {
+			LOGGER.debug("Removing annotation");
+			var wb:Whiteboard = getWhiteboard(wbId);
+			if (wb != null) {
+				var removedAnnotation:Annotation = wb.undo(shapeId);
+				if (removedAnnotation != null) {
+					var e:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.UNDO_ANNOTATION);
+					e.annotation = removedAnnotation;
+          dispatchEvent(e);
+				}
+			}
 		}
-		
-    public function getAnnotation(id:String):Annotation {
-      var wbId:String = getCurrentWhiteboardId();
-      if (wbId != null) {
-        var wb:Whiteboard = getWhiteboard(wbId);
-        if (wb != null) {
-          return wb.getAnnotation(id);
-        }        
-      }
-      return null;
-    }
         
     public function getAnnotations(wbId:String):Array {
       var wb:Whiteboard = getWhiteboard(wbId);
@@ -124,47 +152,50 @@ package org.bigbluebutton.modules.whiteboard.models
       // Just return an empty array.
       return new Array();
     }
-        
-		public function undo(wbId:String):void {
-      LOGGER.debug("Undoing whiteboard");
+		
+    public function clear(wbId:String, fullClear:Boolean, userId:String):void {
+      LOGGER.debug("Clearing whiteboard");
       var wb:Whiteboard = getWhiteboard(wbId);
       if (wb != null) {
-        wb.undo();
-        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION));
-      }
-      
-		}
-		
-		public function clear(wbId:String = null):void {
-      LOGGER.debug("Clearing whiteboard");
-      if (wbId != null) {
-        var wb:Whiteboard = getWhiteboard(wbId);
-        if (wb != null) {
-          wb.clear();
-          _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+        var event:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.CLEAR_ANNOTATIONS);
+        event.wbId = wbId;
+        if (fullClear) {
+          wb.clearAll();
+        } else {
+          wb.clear(userId);
+          event.userId = userId;
         }
-      } else {
-        _whiteboards.removeAll();
-        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+        dispatchEvent(event);
       }
-      
-    }
-
-
-		public function enable(enabled:Boolean):void {
-			
-		}
-        
-      
-    public function getCurrentWhiteboardId():String {
-      var page:Page = PresentationModel.getInstance().getCurrentPage();
-      if (page != null) {
-        return page.id;
-      }
-      
-      return null;
     }
     
+    public function clearAll():void {
+      _whiteboards.removeAll();
+      
+      var event:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.CLEAR_ANNOTATIONS);
+      event.wbId = "all";
+      dispatchEvent(event);
+    }
 
+    public function accessModified(multiUser:Boolean):void {
+      _multiUser = multiUser;
+      
+      var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFIED_WHITEBOARD_ACCESS);
+      event.multiUser = multiUser;
+      dispatchEvent(event);
+    }
+    
+    public function get multiUser():Boolean {
+      return _multiUser;
+    }
+	
+    public function updateCursorPosition(userId:String, xPercent:Number, yPercent:Number):void {
+      var event:WhiteboardCursorEvent = new WhiteboardCursorEvent(WhiteboardCursorEvent.RECEIVED_CURSOR_POSITION);
+      event.userId = userId;
+      event.xPercent = xPercent;
+      event.yPercent = yPercent;
+      dispatchEvent(event);
+    }
+	
 	}
 }

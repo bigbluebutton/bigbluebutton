@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
+<flc:CanvasButton xmlns:mx="library://ns.adobe.com/flex/mx"
+				  xmlns:fx="http://ns.adobe.com/mxml/2009"
+				  xmlns:flc="flexlib.controls.*"
+				  xmlns:mate="http://mate.asfusion.com/"
+				  visible="false"
+				  includeInLayout="false"
+				  creationComplete="onCreationComplete()"
+				  toolTip="{UsersUtil.amIMuted() ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}"
+				  click="toggleMuteMeState()"
+				  mouseOver="mouseOverHandler()"
+				  mouseOut="mouseOutHandler()"
+				  height="30"
+				  width="40"
+				  styleName="muteMeDefaultButtonStyle"
+				  implements="org.bigbluebutton.common.IBbbToolbarComponent">
+
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}"
+					   method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}"
+					   method="toggleMuteMeState" />
+		<mate:Listener type="{EventConstants.USER_TALKING}"
+					   method="handleUserTalking" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}"
+					   method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}"
+					   method="refreshRole" />
+		<mate:Listener type="{BBBEvent.USER_VOICE_JOINED}"
+					   method="handleJoinedVoiceConferenceEvent" />
+		<mate:Listener type="{BBBEvent.USER_VOICE_LEFT}"
+					   method="handleLeftVoiceConferenceEvent" />
+		<mate:Listener type="{BBBEvent.USER_VOICE_MUTED}"
+					   method="handleVoiceMutedEvent" />
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import flash.filters.BitmapFilterQuality;
+			
+			import spark.filters.GlowFilter;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbToolbarComponent;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.core.model.users.VoiceUser2x;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private static const LOGGER:ILogger = getClassLogger(MuteMeButton);
+
+			private var muteMeRolled:Boolean = false;
+
+			public function getAlignment():String {
+				return MainToolbar.ALIGN_LEFT;
+			}
+
+			private function onCreationComplete():void {
+				LOGGER.debug("initialized");
+			}
+
+			private function handleUserTalking(e:CoreEvent):void {
+				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
+				if (UsersUtil.isMe(e.message.userID)) {
+					if (e.message.talking) {
+						muteMeBtnImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+					} else {
+						muteMeBtnImg.filters = [];
+					}
+				}
+			}
+
+			private function localeChanged(e:Event):void {
+				updateMuteMeBtn();
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				updateMuteMeBtn();
+			}
+
+			private function lockSettingsChanged(e:Event):void {
+				if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
+					// Ignore lock setting changes as 
+					// or presenter we are moderator.
+					return;
+				}
+				updateMuteMeBtn();
+			}
+
+			private function handleJoinedVoiceConferenceEvent(event:BBBEvent):void {
+				if (UsersUtil.isMe(event.payload.userID)) {
+					LOGGER.debug("User has joined the conference using flash");
+					updateMuteMeBtn();
+					muteMeBtnImg.filters = [];
+				}
+			}
+
+			private function handleLeftVoiceConferenceEvent(event:BBBEvent):void {
+				if (UsersUtil.isMe(event.payload.userID)) {
+					LOGGER.debug("User has left the conference using flash");
+					updateMuteMeBtn();
+				}
+			}
+
+			private function allowMuteUnmute():Boolean {
+				var me:VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(LiveMeeting.inst().me.id);
+				// I am in voice conference.
+				return (me != null && !LiveMeeting.inst().me.disableMyMic && !me.listenOnly);
+			}
+
+			private function updateMuteMeBtn(placeholder:Boolean = false):void {
+				if (!allowMuteUnmute()) {
+					this.visible = this.includeInLayout = false;
+				} else {
+					this.visible = this.includeInLayout = true;
+
+					var myVoiceUser:VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(LiveMeeting.inst().me.id);
+
+					if (myVoiceUser != null) {
+						if (muteMeRolled) {
+							if (myVoiceUser.muted) {
+								selected = true;
+								styleName = "muteMeOnButtonStyle";
+								toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
+
+								muteMeBtnImg.source = getStyle("iconAudio");
+							} else {
+								selected = true;
+								styleName = "muteMeOffButtonStyle";
+								toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
+
+								muteMeBtnImg.source = getStyle("iconAudio");
+							}
+						} else {
+							if (myVoiceUser.muted) {
+								selected = true;
+								styleName = "muteMeOffButtonStyle";
+								toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
+
+								muteMeBtnImg.source = getStyle("iconAudio");
+							} else {
+								selected = false;
+								styleName = "muteMeDefaultButtonStyle";
+
+								muteMeBtnImg.source = getStyle("iconAudio");
+							}
+						}
+					}
+				}
+			}
+
+			private function handleVoiceMutedEvent(event:BBBEvent):void {
+				if (UsersUtil.isMe(event.payload.userID)) {
+					LOGGER.debug("User has been muted/unmuted");
+					if (muteMeRolled) {
+						if (!event.payload.muted) {
+							selected = true;
+							styleName = "muteMeOnButtonStyle";
+							toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
+
+							muteMeBtnImg.source = getStyle("iconAudio");
+						} else {
+							selected = true;
+							styleName = "muteMeOffButtonStyle";
+							toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
+
+							muteMeBtnImg.source = getStyle("iconAudio");
+						}
+					} else {
+						if (event.payload.muted) {
+							selected = true;
+							styleName = "muteMeOffButtonStyle";
+							toolTip = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
+
+							muteMeBtnImg.source = getStyle("iconAudio");
+						} else {
+							selected = false;
+							styleName = "muteMeDefaultButtonStyle";
+
+							muteMeBtnImg.source = getStyle("iconAudio");
+						}
+					}
+				}
+			}
+
+			private function toggleMuteMeState(event:ShortcutEvent = null):void {
+				if (UsersUtil.amIinVoiceConf()) {
+					this.setFocus();
+					if (!allowMuteUnmute())
+						return;
+
+					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+					e.userid = UsersUtil.getMyUserID();
+					e.mute = !UsersUtil.amIMuted();
+					dispatchEvent(e);
+				}
+			}
+
+			private function mouseOverHandler():void {
+				muteMeRolled = true;
+				updateMuteMeBtn();
+			}
+
+			private function mouseOutHandler():void {
+				muteMeRolled = false;
+				updateMuteMeBtn();
+			}
+		]]>
+	</fx:Script>
+
+	<mx:HBox id="hboxMuteMe"
+			 horizontalAlign="center"
+			 verticalAlign="middle"
+			 horizontalCenter="0"
+			 verticalCenter="0"
+			 width="100%">
+		<mx:Image id="muteMeBtnImg" />
+	</mx:HBox>
+</flc:CanvasButton>

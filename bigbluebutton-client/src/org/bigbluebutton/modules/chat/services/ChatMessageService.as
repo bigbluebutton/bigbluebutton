@@ -23,113 +23,131 @@ package org.bigbluebutton.modules.chat.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.model.MeetingModel;
-  import org.bigbluebutton.modules.chat.ChatConstants;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+  import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+  import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+  import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
-
+  
   public class ChatMessageService
   {
-	private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
+    private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var dispatcher:IEventDispatcher;
     
-    public function sendPublicMessageFromApi(message:Object):void
+    public function sendPublicMessageFromApi(event:SendGroupChatMessageEvent):void
     {
-      LOGGER.debug("sendPublicMessageFromApi");
-      var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.chatType = ChatConstants.PUBLIC_CHAT;
-      msgVO.fromUserID = message.fromUserID;
-      msgVO.fromUsername = message.fromUsername;
-      msgVO.fromColor = message.fromColor;
-      msgVO.fromTime = message.fromTime;
-      msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
-
-      msgVO.message = message.message;
       
-      sendPublicMessage(msgVO);
+      
+      //sendPublicMessage(event.chatId, msgVO);
     }    
     
     public function sendPrivateMessageFromApi(message:Object):void
     {
-	  LOGGER.debug("sendPrivateMessageFromApi");
+      LOGGER.debug("sendPrivateMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.chatType = ChatConstants.PUBLIC_CHAT;
-      msgVO.fromUserID = message.fromUserID;
+      msgVO.fromUserId = message.fromUserID;
       msgVO.fromUsername = message.fromUsername;
       msgVO.fromColor = message.fromColor;
       msgVO.fromTime = message.fromTime;
       msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
       
-      msgVO.toUserID = message.toUserID;
+      msgVO.toUserId = message.toUserID;
       msgVO.toUsername = message.toUsername;
       
       msgVO.message = message.message;
       
       sendPrivateMessage(msgVO);
-
+      
     }
     
-    public function sendPublicMessage(message:ChatMessageVO):void {
-      sender.sendPublicMessage(message);
+    public function sendPublicMessage(event:SendGroupChatMessageEvent):void {
+      LOGGER.debug("sendPublicMessageFromApi");
+      var msgVO:ChatMessageVO = new ChatMessageVO();
+      msgVO.fromUserId = event.chatMessage.fromUserId;
+      msgVO.fromUsername = event.chatMessage.fromUsername;
+      msgVO.fromColor = event.chatMessage.fromColor;
+      msgVO.fromTime = event.chatMessage.fromTime;
+      msgVO.fromTimezoneOffset = event.chatMessage.fromTimezoneOffset;
+      
+      msgVO.message = event.chatMessage.message;
+      sender.sendPublicMessage(event.chatId, msgVO);
     }
     
     public function sendPrivateMessage(message:ChatMessageVO):void {
       sender.sendPrivateMessage(message);
     }
     
-    public function getPublicChatMessages():void {
-      sender.getPublicChatMessages();
+    public function handleCreateGCReqEvent(event:CreateGroupChatReqEvent):void {
+      sender.createGroupChat(event.name, event.access, event.users);
+    }
+    
+    public function getGroupChats():void {
+      sender.getGroupChats();
+    }
+    
+    public function getGroupChatHistoryMessages(chatId: String):void {
+      sender.getGroupChatMsgHistory(chatId);
+    }
+    
+    public function handleReceivedGroupChatsEvent():void {
+      var gcIds: Array = LiveMeeting.inst().chats.getGroupChatIds();
+      for (var i:int = 0; i < gcIds.length; i++) {
+        var gcId: String = gcIds[i];
+        sender.getGroupChatMsgHistory(gcId);
+      }
+    }
+    
+    public function clearPublicChatMessages():void {
+      sender.clearPublicChatMessages();
     }
     
     private static const SPACE:String = " ";
     
-    public function sendWelcomeMessage():void {
-	  LOGGER.debug("sendWelcomeMessage");
-      var welcome:String = BBB.initUserConfigManager().getWelcomeMessage();
+    public function sendWelcomeMessage(chatId:String):void {
+      LOGGER.debug("sendWelcomeMessage");
+      var welcome:String = LiveMeeting.inst().me.welcome;
       if (welcome != "") {
         var welcomeMsg:ChatMessageVO = new ChatMessageVO();
-        welcomeMsg.chatType = ChatConstants.PUBLIC_CHAT;
-        welcomeMsg.fromUserID = SPACE;
+        welcomeMsg.fromUserId = SPACE;
         welcomeMsg.fromUsername = SPACE;
         welcomeMsg.fromColor = "86187";
         welcomeMsg.fromTime = new Date().getTime();
         welcomeMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        welcomeMsg.toUserID = SPACE;
+        welcomeMsg.toUserId = SPACE;
         welcomeMsg.toUsername = SPACE;
         welcomeMsg.message = welcome;
         
-        var welcomeMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-        welcomeMsgEvent.message = welcomeMsg;
-        welcomeMsgEvent.history = false;
-        dispatcher.dispatchEvent(welcomeMsgEvent);
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (groupChat != null) {
+          groupChat.addMessage(welcomeMsg);
+        }
         
         //Say that client is ready when sending the welcome message
         ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
       }	
       
       if (UsersUtil.amIModerator()) {
-        if (MeetingModel.getInstance().modOnlyMessage != null) {
+        if (LiveMeeting.inst().meeting.modOnlyMessage != null) {
           var moderatorOnlyMsg:ChatMessageVO = new ChatMessageVO();
-          moderatorOnlyMsg.chatType = ChatConstants.PUBLIC_CHAT;
-          moderatorOnlyMsg.fromUserID = SPACE;
+          moderatorOnlyMsg.fromUserId = SPACE;
           moderatorOnlyMsg.fromUsername = SPACE;
           moderatorOnlyMsg.fromColor = "86187";
           moderatorOnlyMsg.fromTime = new Date().getTime();
           moderatorOnlyMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-          moderatorOnlyMsg.toUserID = SPACE;
+          moderatorOnlyMsg.toUserId = SPACE;
           moderatorOnlyMsg.toUsername = SPACE;
-          moderatorOnlyMsg.message = MeetingModel.getInstance().modOnlyMessage;
+          moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
           
-          var moderatorOnlyMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-          moderatorOnlyMsgEvent.message = moderatorOnlyMsg;
-          moderatorOnlyMsgEvent.history = false;
-          dispatcher.dispatchEvent(moderatorOnlyMsgEvent);
+          var groupChat2: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+          if (groupChat2 != null) {
+            groupChat2.addMessage(moderatorOnlyMsg);
+          }
+          
         }
       }
     }

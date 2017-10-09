@@ -20,38 +20,43 @@
   $Id: $
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	verticalAlign="middle"
+	horizontalGap="8"
 	horizontalAlign="center">
 	
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<fx:Declarations>
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.events.FlexEvent;
 			
-			import org.bigbluebutton.common.Images;
+			import org.as3commons.lang.StringUtils;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var images:Images = new Images();
   			private var rolledOver:Boolean = false;
   			private var moderator:Boolean = false;
   			
   			private function onCreationComplete():void {
-  				moderator = UserManager.getInstance().getConference().amIModerator();
+  				refreshRole(UsersUtil.amIModerator());
   				
   				/* I was trying to the binds through actionscript, but every time the itemrenderer was recycled 
   				 * the binds would stop functioning. I think it might have been because I was using strong 
@@ -96,24 +101,30 @@
   			}
 			
 			private function updateRoleComponents() : void {
-				if (rolledOver && !data.presenter && !data.phoneUser) {
-					roleBtn.setStyle("icon", images.presenter_new);
+				if (rolledOver && !data.presenter && !data.voiceOnlyUser) {
+					roleBtn.setStyle("icon", getStyle("iconPresenter"));
 					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
 					roleImg.visible = false;
 					roleBtn.visible = true;
 					roleBtn.enabled = true;
 				} else if (data.presenter) {
-					roleImg.source = images.presenter_new;
+					roleImg.source = getStyle("iconPresenter");
 					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
 					roleImg.visible = true;
 					roleBtn.visible = false;
 					roleBtn.enabled = false;
 				} else if (data.role == Role.MODERATOR) {
-					roleImg.source = images.moderator;
+					roleImg.source = getStyle("iconModerator");
 					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
 					roleImg.visible = true;
 					roleBtn.visible = false;
 					roleBtn.enabled = false;
+        } else if (data.role == Role.VOICE_ONLY) {
+          roleImg.source = getStyle("iconModeratorOnly");
+          roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.voiceOnlyUser');
+          roleImg.visible = true;
+          roleBtn.visible = false;
+          roleBtn.enabled = false;
 				} else {
 					roleImg.source = null;
 					roleImg.toolTip = "";
@@ -125,14 +136,14 @@
 			
 			private function updateEmojiComponents() : void {
 				if (rolledOver && data.hasEmojiStatus) {
-					emojiBtn.setStyle("icon", images["emoji_" + data.emojiStatus]);
+					emojiBtn.setStyle("icon", getStyle("iconMood" + StringUtils.capitalize(data.emojiStatus)));
 					emojiBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = false;
 					emojiBtn.visible = true;
 					emojiBtn.enabled = true;
 				} else if (data.hasEmojiStatus) {
-					emojiImg.source = images["emoji_" + data.emojiStatus];
-					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
+					emojiImg.source = getStyle("iconMood" + StringUtils.capitalize(data.emojiStatus));
+					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = true;
 					emojiBtn.visible = false;
 					emojiBtn.enabled = false;
@@ -147,7 +158,7 @@
 			}
   			
   			private function onRollOver(e:UsersRollEvent):void{
-				if (moderator && (e.userID == data.userID) && !data.phoneUser) {
+				if (moderator && (e.userID == data.userId) && !data.voiceOnlyUser) {
 					rolledOver = true;
 					updateButtons();
 				}
@@ -160,32 +171,52 @@
 				}
 			}
   			
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				rolledOver = false;
+				updateButtons();
+
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
+			private function refreshRole(amIModerator:Boolean):void {
+				moderator = amIModerator;
+			}
+
   			private function roleBtnClicked():void {
                 if (!data.presenter) {
     				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-    				e.userid = data.userID;
+    				e.userid = data.userId;
     				e.username = data.name;
     				dispatchEvent(e);
                 }
         	}
-			
-			private function emojiBtnClicked() : void {
+
+			private function emojiBtnClicked():void {
 				if (data.hasEmojiStatus) {
-					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", data.userID));
+					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", data.userId));
 				}
 			}
-			
+
 			// Need to refresh the roleBtn toolTip text on locale change
 			private function localeChanged(e:Event):void {
 				updateButtons();
 			}
 		]]>
-	</mx:Script>
-	<mx:Image id="emojiImg" visible="true" width="16" height="16" includeInLayout="{emojiImg.visible}" />
-	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
+	</fx:Script>
 	
-	<mx:Image id="roleImg" visible="true" width="16" height="16" includeInLayout="{roleImg.visible}" />
-	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
+	<mx:Canvas id="emojiCanvas" width="20" height="20" visible="{emojiImg.visible || emojiBtn.visible}" includeInLayout="{emojiCanvas.visible}">
+		<mx:Image id="emojiImg" visible="true" includeInLayout="{emojiImg.visible}" horizontalCenter="0" verticalCenter="0"/>
+		<mx:Button id="emojiBtn" visible="false" enabled="false"
+				   width="20" height="20" horizontalCenter="0" verticalCenter="0"
+				   click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
+	</mx:Canvas>
+	
+	<mx:Canvas id="roleCanvas" width="20" height="20" visible="{roleImg.visible || roleBtn.visible}" includeInLayout="{roleCanvas.visible}">
+		<mx:Image id="roleImg" visible="true" includeInLayout="{roleImg.visible}" horizontalCenter="0" verticalCenter="0"/>
+		<mx:Button id="roleBtn" visible="false" enabled="false"
+				   width="20" height="20" horizontalCenter="0" verticalCenter="0"
+				   click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
+	</mx:Canvas>
 	
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="presenterInd" includeInLayout="false" visible="{data.presenter}" />

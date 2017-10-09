@@ -52,12 +52,13 @@ class AudioSettings extends React.Component {
     return (
       <div>
         <div className={styles.topRow}>
-          <Button className={styles.backBtn}
+          <Button
+            className={styles.backBtn}
             label={intl.formatMessage(intlMessages.backLabel)}
             icon={'left_arrow'}
             size={'md'}
             color={'primary'}
-            ghost={true}
+            ghost
             onClick={this.chooseAudio}
           />
           <div className={cx(styles.title, styles.chooseAudio)}>
@@ -78,24 +79,26 @@ class AudioSettings extends React.Component {
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.micSourceLabel)}
+                  <DeviceSelector
+                    value={this.state.inputDeviceId}
+                    className={styles.select}
+                    kind="audioinput"
+                    onChange={this.handleInputChange}
+                  />
                 </label>
-                <DeviceSelector
-                  value={this.state.inputDeviceId}
-                  className={styles.select}
-                  kind="audioinput"
-                  onChange={this.handleInputChange} />
               </div>
             </div>
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.speakerSourceLabel)}
-                </label>
-                <DeviceSelector
+                  <DeviceSelector
                     value={this.state.outputDeviceId}
                     className={styles.select}
                     kind="audiooutput"
-                    onChange={this.handleOutputChange} />
+                    onChange={this.handleOutputChange}
+                  />
+                </label>
               </div>
             </div>
           </div>
@@ -105,26 +108,27 @@ class AudioSettings extends React.Component {
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.streamVolumeLabel)}
+                  <AudioStreamVolume
+                    deviceId={this.state.inputDeviceId}
+                    className={styles.audioMeter}
+                  />
                 </label>
-                <AudioStreamVolume
-                  deviceId={this.state.inputDeviceId}
-                  className={styles.audioMeter} />
               </div>
             </div>
             <div className={styles.col}>
               <label className={styles.label}> </label>
-              <AudioTestContainer/>
+              <AudioTestContainer />
             </div>
           </div>
         </div>
 
         <div className={styles.enterAudio}>
-          <EnterAudioContainer isFullAudio={true}/>
+          <EnterAudioContainer isFullAudio />
         </div>
       </div>
     );
   }
-};
+}
 
 const intlMessages = defineMessages({
   backLabel: {

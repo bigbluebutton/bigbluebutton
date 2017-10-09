@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import EmojiService from './service';
@@ -22,7 +23,7 @@ class EmojiContainer extends React.Component {
     } = this.props;
 
     return (
-      <EmojiMenu userEmojiStatus={userEmojiStatus} actions={actions}/>
+      <EmojiMenu userEmojiStatus={userEmojiStatus} actions={actions} />
     );
   }
 }

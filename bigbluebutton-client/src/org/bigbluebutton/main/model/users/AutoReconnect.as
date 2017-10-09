@@ -23,7 +23,6 @@ package org.bigbluebutton.main.model.users
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-
   import org.bigbluebutton.core.UsersUtil;
 
   public class AutoReconnect

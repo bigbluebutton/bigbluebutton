@@ -4,49 +4,51 @@ package org.bigbluebutton.modules.present.model
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
   
   public class PresentationModel
   {
 	private static const LOGGER:ILogger = getClassLogger(PresentationModel);      
     
-    private static var instance:PresentationModel = null;
+//    private static var instance:PresentationModel = null;
     
-    private var _presentations:ArrayCollection = new ArrayCollection();   
-    private var _presenter: Presenter;
+    private var _presentations:ArrayCollection = new ArrayCollection();
+    private var _podId: String = ""; // TODO make this private
+    private var _ownerId: String = "";
     
     /**
      * This class is a singleton. Please initialize it using the getInstance() method.
      * 
      */		
-    public function PresentationModel(enforcer:SingletonEnforcer) {
-      if (enforcer == null){
-        throw new Error("There can only be 1 PresentationModel instance");
-      }
-      initialize();
-    }
-    
-    private function initialize():void {
+    public function PresentationModel(podId: String, ownerId: String) {
       
+      initialize(podId, ownerId);
     }
     
-    /**
-     * Return the single instance of the PresentationModel class
-     */
+    private function initialize(podId: String, ownerId: String):void {
+        _podId = podId;
+        _ownerId = ownerId;
+    }
+    
+//    /**
+//     * Return the single instance of the PresentationModel class
+//     */
     public static function getInstance():PresentationModel{
-      if (instance == null){
-        instance = new PresentationModel(new SingletonEnforcer());
-      }
-      return instance;
+//      if (instance == null){
+//        instance = new PresentationModel();
+//      }
+//      return instance;
+        return null;
     }
     
-    public function setPresenter(p: Presenter):void {
-      _presenter = p;
+    public function getPodId(): String {
+        return _podId;
     }
-    
-    public function getPresenter():Presenter {
-      return _presenter;
+
+    public function getOwnerId(): String {
+        return _ownerId;
     }
-    
+
     public function addPresentation(p: Presentation):void {
       _presentations.addItem(p);
     }
@@ -65,14 +67,6 @@ package org.bigbluebutton.modules.present.model
     
     public function removeAllPresentations():void {
       _presentations.removeAll();
-    }
-    
-    public function replacePresentation(p: Presentation):void {
-      var oldPres:Presentation = removePresentation(p.id);
-      if (oldPres == null) {
-        LOGGER.debug("Could not find presentation [{0}] to remove.", [p.id]);
-      }
-      addPresentation(p);
     }
     
     public function getCurrentPresentationName():String {
@@ -124,39 +118,53 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
-    public function getNextPage(id:String):Page {
-      var ids:Array = id.split("/");
-      if (ids.length > 1) {
-        var presId:String = ids[0];
-        var pageNum:int = int(ids[1]);
-        LOGGER.debug("page id [{0}] ids= [{1},{2}] {3}", [id, presId, pageNum, ids[1]]);
-        var pres:Presentation = getPresentation(presId);
-        var nextPage:int = pageNum + 1;
-        LOGGER.debug("Next page [{0}/{1}]", [presId, nextPage]);
-        if (pres != null) {
-          return pres.getPage(presId + "/" + nextPage);
-        }       
+    public function getNextPageIds():PageChangeVO {
+      var curPres:Presentation = getCurrentPresentation();
+      if (curPres != null) {
+        var curPage:Page = curPres.getCurrentPage();
+        if (curPage != null) {
+          LOGGER.debug("page id [{0}], pres id [{1}], page num [{2}]", [curPage.id, curPres.id, curPage.num]);
+          var nextNum:int = curPage.num + 1;
+          LOGGER.debug("Next page [{0}/{1}]", [curPres.id, nextNum]);
+          var nextPage:Page = curPres.getPageByNum(nextNum);
+          if (nextPage != null) {
+            return new PageChangeVO(curPres.id, nextPage.id);
+          }
+        }
       }
       
-      return null;      
+      return null;
     }
     
-    public function getPrevPage(id:String):Page {
-      var ids:Array = id.split("/");
-      if (ids.length > 1) {
-        var presId:String = ids[0];
-        var pageNum:int = int(ids[1]);
-        LOGGER.debug("page id [{0}] ids= [{1},{2}] {3}", [id, presId, pageNum, ids[1]]);
-        var pres:Presentation = getPresentation(presId);
-        var prevPage:int = pageNum - 1;
-        LOGGER.debug("Prev page [{0}/{1}]", [presId, prevPage]);
-        if (pres != null) {
-          return pres.getPage(presId + "/" + prevPage);
-        }
-        
+    public function getPrevPageIds():PageChangeVO {
+      var curPres:Presentation = getCurrentPresentation();
+      if (curPres != null) {
+        var curPage:Page = curPres.getCurrentPage();
+        if (curPage != null) {
+          LOGGER.debug("page id [{0}], pres id [{1}], page num [{2}]", [curPage.id, curPres.id, curPage.num]);
+          var prevNum:int = curPage.num - 1;
+          LOGGER.debug("Prev page [{0}/{1}]", [curPres.id, prevNum]);
+          var prevPage:Page = curPres.getPageByNum(prevNum);
+		  if (prevPage != null) {
+            return new PageChangeVO(curPres.id, prevPage.id);
+		  }
+		}
       }
       
-      return null;      
+      return null;
+    }
+    
+    public function getSpecificPageIds(pageId:String):PageChangeVO {
+      var curPres:Presentation = getCurrentPresentation();
+      if (curPres != null) {
+        var newPage:Page = curPres.getPage(pageId);
+        if (newPage != null && !newPage.current) {
+          LOGGER.debug("page id [{0}], pres id [{1}], page num [{2}]", [newPage.id, curPres.id, newPage.num]);
+          return new PageChangeVO(curPres.id, newPage.id);
+        }
+      }
+      
+      return null;
     }
     
     public function getPage(id: String):Page {
@@ -181,6 +189,19 @@ package org.bigbluebutton.modules.present.model
       }
       LOGGER.debug("Could not find presentation [{0}].", [presId]);
       return null;      
+    }
+
+    public function getDownloadablePresentations():ArrayCollection {
+      var presos:ArrayCollection = new ArrayCollection();
+
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        if (pres.downloadable) {
+          presos.addItem(pres);
+        }
+      }
+
+      return presos;
     }
   }
 }

@@ -18,35 +18,34 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-           width="30" height="30"
+<mx:Button xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   click="onClick()" styleName="whiteboardCircleButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" 
 		   toggle="true" 
 		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse.accessibilityName')}">
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
 			private function onClick():void {
 				var event:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED);
 				event.graphicType = WhiteboardConstants.TYPE_SHAPE;
-				event.toolType = DrawObject.ELLIPSE;
+				event.toolType = AnnotationType.ELLIPSE;
 				
 				dispatchEvent(event);
 			}
 			
             public function setTool(gType:String, toolType:String):void {
-                if(gType == WhiteboardConstants.TYPE_SHAPE && toolType == DrawObject.ELLIPSE) {
+                if(gType == WhiteboardConstants.TYPE_SHAPE && toolType == AnnotationType.ELLIPSE) {
                     this.selected = true;
                 } else {
                     this.selected = false;
                 } 					
             }
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Button>

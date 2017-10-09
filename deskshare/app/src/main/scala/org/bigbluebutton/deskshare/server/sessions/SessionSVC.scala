@@ -26,6 +26,7 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import net.lag.logging.Logger
 import java.awt.Point
+import java.io.{PrintWriter, StringWriter}
 
 case object StartSession
 case class UpdateSessionBlock(position: Int, blockData: Array[Byte], keyframe: Boolean, seqNum: Int)
@@ -50,6 +51,15 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
   private var streamStartedOn = 0L
   private var streamStarted = false
   
+	override def exceptionHandler() = {
+		case e: Exception => {
+			val sw:StringWriter = new StringWriter()
+			sw.write("An exception has been thrown on SessionSVC, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+			e.printStackTrace(new PrintWriter(sw))
+			log.error(sw.toString())
+		}
+	}
+
 	/*
 	 * Schedule to generate a key frame after 30seconds of a request.
 	 * This prevents us from generating unnecessary key frames when

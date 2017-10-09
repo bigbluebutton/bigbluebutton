@@ -200,6 +200,16 @@ if (request.getParameterMap().isEmpty()) {
 		<tr>
 			<td>
 				&nbsp;</td>
+			<td style="text-align: right; ">
+				Guest:</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				<input type="checkbox" name="guest" value="guest" /></td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
 			<td>
 				&nbsp;</td>
 			<td>
@@ -214,8 +224,8 @@ if (request.getParameterMap().isEmpty()) {
 
 Passwords:  
 <ul>
-   <li>prof123 - login as professor (moderator privlidges)</li>
-   <li>student123 - login as student (viewer privlidges)</li>
+   <li>prof123 - login as professor (moderator privileges)</li>
+   <li>student123 - login as student (viewer privileges)</li>
 </ul>
 
 
@@ -273,7 +283,7 @@ Error: createMeeting() failed
 		// We've got a valid meeting_ID and passoword -- let's join!
 		//
 		
-		String joinURL = getJoinMeetingURL(username, meeting_ID, password, null);
+		String joinURL = getJoinMeetingURL(username, meeting_ID, password, null, request.getParameter("guest") != null);
 %>
 
 <script language="javascript" type="text/javascript">

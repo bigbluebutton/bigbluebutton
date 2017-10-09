@@ -33,8 +33,47 @@ class PresentationController {
   def index = {
     render(view:'upload-file') 
   }
-  
+
+  def checkPresentationBeforeUploading = {
+    try {
+      def maxUploadFileSize = 3000000 // 30 MB
+      def presentationToken = request.getHeader("x-presentation-token")
+      def originalUri = request.getHeader("x-original-uri")
+      def originalContentLengthString = request.getHeader("x-original-content-length")
+
+      def originalContentLength = 0
+      if (originalContentLengthString.isNumber()) {
+        originalContentLength = originalContentLengthString as int
+      }
+
+      if (null != presentationToken
+               && meetingService.authzTokenIsValid(presentationToken) // this we do in the upload handling
+              && originalContentLength < maxUploadFileSize
+              && 0 != originalContentLength) {
+        log.debug "SUCCESS\n"
+        response.setStatus(200);
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'upload-success';
+      } else {
+        log.debug "NO SUCCESS \n"
+        response.setStatus(404);
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'file-empty';
+      }
+    } catch (IOException e) {
+      log.error("Error in checkPresentationBeforeUploading.\n" + e.getMessage());
+    }
+  }
+
   def upload = {
+    // check if the authorization token provided is valid
+    if (null == params.authzToken || !meetingService.authzTokenIsValidAndExpired(params.authzToken)) {
+      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
+      return
+    }
+
     def meetingId = params.conference
     def meeting = meetingService.getNotEndedMeetingWithId(meetingId);
     if (meeting == null) {
@@ -60,10 +99,36 @@ class PresentationController {
          def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename )
          file.transferTo(pres)
          
+         def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
+         def podId = params.pod_id
+         log.debug "@AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..." + podId
+
+         if(isDownloadable) {
+           log.debug "@Creating download directory..."
+           File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
+           if (downloadDir != null) {
+             def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+             def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
+             def downloadableFile = new File( downloadDir.absolutePath + File.separatorChar + downloadableFileName )
+             downloadableFile << pres.newInputStream()
+           }
+         }
+
          def presentationBaseUrl = presentationService.presentationBaseUrl
-         UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename, presentationBaseUrl);
+         UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
+                 presFilename, presentationBaseUrl, false /* default presentation */);
+
+         if(isDownloadable) {
+           log.debug "@Setting file to be downloadable..."
+           uploadedPres.setDownloadable();
+         }
+
          uploadedPres.setUploadedFile(pres);
          presentationService.processUploadedPresentation(uploadedPres)
+
+         response.addHeader("Cache-Control", "no-cache")
+         response.contentType = 'plain/text'
+         response.outputStream << 'upload-success';
       }
     } else {
       flash.message = 'file cannot be empty'
@@ -186,6 +251,33 @@ class PresentationController {
     return null;
   }
   
+  def downloadFile = {
+    def presentationName = params.presentation_name
+    def conf = params.conference
+    def rm = params.room
+    println "Controller: Download request for $presentationName"
+
+    InputStream is = null;
+    try {
+      def pres = presentationService.getFile(conf, rm, presentationName)
+      if (pres.exists()) {
+        println "Controller: Sending pdf reply for $presentationName"
+
+        def bytes = pres.readBytes()
+        def responseName = pres.getName();
+        response.addHeader("content-disposition", "filename=$responseName")
+        response.addHeader("Cache-Control", "no-cache")
+        response.outputStream << bytes;
+      } else {
+        println "$pres does not exist."
+      }
+    } catch (IOException e) {
+      println("Error reading file.\n" + e.getMessage());
+    }
+
+    return null;
+  }
+
   def thumbnail = {
     def filename = params.id.replace('###', '.')
     def presDir = confDir() + File.separatorChar + filename

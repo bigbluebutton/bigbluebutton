@@ -1,13 +1,14 @@
-@import '../../stylesheets/variables/_all';
-@import '../../stylesheets/mixins/_scrollable';
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
 
 /* Variables
  * ==========
  */
+
 $unread-messages-bg: $color-danger;
 
-$user-list-bg: $color-white;
-$user-list-text: $color-gray-dark;
+$user-list-bg: #F3F6F9;
+$user-list-text: $color-gray;
 
 $list-item-bg-hover: darken($user-list-bg, 7%);
 
@@ -75,25 +76,6 @@ $user-icons-color-hover: $color-gray;
   height: 100vh;
 }
 
-.header {
-  @extend %flex-column;
-  justify-content: center;
-  flex-grow: 0;
-}
-
-.headerTitle {
-  font-size: 1.05rem;
-  font-weight: 600;
-  padding: 0 $sm-padding-x;
-  margin: $lg-padding-x 0;
-}
-
-.content {
-  @extend %flex-column;
-  flex-grow: 9;
-  overflow: hidden;
-}
-
 .lists {
   @extend %flex-column;
   @extend %no-margin;
@@ -109,16 +91,12 @@ $user-icons-color-hover: $color-gray;
 }
 
 .smallTitle {
-  color: $color-text;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
   text-transform: uppercase;
   padding: 0 $sm-padding-x;
   margin: 0 0 ($lg-padding-x / 2) 0;
-}
-
-.scrollableList {
-  @include scrollbox-vertical($user-list-bg);
+  color: $color-gray-light;
 }
 
 .participants, .messages {
@@ -138,13 +116,6 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
   overflow-x: hidden;
   overflow-y: auto;
-}
-
-.separator {
-  margin: 1rem auto;
-  width: 2.2rem;
-  border: 0;
-  border-top: 1px solid $color-gray-lighter;
 }
 
 .enter, .appear {

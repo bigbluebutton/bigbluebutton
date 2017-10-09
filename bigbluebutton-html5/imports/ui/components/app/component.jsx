@@ -1,33 +1,31 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-
-import _ from 'lodash';
+import Modal from 'react-modal';
+import cx from 'classnames';
 
 import ModalContainer from '../modal/container';
-
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
 import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
-
 import styles from './styles';
-import cx from 'classnames';
 
 const intlMessages = defineMessages({
   userListLabel: {
-    id: 'app.userlist.Label',
+    id: 'app.userList.label',
     description: 'Aria-label for Userlist Nav',
   },
   chatLabel: {
-    id: 'app.chat.Label',
+    id: 'app.chat.label',
     description: 'Aria-label for Chat Section',
   },
   mediaLabel: {
-    id: 'app.media.Label',
+    id: 'app.media.label',
     description: 'Aria-label for Media Section',
   },
-  actionsbarLabel: {
-    id: 'app.actionsBar.Label',
+  actionsBarLabel: {
+    id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
   },
 });
@@ -38,10 +36,16 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
+  locale: PropTypes.string,
 };
 
 const defaultProps = {
   fontSize: '16px',
+  navbar: null,
+  sidebar: null,
+  media: null,
+  actionsbar: null,
+  locale: 'en',
 };
 
 class App extends Component {
@@ -54,6 +58,10 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const locale = this.props.locale;
+
+    Modal.setAppElement('#app');
+    document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
@@ -94,12 +102,13 @@ class App extends Component {
   }
 
   renderUserList() {
-    let { userList, intl } = this.props;
+    const { intl } = this.props;
+    let { userList } = this.props;
     const { compactUserList } = this.state;
 
-    if (!userList) return;
+    if (!userList) return null;
 
-    let userListStyle = {};
+    const userListStyle = {};
     userListStyle[styles.compact] = compactUserList;
     userList = React.cloneElement(userList, {
       compact: compactUserList,
@@ -108,8 +117,9 @@ class App extends Component {
     return (
       <nav
         className={cx(styles.userList, userListStyle)}
-        aria-label={intl.formatMessage(intlMessages.userListLabel)}>
-          {userList}
+        aria-label={intl.formatMessage(intlMessages.userListLabel)}
+      >
+        {userList}
       </nav>
     );
   }
@@ -122,9 +132,9 @@ class App extends Component {
     return (
       <section
         className={styles.chat}
-        role="region"
-        aria-label={intl.formatMessage(intlMessages.chatLabel)}>
-          {chat}
+        aria-label={intl.formatMessage(intlMessages.chatLabel)}
+      >
+        {chat}
       </section>
     );
   }
@@ -137,10 +147,10 @@ class App extends Component {
     return (
       <section
         className={styles.media}
-        role="region"
-        aria-label={intl.formatMessage(intlMessages.mediaLabel)}>
-          {media}
-          {this.renderClosedCaption()}
+        aria-label={intl.formatMessage(intlMessages.mediaLabel)}
+      >
+        {media}
+        {this.renderClosedCaption()}
       </section>
     );
   }
@@ -153,15 +163,15 @@ class App extends Component {
     return (
       <section
         className={styles.actionsbar}
-        role="region"
-        aria-label={intl.formatMessage(intlMessages.actionsbarLabel)}>
-          {actionsbar}
+        aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
+      >
+        {actionsbar}
       </section>
     );
   }
 
   render() {
-    const { modal, params } = this.props;
+    const { params } = this.props;
 
     return (
       <main className={styles.main}>

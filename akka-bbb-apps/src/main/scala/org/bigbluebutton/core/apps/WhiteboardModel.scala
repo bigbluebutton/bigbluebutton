@@ -1,88 +1,248 @@
 package org.bigbluebutton.core.apps
 
-import scala.collection.mutable.ArrayBuffer
-
-case class AnnotationVO(id: String, status: String, shapeType: String, shape: scala.collection.immutable.Map[String, Object], wbId: String)
+//import java.util.ArrayList;
+import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
+import scala.collection.immutable.List
+import scala.collection.immutable.HashMap
+import scala.collection.JavaConverters._
+import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 
 class WhiteboardModel {
-  private var _whiteboards = new scala.collection.immutable.HashMap[String, Whiteboard]()
+  private var _whiteboards = new HashMap[String, Whiteboard]()
 
-  private var _enabled = true
+  private var _multiUser = false
 
   private def saveWhiteboard(wb: Whiteboard) {
     _whiteboards += wb.id -> wb
   }
 
-  def getWhiteboard(id: String): Option[Whiteboard] = {
-    _whiteboards.values.find(wb => wb.id == id)
+  def getWhiteboard(id: String): Whiteboard = {
+    _whiteboards.get(id).getOrElse(createWhiteboard(id))
   }
 
   def hasWhiteboard(id: String): Boolean = {
     _whiteboards.contains(id)
   }
 
-  def createWhiteboard(wbId: String) {
-    val vec = scala.collection.immutable.Vector.empty
-    val wb = new Whiteboard(wbId, vec)
-    saveWhiteboard(wb)
+  private def createWhiteboard(wbId: String): Whiteboard = {
+    new Whiteboard(wbId, 0, new HashMap[String, List[AnnotationVO]]())
   }
 
-  def addAnnotationToShape(wb: Whiteboard, shape: AnnotationVO) = {
-    //    println("Adding shape to wb [" + wb.id + "]. Before numShapes=[" + wb.shapes.length + "].")
-    val newWb = wb.copy(shapes = (wb.shapes :+ shape))
-    //    println("Adding shape to page [" + wb.id + "]. After numShapes=[" + newWb.shapes.length + "].")
+  private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {
+    wb.annotationsMap.get(id).getOrElse(List[AnnotationVO]())
+  }
+
+  def addAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+    val wb = getWhiteboard(wbId)
+    val usersAnnotations = getAnnotationsByUserId(wb, userId)
+    val rtnAnnotation = cleansePointsInAnnotation(annotation).copy(position = wb.annotationCount)
+    val newAnnotationsMap = wb.annotationsMap + (userId -> (rtnAnnotation :: usersAnnotations))
+
+    val newWb = new Whiteboard(wb.id, wb.annotationCount + 1, newAnnotationsMap)
+    //println("Adding annotation to page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
     saveWhiteboard(newWb)
+
+    rtnAnnotation
   }
 
-  def addAnnotation(wbId: String, shape: AnnotationVO) {
-    getWhiteboard(wbId) foreach { wb =>
-      addAnnotationToShape(wb, shape)
-    }
-  }
+  def updateAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+    val wb = getWhiteboard(wbId)
+    val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
-  private def modifyTextInPage(wb: Whiteboard, shape: AnnotationVO) = {
-    val removedLastText = wb.shapes.dropRight(1)
-    val addedNewText = removedLastText :+ shape
-    val newWb = wb.copy(shapes = addedNewText)
-    saveWhiteboard(newWb)
-  }
-
-  def modifyText(wbId: String, shape: AnnotationVO) {
-    getWhiteboard(wbId) foreach { wb =>
-      modifyTextInPage(wb, shape)
-    }
-  }
-
-  def history(wbId: String): Option[Whiteboard] = {
-    getWhiteboard(wbId)
-  }
-
-  def clearWhiteboard(wbId: String) {
-    getWhiteboard(wbId) foreach { wb =>
-      val clearedShapes = wb.shapes.drop(wb.shapes.length)
-      val newWb = wb.copy(shapes = clearedShapes)
+    //not empty and head id equals annotation id
+    if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
+      val rtnAnnotation = annotation.copy(position = usersAnnotations.head.position)
+      val newAnnotationsMap = wb.annotationsMap + (userId -> (rtnAnnotation :: usersAnnotations.tail))
+      //println("Annotation has position [" + usersAnnotations.head.position + "]")
+      val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+      //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
       saveWhiteboard(newWb)
+      rtnAnnotation
+    } else {
+      addAnnotation(wbId, userId, annotation)
     }
   }
 
-  def undoWhiteboard(wbId: String): Option[AnnotationVO] = {
+  def updateAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+    val wb = getWhiteboard(wbId)
+    val usersAnnotations = getAnnotationsByUserId(wb, userId)
+
+    //not empty and head id equals annotation id
+    if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
+      val oldAnnotation = usersAnnotations.head
+      var oldPoints: List[Float] = List[Float]()
+      oldAnnotation.annotationInfo.get("points").foreach(a => {
+        a match {
+          case a2: List[_] => oldPoints = a2.asInstanceOf[List[Float]]
+        }
+      }) //oldPoints = a.asInstanceOf[ArrayList[Float]])
+      var newPoints: List[Float] = List[Float]()
+      annotation.annotationInfo.get("points").foreach(a => {
+        a match {
+          case a2: List[_] => newPoints = convertListNumbersToFloat(a2)
+        }
+      }) //newPoints = a.asInstanceOf[ArrayList[Float]])
+      val updatedAnnotationData = annotation.annotationInfo + ("points" -> (oldPoints ::: newPoints))
+      val updatedAnnotation = annotation.copy(position = oldAnnotation.position, annotationInfo = updatedAnnotationData)
+
+      val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: usersAnnotations.tail))
+      //println("Annotation has position [" + usersAnnotations.head.position + "]")
+      val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+      //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
+      saveWhiteboard(newWb)
+
+      annotation
+    } else {
+      addAnnotation(wbId, userId, annotation)
+    }
+  }
+
+  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+    var rtnAnnotation: AnnotationVO = annotation
+
+    val wb = getWhiteboard(wbId)
+    val usersAnnotations = getAnnotationsByUserId(wb, userId)
+
+    //not empty and head id equals annotation id
+    //println("!usersAnnotations.isEmpty: " + (!usersAnnotations.isEmpty) + ", usersAnnotations.head.id == annotation.id: " + (usersAnnotations.head.id == annotation.id));
+    if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
+      var dimensions: List[Int] = List[Int]()
+      annotation.annotationInfo.get("dimensions").foreach(d => {
+        d match {
+          case d2: List[_] => dimensions = convertListNumbersToInt(d2)
+        }
+      })
+
+      //println("dimensions.size(): " + dimensions.size());
+      if (dimensions.length == 2) {
+        val oldAnnotation = usersAnnotations.head
+        var oldPoints: List[Float] = List[Float]()
+        oldAnnotation.annotationInfo.get("points").foreach(a => {
+          a match {
+            case a2: List[_] => oldPoints = a2.asInstanceOf[List[Float]]
+          }
+        })
+
+        var newPoints: List[Float] = List[Float]()
+        annotation.annotationInfo.get("points").foreach(a => {
+          a match {
+            case a2: List[_] => newPoints = convertListNumbersToFloat(a2)
+          }
+        }) //newPoints = a.asInstanceOf[ArrayList[Float]])
+
+        //println("oldPoints.size(): " + oldPoints.size());
+
+        //val oldPointsJava: java.util.List[java.lang.Float] = oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]]
+        //println("****class = " + oldPointsJava.getClass())
+        val pathData = BezierWrapper.lineSimplifyAndCurve((oldPoints ::: newPoints).asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
+        //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
+
+        val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
+        val updatedAnnotation = annotation.copy(position = oldAnnotation.position, annotationInfo = updatedAnnotationData)
+
+        val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: usersAnnotations.tail))
+        //println("Annotation has position [" + usersAnnotations.head.position + "]")
+        val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+        //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
+        saveWhiteboard(newWb)
+
+        rtnAnnotation = updatedAnnotation
+      }
+    }
+
+    rtnAnnotation
+  }
+
+  def getHistory(wbId: String): Array[AnnotationVO] = {
+    val wb = getWhiteboard(wbId)
+    wb.annotationsMap.values.flatten.toArray.sortBy(_.position);
+  }
+
+  def clearWhiteboard(wbId: String, userId: String): Option[Boolean] = {
+    var cleared: Option[Boolean] = None
+
+    if (hasWhiteboard(wbId)) {
+      val wb = getWhiteboard(wbId)
+
+      if (_multiUser) {
+        if (wb.annotationsMap.contains(userId)) {
+          val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
+          saveWhiteboard(newWb)
+          cleared = Some(false)
+        }
+      } else {
+        if (wb.annotationsMap.nonEmpty) {
+          val newWb = wb.copy(annotationsMap = new HashMap[String, List[AnnotationVO]]())
+          saveWhiteboard(newWb)
+          cleared = Some(true)
+        }
+      }
+    }
+    cleared
+  }
+
+  def undoWhiteboard(wbId: String, userId: String): Option[AnnotationVO] = {
     var last: Option[AnnotationVO] = None
-    getWhiteboard(wbId) foreach { wb =>
-      if (!wb.shapes.isEmpty) {
-        last = Some(wb.shapes.last)
-        val remaining = wb.shapes.dropRight(1)
-        val newWb = wb.copy(shapes = remaining)
+    val wb = getWhiteboard(wbId)
+
+    if (_multiUser) {
+      val usersAnnotations = getAnnotationsByUserId(wb, userId)
+
+      //not empty and head id equals annotation id
+      if (!usersAnnotations.isEmpty) {
+        last = Some(usersAnnotations.head)
+
+        val newWb = removeHeadAnnotation(wb, userId, usersAnnotations)
+        //println("Removing annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
+        saveWhiteboard(newWb)
+      }
+    } else {
+      if (wb.annotationsMap.nonEmpty) {
+        val lastElement = wb.annotationsMap.maxBy(_._2.head.position)
+        val lastList = lastElement._2
+        last = Some(lastList.head)
+        val newWb = removeHeadAnnotation(wb, lastElement._1, lastList)
+        //println("Removing annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
         saveWhiteboard(newWb)
       }
     }
     last
   }
 
-  def enableWhiteboard(enable: Boolean) {
-    _enabled = enable
+  private def removeHeadAnnotation(wb: Whiteboard, key: String, list: List[AnnotationVO]): Whiteboard = {
+    val newAnnotationsMap = if (list.tail == Nil) wb.annotationsMap - key else wb.annotationsMap + (key -> list.tail)
+    wb.copy(annotationsMap = newAnnotationsMap)
   }
 
-  def isWhiteboardEnabled(): Boolean = {
-    _enabled
+  def modifyWhiteboardAccess(multiUser: Boolean) {
+    _multiUser = multiUser
+  }
+
+  def getWhiteboardAccess(): Boolean = {
+    _multiUser
+  }
+
+  def cleansePointsInAnnotation(ann: AnnotationVO): AnnotationVO = {
+    var updatedAnnotationInfo = ann.annotationInfo
+    ann.annotationInfo.get("points").foreach(points =>
+      updatedAnnotationInfo = (ann.annotationInfo + ("points" -> convertListNumbersToFloat(points.asInstanceOf[List[_]]))))
+    ann.copy(annotationInfo = updatedAnnotationInfo)
+  }
+
+  private def convertListNumbersToFloat(list: List[_]): List[Float] = {
+    list.map {
+      case f: Double => f.toFloat
+      case f: Float  => f
+      case f: Int    => f.toFloat
+    }.asInstanceOf[List[Float]]
+  }
+
+  private def convertListNumbersToInt(list: List[_]): List[Int] = {
+    list.map {
+      case f: Double => f.toInt
+      case f: Float  => f.toInt
+      case f: Int    => f
+    }.asInstanceOf[List[Int]]
   }
 }

@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { logClient } from '/imports/ui/services/api';
 
 const propTypes = {
@@ -59,7 +60,7 @@ class AudioStreamVolume extends Component {
     this.scriptProcessor.onaudioprocess = this.handleAudioProcess;
     this.source = null;
 
-    let constraints = {
+    const constraints = {
       audio: true,
     };
 
@@ -96,8 +97,8 @@ class AudioStreamVolume extends Component {
     const sum = input.reduce((a, b) => a + (b * b), 0);
     const instant = Math.sqrt(sum / input.length);
 
-    this.setState((prevState) => ({
-      instant: instant,
+    this.setState(prevState => ({
+      instant,
       slow: 0.75 * prevState.slow + 0.25 * instant,
     }));
   }
@@ -122,7 +123,7 @@ class AudioStreamVolume extends Component {
       />
     );
   }
-};
+}
 
 AudioStreamVolume.propTypes = propTypes;
 AudioStreamVolume.defaultProps = defaultProps;

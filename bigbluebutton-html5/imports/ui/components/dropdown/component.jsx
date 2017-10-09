@@ -1,13 +1,12 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
+import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
+import Button from '/imports/ui/components/button/component';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
-import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
-
-const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
 
 const intlMessages = defineMessages({
   close: {
@@ -16,17 +15,19 @@ const intlMessages = defineMessages({
   },
 });
 
+const noop = () => {};
+
 const propTypes = {
   /**
-   * The dropdown needs a trigger and a content component as childrens
+   * The dropdown needs a trigger and a content component as children
    */
   children: (props, propName, componentName) => {
     const children = props[propName];
 
     if (!children || children.length < 2) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`,
       );
     }
 
@@ -35,28 +36,38 @@ const propTypes = {
 
     if (!trigger) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Missing `DropdownTrigger`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownTrigger\`. Validation failed.`,
       );
     }
 
     if (!content) {
       return new Error(
-        'Invalid prop `' + propName + '` supplied to' +
-        ' `' + componentName + '`. Missing `DropdownContent`. Validation failed.'
+        `Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownContent\`. Validation failed.`,
       );
     }
+
+    return null;
   },
+  isOpen: PropTypes.bool,
+  onHide: PropTypes.func,
+  onShow: PropTypes.func,
+  autoFocus: PropTypes.bool,
 };
 
 const defaultProps = {
+  children: null,
   isOpen: false,
+  onShow: noop,
+  onHide: noop,
+  autoFocus: false,
 };
 
 class Dropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false, };
+    this.state = { isOpen: false };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
     this.handleStateCallback = this.handleStateCallback.bind(this);
@@ -82,70 +93,66 @@ class Dropdown extends Component {
   }
 
   handleShow() {
+    const { addEventListener } = window;
+    addEventListener('click', this.handleWindowClick, false);
+
     this.setState({ isOpen: true }, this.handleStateCallback);
   }
 
   handleHide() {
+    const { removeEventListener } = window;
+    removeEventListener('click', this.handleWindowClick, false);
 
     const { autoFocus } = this.props;
 
     this.setState({ isOpen: false }, this.handleStateCallback);
 
     if (autoFocus) {
-      const triggerElement = findDOMNode(this.refs.trigger);
+      const triggerElement = findDOMNode(this.trigger);
       triggerElement.focus();
     }
   }
 
-  componentDidMount () {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleWindowClick, false);
-  }
-
-  componentWillUnmount () {
-    const { removeEventListener } = window;
-    removeEventListener('click', this.handleWindowClick, false);
-  }
-
   handleWindowClick(event) {
-    const dropdownElement = findDOMNode(this);
-    const shouldUpdateState = event.target !== dropdownElement &&
-                              !dropdownElement.contains(event.target) &&
-                              this.state.isOpen;
+    if (this.state.isOpen) {
+      const dropdownElement = findDOMNode(this);
+      const shouldUpdateState = event.target !== dropdownElement &&
+        !dropdownElement.contains(event.target) &&
+        this.state.isOpen;
 
-    if (shouldUpdateState) {
-      this.handleHide();
+      if (shouldUpdateState) {
+        this.handleHide();
+      }
     }
   }
 
   handleToggle() {
     this.state.isOpen ?
-    this.handleHide() :
-    this.handleShow();
+      this.handleHide() :
+      this.handleShow();
   }
 
   render() {
     const {
       children,
       className,
-      style, intl,
-      hasPopup,
-      ariaLive,
-      ariaRelevant,
+      style,
+      intl,
+      ...otherProps
     } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
 
     trigger = React.cloneElement(trigger, {
-      ref: 'trigger',
+      ref: (ref) => { this.trigger = ref; },
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
     });
 
     content = React.cloneElement(content, {
-      ref: 'content',
+      ref: (ref) => { this.content = ref; },
       'aria-expanded': this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
@@ -154,21 +161,23 @@ class Dropdown extends Component {
 
     return (
       <div
-      style={style}
-      className={cx(styles.dropdown, className)}
-      aria-live={ariaLive}
-      aria-relevant={ariaRelevant}
-      aria-haspopup={hasPopup}>
+        style={style}
+        className={cx(styles.dropdown, className)}
+        aria-live={otherProps['aria-live']}
+        aria-relevant={otherProps['aria-relevant']}
+        aria-haspopup={otherProps['aria-haspopup']}
+        aria-label={otherProps['aria-label']}
+      >
         {trigger}
         {content}
-        { this.state.isOpen ?
+        {this.state.isOpen ?
           <Button
             className={styles.close}
             label={intl.formatMessage(intlMessages.close)}
             size={'lg'}
             color={'default'}
             onClick={this.handleHide}
-          /> : null }
+          /> : null}
       </div>
     );
   }

@@ -20,19 +20,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 xmlns:common="org.bigbluebutton.common.*"
 		 height="100%"
 		 width="100%"
 		 minWidth="0">	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
 			import mx.collections.ArrayCollection;
 			
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -85,9 +82,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<common:TabIndexer id="tabIndexer" tabIndices="{[localeList, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" tabIndices="{[localeList, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
+	</fx:Declarations>
 	
 	<mx:VBox height="100%">
 		<mx:HBox height="100%">

@@ -18,77 +18,77 @@
  */
 package org.bigbluebutton.core.vo
 {
-	public class LockSettingsVO
-	{
-		private var lockOnJoinConfigurable:Boolean;
-		private var disableCam:Boolean;
-		private var disableMic:Boolean;
-		private var disablePrivateChat:Boolean;
-		private var disablePublicChat:Boolean;
-		private var lockedLayout:Boolean;
-		private var lockOnJoin:Boolean;
-
-		public function LockSettingsVO(pDisableCam:Boolean, 
-									   pDisableMic:Boolean, 
-									   pDisablePrivateChat:Boolean, 
-									   pDisablePublicChat:Boolean, 
-									   pLockLayout: Boolean, 
-									   pLockOnJoin:Boolean, 
-									   pLockOnJoinConfigurable:Boolean)
-		{
-			this.disableCam = pDisableCam;
-			this.disableMic = pDisableMic;
-			this.disablePrivateChat = pDisablePrivateChat;
-			this.disablePublicChat = pDisablePublicChat;
-			this.lockedLayout = pLockLayout;
-			this.lockOnJoin = pLockOnJoin;
-			this.lockOnJoinConfigurable = pLockOnJoinConfigurable;
-		}
-		
-		public function toMap():Object {
-			var map:Object = {
-				disableCam: this.disableCam,
-				disableMic: this.disableMic,
-				disablePrivateChat: this.disablePrivateChat,
-				disablePublicChat: this.disablePublicChat,
-				lockedLayout: this.lockedLayout,
-				lockOnJoin: this.lockOnJoin,
-				lockOnJoinConfigurable:  this.lockOnJoinConfigurable
-			};
-			
-			return map;
-		}
-
-		public function getDisableCam():Boolean {
-			return disableCam;
-		}
-		
-		public function getDisableMic():Boolean {
-			return disableMic;
-		}
-		
-		public function getDisablePrivateChat():Boolean {
-			return disablePrivateChat;
-		}
-		
-		public function getDisablePublicChat():Boolean {
-			return disablePublicChat;
-		}
-		
-		public function getLockedLayout():Boolean {
-			return lockedLayout;
-		}
-		
-		public function getLockOnJoin():Boolean {
-			return lockOnJoin;
-		}
-		
-		public function getLockOnJoinConfigurable():Boolean {
-			return lockOnJoinConfigurable;
-		}
-		
-		public function isAnythingLocked():Boolean {
-			return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat );
-		}
-	}
+  public class LockSettingsVO
+  {
+    private var lockOnJoinConfigurable:Boolean;
+    private var disableCam:Boolean;
+    private var disableMic:Boolean;
+    private var disablePrivateChat:Boolean;
+    private var disablePublicChat:Boolean;
+    private var lockedLayout:Boolean;
+    private var lockOnJoin:Boolean;
+    
+    public function LockSettingsVO(pDisableCam:Boolean=false,
+                                   pDisableMic:Boolean=false,
+                                   pDisablePrivateChat:Boolean=false,
+                                   pDisablePublicChat:Boolean=false,
+                                   pLockLayout: Boolean=false,
+                                   pLockOnJoin:Boolean=false,
+                                   pLockOnJoinConfigurable:Boolean=false)
+    {
+      this.disableCam = pDisableCam;
+      this.disableMic = pDisableMic;
+      this.disablePrivateChat = pDisablePrivateChat;
+      this.disablePublicChat = pDisablePublicChat;
+      this.lockedLayout = pLockLayout;
+      this.lockOnJoin = pLockOnJoin;
+      this.lockOnJoinConfigurable = pLockOnJoinConfigurable;
+    }
+    
+    public function toMap():Object {
+      var map:Object = {
+        disableCam: this.disableCam,
+          disableMic: this.disableMic,
+          disablePrivateChat: this.disablePrivateChat,
+          disablePublicChat: this.disablePublicChat,
+          lockedLayout: this.lockedLayout,
+          lockOnJoin: this.lockOnJoin,
+          lockOnJoinConfigurable:  this.lockOnJoinConfigurable
+      };
+      
+      return map;
+    }
+    
+    public function getDisableCam():Boolean {
+      return disableCam;
+    }
+    
+    public function getDisableMic():Boolean {
+      return disableMic;
+    }
+    
+    public function getDisablePrivateChat():Boolean {
+      return disablePrivateChat;
+    }
+    
+    public function getDisablePublicChat():Boolean {
+      return disablePublicChat;
+    }
+    
+    public function getLockedLayout():Boolean {
+      return lockedLayout;
+    }
+    
+    public function getLockOnJoin():Boolean {
+      return lockOnJoin;
+    }
+    
+    public function getLockOnJoinConfigurable():Boolean {
+      return lockOnJoinConfigurable;
+    }
+    
+    public function isAnythingLocked():Boolean {
+      return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat );
+    }
+  }
 }

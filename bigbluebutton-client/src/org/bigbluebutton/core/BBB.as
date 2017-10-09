@@ -25,9 +25,8 @@ package org.bigbluebutton.core {
 	
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.VideoProfileManager;
-	import org.bigbluebutton.core.model.Session;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.model.VideoProfile;
 	import org.bigbluebutton.util.SessionTokenUtil;
 
@@ -35,10 +34,6 @@ package org.bigbluebutton.core {
 		private static var configManager:ConfigManager2 = null;
 
 		private static var connectionManager:ConnectionManager = null;
-
-		private static var session:Session = null;
-
-		private static var userConfigManager:UserConfigManager = null;
 
 		private static var videoProfileManager:VideoProfileManager = null;
 
@@ -49,13 +44,6 @@ package org.bigbluebutton.core {
 				sessionTokenUtil = new SessionTokenUtil();
 			}
 			return sessionTokenUtil;
-		}
-
-		public static function initUserConfigManager():UserConfigManager {
-			if (userConfigManager == null) {
-				userConfigManager = new UserConfigManager();
-			}
-			return userConfigManager;
 		}
 
 		public static function getConfigManager():ConfigManager2 {
@@ -104,13 +92,6 @@ package org.bigbluebutton.core {
 			return connectionManager;
 		}
 
-		public static function initSession():Session {
-			if (session == null) {
-				session = new Session();
-			}
-			return session;
-		}
-
 		public static function getFlashPlayerVersion():Number {
 			var versionString:String = Capabilities.version;
 			var pattern:RegExp = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/;
@@ -130,7 +111,7 @@ package org.bigbluebutton.core {
 		}
 
 		public static function getLogoutURL():String {
-			var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
+			var logoutUrl:String = LiveMeeting.inst().me.logoutURL;
 			if (logoutUrl == null) {
 				logoutUrl = getBaseURL();
 			}

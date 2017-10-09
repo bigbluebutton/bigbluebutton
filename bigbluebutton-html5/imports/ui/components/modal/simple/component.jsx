@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ModalBase, { withModalState } from '../base/component';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
@@ -53,13 +54,12 @@ class ModalSimple extends Component {
             circle={true}
             hideLabel={true}
             onClick={this.handleDismiss.bind(this)}
-            aria-describedby={'modalDismissDescription'}
-            tabIndex={0} />
+            aria-describedby={'modalDismissDescription'} />
         </header>
         <div className={styles.content}>
           {this.props.children}
         </div>
-        <div id="modalConfirmDescription" hidden>{confirm.description}</div>
+        <div id="modalDismissDescription" hidden>{confirm.description}</div>
       </ModalBase>
     );
   }

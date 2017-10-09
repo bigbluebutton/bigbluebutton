@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import styles from './styles';
 import { defineMessages, injectIntl } from 'react-intl';
+import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
+import ChatDropdown from './chat-dropdown/component';
 import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -24,6 +25,16 @@ class Chat extends Component {
     super(props);
   }
 
+  componentDidMount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   render() {
     const {
       chatID,
@@ -35,36 +46,37 @@ class Chat extends Component {
       lastReadMessageTime,
       partnerIsLoggedOut,
       isChatLocked,
+      minMessageLength,
+      maxMessageLength,
       actions,
       intl,
     } = this.props;
 
     return (
       <div className={styles.chat}>
-
         <header className={styles.header}>
           <div className={styles.title}>
             <Link
               to="/users"
               role="button"
-              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}>
-                <Icon iconName="left_arrow"/> {title}
+              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
+            >
+              <Icon iconName="left_arrow" /> {title}
             </Link>
           </div>
-          <div className={styles.closeIcon}>
-            {
-              ((this.props.chatID == 'public') ?
-                null :
-                <Link
-                  to="/users"
-                  role="button"
-                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}>
-                    <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
-                </Link>)
-            }
-          </div>
+          {
+            chatID !== 'public' ?
+              <Link
+                to="/users"
+                role="button"
+                className={styles.closeIcon}
+                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+              >
+                <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
+              </Link> :
+              <ChatDropdown />
+          }
         </header>
-
         <MessageList
           chatId={chatID}
           messages={messages}
@@ -81,6 +93,8 @@ class Chat extends Component {
           chatAreaId={ELEMENT_ID}
           chatTitle={title}
           chatName={chatName}
+          minMessageLength={minMessageLength}
+          maxMessageLength={maxMessageLength}
           handleSendMessage={actions.handleSendMessage}
         />
       </div>
