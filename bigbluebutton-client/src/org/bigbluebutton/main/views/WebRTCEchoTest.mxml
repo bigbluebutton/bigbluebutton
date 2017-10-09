@@ -58,7 +58,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCEchoTest);      
-			private static var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 
 			private static const TIMEOUT:Number = 60;
 			private static const CANCEL_BUTTON:Number = 55;
@@ -243,8 +242,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onHelpButtonClicked():void {
 				var helpOptions : HelpOptions = Options.getOptions(HelpOptions) as HelpOptions;
-				DEFAULT_HELP_URL =  helpOptions.url;
-				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
+				navigateToURL(new URLRequest(helpOptions.url));
 			}
 			
 			
