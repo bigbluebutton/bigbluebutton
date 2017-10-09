@@ -101,6 +101,7 @@ package org.bigbluebutton.modules.polling.views
 			
 			_publishBtn = new Button();
 			_publishBtn.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.label');
+			_publishBtn.styleName = "mainActionButton";
 			_publishBtn.addEventListener(MouseEvent.CLICK, handlePublishClick);
 			botBox.addChild(_publishBtn);
 			_closeBtn = new Button();

@@ -542,7 +542,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label text="|" visible="{timeRemaining.visible}" includeInLayout="{timeRemaining.visible}"/>
 			<mx:Label id="timeRemaining" visible="false" includeInLayout="{timeRemaining.visible}"
 					  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
-					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
+					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timerForRoom.toolTip')}"/>
 		</mx:HBox>
 		<!-- Top bar -->
 		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">

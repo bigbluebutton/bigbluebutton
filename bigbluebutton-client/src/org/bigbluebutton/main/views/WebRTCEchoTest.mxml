@@ -308,11 +308,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 									  text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
 									  styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
 				<mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}"
-						   click="yesButtonClicked()" 
+						   click="yesButtonClicked()"
+						   styleName="mainActionButton"
 						   toolTip=""/>
-				<mx:Button id="noButton" 
-						   label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioNo')}" 
-						   click="noButtonClicked()" 
+				<mx:Button id="noButton"
+						   label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioNo')}"
+						   click="noButtonClicked()"
 						   toolTip=""/>
 			</mx:HBox>
 		</mx:VBox>

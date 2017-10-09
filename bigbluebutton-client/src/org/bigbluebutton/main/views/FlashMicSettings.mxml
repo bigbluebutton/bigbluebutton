@@ -388,6 +388,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 									  styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
 				<mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}" 
 						   click="yesButtonClicked()"
+						   styleName="mainActionButton"
 						   toolTip=""/>
 				<mx:Button id="noButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioNo')}" 
 						   click="noButtonClicked()" 
@@ -438,6 +439,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
           <mx:Button id="echoTestButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.nextButton')}" 
                  click="echoTestButtonClickHandler()"
+				 styleName="mainActionButton"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.nextButton.toolTip')}"/>
           <mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
                  click="playButtonClickHandler()" toggle="true"
