@@ -51,7 +51,7 @@ class AudioSettings extends React.Component {
     this.handleRetry = props.handleRetry;
     this.exitAudio = props.exitAudio;
     this.changeInputDevice = props.changeInputDevice;
-
+    this.changeOutputDevice = props.changeOutputDevice;
 
     console.log('inputDeviceId', props.inputDeviceId);
     this.state = {
@@ -76,6 +76,7 @@ class AudioSettings extends React.Component {
   handleOutputChange(deviceId, device) {
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
     console.log(device);
+    this.changeOutputDevice(deviceId);
     this.setState({
       outputDeviceId: deviceId,
     });
@@ -144,8 +145,10 @@ class AudioSettings extends React.Component {
               </div>
             </div>
             <div className={styles.col}>
-              <label className={styles.label}> </label>
-              <AudioTestContainer />
+              <label className={styles.labelSmall}>
+                Test your speaker volume
+                <AudioTestContainer />
+              </label>
             </div>
           </div>
         </div>

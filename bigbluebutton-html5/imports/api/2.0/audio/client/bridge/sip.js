@@ -165,6 +165,13 @@ export default class SIPBridge extends BaseAudioBridge {
         resolve();
       });
 
+      currentSession.mediaHandler.on('iceConnectionConnected', () => {
+        console.log('iceConnectionConnected');
+        this.hangup = false;
+        callback({ status: 'started' });
+        resolve();
+      });
+
       this.currentSession = currentSession;
     })
   }

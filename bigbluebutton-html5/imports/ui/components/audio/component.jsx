@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
 export default class Audio extends Component {
-  constructor(props) {
-    super(props);
-    props.init.call(this);
+  componentDidMount() {
+    console.log('KKKKKKKK');
+    this.props.init.call(this);
   }
 
   render() {

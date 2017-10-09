@@ -34,6 +34,7 @@ export default {
   joinEchoTest: () => AudioManager.joinAudio({ isEchoTest: true }),
   toggleMuteMicrophone: () => AudioManager.toggleMuteMicrophone(),
   changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
+  changeOutputDevice: (outputDeviceId) => AudioManager.changeOutputDevice(outputDeviceId),
   isConnected: () => AudioManager.isConnected,
   isMuted: () => AudioManager.isMuted,
   isConnecting: () => AudioManager.isConnecting,

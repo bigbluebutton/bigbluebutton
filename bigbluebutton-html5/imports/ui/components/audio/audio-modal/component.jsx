@@ -55,31 +55,38 @@ class AudioModal extends Component {
     super(props);
 
     this.state = {
-      content: null,
+      content: 'settings',
     };
-
-    const {
-      isConnecting,
-      isConnected,
-      isEchoTest,
-      inputDeviceId,
-    } = this.props;
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
-    this.closeModal = props.closeModal.bind(this);
+    this.closeModal = props.closeModal;
     this.handleJoinMicrophone = props.joinMicrophone;
     this.handleJoinListenOnly = props.joinListenOnly;
     this.joinEchoTest = props.joinEchoTest;
     this.exitAudio = props.exitAudio;
     this.leaveEchoTest = props.leaveEchoTest;
     this.changeInputDevice = props.changeInputDevice;
+    this.changeOutputDevice = props.changeOutputDevice;
+
+    console.log(props);
 
     this.contents = {
       echoTest: () => this.renderEchoTest(),
       settings: () => this.renderAudioSettings(),
     };
+  }
+
+  componentWillUnmount() {
+    const {
+      isConnected,
+      isEchoTest,
+    } = this.props;
+
+    if (isEchoTest) {
+      this.exitAudio();
+    }
   }
 
   handleGoToAudioOptions() {
@@ -93,7 +100,7 @@ class AudioModal extends Component {
       this.setState({
         content: 'settings',
       });
-    })
+    });
   }
 
   handleGoToEchoTest() {
@@ -101,18 +108,7 @@ class AudioModal extends Component {
       this.setState({
         content: 'echoTest',
       });
-    })
-  }
-
-  componentWillUnmount() {
-    const {
-      isConnected,
-      isEchoTest,
-    } = this.props;
-
-    if (isEchoTest) {
-      this.exitAudio();
-    }
+    });
   }
 
   renderAudioOptions() {
@@ -221,6 +217,7 @@ class AudioModal extends Component {
         joinEchoTest={this.joinEchoTest}
         exitAudio={this.exitAudio}
         changeInputDevice={this.changeInputDevice}
+        changeOutputDevice={this.changeOutputDevice}
         isConnecting={isConnecting}
         isConnected={isConnected}
         isEchoTest={isEchoTest}

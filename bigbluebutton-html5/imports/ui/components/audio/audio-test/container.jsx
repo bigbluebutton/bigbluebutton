@@ -1,24 +1,20 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import Service from '/imports/ui/components/audio/service';
 import AudioTest from './component';
 
-class AudioTestContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <AudioTest {...this.props}>
-        {this.props.children}
-      </AudioTest>
-    );
-  }
-}
+const AudioTestContainer = props => (
+  <AudioTest {...props}>
+    {props.children}
+  </AudioTest>
+);
 
 export default createContainer(() => ({
-  handlePlayAudioSample: () => {
-    const snd = new Audio('resources/sounds/audioSample.mp3');
-    snd.play();
+  outputDeviceId: Service.outputDeviceId(),
+  handlePlayAudioSample: (deviceId) => {
+    console.log('handle play audio sample', deviceId);
+    const sound = new Audio('resources/sounds/audioSample.mp3');
+    sound.setSinkId(deviceId);
+    sound.play();
   },
 }), AudioTestContainer);

@@ -17,7 +17,9 @@ const ERROR_CODES = {
   },
 };
 
-CALL_STATES = {
+const OUTPUT_TAG = '#remote-media';
+
+const CALL_STATES = {
   STARTED: 'started',
   ENDED: 'ended',
   FAILED: 'failed',
@@ -39,6 +41,7 @@ class AudioManager {
         })
       });
 
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -46,6 +49,7 @@ class AudioManager {
       isListenOnly: false,
       isEchoTest: false,
       error: null,
+      outputDeviceId: null,
     });
   }
 
@@ -232,6 +236,12 @@ class AudioManager {
         this._inputDevice.scriptProcessor.connect(this._inputDevice.audioContext.destination);
         this._inputDevice.tracker.changed();
       });
+  }
+
+  changeOutputDevice(deviceId) {
+    this.outputDeviceId = deviceId;
+    document.querySelector(OUTPUT_TAG).setSinkId(deviceId);
+    console.log('Change id');
   }
 
   get inputStream () {

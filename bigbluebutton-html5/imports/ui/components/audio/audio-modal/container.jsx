@@ -45,6 +45,7 @@ export default withModalMounter(createContainer(({ mountModal }) =>
        return Service.exitAudio();
      },
      changeInputDevice: (inputDeviceId) => Service.changeInputDevice(inputDeviceId),
+     changeOutputDevice: (outputDeviceId) => Service.changeOutputDevice(outputDeviceId),
      joinEchoTest: () => Service.joinEchoTest(),
      exitAudio: () => Service.exitAudio(),
      isConnecting: Service.isConnecting(),

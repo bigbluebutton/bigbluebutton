@@ -30,6 +30,7 @@ export default withModalMounter(createContainer(({ mountModal }) => {
   return {
     init: () => {
       Service.init();
+      Service.changeOutputDevice(document.querySelector('#remote-media').sinkId)
       if (!autoJoinAudio || didMountAutoJoin) return;
       mountModal(<AudioModalContainer />);
       didMountAutoJoin = true;
@@ -38,4 +39,4 @@ export default withModalMounter(createContainer(({ mountModal }) => {
 }, AudioContainer));
 
 AudioContainer.propTypes = propTypes;
-AudioContainer.defaultProps = defaultProps;
+AudioContainer.d
