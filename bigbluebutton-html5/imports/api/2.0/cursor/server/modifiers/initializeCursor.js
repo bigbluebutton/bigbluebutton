@@ -1,4 +1,3 @@
-import Cursor from '/imports/api/2.0/cursor';
 import updateCursor from './updateCursor';
 
 export default function initializeCursor(meetingId) {

@@ -7,6 +7,10 @@ const propTypes = {
   overlay: PropTypes.element,
 };
 
+const defaultProps = {
+  overlay: null,
+};
+
 export default class Media extends Component {
   renderContent() {
     const { content } = this.props;
@@ -44,3 +48,4 @@ export default class Media extends Component {
 }
 
 Media.propTypes = propTypes;
+Media.defaultProps = defaultProps;

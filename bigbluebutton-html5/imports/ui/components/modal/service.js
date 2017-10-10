@@ -20,14 +20,8 @@ export const getModal = () => {
 
 export const withModalMounter = ComponentToWrap =>
   class ModalMounterWrapper extends Component {
-    constructor(props) {
-      super(props);
-      this.mount = this.mount.bind(this);
-    }
-
-    mount(modalComponent) {
+    static mount(modalComponent) {
       showModal(null);
-
       // defer the execution to a subsequent event loop
       setTimeout(() => showModal(modalComponent), 0);
     }
@@ -35,7 +29,7 @@ export const withModalMounter = ComponentToWrap =>
     render() {
       return (<ComponentToWrap
         {...this.props}
-        mountModal={this.mount}
+        mountModal={ModalMounterWrapper.mount}
       />);
     }
   };

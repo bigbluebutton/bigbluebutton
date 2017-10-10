@@ -24,6 +24,7 @@ const defaultProps = {
   listenOnly: false,
   voice: false,
   color: '#000',
+  className: null,
 };
 
 const UserAvatar = ({

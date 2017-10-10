@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
-import styles from './styles.scss';
-import Button from '../button/component';
-import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdownContainer from './settings-dropdown/container';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -15,6 +11,10 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
+import styles from './styles.scss';
+import Button from '../button/component';
+import RecordingIndicator from './recording-indicator/component';
+import SettingsDropdownContainer from './settings-dropdown/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -57,6 +57,35 @@ class NavBar extends Component {
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
+  componentDidUpdate() {
+    const {
+      breakouts,
+      getBreakoutJoinURL,
+      isBreakoutRoom,
+    } = this.props;
+
+    breakouts.forEach((breakout) => {
+      if (!breakout.users) {
+        return;
+      }
+
+      const breakoutURL = getBreakoutJoinURL(breakout);
+
+      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
+        this.inviteUserToBreakout(breakout, breakoutURL);
+      }
+    });
+
+    if (!breakouts.length && this.state.didSendBreakoutInvite) {
+      // this.setState({ didSendBreakoutInvite: false });
+      this.onUpdate(() => {
+        this.setState({
+          didSendBreakoutInvite: false,
+        });
+      });
+    }
+  }
+
   componendDidMount() {
     document.title = this.props.presentationTitle;
   }
@@ -75,6 +104,55 @@ class NavBar extends Component {
     });
   }
 
+  renderPresentationTitle() {
+    const {
+      breakouts,
+      isBreakoutRoom,
+      presentationTitle,
+    } = this.props;
+
+    if (isBreakoutRoom || !breakouts.length) {
+      return (
+        <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+      );
+    }
+
+    return (
+      <Dropdown isOpen={this.state.isActionsOpen}>
+        <DropdownTrigger>
+          <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
+            {presentationTitle} <Icon iconName="down-arrow" />
+          </h1>
+        </DropdownTrigger>
+        <DropdownContent
+          placement="bottom"
+        >
+          <DropdownList>
+            {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
+    );
+  }
+
+  renderBreakoutItem(breakout) {
+    const {
+      getBreakoutJoinURL,
+      mountModal,
+    } = this.props;
+
+    const breakoutName = breakout.name;
+    const breakoutURL = getBreakoutJoinURL(breakout);
+
+    return (
+      <DropdownListItem
+        className={styles.actionsHeader}
+        key={_.uniqueId('action-header')}
+        label={breakoutName}
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName, mountModal)}
+      />
+    );
+  }
   render() {
     const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
@@ -109,80 +187,6 @@ class NavBar extends Component {
           <SettingsDropdownContainer />
         </div>
       </div>
-    );
-  }
-
-  renderPresentationTitle() {
-    const {
-      breakouts,
-      isBreakoutRoom,
-      presentationTitle,
-    } = this.props;
-
-    if (isBreakoutRoom || !breakouts.length) {
-      return (
-        <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-      );
-    }
-
-    return (
-      <Dropdown isOpen={this.state.isActionsOpen}>
-        <DropdownTrigger>
-          <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName="down-arrow" />
-          </h1>
-        </DropdownTrigger>
-        <DropdownContent
-          placement="bottom"
-        >
-          <DropdownList>
-            {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
-    );
-  }
-
-  componentDidUpdate() {
-    const {
-      breakouts,
-      getBreakoutJoinURL,
-      isBreakoutRoom,
-    } = this.props;
-
-    breakouts.forEach((breakout) => {
-      if (!breakout.users) {
-        return;
-      }
-
-      const breakoutURL = getBreakoutJoinURL(breakout);
-
-      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
-        this.inviteUserToBreakout(breakout, breakoutURL);
-      }
-    });
-
-    if (!breakouts.length && this.state.didSendBreakoutInvite) {
-      this.setState({ didSendBreakoutInvite: false });
-    }
-  }
-
-  renderBreakoutItem(breakout) {
-    const {
-      getBreakoutJoinURL,
-      mountModal,
-    } = this.props;
-
-    const breakoutName = breakout.name;
-    const breakoutURL = getBreakoutJoinURL(breakout);
-
-    return (
-      <DropdownListItem
-        className={styles.actionsHeader}
-        key={_.uniqueId('action-header')}
-        label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName, mountModal)}
-      />
     );
   }
 }
