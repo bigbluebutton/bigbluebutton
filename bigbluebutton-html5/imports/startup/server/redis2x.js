@@ -88,15 +88,6 @@ class MettingMessageQueue {
   add(...args) {
     return this.queue.add(...args);
   }
-
-  destroy() {
-    return new Promise((resolve) => {
-      this.queue.onRelease(() => {
-        this.queue.pause();
-        resolve();
-      });
-    });
-  }
 }
 
 class RedisPubSub2x {
@@ -139,9 +130,6 @@ class RedisPubSub2x {
     this.debug = makeDebugger(this.config.debug);
   }
 
-  on(...args) {
-    return this.emitter.on(...args);
-  }
 
   // TODO: Move this out of this class, maybe pass as a callback to init?
   handleSubscribe() {
@@ -183,13 +171,14 @@ class RedisPubSub2x {
       eventName,
       parsedMessage,
     });
+  }
 
-    /* TODO: Should this be here or on the message handler? */
-    if (eventName === 'MeetingDestroyedEvtMsg') {
-      this.mettingsQueues[meetingId]
-        .destroy()
-        .then(() => delete this.mettingsQueues[meetingId]);
-    }
+  destroyMeetingQueue(id) {
+    delete this.mettingsQueues[id];
+  }
+
+  on(...args) {
+    return this.emitter.on(...args);
   }
 
   publishVoiceMessage(channel, eventName, voiceConf, payload) {
