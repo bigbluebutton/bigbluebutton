@@ -20,7 +20,7 @@ Kurento = function (
   this.screenConstraints = {};
   this.mediaCallback = null;
 
-  this.voiceBridge = voiceBridge;
+  this.voiceBridge = voiceBridge + '-SCREENSHARE';
   this.internalMeetingId = internalMeetingId;
 
   this.vid_width = window.screen.width;
@@ -75,6 +75,10 @@ KurentoManager.prototype.exitScreenShare = function () {
   }
 };
 
+KurentoManager.prototype.exitVideo = function () {
+  // TODO exitVideo
+};
+
 KurentoManager.prototype.shareScreen = function (tag) {
   this.exitScreenShare();
   var obj = Object.create(Kurento.prototype);
@@ -84,7 +88,6 @@ KurentoManager.prototype.shareScreen = function (tag) {
   this.kurentoScreenShare.setScreenShare(tag);
 };
 
-// Still unused, part of the HTML5 implementation
 KurentoManager.prototype.joinWatchVideo = function (tag) {
   this.exitVideo();
   var obj = Object.create(Kurento.prototype);
@@ -137,6 +140,9 @@ Kurento.prototype.onWSMessage = function (message) {
     case 'presenterResponse':
       kurentoHandler.presenterResponse(parsedMessage);
       break;
+    case 'viewerResponse':
+      kurentoHandler.viewerResponse(parsedMessage);
+      break;
     case 'stopSharing':
       kurentoManager.exitScreenShare();
       break;
@@ -162,6 +168,18 @@ Kurento.prototype.presenterResponse = function (message) {
     kurentoHandler.onFail(errorMessage);
   } else {
     console.log("Presenter call was accepted with SDP => " + message.sdpAnswer);
+    this.webRtcPeer.processAnswer(message.sdpAnswer);
+  }
+}
+
+Kurento.prototype.viewerResponse = function (message) {
+  if (message.response != 'accepted') {
+    var errorMsg = message.message ? message.message : 'Unknown error';
+    console.warn('Call not accepted for the following reason: ' + errorMsg);
+    //kurentoManager.exitScreenShare(); TODO stop?
+    kurentoHandler.onFail(errorMessage);
+  } else {
+    console.log("Viewer call was accepted with SDP => " + message.sdpAnswer);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
 }
@@ -263,6 +281,20 @@ Kurento.prototype.onIceCandidate = function(candidate) {
   kurentoHandler.sendMessage(message);
 }
 
+Kurento.prototype.onViewerIceCandidate = function(candidate) {
+  console.log('Viewer local candidate' + JSON.stringify(candidate));
+
+  var message = {
+    id : 'viewerIceCandidate',
+    type: 'screenshare',
+    voiceBridge: kurentoHandler.voiceBridge,
+    candidate : candidate,
+    callerName: kurentoHandler.caller_id_name
+  }
+  console.log("this object " + JSON.stringify(this, null, 2));
+  kurentoHandler.sendMessage(message);
+}
+
 Kurento.prototype.setWatchVideo = function (tag) {
   this.useVideo = true;
   this.useCamera = 'none';
@@ -276,16 +308,16 @@ Kurento.prototype.viewer = function () {
   if (!this.webRtcPeer) {
 
     var options = {
-      remoteVideo: this.renderTag,
-      onicecandidate : onIceCandidate
+      remoteVideo: document.getElementById(this.renderTag),
+      onicecandidate : this.onViewerIceCandidate
     }
 
-    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
+    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
       if(error) {
         return kurentoHandler.onFail(error);
       }
 
-      this.generateOffer(onOfferViewer);
+      this.generateOffer(self.onOfferViewer);
     });
   }
 };
@@ -437,3 +469,7 @@ window.kurentoWatchVideo = function () {
   window.kurentoInitialize();
   window.kurentoManager.joinWatchVideo.apply(window.kurentoManager, arguments);
 };
+
+window.kurentoExitVideo = function () {
+  // TODO kurentoExitVideo()
+}

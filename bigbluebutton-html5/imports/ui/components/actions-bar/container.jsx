@@ -5,6 +5,7 @@ import ActionsBar from './component';
 import Service from './service';
 import AudioService from '../audio/service';
 import VideoService from '../video-dock/service';
+import ScreenshareService from '../screenshare/service';
 
 import AudioModal from '../audio/audio-modal/component';
 
@@ -32,6 +33,7 @@ export default withModalMounter(createContainer(({ mountModal }) => {
     mountModal(<AudioModal handleJoinListenOnly={AudioService.joinListenOnly} />);
   const handleExitVideo = () => VideoService.exitVideo();
   const handleJoinVideo = () => VideoService.joinVideo();
+  const handleShareScreen = () => ScreenshareService.shareScreen();
 
   return {
     isUserPresenter: isPresenter,
@@ -39,5 +41,6 @@ export default withModalMounter(createContainer(({ mountModal }) => {
     handleOpenJoinAudio,
     handleExitVideo,
     handleJoinVideo,
+    handleShareScreen,
   };
 }, ActionsBarContainer));

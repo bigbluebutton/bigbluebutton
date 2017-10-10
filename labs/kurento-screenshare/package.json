@@ -10,11 +10,12 @@
     "cookie-parser": "^1.3.5",
     "express": "~4.12.4",
     "express-session": "~1.10.3",
-    "ws": "~1.0.1",
     "kurento-client": "6.6.0",
+    "moment": "*",
     "redis": "^2.6.2",
     "sdp-transform": "*",
-    "moment": "*"
+    "uuid": "^3.1.0",
+    "ws": "~1.0.1"
   },
   "devDependencies": {
     "config": "^1.26.1",

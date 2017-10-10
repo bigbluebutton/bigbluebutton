@@ -44,18 +44,21 @@ const presentation = () => { console.log('Should show the uploader component'); 
 
 const polling = () => { console.log('Should initiate a polling'); };
 
-const shareScreen = () => { console.log('Should start screen sharing'); };
-
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
-    const { intl, isUserPresenter } = this.props;
+    const {
+      intl,
+      isUserPresenter,
+      handleShareScreen,
+    } = this.props;
 
-    // if (!isUserPresenter) return null;
-    return null; // temporarily disabling the functionality
+
+    if (!isUserPresenter) return null;
+    //return null; // temporarily disabling the functionality
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>
@@ -90,7 +93,7 @@ class ActionsDropdown extends Component {
               icon="desktop"
               label={intl.formatMessage(intlMessages.desktopShareLabel)}
               description={intl.formatMessage(intlMessages.desktopShareDesc)}
-              onClick={shareScreen.bind(this)}
+              onClick={handleShareScreen}
             />
           </DropdownList>
         </DropdownContent>
