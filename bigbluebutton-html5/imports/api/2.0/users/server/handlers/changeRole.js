@@ -1,9 +1,9 @@
 import { check } from 'meteor/check';
 import changeRole from '../modifiers/changeRole';
 
-export default function handleChangeRole({ body }, meetingId) {
-  check(body, Object);
+export default function handleChangeRole(payload, meetingId) {
+  check(payload.body, Object);
   check(meetingId, String);
 
-  changeRole({ body }, meetingId);
+  changeRole(payload, meetingId);
 }
