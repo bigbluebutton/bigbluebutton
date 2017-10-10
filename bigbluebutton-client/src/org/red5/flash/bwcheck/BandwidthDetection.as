@@ -2,6 +2,7 @@ package org.red5.flash.bwcheck
 {
 	import flash.events.EventDispatcher;
 	import flash.net.NetConnection;
+	
 	import org.red5.flash.bwcheck.events.BandwidthDetectEvent;
 	
 	[Event(name=BandwidthDetectEvent.DETECT_STATUS, type="org.red5.flash.bwcheck.events.BandwidthDetectEvent")]

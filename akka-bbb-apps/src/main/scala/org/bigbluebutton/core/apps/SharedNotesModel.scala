@@ -72,6 +72,13 @@ class SharedNotesModel extends SystemConfiguration {
     (patchCounter, patchToApply, !undoPatches.isEmpty, !redoPatches.isEmpty)
   }
 
+  def clearNote(noteId: String): Option[NoteReport] = {
+    val note = notes(noteId)
+    val patchCounter = note.patchCounter + 1
+    notes(noteId) = new Note(note.name, "", patchCounter, List[(String, String)](), List[(String, String)]())
+    getNoteReport(noteId)
+  }
+
   def createNote(noteName: String = ""): (String, Boolean) = {
     var noteId = 0
     if (removedNotes.isEmpty) {

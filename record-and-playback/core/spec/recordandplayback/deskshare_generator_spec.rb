@@ -36,17 +36,6 @@ module BigBlueButton
         se.size.should == 2       
       end
 
-      it "should match the 2 webcam events" do
-        dir = "resources/raw"
-        events_xml = "#{dir}/webcam-events.xml"
-        start = BigBlueButton::Events.get_start_video_events(events_xml)
-        start.size.should == 2       
-        stop = BigBlueButton::Events.get_stop_video_events(events_xml)
-        stop.size.should == 2
-        matched = BigBlueButton::Events.match_start_and_stop_video_events(start, stop)
-        matched.size.should == 2
-      end
-      
       it "should get the 2 deskshare start events" do
         dir = "resources/raw/974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2"
         events_xml = "#{dir}/events.xml"

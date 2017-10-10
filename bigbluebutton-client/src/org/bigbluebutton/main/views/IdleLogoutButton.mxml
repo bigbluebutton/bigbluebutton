@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   click="restartTimer()">
+
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.utils.setTimeout;
+			
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private var idleTimer:Timer;
+
+			public function startTimer(minutes:int):void {
+				this.visible = true;
+
+				idleTimer = new Timer(1000, minutes * 60);
+				idleTimer.addEventListener(TimerEvent.TIMER, timerEventHandler);
+				idleTimer.addEventListener(TimerEvent.TIMER_COMPLETE, timerCompleteEventHandler);
+				idleTimer.start();
+			}
+
+			private function restartTimer():void {
+				idleTimer.stop();
+				idleTimer.reset();
+				idleTimer.start();
+			}
+
+			private function timerEventHandler(event:TimerEvent):void {
+				var remainingSeconds:int = idleTimer.repeatCount - idleTimer.currentCount;
+				var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
+
+				this.label = ResourceUtil.getInstance().getString("bbb.mainToolbar.idleLogoutBtn", [formattedTime]);
+			}
+
+			private function timerCompleteEventHandler(event:TimerEvent):void {
+				this.visible = false;
+
+				idleTimer.addEventListener(TimerEvent.TIMER_COMPLETE, timerCompleteEventHandler);
+				idleTimer.addEventListener(TimerEvent.TIMER, timerEventHandler);
+
+				var dispatcher:Dispatcher = new Dispatcher();
+				setTimeout( function():void {dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));}, 500);
+			}
+		]]>
+	</fx:Script>
+
+</mx:Button>

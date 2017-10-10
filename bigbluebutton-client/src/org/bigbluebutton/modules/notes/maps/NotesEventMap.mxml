@@ -23,7 +23,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  xmlns="http://mate.asfusion.com/">
 	<fx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;      
       import org.bigbluebutton.modules.notes.events.NotesModuleStartEvent;
       import org.bigbluebutton.modules.notes.events.RetrieveNotesEvent;
       import org.bigbluebutton.modules.notes.events.RetrieveNotesSuccessEvent;

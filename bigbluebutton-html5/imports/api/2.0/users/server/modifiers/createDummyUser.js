@@ -23,10 +23,12 @@ export default function createDummyUser2x(meetingId, userId, authToken) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Creating dummy user to collection: ${err}`);
+      Logger.error(`Creating dummy user to collection: ${err}`);
+      return;
     }
-
-    Logger.info(`Created dummy user 2x id=${userId} token=${authToken} meeting=${meetingId}`);
+    if (numChanged) {
+      Logger.info(`Created dummy user 2x id=${userId} token=${authToken} meeting=${meetingId}`);
+    }
   };
 
   return Users.insert(doc, cb);

@@ -4,6 +4,7 @@
 		xmlns:common="org.bigbluebutton.common.*" 
 		xmlns:mate="http://mate.asfusion.com/"
 		layout="vertical"
+		horizontalAlign="center"
 		showCloseButton="false"
 		minWidth="250"
 		creationComplete="init()">
@@ -48,12 +49,12 @@
 
 	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
 						  styleName="titleWindowStyle"
-						  width="80%" />
+						  width="{this.width - 40}" />
 
 	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 
 	<mx:ControlBar width="100%" horizontalAlign="right">
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" click="onOkClicked()"/>
+		<mx:Button id="okBtn" styleName="mainActionButton" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" click="onOkClicked()"/>
 		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" click="onCancelClicked()"/>
 	</mx:ControlBar>
 </mx:TitleWindow>

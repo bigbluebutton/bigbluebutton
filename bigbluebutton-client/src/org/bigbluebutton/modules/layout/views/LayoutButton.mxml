@@ -26,8 +26,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<fx:Script>
 		<![CDATA[
-			import mx.controls.Button;
-
 			static public const BUTTON_SIZE:int = 30;
 		]]>
 	</fx:Script>
