@@ -213,7 +213,11 @@ class AudioManager {
       }
       resolve({
         stunServers: stunServers.map(server => server.url),
-        turnServers: turnServers.map(server => server.url),
+        turnServers: turnServers.map(server => ({
+          urls: server.url,
+          username: server.username,
+          password: server.password,
+        })),
       });
     });
     return promise;
