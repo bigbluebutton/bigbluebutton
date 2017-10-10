@@ -1,37 +1,30 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import styles from './styles';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 
-const intlMessages = defineMessages({
-  backLabel: {
-    id: 'app.audio.backLabel',
-    description: 'audio settings back button label',
-  },
-  titleLabel: {
-    id: 'app.audio.audioSettings.titleLabel',
-    description: 'audio setting title label',
-  },
-  descriptionLabel: {
-    id: 'app.audio.audioSettings.descriptionLabel',
-    description: 'audio settings description label',
-  },
-  micSourceLabel: {
-    id: 'app.audio.audioSettings.microphoneSourceLabel',
-    description: 'Label for mic source',
-  },
-  speakerSourceLabel: {
-    id: 'app.audio.audioSettings.speakerSourceLabel',
-    description: 'Label for speaker source',
-  },
-  streamVolumeLabel: {
-    id: 'app.audio.audioSettings.microphoneStreamLabel',
-    description: 'Label for stream volume',
-  },
+const propTypes = {
+  intl: intlShape.isRequired,
+  closeModal: PropTypes.func.isRequired,
+  joinMicrophone: PropTypes.func.isRequired,
+  joinListenOnly: PropTypes.func.isRequired,
+  joinEchoTest: PropTypes.func.isRequired,
+  exitAudio: PropTypes.func.isRequired,
+  leaveEchoTest: PropTypes.func.isRequired,
+  changeInputDevice: PropTypes.func.isRequired,
+  changeOutputDevice: PropTypes.func.isRequired,
+  isEchoTest: PropTypes.bool.isRequired,
+  isConnecting: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
+  inputDeviceId: PropTypes.string.isRequired,
+  outputDeviceId: PropTypes.string.isRequired,
+};
 
+const intlMessages = defineMessages({
   microphoneLabel: {
     id: 'app.audioModal.microphoneLabel',
     description: 'Join mic audio button label',
@@ -48,6 +41,22 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.audioChoiceLabel',
     description: 'Join audio modal title',
   },
+  echoTestTitle: {
+    id: 'app.audioModal.echoTestTitle',
+    description: 'Title for the echo test',
+  },
+  settingsTitle: {
+    id: 'app.audioModal.settingsTitle',
+    description: 'Title for the audio modal',
+  },
+  connecting: {
+    id: 'app.audioModal.connecting',
+    description: 'Message for audio connecting',
+  },
+  connectingEchoTest: {
+    id: 'app.audioModal.connectingEchoTest',
+    description: 'Message for echo test connecting',
+  },
 });
 
 class AudioModal extends Component {
@@ -55,32 +64,47 @@ class AudioModal extends Component {
     super(props);
 
     this.state = {
-      content: 'settings',
+      content: null,
     };
+
+    const {
+      intl,
+      closeModal,
+      joinMicrophone,
+      joinListenOnly,
+      joinEchoTest,
+      exitAudio,
+      leaveEchoTest,
+      changeInputDevice,
+      changeOutputDevice,
+    } = props;
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
-    this.closeModal = props.closeModal;
-    this.handleJoinMicrophone = props.joinMicrophone;
-    this.handleJoinListenOnly = props.joinListenOnly;
-    this.joinEchoTest = props.joinEchoTest;
-    this.exitAudio = props.exitAudio;
-    this.leaveEchoTest = props.leaveEchoTest;
-    this.changeInputDevice = props.changeInputDevice;
-    this.changeOutputDevice = props.changeOutputDevice;
-
-    console.log(props);
+    this.closeModal = closeModal;
+    this.handleJoinMicrophone = joinMicrophone;
+    this.handleJoinListenOnly = joinListenOnly;
+    this.joinEchoTest = joinEchoTest;
+    this.exitAudio = exitAudio;
+    this.leaveEchoTest = leaveEchoTest;
+    this.changeInputDevice = changeInputDevice;
+    this.changeOutputDevice = changeOutputDevice;
 
     this.contents = {
-      echoTest: () => this.renderEchoTest(),
-      settings: () => this.renderAudioSettings(),
+      echoTest: {
+        title: intl.formatMessage(intlMessages.echoTestTitle),
+        component: () => this.renderEchoTest(),
+      },
+      settings: {
+        title: intl.formatMessage(intlMessages.settingsTitle),
+        component: () => this.renderAudioSettings(),
+      },
     };
   }
 
   componentWillUnmount() {
     const {
-      isConnected,
       isEchoTest,
     } = this.props;
 
@@ -138,41 +162,11 @@ class AudioModal extends Component {
     );
   }
 
-  render() {
-    const {
-      intl,
-      isConnecting,
-    } = this.props;
-
-    return (
-      <ModalBase
-        overlayClassName={styles.overlay}
-        className={styles.modal}
-        onRequestClose={this.closeModal}>
-          { isConnecting ? null :
-            <header className={styles.header}>
-              <h3 className={styles.title}>{intl.formatMessage(intlMessages.audioChoiceLabel)}</h3>
-              <Button
-                className={styles.closeBtn}
-                label={intl.formatMessage(intlMessages.closeLabel)}
-                icon={'close'}
-                size={'md'}
-                hideLabel
-                onClick={this.closeModal}
-              />
-            </header>
-          }
-        <div className={styles.content}>
-          { this.renderContent() }
-        </div>
-      </ModalBase>
-    );
-  }
-
   renderContent() {
     const {
       isConnecting,
       isEchoTest,
+      intl,
     } = this.props;
 
     const {
@@ -181,10 +175,15 @@ class AudioModal extends Component {
 
     if (isConnecting) {
       return (
-        <span className={styles.connecting}>Connecting</span>
-      )
+        <span className={styles.connecting}>
+          { isEchoTest ?
+            intl.formatMessage(intlMessages.connecting) :
+            intl.formatMessage(intlMessages.connectingEcho)
+          }
+        </span>
+      );
     }
-    return content ? this.contents[content]() : this.renderAudioOptions();
+    return content ? this.contents[content].component() : this.renderAudioOptions();
   }
 
   renderEchoTest() {
@@ -198,16 +197,18 @@ class AudioModal extends Component {
         joinEchoTest={this.joinEchoTest}
         leaveEchoTest={this.leaveEchoTest}
         handleNo={this.handleGoToAudioSettings}
-        handleYes={this.handleJoinMicrophone}/>
+        handleYes={this.handleJoinMicrophone}
+      />
     );
   }
 
-  renderAudioSettings () {
+  renderAudioSettings() {
     const {
       isConnecting,
       isConnected,
       isEchoTest,
-      inputDeviceId
+      inputDeviceId,
+      outputDeviceId,
     } = this.props;
 
     return (
@@ -222,9 +223,52 @@ class AudioModal extends Component {
         isConnected={isConnected}
         isEchoTest={isEchoTest}
         inputDeviceId={inputDeviceId}
+        outputDeviceId={outputDeviceId}
       />
-    )
+    );
+  }
+
+  render() {
+    const {
+      intl,
+      isConnecting,
+    } = this.props;
+
+    const {
+      content,
+    } = this.state;
+
+    return (
+      <ModalBase
+        overlayClassName={styles.overlay}
+        className={styles.modal}
+        onRequestClose={this.closeModal}
+      >
+        { isConnecting ? null :
+        <header className={styles.header}>
+          <h3 className={styles.title}>
+            { content ?
+              this.contents[content].title :
+              intl.formatMessage(intlMessages.audioChoiceLabel)}
+          </h3>
+          <Button
+            className={styles.closeBtn}
+            label={intl.formatMessage(intlMessages.closeLabel)}
+            icon={'close'}
+            size={'md'}
+            hideLabel
+            onClick={this.closeModal}
+          />
+        </header>
+        }
+        <div className={styles.content}>
+          { this.renderContent() }
+        </div>
+      </ModalBase>
+    );
   }
 }
+
+AudioModal.propTypes = propTypes;
 
 export default injectIntl(AudioModal);

@@ -1,22 +1,30 @@
 import React from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
-import EnterAudioContainer from '/imports/ui/components/audio/enter-audio/container';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import cx from 'classnames';
 import styles from './styles';
+
+const propTypes = {
+  intl: intlShape.isRequired,
+  exitAudio: PropTypes.func.isRequired,
+  changeInputDevice: PropTypes.func.isRequired,
+  changeOutputDevice: PropTypes.func.isRequired,
+  handleBack: PropTypes.func.isRequired,
+  handleRetry: PropTypes.func.isRequired,
+  isConnecting: PropTypes.bool.isRequired,
+  inputDeviceId: PropTypes.string.isRequired,
+  outputDeviceId: PropTypes.string.isRequired,
+};
 
 const intlMessages = defineMessages({
   backLabel: {
     id: 'app.audio.backLabel',
     description: 'audio settings back button label',
-  },
-  titleLabel: {
-    id: 'app.audio.audioSettings.titleLabel',
-    description: 'audio setting title label',
   },
   descriptionLabel: {
     id: 'app.audio.audioSettings.descriptionLabel',
@@ -44,24 +52,26 @@ class AudioSettings extends React.Component {
   constructor(props) {
     super(props);
 
-    this.chooseAudio = this.chooseAudio.bind(this);
+    const {
+      handleBack,
+      handleRetry,
+      exitAudio,
+      changeInputDevice,
+      changeOutputDevice,
+    } = props;
+
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
-    this.handleBack = props.handleBack;
-    this.handleRetry = props.handleRetry;
-    this.exitAudio = props.exitAudio;
-    this.changeInputDevice = props.changeInputDevice;
-    this.changeOutputDevice = props.changeOutputDevice;
+    this.handleBack = handleBack;
+    this.handleRetry = handleRetry;
+    this.exitAudio = exitAudio;
+    this.changeInputDevice = changeInputDevice;
+    this.changeOutputDevice = changeOutputDevice;
 
-    console.log('inputDeviceId', props.inputDeviceId);
     this.state = {
       inputDeviceId: props.inputDeviceId,
-      outputDeviceId: undefined,
+      outputDeviceId: props.outputDeviceId,
     };
-  }
-
-  chooseAudio() {
-    this.props.changeMenu(this.props.JOIN_AUDIO);
   }
 
   handleInputChange(deviceId, device) {
@@ -82,18 +92,12 @@ class AudioSettings extends React.Component {
     });
   }
 
-  // handleClose() {
-  //   this.setState({ isOpen: false });
-  //   this.props.mountModal(null);
-  // }
-
   render() {
     const {
       isConnecting,
       intl,
     } = this.props;
 
-    // return this.renderCalling();
     return (
       <div>
         <div className={styles.form}>
@@ -106,9 +110,13 @@ class AudioSettings extends React.Component {
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
+                <label
+                  htmlFor="inputDeviceSelector"
+                  className={cx(styles.label, styles.labelSmall)}
+                >
                   {intl.formatMessage(intlMessages.micSourceLabel)}
                   <DeviceSelector
+                    id="inputDeviceSelector"
                     value={this.state.inputDeviceId}
                     className={styles.select}
                     kind="audioinput"
@@ -119,9 +127,13 @@ class AudioSettings extends React.Component {
             </div>
             <div className={styles.col}>
               <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
+                <label
+                  htmlFor="outputDeviceSelector"
+                  className={cx(styles.label, styles.labelSmall)}
+                >
                   {intl.formatMessage(intlMessages.speakerSourceLabel)}
                   <DeviceSelector
+                    id="outputDeviceSelector"
                     value={this.state.outputDeviceId}
                     className={styles.select}
                     kind="audiooutput"
@@ -133,21 +145,13 @@ class AudioSettings extends React.Component {
           </div>
 
           <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.streamVolumeLabel)}
-                  <AudioStreamVolume
-                    deviceId={this.state.inputDeviceId}
-                    className={styles.audioMeter}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <label className={styles.labelSmall}>
+            <div className={cx(styles.col, styles.spacedLeft)}>
+              <label
+                htmlFor="audioTest"
+                className={styles.labelSmall}
+              >
                 Test your speaker volume
-                <AudioTestContainer />
+                <AudioTestContainer id="audioTest" />
               </label>
             </div>
           </div>
@@ -176,5 +180,7 @@ class AudioSettings extends React.Component {
   }
 
 }
+
+AudioSettings.propTypes = propTypes;
 
 export default withModalMounter(injectIntl(AudioSettings));

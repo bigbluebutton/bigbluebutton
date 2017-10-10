@@ -89,7 +89,7 @@ class AudioStreamVolume extends Component {
   handleConnectStreamToProcessor(stream) {
     this.source = this.audioContext.createMediaStreamSource(stream);
     this.source.connect(this.scriptProcessor);
-    // this.scriptProcessor.connect(this.audioContext.destination);
+    this.scriptProcessor.connect(this.audioContext.destination);
   }
 
   handleAudioProcess(event) {
@@ -99,7 +99,7 @@ class AudioStreamVolume extends Component {
 
     this.setState(prevState => ({
       instant,
-      slow: 0.75 * prevState.slow + 0.25 * instant,
+      slow: (0.75 * prevState.slow) + (0.25 * instant),
     }));
   }
 

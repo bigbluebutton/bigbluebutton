@@ -9,6 +9,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import styles from './styles';
 
 const propTypes = {
   // Emoji status of the current user
@@ -32,6 +33,7 @@ class EmojiMenu extends Component {
       <Dropdown autoFocus>
         <DropdownTrigger tabIndex={0}>
           <Button
+            className={styles.button}
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
             aria-label={intl.formatMessage(intlMessages.changeStatusLabel)}

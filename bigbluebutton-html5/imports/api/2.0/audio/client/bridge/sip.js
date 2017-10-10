@@ -11,14 +11,14 @@ export default class SIPBridge extends BaseAudioBridge {
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
     return new Promise((resolve, reject) => {
-      extension = extension || this.userData.voiceBridge;
+      const callExtension = extension || this.userData.voiceBridge;
 
       const callback = (message) => {
         managerCallback(message).then(() => resolve());
       };
 
-      return this.doCall({ extension, isListenOnly, inputStream }, callback)
-                 .catch(reason => {
+      return this.doCall({ callExtension, isListenOnly, inputStream }, callback)
+                 .catch((reason) => {
                    callback({ status: 'failed', error: reason });
                    reject(reason);
                  });
@@ -35,7 +35,7 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
-  doCall({ isListenOnly, extension, inputStream }, callback) {
+  doCall({ isListenOnly, callExtension, inputStream }, callback) {
     const {
       userId,
       username,
@@ -46,9 +46,12 @@ export default class SIPBridge extends BaseAudioBridge {
     const callerIdName = `${userId}-bbbID-${username}`;
 
     return this.fetchStunTurnServers(sessionToken)
-                        .then((stunTurnServers) => this.createUserAgent(server, callerIdName, stunTurnServers))
-                        .then((userAgent) => this.inviteUserAgent(extension, server, userAgent, inputStream))
-                        .then((currentSession) => this.setupEventHandlers(currentSession, callback));
+                        .then(stunTurnServers =>
+                          this.createUserAgent(server, callerIdName, stunTurnServers))
+                        .then(userAgent =>
+                          this.inviteUserAgent(callExtension, server, userAgent, inputStream))
+                        .then(currentSession =>
+                          this.setupEventHandlers(currentSession, callback));
   }
 
   fetchStunTurnServers(sessionToken) {
@@ -56,11 +59,11 @@ export default class SIPBridge extends BaseAudioBridge {
     return new Promise(async (resolve, reject) => {
       const url = `/bigbluebutton/api/stuns?sessionToken=${sessionToken}`;
 
-      let response = await fetch(url)
-        .then(response => response.json())
-        .then(({ response, stunServers, turnServers}) => {
+      const response = await fetch(url)
+        .then(res => res.json())
+        .then(({ result, stunServers, turnServers }) => {
           return new Promise((resolve) => {
-            if (response) {
+            if (result) {
               resolve({ error: 404, stun: [], turn: [] });
             }
             resolve({
@@ -70,8 +73,8 @@ export default class SIPBridge extends BaseAudioBridge {
           });
         });
 
-      if(response.error) return reject(`Could not fetch the stuns/turns servers!`);
-      resolve(response);
+      if (response.error) return reject('Could not fetch the stuns/turns servers!');
+      return resolve(response);
     })
   }
 
@@ -79,7 +82,7 @@ export default class SIPBridge extends BaseAudioBridge {
     console.log('CREATEUSERAGENT');
     return new Promise((resolve, reject) => {
       const protocol = document.location.protocol;
-
+      console.log('username', username);
       this.userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(username)}@${server}`,
         wsServers: `${('https:' === protocol ? 'wss://' : 'ws://')}${server}/ws`,
@@ -115,23 +118,24 @@ export default class SIPBridge extends BaseAudioBridge {
   inviteUserAgent(voiceBridge, server, userAgent, inputStream) {
     console.log('INVITEUSERAGENT');
     const options = {
-			media: {
-				stream: inputStream,
-				constraints: {
-					audio: true,
-					video: false
-				},
-				render: {
-					remote: document.getElementById('remote-media')
-				}
-			},
-			RTCConstraints: {
-				mandatory: {
-					OfferToReceiveAudio: true,
-					OfferToReceiveVideo: false
-				}
-			}
-    }
+      media: {
+        stream: inputStream,
+        constraints: {
+          audio: true,
+          video: false,
+        },
+        render: {
+          remote: document.getElementById('remote-media'),
+        },
+      },
+      RTCConstraints: {
+        mandatory: {
+          OfferToReceiveAudio: true,
+          OfferToReceiveVideo: false,
+        },
+      },
+    };
+
     console.log(voiceBridge, server, userAgent);
     return userAgent.invite(`sip:${voiceBridge}@${server}`, options);
   }

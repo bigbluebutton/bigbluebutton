@@ -28,18 +28,18 @@ const CALL_STATES = {
 class AudioManager {
   constructor() {
     this._inputDevice = {
-      tracker: new Tracker.Dependency,
+      tracker: new Tracker.Dependency(),
     };
 
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
         const deviceLabel = stream.getAudioTracks()[0].label;
-        navigator.mediaDevices.enumerateDevices().then(devices => {
-          const device = devices.find(device => device.label === deviceLabel);
+        navigator.mediaDevices.enumerateDevices().then((devices) => {
+          const device = devices.find(d => d.label === deviceLabel);
           this.changeInputDevice(device.deviceId);
-        })
-      });
+        });
+      }).catch(err => console.error(err));
 
 
     this.defineProperties({
@@ -58,7 +58,7 @@ class AudioManager {
       const privateKey = `_${key}`;
       this[privateKey] = {
         value: obj[key],
-        tracker: new Tracker.Dependency,
+        tracker: new Tracker.Dependency(),
       };
 
       Object.defineProperty(this, key, {
@@ -72,6 +72,12 @@ class AudioManager {
         },
       });
     });
+  }
+
+  init(userData) {
+    console.log('init', userData);
+    this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
+    this.userData = userData;
   }
 
   joinAudio(options = {}, callbacks = {}) {
@@ -184,9 +190,7 @@ class AudioManager {
   }
 
   set userData(value) {
-    console.log('set user data');
     this._userData = value;
-    this.bridge = USE_SIP ? new SIPBridge(value) : new VertoBridge(value);
   }
 
   get userData() {
@@ -208,6 +212,7 @@ class AudioManager {
   }
 
   changeInputDevice(value) {
+    console.log('changeInputDevice');
     if (this._inputDevice.audioContext) {
       this._inputDevice.audioContext.close().then(() => {
         this._inputDevice.audioContext = null;
@@ -254,11 +259,11 @@ class AudioManager {
     console.log('Change id');
   }
 
-  get inputStream () {
+  get inputStream() {
     return this._inputDevice.stream;
   }
 
-  get inputDeviceId () {
+  get inputDeviceId() {
     this._inputDevice.tracker.depend();
     return this._inputDevice.id;
   }

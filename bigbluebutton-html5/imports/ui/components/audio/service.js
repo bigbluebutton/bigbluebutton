@@ -23,7 +23,7 @@ const init = () => {
     microphoneLockEnforced,
   };
 
-  AudioManager.userData = userData;
+  AudioManager.init(userData);
 };
 
 export default {
@@ -33,8 +33,8 @@ export default {
   joinMicrophone: () => AudioManager.joinAudio(),
   joinEchoTest: () => AudioManager.joinAudio({ isEchoTest: true }),
   toggleMuteMicrophone: () => AudioManager.toggleMuteMicrophone(),
-  changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
-  changeOutputDevice: (outputDeviceId) => AudioManager.changeOutputDevice(outputDeviceId),
+  changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
+  changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
   isConnected: () => AudioManager.isConnected,
   isMuted: () => AudioManager.isMuted,
   isConnecting: () => AudioManager.isConnecting,
