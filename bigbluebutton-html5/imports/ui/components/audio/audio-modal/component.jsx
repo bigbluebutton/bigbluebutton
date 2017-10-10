@@ -178,7 +178,7 @@ class AudioModal extends Component {
         <span className={styles.connecting}>
           { isEchoTest ?
             intl.formatMessage(intlMessages.connecting) :
-            intl.formatMessage(intlMessages.connectingEcho)
+            intl.formatMessage(intlMessages.connectingEchoTest)
           }
         </span>
       );
