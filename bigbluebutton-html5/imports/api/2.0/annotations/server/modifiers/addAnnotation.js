@@ -4,7 +4,6 @@ import Annotations from '/imports/api/2.0/annotations';
 
 const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
-const PENCIL_CHUNK_SIZE = 100;
 
 // line, triangle, ellipse, rectangle
 function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
@@ -63,9 +62,13 @@ function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
 
 function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
   // fetching annotation statuses from the config
-  const DRAW_START = Meteor.settings.public.whiteboard.annotations.status.start;
-  const DRAW_UPDATE = Meteor.settings.public.whiteboard.annotations.status.update;
-  const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
+  const ANOTATION_STATUSES = Meteor.settings.public.whiteboard.annotations.status;
+  const DRAW_START = ANOTATION_STATUSES.start;
+  const DRAW_UPDATE = ANOTATION_STATUSES.update;
+  const DRAW_END = ANOTATION_STATUSES.end;
+
+  const SERVER_CONFIG = Meteor.settings.app;
+  const PENCIL_CHUNK_SIZE = SERVER_CONFIG.pencilChunkLength || 100;
 
   const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
 
