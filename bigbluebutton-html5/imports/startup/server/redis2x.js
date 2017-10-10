@@ -172,7 +172,6 @@ class RedisPubSub2x {
     }
 
     const queueId = meetingId || NO_MEETING_ID;
-    console.log(queueId, channel, eventName);
 
     if (!(queueId in this.mettingsQueues)) {
       this.mettingsQueues[meetingId] = new MettingMessageQueue(this.emitter, async, this.debug);
