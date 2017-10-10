@@ -111,45 +111,43 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           $inc: { version: 1 },
         },
       });
+      return chunks;
+    }
 
+    // *default flow*
     // length of the points >= PENCIL_CHUNK_SIZE, so we split them into subdocuments
-    } else {
-      // counter is used for generating ids.
-      let i = 0;
-      let counter = 1;
-      for (; i <= annotationInfo.points.length; i += PENCIL_CHUNK_SIZE, counter += 1) {
-        const chunkId = `${id}--${counter}`;
 
-        // we always need to attach the last coordinate from the previous subdocument
-        // to the front of the current subdocument, to connect the pencil path
-        const _annotationInfo = annotationInfo;
-        if (i === 0) {
-          _annotationInfo.points = annotationInfo.points.slice(0, PENCIL_CHUNK_SIZE);
-        } else {
-          _annotationInfo.points = annotationInfo.points.slice(i - 2, i + PENCIL_CHUNK_SIZE);
-        }
+    // counter is used for generating ids.
+    let i = 0;
+    let counter = 1;
+    for (; i <= annotationInfo.points.length; i += PENCIL_CHUNK_SIZE, counter += 1) {
+      const chunkId = `${id}--${counter}`;
 
-        chunks.push({
-          selector: {
+      // we always need to attach the last coordinate from the previous subdocument
+      // to the front of the current subdocument, to connect the pencil path
+      const _annotationInfo = annotationInfo;
+      _annotationInfo.points = annotationInfo.points.slice(i === 0 ? 0 : i - 2, PENCIL_CHUNK_SIZE);
+
+      chunks.push({
+        selector: {
+          meetingId,
+          userId,
+          id: chunkId,
+        },
+        modifier: {
+          $set: {
+            whiteboardId,
             meetingId,
-            userId,
             id: chunkId,
+            status,
+            annotationType,
+            annotationInfo: _annotationInfo,
+            wbId,
+            position,
           },
-          modifier: {
-            $set: {
-              whiteboardId,
-              meetingId,
-              id: chunkId,
-              status,
-              annotationType,
-              annotationInfo: _annotationInfo,
-              wbId,
-              position,
-            },
-            $inc: { version: 1 },
-          },
-        });
-      }
+          $inc: { version: 1 },
+        },
+      });
     }
 
     return chunks;
