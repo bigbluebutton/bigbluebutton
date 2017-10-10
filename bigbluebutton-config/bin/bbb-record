@@ -78,7 +78,7 @@ mark_for_rebuild() {
 	done
 
 	# Restart processing at the 'sanity' step
-  redis-cli rpush resque:queue:rap:sanity "{\"class\":\"BigBlueButton::Resque::SanityWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\"}]}"
+	redis-cli rpush resque:queue:rap:sanity "{\"class\":\"BigBlueButton::Resque::SanityWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\"}]}"
 }
 
 mark_for_republish() { 
@@ -102,7 +102,7 @@ mark_for_republish() {
 
 		# Restart processing at the 'publish' step
 		redis-cli rpush resque:queue:rap:publish "{\"class\":\"BigBlueButton::Resque::PublishWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\",\"format_name\":\"$type\"}]}"
-  done
+	done
 }
 
 need_root() {
