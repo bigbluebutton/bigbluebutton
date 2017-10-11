@@ -45,12 +45,10 @@
   @extend %customInputFocus;
   flex: 1;
   background: #fff;
-  border: $border-size solid $color-gray-lighter;
   background-clip: padding-box;
   margin: 0;
   color: $color-text;
   -webkit-appearance: none;
-  box-shadow: none;
   outline: 0;
   padding: $sm-padding-y * 2.5 $sm-padding-x * 1.25;
   resize: none;
@@ -59,6 +57,8 @@
   font-size: $font-size-base * .90;
   min-height: 2.5rem;
   max-height: 10rem;
+  border: 1px solid $color-gray-lighter;
+  box-shadow: 0 0 0 2px $color-gray-lighter;
 
   &:disabled,
   &[disabled] {
