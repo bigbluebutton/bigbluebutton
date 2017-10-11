@@ -640,7 +640,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							browserPermissionHelper.currentState = "firefoxMic";
 						}
 						browserPermissionHelper.x = 50;
-						browserPermissionHelper.y = 150;
+						browserPermissionHelper.y = 200;
                     }
                 } else if (browser == "Chrome") {
                     if (browserPermissionHelper) {
