@@ -809,12 +809,12 @@ presentation|FileExportWindow {
 	verticalGap : 12;
 }
 
-.fileExportHintBoxStyle {
-	horizontalAlign : center;
-	verticalAlign   : middle;
-	backgroundColor : #CDD4DB;
-	paddingLeft     : 10;
-	paddingRight    : 10;
+.fileExportUploadProgressBar {
+	trackHeight : 14;
+}
+
+.fileExportResultError {
+	color : #DE2721;
 }
 
 /*
@@ -1284,7 +1284,7 @@ mx|Panel {
 	paddingRight    : 10;
 }
 
-.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .fileExportHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
 	fontWeight : bold;
 }
 

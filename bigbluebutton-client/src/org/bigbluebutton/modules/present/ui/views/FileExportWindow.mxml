@@ -20,17 +20,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
 				styleName="fileExportWindow"
 				creationComplete="creationCompleteHandler(event)"
-				layout="vertical"
+				layout="absolute"
+				resizeEffect="{windowResize}"
 				width="500">
 
-	<mate:Dispatcher id="globalDispatch" />
+	<fx:Declarations>
+		<mate:Dispatcher id="globalDispatch" />
+		<mx:Resize id="windowResize" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import flash.utils.ByteArray;
 			import flash.utils.setTimeout;
@@ -91,7 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			protected function prepareConversion():void {
-				closeBtn.enabled = false;
+				closeButton.enabled = false;
 				progressBar.visible = true;
 				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.generatingPDF');
 				progressBar.setProgress(0, 100);
@@ -121,7 +126,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					// The mc type can be MovieClip or AMV1Movie
 					var mc:* = (pageLoader.contentLoaderInfo.content);
 					var page:Page = _pdf.addPage();
-					_pdf.addImage(mc, new Resize(Mode.RESIZE_PAGE, Position.CENTERED));
+					_pdf.addImage(mc, new org.alivepdf.layout.Resize(Mode.RESIZE_PAGE, Position.CENTERED));
 
 					// The ratio to calculate positions
 					var ratio:Number = mc.width / slideModel.loaderW;
@@ -214,12 +219,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function pdfCompleteHandler(event:Event):void {
 				progressBar.setProgress(100, 100);
 				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.conversionComplete');
-				closeBtn.enabled = saveBtn.enabled = true;
+				setTimeout(downloadReady, 500);
+			}
+
+			private function downloadReady():void {
+				closeButton.enabled = saveBtn.enabled = true;
+				closeButton.visible = closeButton.includeInLayout = true;
+				saveBtn.visible = saveBtn.includeInLayout = true;
+				progressBar.visible = progressBar.includeInLayout = false;
 			}
 
 			protected function saveButtonClickHandler(event:MouseEvent):void {
 				_pdfByteArray = _pdf.save(Method.LOCAL);
 				var file:FileReference = new FileReference();
+				file.addEventListener(Event.COMPLETE, function(evt:Event):void {
+					globalDispatch.dispatchEvent(new ExportEvent(ExportEvent.CLOSE_EXPORT_WINDOW));
+				});
+				file.addEventListener(Event.DEACTIVATE, function(evt:Event):void {
+					saveResultText.visible = saveResultText.includeInLayout = false;
+					saveResultText.text = "";
+				});
+				file.addEventListener(IOErrorEvent.IO_ERROR, function(evt:Event):void {
+					saveResultText.visible = saveResultText.includeInLayout = true;
+					saveResultText.text = ResourceUtil.getInstance().getString('bbb.presentationExport.ioerror');
+					saveResultText.styleName = "fileExportResultError";
+				});
 				file.save(_pdfByteArray, fileName + ".pdf");
 			}
 
@@ -237,43 +261,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return (value * factor) / 100.0;
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.presentationExport.title')}"
-						  styleName="titleWindowStyle"
-						  width="100%" />
+	<mx:VBox width="100%"
+			 height="100%"
+			 paddingBottom="20"
+			 paddingTop="15"
+			 verticalGap="20"
+			 horizontalAlign="center">
 
-	<mx:Box width="100%"
-			styleName="fileExportHintBoxStyle">
-		<mx:Text width="100%"
-				 textAlign="center"
-				 text="{ResourceUtil.getInstance().getString('bbb.presentationExport.exportHint')}"
-				 styleName="fileExportHintTextStyle" />
-	</mx:Box>
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.presentationExport.title')}"
+							  styleName="titleWindowStyle"
+							  width="100%" />
 
-	<mx:ProgressBar id="progressBar"
-					mode="manual"
-					styleName="presentationUploadProgressBar"
-					labelPlacement="top"
-					width="100%"
-					visible="false" />
+		<mx:ProgressBar id="progressBar"
+						mode="manual"
+						styleName="fileExportUploadProgressBar"
+						labelPlacement="top"
+						width="100%"
+						visible="false" />
 
-	<mx:HRule width="100%" />
-
-	<mx:HBox width="100%"
-			 horizontalAlign="right"
-			 verticalAlign="bottom"
-			 height="40%"
-			 horizontalGap="50">
 		<mx:Button id="saveBtn"
 				   styleName="mainActionButton"
+				   visible="false"
+				   includeInLayout="false"
 				   label="{ResourceUtil.getInstance().getString('bbb.presentationExport.saveToDisk')}"
 				   enabled="false"
 				   click="saveButtonClickHandler(event)" />
-		<mx:Button id="closeBtn"
-				   label="{ResourceUtil.getInstance().getString('bbb.presentationExport.close')}"
-				   styleName="fileExportCloseButtonStyle"
-				   click="closeButtonClickHandler(event)" />
-	</mx:HBox>
+
+		<mx:Text id="saveResultText"
+				 width="100%"
+				 visible="false"
+				 includeInLayout="false"
+				 textAlign="center" />
+	</mx:VBox>
+
+	<mx:Button id="closeButton"
+			   click="closeButtonClickHandler(event)"
+			   styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.presentationExport.close')}"
+			   right="10"
+			   top="15"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentationExport.close.toolTip')}" />
 
 </mx:TitleWindow>
