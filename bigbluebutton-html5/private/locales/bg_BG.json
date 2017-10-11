@@ -1,10 +1,5 @@
 {
     "app.home.greeting": "Добре дошли, {name}! Вашата презентация ще започне всеки момент",
-    "app.userlist.usersTitle": "Потребители",
-    "app.userlist.participantsTitle": "Участници",
-    "app.userlist.messagesTitle": "Съобщения",
-    "app.userlist.presenter": "Лектор",
-    "app.userlist.you": "Вие",
     "app.chat.submitLabel": "Изпрати",
     "app.chat.titlePublic": "Общ чат"
 }
