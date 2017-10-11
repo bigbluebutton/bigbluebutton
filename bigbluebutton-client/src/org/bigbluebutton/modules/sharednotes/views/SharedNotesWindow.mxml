@@ -619,11 +619,6 @@
 					toolTip="{options.maxNoteLength - richTextEditor.text.length > 0 ?
 							ResourceUtil.getInstance().getString('bbb.sharedNotes.remaining.tooltip') :
 							ResourceUtil.getInstance().getString('bbb.sharedNotes.full.tooltip')}"/>
-			<mx:Button id="btnSettings"
-					styleName="sharedNotesSettings"
-					width="26" height="26"
-					click="btnSettings_clickHandler(event)"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.settings.toolTip')}"/>
 			<mx:Button id="btnFormat"
 					styleName="sharedNotesFormatButtonStyle"
 					width="26" height="26"
@@ -637,6 +632,11 @@
 					height="26"
 					click="btnSave_clickHandler(event)"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			<mx:Button id="btnSettings"
+					   styleName="sharedNotesSettings"
+					   width="26" height="26"
+					   click="btnSettings_clickHandler(event)"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.settings.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
 </CustomMdiWindow>
