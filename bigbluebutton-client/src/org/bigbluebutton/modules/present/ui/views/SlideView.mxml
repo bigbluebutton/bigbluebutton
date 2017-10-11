@@ -80,7 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
 			[Bindable]
-			private var slideModel:SlideViewModel = new SlideViewModel();
+			public var slideModel:SlideViewModel = new SlideViewModel();
 			
       private var pageCache:ArrayCollection = new ArrayCollection();
       

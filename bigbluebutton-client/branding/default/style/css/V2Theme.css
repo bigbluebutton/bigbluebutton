@@ -801,6 +801,24 @@ mx|DataGrid {
 
 /*
 //------------------------------
+//  FileExportWindow
+//------------------------------
+*/
+
+presentation|FileExportWindow {
+	verticalGap : 12;
+}
+
+.fileExportHintBoxStyle {
+	horizontalAlign : center;
+	verticalAlign   : middle;
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
+}
+
+/*
+//------------------------------
 //  Guest
 //------------------------------
 */
@@ -1108,10 +1126,6 @@ mx|Panel {
 //------------------------------
 */
 
-.presentationUploadDownloadButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
-}
-
 .presentationWindowControlsStyle {
 	paddingBottom     : 5;
 	paddingTop        : 3;
@@ -1270,7 +1284,7 @@ mx|Panel {
 	paddingRight    : 10;
 }
 
-.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .fileExportHintTextStyle {
 	fontWeight : bold;
 }
 
