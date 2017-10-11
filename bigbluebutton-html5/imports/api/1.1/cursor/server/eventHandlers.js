@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import handleCursorUpdate from './handlers/cursorUpdate';
 
-RedisPubSub.on('presentation_cursor_updated_message', handleCursorUpdate);
+RedisPubSub.on('SendCursorPositionEvtMsg', handleCursorUpdate);
