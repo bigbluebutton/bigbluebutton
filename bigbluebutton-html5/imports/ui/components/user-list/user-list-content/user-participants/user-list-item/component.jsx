@@ -30,6 +30,7 @@ const propTypes = {
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
+  getScrollContainerRef: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -105,6 +106,7 @@ class UserListItem extends Component {
       meeting,
       isMeetingLocked,
       normalizeEmojiName,
+      getScrollContainerRef,
     } = this.props;
 
     const actions = this.getUsersActions();
@@ -117,6 +119,7 @@ class UserListItem extends Component {
       actions={actions}
       meeting={meeting}
       isMeetingLocked={isMeetingLocked}
+      getScrollContainerRef={getScrollContainerRef}
     />);
 
     return contents;

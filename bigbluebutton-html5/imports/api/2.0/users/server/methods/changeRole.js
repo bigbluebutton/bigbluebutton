@@ -26,12 +26,6 @@ export default function changeRole(credentials, userId, role) {
       'user-not-found', `You need a valid user to be able to set '${role}'`);
   }
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId,
-  };
-
   const payload = {
     userId,
     role,
@@ -40,5 +34,5 @@ export default function changeRole(credentials, userId, role) {
 
   Logger.verbose(`User '${userId}' setted as '${role} role by '${requesterUserId}' from meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

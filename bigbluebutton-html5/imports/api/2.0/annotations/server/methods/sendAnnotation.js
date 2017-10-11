@@ -6,7 +6,9 @@ import { check } from 'meteor/check';
 import Annotations from '/imports/api/2.0/annotations';
 
 function isLastMessage(annotation, userId) {
-  if (annotation.status === 'DRAW_END') {
+  const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
+
+  if (annotation.status === DRAW_END) {
     const selector = {
       id: annotation.id,
       userId,

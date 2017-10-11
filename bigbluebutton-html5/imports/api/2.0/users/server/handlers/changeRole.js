@@ -1,36 +1,9 @@
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import Users from '/imports/api/2.0/users';
+import changeRole from '../modifiers/changeRole';
 
-export default function handleChangeRole({body}, meetingId) {
+export default function handleChangeRole(payload, meetingId) {
+  check(payload.body, Object);
+  check(meetingId, String);
 
-  const { userId, role, changedBy } = body;
-
-  check(userId, String);
-  check(role, String);
-  check(changedBy, String);
-
-  const selector = {
-    meetingId,
-    userId,
-  };
-
-  const modifier = {
-    $set: {
-      role,
-    },
-  };
-
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Changed user role: ${err}`);
-    }
-
-    if (numChanged) {
-      return Logger.info(`Changed user role ${role} id=${userId} meeting=${meetingId} by changedBy=${changedBy}`);
-    }
-  };
-
-  return Users.update(selector, modifier, cb);
-
+  changeRole(payload, meetingId);
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Slide = ({ ...props }) => {
+const Slide = (props) => {
   const { imageUri, svgWidth, svgHeight } = props;
 
   return (

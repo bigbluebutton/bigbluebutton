@@ -132,6 +132,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	<mx:VBox width="100%" height="100%" horizontalAlign="center">
 		<mx:Text text="{message}" textAlign="center"/>
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="callSignOut()"/>
+		<mx:Button id="okBtn" styleName="mainActionButton" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="callSignOut()"/>
 	</mx:VBox>
 </mx:TitleWindow> 
