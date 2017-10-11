@@ -120,7 +120,7 @@ class ChatDropdown extends Component {
       >
         <DropdownTrigger
           tabIndex={0}
-          ariaLabel={intl.formatMessage(intlMessages.options)}
+          aria-label={intl.formatMessage(intlMessages.options)}
           className={styles.btn}
         >
           <Icon iconName="more" />

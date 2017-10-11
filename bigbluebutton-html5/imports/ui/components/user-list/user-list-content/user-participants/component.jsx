@@ -191,7 +191,6 @@ class UserParticipants extends Component {
           className={styles.scrollableList}
           role="tabpanel"
           tabIndex={0}
-          refScrollContainer
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
           <CSSTransitionGroup
