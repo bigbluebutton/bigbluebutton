@@ -116,6 +116,11 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
+  // Adjust the locale format to be able to display the locale names properly in the client
+  formatLocale(locale) {
+    return locale.split('-').map((val, idx) => (idx == 1 ? val.toUpperCase() : val)).join('_');
+  }
+
   render() {
     const {
       availableLocales,
@@ -182,7 +187,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
                 <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
                   <select
-                    defaultValue={this.state.settings.locale}
+                    defaultValue={this.formatLocale(this.state.settings.locale)}
                     className={styles.select}
                     onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
                   >
