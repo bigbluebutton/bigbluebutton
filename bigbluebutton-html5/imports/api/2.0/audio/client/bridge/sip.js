@@ -72,6 +72,8 @@ export default class SIPBridge extends BaseAudioBridge {
         managerCallback(message).then(resolve);
       };
 
+      this.callback = callback;
+
       return this.doCall({ callExtension, isListenOnly, inputStream }, callback)
                  .catch((reason) => {
                    callback({ status: this.baseCallStates.failed, error: reason });
