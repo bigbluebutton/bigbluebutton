@@ -318,7 +318,7 @@
 			}
 
 			protected function saveNotes(title:String, text:String, extension:String):void {
-				var filename:String = title.replace(/\s+/g, '-').toLowerCase() + "." + extension;
+				var filename:String = title.replace(/\s+/g, '_').toLowerCase() + "_" + LiveMeeting.inst().meeting.name.replace(/\s+/g, '_').toLowerCase() + "_" + new Date().time.toString() + "." + extension;
 				var fileRef:FileReference = new FileReference();
 				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
