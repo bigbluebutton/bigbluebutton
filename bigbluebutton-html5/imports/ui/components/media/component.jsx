@@ -15,7 +15,7 @@ export default class Media extends Component {
   }
 
   renderOverlay() {
-    const { overlay } = this.props;
+    const { overlay, fullscreen } = this.props;
 
     if (overlay) {
       return (

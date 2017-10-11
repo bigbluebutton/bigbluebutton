@@ -22,4 +22,3 @@ export default createContainer(() => ({
   presenterScreenshareHasStarted,
   presenterScreenshareHasEnded,
 }), ScreenshareContainer);
-

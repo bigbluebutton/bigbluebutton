@@ -43,8 +43,11 @@
     "react-transition-group": "~1.1.3",
     "redis": "^2.6.2",
     "string-hash": "^1.1.3",
+    "whatwg-fetch": "^2.0.3",
     "winston": "^2.3.1",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.17",
+    "yuv-buffer": "^1.0.0",
+    "yuv-canvas": "^1.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.1",

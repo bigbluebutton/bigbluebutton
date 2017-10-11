@@ -1,5 +1,5 @@
 #  Application configurations
 app:
   # Flag for HTTPS.
-  httpsConnection: false
+  httpsConnection: true
   connectionTimeout: 60000

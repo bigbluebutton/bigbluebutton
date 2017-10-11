@@ -4,12 +4,12 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
+import IosHandler from '/imports/ui/services/ios-handler';
 import styles from './styles';
 
 const propTypes = {
   handleEndMeeting: PropTypes.func.isRequired,
   intl: PropTypes.shape(intlShape).isRequired,
-  router: PropTypes.object.isRequired,
   showEndMeeting: PropTypes.bool.isRequired,
 };
 
@@ -53,8 +53,9 @@ const LeaveConfirmation = ({
   router,
   handleEndMeeting,
   showEndMeeting,
-}) => (
-  <Modal
+}) => {
+  IosHandler.leaveRoom();
+  return (<Modal
     title={intl.formatMessage(intlMessages.title)}
     confirm={{
       callback: () => router.push('/logout'),
@@ -77,8 +78,8 @@ const LeaveConfirmation = ({
       /> : null
     }
     <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>
-  </Modal>
-);
+  </Modal>);
+};
 
 LeaveConfirmation.propTypes = propTypes;
 

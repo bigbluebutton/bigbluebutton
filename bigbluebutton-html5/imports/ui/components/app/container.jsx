@@ -2,6 +2,7 @@ import React, { cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
+import iosHandler from '/imports/ui/services/ios-handler';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/2.0/users';
@@ -14,6 +15,7 @@ import {
   getFontSize,
   getCaptionsStatus,
   meetingIsBreakout,
+  getBreakoutIds,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -86,10 +88,10 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // Displayed error messages according to the mode (kicked, end meeting)
   const sendToError = (code, message) => {
     Auth.clearCredentials()
-        .then(() => {
-          router.push(`/error/${code}`);
-          baseControls.updateErrorState(message);
-        });
+      .then(() => {
+        router.push(`/error/${code}`);
+        baseControls.updateErrorState(message);
+      });
   };
 
   // Check if user is kicked out of the session
@@ -113,11 +115,18 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // Close the widow when the current breakout room ends
   Breakouts.find({ breakoutId: Auth.meetingID }).observeChanges({
     removed() {
-      Auth.clearCredentials().then(window.close);
+      Auth.clearCredentials().then(() => {
+        if (window.navigator.userAgent === 'BigBlueButton') {
+          iosHandler.leaveRoom();
+        } else {
+          window.close();
+        }
+      });
     },
   });
 
   return {
+    breakoutIds: getBreakoutIds(),
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
   };

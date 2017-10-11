@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { logClient } from '/imports/ui/services/api';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 const propTypes = {
   low: PropTypes.number,
@@ -51,14 +52,34 @@ class AudioStreamVolume extends Component {
   }
 
   componentWillUnmount() {
+    if (window.navigator.userAgent === 'BigBlueButton') {
+      IosHandler.requestMicrophoneLevelStop();
+      return;
+    }
+
     this.closeAudioContext();
   }
 
   createAudioContext() {
-    this.audioContext = new AudioContext();
-    this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);
-    this.scriptProcessor.onaudioprocess = this.handleAudioProcess;
-    this.source = null;
+
+    if (window.navigator.userAgent === 'BigBlueButton') {
+      console.log('request mic level start')
+      IosHandler.requestMicrophoneLevelStart();
+      window.addEventListener('audioInputChange',
+      (e) => {
+        console.log('eventlistener for volume change', e.detail.message);
+        this.setState((prevState) => ({
+          instant: parseFloat(e.detail.message),
+          slow: parseFloat(e.detail.message),
+        }));
+      });
+      return;
+    } else {
+      this.audioContext = new AudioContext();
+      this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);
+      this.scriptProcessor.onaudioprocess = this.handleAudioProcess;
+      this.source = null;
+    }
 
     const constraints = {
       audio: true,

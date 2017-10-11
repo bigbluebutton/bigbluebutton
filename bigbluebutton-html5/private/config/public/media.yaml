@@ -6,5 +6,7 @@ media:
   # Allows a caller to access a FreeSWITCH dialplan
   freeswitchProfilePassword: "1234"  # TODO: Remove once Danny's submitted PULL
   vertoPort: "8082"
+  fsUsername: "bbbuser"
+  fsPassword: "secret"
   # specifies whether to use SIP.js for audio over mod_verto
-  useSIPAudio: true
+  useSIPAudio: false

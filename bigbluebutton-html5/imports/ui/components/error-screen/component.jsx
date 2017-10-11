@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import IosHandler from '/imports/ui/services/ios-handler';
+import { withIosHandler } from '/imports/ui/components/ios-handler/service';
 
 import styles from './styles.scss';
 
@@ -38,6 +40,11 @@ const defaultProps = {
 };
 
 class ErrorScreen extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onClick = this.onClick.bind(this);
+  }
 
   onClick() {
     window.location = window.location.origin;
@@ -75,7 +82,12 @@ class ErrorScreen extends Component {
   }
 }
 
-export default injectIntl(ErrorScreen);
+const iosHandlers = {
+  'onClick': 'leaveRoom',
+  'componentDidMount': 'hangupCall',
+}
+
+export default injectIntl(withIosHandler(ErrorScreen, iosHandlers));
 
 ErrorScreen.propTypes = propTypes;
 ErrorScreen.defaultProps = defaultProps;

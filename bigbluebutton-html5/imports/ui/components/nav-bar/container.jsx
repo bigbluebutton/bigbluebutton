@@ -77,5 +77,13 @@ export default withRouter(createContainer(({ location, router }) => {
         router.push('/users');
       }
     },
+    leftSwipeHandler: () => {
+      router.push('/');
+    },
+    rightSwipeHandler: () => {
+      if (location.pathname.indexOf('/users') === -1) {
+        router.push('/users');
+      }
+    },
   };
 }, NavBarContainer));

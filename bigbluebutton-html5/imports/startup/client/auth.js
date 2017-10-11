@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { logClient } from '/imports/ui/services/api';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -31,7 +32,10 @@ export function logoutRouteHandler(nextState, replace) {
   Auth.logout()
     .then((logoutURL = window.location.origin) => {
       const protocolPattern = /^((http|https):\/\/)/;
-
+      if (window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') {
+        IosHandler.hangupCall();
+        IosHandler.leaveRoom();
+      }
       window.location.href =
         protocolPattern.test(logoutURL) ?
           logoutURL :

@@ -1,5 +1,6 @@
 import Presentations from '/imports/api/2.0/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
+import iosService from '/imports/ui/services/ios-handler/index';
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
@@ -21,8 +22,9 @@ function shouldShowScreenshare() {
 }
 
 function shouldShowOverlay() {
-  return false;
+  return iosService.isIosApp;
 }
+
 
 export default {
   getPresentationInfo,

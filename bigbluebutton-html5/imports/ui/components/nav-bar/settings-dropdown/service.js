@@ -1,3 +1,5 @@
+import IosHandler from '/imports/ui/services/ios-handler';
+
 toggleFullScreen = () => {
   const element = document.documentElement;
 

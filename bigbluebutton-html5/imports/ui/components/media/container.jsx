@@ -1,17 +1,11 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Media from './component';
-import MediaService from './service';
 import PresentationAreaContainer from '../presentation/container';
 import VideoDockContainer from '../video-dock/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
-
-const defaultProps = {
-  overlay: null, // <VideoDockContainer/>,
-  content: <PresentationAreaContainer />,
-  defaultContent: <DefaultContent />,
-};
+import MediaService from './service';
 
 class MediaContainer extends Component {
   constructor(props) {
@@ -50,25 +44,58 @@ class MediaContainer extends Component {
   }
 }
 
-MediaContainer.defaultProps = defaultProps;
+let data = buildDefaultData();
 
-export default createContainer(() => {
-  const data = {};
-  data.currentPresentation = MediaService.getPresentationInfo();
+const dataDep = new Tracker.Dependency();
 
-  data.content = <DefaultContent />;
+const getData = () => {
+  dataDep.depend();
+  return data;
+};
+
+const setData = (d) => {
+  data = Object.assign(data, d);
+  dataDep.changed();
+};
+
+
+function buildDefaultData() {
+  const buildData = {};
+
+  const updateData = () => {
+    if (!buildData.overlayFocus) {
+      setData({
+        overlay: <PresentationAreaContainer updateData={updateData} />,
+        content: <VideoDockContainer />,
+        overlayFocus: !buildData.overlayFocus,
+      });
+    } else {
+      setData({
+        content: <PresentationAreaContainer />,
+        overlay: <VideoDockContainer updateData={updateData} />,
+        overlayFocus: !buildData.overlayFocus,
+      });
+    }
+  };
+
+  buildData.currentPresentation = MediaService.getPresentationInfo();
+  buildData.content = <DefaultContent />;
 
   if (MediaService.shouldShowWhiteboard()) {
-    data.content = <PresentationAreaContainer />;
+    buildData.content = <PresentationAreaContainer />;
   }
 
   if (MediaService.shouldShowScreenshare()) {
-    data.content = <ScreenshareContainer />;
+    buildData.content = <ScreenshareContainer />;
   }
 
   if (MediaService.shouldShowOverlay()) {
-    data.overlay = <VideoDockContainer />;
+    buildData.overlay = <VideoDockContainer updateData={updateData} />;
   }
 
-  return data;
-}, MediaContainer);
+  buildData.overlayFocus = false;
+
+  return buildData;
+}
+
+export default createContainer(() => getData(), MediaContainer);

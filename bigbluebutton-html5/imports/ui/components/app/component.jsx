@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
-
+import IosHandler from '/imports/ui/services/ios-handler';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
@@ -63,6 +63,12 @@ class App extends Component {
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+
+    IosHandler.sendCallParameters();
+    window.addEventListener('requestBreakoutRooms',
+    () => {
+      IosHandler.updateBreakoutRooms(this.props.breakoutIds);
+    });
   }
 
   renderNavBar() {
