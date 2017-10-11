@@ -528,7 +528,7 @@
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
-				richTextEditor.showControlBar = !richTextEditor.showControlBar;
+				btnFormat.selected = richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
 
 			public function getPrefferedPosition():String {
