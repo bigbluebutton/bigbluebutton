@@ -323,6 +323,9 @@
 				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
+				fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), "", Alert.OK);
+				});
 
 				var cr:String = String.fromCharCode(13);
 				var lf:String = String.fromCharCode(10);
