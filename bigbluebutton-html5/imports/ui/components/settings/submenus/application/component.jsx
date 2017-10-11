@@ -2,12 +2,12 @@ import React from 'react';
 import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import BaseMenu from '../base/component';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
-import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import BaseMenu from '../base/component';
+import styles from '../styles';
 
 const MIN_FONTSIZE = 0;
 const MAX_FONTSIZE = 4;
@@ -96,7 +96,8 @@ class ApplicationMenu extends BaseMenu {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < MAX_FONTSIZE;
-    const fs = (canIncreaseFontSize) ? availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
+    const fs = (canIncreaseFontSize) ?
+      availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
   }
 
@@ -104,7 +105,8 @@ class ApplicationMenu extends BaseMenu {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
-    const fs = (canDecreaseFontSize) ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
+    const fs = (canDecreaseFontSize) ?
+      availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
   }
 
@@ -112,6 +114,11 @@ class ApplicationMenu extends BaseMenu {
     const obj = this.state;
     obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
     this.handleUpdateSettings('application', obj.settings);
+  }
+
+  // Adjust the locale format to be able to display the locale names properly in the client
+  formatLocale(locale) {
+    return locale.split('-').map((val, idx) => (idx == 1 ? val.toUpperCase() : val)).join('_');
   }
 
   render() {
@@ -148,6 +155,7 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
+          {/* TODO: Uncomment after the release
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement} >
@@ -167,7 +175,7 @@ class ApplicationMenu extends BaseMenu {
                 />
               </div>
             </div>
-          </div>
+          </div>*/}
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
@@ -179,7 +187,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
                 <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
                   <select
-                    defaultValue={this.state.settings.locale}
+                    defaultValue={this.formatLocale(this.state.settings.locale)}
                     className={styles.select}
                     onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
                   >

@@ -145,6 +145,9 @@ export default class SIPBridge extends BaseAudioBridge {
   handleUserAgentDisconnection(reject) {
     this.userAgent.stop();
     this.userAgent = null;
+    this.callback({ status: this.baseCallStates.failed,
+                    error: this.baseErrorCodes.GENERIC_ERROR,
+                    bridgeError: 'User Agent' });
     console.log('DISCONNECTED');
     reject('CONNECTION_ERROR');
   }

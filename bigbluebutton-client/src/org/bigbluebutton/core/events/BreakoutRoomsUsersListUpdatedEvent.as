@@ -16,16 +16,14 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.core.connection.messages.breakoutrooms {
-	import org.bigbluebutton.core.connection.messages.BbbCommonMsg;
+package org.bigbluebutton.core.events {
+	import flash.events.Event;
 
-	public class RequestBreakoutJoinURLMsg extends BbbCommonMsg {
+	public class BreakoutRoomsUsersListUpdatedEvent extends Event {
+		public static const BREAKOUT_ROOMS_LIST_UPDATED_EVENT:String = "breakout rooms users list updated event";
 
-		public var body:RequestBreakoutJoinURLMsgBody;
-
-		public function RequestBreakoutJoinURLMsg(body:RequestBreakoutJoinURLMsgBody) {
-			super();
-			this.body = body;
+		public function BreakoutRoomsUsersListUpdatedEvent() {
+			super(BREAKOUT_ROOMS_LIST_UPDATED_EVENT, true, false);
 		}
 	}
 }

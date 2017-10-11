@@ -27,19 +27,19 @@ export default function resizeSlide(meetingId, slide) {
   // fetching the current slide data
   // and pre-calculating the width, height, and vieBox coordinates / sizes
   // to reduce the client-side load
-  const _slide = Slides.findOne(selector);
+  const Slide = Slides.findOne(selector);
   const slideData = {
-    width: _slide.calculatedData.width,
-    height: _slide.calculatedData.height,
+    width: Slide.calculatedData.width,
+    height: Slide.calculatedData.height,
     xOffset,
     yOffset,
     widthRatio,
     heightRatio,
   };
   const calculatedData = calculateSlideData(slideData);
-  calculatedData.imageUri = _slide.calculatedData.imageUri;
-  calculatedData.width = _slide.calculatedData.width;
-  calculatedData.height = _slide.calculatedData.height;
+  calculatedData.imageUri = Slide.calculatedData.imageUri;
+  calculatedData.width = Slide.calculatedData.width;
+  calculatedData.height = Slide.calculatedData.height;
   modifier.$set.calculatedData = calculatedData;
 
   const cb = (err, numChanged) => {

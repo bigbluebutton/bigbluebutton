@@ -8,8 +8,10 @@ const getCurrentAnnotationsInfo = (whiteboardId) => {
   return Annotations.find(
     {
       whiteboardId,
+      annotationType: { $ne: 'pencil_base' },
     },
     {
+      sort: { position: 1 },
       fields: { status: 1, _id: 1, annotationType: 1 },
     },
   ).fetch();

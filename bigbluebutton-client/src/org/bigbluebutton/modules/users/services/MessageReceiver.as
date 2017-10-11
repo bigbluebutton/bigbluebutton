@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
   import org.bigbluebutton.core.events.NewGuestWaitingEvent;
@@ -772,8 +773,11 @@ package org.bigbluebutton.modules.users.services
       var body: Object = msg.body as Object;
       var breakoutId: String = body.breakoutId as String;
       var users: Array = body.users as Array;
-      
-      LiveMeeting.inst().breakoutRooms.updateUsers(breakoutId, users);
+	  
+	  LiveMeeting.inst().breakoutRooms.updateUsers(breakoutId, users);
+	  LiveMeeting.inst().users.updateBreakoutRooms(LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId).sequence, users);
+
+	  dispatcher.dispatchEvent(new BreakoutRoomsUsersListUpdatedEvent());
     }
     
     private function handleMeetingTimeRemainingUpdateEvtMsg(msg:Object):void {
@@ -808,7 +812,10 @@ package org.bigbluebutton.modules.users.services
       
       switchUserFromBreakoutToMainVoiceConf(breakoutId);
       var breakoutRoom: BreakoutRoom = LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId);
-      LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(breakoutId);    
+      LiveMeeting.inst().breakoutRooms.removeBreakoutRoom(breakoutId);
+	  LiveMeeting.inst().users.removeBreakoutRoomFromUsers(breakoutRoom.sequence);
+	  
+	  dispatcher.dispatchEvent(new BreakoutRoomsUsersListUpdatedEvent());
     }
     
     private function switchUserFromBreakoutToMainVoiceConf(breakoutId: String): void {

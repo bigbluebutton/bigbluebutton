@@ -3,7 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import PresentationAreaService from './service';
 import PresentationArea from './component';
 
-const PresentationAreaContainer = ({ ...props }) => (
+const PresentationAreaContainer = props => (
   <PresentationArea {...props} />
 );
 

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import AnnotationFactory from '../annotation-factory/component';
 
-const AnnotationGroup = ({ ...props }) => (
+const AnnotationGroup = props => (
   <AnnotationFactory
     annotationsInfo={props.annotationsInfo}
     slideWidth={props.slideWidth}

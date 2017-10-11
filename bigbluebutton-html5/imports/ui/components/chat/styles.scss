@@ -18,6 +18,7 @@
   flex-shrink: 0;
 
   a {
+    @extend %customLinkFocus;
     text-decoration: none;
     display: block;
   }
