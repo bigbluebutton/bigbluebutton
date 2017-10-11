@@ -1,7 +1,6 @@
-import Chat from '/imports/api/1.1/chat';
+import Chat from '/imports/api/2.0/chat';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import { BREAK_LINE } from '/imports/utils/lineEndings.js';
 
 /**
  * Remove any system message from the user with userId.
@@ -17,8 +16,8 @@ export default function clearUserSystemMessages(meetingId, userId) {
 
   const selector = {
     meetingId,
-    'message.from_userid': CHAT_CONFIG.type_system,
-    'message.to_userid': userId,
+    fromUserId: CHAT_CONFIG.type_system,
+    toUserId: userId,
   };
 
   return Chat.remove(selector, Logger.info(`Removing system messages from: (${userId})`));

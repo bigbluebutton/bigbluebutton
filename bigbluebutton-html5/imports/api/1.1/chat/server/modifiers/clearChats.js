@@ -1,4 +1,4 @@
-import Chat from '/imports/api/1.1/chat';
+import Chat from '/imports/api/2.0/chat';
 import Logger from '/imports/startup/server/logger';
 
 export default function clearChats(meetingId) {

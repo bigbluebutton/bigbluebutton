@@ -1,16 +1,25 @@
-import { check } from 'meteor/check';
-import Captions from '/imports/api/1.1/captions';
+import { Match, check } from 'meteor/check';
+import Captions from '/imports/api/2.0/captions';
 import Logger from '/imports/startup/server/logger';
 
 export default function addCaption(meetingId, locale, captionHistory, id = false) {
   check(meetingId, String);
   check(locale, String);
-  check(captionHistory, Object);
+
+  check(captionHistory, {
+    ownerId: String,
+    index: Number,
+    captions: String,
+    locale: Match.Maybe(String),
+    localeCode: Match.Maybe(String),
+    next: Match.OneOf(Number, undefined, null),
+  });
 
   const selector = {
     meetingId,
     locale,
   };
+
 
   if (id) {
     selector._id = id;
@@ -22,27 +31,21 @@ export default function addCaption(meetingId, locale, captionHistory, id = false
     $set: {
       meetingId,
       locale,
-      'captionHistory.locale': locale,
-      'captionHistory.ownerId': captionHistory.ownerId,
-      'captionHistory.captions': captionHistory.captions,
-      'captionHistory.next': captionHistory.next,
-      'captionHistory.index': captionHistory.index,
+      captionHistory,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding caption to collection: ${err}`);
+      return Logger.error(`Adding caption2x to collection: ${err}`);
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.verbose(`Added caption locale=${locale} meeting=${meetingId}`);
+      return Logger.verbose(`Added caption2x locale=${locale} meeting=${meetingId}`);
     }
 
-    if (numChanged) {
-      return Logger.verbose(`Upserted caption locale=${locale} meeting=${meetingId}`);
-    }
+    return Logger.verbose(`Upserted caption2x locale=${locale} meeting=${meetingId}`);
   };
 
   return Captions.upsert(selector, modifier, cb);

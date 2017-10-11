@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Logger from '/imports/startup/server/logger';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import RegexWebUrl from '/imports/utils/regex-weburl';
 
 const HTML_SAFE_MAP = {
@@ -11,30 +10,28 @@ const HTML_SAFE_MAP = {
   "'": '&#39;',
 };
 
-const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
-
 const parseMessage = (message) => {
-  message = message || '';
-  message = message.trim();
+  let parsedMessage = message || '';
+  parsedMessage = parsedMessage.trim();
 
   // Replace <br/> with \n\r
-  message = message.replace(/<br\s*[\/]?>/gi, '\n\r');
+  parsedMessage = parsedMessage.replace(/<br\s*[\\/]?>/gi, '\n\r');
 
   // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-  message = message.replace(/[<>'"]/g, c => HTML_SAFE_MAP[c]);
+  parsedMessage = parsedMessage.replace(/[<>'"]/g, c => HTML_SAFE_MAP[c]);
 
   // Replace flash links to flash valid ones
-  message = message.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
+  parsedMessage = parsedMessage.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
 
-  return message;
+  return parsedMessage;
 };
 
 export default function sendChat(credentials, message) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.chat;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 
   const CHAT_CONFIG = Meteor.settings.public.chat;
-  const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+  const TO_PUBLIC_CHAT = CHAT_CONFIG.public_username;
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -43,21 +40,15 @@ export default function sendChat(credentials, message) {
   check(requesterToken, String);
   check(message, Object);
 
-  let actionName = message.to_userid === requesterUserId ? 'chatSelf' : 'chatPrivate';
-  let eventName = 'send_private_chat_message';
+  let eventName = 'SendPrivateMessagePubMsg';
 
-  message.message = parseMessage(message.message);
+  const parsedMessage = message;
 
-  if (message.chat_type === PUBLIC_CHAT_TYPE) {
-    eventName = 'send_public_chat_message';
-    actionName = 'chatPublic';
+  parsedMessage.message = parseMessage(message.message);
+
+  if (message.toUsername === TO_PUBLIC_CHAT) {
+    eventName = 'SendPublicMessagePubMsg';
   }
 
-  const payload = {
-    message,
-    meeting_id: meetingId,
-    requester_id: message.from_userid,
-  };
-
-  return RedisPubSub.publish(CHANNEL, eventName, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, eventName, meetingId, requesterUserId, { message: parsedMessage });
 }

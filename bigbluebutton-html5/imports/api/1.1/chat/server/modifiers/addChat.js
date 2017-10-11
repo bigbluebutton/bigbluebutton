@@ -1,56 +1,61 @@
-import Chat from '/imports/api/1.1/chat';
+import flat from 'flat';
+import Chat from '/imports/api/2.0/chat';
 import Logger from '/imports/startup/server/logger';
-import { check } from 'meteor/check';
-import { BREAK_LINE } from '/imports/utils/lineEndings.js';
+import { Match, check } from 'meteor/check';
+import { BREAK_LINE } from '/imports/utils/lineEndings';
 
 const parseMessage = (message) => {
-  message = message || '';
+  let parsedMessage = message || '';
 
   // Replace \r and \n to <br/>
-  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
+  parsedMessage = parsedMessage.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
 
   // Replace flash links to html valid ones
-  message = message.split('<a href=\'event:').join('<a target="_blank" href=\'');
-  message = message.split('<a href="event:').join('<a target="_blank" href="');
+  parsedMessage = parsedMessage.split('<a href=\'event:').join('<a target="_blank" href=\'');
+  parsedMessage = parsedMessage.split('<a href="event:').join('<a target="_blank" href="');
 
-  return message;
+  return parsedMessage;
 };
 
-export default function addChat(meetingId, message) {
-  // manually convert time from 1.408645053653E12 to 1408645053653 if necessary
-  // (this is the time_from that the Flash client outputs)
-  message.from_time = +(message.from_time.toString().split('.').join('').split('E')[0]);
-  message.message = parseMessage(message.message);
+const chatType = (userName) => {
+  const CHAT_CONFIG = Meteor.settings.public.chat;
 
-  const fromUserId = message.from_userid;
-  const toUserId = message.to_userid;
+  const typeByUser = {
+    [CHAT_CONFIG.system_username]: CHAT_CONFIG.type_system,
+    [CHAT_CONFIG.public_username]: CHAT_CONFIG.type_public,
+  };
 
-  check(fromUserId, String);
-  check(toUserId, String);
+  return userName in typeByUser ? typeByUser[userName] : CHAT_CONFIG.type_private;
+};
+
+export default function addChat(meetingId, chat) {
+  check(chat, {
+    message: String,
+    fromColor: String,
+    toUserId: String,
+    toUsername: String,
+    fromUserId: String,
+    fromUsername: Match.Maybe(String),
+    fromTime: Number,
+    fromTimezoneOffset: Match.Maybe(Number),
+  });
 
   const selector = {
     meetingId,
-    'message.from_time': message.from_time,
-    'message.from_userid': message.from_userid,
-    'message.to_userid': message.to_userid,
+    fromTime: chat.fromTime,
+    fromUserId: chat.fromUserId,
+    toUserId: chat.toUserId,
   };
 
   const modifier = {
-    $set: {
-      meetingId,
-      message: {
-        chat_type: message.chat_type,
-        message: message.message,
-        to_username: message.to_username,
-        from_tz_offset: message.from_tz_offset,
-        from_color: message.from_color,
-        to_userid: message.to_userid,
-        from_userid: message.from_userid,
-        from_time: message.from_time,
-        from_username: message.from_username,
-        from_lang: message.from_lang,
+    $set: Object.assign(
+      flat(chat, { safe: true }),
+      {
+        meetingId,
+        message: parseMessage(chat.message),
+        type: chatType(chat.toUsername),
       },
-    },
+    ),
   };
 
   const cb = (err, numChanged) => {
@@ -59,11 +64,13 @@ export default function addChat(meetingId, message) {
     }
 
     const { insertedId } = numChanged;
+    const to = chat.toUsername || 'PUBLIC';
 
     if (insertedId) {
-      const to = message.to_username || 'PUBLIC';
-      return Logger.info(`Added chat id=${insertedId} from=${message.from_username} to=${to}`);
+      return Logger.info(`Added chat from=${chat.fromUsername} to=${to} time=${chat.fromTime}`);
     }
+
+    return Logger.info(`Upserted chat from=${chat.fromUsername} to=${to} time=${chat.fromTime}`);
   };
 
   return Chat.upsert(selector, modifier, cb);

@@ -1,38 +1,41 @@
-import Breakouts from '/imports/api/1.1/breakouts';
+import Breakouts from '/imports/api/2.0/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import flat from 'flat';
 
-export default function handleBreakoutRoomStarted({ payload }) {
+export default function handleBreakoutRoomStarted({ body }, meetingId) {
   const {
-    meetingId,
-    timeRemaining,
-    externalMeetingId,
-  } = payload;
+    parentMeetingId,
+    breakout,
+  } = body;
+
+  const { breakoutId } = breakout;
+
+  const timeRemaining = 15;
 
   check(meetingId, String);
 
   const selector = {
-    breakoutMeetingId: meetingId,
+    breakoutId,
   };
 
-  modifier = {
-    $set: {
-      users: [],
-      timeRemaining: Number(timeRemaining),
-      externalMeetingId,
-    },
+  const modifier = {
+    $set: Object.assign(
+      { users: [] },
+      { timeRemaining: Number(timeRemaining) },
+      { parentMeetingId },
+      flat(breakout),
+    ),
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`updating breakout: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.info('Updated timeRemaining and externalMeetingId ' +
-                         `for breakout id=${meetingId}`);
-    }
+    return Logger.info('Updated timeRemaining and externalMeetingId ' +
+      `for breakout id=${breakoutId}`);
   };
 
-  return Breakouts.update(selector, modifier, cb);
+  return Breakouts.upsert(selector, modifier, cb);
 }

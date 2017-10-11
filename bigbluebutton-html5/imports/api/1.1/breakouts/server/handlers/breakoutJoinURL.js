@@ -1,9 +1,9 @@
-import Breakouts from '/imports/api/1.1/breakouts';
-import Logger from '/imports/startup/server/logger';
-import { check } from 'meteor/check';
-
 import xml2js from 'xml2js';
 import url from 'url';
+import { check } from 'meteor/check';
+import Logger from '/imports/startup/server/logger';
+import Breakouts from '/imports/api/2.0/breakouts';
+
 const xmlParser = new xml2js.Parser();
 
 const getUrlParams = (urlToParse) => {
@@ -12,48 +12,48 @@ const getUrlParams = (urlToParse) => {
   return parsedUrl.query;
 };
 
-export default function handleBreakoutJoinURL({ payload }) {
-  const REDIS_CONFIG = Meteor.settings.redis;
-  const CLIENT_HTML = 'HTML5';
 
+export default function handleBreakoutJoinURL({ body }) {
   const {
     noRedirectJoinURL,
-  } = payload;
+    userId,
+    breakoutId,
+  } = body;
 
   check(noRedirectJoinURL, String);
 
   const urlParams = getUrlParams(noRedirectJoinURL);
 
   const selector = {
-    externalMeetingId: urlParams.meetingID,
+    breakoutId,
   };
 
-  let breakout = Breakouts.findOne(selector);
-
   const res = Meteor.http.call('get', noRedirectJoinURL);
+
   xmlParser.parseString(res.content, (err, parsedXML) => {
     if (err) {
       return Logger.error(`An Error occured when parsing xml response for: ${noRedirectJoinURL}`);
     }
 
-    breakout = Breakouts.findOne(selector);
+    const breakout = Breakouts.findOne(selector);
 
     const { response } = parsedXML;
     const users = breakout.users;
 
     const user = {
-      userId: payload.userId,
+      userId,
       urlParams: {
         meetingId: response.meeting_id[0],
         userId: response.user_id[0],
         authToken: response.auth_token[0],
+        sessionToken: response.session_token[0],
       },
     };
 
     const userExists = users.find(u => user.userId === u.userId);
 
     if (userExists) {
-      return;
+      return null;
     }
 
     const modifier = {
@@ -62,9 +62,9 @@ export default function handleBreakoutJoinURL({ payload }) {
       },
     };
 
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Adding breakout to collection: ${err}`);
+    const cb = (cbErr, numChanged) => {
+      if (cbErr) {
+        return Logger.error(`Adding breakout to collection: ${cbErr}`);
       }
 
       const {
