@@ -5,6 +5,9 @@ import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
 import Logger from './logger';
 
+// Fake meetingId used for messages that have no meetingId
+const NO_MEETING_ID = '_';
+
 const makeEnvelope = (channel, eventName, header, body) => {
   const envelope = {
     envelope: {
@@ -23,6 +26,70 @@ const makeEnvelope = (channel, eventName, header, body) => {
   return JSON.stringify(envelope);
 };
 
+const makeDebugger = enabled => (message) => {
+  if (!enabled) return;
+  Logger.info(`REDIS: ${message}`);
+};
+
+class MettingMessageQueue {
+  constructor(eventEmitter, asyncMessages = [], debug = () => {}) {
+    this.asyncMessages = asyncMessages;
+    this.emitter = eventEmitter;
+    this.queue = new PowerQueue();
+    this.debug = debug;
+
+    this.handleTask = this.handleTask.bind(this);
+    this.queue.taskHandler = this.handleTask;
+  }
+
+  handleTask(data, next) {
+    const { channel } = data;
+    const { envelope } = data.parsedMessage;
+    const { header } = data.parsedMessage.core;
+    const { body } = data.parsedMessage.core;
+    const eventName = header.name;
+    const meetingId = header.meetingId;
+    const isAsync = this.asyncMessages.includes(channel)
+      || this.asyncMessages.includes(eventName);
+
+    let called = false;
+
+    check(eventName, String);
+    check(body, Object);
+
+    const callNext = () => {
+      if (called) return;
+      this.debug(`${eventName} completed ${isAsync ? 'async' : 'sync'}`);
+      called = true;
+      next();
+    };
+
+    const onError = (reason) => {
+      this.debug(`${eventName}: ${reason}`);
+      callNext();
+    };
+
+    try {
+      this.debug(`${eventName} emitted`);
+
+      if (isAsync) {
+        callNext();
+      }
+
+      this.emitter
+        .emitAsync(eventName, { envelope, header, body }, meetingId)
+        .then(callNext)
+        .catch(onError);
+    } catch (reason) {
+      onError(reason);
+    }
+  }
+
+  add(...args) {
+    return this.queue.add(...args);
+  }
+}
+
 class RedisPubSub2x {
 
   static handlePublishError(err) {
@@ -38,27 +105,76 @@ class RedisPubSub2x {
     this.pub = Redis.createClient();
     this.sub = Redis.createClient();
     this.emitter = new EventEmitter2();
-    this.queue = new PowerQueue();
+    this.mettingsQueues = {};
 
-    this.handleTask = this.handleTask.bind(this);
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
+    this.debug = makeDebugger(this.config.debug);
   }
 
   init() {
-    this.queue.taskHandler = this.handleTask;
     this.sub.on('psubscribe', Meteor.bindEnvironment(this.handleSubscribe));
     this.sub.on('pmessage', Meteor.bindEnvironment(this.handleMessage));
 
-    this.queue.reset();
-    this.sub.psubscribe(this.config.channels.fromAkkaApps); // 2.0
-    this.sub.psubscribe(this.config.channels.toHTML5); // 2.0
+    const channelsToSubscribe = this.config.subscribeTo;
 
-    Logger.info(`Subscribed to '${this.config.channels.fromAkkaApps}'`);
+    channelsToSubscribe.forEach((channel) => {
+      this.sub.psubscribe(channel);
+    });
+
+    this.debug(`Subscribed to '${channelsToSubscribe}'`);
   }
 
   updateConfig(config) {
     this.config = Object.assign({}, this.config, config);
+    this.debug = makeDebugger(this.config.debug);
+  }
+
+
+  // TODO: Move this out of this class, maybe pass as a callback to init?
+  handleSubscribe() {
+    if (this.didSendRequestEvent) return;
+
+    // populate collections with pre-existing data
+    const REDIS_CONFIG = Meteor.settings.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'GetAllMeetingsReqMsg';
+
+    const body = {
+      requesterId: 'nodeJSapp',
+    };
+
+    this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
+    this.didSendRequestEvent = true;
+  }
+
+  handleMessage(pattern, channel, message) {
+    const parsedMessage = JSON.parse(message);
+    const { name: eventName, meetingId } = parsedMessage.core.header;
+    const { ignored: ignoredMessages, async } = this.config;
+
+    if (ignoredMessages.includes(channel)
+      || ignoredMessages.includes(eventName)) {
+      this.debug(`${eventName} skipped`);
+      return;
+    }
+
+    const queueId = meetingId || NO_MEETING_ID;
+
+    if (!(queueId in this.mettingsQueues)) {
+      this.mettingsQueues[meetingId] = new MettingMessageQueue(this.emitter, async, this.debug);
+    }
+
+    this.mettingsQueues[meetingId].add({
+      pattern,
+      channel,
+      eventName,
+      parsedMessage,
+    });
+  }
+
+  destroyMeetingQueue(id) {
+    delete this.mettingsQueues[id];
   }
 
   on(...args) {
@@ -107,83 +223,6 @@ class RedisPubSub2x {
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
     return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
-  }
-
-  handleSubscribe() {
-    if (this.didSendRequestEvent) return;
-
-      // populate collections with pre-existing data
-    const REDIS_CONFIG = Meteor.settings.redis;
-    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-    const EVENT_NAME = 'GetAllMeetingsReqMsg';
-
-    const body = {
-      requesterId: 'nodeJSapp',
-    };
-
-    this.publishSystemMessage(CHANNEL, EVENT_NAME, body);
-    this.didSendRequestEvent = true;
-  }
-
-  handleMessage(pattern, channel, message) {
-    Logger.info(`2.0 handleMessage: ${message}`);
-    const REDIS_CONFIG = Meteor.settings.redis;
-    const { fromAkkaApps, toHTML5 } = REDIS_CONFIG.channels;
-
-    const parsedMessage = JSON.parse(message);
-    const { header } = parsedMessage.core;
-    const eventName = header.name;
-
-    Logger.info(`2.0 QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}} ${eventName} | CHANNEL ${channel}`);
-
-    const regex = new RegExp(fromAkkaApps);
-    // We should only handle messages from this two channels, else, we simple ignore them.
-    if (!regex.test(channel) && channel !== toHTML5) {
-      Logger.info(`The following message was ignored: CHANNEL ${channel} MESSAGE ${message}`);
-      return;
-    }
-    this.queue.add({
-      pattern,
-      channel,
-      eventName,
-      parsedMessage,
-    });
-  }
-
-  handleTask(data, next) {
-    const { header } = data.parsedMessage.core;
-    const { body } = data.parsedMessage.core;
-    const { envelope } = data.parsedMessage;
-    const eventName = header.name;
-    const meetingId = header.meetingId;
-
-    check(eventName, String);
-    check(body, Object);
-
-    try {
-      this._debug(`${eventName} emitted`);
-      return this.emitter
-        .emitAsync(eventName, { envelope, header, body }, meetingId)
-        .then(() => {
-          this._debug(`${eventName} completed`);
-          return next();
-        })
-        .catch((reason) => {
-          this._debug(`${eventName} completed with error`);
-          Logger.error(`${eventName}: ${reason}`);
-          return next();
-        });
-    } catch (reason) {
-      this._debug(`${eventName} completed with error`);
-      Logger.error(`${eventName}: ${reason}`);
-      return next();
-    }
-  }
-
-  _debug(message) {
-    if (this.config.debug) {
-      Logger.info(message);
-    }
   }
 }
 
