@@ -52,7 +52,18 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   }
 }
 
-%customInputFocus,
+%customInputFocus {
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: 1px solid $color-primary;
+      border-radius: $focus-border-size;
+      box-shadow: 0 0 0 2px  rgba(15, 112, 215, 0.5);
+    }
+  }
+}
+
 %customSelectFocus,
 %customLinkFocus {
   border: $focus-border-size solid $color-white;
