@@ -1,3 +1,4 @@
+// Commented everything se we dont have erros with the new config structure
 // import Redis from 'redis';
 // import Logger from './logger';
 // import { Meteor } from 'meteor/meteor';
