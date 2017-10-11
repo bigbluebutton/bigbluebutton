@@ -12,8 +12,10 @@ const EMOJI_STATUSES = {
 };
 
 const EMOJI_NORMALIZE = {
-  agree: 'thumbs_up',
-  disagree: 'thumbs_down',
+  sad: 'sad',
+  happy: 'happy',
+  applause: 'applause',
+  confused: 'confused',
   thumbsUp: 'thumbs_up',
   thumbsDown: 'thumbs_down',
   raiseHand: 'hand',
