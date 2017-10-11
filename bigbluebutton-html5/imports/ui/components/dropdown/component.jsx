@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
+import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
+import Button from '/imports/ui/components/button/component';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
-import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
-
-const FOCUSABLE_CHILDREN = '[tabindex]:not([tabindex="-1"]), a, input, button';
 
 const intlMessages = defineMessages({
   close: {
@@ -17,9 +15,11 @@ const intlMessages = defineMessages({
   },
 });
 
+const noop = () => {};
+
 const propTypes = {
   /**
-   * The dropdown needs a trigger and a content component as childrens
+   * The dropdown needs a trigger and a content component as children
    */
   children: (props, propName, componentName) => {
     const children = props[propName];
@@ -47,11 +47,20 @@ const propTypes = {
         ` \`${componentName}\`. Missing \`DropdownContent\`. Validation failed.`,
       );
     }
+
+    return null;
   },
+  isOpen: PropTypes.bool,
+  onHide: PropTypes.func,
+  onShow: PropTypes.func,
+  autoFocus: PropTypes.bool,
 };
 
 const defaultProps = {
+  children: null,
   isOpen: false,
+  onShow: noop,
+  onHide: noop,
   autoFocus: false,
 };
 
@@ -108,8 +117,8 @@ class Dropdown extends Component {
     if (this.state.isOpen) {
       const dropdownElement = findDOMNode(this);
       const shouldUpdateState = event.target !== dropdownElement &&
-                              !dropdownElement.contains(event.target) &&
-                              this.state.isOpen;
+        !dropdownElement.contains(event.target) &&
+        this.state.isOpen;
 
       if (shouldUpdateState) {
         this.handleHide();
@@ -119,8 +128,8 @@ class Dropdown extends Component {
 
   handleToggle() {
     this.state.isOpen ?
-    this.handleHide() :
-    this.handleShow();
+      this.handleHide() :
+      this.handleShow();
   }
 
   render() {
@@ -129,7 +138,7 @@ class Dropdown extends Component {
       className,
       style,
       intl,
-      ...otherProps,
+      ...otherProps
     } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
@@ -157,17 +166,19 @@ class Dropdown extends Component {
         aria-live={otherProps['aria-live']}
         aria-relevant={otherProps['aria-relevant']}
         aria-haspopup={otherProps['aria-haspopup']}
-        aria-label={otherProps['aria-label']}>
+        aria-label={otherProps['aria-label']}
+        tabIndex={-1}
+      >
         {trigger}
         {content}
-        { this.state.isOpen ?
+        {this.state.isOpen ?
           <Button
             className={styles.close}
             label={intl.formatMessage(intlMessages.close)}
             size={'lg'}
             color={'default'}
             onClick={this.handleHide}
-          /> : null }
+          /> : null}
       </div>
     );
   }

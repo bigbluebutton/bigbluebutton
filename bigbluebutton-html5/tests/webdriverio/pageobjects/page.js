@@ -6,7 +6,7 @@ class Page {
   }
 
   pressEnter() {
-    browser.keys('Enter');
+    chromeBrowser.keys('Enter');
   }
 
   isFirefox() {

@@ -992,6 +992,8 @@
     private var ctrlPressed:Boolean = false;
     private var preventTextInput:Boolean = false;
 
+    [Bindable] public var colorPickerColours:Array = ['0x000000', '0x202020', '0x404040', '0x606060', '0x808080'];
+
     public function restoreVerticalScroll(oldVerticalScroll:Number):void
     {
         textArea.getTextField().scrollV = oldVerticalScroll;
@@ -1316,9 +1318,11 @@
                         click="setTextStyles('underline', event.currentTarget.selected);"/>
             </mx:HBox>
             <mx:ColorPicker id="colorPicker"
-                    width="22"
-                    height="22"
-                    close="setTextStyles('color');"/>
+                    dataProvider="{colorPickerColours}"
+                    swatchPanelStyleName="sharedNotesColorPickerStyle"
+                    close="setTextStyles('color');"
+                    visible="false"
+                    includeInLayout="false"/>
             <mx:VRule height="{alignButtons.height}"/>
             <mx:ToggleButtonBar id="alignButtons"
                     buttonWidth="20"
@@ -1328,7 +1332,7 @@
                         <fx:Object icon="{getStyle('iconAlignLeft')}" action="left"/>
                         <fx:Object icon="{getStyle('iconAlignCenter')}" action="center"/>
                         <fx:Object icon="{getStyle('iconAlignRight')}" action="right"/>
-                        <fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/>
+                        <!--fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/-->
                     </fx:Array>
                 </mx:dataProvider>
             </mx:ToggleButtonBar>

@@ -28,21 +28,24 @@ export function joinRouteHandler(nextState, replace, callback) {
     });
 }
 
-export function logoutRouteHandler(nextState, replace, callback) {
+export function logoutRouteHandler(nextState, replace) {
   Auth.logout()
-    .then((logoutURL) => {
+    .then((logoutURL = window.location.origin) => {
       if (window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') {
         IosHandler.hangupCall();
         IosHandler.leaveRoom();
-        window.location = `${window.location.origin}/demo/logout.html`;
+        window.location = `${logoutURL}/demo/logout.html`;
       } else {
-        window.location = logoutURL || window.location.origin;
+        const protocolPattern = /^((http|https):\/\/)/;
+
+        window.location.href =
+          protocolPattern.test(logoutURL) ?
+            logoutURL :
+            `http://${logoutURL}`;
       }
-      callback();
     })
     .catch(() => {
       replace({ pathname: '/error/500' });
-      callback();
     });
 }
 

@@ -1,11 +1,14 @@
 package org.bigbluebutton.core.model.users
 {
+  import com.adobe.utils.ArrayUtil;
   
-  public class User2x {
+  import flash.events.EventDispatcher;
+  
+  public class User2x extends EventDispatcher {
     public var intId: String;
     public var extId: String;
     public var name: String;
-    public var role: String;
+    [Bindable] public var role: String;
     public var guest: Boolean;
     public var authed: Boolean;
     public var waitingForAcceptance: Boolean;
@@ -32,7 +35,7 @@ package org.bigbluebutton.core.model.users
       dest.locked = source.locked;
       dest.presenter = source.presenter;
       dest.avatar = source.avatar;
-      dest.breakoutRooms = new Array();
+      dest.breakoutRooms = ArrayUtil.copyArray(source.breakoutRooms); 
       dest.isLeavingFlag = source.isLeavingFlag;
       
       return dest;

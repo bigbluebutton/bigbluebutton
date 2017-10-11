@@ -27,8 +27,8 @@ trait MuteAllExceptPresentersCmdMsgHdlr {
     VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
       if (!vu.listenOnly) {
         Users2x.findWithIntId(liveMeeting.users2x, vu.intId) match {
-          case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu)
-          case None    => muteUserInVoiceConf(vu)
+          case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu, muted)
+          case None    => muteUserInVoiceConf(vu, muted)
         }
       }
     }
@@ -50,12 +50,12 @@ trait MuteAllExceptPresentersCmdMsgHdlr {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def muteUserInVoiceConf(vu: VoiceUserState): Unit = {
+  def muteUserInVoiceConf(vu: VoiceUserState, mute: Boolean): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, vu.intId)
     val envelope = BbbCoreEnvelope(MuteUserInVoiceConfSysMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(MuteUserInVoiceConfSysMsg.NAME, props.meetingProp.intId)
 
-    val body = MuteUserInVoiceConfSysMsgBody(props.voiceProp.voiceConf, vu.voiceUserId, true)
+    val body = MuteUserInVoiceConfSysMsgBody(props.voiceProp.voiceConf, vu.voiceUserId, mute)
     val event = MuteUserInVoiceConfSysMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

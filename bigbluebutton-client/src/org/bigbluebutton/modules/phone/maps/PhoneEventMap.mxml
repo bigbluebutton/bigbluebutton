@@ -26,16 +26,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:fx="http://ns.adobe.com/mxml/2009">
 	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
-			import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
-			import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
-			import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
-			import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
-			import org.bigbluebutton.modules.phone.managers.StreamManager;
-			import org.bigbluebutton.modules.phone.managers.ConnectionManager;
-			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
+			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 		]]>
 	</fx:Script>
 	

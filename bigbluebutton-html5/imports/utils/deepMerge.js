@@ -1,30 +1,31 @@
 import { Match } from 'meteor/check';
 
-export default function deepMerge(origin, ...sources) {
-  if (!sources.length) return origin;
+export default function deepMerge(merge, ...sources) {
+  if (!sources.length) return merge;
 
   const source = sources.shift();
-  let modOrigin = origin;
 
-  if (Match.test(origin, Array)) {
+  let merged = merge;
+
+  if (Match.test(merged, Array)) {
     if (Match.test(source, Array)) {
-      origin.push(...source);
+      merged.push(...source);
     } else {
-      origin.push(source);
+      merged.push(source);
     }
-  } else if (Match.test(origin, Object)) {
+  } else if (Match.test(merged, Object)) {
     if (Match.test(source, Object)) {
       Object.keys(source).forEach((key) => {
-        if (!origin[key]) {
-          modOrigin[key] = source[key];
+        if (!merged[key]) {
+          merged[key] = source[key];
         } else {
-          deepMerge(modOrigin[key], source[key]);
+          deepMerge(merged[key], source[key]);
         }
       });
     }
   } else {
-    modOrigin = source;
+    merged = source;
   }
 
-  return deepMerge(modOrigin, ...sources);
+  return deepMerge(merged, ...sources);
 }

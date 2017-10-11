@@ -55,7 +55,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
   }
 
   def startRecordingVoiceConference() {
-    val numVoiceUsers = VoiceUsers.findAll(liveMeeting.voiceUsers).length
+    val numVoiceUsers = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
     if (numVoiceUsers == 1 &&
       liveMeeting.props.recordProp.record &&
       !MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {

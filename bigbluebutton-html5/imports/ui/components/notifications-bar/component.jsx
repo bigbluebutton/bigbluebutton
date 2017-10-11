@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles.scss';
 import cx from 'classnames';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import styles from './styles.scss';
 
 const COLORS = [
   'default', 'primary', 'danger', 'success',
 ];
 
 const propTypes = {
+  children: PropTypes.string.isRequired,
   color: PropTypes.oneOf(COLORS),
 };
 
@@ -15,24 +17,20 @@ const defaultProps = {
   color: 'default',
 };
 
-export default class NotificationsBar extends Component {
-  constructor(props) {
-    super(props);
-  }
+const NotificationsBar = (props) => {
+  const { color } = props;
 
-  render() {
-    const { color } = this.props;
-
-    return (
-      <div
-        role="alert"
-        className={cx(styles.notificationsBar, styles[color])}
-      >
-        {this.props.children}
-      </div>
-    );
-  }
-}
+  return (
+    <div
+      role="alert"
+      className={cx(styles.notificationsBar, styles[color])}
+    >
+      {props.children}
+    </div>
+  );
+};
 
 NotificationsBar.propTypes = propTypes;
 NotificationsBar.defaultProps = defaultProps;
+
+export default injectWbResizeEvent(NotificationsBar);

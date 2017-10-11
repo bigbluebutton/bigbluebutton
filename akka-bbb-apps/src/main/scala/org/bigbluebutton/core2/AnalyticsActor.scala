@@ -22,6 +22,11 @@ class AnalyticsActor extends Actor with ActorLogging {
     log.info(TAG + json)
   }
 
+  def traceMessage(msg: BbbCommonEnvCoreMsg): Unit = {
+    val json = JsonUtil.toJson(msg)
+    log.info(" -- trace -- " + json)
+  }
+
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
@@ -42,6 +47,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserEjectedFromMeetingEvtMsg => logMessage(msg)
       case m: EjectUserFromVoiceConfSysMsg => logMessage(msg)
       case m: CreateBreakoutRoomSysCmdMsg => logMessage(msg)
+      case m: RequestBreakoutJoinURLReqMsg => logMessage(msg)
       case m: EndAllBreakoutRoomsMsg => logMessage(msg)
       case m: TransferUserToMeetingRequestMsg => logMessage(msg)
       case m: UserLeftVoiceConfToClientEvtMsg => logMessage(msg)
@@ -66,6 +72,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => logMessage(msg)
       case m: MeetingInactivityWarningEvtMsg => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg => logMessage(msg)
+      case m: StopRecordingVoiceConfSysMsg => logMessage(msg)
       case m: TransferUserToVoiceConfSysMsg => logMessage(msg)
 
       // Breakout
@@ -75,6 +82,9 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
+
+      case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
+      case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
 
       case _ => // ignore message
     }

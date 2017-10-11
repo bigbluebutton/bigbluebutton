@@ -11,6 +11,7 @@ package org.bigbluebutton.main.model.users
     public var authToken: String;
     public var customdata:Object = new Object();
     public var logoutUrl: String;
+	public var logoutTimer : int;
     public var defaultLayout: String;
     public var avatarURL: String;
     public var dialnumber: String;

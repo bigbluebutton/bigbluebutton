@@ -7,14 +7,14 @@ package org.bigbluebutton.modules.polling.views
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import mx.containers.Box;
 	import mx.containers.HBox;
 	import mx.containers.TitleWindow;
 	import mx.controls.Button;
 	import mx.controls.HRule;
 	import mx.controls.Label;
-	import mx.controls.TextArea;
-	import mx.core.ScrollPolicy;
 	
+	import org.bigbluebutton.common.AdvancedLabel;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 	import org.bigbluebutton.modules.polling.events.PollVotedEvent;
@@ -43,16 +43,25 @@ package org.bigbluebutton.modules.polling.views
 			width = 400;
 			showCloseButton = false;
 			layout = "vertical";
+			setStyle("horizontalAlign", "center");
 			
-			var modalTitle:TextArea = new TextArea();
-			modalTitle.setStyle("borderSkin", null);
-			modalTitle.verticalScrollPolicy = ScrollPolicy.OFF;
-			modalTitle.editable = false;
+			var modalTitle:AdvancedLabel = new AdvancedLabel();
 			modalTitle.text = ResourceUtil.getInstance().getString('bbb.polling.pollModal.title');
 			modalTitle.styleName = "titleWindowStyle";
-			modalTitle.percentWidth = 100;
+			modalTitle.maxWidth = 300;
 			addChild(modalTitle);
 			
+			var hintBox : Box = new Box();
+			hintBox.percentWidth = 100;
+			hintBox.styleName = "pollHintBoxStyle";
+			addChild(hintBox);
+			
+			var hintText : AdvancedLabel = new AdvancedLabel();
+			hintText.percentWidth = 100;
+			hintText.styleName = "pollHintTextStyle";
+			hintText.text = ResourceUtil.getInstance().getString('bbb.polling.pollModal.hint');
+			hintBox.addChild(hintText);
+
 			var hrule:HRule = new HRule();
 			hrule.percentWidth = 100;
 			addChild(hrule);

@@ -106,7 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				leftWindowWidth = 245;
 				rightWindowHeight = this.height * 0.6;
 				rightWindowWidth = (this.width / 20) * 6;
-				centerWindowHeight = this.height - 10;
+				centerWindowHeight = this.height / 2;
 				centerWindowWidth = this.width / 2;
 				
 				var position:String = window.getPrefferedPosition();
@@ -199,12 +199,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						if (y < 0) y = 1;
 						break;
 					case DESKTOP_SHARING_PUBLISH:
-						y = (this.height - win.height) - 43;
-						x = 8;
+						x = 100;
+						y = this.height - win.height - 50;
 						break;
 					case DESKTOP_SHARING_VIEW:
-						x = 1;
-						y = 1;
+						x = centerWindowWidth - win.width / 2;
+						y = centerWindowHeight - win.height / 2;
 						break;
 					case ABSOLUTE:
 						// don't reposition the window

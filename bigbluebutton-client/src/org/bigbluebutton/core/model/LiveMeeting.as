@@ -3,6 +3,7 @@ package org.bigbluebutton.core.model
   import org.bigbluebutton.core.model.users.GuestsApp;
   import org.bigbluebutton.core.model.users.Users2x;
   import org.bigbluebutton.core.model.users.VoiceUsers2x;
+  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   
   public class LiveMeeting
   {
@@ -19,6 +20,7 @@ package org.bigbluebutton.core.model
     public var sharedNotes: SharedNotes = new SharedNotes();
     
     public var breakoutRooms: BreakoutRooms = new BreakoutRooms();
+    public var whiteboardModel: WhiteboardModel = new WhiteboardModel();
     
     public function LiveMeeting(enforcer: LiveMeetingSingletonEnforcer)
     {

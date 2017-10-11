@@ -5,6 +5,7 @@
   flex-direction: column;
   align-self: flex-start;
   padding: ($line-height-computed / 2) $line-height-computed;
+  outline: none;
 }
 
 .content {

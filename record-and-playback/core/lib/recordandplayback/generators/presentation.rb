@@ -71,7 +71,12 @@ module BigBlueButton
     def self.convert_image_to_png(image, png_image, resize = '800x600')
       BigBlueButton.logger.info("Task: Converting image to .png")
       command = "convert #{image} -resize #{resize} -background white -flatten #{png_image}"
-      BigBlueButton.execute(command)
+      status = BigBlueButton.execute(command, false)
+      if !status.success? or !File.exist?(png_image)
+        # If image conversion failed, generate a blank white image
+        command = "convert -size #{resize} xc:white -quality 90 +dither -depth 8 -colors 256 #{png_image}"
+        BigBlueButton.execute(command)
+      end
     end
 
     # Gathers the text from the slide

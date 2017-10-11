@@ -120,10 +120,10 @@ class AudioSettings extends React.Component {
             <div className={styles.formElement}>
               <label className={cx(styles.label, styles.labelSmall)}>
                 {intl.formatMessage(intlMessages.streamVolumeLabel)}
+                <AudioStreamVolume
+                  deviceId={this.state.inputDeviceId}
+                  className={styles.audioMeter} />
               </label>
-              <AudioStreamVolume
-                deviceId={this.state.inputDeviceId}
-                className={styles.audioMeter} />
             </div>
           </div>
           <div className={styles.col}>

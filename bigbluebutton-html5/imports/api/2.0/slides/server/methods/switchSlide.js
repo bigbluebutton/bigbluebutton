@@ -40,12 +40,10 @@ export default function switchSlide(credentials, slideNumber) {
       'slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
   }
 
-  const header = { name: EVENT_NAME, meetingId, userId: requesterUserId };
-
   const payload = {
     pageId: Slide.id,
     presentationId: Presentation.id,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

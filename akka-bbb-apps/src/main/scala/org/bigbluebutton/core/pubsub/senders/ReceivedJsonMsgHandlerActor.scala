@@ -121,10 +121,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
       case EjectUserFromMeetingCmdMsg.NAME =>
         routeGenericMsg[EjectUserFromMeetingCmdMsg](envelope, jsonNode)
+      case EjectUserFromVoiceCmdMsg.NAME =>
+        routeGenericMsg[EjectUserFromVoiceCmdMsg](envelope, jsonNode)
       case UserConnectedToGlobalAudioMsg.NAME =>
         routeVoiceMsg[UserConnectedToGlobalAudioMsg](envelope, jsonNode)
       case UserDisconnectedFromGlobalAudioMsg.NAME =>
         routeVoiceMsg[UserDisconnectedFromGlobalAudioMsg](envelope, jsonNode)
+      case MuteMeetingCmdMsg.NAME =>
+        routeGenericMsg[MuteMeetingCmdMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -166,6 +170,9 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
+      case ClientToServerLatencyTracerMsg.NAME =>
+        log.info("-- trace --" + jsonNode.toString)
+        routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
 
       // Presentation
       case SetCurrentPresentationPubMsg.NAME =>
@@ -204,6 +211,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetSharedNotesPubMsg](envelope, jsonNode)
       case SyncSharedNotePubMsg.NAME =>
         routeGenericMsg[SyncSharedNotePubMsg](envelope, jsonNode)
+      case ClearSharedNotePubMsg.NAME =>
+        routeGenericMsg[ClearSharedNotePubMsg](envelope, jsonNode)
       case UpdateSharedNoteReqMsg.NAME =>
         routeGenericMsg[UpdateSharedNoteReqMsg](envelope, jsonNode)
       case CreateSharedNoteReqMsg.NAME =>

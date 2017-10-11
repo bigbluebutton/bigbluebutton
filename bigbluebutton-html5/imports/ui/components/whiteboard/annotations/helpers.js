@@ -1,27 +1,6 @@
-// applies zooming to the stroke thickness
-const zoomStroke = (thickness, widthRatio, heightRatio) => {
-  let ratio;
-
-  ratio = (widthRatio + heightRatio) / 2;
-  return thickness * 100 / ratio;
-};
-
-const formatColor = (color) => {
-  // let color = this.props.annotation.annotation.annotation.color;
-  if (!color) {
-    color = '0'; // default value
-  }
-
-  if (!color.toString().match(/\#.*/)) {
-    color = colourToHex(color);
-  }
-
-  return color;
-};
-
 const colourToHex = (value) => {
   let hex;
-  hex = parseInt(value).toString(16);
+  hex = parseInt(value, 10).toString(16);
   while (hex.length < 6) {
     hex = `0${hex}`;
   }
@@ -29,23 +8,19 @@ const colourToHex = (value) => {
   return `#${hex}`;
 };
 
-const getStrokeWidth = ((thickness, widthRatio, heightRatio) =>
-  zoomStroke(formatThickness(thickness), widthRatio, heightRatio)
-);
+const getFormattedColor = (color) => {
+  let _color = color || '0';
 
-const formatThickness = (thickness) => {
-  if (thickness == null) {
-    thickness = '1'; // default value
+  if (!_color.toString().match(/#.*/)) {
+    _color = colourToHex(_color);
   }
 
-  if (!thickness.toString().match(/.*px$/)) {
-    `#${thickness}px`; // leading "#" - to be compatible with Firefox
-  }
-
-  return thickness;
+  return _color;
 };
 
+const getStrokeWidth = (thickness, slideWidth) => (thickness * slideWidth) / 100;
+
 export default {
-  formatColor,
+  getFormattedColor,
   getStrokeWidth,
 };

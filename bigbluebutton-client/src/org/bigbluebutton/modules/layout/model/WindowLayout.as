@@ -17,23 +17,17 @@
 *
 */
 package org.bigbluebutton.modules.layout.model {
-	import flash.display.DisplayObject;
-	import flash.display.DisplayObjectContainer;
-	import flash.events.TimerEvent;
 	import flash.geom.Rectangle;
-	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
-	import flash.utils.Timer;
-
-	import flexlib.mdi.containers.MDICanvas;
-	import flexlib.mdi.containers.MDIWindow;
-
-	import mx.effects.Fade;
+	
 	import mx.effects.Move;
 	import mx.effects.Parallel;
 	import mx.effects.Resize;
 	import mx.events.EffectEvent;
-
+	
+	import flexlib.mdi.containers.MDICanvas;
+	import flexlib.mdi.containers.MDIWindow;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.layout.managers.OrderManager;

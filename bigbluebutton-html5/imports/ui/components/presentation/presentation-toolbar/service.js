@@ -16,10 +16,7 @@ const getSlideData = (params) => {
     userId,
   });
 
-  let userIsPresenter;
-  if (currentUser) {
-    userIsPresenter = currentUser.presenter;
-  }
+  const userIsPresenter = currentUser ? currentUser.presenter : false;
 
   // Get total number of slides in this presentation
   const numberOfSlides = Slides.find({
@@ -46,7 +43,7 @@ const nextSlide = (currentSlideNum, numberOfSlides) => {
 };
 
 const skipToSlide = (event) => {
-  const requestedSlideNum = parseInt(event.target.value);
+  const requestedSlideNum = parseInt(event.target.value, 10);
   makeCall('switchSlide', requestedSlideNum);
 };
 

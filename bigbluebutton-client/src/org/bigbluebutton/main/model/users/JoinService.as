@@ -27,6 +27,7 @@ package org.bigbluebutton.main.model.users
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
@@ -157,6 +158,7 @@ package org.bigbluebutton.main.model.users
 
         apiResponse.welcome = result.response.welcome;
         apiResponse.logoutUrl = processLogoutUrl(result.response);
+		apiResponse.logoutTimer = result.response.logoutTimer;
         apiResponse.defaultLayout = result.response.defaultLayout;
         apiResponse.avatarURL = result.response.avatarURL
         apiResponse.customdata = new Object();

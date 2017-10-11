@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.modules.notes.maps
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
   import flash.events.IEventDispatcher;
   
   import org.bigbluebutton.common.events.OpenWindowEvent;
