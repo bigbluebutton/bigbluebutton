@@ -42,4 +42,5 @@ export default {
   inputDeviceId: () => AudioManager.inputDeviceId,
   outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
+  error: () => AudioManager.error,
 };

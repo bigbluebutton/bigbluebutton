@@ -176,7 +176,7 @@ class AudioModal extends Component {
     if (isConnecting) {
       return (
         <span className={styles.connecting}>
-          { isEchoTest ?
+          { !isEchoTest ?
             intl.formatMessage(intlMessages.connecting) :
             intl.formatMessage(intlMessages.connectingEchoTest)
           }

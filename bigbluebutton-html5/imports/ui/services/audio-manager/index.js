@@ -39,7 +39,7 @@ class AudioManager {
           const device = devices.find(d => d.label === deviceLabel);
           this.changeInputDevice(device.deviceId);
         });
-      }).catch(err => console.error(err));
+      }).catch((err) => { this.error = err; });
 
 
     this.defineProperties({
@@ -88,6 +88,7 @@ class AudioManager {
 
     console.log('joinAudio', this, isListenOnly);
     this.isConnecting = true;
+    this.error = null;
     this.isListenOnly = isListenOnly;
     this.isEchoTest = isEchoTest;
     this.callbacks = callbacks;
@@ -183,10 +184,12 @@ class AudioManager {
         console.log('ENDED');
         this.onAudioExit();
       } else if (status === FAILED) {
+        console.log(error, 'KAAAAPPAAA');
+        this.error = ERROR_CODES[error].message;
         console.log('FAILED');
         this.onAudioExit();
       }
-    })
+    });
   }
 
   set userData(value) {
