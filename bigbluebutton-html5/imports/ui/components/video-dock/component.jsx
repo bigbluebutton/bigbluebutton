@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
-import styles from './styles.scss';
+import styles from './styles';
 
 const VideoDock = () => (
   <div className={styles.videoDock}>

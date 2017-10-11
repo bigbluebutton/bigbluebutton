@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles.scss';
+import styles from './styles';
 
 const propTypes = {
   content: PropTypes.element.isRequired,
