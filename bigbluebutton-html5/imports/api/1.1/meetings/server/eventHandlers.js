@@ -1,17 +1,12 @@
-import RedisPubSub from '/imports/startup/server/redis';
-import handleMeetingDestruction from './handlers/meetingDestruction';
-import handleRecordingStatusChange from './handlers/recordingStatusChange';
-import handlePermissionSettingsChange from './handlers/permissionSettingsChange';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import handleMeetingCreation from './handlers/meetingCreation';
 import handleGetAllMeetings from './handlers/getAllMeetings';
-import handleStunTurnReply from './handlers/stunTurnReply';
+import handleMeetingEnd from './handlers/meetingEnd';
+import handleMeetingLocksChange from './handlers/meetingLockChange';
+import handleUserLockChange from './handlers/userLockChange';
 
-RedisPubSub.on('meeting_destroyed_event', handleMeetingDestruction);
-RedisPubSub.on('meeting_ended_message', handleMeetingDestruction);
-RedisPubSub.on('end_and_kick_all_message', handleMeetingDestruction);
-RedisPubSub.on('disconnect_all_users_message', handleMeetingDestruction);
-RedisPubSub.on('recording_status_changed_message', handleRecordingStatusChange);
-RedisPubSub.on('new_permission_settings', handlePermissionSettingsChange);
-RedisPubSub.on('meeting_created_message', handleMeetingCreation);
-RedisPubSub.on('get_all_meetings_reply_message', handleGetAllMeetings);
-RedisPubSub.on('send_stun_turn_info_reply_message', handleStunTurnReply);
+RedisPubSub.on('MeetingCreatedEvtMsg', handleMeetingCreation);
+RedisPubSub.on('SyncGetMeetingInfoRespMsg', handleGetAllMeetings);
+RedisPubSub.on('MeetingEndingEvtMsg', handleMeetingEnd);
+RedisPubSub.on('LockSettingsInMeetingChangedEvtMsg', handleMeetingLocksChange);
+RedisPubSub.on('UserLockedInMeetingEvtMsg', handleUserLockChange);

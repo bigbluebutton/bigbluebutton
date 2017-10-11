@@ -1,53 +1,92 @@
+import flat from 'flat';
 import { check } from 'meteor/check';
-import Meetings from '/imports/api/1.1/meetings';
+import Meetings from '/imports/api/2.0/meetings';
 import Logger from '/imports/startup/server/logger';
 import initializeCursor from '/imports/api/1.1/cursor/server/modifiers/initializeCursor';
 
 export default function addMeeting(meeting) {
-  const APP_CONFIG = Meteor.settings.public.app;
-  const meetingId = meeting.meeting_id;
+  const meetingId = meeting.meetingProp.intId;
 
-  check(meeting, Object);
   check(meetingId, String);
+  check(meeting, {
+    breakoutProps: {
+      sequence: Number,
+      breakoutRooms: Array,
+      parentId: String,
+    },
+    meetingProp: {
+      intId: String,
+      extId: String,
+      isBreakout: Boolean,
+      name: String,
+    },
+    usersProp: {
+      webcamsOnlyForModerator: Boolean,
+      guestPolicy: String,
+      maxUsers: Number,
+    },
+    durationProps: {
+      createdTime: Number,
+      duration: Number,
+      createdDate: String,
+      maxInactivityTimeoutMinutes: Number,
+      warnMinutesBeforeMax: Number,
+      meetingExpireIfNoUserJoinedInMinutes: Number,
+      meetingExpireWhenLastUserLeftInMinutes: Number,
+    },
+    welcomeProp: {
+      welcomeMsg: String,
+      modOnlyMessage: String,
+      welcomeMsgTemplate: String,
+    },
+    recordProp: {
+      allowStartStopRecording: Boolean,
+      autoStartRecording: Boolean,
+      record: Boolean,
+    },
+    password: {
+      viewerPass: String,
+      moderatorPass: String,
+    },
+    voiceProp: {
+      voiceConf: String,
+      dialNumber: String,
+      telVoice: String,
+    },
+    screenshareProps: {
+      red5ScreenshareIp: String,
+      red5ScreenshareApp: String,
+      screenshareConf: String,
+    },
+    metadataProp: Object,
+  });
 
   const selector = {
     meetingId,
   };
 
   const modifier = {
-    $set: {
-      meetingId,
-      meetingName: meeting.name,
-      intendedForRecording: meeting.recorded,
-      currentlyBeingRecorded: false,
-      voiceConf: meeting.voice_conf,
-      duration: meeting.duration,
-      roomLockSettings: {
-        disablePrivateChat: false,
-        disableCam: false,
-        disableMic: false,
-        lockOnJoin: APP_CONFIG.lockOnJoin,
-        lockedLayout: false,
-        disablePublicChat: false,
-        lockOnJoinConfigurable: false,
-      },
-    },
+    $set: Object.assign(
+      { meetingId },
+      flat(meeting, { safe: true }),
+    ),
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding meeting to collection: ${err}`);
+      Logger.error(`Adding meeting to collection: ${err}`);
+      return;
     }
 
     initializeCursor(meetingId);
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added meeting id=${meetingId}`);
+      Logger.info(`Added meeting2x id=${meetingId}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Upserted meeting id=${meetingId}`);
+      Logger.info(`Upserted meeting2x id=${meetingId}`);
     }
   };
 

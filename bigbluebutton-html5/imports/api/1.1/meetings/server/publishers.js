@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Meetings from '/imports/api/1.1/meetings';
+import Meetings from '/imports/api/2.0/meetings';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
@@ -11,7 +11,7 @@ function meetings(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing meeting=${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing meeting2x =${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Meetings.find({
     meetingId,
@@ -23,5 +23,5 @@ function publish(...args) {
   return mapToAcl('subscriptions.meetings', boundMeetings)(args);
 }
 
-Meteor.publish('meetings', publish);
+Meteor.publish('meetings2x', publish);
 
