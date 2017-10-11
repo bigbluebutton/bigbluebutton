@@ -49,13 +49,9 @@ class BreakoutJoinConfirmation extends Component {
     AudioService.exitAudio();
     if (breakoutURL) {
       if(window.navigator.userAgent === 'BigBlueButton') {
-        const url = [
-          window.location.origin,
-          breakoutURL,
-        ].join('');
         const meetingId = breakoutURL.split('/')[3];
 
-        IosHandler.goToRoom(url, meetingId);
+        IosHandler.goToRoom(breakoutURL, meetingId);
       } else {
         window.open(breakoutURL);
       }
