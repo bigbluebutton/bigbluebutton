@@ -9,5 +9,5 @@
 
 .scrollableList {
   @extend %customListFocus;
-  @include scrollbox-vertical();
+  @include scrollbox-vertical($user-list-bg);
 }
