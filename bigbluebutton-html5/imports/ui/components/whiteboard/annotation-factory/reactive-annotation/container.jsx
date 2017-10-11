@@ -4,7 +4,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 
-const ReactiveAnnotationContainer = ({ ...props }) => {
+const ReactiveAnnotationContainer = (props) => {
   if (props.annotation) {
     return (
       <ReactiveAnnotation

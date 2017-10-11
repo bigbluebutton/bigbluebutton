@@ -6,11 +6,7 @@
  */
 
 $unread-messages-bg: $color-danger;
-
-$user-list-bg: #F3F6F9;
 $user-list-text: $color-gray;
-
-$list-item-bg-hover: darken($user-list-bg, 7%);
 
 $user-thumbnail-border: $color-gray-light;
 $user-thumbnail-text: $user-thumbnail-border;
@@ -42,9 +38,6 @@ $user-icons-color-hover: $color-gray;
 %list-item {
   display: flex;
   flex-flow: row;
-  padding-left: $sm-padding-x / 2;
-  margin-left: $sm-padding-x / 2;
-  padding-right: $sm-padding-x;
   padding-top: $sm-padding-y;
   padding-bottom: $sm-padding-y;
   margin-top: $sm-padding-y * 2;
@@ -52,12 +45,6 @@ $user-icons-color-hover: $color-gray;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   cursor: pointer;
-
-  &:hover,
-  &:focus {
-    background-color: $list-item-bg-hover;
-    outline: none;
-  }
 
   &:first-child {
     margin-top: 0;
@@ -74,6 +61,7 @@ $user-icons-color-hover: $color-gray;
   background-color: $user-list-bg;
   color: $user-list-text;
   height: 100vh;
+  padding-top: $md-padding-x;
 }
 
 .lists {
@@ -90,15 +78,6 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
 }
 
-.smallTitle {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 $sm-padding-x;
-  margin: 0 0 ($lg-padding-x / 2) 0;
-  color: $color-gray-light;
-}
-
 .participants, .messages {
   flex-grow: 0;
   display: flex;
@@ -107,7 +86,6 @@ $user-icons-color-hover: $color-gray;
 }
 
 .messages {
-  margin-bottom: $lg-padding-x;
 }
 
 .participants {
@@ -116,6 +94,15 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.smallTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 $sm-padding-x;
+  margin: ($md-padding-x / 2) 0 0 0;
+  color: $color-gray-light;
 }
 
 .enter, .appear {

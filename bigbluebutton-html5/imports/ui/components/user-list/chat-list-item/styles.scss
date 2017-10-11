@@ -1,10 +1,12 @@
 @import "../styles.scss";
 
 .chatListItem {
+  @extend %customChatItemFocus;
   @extend %list-item;
   cursor: pointer;
   padding: 0;
   text-decoration: none;
+  color: $color-gray-dark;
 }
 
 .chatListItemLink {

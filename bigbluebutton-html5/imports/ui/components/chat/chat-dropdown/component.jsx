@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
 import _ from 'lodash';
-import Button from '/imports/ui/components/button/component';
+import Icon from '/imports/ui/components/icon/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -118,17 +118,12 @@ class ChatDropdown extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0}>
-          <Button
-            label={intl.formatMessage(intlMessages.options)}
-            icon="more"
-            circle
-            hideLabel
-            className={cx(styles.btn, styles.btnSettings)}
-            // FIXME: Without onClick react proptypes keep warning
-            // even after the DropdownTrigger inject an onClick handler
-            onClick={() => null}
-          />
+        <DropdownTrigger
+          tabIndex={0}
+          ariaLabel={intl.formatMessage(intlMessages.options)}
+          className={styles.btn}
+        >
+          <Icon iconName="more" />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>

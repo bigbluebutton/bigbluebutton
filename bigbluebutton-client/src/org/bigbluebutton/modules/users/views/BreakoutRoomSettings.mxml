@@ -314,6 +314,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         <mx:HBox width="100%" horizontalAlign="right" verticalGap="15">
             <mx:Button id="startButton"
+					   styleName="mainActionButton"
                        click="this.mode == 'create' ? createBreakoutRooms() : inviteUsersToBreakoutRooms()"/>
             <mx:Button label="{ResourceUtil.getInstance().getString('bbb.users.breakout.close')}" click="onCloseClicked()"/>
         </mx:HBox>

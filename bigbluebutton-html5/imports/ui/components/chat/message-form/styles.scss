@@ -42,6 +42,7 @@
 }
 
 .input {
+  @extend %customInputFocus;
   flex: 1;
   background: #fff;
   border: $border-size solid $color-gray-lighter;
@@ -69,6 +70,11 @@
 
 .sendButton {
   margin-left: $sm-padding-x;
+  align-self: flex-end;
+
+  i {
+    font-size: 115% !important;
+  }
 }
 
 .info {
