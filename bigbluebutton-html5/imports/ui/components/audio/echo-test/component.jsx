@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import styles from './styles';
 
 const intlMessages = defineMessages({
@@ -14,33 +15,27 @@ const intlMessages = defineMessages({
   },
 });
 
+const propTypes = {
+  handleYes: PropTypes.func.isRequired,
+  handleNo: PropTypes.func.isRequired,
+  intl: intlShape.isRequired,
+};
+
 class EchoTest extends Component {
   constructor(props) {
     super(props);
 
     this.handleYes = props.handleYes.bind(this);
     this.handleNo = props.handleNo.bind(this);
-    this.joinEchoTest = props.joinEchoTest.bind(this);
-    this.leaveEchoTest = props.leaveEchoTest.bind(this);
   }
 
   render() {
     const {
       intl,
-      isConnecting,
     } = this.props;
 
     return (
       <span>
-        <Button
-          className={styles.button}
-          label={intl.formatMessage(intlMessages.no)}
-          icon={'thumbs_down'}
-          circle
-          color={'danger'}
-          size={'jumbo'}
-          onClick={this.handleNo}
-        />
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.yes)}
@@ -50,9 +45,20 @@ class EchoTest extends Component {
           size={'jumbo'}
           onClick={this.handleYes}
         />
+        <Button
+          className={styles.button}
+          label={intl.formatMessage(intlMessages.no)}
+          icon={'thumbs_down'}
+          circle
+          color={'danger'}
+          size={'jumbo'}
+          onClick={this.handleNo}
+        />
       </span>
     );
   }
 }
 
 export default injectIntl(EchoTest);
+
+EchoTest.propTypes = propTypes;

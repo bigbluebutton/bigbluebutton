@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 
 const COLORS = [
@@ -11,7 +11,7 @@ const COLORS = [
 
 const propTypes = {
   color: PropTypes.oneOf(COLORS),
-  handleClose: PropTypes.func.isRequired,
+  intl: intlShape.isRequired,
   message: PropTypes.string,
 };
 
@@ -31,29 +31,52 @@ class AudioNotification extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      message: null,
+    };
+
     this.handleClose = this.handleClose.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    const {
+      message,
+    } = nextProps;
+
+    if (this.state.message) {
+      return;
+    }
+
+    this.setState({
+      message,
+    });
+  }
+
   handleClose() {
-    this.props.handleClose();
+    this.setState({
+      message: null,
+    });
   }
 
   render() {
     const {
-      color,
-      error,
       intl,
     } = this.props;
 
-    if (!color || !error) {
+    const {
+      message,
+    } = this.state;
+
+    if (!message) {
       return null;
     }
+
     return (
       <div
         role="alert"
         className={cx(styles.audioNotifications, styles[this.props.color])}
       >
-        {error}
+        {message}
         <Button
           className={styles.closeBtn}
           label={intl.formatMessage(intlMessages.closeLabel)}

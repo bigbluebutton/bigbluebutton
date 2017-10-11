@@ -90,7 +90,7 @@ class AudioManager {
     this.isConnecting = true;
     this.error = null;
     this.isListenOnly = isListenOnly;
-    this.isEchoTest = isEchoTest;
+    this.isEchoTest = isEchoTest || false;
     this.callbacks = callbacks;
 
     const callOptions = {
@@ -185,7 +185,7 @@ class AudioManager {
         this.onAudioExit();
       } else if (status === FAILED) {
         console.log(error, 'KAAAAPPAAA');
-        this.error = ERROR_CODES[error].message;
+        this.error = error;
         console.log('FAILED');
         this.onAudioExit();
       }

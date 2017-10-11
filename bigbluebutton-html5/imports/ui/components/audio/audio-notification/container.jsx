@@ -1,21 +1,16 @@
 import { createContainer } from 'meteor/react-meteor-data';
 import Service from '/imports/ui/components/audio/service';
-import React, { Component } from 'react';
+import React from 'react';
 import AudioNotification from './component';
 
+const AudioNotificationContainer = props => (
+  <AudioNotification
+    {...props}
+  />
+);
 
-class AudioNotificationContainer extends Component {
-  render() {
-    return (
-      <AudioNotification
-        {...this.props}
-      />
-    );
+export default createContainer(() => (
+  {
+    message: Service.error(),
   }
-}
-
-export default createContainer(() => {
-  return {
-    error: Service.error(),
-  };
-}, AudioNotificationContainer);
+), AudioNotificationContainer);
