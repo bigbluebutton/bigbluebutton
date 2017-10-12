@@ -203,7 +203,7 @@ class UserParticipants extends Component {
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.participantsList, styles.scrollableList)}
+            className={cx(styles.participantsList)}
           >
             <div ref={(ref) => { this.refScrollItems = ref; }}>
               {

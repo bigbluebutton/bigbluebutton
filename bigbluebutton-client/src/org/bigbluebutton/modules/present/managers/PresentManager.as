@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.modules.present.events.ExportEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
@@ -43,6 +44,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.model.PresentOptions;
 	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
+	import org.bigbluebutton.modules.present.ui.views.FileExportWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 
@@ -52,6 +54,7 @@ package org.bigbluebutton.modules.present.managers
 		private var globalDispatcher:Dispatcher;
 		private var windows: Array = [];
 		private var podsManager: PresentationPodManager;
+		
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
@@ -158,5 +161,20 @@ package org.bigbluebutton.modules.present.managers
 		public function handleCloseDownloadWindow():void {
 			PopUpUtil.removePopUp(FileDownloadWindow);
 		}
+		
+		public function handleOpenExportWindow(e:ExportEvent):void {
+			var exportWindow:FileExportWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileExportWindow) as FileExportWindow;
+			if (exportWindow) {
+				exportWindow.firstPage = e.firstPage;
+				exportWindow.numberOfPages = e.numberOfPages;
+				exportWindow.slidesUrl = e.slidesUrl;
+				exportWindow.slideModel = e.slideModel;
+			}
+		}
+		
+		public function handleCloseExportWindow():void{
+			PopUpUtil.removePopUp(FileExportWindow);
+		}
+
 	}
 }

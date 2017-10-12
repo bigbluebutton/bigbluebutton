@@ -30,6 +30,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: MeetingDestroyedEvtMsg => handleMeetingDestroyedEvtMsg(m)
       case m: CheckAlivePongSysMsg => handleCheckAlivePongSysMsg(m)
       case m: UserEmojiChangedEvtMsg => handleUserEmojiChangedEvtMsg(m)
+      case m: PresenterUnassignedEvtMsg => handlePresenterUnassignedEvtMsg(m)
+      case m: PresenterAssignedEvtMsg => handlePresenterAssignedEvtMsg(m)
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
       case m: UserLeftMeetingEvtMsg => handleUserLeftMeetingEvtMsg(m)
       case m: UserJoinedVoiceConfToClientEvtMsg => handleUserJoinedVoiceConfToClientEvtMsg(m)
@@ -82,6 +84,14 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest,
       msg.body.guestStatus))
 
+  }
+
+  def handlePresenterUnassignedEvtMsg(msg: PresenterUnassignedEvtMsg): Unit = {
+    olgMsgGW.handle(new UserStatusChanged(msg.header.meetingId, msg.body.intId, "presenter", "false"))
+  }
+
+  def handlePresenterAssignedEvtMsg(msg: PresenterAssignedEvtMsg): Unit = {
+    olgMsgGW.handle(new UserStatusChanged(msg.header.meetingId, msg.body.presenterId, "presenter", "true"))
   }
 
   def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg): Unit = {
