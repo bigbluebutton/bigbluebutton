@@ -126,6 +126,10 @@
 		</sequential>
 	</target>
 
+	<target name="locale">
+		<compileLocale locale="${LOCALE}" />
+	</target>
+
 	<target name="localize">
 		<compileLocale locale="${LOCALE}" />
 	</target>

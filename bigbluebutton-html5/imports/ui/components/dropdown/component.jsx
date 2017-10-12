@@ -167,6 +167,7 @@ class Dropdown extends Component {
         aria-relevant={otherProps['aria-relevant']}
         aria-haspopup={otherProps['aria-haspopup']}
         aria-label={otherProps['aria-label']}
+        tabIndex={-1}
       >
         {trigger}
         {content}

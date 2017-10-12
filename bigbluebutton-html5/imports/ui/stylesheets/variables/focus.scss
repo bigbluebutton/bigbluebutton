@@ -1,0 +1,92 @@
+$focus-border-size: 3px;
+$focus-border-offset: -4px;
+$color-primary: #0F70D7 !default;
+$user-list-bg: #F3F6F9;
+$color-white: #FFF;
+$list-item-bg-hover: darken($user-list-bg, 7%);
+
+%customListFocus {
+  border: $focus-border-size solid $user-list-bg;
+  border-radius: $focus-border-size;
+
+  &:focus {
+    outline: none !important;
+    border: $focus-border-size solid $color-primary;
+  }
+}
+
+%customUserItemFocus,
+%customChatItemFocus {
+  border: $focus-border-size solid $user-list-bg;
+  border-radius: $focus-border-size;
+
+  &:hover {
+    background-color: $list-item-bg-hover;
+  }
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: $focus-border-size solid $user-list-bg;
+      border-left: $focus-border-size solid $color-primary;
+      padding-left: $focus-border-size;
+      border-radius: $focus-border-size;
+    }
+  }
+}
+
+%customListItemFocus {
+  position: relative;
+  display: inline-block;
+  border-right: $focus-border-size solid $color-white;
+  border-bottom: 1px solid $color-white; 
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border-right: $focus-border-size solid $color-primary;
+      border-bottom: 1px solid $color-primary;     
+    }
+  }
+}
+
+%customInputFocus,
+%customSelectFocus,
+%customLinkFocus {
+  border: $focus-border-size solid $color-white;
+
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+      border: $focus-border-size solid $color-primary;
+      border-radius: $focus-border-size; 
+    }
+  }
+}
+
+%btnFocus {
+  border: none;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  
+  &,
+  &:active {
+    &:focus {
+      outline: none !important;
+
+      span:first-of-type::before {
+        position: absolute;
+        content: '';
+        top: $focus-border-offset;
+        left: $focus-border-offset;
+        right: $focus-border-offset;
+        bottom: $focus-border-offset;
+        border: $focus-border-size solid $color-primary;
+      }
+    }
+  }
+}

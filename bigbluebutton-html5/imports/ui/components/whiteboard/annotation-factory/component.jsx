@@ -10,6 +10,9 @@ import Text from '../annotations/text/container';
 import Triangle from '../annotations/triangle/component';
 import Pencil from '../annotations/pencil/component';
 
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
+
 export default class AnnotationFactory extends Component {
 
   static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject) {
@@ -44,7 +47,7 @@ export default class AnnotationFactory extends Component {
   renderAnnotation(annotationInfo) {
     const drawObject = this.props.annotationSelector[annotationInfo.annotationType];
 
-    if (annotationInfo.status === 'DRAW_END') {
+    if (annotationInfo.status === DRAW_END) {
       return AnnotationFactory.renderStaticAnnotation(
           annotationInfo,
           this.props.slideWidth,

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
 
@@ -137,16 +138,6 @@ class PresentationToolbar extends Component {
     this.handleValuesChange = this.handleValuesChange.bind(this);
   }
 
-  componentDidMount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
   handleValuesChange(event) {
     this.setState({ sliderValue: event.target.value });
   }
@@ -279,6 +270,9 @@ PresentationToolbar.propTypes = {
     previousSlideHandler: PropTypes.func.isRequired,
     skipToSlideHandler: PropTypes.func.isRequired,
   }).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
-export default injectIntl(PresentationToolbar);
+export default injectWbResizeEvent(injectIntl(PresentationToolbar));

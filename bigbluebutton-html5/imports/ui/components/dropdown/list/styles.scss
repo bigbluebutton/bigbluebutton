@@ -37,6 +37,7 @@
 }
 
 .item {
+  @extend %customListItemFocus;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;
   display: flex;

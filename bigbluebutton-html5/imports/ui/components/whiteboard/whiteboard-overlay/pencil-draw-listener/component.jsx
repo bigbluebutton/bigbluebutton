@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles.scss';
 
-const MESSAGE_INTERVAL = 50;
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const MESSAGE_FREQUENCY = ANNOTATION_CONFIG.message_frequency;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
+const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class PencilDrawListener extends Component {
   constructor() {
@@ -55,10 +59,10 @@ export default class PencilDrawListener extends Component {
 
       // sending the first message
       const _points = [transformedSvgPoint.x, transformedSvgPoint.y];
-      this.handleDrawPencil(_points, 'DRAW_START', generateNewShapeId());
+      this.handleDrawPencil(_points, DRAW_START, generateNewShapeId());
 
       // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
-      this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
+      this.intervalId = setInterval(this.sendCoordinates, MESSAGE_FREQUENCY);
 
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
@@ -99,7 +103,7 @@ export default class PencilDrawListener extends Component {
   sendCoordinates() {
     if (this.isDrawing && this.points.length > 0) {
       const { getCurrentShapeId } = this.props.actions;
-      this.handleDrawPencil(this.points, 'DRAW_UPDATE', getCurrentShapeId());
+      this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId());
       this.points = [];
     }
   }
@@ -145,7 +149,7 @@ export default class PencilDrawListener extends Component {
 
       this.handleDrawPencil(
         this.points,
-        'DRAW_END',
+        DRAW_END,
         getCurrentShapeId(),
         [Math.round(physicalSlideWidth), Math.round(physicalSlideHeight)],
       );
