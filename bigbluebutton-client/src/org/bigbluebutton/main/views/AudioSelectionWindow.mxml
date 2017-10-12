@@ -44,17 +44,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
 			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
 			private var phoneOptions:PhoneOptions;
-			private var browserInfo:Array;
 
 			private function init():void {
 				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
-
-				browserInfo = JSAPI.getInstance().getBrowserInfo();
 
 				if (!phoneOptions.listenOnlyMode)
 					btnListenOnly.enabled = false;
@@ -75,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				// If Puffin browser is deteted and version is less than 4.6
-				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
+				if (BrowserCheck.isPuffinBelow46()) {
 					vboxListen.percentWidth = 100;
 				}
 			}
@@ -83,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onMicClick():void {
 				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
-				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) >= "4.6") {
+				if (BrowserCheck.isPuffin46AndAbove()) {
 					dispatcher.dispatchEvent(new UseFlashModeCommand());	
 				}
 				else {

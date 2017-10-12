@@ -128,8 +128,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           os = "";
         }
 
-        browser = ExternalInterface.call("determineBrowser")[0];
-
         windowControls.maximizeRestoreBtn.enabled = false;
 
         titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
