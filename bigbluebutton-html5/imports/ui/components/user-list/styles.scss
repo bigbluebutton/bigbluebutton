@@ -7,6 +7,7 @@
 
 $unread-messages-bg: $color-danger;
 $user-list-text: $color-gray;
+$user-list-bg: #F3F6F9;
 
 $user-thumbnail-border: $color-gray-light;
 $user-thumbnail-text: $user-thumbnail-border;
@@ -61,6 +62,7 @@ $user-icons-color-hover: $color-gray;
   background-color: $user-list-bg;
   color: $user-list-text;
   height: 100vh;
+  padding-top: $md-padding-x;
 }
 
 .lists {
@@ -77,15 +79,6 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
 }
 
-.smallTitle {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 $sm-padding-x;
-  margin: 0 0 ($lg-padding-x / 2) 0;
-  color: $color-gray-light;
-}
-
 .participants, .messages {
   flex-grow: 0;
   display: flex;
@@ -94,7 +87,7 @@ $user-icons-color-hover: $color-gray;
 }
 
 .messages {
-  margin-bottom: $lg-padding-x;
+  max-height: 30vh;
 }
 
 .participants {
@@ -103,6 +96,15 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.smallTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 $sm-padding-x;
+  margin: ($md-padding-x / 2) 0 0 0;
+  color: $color-gray-light;
 }
 
 .enter, .appear {

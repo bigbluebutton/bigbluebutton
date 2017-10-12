@@ -1,8 +1,8 @@
 import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 
 const DRAW_SETTINGS = 'drawSettings';
 

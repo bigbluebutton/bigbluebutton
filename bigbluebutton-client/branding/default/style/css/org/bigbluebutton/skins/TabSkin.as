@@ -38,10 +38,9 @@
 
 package org.bigbluebutton.skins {
 	import flash.display.DisplayObjectContainer;
-	import flash.display.Graphics;
 	import flash.utils.describeType;
 	import flash.utils.getQualifiedClassName;
-
+	
 	import mx.core.EdgeMetrics;
 	import mx.core.UIComponent;
 	import mx.skins.Border;
