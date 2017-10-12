@@ -1,5 +1,5 @@
-import Cursor from '/imports/api/2.0/cursor';
-import Users from '/imports/api/2.0/users';
+import Cursor from '/imports/api/cursor';
+import Users from '/imports/api/users';
 
 const getCurrentCursor = (cursorId) => {
   const cursor = Cursor.findOne({ _id: cursorId });

@@ -619,8 +619,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:ComboBox id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
       </mx:HBox>
     <mx:Spacer width="80%" />
-    <mx:Button id="startBtn" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
+    <mx:Button id="startBtn" styleName="mainActionButton" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
     <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
-    <mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
+    <mx:Button id="stopBtn" styleName="mainActionButton" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
   </mx:ControlBar>
 </common:CustomMdiWindow>

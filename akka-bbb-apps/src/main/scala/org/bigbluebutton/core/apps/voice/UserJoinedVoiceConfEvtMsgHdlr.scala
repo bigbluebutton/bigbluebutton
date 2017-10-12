@@ -41,7 +41,10 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
       outGW.send(msgEvent)
     }
 
-    val voiceUserState = VoiceUserState(intId, voiceUserId, callingWith, callerIdName, callerIdNum, muted, talking, listenOnly = false)
+    val voiceUserState = VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, intId) match {
+      case Some(vus) => VoiceUserState(intId, voiceUserId, callingWith, callerIdName, callerIdNum, muted, talking, listenOnly = vus.listenOnly)
+      case None      => VoiceUserState(intId, voiceUserId, callingWith, callerIdName, callerIdNum, muted, talking, listenOnly = false)
+    }
 
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 
