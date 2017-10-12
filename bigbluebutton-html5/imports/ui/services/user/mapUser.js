@@ -1,5 +1,5 @@
 import Auth from '/imports/ui/services/auth';
-import VoiceUsers from '/imports/api/2.0/voice-users';
+import VoiceUsers from '/imports/api/voice-users';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;

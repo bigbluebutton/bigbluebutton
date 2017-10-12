@@ -1,7 +1,7 @@
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import AudioManager from '/imports/ui/services/audio-manager';
-import Meetings from '/imports/api/2.0/meetings';
+import AudioManager from '/imports/api/audio/client/manager';
+import Meetings from '/imports/api/meetings';
 
 const init = () => {
   const meetingId = Auth.meetingID;
