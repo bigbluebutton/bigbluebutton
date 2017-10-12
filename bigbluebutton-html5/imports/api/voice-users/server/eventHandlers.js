@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handleJoinVoiceUser from './handlers/joinVoiceUser';
 import handleLeftVoiceUser from './handlers/leftVoiceUser';
 import handleTalkingVoiceUser from './handlers/talkingVoiceUser';

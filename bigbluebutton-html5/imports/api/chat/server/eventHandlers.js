@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handleChatMessage from './handlers/chatMessage';
 import handleChatHistory from './handlers/chatHistory';
 import handleChatPublicHistoryClear from './handlers/chatPublicHistoryClear';

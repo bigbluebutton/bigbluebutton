@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Presentations from '/imports/api/2.0/presentations';
+import Presentations from '/imports/api/presentations';
 
 import addPresentation from '../modifiers/addPresentation';
 

@@ -1,4 +1,4 @@
-import Screenshare from '/imports/api/2.0/screenshare';
+import Screenshare from '/imports/api/screenshare';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';

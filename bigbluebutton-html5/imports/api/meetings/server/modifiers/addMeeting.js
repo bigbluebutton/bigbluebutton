@@ -1,8 +1,7 @@
 import flat from 'flat';
 import { check } from 'meteor/check';
-import Meetings from '/imports/api/2.0/meetings';
+import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import initializeCursor from '/imports/api/1.1/cursor/server/modifiers/initializeCursor';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -77,8 +76,6 @@ export default function addMeeting(meeting) {
       Logger.error(`Adding meeting to collection: ${err}`);
       return;
     }
-
-    initializeCursor(meetingId);
 
     const { insertedId } = numChanged;
     if (insertedId) {

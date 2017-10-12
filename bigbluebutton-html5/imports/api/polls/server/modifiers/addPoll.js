@@ -1,5 +1,5 @@
-import Users from '/imports/api/2.0/users';
-import Polls from '/imports/api/2.0/polls';
+import Users from '/imports/api/users';
+import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 import { check } from 'meteor/check';

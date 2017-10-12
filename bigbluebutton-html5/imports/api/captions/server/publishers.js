@@ -1,4 +1,4 @@
-import Captions from '/imports/api/2.0/captions';
+import Captions from '/imports/api/captions';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';

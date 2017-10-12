@@ -1,4 +1,4 @@
-import Annotations from '/imports/api/2.0/annotations';
+import Annotations from '/imports/api/annotations';
 import Logger from '/imports/startup/server/logger';
 
 export default function clearAnnotations(meetingId, whiteboardId, userId) {

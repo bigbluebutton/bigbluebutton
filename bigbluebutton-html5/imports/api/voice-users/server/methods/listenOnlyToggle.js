@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import Meetings from '/imports/api/2.0/meetings';
-import VoiceUsers from '/imports/api/2.0/voice-users';
+import Meetings from '/imports/api/meetings';
+import VoiceUsers from '/imports/api/voice-users';
 
 export default function listenOnlyToggle(credentials, isJoining = true) {
   const REDIS_CONFIG = Meteor.settings.redis;

@@ -1,9 +1,9 @@
 import Acl from '/imports/startup/acl';
 import { getMultiUserStatus } from '/imports/api/common/server/helpers';
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Annotations from '/imports/api/2.0/annotations';
+import Annotations from '/imports/api/annotations';
 
 function isLastMessage(annotation, userId) {
   const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;

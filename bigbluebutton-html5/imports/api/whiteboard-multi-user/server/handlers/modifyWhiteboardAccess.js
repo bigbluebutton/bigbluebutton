@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 
 export default function handleModifyWhiteboardAccess({ body }, meetingId) {
   const { multiUser } = body;

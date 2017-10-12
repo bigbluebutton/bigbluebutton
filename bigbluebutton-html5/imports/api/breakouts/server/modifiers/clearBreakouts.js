@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import Breakouts from '/imports/api/2.0/breakouts';
+import Breakouts from '/imports/api/breakouts';
 
 export default function clearBreakouts(breakoutId) {
   if (breakoutId) {

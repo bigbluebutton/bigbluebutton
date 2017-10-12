@@ -2,11 +2,11 @@ import probe from 'probe-image-size';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import flat from 'flat';
-import RedisPubSub from '/imports/startup/server/redis2x';
-import Slides from '/imports/api/2.0/slides';
+import RedisPubSub from '/imports/startup/server/redis';
+import Slides from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 import { SVG, PNG } from '/imports/utils/mimeTypes';
-import calculateSlideData from '/imports/api/2.0/slides/server/helpers';
+import calculateSlideData from '/imports/api/slides/server/helpers';
 
 const requestWhiteboardHistory = (meetingId, slideId) => {
   const REDIS_CONFIG = Meteor.settings.redis;

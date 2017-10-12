@@ -1,5 +1,5 @@
 import flat from 'flat';
-import Chat from '/imports/api/2.0/chat';
+import Chat from '/imports/api/chat';
 import Logger from '/imports/startup/server/logger';
 import { Match, check } from 'meteor/check';
 import { BREAK_LINE } from '/imports/utils/lineEndings';

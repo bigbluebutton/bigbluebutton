@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 
 export default function userEjected(meetingId, userId) {
   check(meetingId, String);

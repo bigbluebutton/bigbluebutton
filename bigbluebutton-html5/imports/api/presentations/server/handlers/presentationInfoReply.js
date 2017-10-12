@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Presentations from '/imports/api/2.0/presentations';
+import Presentations from '/imports/api/presentations';
 import addPresentation from '../modifiers/addPresentation';
 import removePresentation from '../modifiers/removePresentation';
 

@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import flat from 'flat';
 import Logger from '/imports/startup/server/logger';
-import Screenshare from '/imports/api/2.0/screenshare';
+import Screenshare from '/imports/api/screenshare';
 
 export default function addScreenshare(meetingId, body) {
   check(meetingId, String);

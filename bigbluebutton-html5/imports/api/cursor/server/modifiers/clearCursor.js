@@ -1,4 +1,4 @@
-import Cursor from '/imports/api/2.0/cursor';
+import Cursor from '/imports/api/cursor';
 import Logger from '/imports/startup/server/logger';
 
 export default function clearCursor(meetingId) {

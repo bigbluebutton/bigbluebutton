@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handleWhiteboardCleared from './handlers/whiteboardCleared';
 import handleWhiteboardUndo from './handlers/whiteboardUndo';
 import handleWhiteboardSend from './handlers/whiteboardSend';

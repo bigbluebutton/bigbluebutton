@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
-import Slides from '/imports/api/2.0/slides';
+import Slides from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
-import calculateSlideData from '/imports/api/2.0/slides/server/helpers';
+import calculateSlideData from '/imports/api/slides/server/helpers';
 
 export default function resizeSlide(meetingId, slide) {
   check(meetingId, String);

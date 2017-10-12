@@ -1,9 +1,9 @@
 import { check } from 'meteor/check';
-import Presentations from '/imports/api/2.0/presentations';
+import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 
-import addSlide from '/imports/api/2.0/slides/server/modifiers/addSlide';
+import addSlide from '/imports/api/slides/server/modifiers/addSlide';
 import setCurrentPresentation from './setCurrentPresentation';
 
 const addSlides = (meetingId, presentationId, slides) => {

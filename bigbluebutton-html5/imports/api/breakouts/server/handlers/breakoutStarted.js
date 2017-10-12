@@ -1,4 +1,4 @@
-import Breakouts from '/imports/api/2.0/breakouts';
+import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import flat from 'flat';

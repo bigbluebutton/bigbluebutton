@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
 export default function setApprovedStatus(meetingId, userId, approved = false, approvedBy = null) {

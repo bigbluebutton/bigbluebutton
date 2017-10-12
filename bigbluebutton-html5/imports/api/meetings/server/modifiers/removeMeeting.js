@@ -1,16 +1,16 @@
-import Meetings from '/imports/api/2.0/meetings';
+import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-import clearUsers from '/imports/api/2.0/users/server/modifiers/clearUsers';
-import clearChats from '/imports/api/2.0/chat/server/modifiers/clearChats';
-import clearBreakouts from '/imports/api/2.0/breakouts/server/modifiers/clearBreakouts';
-import clearAnnotations from '/imports/api/2.0/annotations/server/modifiers/clearAnnotations';
-import clearSlides from '/imports/api/2.0/slides/server/modifiers/clearSlides';
-import clearPolls from '/imports/api/2.0/polls/server/modifiers/clearPolls';
-import clearCursor from '/imports/api/2.0/cursor/server/modifiers/clearCursor';
-import clearCaptions from '/imports/api/2.0/captions/server/modifiers/clearCaptions';
-import clearPresentations from '/imports/api/2.0/presentations/server/modifiers/clearPresentations';
-import clearVoiceUsers from '/imports/api/2.0/voice-users/server/modifiers/clearVoiceUsers';
+import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
+import clearChats from '/imports/api/chat/server/modifiers/clearChats';
+import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
+import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
+import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
+import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
+import clearCursor from '/imports/api/cursor/server/modifiers/clearCursor';
+import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions';
+import clearPresentations from '/imports/api/presentations/server/modifiers/clearPresentations';
+import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 
 export default function removeMeeting(meetingId) {
   return Meetings.remove({ meetingId }, () => {

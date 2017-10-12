@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handleGetWhiteboardAccess from './handlers/getWhiteboardAccess';
 import handleModifyWhiteboardAccess from './handlers/modifyWhiteboardAccess';
 

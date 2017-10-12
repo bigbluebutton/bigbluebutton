@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handleRemoveUser from './handlers/removeUser';
 import handleUserJoined from './handlers/userJoined';
 import handleValidateAuthToken from './handlers/validateAuthToken';

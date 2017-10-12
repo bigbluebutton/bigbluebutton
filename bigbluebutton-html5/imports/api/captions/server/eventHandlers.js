@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handleCaptionHistory from './handlers/captionHistory';
 import handleCaptionUpdate from './handlers/captionUpdate';
 import handleCaptionOwnerUpdate from './handlers/captionOwnerUpdate';

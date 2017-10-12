@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import VoiceUsers from '/imports/api/2.0/voice-users';
+import VoiceUsers from '/imports/api/voice-users';
 
 export default function clearVoiceUser(meetingId) {
   if (meetingId) {

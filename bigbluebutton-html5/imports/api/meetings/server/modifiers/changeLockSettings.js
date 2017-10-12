@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import Meetings from '/imports/api/2.0/meetings';
+import Meetings from '/imports/api/meetings';
 import { check } from 'meteor/check';
 
 export default function changeLockSettings(meetingId, payload) {

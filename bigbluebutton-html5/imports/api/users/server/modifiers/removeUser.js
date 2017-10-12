@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
-import removeVoiceUser from '/imports/api/2.0/voice-users/server/modifiers/removeVoiceUser';
+import removeVoiceUser from '/imports/api/voice-users/server/modifiers/removeVoiceUser';
 
 const CLIENT_TYPE_HTML = 'HTML5';
 

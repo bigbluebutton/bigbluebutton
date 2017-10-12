@@ -1,11 +1,11 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
 
-import addVoiceUser from '/imports/api/2.0/voice-users/server/modifiers/addVoiceUser';
+import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 
 const COLOR_LIST = [
   '#d32f2f', '#c62828', '#b71c1c', '#d81b60', '#c2185b', '#ad1457', '#880e4f',

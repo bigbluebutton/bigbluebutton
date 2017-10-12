@@ -1,4 +1,4 @@
-import Polls from '/imports/api/2.0/polls';
+import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
 export default function clearPolls(meetingId) {

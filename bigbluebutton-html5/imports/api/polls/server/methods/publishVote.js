@@ -1,6 +1,6 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import { check } from 'meteor/check';
-import Polls from '/imports/api/2.0/polls';
+import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
 export default function publishVote(credentials, id, pollAnswerId) { // TODO discuss location

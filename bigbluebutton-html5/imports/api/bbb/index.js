@@ -1,7 +1,7 @@
-import AudioManager from '/imports/api/2.0/audio/client/manager';
+import AudioManager from '/imports/api/audio/client/manager';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/2.0/users';
-import Meetings from '/imports/api/2.0/meetings';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 
 class BBB {
 

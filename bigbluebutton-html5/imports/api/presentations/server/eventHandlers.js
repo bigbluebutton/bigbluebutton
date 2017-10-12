@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handlePresentationAdded from './handlers/presentationAdded';
 import handlePresentationInfoReply from './handlers/presentationInfoReply';
 import handlePresentationRemove from './handlers/presentationRemove';

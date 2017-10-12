@@ -1,4 +1,4 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import handleScreenshareStarted from './handlers/screenshareStarted';
 import handleScreenshareStopped from './handlers/screenshareStopped';
 

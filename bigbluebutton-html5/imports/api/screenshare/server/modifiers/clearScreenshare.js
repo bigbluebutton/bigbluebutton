@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import Screenshare from '/imports/api/2.0/screenshare';
+import Screenshare from '/imports/api/screenshare';
 
 export default function clearScreenshare(meetingId, screenshareConf) {
   if (meetingId && screenshareConf) {

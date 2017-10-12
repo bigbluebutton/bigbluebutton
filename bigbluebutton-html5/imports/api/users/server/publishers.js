@@ -1,4 +1,4 @@
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';

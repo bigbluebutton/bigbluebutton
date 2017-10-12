@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Polls from '/imports/api/2.0/polls';
+import Polls from '/imports/api/polls';
 import mapToAcl from '/imports/startup/mapToAcl';
 
 function polls(credentials) {

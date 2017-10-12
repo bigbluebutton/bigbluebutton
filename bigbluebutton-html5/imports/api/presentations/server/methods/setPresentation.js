@@ -1,6 +1,6 @@
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import { check } from 'meteor/check';
-import Presentations from '/imports/api/2.0/presentations';
+import Presentations from '/imports/api/presentations';
 
 export default function setPresentation(credentials, presentationId) {
   const REDIS_CONFIG = Meteor.settings.redis;

@@ -1,4 +1,4 @@
-import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';

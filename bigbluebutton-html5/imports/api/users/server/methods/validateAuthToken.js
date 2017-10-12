@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import createDummyUser2x from '../modifiers/createDummyUser';
 import setConnectionStatus from '../modifiers/setConnectionStatus';
 

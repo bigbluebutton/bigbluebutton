@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 
 export default function assignPresenter(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
