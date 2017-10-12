@@ -58,8 +58,8 @@ function adjustVideos(centerVideos) {
 
   // http://stackoverflow.com/a/3437825/414642
   const e = $('#webcamArea').parent();
-  const x = e.outerWidth();
-  const y = e.outerHeight();
+  const x = e.outerWidth() - 1;
+  const y = e.outerHeight() - 1;
 
   const videos = $('#webcamArea video:visible');
 
@@ -74,8 +74,8 @@ function adjustVideos(centerVideos) {
     const remY = (y - best.height * best.numRows);
 
     // Center videos
-    const top = ((best.height) * row) + remY / 2;
-    const left = ((best.width) * col) + remX / 2;
+    const top = Math.floor(((best.height) * row) + remY / 2);
+    const left = Math.floor(((best.width) * col) + remX / 2);
 
     const videoTop = `top: ${top}px;`;
     const videoLeft = `left: ${left}px;`;
@@ -86,6 +86,10 @@ function adjustVideos(centerVideos) {
   videos.attr('width', best.width);
   videos.attr('height', best.height);
 }
+
+window.addEventListener('resize', function() {
+  adjustVideos(true);
+});
 
 export default class VideoDock extends Component {
 
@@ -103,7 +107,7 @@ export default class VideoDock extends Component {
       while (this.state.wsQueue.length > 0) {
         this.sendMessage(this.state.wsQueue.pop());
       }
-    }
+    };
 
     this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
     this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
@@ -123,8 +127,8 @@ export default class VideoDock extends Component {
       }
     }
 
-    document.addEventListener('joinVideo', function() { that.shareWebcam(); });// TODO find a better way to do this
-    document.addEventListener('exitVideo', function() { that.unshareWebcam(); });
+    document.addEventListener('joinVideo', () => { that.shareWebcam(); });// TODO find a better way to do this
+    document.addEventListener('exitVideo', () => { that.unshareWebcam(); });
 
     ws.addEventListener('message', (msg) => {
       const parsedMessage = JSON.parse(msg.data);
