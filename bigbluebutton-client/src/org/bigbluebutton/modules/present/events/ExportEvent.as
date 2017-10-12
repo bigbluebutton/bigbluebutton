@@ -1,11 +1,11 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
  *
- * Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+ * Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any later
+ * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
  *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -19,17 +19,27 @@
 package org.bigbluebutton.modules.present.events {
 	import flash.events.Event;
 
-	public class PresentationRollEvent extends Event {
-		public static const PRESENTATION_ROLL_OVER:String = "PresentationRollOver";
+	import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 
-		public static const PRESENTATION_ROLL_OUT:String = "PresentationRollOut";
+	public class ExportEvent extends Event {
+		public static const OPEN_EXPORT_WINDOW:String = "OPEN_EXPORT_WINDOW";
 
-		public var presentationId:String;
+		public static const CLOSE_EXPORT_WINDOW:String = "CLOSE_EXPORT_WINDOW";
 
-		public function PresentationRollEvent(type:String, p:String) {
+		public static const EXPORT_NEXT_PAGE:String = "EXPORT_NEXT_PAGE";
+
+		public static const EXPORT_COMPLETE:String = "EXPORT_COMPLETE";
+
+		public var firstPage:int;
+
+		public var numberOfPages:int;
+
+		public var slidesUrl:String;
+
+		public var slideModel:SlideViewModel;
+
+		public function ExportEvent(type:String) {
 			super(type, true, false);
-
-			presentationId = p;
 		}
 	}
 }
