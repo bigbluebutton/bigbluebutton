@@ -77,19 +77,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vboxListen.percentWidth = 100;
 				}
 			}
-			
+
 			private function onMicClick():void {
 				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
-				if (BrowserCheck.isPuffin46AndAbove()) {
-					dispatcher.dispatchEvent(new UseFlashModeCommand());	
-				}
-				else {
+				if (BrowserCheck.isPuffin46AndAbove() || (!BrowserCheck.isHttps() && ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion >= "60") || (BrowserCheck.isOpera() && BrowserCheck.browserMajorVersion >= "47")))) {
+					dispatcher.dispatchEvent(new UseFlashModeCommand());
+				} else {
 					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 					command.mic = true;
 					dispatcher.dispatchEvent(command);
 				}
-				
+
 				PopUpUtil.removePopUp(this);
 			}
 			
