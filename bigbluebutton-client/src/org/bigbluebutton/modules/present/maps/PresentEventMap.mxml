@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
       import org.bigbluebutton.modules.present.commands.UploadFileCommand;
       import org.bigbluebutton.modules.present.events.DownloadEvent;
+      import org.bigbluebutton.modules.present.events.ExportEvent;
       import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
       import org.bigbluebutton.modules.present.events.PresentModuleEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
@@ -91,6 +92,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
 			<MethodInvoker generator="{PresentManager}" method="handleCloseUploadWindow" />
+		</EventHandlers>
+		
+		<EventHandlers type="{ExportEvent.OPEN_EXPORT_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleOpenExportWindow" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ExportEvent.CLOSE_EXPORT_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleCloseExportWindow" />
 		</EventHandlers>
 			
 		<EventHandlers type="{UploadFileCommand.UPLOAD_FILE}">
