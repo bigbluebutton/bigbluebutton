@@ -110,6 +110,10 @@ class AudioManager {
     return this.bridge.exitAudio()
   }
 
+  transferCall() {
+    return this.bridge.transferCall(this.onTransferStart.bind(this), this.onAudioJoin.bind(this));
+  }
+
   toggleMuteMicrophone() {
     console.log('toggleMuteMicrophone', this);
     makeCall('toggleSelfVoice').then((res) => {
@@ -135,6 +139,11 @@ class AudioManager {
     }
 
     console.log('onAudioJoin', this);
+  }
+
+  onTransferStart() {
+    this.isEchoTest = false;
+    this.isConnecting = true;
   }
 
   onAudioExit() {

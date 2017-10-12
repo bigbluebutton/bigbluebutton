@@ -13,8 +13,7 @@ export default withModalMounter(createContainer(({ mountModal }) =>
      },
      joinMicrophone: () => {
        console.log('JOIN MIC FROM CONTAINER');
-       Service.exitAudio().then(() => Service.joinMicrophone())
-                          .then(() => mountModal(null));
+       Service.transferCall().then(() => mountModal(null));
      },
      joinListenOnly: () => {
        Service.joinListenOnly().then(() => mountModal(null))

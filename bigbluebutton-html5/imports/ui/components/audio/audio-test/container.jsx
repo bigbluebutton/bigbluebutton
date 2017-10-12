@@ -14,7 +14,7 @@ export default createContainer(() => ({
   handlePlayAudioSample: (deviceId) => {
     console.log('handle play audio sample', deviceId);
     const sound = new Audio('resources/sounds/audioSample.mp3');
-    sound.setSinkId(deviceId);
+    if (deviceId) sound.setSinkId(deviceId);
     sound.play();
   },
 }), AudioTestContainer);

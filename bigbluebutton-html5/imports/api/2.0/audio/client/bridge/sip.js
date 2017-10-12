@@ -1,4 +1,6 @@
 import BaseAudioBridge from './base';
+import { Tracker } from 'meteor/tracker';
+import VoiceUsers from '/imports/api/2.0/voice-users';
 
 const STUN_TURN_FETCH_URL = Meteor.settings.public.media.stunTurnServersFetchAddress;
 const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
@@ -66,7 +68,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
     return new Promise((resolve, reject) => {
-      const callExtension = extension || this.userData.voiceBridge;
+      const callExtension = extension + this.userData.voiceBridge || this.userData.voiceBridge;
 
       const callback = (message) => {
         managerCallback(message).then(resolve);
@@ -80,6 +82,32 @@ export default class SIPBridge extends BaseAudioBridge {
                    reject(reason);
                  });
     });
+  }
+
+  transferCall(onTransferStart, onTransferSuccess) {
+    return new Promise((resolve) => {
+      onTransferStart();
+      this.currentSession.dtmf(1);
+
+      Tracker.autorun((c) => {
+        const selector = { meetingId: this.userData.meetingId, intId: this.userData.userId };
+        const query = VoiceUsers.find(selector);
+        console.log(selector);
+        window.Kappa = query;
+
+        query.observeChanges({
+          changed: (id, fields) => {
+            console.log('changed', fields);
+            if (fields.joined) {
+              console.log('LUL', fields.joined);
+              onTransferSuccess();
+              c.stop();
+              resolve();
+            }
+          },
+        });
+      });
+    })
   }
 
   exitAudio() {
@@ -119,6 +147,9 @@ export default class SIPBridge extends BaseAudioBridge {
       this.userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(username)}@${server}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${server}/ws`,
+        log: {
+          builtinEnabled: false,
+        },
         displayName: username,
         register: false,
         traceSip: true,
