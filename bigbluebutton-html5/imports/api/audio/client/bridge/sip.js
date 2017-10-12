@@ -1,4 +1,4 @@
-import VoiceUsers from '/imports/api/2.0/voice-users';
+import VoiceUsers from '/imports/api/voice-users';
 import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
 
@@ -120,7 +120,6 @@ export default class SIPBridge extends BaseAudioBridge {
   exitAudio() {
     return new Promise((resolve) => {
       this.currentSession.on('bye', () => {
-        this.hangup = true;
         resolve();
       });
       this.currentSession.bye();
@@ -152,9 +151,9 @@ export default class SIPBridge extends BaseAudioBridge {
       this.userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(username)}@${server}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${server}/ws`,
-        log: {
-          builtinEnabled: false,
-        },
+        // log: {
+        //   builtinEnabled: false,
+        // },
         displayName: username,
         register: false,
         traceSip: true,
@@ -190,20 +189,19 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   setupEventHandlers(currentSession, callback) {
-    return new Promise(() => {
+    return new Promise((resolve) => {
       currentSession.on('terminated', (message, cause) => this.handleSessionTerminated(message, cause, callback));
 
-      currentSession.mediaHandler.on('iceConnectionCompleted', () => this.handleConnectionCompleted(callback));
-      currentSession.mediaHandler.on('iceConnectionConnected', () => this.handleConnectionCompleted(callback));
+      currentSession.mediaHandler.on('iceConnectionCompleted', () => this.handleConnectionCompleted(resolve));
+      currentSession.mediaHandler.on('iceConnectsionConnected', () => this.handleConnectionCompleted(resolve));
 
       this.currentSession = currentSession;
     });
   }
 
-  handleConnectionCompleted(callback) {
-    this.hangup = false;
-    callback({ status: this.baseCallStates.started });
-    Promise.resolve();
+  handleConnectionCompleted(resolve) {
+    this.callback({ status: this.baseCallStates.started });
+    resolve();
   }
 
   handleSessionTerminated(message, cause, callback) {
@@ -214,7 +212,6 @@ export default class SIPBridge extends BaseAudioBridge {
     const mappedCause = cause in this.errorCodes ?
                         this.errorCodes[cause] :
                         this.baseErrorCodes.GENERIC_ERROR;
-
     return callback({ status: this.baseCallStates.failed, error: mappedCause, bridgeError: cause });
   }
 }

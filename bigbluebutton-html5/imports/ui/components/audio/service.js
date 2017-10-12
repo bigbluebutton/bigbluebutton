@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import AudioManager from '/imports/api/audio/client/manager';
+import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 
 const init = () => {

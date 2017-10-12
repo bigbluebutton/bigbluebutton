@@ -1,7 +1,7 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
-import VertoBridge from '/imports/api/2.0/audio/client/bridge/verto';
-import SIPBridge from '/imports/api/2.0/audio/client/bridge/sip';
+import VertoBridge from '/imports/api/audio/client/bridge/verto';
+import SIPBridge from '/imports/api/audio/client/bridge/sip';
 
 const USE_SIP = Meteor.settings.public.media.useSIPAudio;
 const OUTPUT_TAG = Meteor.settings.public.media.mediaTag;
@@ -74,9 +74,11 @@ class AudioManager {
 
     this.isConnecting = true;
     this.error = null;
-    this.isListenOnly = isListenOnly;
+    this.isListenOnly = isListenOnly || false;
     this.isEchoTest = isEchoTest || false;
     this.callbacks = callbacks;
+
+    if (this.isListenOnly) makeCall('listenOnlyToggle', true);
 
     const callOptions = {
       isListenOnly,
@@ -88,6 +90,7 @@ class AudioManager {
   }
 
   exitAudio() {
+    if (this.isListenOnly) makeCall('listenOnlyToggle', false);
     return this.bridge.exitAudio();
   }
 
@@ -107,10 +110,6 @@ class AudioManager {
     }
 
     this.isConnecting = false;
-
-    if (this.isListenOnly) {
-      makeCall('listenOnlyToggle', true);
-    }
   }
 
   onTransferStart() {
@@ -122,9 +121,7 @@ class AudioManager {
     this.isConnected = false;
     this.isConnecting = false;
 
-    if (this.isListenOnly) {
-      makeCall('listenOnlyToggle', false);
-    } else if (this.isEchoTest) {
+    if (this.isEchoTest) {
       this.isEchoTest = false;
     }
   }
