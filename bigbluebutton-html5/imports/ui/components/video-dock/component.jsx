@@ -61,7 +61,7 @@ function adjustVideos(centerVideos) {
   const x = e.outerWidth();
   const y = e.outerHeight();
 
-  const videos = $('video:visible');
+  const videos = $('#webcamArea video:visible');
 
   const best = findBestConfiguration(x, y, videos.length);
 
@@ -96,7 +96,14 @@ export default class VideoDock extends Component {
       // Set a valid kurento application server socket in the settings
       ws: new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl),
       webRtcPeers: {},
+      wsQueue: [],
     };
+
+    this.state.ws.onopen = () => {
+      while (this.state.wsQueue.length > 0) {
+        this.sendMessage(this.state.wsQueue.pop());
+      }
+    }
 
     this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
     this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
@@ -112,9 +119,7 @@ export default class VideoDock extends Component {
 
     for (let i = 0; i < users.length; i++) {
       if (users[i].has_stream) {
-        if (users[i].has_stream) {
-          this.start(users[i].userId, false, this.refs.videoInput);
-        }
+        this.start(users[i].userId, false, this.refs.videoInput);
       }
     }
 
@@ -200,13 +205,15 @@ export default class VideoDock extends Component {
       options.remoteVideo.width = 120;
       options.remoteVideo.height = 90;
       options.remoteVideo.autoplay = true;
+      options.remoteVideo.playsinline = true;
 
       document.getElementById('webcamArea').appendChild(options.remoteVideo);
     }
 
-    this.state.webRtcPeers[id] = peerObj(options, function (error) {
+    this.state.webRtcPeers[id] = new peerObj(options, function (error) {
       if (error) {
         console.error(' [ERROR] Webrtc error');
+        console.error(error);
         return;
       }
 
@@ -288,13 +295,17 @@ export default class VideoDock extends Component {
   sendMessage(message) {
     const ws = this.state.ws;
 
-    const jsonMessage = JSON.stringify(message);
-    console.log(`Sending message: ${jsonMessage}`);
-    ws.send(jsonMessage, (error) => {
-      if (error) {
-        console.error(`client: Websocket error "${error}" on message "${jsonMessage.id}"`);
-      }
-    });
+    if (ws.readyState == WebSocket.OPEN) {
+      const jsonMessage = JSON.stringify(message);
+      console.log(`Sending message: ${jsonMessage}`);
+      ws.send(jsonMessage, (error) => {
+        if (error) {
+          console.error(`client: Websocket error "${error}" on message "${jsonMessage.id}"`);
+        }
+      });
+    } else {
+      this.state.wsQueue.push(message);
+    }
   }
 
   handlePlayStop(message) {
