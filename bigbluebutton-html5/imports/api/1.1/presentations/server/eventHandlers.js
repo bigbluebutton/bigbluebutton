@@ -1,8 +1,13 @@
-import RedisPubSub from '/imports/startup/server/redis';
-import handlePresentationRemove from './handlers/presentationRemove';
-import handlePresentationChange from './handlers/presentationChange';
+import RedisPubSub from '/imports/startup/server/redis2x';
+import handlePresentationAdded from './handlers/presentationAdded';
 import handlePresentationInfoReply from './handlers/presentationInfoReply';
+import handlePresentationRemove from './handlers/presentationRemove';
+import handlePresentationCurrentSet from './handlers/presentationCurrentSet';
+import handlePresentationConversionUpdate from './handlers/presentationConversionUpdate';
 
-RedisPubSub.on('presentation_removed_message', handlePresentationRemove);
-RedisPubSub.on('presentation_shared_message', handlePresentationChange);
-RedisPubSub.on('get_presentation_info_reply', handlePresentationInfoReply);
+RedisPubSub.on('SyncGetPresentationInfoRespMsg', handlePresentationInfoReply);
+RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUpdate);
+RedisPubSub.on('PresentationConversionUpdateEvtMsg', handlePresentationConversionUpdate);
+RedisPubSub.on('PresentationConversionCompletedEvtMsg', handlePresentationAdded);
+RedisPubSub.on('RemovePresentationEvtMsg', handlePresentationRemove);
+RedisPubSub.on('SetCurrentPresentationEvtMsg', handlePresentationCurrentSet);

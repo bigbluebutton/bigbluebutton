@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Presentations from './../../';
+import Presentations from '/imports/api/2.0/presentations';
 
 import addPresentation from '../modifiers/addPresentation';
 
@@ -8,11 +8,11 @@ const clearCurrentPresentation = (meetingId, presentationId) => {
   const selector = {
     meetingId,
     presentationId: { $ne: presentationId },
-    'presentation.current': true,
+    current: true,
   };
 
   const modifier = {
-    $set: { 'presentation.current': false },
+    $set: { current: false },
   };
 
   const cb = (err, numChanged) => {
@@ -21,21 +21,22 @@ const clearCurrentPresentation = (meetingId, presentationId) => {
     }
 
     if (numChanged) {
-      return Logger.info('Unsetted as current presentation');
+      return Logger.info('Unset as current presentation');
     }
+
+    return Logger.info('None presentation to unset');
   };
 
   return Presentations.update(selector, modifier, cb);
 };
 
-export default function handlePresentationChange({ payload }) {
-  const meetingId = payload.meeting_id;
-  const presentation = payload.presentation;
+export default function handlePresentationChange({ header, body }) {
+  const { meetingId } = header;
+  const { presentation } = body;
 
   check(meetingId, String);
   check(presentation, Object);
 
-  // We need to clear the flag of the older current presentation ¯\_(ツ)_/¯
   if (presentation.current) {
     clearCurrentPresentation(meetingId, presentation.id);
   }

@@ -1,8 +1,8 @@
 import { check } from 'meteor/check';
-import Presentations from './../../';
+import Presentations from '/imports/api/2.0/presentations';
 import Logger from '/imports/startup/server/logger';
 
-import clearSlidesPresentation from '/imports/api/1.1/slides/server/modifiers/clearSlidesPresentation';
+import clearSlidesPresentation from '/imports/api/2.0/slides/server/modifiers/clearSlidesPresentation';
 
 export default function removePresentation(meetingId, presentationId) {
   check(meetingId, String);
@@ -10,7 +10,7 @@ export default function removePresentation(meetingId, presentationId) {
 
   const selector = {
     meetingId,
-    'presentation.id': presentationId,
+    id: presentationId,
   };
 
   const cb = (err, numChanged) => {

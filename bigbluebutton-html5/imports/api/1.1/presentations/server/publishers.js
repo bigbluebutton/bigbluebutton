@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Presentations from './../';
+import Presentations from '/imports/api/2.0/presentations';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
@@ -11,7 +11,7 @@ function presentations(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Presentations for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Presentations2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Presentations.find({ meetingId });
 }
@@ -21,5 +21,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.presentations', boundPresentations)(args);
 }
 
-Meteor.publish('presentations', publish);
-
+Meteor.publish('presentations2x', publish);

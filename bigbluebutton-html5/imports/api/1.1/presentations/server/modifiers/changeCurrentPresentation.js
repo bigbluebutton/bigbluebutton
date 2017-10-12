@@ -1,18 +1,18 @@
 import { check } from 'meteor/check';
-import Presentations from './../../';
+import Presentations from '/imports/api/2.0/presentations';
 import Logger from '/imports/startup/server/logger';
 
-export default function changeCurrentPresentation(meetingId, presentationId) {
+export default function setCurrentPresentation(meetingId, presentationId) {
   check(meetingId, String);
   check(presentationId, String);
 
   const oldCurrent = {
     selector: {
       meetingId,
-      'presentation.current': true,
+      current: true,
     },
     modifier: {
-      $set: { 'presentation.current': false },
+      $set: { current: false },
     },
     callback: (err) => {
       if (err) {
@@ -26,22 +26,28 @@ export default function changeCurrentPresentation(meetingId, presentationId) {
   const newCurrent = {
     selector: {
       meetingId,
-      'presentation.id': presentationId,
+      id: presentationId,
     },
     modifier: {
-      $set: { 'presentation.current': true },
+      $set: { current: true },
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Setting as current presentation id=${presentationId}: ${err}`);
+        return Logger.error(`Setting as current presentation2x id=${presentationId}: ${err}`);
       }
 
-      return Logger.info(`Setted as current presentation id=${presentationId}`);
+      return Logger.info(`Setted as current presentation2x id=${presentationId}`);
     },
   };
 
   const oldPresentation = Presentations.findOne(oldCurrent.selector);
   const newPresentation = Presentations.findOne(newCurrent.selector);
+
+  // Prevent bug with presentation being unset, same happens in the slide
+  // See: https://github.com/bigbluebutton/bigbluebutton/pull/4431
+  if (oldPresentation && newPresentation && (oldPresentation._id === newPresentation._id)) {
+    return;
+  }
 
   if (newPresentation) {
     Presentations.update(newPresentation._id, newCurrent.modifier, newCurrent.callback);
