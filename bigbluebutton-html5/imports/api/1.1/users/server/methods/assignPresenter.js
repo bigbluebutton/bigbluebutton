@@ -1,13 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/1.1/users';
+import Users from '/imports/api/2.0/users';
 
 export default function assignPresenter(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
-  const EVENT_NAME = 'assign_presenter_request_message';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'AssignPresenterReqMsg';
 
   const { meetingId, requesterUserId } = credentials;
 
@@ -26,14 +26,14 @@ export default function assignPresenter(credentials, userId) {
   }
 
   const payload = {
-    new_presenter_id: userId,
-    new_presenter_name: User.user.name,
-    meeting_id: meetingId,
-    assigned_by: requesterUserId,
+    newPresenterId: userId,
+    newPresenterName: User.name,
+    assignedBy: requesterUserId,
+    requesterId: requesterUserId,
   };
 
-  Logger.verbose(`User '${userId}' setted as presenterby '${
+  Logger.verbose(`User '${userId}' setted as presenter by '${
     requesterUserId}' from meeting '${meetingId}'`);
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }

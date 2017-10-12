@@ -1,23 +1,15 @@
 import { check } from 'meteor/check';
-import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
-import Logger from '/imports/startup/server/logger';
-import Users from './../../';
-
+import Users from '/imports/api/2.0/users/';
 import addUser from '../modifiers/addUser';
 import removeUser from '../modifiers/removeUser';
 
-export default function handleGetUsers({ payload }) {
-  if (!inReplyToHTML5Client({ payload })) {
-    return;
-  }
-
-  const meetingId = payload.meeting_id;
-  const users = payload.users;
+export default function handleGetUsers({ body }, meetingId) {
+  const { users } = body;
 
   check(meetingId, String);
   check(users, Array);
 
-  const usersIds = users.map(m => m.userid);
+  const usersIds = users.map(m => m.intId);
 
   const usersToRemove = Users.find({
     meetingId,

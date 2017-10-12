@@ -1,17 +1,15 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/1.1/users';
-import Meetings from '/imports/api/1.1/meetings';
-import listenOnlyToggle from './listenOnlyToggle';
+import Users from '/imports/api/2.0/users';
 
 const OFFLINE_CONNECTION_STATUS = 'offline';
 
 export default function userLeaving(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
-  const EVENT_NAME = 'user_leaving_request';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'UserLeaveReqMsg';
 
   const { meetingId, requesterUserId } = credentials;
 
@@ -25,23 +23,13 @@ export default function userLeaving(credentials, userId) {
   };
 
   const User = Users.findOne(selector);
-  const Meeting = Meetings.findOne({ meetingId });
-
-  if (!Meeting) {
-    return null;
-  }
-
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
   }
 
-  if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
+  if (User.connectionStatus === OFFLINE_CONNECTION_STATUS) {
     return null;
-  }
-
-  if (User.user.listenOnly) {
-    listenOnlyToggle(credentials, false);
   }
 
   if (User.validated) {
@@ -63,10 +51,11 @@ export default function userLeaving(credentials, userId) {
   }
 
   const payload = {
-    meeting_id: meetingId,
-    userid: userId,
+    userId,
+    sessionId: meetingId,
   };
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
