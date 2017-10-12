@@ -134,7 +134,14 @@ export default class SIPBridge extends BaseAudioBridge {
     } = this.userData;
 
     const server = window.document.location.hostname;
-    const callerIdName = `${userId}-bbbID-${username}`;
+
+    const callerIdPrefix = userId;
+    const callerIdSufix = isListenOnly ? `LINSTENONLY-${username}` : username;
+    const callerIdName = [
+      callerIdPrefix,
+      'bbbID',
+      callerIdSufix,
+    ].join('-');
 
     return fetchStunTurnServers(sessionToken)
                         .then(stunTurnServers =>

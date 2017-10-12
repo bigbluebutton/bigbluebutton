@@ -78,19 +78,19 @@ class AudioManager {
     this.isEchoTest = isEchoTest || false;
     this.callbacks = callbacks;
 
-    if (this.isListenOnly) makeCall('listenOnlyToggle', true);
-
     const callOptions = {
-      isListenOnly,
+      isListenOnly: this.isListenOnly,
       extension: isEchoTest ? '9196' : null,
-      inputStream: isListenOnly ? this.createListenOnlyStream() : this.inputStream,
+      inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
     };
+
+    // if (this.isListenOnly) makeCall('listenOnlyToggle', true);
 
     return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
   }
 
   exitAudio() {
-    if (this.isListenOnly) makeCall('listenOnlyToggle', false);
+    console.log('LOL');
     return this.bridge.exitAudio();
   }
 
@@ -109,6 +109,9 @@ class AudioManager {
       this.isConnected = true;
     }
 
+    if (this.isListenOnly) makeCall('listenOnlyToggle', true);
+    console.log('joined', this.isListenOnly);
+
     this.isConnecting = false;
   }
 
@@ -120,6 +123,8 @@ class AudioManager {
   onAudioExit() {
     this.isConnected = false;
     this.isConnecting = false;
+
+    if (this.isListenOnly) makeCall('listenOnlyToggle', false);
 
     if (this.isEchoTest) {
       this.isEchoTest = false;
@@ -156,6 +161,7 @@ class AudioManager {
       } else if (status === ENDED) {
         this.onAudioExit();
       } else if (status === FAILED) {
+        console.log('error happened');
         this.error = error;
         this.onAudioExit();
       }
