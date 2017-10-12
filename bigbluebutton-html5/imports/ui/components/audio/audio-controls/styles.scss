@@ -14,3 +14,9 @@
     margin-right: 0;
   }
 }
+
+.button {
+  &:focus {
+    outline: none !important;
+  }
+}

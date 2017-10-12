@@ -1,9 +1,10 @@
-import BaseAudioBridge from './base';
-import { Tracker } from 'meteor/tracker';
 import VoiceUsers from '/imports/api/2.0/voice-users';
+import { Tracker } from 'meteor/tracker';
+import BaseAudioBridge from './base';
 
 const STUN_TURN_FETCH_URL = Meteor.settings.public.media.stunTurnServersFetchAddress;
 const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
+const CALL_TRANSFER_TIMEOUT = Meteor.settings.public.media.callTransferTimeout;
 
 const handleStunTurnResponse = ({ result, stunServers, turnServers }) =>
   new Promise((resolve) => {
@@ -18,7 +19,6 @@ const handleStunTurnResponse = ({ result, stunServers, turnServers }) =>
 
 const fetchStunTurnServers = sessionToken =>
   new Promise(async (resolve, reject) => {
-    console.log('FETCHSTUNTURN');
     const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
 
     const response = await fetch(url)
@@ -30,7 +30,6 @@ const fetchStunTurnServers = sessionToken =>
   });
 
 const inviteUserAgent = (voiceBridge, server, userAgent, inputStream) => {
-  console.log('INVITEUSERAGENT');
   const options = {
     media: {
       stream: inputStream,
@@ -50,7 +49,6 @@ const inviteUserAgent = (voiceBridge, server, userAgent, inputStream) => {
     },
   };
 
-  console.log(voiceBridge, server, userAgent);
   return userAgent.invite(`sip:${voiceBridge}@${server}`, options);
 };
 
@@ -68,7 +66,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
     return new Promise((resolve, reject) => {
-      const callExtension = extension + this.userData.voiceBridge || this.userData.voiceBridge;
+      const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
 
       const callback = (message) => {
         managerCallback(message).then(resolve);
@@ -85,21 +83,20 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   transferCall(onTransferStart, onTransferSuccess) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       onTransferStart();
       this.currentSession.dtmf(1);
-
+      let trackerControl = null;
       Tracker.autorun((c) => {
+        trackerControl = c;
         const selector = { meetingId: this.userData.meetingId, intId: this.userData.userId };
         const query = VoiceUsers.find(selector);
-        console.log(selector);
         window.Kappa = query;
 
         query.observeChanges({
           changed: (id, fields) => {
-            console.log('changed', fields);
             if (fields.joined) {
-              console.log('LUL', fields.joined);
+              clearTimeout(timeout);
               onTransferSuccess();
               c.stop();
               resolve();
@@ -107,7 +104,17 @@ export default class SIPBridge extends BaseAudioBridge {
           },
         });
       });
-    })
+
+      const timeout = setTimeout(() => {
+        clearTimeout(timeout);
+        trackerControl.stop();
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: this.baseErrorCodes.REQUEST_TIMEOUT,
+          bridgeError: 'Could not transfer the call' });
+        reject('Call transfer timeout');
+      }, CALL_TRANSFER_TIMEOUT);
+    });
   }
 
   exitAudio() {
@@ -140,10 +147,8 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   createUserAgent(server, username, { stun, turn }) {
-    console.log('CREATEUSERAGENT');
     return new Promise((resolve, reject) => {
       const protocol = document.location.protocol;
-      console.log('username', username);
       this.userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(username)}@${server}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${server}/ws`,
@@ -170,7 +175,6 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   handleUserAgentConnection(resolve) {
-    console.log('CONNECTED');
     this.isConnected = true;
     resolve(this.userAgent);
   }
@@ -178,17 +182,15 @@ export default class SIPBridge extends BaseAudioBridge {
   handleUserAgentDisconnection(reject) {
     this.userAgent.stop();
     this.userAgent = null;
-    this.callback({ status: this.baseCallStates.failed,
-                    error: this.baseErrorCodes.GENERIC_ERROR,
-                    bridgeError: 'User Agent' });
-    console.log('DISCONNECTED');
+    this.callback({
+      status: this.baseCallStates.failed,
+      error: this.baseErrorCodes.GENERIC_ERROR,
+      bridgeError: 'User Agent' });
     reject('CONNECTION_ERROR');
   }
 
   setupEventHandlers(currentSession, callback) {
     return new Promise(() => {
-      console.log('SETUPEVENTHANDLERS');
-
       currentSession.on('terminated', (message, cause) => this.handleSessionTerminated(message, cause, callback));
 
       currentSession.mediaHandler.on('iceConnectionCompleted', () => this.handleConnectionCompleted(callback));
@@ -199,14 +201,12 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   handleConnectionCompleted(callback) {
-    console.log('handleConnectionCompleted');
     this.hangup = false;
     callback({ status: this.baseCallStates.started });
     Promise.resolve();
   }
 
   handleSessionTerminated(message, cause, callback) {
-    console.log('TERMINATED', message, cause);
     if (!message && !cause) {
       return callback({ status: this.baseCallStates.ended });
     }

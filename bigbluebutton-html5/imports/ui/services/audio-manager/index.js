@@ -4,20 +4,7 @@ import VertoBridge from '/imports/api/2.0/audio/client/bridge/verto';
 import SIPBridge from '/imports/api/2.0/audio/client/bridge/sip';
 
 const USE_SIP = Meteor.settings.public.media.useSIPAudio;
-
-const ERROR_CODES = {
-  REQUEST_TIMEOUT: {
-    message: 'Request Timeout',
-  },
-  CONNECTION_ERROR: {
-    message: 'Connection Error',
-  },
-  ERROR: {
-    message: 'An Error Occurred',
-  },
-};
-
-const OUTPUT_TAG = '#remote-media';
+const OUTPUT_TAG = Meteor.settings.public.media.mediaTag;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -75,7 +62,6 @@ class AudioManager {
   }
 
   init(userData) {
-    console.log('init', userData);
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
   }
@@ -86,7 +72,6 @@ class AudioManager {
       isEchoTest,
     } = options;
 
-    console.log('joinAudio', this, isListenOnly);
     this.isConnecting = true;
     this.error = null;
     this.isListenOnly = isListenOnly;
@@ -97,17 +82,13 @@ class AudioManager {
       isListenOnly,
       extension: isEchoTest ? '9196' : null,
       inputStream: isListenOnly ? this.createListenOnlyStream() : this.inputStream,
-    }
-
-    console.log(callOptions.inputStream);
-    console.log(this.inputDeviceId);
+    };
 
     return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
   }
 
   exitAudio() {
-    console.log('exitAudio', this);
-    return this.bridge.exitAudio()
+    return this.bridge.exitAudio();
   }
 
   transferCall() {
@@ -115,30 +96,21 @@ class AudioManager {
   }
 
   toggleMuteMicrophone() {
-    console.log('toggleMuteMicrophone', this);
-    makeCall('toggleSelfVoice').then((res) => {
-      console.log(res);
+    makeCall('toggleSelfVoice').then(() => {
       this.onToggleMicrophoneMute();
     });
   }
-
-  callbackToAudioBridge(message) {
-    console.log('This is the Manager Callback', message);
-  }
-
-  //----------------------------
 
   onAudioJoin() {
     if (!this.isEchoTest) {
       this.isConnected = true;
     }
+
     this.isConnecting = false;
 
     if (this.isListenOnly) {
       makeCall('listenOnlyToggle', true);
     }
-
-    console.log('onAudioJoin', this);
   }
 
   onTransferStart() {
@@ -155,13 +127,10 @@ class AudioManager {
     } else if (this.isEchoTest) {
       this.isEchoTest = false;
     }
-
-    console.log('onAudioExit', this);
   }
 
   onToggleMicrophoneMute() {
     this.isMuted = !this.isMuted;
-    console.log('onToggleMicrophoneMute', this);
   }
 
   //---------------------------
@@ -184,18 +153,13 @@ class AudioManager {
         error,
       } = response;
 
-      console.log('CALLSTATECALLBACK =====================', response);
-
       if (status === STARTED) {
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
-        console.log('ENDED');
         this.onAudioExit();
       } else if (status === FAILED) {
-        console.log(error, 'KAAAAPPAAA');
         this.error = error;
-        console.log('FAILED');
         this.onAudioExit();
       }
     });
@@ -224,7 +188,6 @@ class AudioManager {
   }
 
   changeInputDevice(value) {
-    console.log('changeInputDevice');
     if (this._inputDevice.audioContext) {
       this._inputDevice.audioContext.close().then(() => {
         this._inputDevice.audioContext = null;
@@ -236,7 +199,6 @@ class AudioManager {
       return;
     }
 
-    console.log(value);
     this._inputDevice.id = value;
     if ('webkitAudioContext' in window) {
       this._inputDevice.audioContext = new window.webkitAudioContext();
@@ -256,8 +218,7 @@ class AudioManager {
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then((stream) => {
-        console.log('KAPPA', stream);
-        this._inputDevice.stream = stream
+        this._inputDevice.stream = stream;
         this._inputDevice.source = this._inputDevice.audioContext.createMediaStreamSource(stream);
         this._inputDevice.source.connect(this._inputDevice.scriptProcessor);
         this._inputDevice.scriptProcessor.connect(this._inputDevice.audioContext.destination);
@@ -268,7 +229,6 @@ class AudioManager {
   changeOutputDevice(deviceId) {
     this.outputDeviceId = deviceId;
     document.querySelector(OUTPUT_TAG).setSinkId(deviceId);
-    console.log('Change id');
   }
 
   get inputStream() {

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import styles from '../audio-modal/styles';
 
 const propTypes = {
@@ -61,7 +62,7 @@ class DeviceSelector extends Component {
   }
 
   render() {
-    const { kind, handleDeviceChange, ...props } = this.props;
+    const { kind, handleDeviceChange, className, ...props } = this.props;
     const { options, value } = this.state;
 
     return (
@@ -70,7 +71,7 @@ class DeviceSelector extends Component {
         value={value}
         onChange={this.handleSelectChange}
         disabled={!options.length}
-        className={styles.select}
+        className={cx(styles.select, className)}
       >
         {
           options.length ?

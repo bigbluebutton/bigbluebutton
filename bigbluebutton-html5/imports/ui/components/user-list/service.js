@@ -146,9 +146,6 @@ const userFindSorting = {
 };
 
 const getUsers = () => {
-  console.log('REMOVE ME BEFORE COMMIT');
-  window.Users = Users;
-
   const users = Users
     .find({ connectionStatus: 'online' }, userFindSorting)
     .fetch();

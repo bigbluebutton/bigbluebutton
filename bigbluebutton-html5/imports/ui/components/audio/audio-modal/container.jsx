@@ -12,14 +12,17 @@ export default withModalMounter(createContainer(({ mountModal }) =>
        if (!Service.isConnecting()) mountModal(null);
      },
      joinMicrophone: () => {
-       console.log('JOIN MIC FROM CONTAINER');
-       Service.transferCall().then(() => mountModal(null));
+       return new Promise((resolve, reject) => {
+         Service.transferCall().then(() => {
+           mountModal(null);
+           resolve();
+         }).catch(() => {
+           Service.exitAudio();
+           reject();
+         });
+       });
      },
-     joinListenOnly: () => {
-       Service.joinListenOnly().then(() => mountModal(null))
-                               .catch(reason => console.error(reason));
-     },
-
+     joinListenOnly: () => Service.joinListenOnly().then(() => mountModal(null)),
      leaveEchoTest: () => {
        if (!Service.isEchoTest()) {
          return Promise.resolve();

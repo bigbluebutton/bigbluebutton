@@ -70,7 +70,6 @@ class AudioModal extends Component {
     const {
       intl,
       closeModal,
-      joinMicrophone,
       joinListenOnly,
       joinEchoTest,
       exitAudio,
@@ -82,8 +81,8 @@ class AudioModal extends Component {
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
+    this.handleJoinMicrophone = this.handleJoinMicrophone.bind(this);
     this.closeModal = closeModal;
-    this.handleJoinMicrophone = joinMicrophone;
     this.handleJoinListenOnly = joinListenOnly;
     this.joinEchoTest = joinEchoTest;
     this.exitAudio = exitAudio;
@@ -133,6 +132,14 @@ class AudioModal extends Component {
         content: 'echoTest',
       });
     });
+  }
+
+  handleJoinMicrophone() {
+    const {
+      joinMicrophone,
+    } = this.props;
+
+    joinMicrophone().catch(this.handleGoToAudioOptions);
   }
 
   renderAudioOptions() {

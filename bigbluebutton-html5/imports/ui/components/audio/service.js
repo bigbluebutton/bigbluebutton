@@ -4,7 +4,6 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/2.0/meetings';
 
 const init = () => {
-  console.log('Running audio service init.');
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const sessionToken = Auth.sessionToken;

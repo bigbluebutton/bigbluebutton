@@ -11,9 +11,9 @@
     transition: all .2s ease-in-out;
   }
 
-  &:hover, &:focus {
-    background-color: transparent;
-    color: darken($color-primary, 17%);
+  &:hover, &:focus, &:active {
+    background-color: transparent !important;
+    color: darken($color-primary, 17%) !important;
     i {
       color: darken($color-primary, 17%);
     }

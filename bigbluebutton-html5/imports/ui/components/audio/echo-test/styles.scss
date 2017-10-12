@@ -1,6 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .button {
+  &:focus {
+    outline: none !important;
+  }
+
   &:first-child {
     margin-right: 3rem;
 

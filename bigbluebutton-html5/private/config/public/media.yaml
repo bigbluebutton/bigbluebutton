@@ -10,3 +10,4 @@ media:
   useSIPAudio: true
   stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
   mediaTag: '#remote-media'
+  callTransferTimeout: 5000

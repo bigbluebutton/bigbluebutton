@@ -12,7 +12,6 @@ const AudioTestContainer = props => (
 export default createContainer(() => ({
   outputDeviceId: Service.outputDeviceId(),
   handlePlayAudioSample: (deviceId) => {
-    console.log('handle play audio sample', deviceId);
     const sound = new Audio('resources/sounds/audioSample.mp3');
     if (deviceId) sound.setSinkId(deviceId);
     sound.play();
