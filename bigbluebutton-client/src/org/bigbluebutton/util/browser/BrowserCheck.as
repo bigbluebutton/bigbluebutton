@@ -57,6 +57,10 @@ package org.bigbluebutton.util.browser {
 			return _browserName.toLowerCase() == "chrome";
 		}
 
+		public static function isOpera():Boolean {
+			return _browserName.toLowerCase() == "opera";
+		}
+
 		public static function isFirefox():Boolean {
 			return _browserName.toLowerCase() == "firefox";
 		}
