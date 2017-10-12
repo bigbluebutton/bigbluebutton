@@ -1581,6 +1581,9 @@ users|StatusItemRenderer {
 	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
 	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
 	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	verticalAlign      : middle;
+	horizontalAlign    : center;
+	horizontalGap      : 2;
 }
 
 users|MediaItemRenderer {
@@ -1596,7 +1599,7 @@ users|MediaItemRenderer {
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
 	glowFilterColor : #1070D7;
 	verticalAlign   : middle;
-	horizontalGap   : 8;
+	horizontalGap   : 2;
 	horizontalAlign : center;
 }
 
