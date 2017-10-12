@@ -116,6 +116,7 @@ package org.bigbluebutton.util.i18n
 			locales.push({
 				code: DEFAULT_LOCALE_IDENTIFIER,
 				name: "",
+				native: "",
 				direction: "ltr"
 			});
 
@@ -123,6 +124,7 @@ package org.bigbluebutton.util.i18n
 				locales.push({
 					code: locale.@code.toString(),
 					name: locale.@name.toString(),
+					native: locale.@native.toString(),
 					direction: locale.@direction.valueOf().toString().toLowerCase() == "rtl" ? "rtl" : "ltr"
 				});
 			}							
@@ -177,13 +179,7 @@ package org.bigbluebutton.util.i18n
 		}
 
 		private function reloadLocaleNames():void {
-			for each (var item:* in locales) {
-				if (item.code == DEFAULT_LOCALE_IDENTIFIER) {
-					item.name = ResourceUtil.getInstance().getString("bbb.langSelector." + item.code, null, getDefaultLocale());
-				} else {
-					item.name = ResourceUtil.getInstance().getString("bbb.langSelector." + item.code, null, preferredLocale);
-				}
-			}
+			locales[0].name = locales[0].native = ResourceUtil.getInstance().getString("bbb.langSelector." + locales[0].code, null, getDefaultLocale());
 			locales.sort(localesCompareFunction);
 		}
 
