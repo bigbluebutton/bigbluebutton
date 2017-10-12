@@ -1,24 +1,24 @@
+import Annotations from '/imports/api/2.0/annotations';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
-import Shapes from './../';
 
-function shapes(credentials) {
+function annotations(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Shapes for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Annotations2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
-  return Shapes.find({ meetingId });
+  return Annotations.find({ meetingId });
 }
 
 function publish(...args) {
-  const boundShapes = shapes.bind(this);
-  return mapToAcl('subscriptions.shapes', boundShapes)(args);
+  const boundAnnotations = annotations.bind(this);
+  return mapToAcl('subscriptions.annotations', boundAnnotations)(args);
 }
 
-Meteor.publish('shapes', publish);
+Meteor.publish('annotations', publish);

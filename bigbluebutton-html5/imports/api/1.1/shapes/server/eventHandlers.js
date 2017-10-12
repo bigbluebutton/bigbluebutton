@@ -1,10 +1,10 @@
-import RedisPubSub from '/imports/startup/server/redis';
-import handleWhiteboardGetReply from './handlers/whiteboardGetReply';
-import handleWhiteboardSend from './handlers/whiteboardSend';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import handleWhiteboardCleared from './handlers/whiteboardCleared';
 import handleWhiteboardUndo from './handlers/whiteboardUndo';
+import handleWhiteboardSend from './handlers/whiteboardSend';
+import handleWhiteboardAnnotations from './handlers/whiteboardAnnotations';
 
-RedisPubSub.on('get_whiteboard_shapes_reply', handleWhiteboardGetReply);
-RedisPubSub.on('send_whiteboard_shape_message', handleWhiteboardSend);
-RedisPubSub.on('whiteboard_cleared_message', handleWhiteboardCleared);
-RedisPubSub.on('undo_whiteboard_request', handleWhiteboardUndo);
+RedisPubSub.on('ClearWhiteboardEvtMsg', handleWhiteboardCleared);
+RedisPubSub.on('UndoWhiteboardEvtMsg', handleWhiteboardUndo);
+RedisPubSub.on('SendWhiteboardAnnotationEvtMsg', handleWhiteboardSend);
+RedisPubSub.on('GetWhiteboardAnnotationsRespMsg', handleWhiteboardAnnotations);

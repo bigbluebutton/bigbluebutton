@@ -1,15 +1,13 @@
 import { check } from 'meteor/check';
 
-import removeShape from '../modifiers/removeShape';
+import removeAnnotation from '../modifiers/removeAnnotation';
 
-export default function handleWhiteboardUndo({ payload }) {
-  const meetingId = payload.meeting_id;
-  const whiteboardId = payload.whiteboard_id;
-  const shapeId = payload.shape_id;
+export default function handleWhiteboardUndo({ body }, meetingId) {
+  const whiteboardId = body.whiteboardId;
+  const shapeId = body.annotationId;
 
-  check(meetingId, String);
   check(whiteboardId, String);
   check(shapeId, String);
 
-  return removeShape(meetingId, whiteboardId, shapeId);
+  return removeAnnotation(meetingId, whiteboardId, shapeId);
 }

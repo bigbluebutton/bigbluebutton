@@ -1,8 +1,8 @@
 import { check } from 'meteor/check';
+import Annotations from '/imports/api/2.0/annotations';
 import Logger from '/imports/startup/server/logger';
-import Shapes from './../../';
 
-export default function removeShape(meetingId, whiteboardId, shapeId) {
+export default function removeAnnotation(meetingId, whiteboardId, shapeId) {
   check(meetingId, String);
   check(whiteboardId, String);
   check(shapeId, String);
@@ -10,18 +10,16 @@ export default function removeShape(meetingId, whiteboardId, shapeId) {
   const selector = {
     meetingId,
     whiteboardId,
-    'shape.id': shapeId,
+    id: shapeId,
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
-      return Logger.error(`Removing shape from collection: ${err}`);
+      return Logger.error(`Removing annotation from collection: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Removed shape id=${shapeId} whiteboard=${whiteboardId}`);
-    }
+    return Logger.info(`Removed annotation id=${shapeId} whiteboard=${whiteboardId}`);
   };
 
-  return Shapes.remove(selector, cb);
+  return Annotations.remove(selector, cb);
 }

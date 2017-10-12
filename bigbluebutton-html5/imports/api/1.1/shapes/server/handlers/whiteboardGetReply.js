@@ -1,32 +1,22 @@
+import _ from 'lodash';
 import { check } from 'meteor/check';
-import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
-import Shapes from './../../';
+import clearAnnotations from '../modifiers/clearAnnotations';
+import addAnnotation from '../modifiers/addAnnotation';
 
-import addShape from '../modifiers/addShape';
-import removeShape from '../modifiers/removeShape';
-
-export default function handleWhiteboardGetReply({ payload }) {
-  if (!inReplyToHTML5Client({ payload })) {
-    return;
-  }
-
-  const meetingId = payload.meeting_id;
-  const shapes = payload.shapes;
-
+export default function handleWhiteboardAnnotations({ body }, meetingId) {
   check(meetingId, String);
-  check(shapes, Array);
+  check(body, Object);
 
-  const shapesIds = shapes.map(_ => _.id);
-  const shapesToRemove = Shapes.find({
-    meetingId,
-    'shape.id': { $nin: shapesIds },
-  }).fetch();
+  const { annotations, whiteboardId } = body;
 
-  shapesToRemove.forEach(s => removeShape(meetingId, s.shape.wb_id, s.shape.id));
+  check(whiteboardId, String);
+  clearAnnotations(meetingId, whiteboardId);
 
-  const shapesAdded = [];
-  shapes.forEach((shape) => {
-    const whiteboardId = shape.wb_id;
-    shapesAdded.push(addShape(meetingId, whiteboardId, shape));
+  const annotationsAdded = [];
+  _.each(annotations, (annotation) => {
+    const { wbId, userId } = annotation;
+    annotationsAdded.push(addAnnotation(meetingId, wbId, userId, annotation));
   });
+
+  return annotationsAdded;
 }

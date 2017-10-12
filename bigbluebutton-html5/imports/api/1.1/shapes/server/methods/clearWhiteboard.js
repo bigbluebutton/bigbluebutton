@@ -1,11 +1,13 @@
-import RedisPubSub from '/imports/startup/server/redis';
+import Acl from '/imports/startup/acl';
+import { getMultiUserStatus } from '/imports/api/common/server/helpers';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 export default function clearWhiteboard(credentials, whiteboardId) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.whiteboard;
-  const EVENT_NAME = 'clear_whiteboard_request';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'ClearWhiteboardPubMsg';
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -14,11 +16,16 @@ export default function clearWhiteboard(credentials, whiteboardId) {
   check(requesterToken, String);
   check(whiteboardId, String);
 
+  const allowed = Acl.can('methods.clearWhiteboard', credentials) || getMultiUserStatus(meetingId);
+  if (!allowed) {
+    throw new Meteor.Error(
+      'not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`,
+    );
+  }
+
   const payload = {
-    requester_id: requesterUserId,
-    meeting_id: meetingId,
-    whiteboard_id: whiteboardId,
+    whiteboardId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

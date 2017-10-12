@@ -1,13 +1,19 @@
 import { check } from 'meteor/check';
 
-import clearShapesWhiteboard from '../modifiers/clearShapesWhiteboard';
+import clearAnnotations from '../modifiers/clearAnnotations';
 
-export default function handleWhiteboardCleared({ payload }) {
-  const meetingId = payload.meeting_id;
-  const whiteboardId = payload.whiteboard_id;
+export default function handleWhiteboardCleared({ body }, meetingId) {
+  check(body, {
+    userId: String,
+    whiteboardId: String,
+    fullClear: Boolean,
+  });
 
-  check(meetingId, String);
-  check(whiteboardId, String);
+  const { whiteboardId, fullClear, userId } = body;
 
-  return clearShapesWhiteboard(meetingId, whiteboardId);
+  if (fullClear) {
+    return clearAnnotations(meetingId, whiteboardId);
+  }
+
+  return clearAnnotations(meetingId, whiteboardId, userId);
 }

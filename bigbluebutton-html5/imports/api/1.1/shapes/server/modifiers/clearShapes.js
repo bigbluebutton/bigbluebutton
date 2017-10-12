@@ -1,10 +1,36 @@
+import Annotations from '/imports/api/2.0/annotations';
 import Logger from '/imports/startup/server/logger';
-import Shapes from './../../';
 
-export default function clearShapes(meetingId) {
+export default function clearAnnotations(meetingId, whiteboardId, userId) {
+  const selector = {};
+
   if (meetingId) {
-    return Shapes.remove({ meetingId }, Logger.info(`Cleared Shapes (${meetingId})`));
+    selector.meetingId = meetingId;
   }
 
-  return Shapes.remove({}, Logger.info('Cleared Shapes (all)'));
+  if (whiteboardId) {
+    selector.whiteboardId = whiteboardId;
+  }
+
+  if (userId) {
+    selector.userId = userId;
+  }
+
+  const cb = (err) => {
+    if (err) {
+      return Logger.error(`Removing Shapes2x from collection: ${err}`);
+    }
+
+    if (!meetingId) {
+      return Logger.info('Cleared Annotations (all)');
+    }
+
+    if (userId) {
+      return Logger.info(`Removed Shapes2x for userId=${userId} where whiteboard=${whiteboardId}`);
+    }
+
+    return Logger.info(`Removed Shapes2x where whiteboard=${whiteboardId}`);
+  };
+
+  return Annotations.remove(selector, cb);
 }
