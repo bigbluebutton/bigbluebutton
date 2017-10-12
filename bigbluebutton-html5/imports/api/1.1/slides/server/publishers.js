@@ -1,4 +1,4 @@
-import Slides from './../';
+import Slides from '/imports/api/2.0/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
@@ -21,4 +21,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.slides', boundSlides)(args);
 }
 
-Meteor.publish('slides', publish);
+Meteor.publish('slides2x', publish);

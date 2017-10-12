@@ -1,4 +1,4 @@
-import Slides from './../../';
+import Slides from '/imports/api/2.0/slides';
 import Logger from '/imports/startup/server/logger';
 
 export default function clearSlides(meetingId) {

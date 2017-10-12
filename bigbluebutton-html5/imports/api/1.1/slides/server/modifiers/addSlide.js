@@ -1,61 +1,78 @@
 import probe from 'probe-image-size';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
-import Slides from './../../';
+import flat from 'flat';
+import RedisPubSub from '/imports/startup/server/redis2x';
+import Slides from '/imports/api/2.0/slides';
 import Logger from '/imports/startup/server/logger';
 import { SVG, PNG } from '/imports/utils/mimeTypes';
+import calculateSlideData from '/imports/api/2.0/slides/server/helpers';
 
 const requestWhiteboardHistory = (meetingId, slideId) => {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.whiteboard;
-  const EVENT_NAME = 'request_whiteboard_annotation_history_request';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'GetWhiteboardAnnotationsReqMsg';
+  const USER_ID = 'nodeJSapp';
 
   const payload = {
-    meeting_id: meetingId,
-    requester_id: 'nodeJSapp',
-    whiteboard_id: slideId,
-    reply_to: `${meetingId}/nodeJSapp`,
+    whiteboardId: slideId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, USER_ID, payload);
 };
 
 const SUPPORTED_TYPES = [SVG, PNG];
 
+const fetchImageSizes = imageUri =>
+  probe(imageUri)
+    .then((result) => {
+      if (!SUPPORTED_TYPES.includes(result.mime)) {
+        throw new Meteor.Error(
+          'invalid-image-type', `received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`,
+        );
+      }
+
+      return {
+        width: result.width,
+        height: result.height,
+      };
+    })
+    .catch((reason) => {
+      Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
+      return reason;
+    });
+
 export default function addSlide(meetingId, presentationId, slide) {
-  check(meetingId, String);
   check(presentationId, String);
-  check(slide, Object);
+
+  check(slide, {
+    id: String,
+    num: Number,
+    thumbUri: String,
+    swfUri: String,
+    txtUri: String,
+    svgUri: String,
+    current: Boolean,
+    xOffset: Number,
+    yOffset: Number,
+    widthRatio: Number,
+    heightRatio: Number,
+  });
 
   const selector = {
     meetingId,
     presentationId,
-    'slide.id': slide.id,
+    id: slide.id,
   };
 
-  const imageUri = slide.svg_uri || slide.png_uri;
+  const imageUri = slide.svgUri || slide.pngUri;
 
   const modifier = {
-    $set: {
-      meetingId,
-      presentationId,
-      slide: {
-        id: slide.id,
-        height_ratio: slide.height_ratio,
-        y_offset: slide.y_offset,
-        num: slide.num,
-        x_offset: slide.x_offset,
-        current: slide.current,
-        img_uri: imageUri,
-        txt_uri: slide.txt_uri,
-        width_ratio: slide.width_ratio,
-        swf_uri: slide.swf_uri,
-        thumb_uri: slide.thumb_uri,
-        width: slide.width,
-        height: slide.height,
-      },
-    },
+    $set: Object.assign(
+      { meetingId },
+      { presentationId },
+      flat(slide, { safe: true }),
+    ),
   };
 
   const cb = (err, numChanged) => {
@@ -71,35 +88,36 @@ export default function addSlide(meetingId, presentationId, slide) {
       return Logger.info(`Added slide id=${slide.id} to presentation=${presentationId}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Upserted slide id=${slide.id} to presentation=${presentationId}`);
-    }
+    return Logger.info(`Upserted slide id=${slide.id} to presentation=${presentationId}`);
   };
 
   return fetchImageSizes(imageUri)
     .then(({ width, height }) => {
-      modifier.$set.slide.width = width;
-      modifier.$set.slide.height = height;
+      // there is a rare case when for a very long not-active meeting
+      // the presentation files just disappear
+      // in that case just set the whole calculatedData to undefined
+      if (!width && !height) {
+        modifier.$set.calculatedData = undefined;
+        return Slides.upsert(selector, modifier, cb);
+      }
+
+      // pre-calculating the width, height, and vieBox coordinates / dimensions
+      // to unload the client-side
+      const slideData = {
+        width,
+        height,
+        xOffset: modifier.$set.xOffset,
+        yOffset: modifier.$set.yOffset,
+        widthRatio: modifier.$set.widthRatio,
+        heightRatio: modifier.$set.heightRatio,
+      };
+      modifier.$set.calculatedData = calculateSlideData(slideData);
+      modifier.$set.calculatedData.imageUri = imageUri;
+      modifier.$set.calculatedData.width = width;
+      modifier.$set.calculatedData.height = height;
 
       return Slides.upsert(selector, modifier, cb);
     })
     .catch(reason =>
       Logger.error(`Error parsing image size. ${reason}. slide=${slide.id} uri=${imageUri}`));
 }
-
-const fetchImageSizes = imageUri =>
-  probe(imageUri)
-  .then((result) => {
-    if (!SUPPORTED_TYPES.includes(result.mime)) {
-      throw `Invalid image type, received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`;
-    }
-
-    return {
-      width: result.width,
-      height: result.height,
-    };
-  })
-  .catch((reason) => {
-    Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
-    return reason;
-  });
