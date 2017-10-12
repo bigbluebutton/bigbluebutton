@@ -1,9 +1,10 @@
-import RedisPubSub from '/imports/startup/server/redis';
-import handlePollStopped from './handlers/pollStopped';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import handlePollStarted from './handlers/pollStarted';
+import handlePollStopped from './handlers/pollStopped';
+import handlePollPublished from './handlers/pollPublished';
 import handleUserVoted from './handlers/userVoted';
 
-RedisPubSub.on('poll_show_result_message', handlePollStopped);
-RedisPubSub.on('poll_started_message', handlePollStarted);
-RedisPubSub.on('poll_stopped_message', handlePollStopped);
-RedisPubSub.on('user_voted_poll_message', handleUserVoted);
+RedisPubSub.on('PollShowResultEvtMsg', handlePollPublished);
+RedisPubSub.on('PollStartedEvtMsg', handlePollStarted);
+RedisPubSub.on('PollStoppedEvtMsg', handlePollStopped);
+RedisPubSub.on('UserRespondedToPollEvtMsg', handleUserVoted);

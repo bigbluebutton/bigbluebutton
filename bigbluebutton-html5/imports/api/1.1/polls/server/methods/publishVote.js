@@ -1,20 +1,20 @@
-import RedisPubSub from '/imports/startup/server/redis';
+import RedisPubSub from '/imports/startup/server/redis2x';
 import { check } from 'meteor/check';
-import Polls from '/imports/api/1.1/polls';
+import Polls from '/imports/api/2.0/polls';
 import Logger from '/imports/startup/server/logger';
 
-export default function publishVote(credentials, pollId, pollAnswerId) { // TODO discuss location
+export default function publishVote(credentials, id, pollAnswerId) { // TODO discuss location
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.polling;
-  const EVENT_NAME = 'vote_poll_user_request_message';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'RespondToPollReqMsg';
 
   const { meetingId, requesterUserId } = credentials;
 
   const currentPoll = Polls.findOne({
     users: requesterUserId,
     meetingId,
-    'poll.answers.id': pollAnswerId,
-    'poll.id': pollId,
+    'answers.id': pollAnswerId,
+    id,
   });
 
   check(meetingId, String);
@@ -23,17 +23,16 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
   check(currentPoll.meetingId, String);
 
   const payload = {
-    meeting_id: currentPoll.meetingId,
-    user_id: requesterUserId,
-    poll_id: currentPoll.poll.id,
-    question_id: 0,
-    answer_id: pollAnswerId,
+    requesterId: requesterUserId,
+    pollId: currentPoll.id,
+    questionId: 0,
+    answerId: pollAnswerId,
   };
 
   const selector = {
     users: requesterUserId,
     meetingId,
-    'poll.answers.id': pollAnswerId,
+    'answers.id': pollAnswerId,
   };
 
   const modifier = {
@@ -44,13 +43,14 @@ export default function publishVote(credentials, pollId, pollAnswerId) { // TODO
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Updating Polls collection: ${err}`);
+      return Logger.error(`Updating Polls2x collection: ${err}`);
     }
 
-    return Logger.info(`Updating Polls collection (meetingId: ${meetingId},
-                                            pollId: ${currentPoll.poll.id}!)`);
+    return Logger.info(`Updating Polls2x collection (meetingId: ${meetingId},
+                                            pollId: ${currentPoll.id}!)`);
   };
 
   Polls.update(selector, modifier, cb);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

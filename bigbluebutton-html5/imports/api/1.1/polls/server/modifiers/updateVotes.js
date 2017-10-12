@@ -1,6 +1,7 @@
-import Polls from '/imports/api/1.1/polls';
+import Polls from '/imports/api/2.0/polls';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+import flat from 'flat';
 
 export default function updateVotes(poll, meetingId, requesterId) {
   check(meetingId, String);
@@ -12,8 +13,8 @@ export default function updateVotes(poll, meetingId, requesterId) {
     answers,
   } = poll;
 
-  const numResponders = poll.num_responders;
-  const numRespondents = poll.num_respondents;
+  const { numResponders } = poll;
+  const { numRespondents } = poll;
 
   check(id, String);
   check(answers, Array);
@@ -24,27 +25,22 @@ export default function updateVotes(poll, meetingId, requesterId) {
   const selector = {
     meetingId,
     requester: requesterId,
-    'poll.id': id,
+    id,
   };
 
   const modifier = {
-    $set: {
-      requester: requesterId,
-      poll: {
-        answers,
-        num_responders: numResponders,
-        num_respondents: numRespondents,
-        id,
-      },
-    },
+    $set: Object.assign(
+      { requester: requesterId },
+      flat(poll, { safe: true }),
+    ),
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
-      return Logger.error(`Updating Polls collection: ${err}`);
+      return Logger.error(`Updating Polls2x collection: ${err}`);
     }
 
-    Logger.info(`Updating Polls collection (meetingId: ${meetingId}, pollId: ${id}!)`);
+    return Logger.info(`Updating Polls2x collection (meetingId: ${meetingId}, pollId: ${id}!)`);
   };
 
   return Polls.update(selector, modifier, cb);

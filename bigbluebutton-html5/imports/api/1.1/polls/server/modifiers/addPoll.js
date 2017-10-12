@@ -1,13 +1,22 @@
-import Meetings from '/imports/api/1.1/meetings';
-import Users from '/imports/api/1.1/users';
-import Polls from '/imports/api/1.1/polls';
+import Users from '/imports/api/2.0/users';
+import Polls from '/imports/api/2.0/polls';
 import Logger from '/imports/startup/server/logger';
+import flat from 'flat';
 import { check } from 'meteor/check';
 
 export default function addPoll(meetingId, requesterId, poll) {
-  check(poll, Object);
   check(requesterId, String);
   check(meetingId, String);
+
+  check(poll, {
+    id: String,
+    answers: [
+      {
+        id: Number,
+        key: String,
+      },
+    ],
+  });
 
   let selector = {
     meetingId,
@@ -15,39 +24,39 @@ export default function addPoll(meetingId, requesterId, poll) {
 
   const options = {
     fields: {
-      'user.userid': 1,
+      userId: 1,
       _id: 0,
     },
   };
 
   const userIds = Users.find(selector, options)
-                       .fetch()
-                       .map(user => user.user.userid);
+    .fetch()
+    .map(user => user.userId);
 
   selector = {
     meetingId,
     requester: requesterId,
-    'poll.id': poll.id,
+    id: poll.id,
   };
 
-  const modifier = {
-    meetingId,
-    poll,
-    requester: requesterId,
-    users: userIds,
-  };
+  const modifier = Object.assign(
+    { meetingId },
+    { requester: requesterId },
+    { users: userIds },
+    flat(poll, { safe: true }),
+  );
 
   const cb = (err, numChanged) => {
     if (err != null) {
-      return Logger.error(`Adding Poll to collection: ${poll.id}`);
+      return Logger.error(`Adding Poll2x to collection: ${poll.id}`);
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added Poll id=${poll.id}`);
+      return Logger.info(`Added Poll2x id=${poll.id}`);
     }
 
-    return Logger.info(`Upserted Poll id=${poll.id}`);
+    return Logger.info(`Upserted Poll2x id=${poll.id}`);
   };
 
   return Polls.upsert(selector, modifier, cb);

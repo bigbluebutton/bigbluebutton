@@ -1,16 +1,13 @@
 import { check } from 'meteor/check';
 import updateVotes from '../modifiers/updateVotes';
 
-export default function userVoted({ payload }) {
-  check(payload, Object);
-
-  const meetingId = payload.meeting_id;
-  const poll = payload.poll;
-  const requesterId = payload.presenter_id;
+export default function userVoted({ body }, meetingId) {
+  const { poll } = body;
+  const { presenterId } = body;
 
   check(meetingId, String);
   check(poll, Object);
-  check(requesterId, String);
+  check(presenterId, String);
 
-  return updateVotes(poll, meetingId, requesterId);
+  return updateVotes(poll, meetingId, presenterId);
 }
