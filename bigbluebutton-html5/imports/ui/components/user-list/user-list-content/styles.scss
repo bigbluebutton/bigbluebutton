@@ -3,11 +3,11 @@
 
 .content {
   @extend %flex-column;
-  flex-grow: 9;
+  flex-grow: 1;
   overflow: hidden;
 }
 
 .scrollableList {
   @extend %customListFocus;
-  @include scrollbox-vertical();
+  @include scrollbox-vertical($user-list-bg);
 }
