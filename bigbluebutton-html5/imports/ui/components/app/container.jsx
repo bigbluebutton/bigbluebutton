@@ -106,8 +106,15 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
-      if (!meetingIsBreakout) {
+      console.log('Im actually here', meetingIsBreakout());
+      if (!meetingIsBreakout()) {
         sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
+      } else {
+        if (window.navigator.userAgent === 'BigBlueButton') {
+          IosHandler.leaveRoom();
+        } else {
+          window.close();
+        }
       }
     },
   });
@@ -118,7 +125,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       const {
         meetingID
       } = Auth;
-
+      console.log('Im here');
       Auth.clearCredentials().then(() => {
         if(window.navigator.userAgent === 'BigBlueButton') {
           iosHandler.leaveRoom();
