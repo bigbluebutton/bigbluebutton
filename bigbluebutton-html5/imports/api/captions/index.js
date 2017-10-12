@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
-const Captions = new Mongo.Collection('captions2x');
+const Captions = new Mongo.Collection('captions');
 
 if (Meteor.isServer) {
   // types of queries for the captions:

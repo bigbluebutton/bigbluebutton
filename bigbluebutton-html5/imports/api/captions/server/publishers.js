@@ -11,7 +11,7 @@ function captions(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.verbose(`Publishing Captions2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.verbose(`Publishing Captions for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Captions.find({ meetingId });
 }
@@ -21,4 +21,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.captions', boundCaptions)(args);
 }
 
-Meteor.publish('captions2x', publish);
+Meteor.publish('captions', publish);

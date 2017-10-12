@@ -16,4 +16,4 @@ Meteor.methods(mapToAcl(['methods.userLogout', 'methods.setEmojiStatus', 'method
     kickUser,
   }));
 
-Meteor.methods({ validateAuthToken2x: validateAuthToken });
+Meteor.methods({ validateAuthToken, });

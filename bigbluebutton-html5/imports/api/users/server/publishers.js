@@ -6,7 +6,7 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 import userLeaving from './methods/userLeaving';
 
-Meteor.publish('current-user2x', (credentials) => {
+Meteor.publish('current-user', (credentials) => {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -57,7 +57,7 @@ function users(credentials) {
     },
   };
 
-  Logger.info(`Publishing Users2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Users.find(selector, options);
 }
@@ -67,4 +67,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.users', boundUsers)(args);
 }
 
-Meteor.publish('users2x', publish);
+Meteor.publish('users', publish);
