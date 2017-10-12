@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.layout.managers
   import flash.display.DisplayObject;
   import flash.events.Event;
   import flash.events.EventDispatcher;
+  import flash.events.IOErrorEvent;
   import flash.events.TimerEvent;
   import flash.net.FileReference;
   import flash.utils.Timer;
@@ -141,6 +142,9 @@ package org.bigbluebutton.modules.layout.managers
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);
+			});
+			_fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
+				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), "", Alert.OK, _canvas);
 			});
 			_fileRef.save(_layoutModel.toString(), "layouts.xml");
 		}

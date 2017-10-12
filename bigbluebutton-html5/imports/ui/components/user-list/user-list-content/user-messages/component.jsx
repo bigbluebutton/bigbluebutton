@@ -126,7 +126,7 @@ class UserMessages extends Component {
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.chatsList, styles.scrollableList)}
+            className={cx(styles.chatsList)}
           >
             <div ref={(ref) => { this._msgItems = ref; }}>
               {openChats.map(chat => (

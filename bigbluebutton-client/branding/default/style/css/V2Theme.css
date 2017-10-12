@@ -12,6 +12,7 @@
 @namespace chat "org.bigbluebutton.modules.chat.views.*";
 @namespace skins "org.bigbluebutton.skins.*";
 @namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
+@namespace tabBarClasses "flexlib.controls.tabBarClasses.*";
 
 /*
 //------------------------------
@@ -125,7 +126,6 @@ mx|Application {
 */
 
 mx|ApplicationControlBar {
-	borderSkin      : ClassReference(null);
 	cornerRadius    : 0;
 	fillAlphas      : 1, 1;
 	fillColors      : #FFFFFF, #FFFFFF;
@@ -184,7 +184,8 @@ phonecomponents|MuteMeButton {
 }
 
 .defaultControlBarStyle {
-	color : #2A2D33;
+	backgroundColor : #F1F3F7;
+	color           : #2A2D33;
 }
 
 .darkControlBarStyle {
@@ -967,6 +968,7 @@ flexlib|MDIWindow {
 	maximizeBtnStyleName : "mdiMaximizeButtonStyle";
 	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
 	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
+	closeBtnStyleName    : "mdiCloseButtonStyle";
 
 	windowControlsClass  : ClassReference("org.bigbluebutton.skins.WindowControlsContainer");
 
@@ -995,6 +997,13 @@ flexlib|MDIWindow {
 	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Over");
 	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Down");
 	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Disabled");
+}
+
+.mdiCloseButtonStyle {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Disabled");
 }
 
 .mdiWindowTitle {
@@ -1467,28 +1476,38 @@ mx|Slider {
 */
 
 flexlib|SuperTabNavigator {
-	borderColor : #CDD4DB;
+	borderColor  : #CDD4DB;
+	tabStyleName : "defaultTabStyle";
 }
 
-mx|Tab, .defaultTabStyle {
-	borderColor       : #CDD4DB;
-	color             : #2A2D33;
-	cornerRadius      : 0;
-	fillColorUp       : #E8EFF3;
-	fillColorOver     : #CDD4DB;
-	fillColorDown     : #ACB2B7;
-	fillColorDisabled : #F0F2F6;
-	iconVisible       : false;
-	paddingBottom     : 0;
-	paddingTop        : 0;
-	textIndent        : 4;
-	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
+.defaultTabStyle {
+	borderColor             : #CDD4DB;
+	color                   : #2A2D33;
+	cornerRadius            : 0;
+	fillColorUp             : #E8EFF3;
+	fillColorOver           : #CDD4DB;
+	fillColorDown           : #ACB2B7;
+	fillColorDisabled       : #F0F2F6;
+	iconVisible             : false;
+	paddingBottom           : 0;
+	paddingTop              : 0;
+	textIndent              : 4;
+	skin                    : ClassReference("org.bigbluebutton.skins.TabSkin");
+	tabCloseButtonStyleName : "tabCloseButton";
 }
 
 .highlightedTabStyle {
-	color       : #DF2721;
-	iconColor   : #DF2721;
-	iconVisible : true;
+	color                   : #DF2721;
+	iconColor               : #DF2721;
+	iconVisible             : true;
+	tabCloseButtonStyleName : "tabCloseButton";
+}
+
+.tabCloseButton {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Disabled");
 }
 
 /*
@@ -1570,6 +1589,9 @@ users|StatusItemRenderer {
 	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
 	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
 	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	verticalAlign      : middle;
+	horizontalAlign    : center;
+	horizontalGap      : 2;
 }
 
 users|MediaItemRenderer {
@@ -1585,7 +1607,7 @@ users|MediaItemRenderer {
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
 	glowFilterColor : #1070D7;
 	verticalAlign   : middle;
-	horizontalGap   : 8;
+	horizontalGap   : 2;
 	horizontalAlign : center;
 }
 
