@@ -7,7 +7,7 @@ import styles from './styles';
 
 const propTypes = {
   icon: PropTypes.string,
-  message: PropTypes.string.isRequired,
+  message: PropTypes.node.isRequired,
   type: PropTypes.oneOf(Object.values(toast.TYPE)).isRequired,
 };
 
