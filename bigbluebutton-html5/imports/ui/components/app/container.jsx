@@ -4,9 +4,9 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/2.0/users';
-import Breakouts from '/imports/api/2.0/breakouts';
-import Meetings from '/imports/api/2.0/meetings';
+import Users from '/imports/api/users';
+import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/api/meetings';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
