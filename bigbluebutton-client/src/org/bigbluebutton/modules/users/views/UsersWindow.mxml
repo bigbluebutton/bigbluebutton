@@ -375,7 +375,7 @@ $Id: $
       }
       
       private function openEmojiStatusMenu():void {
-        var moodMenu:MoodMenu = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
+        var moodMenu:MoodMenu = PopUpUtil.createNonModalPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
         moodMenu.btn = emojiStatusBtn;
         moodMenu.show();
       }

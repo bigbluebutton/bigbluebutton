@@ -546,6 +546,10 @@ views|BrowserPermissionHelper {
 //------------------------------
 */
 
+views|ClientStatusWindow {
+	horizontalAlign : right;
+}
+
 views|ClientStatusItemRenderer {
 	iconSuccess : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Success");
 	iconWarning : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning");
@@ -636,7 +640,7 @@ chat|AddChatTabBox {
 }
 
 .chatOptionsLabel {
-	fontSize : 14;
+	fontSize   : 14;
 }
 
 .chatMessageListStyle {
