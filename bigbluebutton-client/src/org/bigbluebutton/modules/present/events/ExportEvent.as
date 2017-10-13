@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.present.events {
 	import flash.events.Event;
 
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 
 	public class ExportEvent extends Event {
@@ -37,6 +38,8 @@ package org.bigbluebutton.modules.present.events {
 		public var slidesUrl:String;
 
 		public var slideModel:SlideViewModel;
+
+		public var presentationModel:PresentationModel;
 
 		public function ExportEvent(type:String) {
 			super(type, true, false);

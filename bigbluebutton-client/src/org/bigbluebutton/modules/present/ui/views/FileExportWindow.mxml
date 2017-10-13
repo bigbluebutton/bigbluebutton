@@ -39,9 +39,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.utils.ByteArray;
 			import flash.utils.setTimeout;
-
+			
 			import mx.events.FlexEvent;
-
+			
 			import org.alivepdf.colors.RGBColor;
 			import org.alivepdf.display.Display;
 			import org.alivepdf.drawing.Caps;
@@ -74,6 +74,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var slidesUrl:String;
 
 			public var slideModel:SlideViewModel;
+			
+			public var presentationModel:PresentationModel;
 
 			private var _pdf:PDF;
 
@@ -86,7 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(FileExportWindow);
 
 			protected function creationCompleteHandler(event:FlexEvent):void {
-				fileName = PresentationModel.getInstance().getCurrentPresentation().name;
+				fileName = presentationModel.getCurrentPresentation().name;
 				fileName = StringUtils.substringBeforeLast(fileName, ".");
 
 				addEventListener("pdfComplete", pdfCompleteHandler);
@@ -114,12 +116,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			protected function nextPdfPageHandler(event:Event):void {
-				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.converting', [PresentationModel.getInstance().getCurrentPresentation().name, _currentPage > numberOfPages ? 1 : _currentPage, numberOfPages]);
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.converting', [presentationModel.getCurrentPresentation().name, _currentPage > numberOfPages ? 1 : _currentPage, numberOfPages]);
 				progressBar.setProgress(_currentPage > numberOfPages ? 0 : _currentPage, _currentPage > numberOfPages ? 1 : numberOfPages);
 
 				var pageLoader:Loader = new Loader();
 				pageLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, function():void {
-					var pagePath:String = PresentationModel.getInstance().getCurrentPresentation().id + "/" + _currentPage;
+					var pagePath:String = presentationModel.getCurrentPresentation().id + "/" + _currentPage;
 					LOGGER.debug(_currentPage + " - Page model path: " + pagePath);
 					var annotations:Array = LiveMeeting.inst().whiteboardModel.getAnnotations(pagePath);
 
