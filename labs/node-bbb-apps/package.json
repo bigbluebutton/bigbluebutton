@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "npm start"
+    "start": "node server.js"
   },
   "dependencies": {
     "cookie-parser": "^1.3.5",
