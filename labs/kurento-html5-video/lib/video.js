@@ -62,6 +62,8 @@ function Video(_ws, _id, _shared) {
   var id = _id;
   var shared = _shared;
   var webRtcEndpoint = null;
+  var notFlowingTimeout = null;
+  var notFlowingTimer = 15000;
 
   var candidatesQueue = [];
 
@@ -105,10 +107,20 @@ function Video(_ws, _id, _shared) {
           var flowInOut = function(event) {
             console.log(' [=] ' + event.type + ' for endpoint ' + id);
 
-            if (event.state === 'NOT_FLOWING') {
-              ws.sendMessage({ id : 'playStop', cameraId : id });
-            } else if (event.state === 'FLOWING') {
-              ws.sendMessage({ id : 'playStart', cameraId : id });
+            if (event.state === 'NOT_FLOWING' && event.type === 'MediaFlowInStateChange') {
+              console.log(" [-] Media not flowing ");
+              notFlowingTimeout = setTimeout(function() {
+                console.log(" Timeout! sending playStop for id " + id);
+                ws.sendMessage({ id : 'playStop', cameraId : id });
+              }, notFlowingTimer);
+            } else if (event.state === 'FLOWING' && event.type === 'MediaFlowInStateChange') {
+              console.log(" [o] Media flowing ");
+              if (notFlowingTimeout) {
+                clearTimeout(notFlowingTimeout);
+                notFlowingTimeout = null;
+              } else{
+                ws.sendMessage({ id : 'playStart', cameraId : id });
+              }
             }
           };
 

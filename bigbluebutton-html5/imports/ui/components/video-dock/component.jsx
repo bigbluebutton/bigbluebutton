@@ -87,7 +87,7 @@ function adjustVideos(centerVideos) {
   videos.attr('height', best.height);
 }
 
-window.addEventListener('resize', function() {
+window.addEventListener('resize', () => {
   adjustVideos(true);
 });
 

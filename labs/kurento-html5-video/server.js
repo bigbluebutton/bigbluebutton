@@ -53,7 +53,7 @@ wss.on('connection', function(ws) {
     sessionId = request.session.id + "_" + clientId++;
 
     if (!sessions[sessionId]) {
-      sessions[sessionId] = {};
+      sessions[sessionId] = {videos: {}, iceQueue: {}};
     }
 
     console.log('Connection received with sessionId ' + sessionId);
@@ -73,8 +73,8 @@ wss.on('connection', function(ws) {
     var message = JSON.parse(_message);
 
     var video;
-    if (message.cameraId && sessions[sessionId][message.cameraId]) {
-      video = sessions[sessionId][message.cameraId];
+    if (message.cameraId && sessions[sessionId].videos[message.cameraId]) {
+      video = sessions[sessionId].videos[message.cameraId];
     }
 
     switch (message.id) {
@@ -84,11 +84,19 @@ wss.on('connection', function(ws) {
         console.log('[' + message.id + '] connection ' + sessionId);
 
         var video = new Video(ws, message.cameraId, message.cameraShared);
-        sessions[sessionId][message.cameraId] = video;
+        sessions[sessionId].videos[message.cameraId] = video;
 
         video.start(message.sdpOffer, function(error, sdpAnswer) {
           if (error) {
             return ws.sendMessage({id : 'error', message : error });
+          }
+
+          // Get ice candidates that arrived before video was created
+          if (sessions[sessionId].iceQueue) {
+            var queue = sessions[sessionId].iceQueue[message.cameraId];
+            while (queue && queue.length > 0) {
+              video.onIceCandidate(queue.pop());
+            }
           }
 
           ws.sendMessage({id : 'startResponse', cameraId: message.cameraId, sdpAnswer : sdpAnswer});
@@ -108,12 +116,7 @@ wss.on('connection', function(ws) {
           break;
 
         case 'onIceCandidate':
-
-          if (video) {
-            video.onIceCandidate(message.candidate);
-          } else {
-            console.log(" [iceCandidate] Why is there no video on ICE CANDIDATE?");
-          }
+          onIceCandidate(sessionId, message.cameraId, message.candidate);
           break;
 
         default:
@@ -132,10 +135,16 @@ var stopSession = function(sessionId) {
 
   for (var i = 0; i < videoIds.length; i++) {
 
-    var video = sessions[sessionId][videoIds[i]];
-    video.stop();
+    var video = sessions[sessionId].videos[videoIds[i]];
+    if (video){
+      console.log(video);
+      console.log(videoIds[i]);
+      video.stop();
+    } else {
+      console.log("Stop session but video was null");
+    }
 
-    delete sessions[sessionId][videoIds[i]];
+    delete sessions[sessionId].videos[videoIds[i]];
   }
 
   delete sessions[sessionId];
@@ -153,6 +162,16 @@ var stopAll = function() {
   }
 
   setTimeout(process.exit, 1000);
+}
+
+function onIceCandidate(sessionId, id, candidate) {
+  if (sessions[sessionId][id]) {
+    sessions[sessionId][id].onIceCandidate(candidate);
+  } else {
+    sessions[sessionId].iceQueue = sessions[sessionId].iceQueue || {};
+    sessions[sessionId].iceQueue[id] = sessions[sessionId].iceQueue[id] || [];
+    sessions[sessionId].iceQueue[id].push(candidate);
+  }
 }
 
 process.on('SIGTERM', stopAll);
