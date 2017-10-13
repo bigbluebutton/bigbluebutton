@@ -127,6 +127,8 @@ function Video(_ws, _id, _shared) {
           _webRtcEndpoint.on('MediaFlowInStateChange', flowInOut);
           _webRtcEndpoint.on('MediaFlowOutStateChange', flowInOut);
 
+          _webRtcEndpoint.on('MediaStateChanged', (e) => { console.log(id); console.log(e)} );
+
           connectMediaElements(_webRtcEndpoint, function(error) {
 
             if (error) {

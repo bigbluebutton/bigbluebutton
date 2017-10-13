@@ -103,6 +103,7 @@ export default class VideoDock extends Component {
       wsQueue: [],
     };
 
+    // Flush websocket queue on connect/reconnect
     this.state.ws.onopen = () => {
       while (this.state.wsQueue.length > 0) {
         this.sendMessage(this.state.wsQueue.pop());
@@ -121,12 +122,14 @@ export default class VideoDock extends Component {
     const ws = this.state.ws;
     const { users } = this.props;
 
+    // Get users sharing webcam after the component is mounted
     for (let i = 0; i < users.length; i++) {
       if (users[i].has_stream) {
         this.start(users[i].userId, false, this.refs.videoInput);
       }
     }
 
+    // HACK: the video sharing and unsharin button
     document.addEventListener('joinVideo', () => { that.shareWebcam(); });// TODO find a better way to do this
     document.addEventListener('exitVideo', () => { that.unshareWebcam(); });
 
@@ -221,6 +224,12 @@ export default class VideoDock extends Component {
         return;
       }
 
+      // When you share the webcam, store your webrtc peer
+      if (shareWebcam) {
+        that.state.sharedWebcam = that.state.webRtcPeers[id];
+        that.state.myId = id;
+      }
+
       this.generateOffer((error, offerSdp) => {
         if (error) {
           return console.error(error);
@@ -243,6 +252,12 @@ export default class VideoDock extends Component {
 
     if (webRtcPeer) {
       console.log('Stopping WebRTC peer');
+
+      // When your shared camera is stopped, stop your send peer as well
+      if (id == this.state.myId) {
+        this.state.sharedWebcam.dispose();
+        this.state.sharedWebcam = null;
+      }
 
       webRtcPeer.dispose();
       delete this.state.webRtcPeers[id];
@@ -270,7 +285,10 @@ export default class VideoDock extends Component {
   unshareWebcam() {
     const { users } = this.props;
     const id = users[0].userId;
+
     this.sendUserUnshareWebcam(id);
+
+    this.sendMessage({ id: 'stop', cameraId: id });
   }
 
   startResponse(message) {
