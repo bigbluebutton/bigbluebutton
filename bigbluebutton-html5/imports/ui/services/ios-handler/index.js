@@ -17,6 +17,14 @@ class IosHandler {
     }
   }
 
+  applicationLoaded() {
+    const message = {
+      method: 'applicationLoaded',
+    };
+    console.log('applicationLoaded', message);
+    return this.postMessage(message);
+  }
+
   leaveRoom() {
     const message = {
       method: 'leaveRoom',
