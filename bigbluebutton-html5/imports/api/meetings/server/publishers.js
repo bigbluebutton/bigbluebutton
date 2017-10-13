@@ -11,7 +11,7 @@ function meetings(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing meeting2x =${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Meetings.find({
     meetingId,
@@ -23,5 +23,5 @@ function publish(...args) {
   return mapToAcl('subscriptions.meetings', boundMeetings)(args);
 }
 
-Meteor.publish('meetings2x', publish);
+Meteor.publish('meetings', publish);
 

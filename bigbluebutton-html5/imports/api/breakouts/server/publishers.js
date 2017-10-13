@@ -9,7 +9,7 @@ function breakouts(credentials) {
     requesterUserId,
   } = credentials;
 
-  Logger.info(`Publishing Breakouts2x for ${meetingId} ${requesterUserId}`);
+  Logger.info(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
 
   return Breakouts.find({
     $or: [
@@ -29,4 +29,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.breakouts', boundBreakouts)(args);
 }
 
-Meteor.publish('breakouts2x', publish);
+Meteor.publish('breakouts', publish);

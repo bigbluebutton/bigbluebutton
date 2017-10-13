@@ -37,15 +37,15 @@ export default function addCaption(meetingId, locale, captionHistory, id = false
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding caption2x to collection: ${err}`);
+      return Logger.error(`Adding caption to collection: ${err}`);
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.verbose(`Added caption2x locale=${locale} meeting=${meetingId}`);
+      return Logger.verbose(`Added caption locale=${locale} meeting=${meetingId}`);
     }
 
-    return Logger.verbose(`Upserted caption2x locale=${locale} meeting=${meetingId}`);
+    return Logger.verbose(`Upserted caption locale=${locale} meeting=${meetingId}`);
   };
 
   return Captions.upsert(selector, modifier, cb);
