@@ -156,6 +156,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var podId: String = "";
 			private var ownerId: String = "";
+			
+			[Bindable]
 			private var listOfPodControls:Array = [];
 
 			private var downloadMenuData:Array;
@@ -929,12 +931,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null) {
 					var downloadablePresentations:ArrayCollection = presentationModel.getDownloadablePresentations();
-					if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
+					if ( presentOptions.enableDownload && (downloadablePresentations.length > 0 || PresentationModel.getInstance().getCurrentPresentation()) ) {
 						LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
 						downloadPres.visible = true;
 					} else {
 						LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-						downloadPres.visible = false;
+						downloadPres.visible = false; 
 					}
 				}
 			}
