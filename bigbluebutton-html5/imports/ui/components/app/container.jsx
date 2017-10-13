@@ -5,6 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/2.0/users';
+import notify from '/imports//ui/components/toast/service';
 import Breakouts from '/imports/api/2.0/breakouts';
 import Meetings from '/imports/api/2.0/meetings';
 
@@ -116,7 +117,15 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       Auth.clearCredentials().then(window.close);
     },
   });
-
+  Breakouts.find().observeChanges({
+    removed() {
+      notify('fechou a breakout room');
+      
+      if(wasInAudio) {
+        notify('join audio');
+      }
+    },
+  });
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
