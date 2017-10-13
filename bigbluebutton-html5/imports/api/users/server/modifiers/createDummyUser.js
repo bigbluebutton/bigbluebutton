@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default function createDummyUser2x(meetingId, userId, authToken) {
+export default function createDummyUser(meetingId, userId, authToken) {
   check(meetingId, String);
   check(userId, String);
   check(authToken, String);
@@ -26,7 +26,7 @@ export default function createDummyUser2x(meetingId, userId, authToken) {
       return Logger.error(`Creating dummy user to collection: ${err}`);
     }
 
-    Logger.info(`Created dummy user 2x id=${userId} token=${authToken} meeting=${meetingId}`);
+    Logger.info(`Created dummy user id=${userId} token=${authToken} meeting=${meetingId}`);
   };
 
   return Users.insert(doc, cb);

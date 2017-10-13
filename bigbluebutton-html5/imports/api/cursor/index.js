@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
-const Cursor = new Mongo.Collection('cursor2x');
+const Cursor = new Mongo.Collection('cursor');
 
 if (Meteor.isServer) {
   // types of queries for the cursor:
