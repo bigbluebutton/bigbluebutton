@@ -2,6 +2,7 @@
 
 const http = require("http");
 const fs = require("fs");
+const config = require('config');
 
 module.exports = class HttpServer {
 
@@ -10,7 +11,7 @@ module.exports = class HttpServer {
     //const certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
     //const credentials = {key: privateKey, cert: certificate};
 
-    this.port = 3008;
+    this.port = config.get('clientPort');
 
     this.server = http.createServer((req,res) => {
       //
