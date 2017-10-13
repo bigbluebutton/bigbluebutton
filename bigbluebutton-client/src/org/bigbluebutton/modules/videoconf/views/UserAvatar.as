@@ -3,6 +3,8 @@ package org.bigbluebutton.modules.videoconf.views
     import flash.display.Loader;
     import flash.events.Event;
     import flash.net.URLRequest;
+    
+    import mx.core.UIComponent;
 
     public class UserAvatar extends UserGraphic {
 
@@ -18,14 +20,17 @@ package org.bigbluebutton.modules.videoconf.views
           _completed = false;
 
           _imageLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
-          addChild(_imageLoader);
+          
           var request:URLRequest = new URLRequest(avatarUrl);
           _imageLoader.load(request);
       }
 
       private function onLoadingComplete(event:Event):void {
           _completed = true;
+          addChild(_imageLoader);
           setOriginalDimensions(_imageLoader.width, _imageLoader.height);
+          if (parent && parent is UIComponent) 
+            UIComponent(parent).invalidateDisplayList();
       }
 
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
