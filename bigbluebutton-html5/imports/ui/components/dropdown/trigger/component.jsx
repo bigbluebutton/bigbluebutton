@@ -41,7 +41,7 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
-    const remainingProps = Object.assign({}, this.props);
+    const remainingProps = { ...this.props };
     delete remainingProps.dropdownToggle;
     delete remainingProps.dropdownShow;
     delete remainingProps.dropdownHide;
