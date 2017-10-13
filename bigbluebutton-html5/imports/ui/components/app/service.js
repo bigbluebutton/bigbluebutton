@@ -18,7 +18,7 @@ function meetingIsBreakout() {
 }
 
 function getBreakoutIds() {
-  return Breakouts.find().fetch().map(b => b.breakoutMeetingId);
+  return Breakouts.find().fetch().map(b => b.breakoutId);
 }
 
 export {
