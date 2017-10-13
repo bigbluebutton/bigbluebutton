@@ -22,14 +22,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:mate="http://mate.asfusion.com/"
+		  xmlns:common="org.bigbluebutton.common.*"
+		  implements="org.bigbluebutton.common.IKeyboardClose"
           verticalScrollPolicy="off"
           horizontalScrollPolicy="off"
           horizontalAlign="center"
-          showCloseButton="true"
-          close="onCancelClicked()"
+		  layout="absolute"
+		  showCloseButton="false"
           creationComplete="onCreationComplete()"
-          width="250"
-          title="{ResourceUtil.getInstance().getString('bbb.layout.window.name')}">
+          width="280">
 
 	<fx:Declarations>
 	  <mate:Listener type="{LayoutNameInUseEvent.LAYOUT_NAME_IN_USE_EVENT}" method="handleLayoutNameInUse"/>
@@ -37,13 +38,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.managers.PopUpManager;
-      
-      import org.bigbluebutton.modules.layout.events.LayoutEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import mx.managers.PopUpManager;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.modules.layout.events.LayoutEvent;
+		import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+		
+		private static const LOGGER:ILogger = getClassLogger(CustomLayoutNameWindow);      
 
       public var savingForFileDownload:Boolean = false;
 
@@ -65,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             savingForFileDownload = false;
           }
         } else {
-          trace("The name is already in use, waiting for overwrite command or rename");
+          LOGGER.debug("The name is already in use, waiting for overwrite command or rename");
         }
       }
 
@@ -79,8 +84,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </fx:Script>
 
-  <mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
-      <mx:TextInput id="textInput" maxChars="140" width="100%" text="{ResourceUtil.getInstance().getString('bbb.layout.combo.customName')}" enter="addButton_clickHandler()"/>
-      <mx:Button id="addButton" click="addButton_clickHandler()" enabled="{textInput.text.length > 0}" styleName="addLayoutButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}"/>
-  </mx:HBox>
+  <mx:VBox width="100%"
+		   height="100%"
+		   paddingTop="5"
+		   horizontalAlign="center">
+	  <common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.layout.window.name')}"
+							styleName="titleWindowStyle"
+							width="180" />
+	  <mx:TextInput id="textInput" height="26" maxChars="140" width="100%"
+					text="{ResourceUtil.getInstance().getString('bbb.layout.combo.customName')}"
+					enter="addButton_clickHandler()" />
+	  <mx:Button id="addButton" height="30" width="100%" click="addButton_clickHandler()" enabled="{textInput.text.length > 0}" styleName="mainActionButton"
+				 label="{ResourceUtil.getInstance().getString('bbb.layout.addButton.label')}" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}" />
+  </mx:VBox>
+
+  <mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"
+		     toolTip="{ResourceUtil.getInstance().getString('bbb.layout.window.close.tooltip')}"
+			 top="15" right="10"
+			 accessibilityName="{ResourceUtil.getInstance().getString('bbb.layout.window.accessibilityName')}" />
+
 </mx:TitleWindow>
