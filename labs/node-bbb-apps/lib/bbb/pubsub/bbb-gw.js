@@ -15,10 +15,10 @@ const EventEmitter = require('events').EventEmitter;
 
 let instance = null;
 
-module.exports = class BigBlueButtonGW {
-  constructor(emitter) {
+module.exports = class BigBlueButtonGW extends EventEmitter {
+  constructor() {
     if(!instance){
-      this.emitter = emitter;
+      super();
       this.subscribers = {};
       this.publisher = null;
       instance = this;
@@ -37,7 +37,7 @@ module.exports = class BigBlueButtonGW {
     this.subscribers[channel] = wrobj;
     try {
       wrobj.startSubscriber();
-      wrobj.on(C.REDIS_MESSAGE, this.incomingMessage);
+      wrobj.on(C.REDIS_MESSAGE, this.incomingMessage.bind(this));
       console.log("  [BigBlueButtonGW] Added redis client to this.subscribers[" + channel + "]");
       return Promise.resolve(wrobj);
     }
@@ -79,7 +79,6 @@ module.exports = class BigBlueButtonGW {
           // 2x messages
         case C.START_TRANSCODER_RESP_2x:
           payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
-
           this.emit(C.START_TRANSCODER_RESP_2x, payload);
           break;
         case C.STOP_TRANSCODER_RESP_2x:
@@ -114,8 +113,6 @@ module.exports = class BigBlueButtonGW {
   }
 
   _onServerResponse(data) {
-
-    console.log(' [WS] Receiving event ');
     console.log(data);
 
     // Here this is the 'ws' instance

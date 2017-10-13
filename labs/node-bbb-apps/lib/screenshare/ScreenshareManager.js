@@ -20,7 +20,7 @@ module.exports = class ScreenshareManager {
     this._sessions = {};
     this._screenshareSessions = {};
 
-    this._bbbGW = new BigBlueButtonGW();
+    this._bbbGW = new BigBlueButtonGW("MANAGER");
     this._redisGateway;
   }
 
@@ -29,8 +29,8 @@ module.exports = class ScreenshareManager {
 
     try {
       this._redisGateway = await this._bbbGW.addSubscribeChannel(C.TO_SCREENSHARE);
+      const transcode = await this._bbbGW.addSubscribeChannel(C.FROM_BBB_TRANSCODE_SYSTEM_CHAN);
       this._redisGateway.on(C.REDIS_MESSAGE, this._onMessage.bind(this));
-      //this._bbbGW.on(C.GATEWAY_MESSAGE, function() {console.log("AQWOEIHQWUOEHQWUEHQWIUEH")});
       process.on('message', this._onMessage.bind(this));
       console.log('  [ScreenshareManager] Successfully subscribed to redis channel');
     } 

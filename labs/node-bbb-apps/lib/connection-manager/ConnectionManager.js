@@ -24,10 +24,10 @@ module.exports = class ConnectionManager {
     this._logger = logger;
     this._screenshareSessions = {};
 
+    this._setupBBB();
+
     this._emitter = this._setupEventEmitter();
     this._adapters = [];
-
-    this._setupBBB();
   }
 
   setHttpServer(httpServer) {
@@ -49,25 +49,44 @@ module.exports = class ConnectionManager {
 
     emitter.on(C.WEBSOCKET_MESSAGE, (data) => {
       console.log("  [ConnectionManager] RECEIVED DATA FROM WEBSOCKET");
-      self._bbbGW.publish(JSON.stringify(data), C.TO_SCREENSHARE);
-    });
+      switch (data.type) {
+        case "screenshare":
+          self._bbbGW.publish(JSON.stringify(data), C.TO_SCREENSHARE);
+          break;
+          
+        case "video":
+          self._bbbGW.publish(JSON.stringify(data), C.TO_VIDEO);
+          break;
 
-    emitter.on(C.REDIS_MESSAGE, (data) => {
-      console.log("  [ConnectionManager] RECEIVED DATA FROM REDIS");
-      emitter.emit('response', data);
+        case "audio":
+          self._bbbGW.publish(JSON.stringify(data), C.TO_AUDIO);
+          break;
+
+        case "default":
+          // TODO handle API error message;
+      }
     });
 
     return emitter;
   }
 
-  _setupBBB() {
-    this._bbbGW = new BigBlueButtonGW(this._emitter);
+  async _setupBBB() {
+    this._bbbGW = new BigBlueButtonGW();
 
     try {
-      const transcode = this._bbbGW.addSubscribeChannel(C.FROM_BBB_TRANSCODE_SYSTEM_CHAN);
-      const screenshare = this._bbbGW.addSubscribeChannel(C.FROM_SCREENSHARE);
-      const video = this._bbbGW.addSubscribeChannel(C.FROM_VIDEO);
-      const audio = this._bbbGW.addSubscribeChannel(C.FROM_AUDIO);
+      const screenshare = await this._bbbGW.addSubscribeChannel(C.FROM_SCREENSHARE);
+      const video = await this._bbbGW.addSubscribeChannel(C.FROM_VIDEO);
+      const audio = await this._bbbGW.addSubscribeChannel(C.FROM_AUDIO);
+
+      screenshare.on(C.REDIS_MESSAGE, (data) => {
+        console.log("  [ConnectionManager] RECEIVED DATA FROM REDIS");
+        this._emitter.emit('response', data);
+      });
+
+      video.on(C.REDIS_MESSAGE, (data) => {
+        console.log("  [ConnectionManager] RECEIVED DATA FROM REDIS");
+        this._emitter.emit('response', data);
+      });
 
       console.log('  [ConnectionManager] Successfully subscribed to processes redis channels');
     }
@@ -83,5 +102,3 @@ module.exports = class ConnectionManager {
   _stopAll() {
   }
 }
-
-module.exports.events = ['startWebRtc', ''];
