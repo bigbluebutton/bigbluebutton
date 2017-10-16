@@ -38,29 +38,19 @@
 
 .item {
   @extend %customListItemFocus;
+  display: flex;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  padding-left: ($line-height-computed / 3);
 
   @include mq($small-only) {
     padding: ($line-height-computed / 1.5) 0;
     justify-content: center;
   }
 
-  &:first-child {
-    padding-top: 0;
-  }
-
-  &:last-child {
-    padding-bottom: 0;
-  }
-
   &:hover,
   &:focus {
     cursor: pointer;
-    color: $color-primary;
 
     .itemIcon,
     .itemLabel {
