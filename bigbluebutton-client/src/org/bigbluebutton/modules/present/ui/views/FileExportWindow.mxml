@@ -88,16 +88,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(FileExportWindow);
 
 			protected function creationCompleteHandler(event:FlexEvent):void {
-				fileName = presentationModel.getCurrentPresentation().name;
-				fileName = StringUtils.substringBeforeLast(fileName, ".");
-
 				addEventListener("pdfComplete", pdfCompleteHandler);
 				addEventListener("nextPdfPage", nextPdfPageHandler);
-
-				prepareConversion();
 			}
 
-			protected function prepareConversion():void {
+			public function initConversion():void {
+				fileName = presentationModel.getCurrentPresentation().name;
+				fileName = StringUtils.substringBeforeLast(fileName, ".");
+				
 				closeButton.enabled = false;
 				progressBar.visible = true;
 				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.generatingPDF');
