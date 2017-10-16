@@ -3,4 +3,15 @@
 .btn {
   flex: 0 0;
   margin-top: auto;
+
+  i {
+    color: $color-gray-dark !important;
+  }   
+
+  &:hover,
+  &:focus {
+    span {
+      background-color: transparent !important;
+    }
+  }
 }
