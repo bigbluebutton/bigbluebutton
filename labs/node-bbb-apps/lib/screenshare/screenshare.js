@@ -302,7 +302,6 @@ module.exports = class Screenshare {
 
     // Capturing stop transcoder responses from the 2x model
     self._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, function(payload) {
-      console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
       let meetingId = payload[C.MEETING_ID_2x];
       let output = payload["params"].output;
       self._startRtmpBroadcast(meetingId, output);

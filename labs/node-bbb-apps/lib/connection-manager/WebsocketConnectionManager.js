@@ -28,49 +28,74 @@ ws.prototype.sendMessage = function(json) {
 };
 
 module.exports = class WebsocketConnectionManager {
-
-  constructor(server, path) {
+  constructor (server, path) {
     this.wss = new ws.Server({
       server,
       path
     });
 
-    this.wss.on('connection', (ws) => {
-      ws.on('message', this._onMessage.bind(this));
+    this.wss.on ('connection', (ws) => {
+      let self = this;
+
+      ws.on('message', (data) => {
+        let message = {};
+
+        try {
+          message = JSON.parse(data);
+        } catch(e) {
+          console.error("  [WebsocketConnectionManager] JSON message parse error " + e);
+          message = {};
+        }
+
+        // Test for empty or invalid JSON
+        if (Object.getOwnPropertyNames(message).length !== 0) {
+          if (message.callerName && !ws.connectionId) {
+            ws.connectionId = data.callerName;
+          }
+
+          this.emitter.emit(C.WEBSOCKET_MESSAGE, message);
+        }
+      });
+
+      //ws.on('message', this._onMessage.bind(this));
       ws.setErrorCallback(this._onError.bind(this));
 
-      ws.on('close', this._onClose.bind(this));
-      ws.on('error', this._onError.bind(this));
+      ws.on('close', this._onClose);
+      ws.on('error', this._onError);
 
-      console.log(this.emitter);
       // TODO: should we delete this listener after websocket dies?
-      this.emitter.on('response', this._onServerResponse.bind(ws));
+      this.emitter.on('response', (data) => {
+        console.log('  [WebsocketConnectionManager] Receiving event ');
+        console.log(data);
+        if (ws.connectionId == data.callerName) {
+          ws.sendMessage(data);
+        }
+      });
     });
-
   }
 
-  setEventEmitter(emitter) {
+  setEventEmitter (emitter) {
     console.log(emitter);
     this.emitter = emitter;
   }
 
-  _onServerResponse(data) {
+  _onServerResponse (data) {
 
-    console.log(' [WS] Receiving event ');
+    console.log('  [WebsocketConnectionManager] Receiving event ');
     console.log(data);
 
     // Here this is the 'ws' instance
     this.sendMessage(data);
   }
 
-  _onMessage(data) {
+  _onMessage (data) {
 
     let message = {};
 
     try {
       message = JSON.parse(data);
     } catch(e) {
-      console.error(" [WS] JSON message parse error " + e);
+      console.error("  [WebsocketConnectionManager] JSON message parse error " + e);
       message = {};
     }
 
@@ -80,13 +105,17 @@ module.exports = class WebsocketConnectionManager {
     }
   }
 
-  _onError(err) {
-    console.log('Connection error');
+  _onError (err) {
+    console.log('  [WebsocketConnectionManager] Connection error');
 
   }
 
-  _onClose(err) {
-    console.log('closed Connection');
+  _onClose (err) {
+    console.log('  [WebsocketConnectionManager] Closed Connection');
+  }
+
+  _stop () {
+
   }
 
 }
