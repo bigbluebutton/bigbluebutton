@@ -62,7 +62,6 @@ class MeetingActor(
     with BreakoutApp2x
     with UsersApp2x
 
-    with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with UserJoinMeetingAfterReconnectReqMsgHdlr
