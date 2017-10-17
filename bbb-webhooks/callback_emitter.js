@@ -65,7 +65,7 @@ module.exports = class CallbackEmitter extends EventEmitter {
     // data to be sent
     // note: keep keys in alphabetical order
     const data = {
-      event: this.message,
+      event: "[" + this.message + "]",
       timestamp: this.timestamp
     };
 
