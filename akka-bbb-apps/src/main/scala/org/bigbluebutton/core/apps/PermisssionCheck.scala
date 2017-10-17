@@ -44,16 +44,26 @@ object PermisssionCheck {
         val permLevelCheck = permissionToLevel(user) >= permissionLevel
         println("roleToLevel = " + roleToLevel(user) + " roleLevel=" + roleLevel)
         val roleLevelCheck = roleToLevel(user) >= roleLevel
-        println("PERMLEVELCHECK = " + permissionToLevel(user) + " ROLELEVELCHECK=" + permissionLevel)
 
         println("PERMLEVELCHECK = " + permLevelCheck + " ROLELEVELCHECK=" + roleLevelCheck)
         permLevelCheck && roleLevelCheck
+        false
       case None => false
     }
 
   }
 
+  private def sendEjectMessageToClient(meetingId: String, userId: String,
+                                       outGW: OutMsgRouter, ejectedBy: String): Unit = {
+    val ejectFromMeetingClientEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(
+      meetingId, userId, ejectedBy
+    )
+    outGW.send(ejectFromMeetingClientEvent)
+  }
+
   def ejectUserForFailedPermission(meetingId: String, userId: String, reason: String, outGW: OutMsgRouter): Unit = {
+    sendEjectMessageToClient(meetingId, userId, outGW, "SYSTEM")
+
     // send a system message to force disconnection
     val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(meetingId, userId, reason)
     outGW.send(ejectFromMeetingSystemEvent)
