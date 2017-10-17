@@ -4,8 +4,15 @@
   flex: 0 0;
   margin-top: auto;
 
+  span {
+    width: 1.56rem;
+    height: 1.56rem;
+  }
+
   i {
     color: $color-gray-dark !important;
+    top: -.4em;
+    left: -.1em;
   }   
 
   &:hover,

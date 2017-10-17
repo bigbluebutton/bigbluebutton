@@ -61,7 +61,9 @@ const Chat = (props) => {
             >
               <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
             </Link> :
-            <ChatDropdown />
+            <div>
+              <ChatDropdown />
+            </div>
         }
       </header>
       <MessageList
