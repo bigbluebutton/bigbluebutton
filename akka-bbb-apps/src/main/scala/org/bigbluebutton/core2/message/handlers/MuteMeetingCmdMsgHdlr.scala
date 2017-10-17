@@ -24,7 +24,7 @@ trait MuteMeetingCmdMsgHdlrCheckPerm extends MuteMeetingCmdMsgHdlrDefault with S
 
     if (applyPermissionCheck && !isAllowed) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to change lock settings"
+      val reason = "No permission to mute meeting."
       PermisssionCheck.ejectUserForFailedPermission(meetingId, msg.body.mutedBy, reason, outGW)
     } else {
       super.handleMuteMeetingCmdMsg(msg)
@@ -32,7 +32,7 @@ trait MuteMeetingCmdMsgHdlrCheckPerm extends MuteMeetingCmdMsgHdlrDefault with S
   }
 }
 
-trait MuteMeetingCmdMsgHdlr extends MuteMeetingCmdMsgHdlrCheckPerm {
+trait MuteMeetingCmdMsgHdlr extends MuteMeetingCmdMsgHdlrDefault {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter

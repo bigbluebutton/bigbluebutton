@@ -24,7 +24,7 @@ object PermisssionCheck {
   }
 
   private def roleToLevel(user: UserState): Int = {
-    if (user.role == Roles.PRESENTER_ROLE) PRESENTER_LEVEL else VIEWER_LEVEL
+    if (user.presenter) PRESENTER_LEVEL else VIEWER_LEVEL
   }
 
   /**
@@ -39,8 +39,16 @@ object PermisssionCheck {
    */
   def isAllowed(permissionLevel: Int, roleLevel: Int, users: Users2x, userId: String): Boolean = {
     Users2x.findWithIntId(users, userId) match {
-      case Some(user) => (permissionToLevel(user) >= permissionLevel && roleToLevel(user) >= roleLevel)
-      case None       => false
+      case Some(user) =>
+        println("permissionToLevel = " + permissionToLevel(user) + " permissionLevel=" + permissionLevel)
+        val permLevelCheck = permissionToLevel(user) >= permissionLevel
+        println("roleToLevel = " + roleToLevel(user) + " roleLevel=" + roleLevel)
+        val roleLevelCheck = roleToLevel(user) >= roleLevel
+        println("PERMLEVELCHECK = " + permissionToLevel(user) + " ROLELEVELCHECK=" + permissionLevel)
+
+        println("PERMLEVELCHECK = " + permLevelCheck + " ROLELEVELCHECK=" + roleLevelCheck)
+        permLevelCheck && roleLevelCheck
+      case None => false
     }
 
   }

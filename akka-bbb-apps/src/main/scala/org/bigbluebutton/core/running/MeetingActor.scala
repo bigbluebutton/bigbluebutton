@@ -70,8 +70,9 @@ class MeetingActor(
     with UserDisconnectedFromGlobalAudioMsgHdlr
     with MuteAllExceptPresentersCmdMsgHdlr
     with MuteMeetingCmdMsgHdlr
+    with MuteMeetingCmdMsgHdlrCheckPerm
     with IsMeetingMutedReqMsgHdlr
-    with MuteUserCmdMsgHdlr
+
     with EjectUserFromVoiceCmdMsgHdlr
     with EndMeetingSysCmdMsgHdlr
     with DestroyMeetingSysCmdMsgHdlr
@@ -264,7 +265,7 @@ class MeetingActor(
       case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg => handleUserTalkingInVoiceConfEvtMsg(m)
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
-      case m: MuteUserCmdMsg => handleMuteUserCmdMsg(m)
+      case m: MuteUserCmdMsg => usersApp.handleMuteUserCmdMsg(m)
       case m: MuteAllExceptPresentersCmdMsg => handleMuteAllExceptPresentersCmdMsg(m)
       case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
       case m: IsMeetingMutedReqMsg => handleIsMeetingMutedReqMsg(m)
