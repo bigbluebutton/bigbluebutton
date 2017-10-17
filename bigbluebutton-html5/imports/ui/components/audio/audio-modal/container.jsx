@@ -11,8 +11,8 @@ export default withModalMounter(createContainer(({ mountModal }) =>
      closeModal: () => {
        if (!Service.isConnecting()) mountModal(null);
      },
-     joinMicrophone: () => {
-       return new Promise((resolve, reject) => {
+     joinMicrophone: () =>
+       new Promise((resolve, reject) => {
          Service.transferCall().then(() => {
            mountModal(null);
            resolve();
@@ -20,8 +20,7 @@ export default withModalMounter(createContainer(({ mountModal }) =>
            Service.exitAudio();
            reject();
          });
-       });
-     },
+       }),
      joinListenOnly: () => Service.joinListenOnly().then(() => mountModal(null)),
      leaveEchoTest: () => {
        if (!Service.isEchoTest()) {

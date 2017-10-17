@@ -28,13 +28,14 @@ const propTypes = {
   actionsbar: PropTypes.node,
   media: PropTypes.node,
   location: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
 };
 
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
+  children: null,
 };
 
 const intlMessages = defineMessages({

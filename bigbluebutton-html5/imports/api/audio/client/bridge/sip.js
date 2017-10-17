@@ -2,23 +2,24 @@ import VoiceUsers from '/imports/api/voice-users';
 import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
 
-const STUN_TURN_FETCH_URL = Meteor.settings.public.media.stunTurnServersFetchAddress;
-const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
-const CALL_TRANSFER_TIMEOUT = Meteor.settings.public.media.callTransferTimeout;
-
-const handleStunTurnResponse = ({ result, stunServers, turnServers }) =>
-  new Promise((resolve) => {
-    if (result) {
-      resolve({ error: 404, stun: [], turn: [] });
-    }
-    resolve({
-      stun: stunServers.map(server => server.url),
-      turn: turnServers.map(server => server.url),
-    });
-  });
+const MEDIA = Meteor.settings.public.media;
+const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
+const MEDIA_TAG = MEDIA.mediaTag;
+const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 
 const fetchStunTurnServers = sessionToken =>
   new Promise(async (resolve, reject) => {
+    const handleStunTurnResponse = ({ result, stunServers, turnServers }) =>
+      new Promise((resolve) => {
+        if (result) {
+          resolve({ error: 404, stun: [], turn: [] });
+        }
+        resolve({
+          stun: stunServers.map(server => server.url),
+          turn: turnServers.map(server => server.url),
+        });
+      });
+
     const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
 
     const response = await fetch(url)
@@ -29,34 +30,28 @@ const fetchStunTurnServers = sessionToken =>
     return resolve(response);
   });
 
-const inviteUserAgent = (voiceBridge, server, userAgent, inputStream) => {
-  const options = {
-    media: {
-      stream: inputStream,
-      constraints: {
-        audio: true,
-        video: false,
-      },
-      render: {
-        remote: document.querySelector(MEDIA_TAG),
-      },
-    },
-    RTCConstraints: {
-      mandatory: {
-        OfferToReceiveAudio: true,
-        OfferToReceiveVideo: false,
-      },
-    },
-  };
-
-  return userAgent.invite(`sip:${voiceBridge}@${server}`, options);
-};
-
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
     super(userData);
-    this.isConnected = false;
 
+    const {
+      userId,
+      username,
+      sessionToken,
+    } = userData;
+
+    this.user = {
+      userId,
+      sessionToken,
+      name: username,
+    };
+
+    this.media = {
+      inputDevice: {},
+    };
+
+    this.protocol = window.document.location.protocol;
+    this.hostname = window.document.location.hostname;
     this.errorCodes = {
       'Request Timeout': this.baseErrorCodes.REQUEST_TIMEOUT,
       'Invalid Target': this.baseErrorCodes.INVALID_TARGET,
@@ -82,16 +77,27 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
-  transferCall(onTransferStart, onTransferSuccess) {
+  transferCall(onTransferSuccess) {
     return new Promise((resolve, reject) => {
-      onTransferStart();
-      this.currentSession.dtmf(1);
       let trackerControl = null;
+
+      const timeout = setTimeout(() => {
+        clearTimeout(timeout);
+        trackerControl.stop();
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: this.baseErrorCodes.REQUEST_TIMEOUT,
+          bridgeError: 'Timeout on call transfer' });
+        reject('Timeout on call transfer');
+      }, CALL_TRANSFER_TIMEOUT);
+
+      // This is is the call transfer code ask @chadpilkey
+      this.currentSession.dtmf(1);
+
       Tracker.autorun((c) => {
         trackerControl = c;
         const selector = { meetingId: this.userData.meetingId, intId: this.userData.userId };
         const query = VoiceUsers.find(selector);
-        window.Kappa = query;
 
         query.observeChanges({
           changed: (id, fields) => {
@@ -104,16 +110,6 @@ export default class SIPBridge extends BaseAudioBridge {
           },
         });
       });
-
-      const timeout = setTimeout(() => {
-        clearTimeout(timeout);
-        trackerControl.stop();
-        this.callback({
-          status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.REQUEST_TIMEOUT,
-          bridgeError: 'Could not transfer the call' });
-        reject('Call transfer timeout');
-      }, CALL_TRANSFER_TIMEOUT);
     });
   }
 
@@ -126,42 +122,50 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
-  doCall({ isListenOnly, callExtension, inputStream }, callback) {
+  doCall(options) {
+    const {
+      isListenOnly,
+    } = options;
+
     const {
       userId,
-      username,
+      name,
       sessionToken,
-    } = this.userData;
+    } = this.user;
 
-    const server = window.document.location.hostname;
-
-    const callerIdPrefix = userId;
-    const callerIdSufix = isListenOnly ? `LINSTENONLY-${username}` : username;
     const callerIdName = [
-      callerIdPrefix,
+      userId,
       'bbbID',
-      callerIdSufix,
+      isListenOnly ? `LISTENONLY-${name}` : name,
     ].join('-');
 
+    this.user.callerIdName = callerIdName;
+    this.callOptions = options;
+
     return fetchStunTurnServers(sessionToken)
-                        .then(stunTurnServers =>
-                          this.createUserAgent(server, callerIdName, stunTurnServers))
-                        .then(userAgent =>
-                          inviteUserAgent(callExtension, server, userAgent, inputStream))
-                        .then(currentSession =>
-                          this.setupEventHandlers(currentSession, callback));
+                        .then(this.createUserAgent.bind(this))
+                        .then(this.inviteUserAgent.bind(this))
+                        .then(this.setupEventHandlers.bind(this));
   }
 
-  createUserAgent(server, username, { stun, turn }) {
+  createUserAgent({ stun, turn }) {
     return new Promise((resolve, reject) => {
-      const protocol = document.location.protocol;
-      this.userAgent = new window.SIP.UA({
-        uri: `sip:${encodeURIComponent(username)}@${server}`,
-        wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${server}/ws`,
-        // log: {
-        //   builtinEnabled: false,
-        // },
-        displayName: username,
+      const {
+        hostname,
+        protocol,
+      } = this;
+
+      const {
+        callerIdName,
+      } = this.user;
+
+      let userAgent = new window.SIP.UA({
+        uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
+        wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
+        log: {
+          builtinEnabled: false,
+        },
+        displayName: callerIdName,
         register: false,
         traceSip: true,
         autostart: false,
@@ -170,55 +174,149 @@ export default class SIPBridge extends BaseAudioBridge {
         turnServers: turn,
       });
 
-      this.userAgent.removeAllListeners('connected');
-      this.userAgent.removeAllListeners('disconnected');
+      userAgent.removeAllListeners('connected');
+      userAgent.removeAllListeners('disconnected');
 
-      this.userAgent.on('connected', () => this.handleUserAgentConnection(resolve));
-      this.userAgent.on('disconnected', () => this.handleUserAgentDisconnection(reject));
+      const handleUserAgentConnection = () => {
+        resolve(userAgent);
+      };
 
-      this.userAgent.start();
+      const handleUserAgentDisconnection = () => {
+        userAgent.stop();
+        userAgent = null;
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: this.baseErrorCodes.GENERIC_ERROR,
+          bridgeError: 'User Agent' });
+        reject('CONNECTION_ERROR');
+      };
+
+      userAgent.on('connected', handleUserAgentConnection);
+      userAgent.on('disconnected', handleUserAgentDisconnection);
+
+      userAgent.start();
     });
   }
 
-  handleUserAgentConnection(resolve) {
-    this.isConnected = true;
-    resolve(this.userAgent);
+  inviteUserAgent(userAgent) {
+    const {
+      hostname,
+    } = this;
+
+    const {
+      inputStream,
+      callExtension,
+    } = this.callOptions;
+
+    const options = {
+      media: {
+        stream: inputStream,
+        constraints: {
+          audio: true,
+          video: false,
+        },
+        render: {
+          remote: document.querySelector(MEDIA_TAG),
+        },
+      },
+      RTCConstraints: {
+        mandatory: {
+          OfferToReceiveAudio: true,
+          OfferToReceiveVideo: false,
+        },
+      },
+    };
+
+    return userAgent.invite(`sip:${callExtension}@${hostname}`, options);
   }
 
-  handleUserAgentDisconnection(reject) {
-    this.userAgent.stop();
-    this.userAgent = null;
-    this.callback({
-      status: this.baseCallStates.failed,
-      error: this.baseErrorCodes.GENERIC_ERROR,
-      bridgeError: 'User Agent' });
-    reject('CONNECTION_ERROR');
-  }
-
-  setupEventHandlers(currentSession, callback) {
+  setupEventHandlers(currentSession) {
     return new Promise((resolve) => {
-      currentSession.on('terminated', (message, cause) => this.handleSessionTerminated(message, cause, callback));
+      const handleConnectionCompleted = () => {
+        this.callback({ status: this.baseCallStates.started });
+        resolve();
+      };
 
-      currentSession.mediaHandler.on('iceConnectionCompleted', () => this.handleConnectionCompleted(resolve));
-      currentSession.mediaHandler.on('iceConnectsionConnected', () => this.handleConnectionCompleted(resolve));
+      const handleSessionTerminated = (message, cause) => {
+        if (!message && !cause) {
+          return this.callback({
+            status: this.baseCallStates.ended,
+          });
+        }
+
+        const mappedCause = cause in this.errorCodes ?
+                            this.errorCodes[cause] :
+                            this.baseErrorCodes.GENERIC_ERROR;
+        return this.callback({
+          status: this.baseCallStates.failed,
+          error: mappedCause,
+          bridgeError: cause,
+        });
+      };
+
+      currentSession.on('terminated', handleSessionTerminated);
+      currentSession.mediaHandler.on('iceConnectionCompleted', handleConnectionCompleted);
+      currentSession.mediaHandler.on('iceConnectsionConnected', handleConnectionCompleted);
 
       this.currentSession = currentSession;
     });
   }
 
-  handleConnectionCompleted(resolve) {
-    this.callback({ status: this.baseCallStates.started });
-    resolve();
-  }
+  async changeInputDevice(value) {
+    const {
+      media,
+    } = this;
 
-  handleSessionTerminated(message, cause, callback) {
-    if (!message && !cause) {
-      return callback({ status: this.baseCallStates.ended });
+    const getMediaStream = constraints =>
+      navigator.mediaDevices.getUserMedia(constraints);
+
+    if (!value) {
+      const mediaStream = await getMediaStream({ audio: true });
+      const deviceLabel = mediaStream.getAudioTracks()[0].label;
+      const mediaDevices = await navigator.mediaDevices.enumerateDevices();
+      const device = mediaDevices.find(d => d.label === deviceLabel);
+      return this.changeInputDevice(device.deviceId);
     }
 
-    const mappedCause = cause in this.errorCodes ?
-                        this.errorCodes[cause] :
-                        this.baseErrorCodes.GENERIC_ERROR;
-    return callback({ status: this.baseCallStates.failed, error: mappedCause, bridgeError: cause });
+    if (media.inputDevice.audioContext) {
+      media.inputDevice.audioContext.close().then(() => {
+        media.inputDevice.audioContext = null;
+        media.inputDevice.scriptProcessor = null;
+        media.inputDevice.source = null;
+        return this.changeInputDevice(value);
+      });
+    }
+
+    media.inputDevice.id = value;
+    if ('AudioContext' in window) {
+      media.inputDevice.audioContext = new window.AudioContext();
+    } else {
+      media.inputDevice.audioContext = new window.webkitAudioContext();
+    }
+    media.inputDevice.scriptProcessor = media.inputDevice.audioContext
+                                            .createScriptProcessor(2048, 1, 1);
+    media.inputDevice.source = null;
+
+    const constraints = {
+      audio: {
+        deviceId: value,
+      },
+    };
+
+    const mediaStream = await getMediaStream(constraints);
+    media.inputDevice.stream = mediaStream;
+    media.inputDevice.source = media.inputDevice.audioContext.createMediaStreamSource(mediaStream);
+    media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
+    media.inputDevice.scriptProcessor.connect(media.inputDevice.audioContext.destination);
+
+    return this.media.inputDevice;
+  }
+
+  changeOutputDevice(value) {
+    const audioContext = document.querySelector(MEDIA_TAG);
+
+    if (audioContext.setSinkId) {
+      audioContext.setSinkId(deviceId);
+    }
   }
 }

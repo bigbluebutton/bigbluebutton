@@ -11,3 +11,4 @@ media:
   stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
   mediaTag: '#remote-media'
   callTransferTimeout: 5000
+  echoTestNumber: '9196'
