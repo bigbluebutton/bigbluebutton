@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.models.{ Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.OutMsgRouter
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 object PermisssionCheck {
 
@@ -53,19 +53,11 @@ object PermisssionCheck {
 
   }
 
-  private def sendEjectMessageToClient(meetingId: String, userId: String,
-                                       outGW: OutMsgRouter, ejectedBy: String): Unit = {
-    val ejectFromMeetingClientEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(
-      meetingId, userId, ejectedBy
-    )
-    outGW.send(ejectFromMeetingClientEvent)
-  }
-
   def ejectUserForFailedPermission(meetingId: String, userId: String, reason: String, outGW: OutMsgRouter): Unit = {
-    sendEjectMessageToClient(meetingId, userId, outGW, "SYSTEM")
+    val ejectedBy = "SYSTEM"
 
+    Sender.sendUserEjectedFromMeetingClientEvtMsg(meetingId, userId, ejectedBy, reason, outGW)
     // send a system message to force disconnection
-    val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(meetingId, userId, reason)
-    outGW.send(ejectFromMeetingSystemEvent)
+    Sender.sendUserEjectedFromMeetingSystemMsg(meetingId, userId, ejectedBy, outGW)
   }
 }

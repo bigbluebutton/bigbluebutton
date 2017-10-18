@@ -166,11 +166,12 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildUserEjectedFromMeetingEvtMsg(meetingId: String, userId: String, ejectedBy: String): BbbCommonEnvCoreMsg = {
+  def buildUserEjectedFromMeetingEvtMsg(meetingId: String, userId: String,
+                                        ejectedBy: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserEjectedFromMeetingEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(UserEjectedFromMeetingEvtMsg.NAME, meetingId, userId)
-    val body = UserEjectedFromMeetingEvtMsgBody(userId, ejectedBy)
+    val body = UserEjectedFromMeetingEvtMsgBody(userId, ejectedBy, reason)
     val event = UserEjectedFromMeetingEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
