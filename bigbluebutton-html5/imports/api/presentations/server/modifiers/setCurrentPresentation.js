@@ -33,10 +33,10 @@ export default function setCurrentPresentation(meetingId, presentationId) {
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Setting as current presentation2x id=${presentationId}: ${err}`);
+        return Logger.error(`Setting as current presentation id=${presentationId}: ${err}`);
       }
 
-      return Logger.info(`Setted as current presentation2x id=${presentationId}`);
+      return Logger.info(`Setted as current presentation id=${presentationId}`);
     },
   };
 

@@ -71,15 +71,15 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Updating conversion status presentation2x to collection: ${err}`);
+      return Logger.error(`Updating conversion status presentation to collection: ${err}`);
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Updated presentation2x conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+      return Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
     }
 
-    return Logger.info(`Upserted presentation2x conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+    return Logger.info(`Upserted presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
   };
 
   return Presentations.upsert(selector, modifier, cb);

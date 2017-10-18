@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
-const Meetings = new Mongo.Collection('meetings2x');
+const Meetings = new Mongo.Collection('meetings');
 
 if (Meteor.isServer) {
   // types of queries for the meetings:

@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
-const Users = new Mongo.Collection('users2x');
+const Users = new Mongo.Collection('users');
 
 if (Meteor.isServer) {
   // types of queries for the users:

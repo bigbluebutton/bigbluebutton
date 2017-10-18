@@ -14,7 +14,6 @@ package org.bigbluebutton.modules.phone.managers
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -36,8 +35,6 @@ package org.bigbluebutton.modules.phone.managers
     private static const LOGGER:ILogger = getClassLogger(WebRTCCallManager);
     private const MAX_RETRIES:Number = 3;
     
-    private var browserType:String = "unknown";
-    private var browserVersion:int = 0;
     private var dispatcher:Dispatcher = new Dispatcher();
     private var echoTestDone:Boolean = false;
     
@@ -50,11 +47,6 @@ package org.bigbluebutton.modules.phone.managers
     private var reconnecting:Boolean = false;
     
     public function WebRTCCallManager() {
-      var browserInfo:Array = JSAPI.getInstance().getBrowserInfo();
-      if (browserInfo != null) {
-        browserType = browserInfo[0];
-        browserVersion = browserInfo[1];
-      }
       options = Options.getOptions(PhoneOptions) as PhoneOptions;
       
       // only show the warning if the admin has enabled WebRTC

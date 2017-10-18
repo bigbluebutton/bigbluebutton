@@ -12,7 +12,7 @@ function cursor(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.debug(`Publishing Cursor2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Cursor for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Cursor.find({ meetingId });
 }
@@ -22,5 +22,5 @@ function publish(...args) {
   return mapToAcl('subscriptions.cursor', boundCursor)(args);
 }
 
-Meteor.publish('cursor2x', publish);
+Meteor.publish('cursor', publish);
 

@@ -128,7 +128,6 @@ $Id: $
             public function closeWindow():void {
                 this.visible = false;
                 PopUpManager.removePopUp(this);
-                //dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
             }
             
         ]]>

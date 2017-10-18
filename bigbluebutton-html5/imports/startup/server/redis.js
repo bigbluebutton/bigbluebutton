@@ -90,7 +90,7 @@ class MettingMessageQueue {
   }
 }
 
-class RedisPubSub2x {
+class RedisPubSub {
 
   static handlePublishError(err) {
     if (err) {
@@ -189,7 +189,7 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }
 
   publishSystemMessage(channel, eventName, payload) {
@@ -199,7 +199,7 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }
 
   publishMeetingMessage(channel, eventName, meetingId, payload) {
@@ -210,7 +210,7 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }
 
   publishUserMessage(channel, eventName, meetingId, userId, payload) {
@@ -222,11 +222,11 @@ class RedisPubSub2x {
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
-    return this.pub.publish(channel, envelope, RedisPubSub2x.handlePublishError);
+    return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }
 }
 
-const RedisPubSubSingleton = new RedisPubSub2x();
+const RedisPubSubSingleton = new RedisPubSub();
 
 Meteor.startup(() => {
   const REDIS_CONFIG = Meteor.settings.redis;
