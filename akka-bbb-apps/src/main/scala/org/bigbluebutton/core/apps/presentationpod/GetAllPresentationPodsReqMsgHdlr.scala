@@ -1,5 +1,3 @@
-
-
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.domain.{ PresentationPodVO, PresentationVO }

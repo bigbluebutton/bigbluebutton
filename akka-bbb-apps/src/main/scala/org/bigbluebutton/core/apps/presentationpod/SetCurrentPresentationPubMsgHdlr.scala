@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps.presentationpod
 
-import org.bigbluebutton.common2.domain.PresentationPodVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
