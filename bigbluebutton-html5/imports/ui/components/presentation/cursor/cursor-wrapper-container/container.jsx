@@ -29,16 +29,14 @@ const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest
       />
         : null }
 
-    {multiUserCursorIds.length > 0 ?
-          multiUserCursorIds.map(cursorId =>
-            (<CursorContainer
-              key={cursorId._id}
-              cursorId={cursorId._id}
-              presenter={false}
-              {...rest}
-            />),
-          )
-        : null }
+    {multiUserCursorIds.map(cursorId =>
+      (<CursorContainer
+        key={cursorId._id}
+        cursorId={cursorId._id}
+        presenter={false}
+        {...rest}
+      />),
+    )}
   </g>
 );
 

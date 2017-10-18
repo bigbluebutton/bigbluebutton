@@ -1,7 +1,7 @@
-import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
-import Presentations from '/imports/api/2.0/presentations';
-import Slides from '/imports/api/2.0/slides';
-import Users from '/imports/api/2.0/users';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
+import Presentations from '/imports/api/presentations';
+import Slides from '/imports/api/slides';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
 const getCurrentPresentation = () => Presentations.findOne({
@@ -34,22 +34,12 @@ const getCurrentSlide = () => {
 
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-
-  if (currentUser) {
-    return currentUser.presenter;
-  }
-
-  return false;
+  return currentUser ? currentUser.presenter : false;
 };
 
 const getMultiUserStatus = () => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
-
-  if (data) {
-    return data.multiUser;
-  }
-
-  return false;
+  return data ? data.multiUser : false;
 };
 
 export default {

@@ -1,6 +1,6 @@
-import Users from '/imports/api/2.0/users';
-import Chat from '/imports/api/2.0/chat';
-import Meetings from '/imports/api/2.0/meetings';
+import Users from '/imports/api/users';
+import Chat from '/imports/api/chat';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -264,15 +264,15 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const setEmojiStatus = (user) => { makeCall('setEmojiStatus', user.id, 'none'); };
+const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none'); };
 
-const assignPresenter = (user) => { makeCall('assignPresenter', user.id); };
+const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const kickUser = (user) => { makeCall('kickUser', user.id); };
+const kickUser = (userId) => { makeCall('kickUser', userId); };
 
-const toggleVoice = (user) => { makeCall('toggleVoice', user.id); };
+const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
 
-const changeRole = (user, role) => { makeCall('changeRole', user.id, role); };
+const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 export default {
   setEmojiStatus,

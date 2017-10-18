@@ -10,13 +10,6 @@
 		 toolTip="{data as String}"
 		 verticalAlign="middle">
 
-	<fx:Declarations>
-		<mate:Listener type="{PresentationRollEvent.PRESENTATION_ROLL_OVER}"
-					   method="onRollOver" />
-		<mate:Listener type="{PresentationRollEvent.PRESENTATION_ROLL_OUT}"
-					   method="onRollOut" />
-	</fx:Declarations>
-
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -24,19 +17,13 @@
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
-			import org.bigbluebutton.modules.present.events.DownloadEvent;
-			import org.bigbluebutton.modules.present.events.PresentationRollEvent;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-
 			private static const LOGGER:ILogger = getClassLogger(UploadedPresentationRenderer);
 
 			private var globalDispatch:Dispatcher = new Dispatcher();
-
-			[Bindable]
-			private var rolledOver:Boolean = false;
 
 			private function showPresentation():void {
 				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand('AAAAAUploadedPresentationRendererAAAA', data.id);
@@ -52,37 +39,13 @@
 				rEvent.presentationName = data.id as String;
 				dispatchEvent(rEvent);
 			}
-
-			private function onRollOver(e:PresentationRollEvent):void {
-				if (e.presentationId == data.id) {
-					rolledOver = true;
-				} else {
-					rolledOver = false;
-				}
-			}
-
-			private function onRollOut(e:PresentationRollEvent):void {
-				rolledOver = false;
-			}
-
-			private function downloadPresentation():void {
-				var downloadEvent:DownloadEvent = new DownloadEvent(DownloadEvent.DOWNLOAD_PRESENTATION);
-				downloadEvent.fileNameToDownload = data.id as String;
-				globalDispatch.dispatchEvent(downloadEvent);
-			}
 		]]>
 	</fx:Script>
 	<mx:Label id="presentationNameLabel"
-			  width="{this.width-downloadButton.width-showBtn.width-deleteBtn.width-50}"
+			  width="{this.width-showBtn.width-deleteBtn.width-50}"
 			  truncateToFit="true"
 			  styleName="presentationNameLabel"
 			  text="{data.name as String}" />
-	<mx:Button id="downloadButton"
-			   height="32"
-			   visible="{data.downloadable as Boolean}"
-			   styleName="presentationUploadDownloadButtonStyle"
-			   click="downloadPresentation()"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}" />
 	<mx:Button id="showBtn"
 			   height="32"
 			   label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}"

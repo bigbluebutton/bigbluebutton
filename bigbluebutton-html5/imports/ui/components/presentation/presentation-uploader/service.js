@@ -1,4 +1,4 @@
-import Presentations from '/imports/api/2.0/presentations';
+import Presentations from '/imports/api/presentations';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 

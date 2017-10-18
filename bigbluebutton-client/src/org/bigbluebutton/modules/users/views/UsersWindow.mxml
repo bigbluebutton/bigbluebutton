@@ -166,9 +166,9 @@ $Id: $
       private const LISTEN_TO_BREAKOUT_ROOM:String = "Listen To Breakout Room";
       private const JOIN_BREAKOUT_ROOM:String = "Join Breakout Room";
       
-      private const STATUS_GRID_WIDTH:int = 56;
+      private const STATUS_GRID_WIDTH:int = 50;
       private const NAME_GRID_MIN_WIDTH:int = 80;
-      private const MEDIA_GRID_WIDTH:int = 118;
+      private const MEDIA_GRID_WIDTH:int = 100;
       
       private var muteMeRolled:Boolean = false;
       
@@ -384,13 +384,15 @@ $Id: $
         paramsMenuData = [];
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: getStyle('iconClearStatus'), handler: resetEmojiStatuses});
         
-        if (!roomMuted) {
-          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
-          var presenter:User2x = UsersUtil.getPresenter();
-          if (presenter != null)
-            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
-        } else
-          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
+		if (partOptions.moderatorUnmute == true) {
+	      if (!roomMuted) {
+	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
+	        var presenter:User2x = UsersUtil.getPresenter();
+	        if (presenter != null)
+	          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
+	      } else
+	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
+		}
         
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: getStyle('iconLock'), handler: lockSettings});
         if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {

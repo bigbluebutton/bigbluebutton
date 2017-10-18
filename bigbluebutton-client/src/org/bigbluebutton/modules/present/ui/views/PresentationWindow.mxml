@@ -71,11 +71,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.ArrayList;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
 			
 			import flashx.textLayout.formats.Direction;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
+			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
@@ -99,6 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.events.ExportEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -114,7 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-             		
+			
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
       		public static const TITLE:String = "Presentation";
@@ -153,8 +156,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var podId: String = "";
 			private var ownerId: String = "";
+			
+			[Bindable]
 			private var listOfPodControls:Array = [];
 
+			private var downloadMenuData:Array;
+			private var downloadMenu:Menu;
+			
 			[Embed(source="../../../polling/sounds/Poll.mp3")] 
 			private var noticeSoundClass:Class;
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
@@ -380,7 +388,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 			private function setupPresenter(isPresenter:Boolean):void {
 				uploadPres.visible = isPresenter;
-				downloadPres.visible = !isPresenter;
 
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null) {
@@ -632,14 +639,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onDownloadButtonClicked():void {
-				openDownloadWindow();
+				setDownloadMenuData();
+				openDownloadMenu();
 			}
 
 			private function openDownloadWindow():void {
 				var event:DownloadEvent = new DownloadEvent(DownloadEvent.OPEN_DOWNLOAD_WINDOW);
 				dispatchEvent(event);
 			}
-			
+
+			private function openExportWindow(firstPage:int, numberOfPages:int):void {
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				var event:ExportEvent = new ExportEvent(ExportEvent.OPEN_EXPORT_WINDOW);
+				event.firstPage = firstPage;
+				event.numberOfPages = numberOfPages;
+				event.slidesUrl = StringUtils.substringBeforeLast(presentationModel.getCurrentPage().swfUri, "/") + "/";
+				event.slideModel = slideView.slideModel;
+				event.presentationModel = presentationModel;
+				dispatchEvent(event);
+			}
+
 			private function onUploadButtonClicked():void {
 				openUploadWindow(podId);
 			}
@@ -674,6 +693,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPollOption.label")});
 			}
+			
+			private function setDownloadMenuData():void {
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				var resourceUtil:ResourceUtil = ResourceUtil.getInstance();
+				downloadMenuData = [];
+				if (presentationModel.getCurrentPresentation()) {
+					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.slideWithAnnotations"), data:"slide_annotation"});
+					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentationWithAnnotations"), data:"presentation_annotation"});		
+				}
+				if (presentationModel.getDownloadablePresentations().length > 0){
+					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentations"), data:"presentations"});
+				}
+			}
+
 
 			private function updateStyles():void {
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
@@ -705,6 +738,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.show();
 
 			}
+
+			public function openDownloadMenu():void {
+				if (downloadMenu) {
+					downloadMenu.removeEventListener(MenuEvent.ITEM_CLICK, downloadMenuClickHandler);
+					downloadMenu.removeEventListener(MenuEvent.MENU_SHOW, downloadMenuShowHandler);
+					downloadMenu.hide();
+				}
+
+				downloadMenu = Menu.createMenu(null, downloadMenuData, true);
+				downloadMenu.addEventListener(MenuEvent.ITEM_CLICK, downloadMenuClickHandler);
+				downloadMenu.addEventListener(MenuEvent.MENU_SHOW, downloadMenuShowHandler);
+				downloadMenu.variableRowHeight = false;
+				var pollXY:Point = downloadPres.localToGlobal(new Point(downloadPres.width + 2, downloadPres.height - downloadMenu.height));
+				downloadMenu.show();
+			}
+
 
             private function sendStartCustomPollEvent(pollType:String):void {
                 // Let's reset the page to display full size so we can display the result
@@ -765,7 +814,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.x = pollXY.x;
 				pollMenu.y = pollXY.y;
 			}
-			
+
+			private function downloadMenuClickHandler(e:MenuEvent):void {
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (e.item.data == "slide_annotation") {
+					openExportWindow(presentationModel.getCurrentPage().num, 1);
+				} else if (e.item.data == "presentation_annotation") {
+					openExportWindow(1, presentationModel.getNumberOfPages());
+				} else if (e.item.data == "presentations") {
+					openDownloadWindow();
+				}
+			}
+
+
+			private function downloadMenuShowHandler(e:MenuEvent):void {
+				downloadMenu.setFocus();
+				var downloadXY:Point = downloadPres.localToGlobal(new Point(downloadPres.width + 2, downloadPres.height - downloadMenu.height));
+				downloadMenu.x = downloadXY.x;
+				downloadMenu.y = downloadXY.y;
+			}
+
 			private function pollStartedHandler(e:PollStartedEvent):void {
 				// the event for this doesn't exist yet
 				if (UsersUtil.amIPresenter()) {
@@ -774,6 +842,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (pollResultsPopUp) {
 						pollResultsPopUp.setPoll(e.poll);
 					}
+					PopUpManager.centerPopUp(pollResultsPopUp);
 				} else {
 					//switch to vote state
 					setControlBarState("vote");
@@ -866,12 +935,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null) {
 					var downloadablePresentations:ArrayCollection = presentationModel.getDownloadablePresentations();
-					if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
+					if ( presentOptions.enableDownload && (downloadablePresentations.length > 0 || presentationModel.getCurrentPresentation()) ) {
 						LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
 						downloadPres.visible = true;
 					} else {
 						LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-						downloadPres.visible = false;
+						downloadPres.visible = false; 
 					}
 				}
 			}
@@ -959,6 +1028,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 					   click="onFitToPage(true)"/>
 		</mx:HBox>
-		<mx:HBox id="pollVoteBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle"/>
+		<mx:VBox width="100%" height="100%" visible="{pollVoteBox.visible}" includeInLayout="{pollVoteBox.includeInLayout}" horizontalAlign="center">
+			<mx:Label id="pollVoteLabel" styleName="pollVoteLabel" text="{ResourceUtil.getInstance().getString('bbb.presentation.poll.response')}"/>
+			<mx:HBox id="pollVoteBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle"/>	
+		</mx:VBox>
 	</mx:ControlBar>
 </pres:CustomMdiWindow>

@@ -41,14 +41,14 @@
   height: 1.5rem;
   padding: 0;
   border-radius: 2rem;
-  background-color: #4E5A66;
+  background-color: #DF2721;
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
   transition: all 0.2s ease;
 }
 
 .react-toggle--checked .react-toggle-track {
-  background-color: #4E5A66;
+  background-color: #008081;
 }
 
 .react-toggle-track-check {

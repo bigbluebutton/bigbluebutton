@@ -96,14 +96,24 @@ const intlMessages = defineMessages({
 
 class UserParticipants extends Component {
 
+  constructor() {
+    super();
+
+    this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
+  }
+
   componentDidMount() {
     if (!this.props.compact) {
-      this._usersList.addEventListener('keydown',
+      this.refScrollContainer.addEventListener('keydown',
         event => this.props.rovingIndex(event,
-          this._usersList,
-          this._userItems,
+          this.refScrollContainer,
+          this.refScrollItems,
           this.props.users.length));
     }
+  }
+
+  getScrollContainerRef() {
+    return this.refScrollContainer;
   }
 
   render() {
@@ -181,7 +191,8 @@ class UserParticipants extends Component {
           className={styles.scrollableList}
           role="tabpanel"
           tabIndex={0}
-          ref={(ref) => { this._usersList = ref; }}
+          refScrollContainer
+          ref={(ref) => { this.refScrollContainer = ref; }}
         >
           <CSSTransitionGroup
             transitionName={listTransition}
@@ -192,9 +203,9 @@ class UserParticipants extends Component {
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="div"
-            className={cx(styles.participantsList, styles.scrollableList)}
+            className={cx(styles.participantsList)}
           >
-            <div ref={(ref) => { this._userItems = ref; }}>
+            <div ref={(ref) => { this.refScrollItems = ref; }}>
               {
                 users.map(user => (
                   <UserListItem
@@ -208,6 +219,7 @@ class UserParticipants extends Component {
                     getAvailableActions={getAvailableActions}
                     normalizeEmojiName={normalizeEmojiName}
                     isMeetingLocked={isMeetingLocked}
+                    getScrollContainerRef={this.getScrollContainerRef}
                   />
                 ))
               }

@@ -78,6 +78,14 @@ Button.audioBtn:last-of-type {
   i {
     color: $color-link;
   }
+
+  &,
+  &:focus,
+  &:hover {
+    i {
+      color: $color-white;
+    }
+  }
 }
 
 .topRow {
@@ -142,7 +150,8 @@ Button.audioBtn:last-of-type {
 }
 
 .select {
-  background-color: #fff;
+  @extend %customSelectFocus;
+  background-color: $color-white;
   border: 0;
   border-bottom: 0.1rem solid $color-text;
   color: $color-text;
