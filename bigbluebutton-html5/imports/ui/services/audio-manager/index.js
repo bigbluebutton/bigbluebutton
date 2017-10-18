@@ -2,6 +2,7 @@ import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
 import VertoBridge from '/imports/api/audio/client/bridge/verto';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
+import notify from '/imports/ui/components/toast/service';
 
 const MEDIA = Meteor.settings.public.media;
 const USE_SIP = MEDIA.useSIPAudio;
@@ -30,10 +31,10 @@ class AudioManager {
     });
   }
 
-  init(userData) {
+  init(userData, messages) {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
-
+    this.messages = messages;
     this.changeInputDevice();
   }
 
@@ -58,7 +59,7 @@ class AudioManager {
     });
   }
 
-  joinAudio(options = {}, callbacks = {}) {
+  joinAudio(options = {}) {
     const {
       isListenOnly,
       isEchoTest,
@@ -69,7 +70,6 @@ class AudioManager {
     this.error = null;
     this.isListenOnly = isListenOnly || false;
     this.isEchoTest = isEchoTest || false;
-    this.callbacks = callbacks;
 
     const callOptions = {
       isListenOnly: this.isListenOnly,
@@ -96,11 +96,13 @@ class AudioManager {
   }
 
   onAudioJoin() {
-    if (!this.isEchoTest) {
-      this.isConnected = true;
-    }
-
     this.isConnecting = false;
+    if (this.isEchoTest) {
+      return;
+    }1
+
+    notify(this.messages.info.JOINED_AUDIO, 'info', 'audio_on');
+    this.isConnected = true;
   }
 
   onTransferStart() {
@@ -114,7 +116,14 @@ class AudioManager {
 
     if (this.isEchoTest) {
       this.isEchoTest = false;
+      return;
     }
+
+    if (this.error) {
+      return;
+    }
+
+    notify(this.messages.info.LEFT_AUDIO, 'info', 'audio_on');
   }
 
   onToggleMicrophoneMute() {
@@ -141,6 +150,7 @@ class AudioManager {
         this.onAudioExit();
       } else if (status === FAILED) {
         this.error = error;
+        notify(this.messages.error[error], 'error', 'audio_on');
         this.onAudioExit();
       }
     });
@@ -159,8 +169,7 @@ class AudioManager {
   }
 
   async changeInputDevice(deviceId) {
-    const device = await this.bridge.changeInputDevice(deviceId);
-    this.inputDevice = device;
+    this.inputDevice = await this.bridge.changeInputDevice(deviceId);
   }
 
   async changeOutputDevice(deviceId) {

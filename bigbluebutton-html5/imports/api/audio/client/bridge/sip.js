@@ -52,10 +52,11 @@ export default class SIPBridge extends BaseAudioBridge {
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
+    const causes = window.SIP.C.causes
     this.errorCodes = {
-      'Request Timeout': this.baseErrorCodes.REQUEST_TIMEOUT,
-      'Invalid Target': this.baseErrorCodes.INVALID_TARGET,
-      'Connection Error': this.baseErrorCodes.CONNECTION_ERROR,
+      [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
+      [causes.INVALID_TARGET]: this.baseErrorCodes.INVALID_TARGET,
+      [causes.CONNECTION_ERROR]: this.baseErrorCodes.CONNECTION_ERROR,
     };
   }
 
@@ -316,7 +317,9 @@ export default class SIPBridge extends BaseAudioBridge {
     const audioContext = document.querySelector(MEDIA_TAG);
 
     if (audioContext.setSinkId) {
-      audioContext.setSinkId(deviceId);
+      audioContext.setSinkId(value);
     }
+
+    return value;
   }
 }

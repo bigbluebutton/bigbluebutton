@@ -3,7 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 
-const init = () => {
+const init = (messages) => {
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const sessionToken = Auth.sessionToken;
@@ -24,7 +24,7 @@ const init = () => {
     microphoneLockEnforced,
   };
 
-  AudioManager.init(userData);
+  AudioManager.init(userData, messages);
 };
 
 export default {

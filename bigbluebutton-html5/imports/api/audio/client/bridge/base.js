@@ -3,10 +3,10 @@ export default class BaseAudioBridge {
     this.userData = userData;
 
     this.baseErrorCodes = {
-      INVALID_TARGET: 'Invalid Target',
-      CONNECTION_ERROR: 'Connection Error',
-      REQUEST_TIMEOUT: 'Request Timeout',
-      GENERIC_ERROR: 'An Error Occurred',
+      INVALID_TARGET: 'INVALID_TARGET',
+      CONNECTION_ERROR: 'CONNECTION_ERROR',
+      REQUEST_TIMEOUT: 'REQUEST_TIMEOUT',
+      GENERIC_ERROR: 'GENERIC_ERROR',
     };
 
     this.baseCallStates = {
@@ -22,5 +22,13 @@ export default class BaseAudioBridge {
 
   joinAudio() {
     console.error('The Bridge must implement joinAudio');
+  }
+
+  changeInputDevice() {
+    console.error('The Bridge must implement changeInputDevice');
+  }
+
+  changeOutputDevice() {
+    console.error('The Bridge must implement changeOutputDevice');
   }
 }
