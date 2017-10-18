@@ -12,11 +12,6 @@ object PresentationPodsApp {
     PresentationPodFactory.create(ownerId)
   }
 
-  //  def createPresentationPod(id: String, ownerId: String, currentPresenter: String, authorizedPresenters: Vector[String],
-  //                            presentations: collection.immutable.Map[String, Presentation]): PresentationPod = {
-  //    PresentationPodFactory.create(ownerId)
-  //  }
-
   def createDefaultPresentationPod(state: MeetingState2x): MeetingState2x = {
     val defaultPresPod = PresentationPodFactory.create("the-owner-id")
     val podManager = state.presentationPodManager.addPod(defaultPresPod)
@@ -50,6 +45,10 @@ object PresentationPodsApp {
   def updatePresentationPod(state: MeetingState2x, pod: PresentationPod): MeetingState2x = {
     val podManager = state.presentationPodManager.addPod(pod)
     state.update(podManager)
+  }
+
+  def translatePresentationToPresentationVO(pres: Presentation): PresentationVO = {
+    PresentationVO(pres.id, pres.name, pres.current, pres.pages.values.toVector, pres.downloadable)
   }
 
 }
