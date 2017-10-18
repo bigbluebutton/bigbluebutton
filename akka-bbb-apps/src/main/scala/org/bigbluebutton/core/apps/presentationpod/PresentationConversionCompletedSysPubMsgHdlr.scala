@@ -55,7 +55,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
 
     newState match {
       case Some(ns) => ns
-      case None => state
+      case None     => state
     }
 
   }
