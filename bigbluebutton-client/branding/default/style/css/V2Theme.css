@@ -767,10 +767,6 @@ mx|DataGrid {
 //------------------------------
 */
 
-.deskshareControlButtonStyle {
-	cornerRadius : 18;
-}
-
 .deskshareWarningLabelStyle {
 	fontWeight : bold;
 	fontSize   : 18;
