@@ -62,7 +62,6 @@ class MeetingActor(
     with BreakoutApp2x
     with UsersApp2x
 
-    with PermisssionCheck
     with UserBroadcastCamStartMsgHdlr
     with UserJoinMeetingReqMsgHdlr
     with UserJoinMeetingAfterReconnectReqMsgHdlr
@@ -71,8 +70,9 @@ class MeetingActor(
     with UserDisconnectedFromGlobalAudioMsgHdlr
     with MuteAllExceptPresentersCmdMsgHdlr
     with MuteMeetingCmdMsgHdlr
+    with MuteMeetingCmdMsgHdlrCheckPerm
     with IsMeetingMutedReqMsgHdlr
-    with MuteUserCmdMsgHdlr
+
     with EjectUserFromVoiceCmdMsgHdlr
     with EndMeetingSysCmdMsgHdlr
     with DestroyMeetingSysCmdMsgHdlr
@@ -265,7 +265,7 @@ class MeetingActor(
       case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg => handleUserTalkingInVoiceConfEvtMsg(m)
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
-      case m: MuteUserCmdMsg => handleMuteUserCmdMsg(m)
+      case m: MuteUserCmdMsg => usersApp.handleMuteUserCmdMsg(m)
       case m: MuteAllExceptPresentersCmdMsg => handleMuteAllExceptPresentersCmdMsg(m)
       case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
       case m: IsMeetingMutedReqMsg => handleIsMeetingMutedReqMsg(m)
@@ -295,7 +295,6 @@ class MeetingActor(
       case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationConversionCompletedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
 
       // Presentation Pods
@@ -304,6 +303,7 @@ class MeetingActor(
       case m: GetPresentationInfoReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: GetAllPresentationPodsReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPresentationPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionCompletedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)

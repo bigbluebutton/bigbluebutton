@@ -13,8 +13,10 @@ object PresentationPodFactory {
 
 case class PresentationPod(id: String, ownerId: String, currentPresenter: String, authorizedPresenters: Vector[String],
                            presentations: collection.immutable.Map[String, Presentation]) {
-  def addPresentation(presentation: Presentation): PresentationPod = copy(presentations =
-    presentations + (presentation.id -> presentation))
+  def addPresentation(presentation: Presentation): PresentationPod = {
+    copy(presentations = presentations + (presentation.id -> presentation))
+  }
+
   def removePresentation(id: String): PresentationPod = copy(presentations = presentations - id)
 
   def addAuthorizedPresenter(userId: String): PresentationPod = copy(authorizedPresenters = authorizedPresenters :+ userId)
@@ -42,14 +44,39 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
     }
 
   }
+
+  def getPresentationsSize(): Int = {
+    presentations.values.size
+  }
 }
 
 case class PresentationPodManager(presentationPods: collection.immutable.Map[String, PresentationPod]) {
 
-  def addPod(presPod: PresentationPod): PresentationPodManager = copy(presentationPods + (presPod.id -> presPod))
-  def removePod(podId: String): PresentationPodManager = copy(presentationPods = presentationPods - podId)
+  def addPod(presPod: PresentationPod): PresentationPodManager = {
+    copy(presentationPods = presentationPods + (presPod.id -> presPod))
+  }
+
+  def removePod(podId: String): PresentationPodManager = {
+    copy(presentationPods = presentationPods - podId)
+  }
+
   def getNumberOfPods(): Int = presentationPods.size
   def getPod(podId: String): Option[PresentationPod] = presentationPods.get(podId)
   def getAllPresentationPodsInMeeting(): Vector[PresentationPod] = presentationPods.values.toVector
   def updatePresentationPod(presPod: PresentationPod): PresentationPodManager = addPod(presPod)
+
+  def addPresentationToPod(podId: String, pres: Presentation): PresentationPodManager = {
+    val updatedManager = for {
+      pod <- getPod(podId)
+    } yield {
+      val updatedPod = pod.addPresentation(pres)
+      updatePresentationPod(updatedPod)
+    }
+
+    updatedManager match {
+      case Some(ns) => ns
+      case None     => this
+    }
+  }
+
 }
