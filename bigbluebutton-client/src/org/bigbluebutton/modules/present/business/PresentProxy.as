@@ -129,33 +129,36 @@ package org.bigbluebutton.modules.present.business
     }
     
     public function handleGoToPageCommand(cmd:GoToPageCommand):void {
-//      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getSpecificPageIds(cmd.pageId);
-//      if (pageChangeVO != null) {
-//        LOGGER.debug("Going to page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
-//        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
-//      } else {
-//        LOGGER.debug("Could not go to selected page. Might not exist or is already current");
-//      }
+      var presModel: PresentationModel = podManager.getPod(cmd.podId);
+      var pageChangeVO:PageChangeVO = presModel.getSpecificPageIds(cmd.pageId);
+      if (pageChangeVO != null) {
+        LOGGER.debug("Going to page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+        sender.goToPage(cmd.podId, pageChangeVO.presentationId, pageChangeVO.pageId);
+      } else {
+        LOGGER.debug("Could not go to selected page. Might not exist or is already current");
+      }
     }
     
     public function handleGoToPreviousPageCommand(cmd:GoToPrevPageCommand):void {
-//      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getPrevPageIds();
-//      if (pageChangeVO != null) {
-//        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
-//        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
-//      } else {
-//        LOGGER.debug("Could not find previous page to change to");
-//      }
+      var presModel: PresentationModel = podManager.getPod(cmd.podId);
+      var pageChangeVO:PageChangeVO = presModel.getPrevPageIds();
+      if (pageChangeVO != null) {
+        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+        sender.goToPage(cmd.podId, pageChangeVO.presentationId, pageChangeVO.pageId);
+      } else {
+        LOGGER.debug("Could not find previous page to change to");
+      }
     }
     
     public function handleGoToNextPageCommand(cmd:GoToNextPageCommand):void {
-//      var pageChangeVO:PageChangeVO = PresentationModel.getInstance().getNextPageIds();
-//      if (pageChangeVO != null) {
-//        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
-//        sender.goToPage(pageChangeVO.presentationId, pageChangeVO.pageId);
-//      } else {
-//        LOGGER.debug("Could not find previous page to change to");
-//      }
+      var presModel: PresentationModel = podManager.getPod(cmd.podId);
+      var pageChangeVO:PageChangeVO = presModel.getNextPageIds();
+      if (pageChangeVO != null) {
+        LOGGER.debug("Going to prev page[{0}] from presentation[{1}]", [pageChangeVO.pageId, pageChangeVO.presentationId]);
+        sender.goToPage(cmd.podId, pageChangeVO.presentationId, pageChangeVO.pageId);
+      } else {
+        LOGGER.debug("Could not find next page to change to");
+      }
     }
 
 		/**

@@ -8,10 +8,6 @@ object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg"}
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
 case class SetCurrentPresentationPubMsgBody(podId: String, presentationId: String)
 
-object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg"}
-case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
-case class SetCurrentPagePubMsgBody(presentationId: String, pageId: String)
-
 object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg"}
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
 case class ResizeAndMovePagePubMsgBody(presentationId: String, pageId: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
@@ -45,10 +41,6 @@ case class NewPresentationEvtMsgBody(presentation: PresentationVO)
 object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg"}
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
-
-object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg"}
-case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
-case class SetCurrentPageEvtMsgBody(presentationId: String, pageId: String)
 
 object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg"}
 case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg

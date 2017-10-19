@@ -8,7 +8,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 
 class PresentationApp2x(implicit val context: ActorContext)
     extends NewPresentationMsgHdlr
-    with SetCurrentPagePubMsgHdlr
     with ResizeAndMovePagePubMsgHdlr
     with RemovePresentationPubMsgHdlr
     with PresentationUploadTokenReqMsgHdlr

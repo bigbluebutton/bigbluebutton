@@ -80,6 +80,7 @@ class PresentationModel {
     }
   }
 
+  // TODO remove
   private def deactivateCurrentPage(pres: Presentation, pageIdToIgnore: String): Presentation = {
     var updatedPres = pres
     pres.pages.values.find(p => p.current && p.id != pageIdToIgnore).foreach { cp =>
@@ -91,6 +92,7 @@ class PresentationModel {
     updatedPres
   }
 
+  // TODO remove
   private def makePageCurrent(pres: Presentation, pageId: String): Option[Presentation] = {
     pres.pages.get(pageId) match {
       case Some(newCurPage) =>
@@ -104,6 +106,7 @@ class PresentationModel {
     }
   }
 
+  // TODO remove
   def changeCurrentPage(presentationId: String, pageId: String): Boolean = {
     var foundPage: Boolean = false
 

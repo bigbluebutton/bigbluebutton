@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 object PresentationPodFactory {
@@ -11,9 +11,29 @@ object PresentationPodFactory {
   }
 }
 
+case class PresentationInPod(id: String, name: String, current: Boolean = false,
+                             pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean) {
+
+  // TODO remove org.bigbluebutton.core.apps.Presentation
+
+  def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
+    pres.pages.get(pageId) match {
+      case Some(newCurPage) =>
+        val page = newCurPage.copy(current = true)
+        val newPages = pres.pages + (page.id -> page)
+        val newPres = pres.copy(pages = newPages)
+        Some(newPres)
+      case None =>
+        None
+
+    }
+  }
+
+}
+
 case class PresentationPod(id: String, ownerId: String, currentPresenter: String, authorizedPresenters: Vector[String],
-                           presentations: collection.immutable.Map[String, Presentation]) {
-  def addPresentation(presentation: Presentation): PresentationPod = {
+                           presentations: collection.immutable.Map[String, PresentationInPod]) {
+  def addPresentation(presentation: PresentationInPod): PresentationPod = {
     copy(presentations = presentations + (presentation.id -> presentation))
   }
 
@@ -26,8 +46,12 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
   def setCurrentPresenter(userId: String): PresentationPod = copy(currentPresenter = userId)
   //  def getCurrentPresenter(): String = currentPresenter
 
-  def getCurrentPresentation(): Option[Presentation] = presentations.values find (p => p.current)
-  def setCurrentPresentation(presId: String): Option[Presentation] = { // copy(currentPresenter = userId) // ****
+  def getCurrentPresentation(): Option[PresentationInPod] = presentations.values find (p => p.current)
+
+  def getPresentation(presentationId: String): Option[PresentationInPod] =
+    presentations.values find (p => p.id == presentationId)
+
+  def setCurrentPresentation(presId: String): Option[PresentationInPod] = { // copy(currentPresenter = userId) // ****
     presentations.values foreach (curPres => { // unset previous current presentation
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
@@ -43,6 +67,26 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
       case None => None
     }
 
+  }
+
+  def setCurrentPage(presentationId: String, pageId: String): Option[PresentationPod] = {
+    for {
+      pres <- presentations.get(presentationId)
+      newPres <- pres.makePageCurrent(pres, pageId)
+    } yield {
+      addPresentation(deactivateCurrentPage(newPres, pageId))
+    }
+  }
+
+  private def deactivateCurrentPage(pres: PresentationInPod, pageIdToIgnore: String): PresentationInPod = {
+    var updatedPres = pres
+    pres.pages.values.find(p => p.current && p.id != pageIdToIgnore).foreach { cp =>
+      val page = cp.copy(current = false)
+      val nPages = pres.pages + (page.id -> page)
+      val newPres = pres.copy(pages = nPages)
+      updatedPres = newPres
+    }
+    updatedPres
   }
 
   def getPresentationsSize(): Int = {
@@ -65,7 +109,7 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
   def getAllPresentationPodsInMeeting(): Vector[PresentationPod] = presentationPods.values.toVector
   def updatePresentationPod(presPod: PresentationPod): PresentationPodManager = addPod(presPod)
 
-  def addPresentationToPod(podId: String, pres: Presentation): PresentationPodManager = {
+  def addPresentationToPod(podId: String, pres: PresentationInPod): PresentationPodManager = {
     val updatedManager = for {
       pod <- getPod(podId)
     } yield {

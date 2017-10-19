@@ -23,6 +23,11 @@ case class PresentationUploadTokenReqMsgBody(podId: String, filename: String)
 object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg"}
 case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg
 case class GetAllPresentationPodsReqMsgBody(requesterId: String)
+
+object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg"}
+case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
+case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
+
 // ------------ client to akka-apps ------------
 
 
@@ -96,6 +101,11 @@ case class PresentationConversionCompletedEvtMsgBody(podId: String, messageKey: 
 object GetAllPresentationPodsRespMsg { val NAME = "GetAllPresentationPodsRespMsg"}
 case class GetAllPresentationPodsRespMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsRespMsgBody) extends StandardMsg
 case class GetAllPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
+
+object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg"}
+case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
+case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
+
 // ------------ akka-apps to client ------------
 
 
