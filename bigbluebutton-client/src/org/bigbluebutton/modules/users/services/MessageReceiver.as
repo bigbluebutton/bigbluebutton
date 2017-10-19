@@ -812,7 +812,10 @@ package org.bigbluebutton.modules.users.services
       var breakoutId: String = body.breakoutId as String;
       
 	  // Display audio join window
-	  if (LiveMeeting.inst().me.breakoutEjectFromAudio && LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId).hasUserWithId(LiveMeeting.inst().me.id)) {
+	  if (LiveMeeting.inst().me.breakoutEjectFromAudio &&
+		  LiveMeeting.inst().breakoutRooms.getBreakoutRoom(breakoutId).hasUserWithId(LiveMeeting.inst().me.id) &&
+		  !LiveMeeting.inst().me.inVoiceConf
+	  ) {
 	  	  LiveMeeting.inst().me.breakoutEjectFromAudio = false;
 		  dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 	  }
