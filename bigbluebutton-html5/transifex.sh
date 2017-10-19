@@ -46,7 +46,8 @@ else
                 			else
                         			NO_EMPTY_STRINGS=$(echo "$TRANSLATION" | sed '/: \"\"/D' | sed '/}$/D')
                         			NO_TRAILING_COMMA=$(echo "$NO_EMPTY_STRINGS" | sed  '$ s/,//')
-                        			echo -e "$NO_TRAILING_COMMA\n}\n" > ./private/locales/"$ARG".json
+                                                echo "$NO_TRAILING_COMMA" > ./private/locales/"$ARG".json
+                                                echo -e "\n}\n" >> ./private/locales/"$ARG".json
 						echo -e "Added translation file $ARG.json :${GREEN} ✓${NC}"
                 			fi
         			fi
