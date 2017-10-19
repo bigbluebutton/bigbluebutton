@@ -20,7 +20,7 @@ const notify = (message, type = 'default', icon, options) => {
   const { id: lastToastId, ...lastToastProps } = lastToast;
   const toastProps = { message, type, icon };
 
-  if (!toast.isActive(lastToast.id) || _.isEqual(lastToastProps, toastProps)) {
+  if (!toast.isActive(lastToast.id) || !_.isEqual(lastToastProps, toastProps)) {
     const id = toast(<Toast {...toastProps} />, settings);
 
     lastToast = { id, ...toastProps };
