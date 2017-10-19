@@ -1,4 +1,4 @@
-import Annotations from '/imports/api/2.0/annotations';
+import Annotations from '/imports/api/annotations';
 
 const getAnnotationById = _id => Annotations.findOne({
   _id,

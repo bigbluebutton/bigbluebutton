@@ -45,6 +45,9 @@ const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
     breakoutName={breakoutName}
   />);
 
+const closeBreakoutJoinConfirmation = (mountModal) =>
+   mountModal(null);
+
 class NavBar extends Component {
   constructor(props) {
     super(props);
@@ -143,12 +146,19 @@ class NavBar extends Component {
     );
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(oldProps) {
     const {
       breakouts,
       getBreakoutJoinURL,
       isBreakoutRoom,
     } = this.props;
+
+    const hadBreakouts = oldProps.breakouts.length;
+    const hasBreakouts = breakouts.length;
+
+    if(!hasBreakouts && hadBreakouts) {
+      closeBreakoutJoinConfirmation(this.props.mountModal);
+    }
 
     breakouts.forEach((breakout) => {
       if (!breakout.users) {

@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.layout.managers
   import flash.display.DisplayObject;
   import flash.events.Event;
   import flash.events.EventDispatcher;
+  import flash.events.IOErrorEvent;
   import flash.events.TimerEvent;
   import flash.net.FileReference;
   import flash.utils.Timer;
@@ -32,7 +33,6 @@ package org.bigbluebutton.modules.layout.managers
   import mx.events.CloseEvent;
   import mx.events.EffectEvent;
   import mx.events.ResizeEvent;
-  import mx.managers.PopUpManager;
   
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
@@ -42,6 +42,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
   import org.bigbluebutton.core.Options;
+  import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
@@ -129,9 +130,8 @@ package org.bigbluebutton.modules.layout.managers
 		public function alertSaveCurrentLayoutFile(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
-					var layoutNameWindow:CustomLayoutNameWindow = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true) as CustomLayoutNameWindow;
+					var layoutNameWindow:CustomLayoutNameWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true) as CustomLayoutNameWindow;
 					layoutNameWindow.savingForFileDownload = true;
-					PopUpManager.centerPopUp(layoutNameWindow);
 				} else if (e.detail==Alert.NO){
 					saveLayoutsWindow();
 				}
@@ -141,6 +141,9 @@ package org.bigbluebutton.modules.layout.managers
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);
+			});
+			_fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
+				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), "", Alert.OK, _canvas);
 			});
 			_fileRef.save(_layoutModel.toString(), "layouts.xml");
 		}

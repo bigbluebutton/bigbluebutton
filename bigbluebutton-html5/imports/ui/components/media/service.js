@@ -1,4 +1,4 @@
-import Presentations from '/imports/api/2.0/presentations';
+import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 
 const getPresentationInfo = () => {

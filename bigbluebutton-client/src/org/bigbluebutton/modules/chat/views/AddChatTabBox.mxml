@@ -199,7 +199,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
 	</fx:Declarations>
     
-    <mx:Label id="lblSelect" styleName="chatOptionsLabel"
+    <common:AdvancedLabel id="lblSelect" styleName="chatOptionsLabel" width="100%"
 			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
 			  visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
     <mx:List id="usersList" height="50%" width="100%" dataProvider="{users}" dragEnabled="false" 
@@ -210,7 +210,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              keyDown="onUserListKeyDown(event)"
              toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
              accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
-    <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
+    <mx:Label styleName="chatOptionsLabel" width="100%" fontWeight="bold" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
     <mx:HBox width="100%">
         <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" width="100%"/>
         <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
