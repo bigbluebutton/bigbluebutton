@@ -31,7 +31,7 @@ export default injectIntl(withToast(createContainer(({
 }) => {
   Breakouts.find().observeChanges({
     removed() {
-      toastNotify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'application');
+      toastNotify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
     },
   });
 
