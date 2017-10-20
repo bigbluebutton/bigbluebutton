@@ -43,6 +43,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+			import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
+			import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
 			<!--TODO: Move guest events to user events? -->
 
 
@@ -104,7 +106,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
 	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
 	  </EventHandlers>
-	  
+
+		<EventHandlers type="{AddUserToPresenterGroupEvent.ADD_USER_TO_PRESENTER_GROUP}" >
+			<MethodInvoker generator="{UserService}" method="addUserToPresenterGroup" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{RemoveUserFromPresenterGroupEvent.REMOVE_USER_FROM_PRESENTER_GROUP}" >
+			<MethodInvoker generator="{UserService}" method="removeUserFromPresenterGroup" arguments="{event}" />
+		</EventHandlers>
+
 	  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
 	    <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
 	  </EventHandlers>

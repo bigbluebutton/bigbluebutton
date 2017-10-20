@@ -283,3 +283,30 @@ case class GetVoiceUsersMeetingRespMsgBody(users: Vector[VoiceConfUser])
 case class VoiceConfUser(intId: String, voiceUserId: String, callingWith: String, callerName: String,
                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
 
+/**
+  * Sent from client to add user to the presenter group of a meeting.
+  */
+object AddUserToPresenterGroupCmdMsg { val NAME = "AddUserToPresenterGroupCmdMsg" }
+case class AddUserToPresenterGroupCmdMsg(header: BbbClientMsgHeader, body: AddUserToPresenterGroupCmdMsgBody) extends StandardMsg
+case class AddUserToPresenterGroupCmdMsgBody(userId: String, requesterId: String)
+
+/**
+  * Sent to all clients about a user added to the presenter group of a meeting
+  */
+object UserAddedToPresenterGroupEvtMsg { val NAME = "UserAddedToPresenterGroupEvtMsg" }
+case class UserAddedToPresenterGroupEvtMsg(header: BbbClientMsgHeader, body: UserAddedToPresenterGroupEvtMsgBody) extends StandardMsg
+case class UserAddedToPresenterGroupEvtMsgBody(userId: String, requesterId: String)
+
+/**
+  * Sent from client to remove user from the presenter group of a meeting.
+  */
+object RemoveUserFromPresenterGroupCmdMsg { val NAME = "RemoveUserFromPresenterGroupCmdMsg" }
+case class RemoveUserFromPresenterGroupCmdMsg(header: BbbClientMsgHeader, body: RemoveUserFromPresenterGroupCmdMsgBody) extends StandardMsg
+case class RemoveUserFromPresenterGroupCmdMsgBody(userId: String, requesterId: String)
+
+/**
+  * Sent to all clients about a user removed from the presenter group of a meeting
+  */
+object UserRemovedFromPresenterGroupEvtMsg { val NAME = "UserRemovedFromPresenterGroupEvtMsg" }
+case class UserRemovedFromPresenterGroupEvtMsg(header: BbbClientMsgHeader, body: UserRemovedFromPresenterGroupEvtMsgBody) extends StandardMsg
+case class UserRemovedFromPresenterGroupEvtMsgBody(userId: String, requesterId: String)

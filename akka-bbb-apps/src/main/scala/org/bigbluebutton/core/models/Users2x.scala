@@ -106,10 +106,32 @@ object Users2x {
   def findModerator(users: Users2x): Option[UserState] = {
     users.toVector.find(u => u.role == Roles.MODERATOR_ROLE)
   }
+
+  def addUserToPresenterGroup(users: Users2x, userIdToAdd: String): Boolean = {
+    // returns Boolean(successful operation)
+    users.updatePresenterGroup(users.presenterGroup.:+(userIdToAdd))
+    users.presenterGroup.contains(userIdToAdd)
+  }
+
+  def removeUserFromPresenterGroup(users: Users2x, userIdToRemove: String): Boolean = {
+    // returns Boolean(successful operation)
+    users.updatePresenterGroup(users.presenterGroup.filterNot(_ == userIdToRemove))
+    !users.presenterGroup.contains(userIdToRemove)
+  }
+
+  def getPresenterGroupUsers(users2x: Users2x): Vector[String] = {
+    users2x.presenterGroup
+  }
+
+  def userIsInPresenterGroup(users2x: Users2x, userId: String): Boolean = {
+    users2x.presenterGroup.contains(userId)
+  }
+
 }
 
 class Users2x {
   private var users: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
+  private var presenterGroup: Vector[String] = scala.collection.immutable.Vector.empty
 
   // Collection of users that left the meeting. We keep a cache of the old users state to recover in case
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
@@ -148,6 +170,11 @@ class Users2x {
   private def findUserFromCache(intId: String): Option[UserState] = {
     usersCache.values.find(u => u.intId == intId)
   }
+
+  private def updatePresenterGroup(updatedGroup: Vector[String]): Unit = {
+    presenterGroup = updatedGroup
+  }
+
 }
 
 case class UserState(intId: String, extId: String, name: String, role: String,
