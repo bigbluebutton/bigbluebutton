@@ -35,6 +35,7 @@ import org.red5.server.api.stream.IPlayItem;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.ISubscriberStream;
+import org.red5.server.scheduling.QuartzSchedulingService;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
 
@@ -46,6 +47,9 @@ import java.util.regex.Pattern;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
     private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
+
+    // Scheduler
+    private QuartzSchedulingService scheduler;
 
     private MessagePublisher publisher;
     private EventRecordingService recordingService;
@@ -65,6 +69,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public boolean appStart(IScope app) {
         super.appStart(app);
         log.info("BBB Video appStart");
+        // get the scheduler
+        scheduler = (QuartzSchedulingService) getContext().getBean(QuartzSchedulingService.BEAN_NAME);
         return true;
     }
 
@@ -255,7 +261,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             log.info("Start recording of stream=[" + stream.getPublishedName() + "] for meeting=[" + conn.getScope().getName() + "]");
             Boolean recordVideoStream = true;
 
-            VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream, userId, packetTimeout);
+            VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
+                    recordVideoStream, userId, packetTimeout, scheduler);
             listener.setEventRecordingService(recordingService);
             stream.addStreamListener(listener);
             streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);

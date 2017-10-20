@@ -67,7 +67,7 @@ public class VideoStreamListener implements IStreamListener {
     private String userId;
     
     // Stream being observed
-    private IBroadcastStream stream;
+    private String streamId;
  
     // if this stream is recorded or not
     private boolean record;
@@ -82,17 +82,17 @@ public class VideoStreamListener implements IStreamListener {
     
     private volatile boolean streamPaused = false;
     
-    private IScope scope;
+    private String meetingId;
     
-    public VideoStreamListener(IScope scope, IBroadcastStream stream, Boolean record, String userId, int packetTimeout) {
-    	this.scope = scope;
-        this.stream = stream;
+    public VideoStreamListener(String meetingId, String streamId, Boolean record,
+							   String userId, int packetTimeout,
+							   QuartzSchedulingService scheduler) {
+    	this.meetingId = meetingId;
+        this.streamId = streamId;
         this.record = record;
         this.videoTimeout = packetTimeout;
         this.userId = userId;
-        
-        // get the scheduler
-        scheduler = (QuartzSchedulingService) scope.getParent().getContext().getBean(QuartzSchedulingService.BEAN_NAME);
+        this.scheduler = scheduler;
 
      }
 	
@@ -127,11 +127,11 @@ public class VideoStreamListener implements IStreamListener {
 		    		  Map<String, String> event = new HashMap<String, String>();
 		    		  event.put("module", "WEBCAM");
 		    		  event.put("timestamp", genTimestamp().toString());
-		    		  event.put("meetingId", scope.getName());
+		    		  event.put("meetingId", meetingId);
 		    		  event.put("stream", stream.getPublishedName());
 		    		  event.put("eventName", "StartWebcamShareEvent");
 		    			
-		    		  recordingService.record(scope.getName(), event);
+		    		  recordingService.record(meetingId, event);
 		          }		          
 	    	  }
 	    	  
@@ -142,7 +142,7 @@ public class VideoStreamListener implements IStreamListener {
 	    		  long numSeconds = (now - lastVideoTime)/1000;
 	            	
 	    		  Map<String, Object> logData = new HashMap<String, Object>();
-	    		  logData.put("meetingId", scope.getName());
+	    		  logData.put("meetingId", meetingId);
 	    		  logData.put("userId", userId);
 	    		  logData.put("stream", stream.getPublishedName());
 	    		  logData.put("packetCount", packetCount);
@@ -173,9 +173,9 @@ public class VideoStreamListener implements IStreamListener {
     	
         public void execute(ISchedulingService service) {
     		Map<String, Object> logData = new HashMap<String, Object>();
-    		logData.put("meetingId", scope.getName());
+    		logData.put("meetingId", meetingId);
     		logData.put("userId", userId);
-    		logData.put("stream", stream.getPublishedName());
+    		logData.put("stream", streamId);
     		logData.put("packetCount", packetCount);
     		logData.put("publishing", publishing);
     		
@@ -185,28 +185,12 @@ public class VideoStreamListener implements IStreamListener {
             if ((now - lastVideoTime) > videoTimeout && !streamPaused) {
             	streamPaused = true;
             	long numSeconds = (now - lastVideoTime)/1000;
-            	
 
         		logData.put("lastPacketTime (sec)", numSeconds);
-        		
-        		
+
         		String logStr =  gson.toJson(logData);
         		
                 log.warn("Video packet timeout. data={}", logStr );
-                
-
-                
-/*                
-                if (!streamStopped) {
-                	streamStopped = true;
-                    // remove the scheduled job
-                    scheduler.removeScheduledJob(timeoutJobName);
-                    // stop / clean up
-                    if (publishing) {
-                    	stream.stop(); 	
-                    }                                   	
-                }
-*/                
                 
             }
             
