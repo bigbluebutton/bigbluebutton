@@ -15,7 +15,7 @@ import {
   getFontSize,
   getCaptionsStatus,
   meetingIsBreakout,
-  getBreakoutIds,
+  getBreakoutSessionTokens,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -110,7 +110,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       if (!meetingIsBreakout()) {
         sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
       } else {
-        if (window.navigator.userAgent === 'BigBlueButton') {
+        if (IosHandler.isApp) {
           IosHandler.leaveRoom();
         } else {
           window.close();
@@ -123,12 +123,12 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
     removed(old) {
       const {
-        meetingID
+        meetingID,
       } = Auth;
       console.log('Im here');
       Auth.clearCredentials().then(() => {
-        if(window.navigator.userAgent === 'BigBlueButton') {
-          iosHandler.leaveRoom();
+        if(IosHandler.isApp) {
+          IosHandler.leaveRoom();
         } else {
           window.close;
         }
@@ -137,7 +137,8 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   });
 
   return {
-    breakoutIds: getBreakoutIds(),
+    meetingIsBreakout: meetingIsBreakout(),
+    breakoutSessionTokens: getBreakoutSessionTokens(),
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
   };

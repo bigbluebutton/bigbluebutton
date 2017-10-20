@@ -1,5 +1,6 @@
 import BaseAudioBridge from './base';
 import { makeCall } from '/imports/ui/services/api';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 const VERTO_PORT = Meteor.settings.public.media.vertoPort;
 const FS_USERNAME = Meteor.settings.public.media.fsUsername;
@@ -99,6 +100,6 @@ export default class IOSBridge extends BaseAudioBridge {
 
   _sendMessageToSwift(message) {
     console.log('Sending message to swift', message);
-    window.webkit.messageHandlers.bbb.postMessage(JSON.stringify(message));
+    IosHandler.postMessage(JSON.stringify(message));
   }
 }

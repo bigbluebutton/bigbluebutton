@@ -17,13 +17,21 @@ function meetingIsBreakout() {
   return (breakouts && breakouts.some(b => b.breakoutId === Auth.meetingID));
 }
 
-function getBreakoutIds() {
-  return Breakouts.find().fetch().map(b => b.breakoutId);
+function getBreakoutSessionTokens() {
+  if (!meetingIsBreakout()) {
+    const sessionTokens = Breakouts.find().fetch().map((b) => {
+      const breakoutUser = b.users.find(u => u.userId === Auth.userID);
+
+      return breakoutUser.urlParams.sessionToken;
+    });
+    console.log('lul3d', sessionTokens);
+    return Breakouts.find().fetch().map(b => b.breakoutId);
+  }
 }
 
 export {
   getCaptionsStatus,
   getFontSize,
   meetingIsBreakout,
-  getBreakoutIds,
+  getBreakoutSessionTokens,
 };

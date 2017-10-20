@@ -48,7 +48,7 @@ class BreakoutJoinConfirmation extends Component {
     // leave main room's audio when joining a breakout room
     AudioService.exitAudio();
     if (breakoutURL) {
-      if(window.navigator.userAgent === 'BigBlueButton') {
+      if(IosHandler.isApp) {
         const meetingId = breakoutURL.split('=')[1];
 
         IosHandler.goToRoom(breakoutURL, meetingId);
@@ -56,7 +56,7 @@ class BreakoutJoinConfirmation extends Component {
         window.open(breakoutURL);
       }
     } else {
-      if(window.navigator.userAgent === 'BigBlueButton') {
+      if(IosHandler.isApp) {
         IosHandler.goToMainMeeting();
       }
     }

@@ -3,16 +3,27 @@ import AudioManager from '/imports/ui/components/audio/service';
 
 class IosHandler {
   constructor() {
-    this.isIosApp = window.navigator.userAgent === 'BigBlueButton';
+    this.isIosApp = window.navigator.userAgent === 'BigBlueButtonIOS';
+    this.isAndroidApp = window.navigator.userAgent ===  'BigBlueButtonAndroid';
+
+    if (this.isIosApp || this.isAndroidApp) {
+      this.isApp = true;
+    }
+
+    console.log('LUL3d', this.isApp);
 
     if (this.isIosApp) {
       this.messageHandler = window.webkit.messageHandlers.bbb;
+    } else if (this.isAndroidApp) {
+      this.messageHandler = window.Android;
     }
+
+    console.log(this.isIosApp, this.isAndroidApp, this.isApp, this.messageHandler);
   }
 
   postMessage(message) {
     console.log('isIosApp', this.isIosApp, message);
-    if (this.isIosApp) {
+    if (this.isApp) {
       return this.messageHandler.postMessage(JSON.stringify(message));
     }
   }
@@ -87,7 +98,7 @@ class IosHandler {
 
   sendCallParameters() {
     console.log('if ios app will send parameters from call');
-    if (this.isIosApp) {
+    if (this.isIosApp || this.isAndroidApp) {
       console.log(AudioManager);
       AudioManager.sendCallParameters();
     }

@@ -67,10 +67,12 @@ class App extends Component {
 
     IosHandler.sendCallParameters();
     IosHandler.applicationLoaded();
-    window.addEventListener('requestBreakoutRooms',
-    (e) => {
-      IosHandler.updateBreakoutRooms(this.props.breakoutIds);
-    });
+    if(!this.props.meetingIsBreakout) {
+      window.addEventListener('requestBreakoutRooms',
+      (e) => {
+        IosHandler.updateBreakoutRooms(this.props.breakoutSessionTokens);
+      });
+    }
   }
 
   renderNavBar() {

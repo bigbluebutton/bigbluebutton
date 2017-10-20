@@ -71,7 +71,7 @@ class AudioManager {
     }
     const MEDIA_CONFIG = Meteor.settings.public.media;
     let audioBridge;
-    if (window.navigator.userAgent === 'BigBlueButton') {
+    if (window.navigator.userAgent === 'BigBlueButtonIOS' || window.navigator.userAgent === 'BigBlueButtonAndroid') {
       audioBridge = new IOSBridge(userData);
     } else {
       audioBridge = MEDIA_CONFIG.useSIPAudio ? new SIPBridge(userData) : new VertoBridge(userData);
