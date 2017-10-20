@@ -18,6 +18,7 @@ const AudioControls = ({
   handleLeaveAudio,
   mute,
   unmute,
+  disable,
   join,
 }) => (
   <span className={styles.container}>
@@ -34,6 +35,7 @@ const AudioControls = ({
     <Button
       className={styles.button}
       onClick={join ? handleLeaveAudio : handleJoinAudio}
+      disable={disable}
       label={join ? 'Leave Audio' : 'Join Audio'}
       color={join ? 'danger' : 'primary'}
       icon={join ? 'audio_off' : 'audio_on'}

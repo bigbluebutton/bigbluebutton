@@ -77,7 +77,7 @@ class AudioManager {
       inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
     };
 
-    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this))
   }
 
   exitAudio() {
@@ -97,12 +97,11 @@ class AudioManager {
 
   onAudioJoin() {
     this.isConnecting = false;
-    if (this.isEchoTest) {
-      return;
-    }1
-
-    notify(this.messages.info.JOINED_AUDIO, 'info', 'audio_on');
     this.isConnected = true;
+
+    if (!this.isEchoTest) {
+      notify(this.messages.info.JOINED_AUDIO, 'info', 'audio_on');
+    }
   }
 
   onTransferStart() {
@@ -114,16 +113,11 @@ class AudioManager {
     this.isConnected = false;
     this.isConnecting = false;
 
-    if (this.isEchoTest) {
-      this.isEchoTest = false;
-      return;
-    }
 
-    if (this.error) {
-      return;
+    if (!this.error && !this.isEchoTest) {
+      notify(this.messages.info.LEFT_AUDIO, 'info', 'audio_on');
     }
-
-    notify(this.messages.info.LEFT_AUDIO, 'info', 'audio_on');
+    this.isEchoTest = false;
   }
 
   onToggleMicrophoneMute() {
@@ -151,6 +145,7 @@ class AudioManager {
       } else if (status === FAILED) {
         this.error = error;
         notify(this.messages.error[error], 'error', 'audio_on');
+        console.error('Audio Error:', error);
         this.onAudioExit();
       }
     });

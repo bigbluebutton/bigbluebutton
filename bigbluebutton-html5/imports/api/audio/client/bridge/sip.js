@@ -9,22 +9,20 @@ const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 
 const fetchStunTurnServers = sessionToken =>
   new Promise(async (resolve, reject) => {
-    const handleStunTurnResponse = ({ result, stunServers, turnServers }) =>
-      new Promise((resolve) => {
-        if (result) {
-          resolve({ error: 404, stun: [], turn: [] });
-        }
-        resolve({
-          stun: stunServers.map(server => server.url),
-          turn: turnServers.map(server => server.url),
-        });
-      });
+    const handleStunTurnResponse = ({ stunServers, turnServers }) => {
+      if (!stunServers && !turnServers) {
+        return { error: 404, stun: [], turn: [] };
+      }
+      return {
+        stun: stunServers.map(server => server.url),
+        turn: turnServers.map(server => server.url),
+      };
+    };
 
     const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
-
     const response = await fetch(url)
       .then(res => res.json())
-      .then(json => handleStunTurnResponse(json));
+      .then(handleStunTurnResponse);
 
     if (response.error) return reject('Could not fetch the stuns/turns servers!');
     return resolve(response);
@@ -52,7 +50,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
-    const causes = window.SIP.C.causes
+    const causes = window.SIP.C.causes;
     this.errorCodes = {
       [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
       [causes.INVALID_TARGET]: this.baseErrorCodes.INVALID_TARGET,
@@ -72,10 +70,40 @@ export default class SIPBridge extends BaseAudioBridge {
 
       return this.doCall({ callExtension, isListenOnly, inputStream }, callback)
                  .catch((reason) => {
-                   callback({ status: this.baseCallStates.failed, error: reason });
+                   callback({
+                     status: this.baseCallStates.failed,
+                     error: this.baseErrorCodes.GENERIC_ERROR,
+                     bridgeError: reason,
+                   });
                    reject(reason);
                  });
     });
+  }
+
+  doCall(options) {
+    const {
+      isListenOnly,
+    } = options;
+
+    const {
+      userId,
+      name,
+      sessionToken,
+    } = this.user;
+
+    const callerIdName = [
+      userId,
+      'bbbID',
+      isListenOnly ? `LISTENONLY-${name}` : name,
+    ].join('-');
+
+    this.user.callerIdName = callerIdName;
+    this.callOptions = options;
+
+    return fetchStunTurnServers(sessionToken)
+                        .then(this.createUserAgent.bind(this))
+                        .then(this.inviteUserAgent.bind(this))
+                        .then(this.setupEventHandlers.bind(this));
   }
 
   transferCall(onTransferSuccess) {
@@ -89,7 +117,7 @@ export default class SIPBridge extends BaseAudioBridge {
           status: this.baseCallStates.failed,
           error: this.baseErrorCodes.REQUEST_TIMEOUT,
           bridgeError: 'Timeout on call transfer' });
-        reject('Timeout on call transfer');
+        reject(this.baseErrorCodes.REQUEST_TIMEOUT);
       }, CALL_TRANSFER_TIMEOUT);
 
       // This is is the call transfer code ask @chadpilkey
@@ -121,32 +149,6 @@ export default class SIPBridge extends BaseAudioBridge {
       });
       this.currentSession.bye();
     });
-  }
-
-  doCall(options) {
-    const {
-      isListenOnly,
-    } = options;
-
-    const {
-      userId,
-      name,
-      sessionToken,
-    } = this.user;
-
-    const callerIdName = [
-      userId,
-      'bbbID',
-      isListenOnly ? `LISTENONLY-${name}` : name,
-    ].join('-');
-
-    this.user.callerIdName = callerIdName;
-    this.callOptions = options;
-
-    return fetchStunTurnServers(sessionToken)
-                        .then(this.createUserAgent.bind(this))
-                        .then(this.inviteUserAgent.bind(this))
-                        .then(this.setupEventHandlers.bind(this));
   }
 
   createUserAgent({ stun, turn }) {
@@ -187,9 +189,9 @@ export default class SIPBridge extends BaseAudioBridge {
         userAgent = null;
         this.callback({
           status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.GENERIC_ERROR,
-          bridgeError: 'User Agent' });
-        reject('CONNECTION_ERROR');
+          error: this.baseErrorCodes.CONNECTION_ERROR,
+          bridgeError: 'User Agent Disconnected' });
+        reject(this.baseErrorCodes.CONNECTION_ERROR);
       };
 
       userAgent.on('connected', handleUserAgentConnection);
@@ -248,6 +250,7 @@ export default class SIPBridge extends BaseAudioBridge {
         const mappedCause = cause in this.errorCodes ?
                             this.errorCodes[cause] :
                             this.baseErrorCodes.GENERIC_ERROR;
+
         return this.callback({
           status: this.baseCallStates.failed,
           error: mappedCause,
@@ -295,7 +298,7 @@ export default class SIPBridge extends BaseAudioBridge {
       media.inputDevice.audioContext = new window.webkitAudioContext();
     }
     media.inputDevice.scriptProcessor = media.inputDevice.audioContext
-                                            .createScriptProcessor(2048, 1, 1);
+                                              .createScriptProcessor(2048, 1, 1);
     media.inputDevice.source = null;
 
     const constraints = {
@@ -318,6 +321,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
     if (audioContext.setSinkId) {
       audioContext.setSinkId(value);
+      this.media.outputDeviceId = value;
     }
 
     return value;
