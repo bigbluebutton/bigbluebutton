@@ -22,9 +22,6 @@ package org.bigbluebutton.main.model.options {
 	public class SkinningOptions extends Options {
 
 		[Bindable]
-		public var enabled:Boolean = true;
-
-		[Bindable]
 		public var url:String = "";
 
 		public function SkinningOptions() {
