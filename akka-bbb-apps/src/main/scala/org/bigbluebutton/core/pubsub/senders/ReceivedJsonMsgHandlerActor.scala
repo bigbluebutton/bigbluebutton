@@ -107,6 +107,8 @@ class ReceivedJsonMsgHandlerActor(
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[RecordingStartedVoiceConfEvtMsg](envelope, jsonNode)
+      case VoiceConfRunningEvtMsg.NAME =>
+        routeVoiceMsg[VoiceConfRunningEvtMsg](envelope, jsonNode)
       case UserJoinedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserJoinedVoiceConfEvtMsg](envelope, jsonNode)
       case UserLeftVoiceConfEvtMsg.NAME =>

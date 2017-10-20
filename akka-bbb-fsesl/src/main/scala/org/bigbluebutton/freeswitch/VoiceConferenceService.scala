@@ -23,6 +23,19 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   }
 
+  def voiceConfRunning(voiceConfId: String, running: java.lang.Boolean): Unit = {
+    println("*************######## Conference voiceConfId=" + voiceConfId + " running=" + running)
+    val header = BbbCoreVoiceConfHeader(VoiceConfRunningEvtMsg.NAME, voiceConfId)
+    val body = VoiceConfRunningEvtMsgBody(voiceConfId, running.booleanValue())
+    val envelope = BbbCoreEnvelope(VoiceConfRunningEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new VoiceConfRunningEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
   def userJoinedVoiceConf(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
     callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean, avatarURL: String) {
 
