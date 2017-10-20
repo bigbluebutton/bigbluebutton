@@ -18,7 +18,7 @@ export default function clearAnnotations(meetingId, whiteboardId, userId) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Removing Shapes2x from collection: ${err}`);
+      return Logger.error(`Removing Annotations from collection: ${err}`);
     }
 
     if (!meetingId) {
@@ -26,10 +26,10 @@ export default function clearAnnotations(meetingId, whiteboardId, userId) {
     }
 
     if (userId) {
-      return Logger.info(`Removed Shapes2x for userId=${userId} where whiteboard=${whiteboardId}`);
+      return Logger.info(`Removed Annotations for userId=${userId} where whiteboard=${whiteboardId}`);
     }
 
-    return Logger.info(`Removed Shapes2x where whiteboard=${whiteboardId}`);
+    return Logger.info(`Removed Annotations where whiteboard=${whiteboardId}`);
   };
 
   return Annotations.remove(selector, cb);

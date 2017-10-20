@@ -48,15 +48,15 @@ export default function addPoll(meetingId, requesterId, poll) {
 
   const cb = (err, numChanged) => {
     if (err != null) {
-      return Logger.error(`Adding Poll2x to collection: ${poll.id}`);
+      return Logger.error(`Adding Poll to collection: ${poll.id}`);
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added Poll2x id=${poll.id}`);
+      return Logger.info(`Added Poll id=${poll.id}`);
     }
 
-    return Logger.info(`Upserted Poll2x id=${poll.id}`);
+    return Logger.info(`Upserted Poll id=${poll.id}`);
   };
 
   return Polls.upsert(selector, modifier, cb);

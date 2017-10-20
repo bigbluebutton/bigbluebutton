@@ -33,7 +33,6 @@ package org.bigbluebutton.modules.layout.managers
   import mx.events.CloseEvent;
   import mx.events.EffectEvent;
   import mx.events.ResizeEvent;
-  import mx.managers.PopUpManager;
   
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
@@ -43,6 +42,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
   import org.bigbluebutton.core.Options;
+  import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
@@ -130,9 +130,8 @@ package org.bigbluebutton.modules.layout.managers
 		public function alertSaveCurrentLayoutFile(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
-					var layoutNameWindow:CustomLayoutNameWindow = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true) as CustomLayoutNameWindow;
+					var layoutNameWindow:CustomLayoutNameWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true) as CustomLayoutNameWindow;
 					layoutNameWindow.savingForFileDownload = true;
-					PopUpManager.centerPopUp(layoutNameWindow);
 				} else if (e.detail==Alert.NO){
 					saveLayoutsWindow();
 				}

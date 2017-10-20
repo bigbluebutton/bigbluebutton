@@ -37,4 +37,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.chat', boundChat)(args);
 }
 
-Meteor.publish('chat2x', publish);
+Meteor.publish('chat', publish);

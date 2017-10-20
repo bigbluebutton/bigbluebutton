@@ -79,11 +79,11 @@ export default function addMeeting(meeting) {
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      Logger.info(`Added meeting2x id=${meetingId}`);
+      Logger.info(`Added meeting id=${meetingId}`);
     }
 
     if (numChanged) {
-      Logger.info(`Upserted meeting2x id=${meetingId}`);
+      Logger.info(`Upserted meeting id=${meetingId}`);
     }
   };
 
