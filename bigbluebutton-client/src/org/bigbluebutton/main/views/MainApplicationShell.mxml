@@ -170,11 +170,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
 			[Bindable] public var appVersion:String = ' ';
-			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
-			
-			private var receivedConfigLocaleVer:Boolean = false;
-			private var receivedResourceLocaleVer:Boolean = false;
 			
 			[Bindable] private var copyrightText:String;
 
@@ -335,42 +331,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.height = appHeight - (_showFooter ? footerHeight: 0) - (_showToolbar ? toolbarHeight: 0);
 				updateCanvasBackgroundDimensions();
 			}
-			
-			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
-                var logData:Object = UsersUtil.initLogData();
-                
-				if (event.configLocaleVersion == true) {
-					receivedConfigLocaleVer = true;
-					appVersion = event.appVersion;
-					localeVersion = event.localeVersion;
-          updateCopyrightText();
-          
-                    logData.localeVersion = localeVersion;
-                    logData.tags = ["locale"];
-                    logData.appVersion = appVersion;
-                    logData.message = "Received locale version from config.xml";
-                    LOGGER.info(JSON.stringify(logData));
-      
-					LOGGER.debug("Received locale version fron config.xml");
-				} else {
-					receivedResourceLocaleVer = true;
 
-                    logData.tags = ["locale"];
-                    logData.message = "Received locale version from locale file";
-                    LOGGER.info(JSON.stringify(logData));
-				}
-				
-				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LOGGER.debug("Comparing locale versions.");
-					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
-					if (sendStartModulesEvent) {
-            
-						sendStartModulesEvent = false;
-						sendStartAllModulesEvent();
-					}				
-				}						
+			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
+				var logData:Object = UsersUtil.initLogData();
+
+				appVersion = event.appVersion;
+				updateCopyrightText();
+
+				logData.appVersion = appVersion;
+				LOGGER.info(JSON.stringify(logData));
+
+				logData.message = "Received application version event";
+				sendStartAllModulesEvent();
 			}
-			
+
 			public function sendStartAllModulesEvent():void{
 				LOGGER.debug("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
@@ -541,26 +515,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			mdiCanvas.addChild(e.component);
 	   		}
 	   		
-	   		public function checkLocaleVersion(localeVersion:String):void {	   			
-	   			Alert.okLabel ="OK";
-				var version:String = "old-locales";
-				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-                
-                var logData:Object = UsersUtil.initLogData();
-                logData.configVersion = localeVersion;
-                logData.localeVersion = version;
-                logData.locale = ResourceUtil.getInstance().getCurrentLanguageCode();
-                logData.tags = ["locale"];
-                logData.message = "Loaded locale.";
-                LOGGER.info(JSON.stringify(logData));
-                    
-				if ((version == "old-locales") || (version == "") || (version == null)) {
-					wrongLocaleVersion();
-				} else {
-					if (version != localeVersion) wrongLocaleVersion();
-				}	   			
-	   		}
-
 			private function handleInactivityWarningEvent(e:BBBEvent):void {
 				var inactivityWarning:InactivityWarningWindow = PopUpUtil.createModalPopUp(mdiCanvas, InactivityWarningWindow, true) as InactivityWarningWindow;
 				inactivityWarning.duration = e.payload.duration;
@@ -602,18 +556,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     point1.y = height / 2;
                     camSettings.x = point1.x - (camSettings.width / 2);
                     camSettings.y = point1.y - (camSettings.height / 2);
-                }
-            }
-
-            private function wrongLocaleVersion():void {
-                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModalPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
-                if (localeWindow) {
-                    var point1:Point = new Point();
-                    // Calculate position of TitleWindow in Application's coordinates. 
-                    point1.x = width / 2;
-                    point1.y = height / 2;
-                    localeWindow.x = point1.x - (localeWindow.width / 2);
-                    localeWindow.y = point1.y - (localeWindow.height / 2);
                 }
             }
 
