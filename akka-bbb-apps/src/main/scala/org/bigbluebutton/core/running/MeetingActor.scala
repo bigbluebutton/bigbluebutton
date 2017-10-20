@@ -8,12 +8,10 @@ import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
-//import java.util.concurrent.TimeUnit
 
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x

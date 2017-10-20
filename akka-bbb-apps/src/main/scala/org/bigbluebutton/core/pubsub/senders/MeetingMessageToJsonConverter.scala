@@ -2,7 +2,6 @@ package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
-import org.bigbluebutton.messages._
 
 object MeetingMessageToJsonConverter {
   def meetingDestroyedToJson(msg: MeetingDestroyed): String = {
