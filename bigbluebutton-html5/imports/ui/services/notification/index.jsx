@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import { toast } from 'react-toastify';
 
-import Toast from './component';
+import Toast from '/imports/ui/components/toast/component';
 
 let lastToast = {
   id: null,
@@ -27,7 +27,6 @@ const notify = (message, type = 'default', icon, options) => {
   }
 };
 
-export default notify;
-
-export const withToast = ComponentToWrap =>
-  props => (<ComponentToWrap {...props} toastNotify={notify} />);
+export default {
+  notify,
+};
