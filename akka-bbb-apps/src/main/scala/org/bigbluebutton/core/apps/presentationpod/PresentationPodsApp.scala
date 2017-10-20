@@ -1,10 +1,8 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.domain._
-import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.LiveMeeting
 
 object PresentationPodsApp {
 
@@ -47,8 +45,13 @@ object PresentationPodsApp {
     state.update(podManager)
   }
 
-  def translatePresentationToPresentationVO(pres: Presentation): PresentationVO = {
+  def translatePresentationToPresentationVO(pres: PresentationInPod): PresentationVO = {
     PresentationVO(pres.id, pres.name, pres.current, pres.pages.values.toVector, pres.downloadable)
+  }
+
+  def verifyPresenterStatus(state: MeetingState2x, podId: String, userId: String): Option[String] = {
+    // TODO check if the user belongs in the presenter group
+    Some(userId)
   }
 
 }

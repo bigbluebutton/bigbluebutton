@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageLocalCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PageChangedEvent;
 			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
@@ -149,7 +149,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function changeSlide():void {
 				var data:Page = thumbnailView.selectedItem as Page;
 				LOGGER.debug("Change page from thumbnail. Selected page [{0}]", [data.id]);
-				dispatchEvent(new GoToPageCommand(data.id));
+
+				dispatchEvent(new GoToPageLocalCommand(data.id));
 				thumbnailView.visible = false;
 			}
 			

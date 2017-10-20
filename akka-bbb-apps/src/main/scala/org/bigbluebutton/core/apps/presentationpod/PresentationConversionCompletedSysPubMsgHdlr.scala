@@ -5,7 +5,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.domain.{ PageVO, PresentationVO }
-import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.core.models.PresentationInPod
 
 trait PresentationConversionCompletedSysPubMsgHdlr {
 
@@ -39,7 +39,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pages += page.id -> page
     }
 
-    val pres = new Presentation(msg.body.presentation.id, msg.body.presentation.name, msg.body.presentation.current,
+    val pres = new PresentationInPod(msg.body.presentation.id, msg.body.presentation.name, msg.body.presentation.current,
       pages.toMap, msg.body.presentation.downloadable)
     val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres)
     val podId = msg.body.podId
