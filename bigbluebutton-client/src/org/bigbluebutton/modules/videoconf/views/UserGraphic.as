@@ -62,12 +62,12 @@ package org.bigbluebutton.modules.videoconf.views
                 object_height = unscaledHeight;
                 object_width = Math.ceil(unscaledHeight * aspectRatio);
                 object_y = BORDER_THICKNESS;
-                object_x = Math.floor((unscaledWidth - object.width) / 2);
+                object_x = Math.floor((unscaledWidth - object_width) / 2);
             } else {
                 object_width = unscaledWidth;
                 object_height = Math.ceil(unscaledWidth / aspectRatio);
                 object_x = BORDER_THICKNESS;
-                object_y = Math.floor((unscaledHeight - object.height) / 2);
+                object_y = Math.floor((unscaledHeight - object_height) / 2);
             }
 
             object.x = object_x;

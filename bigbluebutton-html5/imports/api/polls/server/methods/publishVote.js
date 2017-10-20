@@ -43,10 +43,10 @@ export default function publishVote(credentials, id, pollAnswerId) { // TODO dis
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Updating Polls2x collection: ${err}`);
+      return Logger.error(`Updating Polls collection: ${err}`);
     }
 
-    return Logger.info(`Updating Polls2x collection (meetingId: ${meetingId},
+    return Logger.info(`Updating Polls collection (meetingId: ${meetingId},
                                             pollId: ${currentPoll.id}!)`);
   };
 

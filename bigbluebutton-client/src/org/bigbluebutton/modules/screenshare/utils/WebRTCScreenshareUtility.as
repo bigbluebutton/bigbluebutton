@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.screenshare.utils
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+  import org.bigbluebutton.util.browser.BrowserCheck;
 
   public class WebRTCScreenshareUtility {
     private static const LOGGER:ILogger = getClassLogger(WebRTCScreenshareUtility);

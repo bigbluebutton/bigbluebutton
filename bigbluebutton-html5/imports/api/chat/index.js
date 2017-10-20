@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
-const Chat = new Mongo.Collection('chat2x');
+const Chat = new Mongo.Collection('chat');
 
 if (Meteor.isServer) {
   // types of queries for the chat:

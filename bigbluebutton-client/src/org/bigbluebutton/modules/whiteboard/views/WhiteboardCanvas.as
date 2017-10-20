@@ -76,6 +76,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			whiteboardToolbar.whiteboardAccessModified(wbModel.multiUser);
 			
 			this.clipContent = true;
+			this.mouseEnabled = false;
 			
 			//create the annotation display container
 			this.addChild(graphicObjectHolder);
@@ -119,12 +120,14 @@ package org.bigbluebutton.modules.whiteboard.views {
 			addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
 			addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			mouseEnabled = true;
 		}
 		
 		private function unregisterForMouseEvents():void {
 			removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
 			removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			mouseEnabled = false;
 		}
 		
 		private function doMouseUp(event:MouseEvent):void {

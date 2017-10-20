@@ -25,8 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				width="600" height="390"
 				verticalScrollPolicy="off"
 				creationComplete="onCreationComplete()" 
-				showCloseButton="false" 
-				close="onCancelClicked()" 
+				showCloseButton="false"
 				keyDown="handleKeyDown(event)">
 
 	<fx:Declarations>
@@ -44,7 +43,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.ui.Keyboard;
 			
 			import mx.controls.sliderClasses.Slider;
-			import mx.events.CloseEvent;
 			import mx.events.SliderEvent;
 			
 			import org.as3commons.logging.api.ILogger;
@@ -184,7 +182,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// Added by Chad to enable closing the window without clicking the X
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
-					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+					onCancelClicked();
 				}
 			}
 								

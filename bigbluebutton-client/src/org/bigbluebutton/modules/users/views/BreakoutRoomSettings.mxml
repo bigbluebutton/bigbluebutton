@@ -25,8 +25,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:mate="http://mate.asfusion.com/"
                 xmlns:common="org.bigbluebutton.common.*"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
                 width="630"
-                close="onCloseClicked()"
                 visible="false"
                 showCloseButton="false">
     
