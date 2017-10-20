@@ -2,7 +2,7 @@ import React from 'react';
 import { ToastContainer as Toastify } from 'react-toastify';
 import { createContainer } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withToast } from '/imports/ui/components/toast/service';
+import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
@@ -32,17 +32,17 @@ class ToastContainer extends React.Component {
   }
 }
 
-export default injectIntl(withToast(createContainer(({ toastNotify, intl }) => {
+export default injectIntl(injectNotify(createContainer(({ notify, intl }) => {
   const meetingId = Auth.meetingID;
 
   Meetings.find({ meetingId }).observeChanges({
     changed: (id, fields) => {
       if (fields.recordProp && fields.recordProp.recording) {
-        toastNotify(intl.formatMessage(intlMessages.notificationRecordingStart), 'success', 'record');
+        notify(intl.formatMessage(intlMessages.notificationRecordingStart), 'success', 'record');
       }
 
       if (fields.recordProp && !fields.recordProp.recording) {
-        toastNotify(intl.formatMessage(intlMessages.notificationRecordingStop), 'error', 'record');
+        notify(intl.formatMessage(intlMessages.notificationRecordingStop), 'error', 'record');
       }
     },
   });

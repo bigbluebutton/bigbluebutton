@@ -12,7 +12,7 @@ let lastToast = {
   icon: null,
 };
 
-const notify = (message, type = 'default', icon, options) => {
+export function notify(message, type = 'default', icon, options) {
   const settings = {
     type,
     ...options,
@@ -26,8 +26,6 @@ const notify = (message, type = 'default', icon, options) => {
 
     lastToast = { id, ...toastProps };
   }
-};
+}
 
-export default {
-  notify,
-};
+export default { notify };
