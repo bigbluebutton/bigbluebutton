@@ -157,6 +157,8 @@ public class VideoStreamListener implements IStreamListener {
 	    	  
 	      } 
 	}
+
+
 	
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
