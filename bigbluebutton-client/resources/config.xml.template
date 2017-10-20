@@ -8,10 +8,10 @@
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" rtlEnabled="false"/>
-    <skinning enabled="true" url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
+    <skinning url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
     <branding logo="logo.swf" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" showQuote="true"/>
-    <shortcutKeys showButton="true" />
-    <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
+    <shortcutKeys showButton="true" /> 
+    <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION"/>
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true"
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="false"
