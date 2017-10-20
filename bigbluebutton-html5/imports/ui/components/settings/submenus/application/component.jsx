@@ -155,7 +155,7 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
-          {/* TODO: Uncomment after the release
+
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement} >
@@ -175,7 +175,7 @@ class ApplicationMenu extends BaseMenu {
                 />
               </div>
             </div>
-          </div>*/}
+          </div>
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>

@@ -14,15 +14,21 @@ class ChatNotificationContainer extends Component {
     this.audio = new Audio('/html5client/resources/sounds/notify.mp3');
   }
 
-  playAudio() {
-    if (this.props.disableAudio) return;
-    return _.debounce(() => this.audio.play(), this.audio.duration * 1000)();
-  }
-
   componentDidUpdate(prevProps) {
     if (this.props.unreadMessagesCount > prevProps.unreadMessagesCount) {
       this.playAudio();
+      this.toastNotification();
     }
+  }
+
+  playAudio() {
+    if (this.props.disableAudio) return;
+    _.debounce(() => this.audio.play(), this.audio.duration * 1000)();
+  }
+
+  toastNotification() {
+    if (this.props.disableNotify) return;
+    _.debounce(() => alert(new Date()), 1000)();
   }
 
   render() {
@@ -40,6 +46,7 @@ export default createContainer(({ currentChatID }) => {
 
   return {
     disableAudio: !AppSettings.chatAudioNotifications,
+    disableNotify: !AppSettings.chatPushNotifications,
     unreadMessagesCount,
   };
 }, ChatNotificationContainer);
