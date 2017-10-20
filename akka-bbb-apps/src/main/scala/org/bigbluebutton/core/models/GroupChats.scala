@@ -25,6 +25,7 @@ case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
 case class GroupChat(id: String, name: String, access: String, createdBy: GroupChatUser,
                      users: Vector[GroupChatUser],
                      msgs:  Vector[GroupChatMessage]) {
+  def findMsgWithId(id: String): Option[GroupChatMessage] = msgs.find(m => m.id == id)
   def add(user: GroupChatUser): GroupChat = copy(users = users :+ user)
   def remove(userId: String): GroupChat = copy(users = users.filterNot(u => u.id == userId))
   def add(msg: GroupChatMessage): GroupChat = copy(msgs = msgs :+ msg)
