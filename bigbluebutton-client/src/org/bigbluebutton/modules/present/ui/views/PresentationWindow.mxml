@@ -61,6 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
 		<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
 		<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
+		<mate:Listener type="{GoToPageLocalCommand.GO_TO_PAGE_LOCAL}" method="handleGoToPageLocalCommand" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -99,6 +100,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageLocalCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
 			import org.bigbluebutton.modules.present.events.ExportEvent;
@@ -373,7 +376,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				setupPresenter(true);
 				addContextMenuItems();
 			}
-			
+
+			// Intercept command from SlideView, add podId and forward the command to PresentProxy
+			// on its way out to server
+			private function handleGoToPageLocalCommand(cmd: GoToPageLocalCommand): void {
+				// JSLog.warn("PresentationWindow::handleGoToPageLocalCommand " + podId + "   " + cmd.pageId , {});
+				dispatchEvent(new GoToPageCommand(podId, cmd.pageId));
+			}
+
       private function handleBecomeViewer(e:MadePresenterEvent):void{
         becomeViewer();
       }
@@ -524,14 +534,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function goToPreviousSlide():void {
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null && presentationModel.getCurrentPage().num > 1) {
-					dispatchEvent(new GoToPrevPageCommand());
+					dispatchEvent(new GoToPrevPageCommand(podId));
 				}
 			}
 			
 			private function goToNextSlide():void {
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null && presentationModel.getCurrentPage().num < presentationModel.getNumberOfPages()) {
-					dispatchEvent(new GoToNextPageCommand());
+					dispatchEvent(new GoToNextPageCommand(podId));
 				}
 			}
 			

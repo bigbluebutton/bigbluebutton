@@ -60,10 +60,10 @@ package org.bigbluebutton.modules.present.services.messaging
       );
     }
     
-    public function goToPage(presentationId: String, pageId: String):void {
+    public function goToPage(podId: String, presentationId: String, pageId: String):void {
       var message:Object = {
         header: {name: "SetCurrentPagePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {presentationId: presentationId, pageId: pageId}
+        body: {podId: podId, presentationId: presentationId, pageId: pageId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
