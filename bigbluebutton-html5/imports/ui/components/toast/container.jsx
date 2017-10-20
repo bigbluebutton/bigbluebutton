@@ -37,11 +37,11 @@ export default injectIntl(withToast(createContainer(({ toastNotify, intl }) => {
 
   Meetings.find({ meetingId }).observeChanges({
     changed: (id, fields) => {
-      if (fields.recordProp.record === true) {
+      if (fields.recordProp && fields.recordProp.recording) {
         toastNotify(intl.formatMessage(intlMessages.notificationRecordingStart), 'success', 'record');
       }
 
-      if (fields.recordProp.record === false) {
+      if (fields.recordProp && !fields.recordProp.recording) {
         toastNotify(intl.formatMessage(intlMessages.notificationRecordingStop), 'error', 'record');
       }
     },
