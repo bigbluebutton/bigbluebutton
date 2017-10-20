@@ -246,6 +246,7 @@ class MeetingActor(
       case m: MuteMeetingCmdMsg => handleMuteMeetingCmdMsg(m)
       case m: UserConnectedToGlobalAudioMsg => handleUserConnectedToGlobalAudioMsg(m)
       case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
+      case m: VoiceConfRunningEvtMsg => handleVoiceConfRunningEvtMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
