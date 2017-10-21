@@ -181,18 +181,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function handleUserAddedToPresenterGroupEvent(event: UserAddedToPresenterGroupEvent): void {
-				
+				populatePodDropdown();
 			}
 
 			private function handleUserRemovedFromPresenterGroupEvent(event: UserRemovedFromPresenterGroupEvent): void {
-				
+				populatePodDropdown();
 			}
 
-			public function onPodCreated(_podId: String, _ownerId: String):void {
-				this.podId = _podId;
-				this.ownerId = _ownerId;
-
-				listOfPodControls.push({label: _podId,
+			private function populatePodDropdown(): void {
+				listOfPodControls = [];
+				listOfPodControls.push({label: this.podId,
 					icon: getStyle('iconClearStatus'), handler: setPresenterInPodHandler});
 
 				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'),
@@ -205,9 +203,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presGroup: ArrayCollection = UsersUtil.getPresenterGroup();
 				for (var j:int = 0; j < presGroup.length; j++) {
 					listOfPodControls.push({label: UsersUtil.getUserName(presGroup.getItemAt(j) as String),
-					icon: getStyle('iconClearStatus'), handler: setPresenterInPodHandler});
+						icon: getStyle('iconClearStatus'), handler: setPresenterInPodHandler});
 
 				}
+			}
+
+			public function onPodCreated(_podId: String, _ownerId: String):void {
+				this.podId = _podId;
+				this.ownerId = _ownerId;
+				populatePodDropdown();
 			}
 
 			public function getPodId(): String { return this.podId; }
