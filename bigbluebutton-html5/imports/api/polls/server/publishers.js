@@ -11,7 +11,7 @@ function polls(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing polls2x =${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing polls =${meetingId} ${requesterUserId} ${requesterToken}`);
 
   const selector = {
     meetingId,
@@ -26,5 +26,5 @@ function publish(...args) {
   return mapToAcl('subscriptions.polls', boundPolls)(args);
 }
 
-Meteor.publish('polls2x', publish);
+Meteor.publish('polls', publish);
 

@@ -357,15 +357,15 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding annotation2x to collection: ${err}`);
+      return Logger.error(`Adding annotation to collection: ${err}`);
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added annotation2x id=${annotation.id} whiteboard=${whiteboardId}`);
+      return Logger.info(`Added annotation id=${annotation.id} whiteboard=${whiteboardId}`);
     }
 
-    return Logger.info(`Upserted annotation2x id=${annotation.id} whiteboard=${whiteboardId}`);
+    return Logger.info(`Upserted annotation id=${annotation.id} whiteboard=${whiteboardId}`);
   };
 
   return Annotations.upsert(query.selector, query.modifier, cb);

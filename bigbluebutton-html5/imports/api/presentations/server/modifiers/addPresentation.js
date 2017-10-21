@@ -54,7 +54,7 @@ export default function addPresentation(meetingId, presentation) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding presentation2x to collection: ${err}`);
+      return Logger.error(`Adding presentation to collection: ${err}`);
     }
 
     addSlides(meetingId, presentation.id, presentation.pages);
@@ -65,10 +65,10 @@ export default function addPresentation(meetingId, presentation) {
         setCurrentPresentation(meetingId, presentation.id);
       }
 
-      return Logger.info(`Added presentation2x id=${presentation.id} meeting=${meetingId}`);
+      return Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
     }
 
-    return Logger.info(`Upserted presentation2x id=${presentation.id} meeting=${meetingId}`);
+    return Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
   };
 
   return Presentations.upsert(selector, modifier, cb);

@@ -59,4 +59,6 @@ trait SystemConfiguration {
   lazy val httpPort = Try(config.getInt("http.port")).getOrElse(9090)
   lazy val telizeHost = Try(config.getString("services.telizeHost")).getOrElse("")
   lazy val telizePort = Try(config.getInt("services.telizePort")).getOrElse(80)
+
+  lazy val applyPermissionCheck = Try(config.getBoolean("apps.checkPermissions")).getOrElse(false)
 }

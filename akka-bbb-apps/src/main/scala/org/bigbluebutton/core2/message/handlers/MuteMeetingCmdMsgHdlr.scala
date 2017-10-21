@@ -1,17 +1,43 @@
 package org.bigbluebutton.core2.message.handlers
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.apps.PermisssionCheck
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
-trait MuteMeetingCmdMsgHdlr {
+trait MuteMeetingCmdMsgHdlrDefault {
+  def handleMuteMeetingCmdMsg(msg: MuteMeetingCmdMsg): Unit = {}
+}
+
+trait MuteMeetingCmdMsgHdlrCheckPerm extends MuteMeetingCmdMsgHdlrDefault with SystemConfiguration {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
 
-  def handleMuteMeetingCmdMsg(msg: MuteMeetingCmdMsg) {
+  override def handleMuteMeetingCmdMsg(msg: MuteMeetingCmdMsg): Unit = {
+    val isAllowed = PermisssionCheck.isAllowed(
+      PermisssionCheck.MOD_LEVEL,
+      PermisssionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.body.mutedBy
+    )
+
+    if (applyPermissionCheck && !isAllowed) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to mute meeting."
+      PermisssionCheck.ejectUserForFailedPermission(meetingId, msg.body.mutedBy, reason, outGW)
+    } else {
+      super.handleMuteMeetingCmdMsg(msg)
+    }
+  }
+}
+
+trait MuteMeetingCmdMsgHdlr extends MuteMeetingCmdMsgHdlrDefault {
+  this: MeetingActor =>
+
+  val outGW: OutMsgRouter
+
+  override def handleMuteMeetingCmdMsg(msg: MuteMeetingCmdMsg): Unit = {
 
     def build(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)

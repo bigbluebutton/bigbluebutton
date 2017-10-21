@@ -23,21 +23,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
+				implements="org.bigbluebutton.common.IKeyboardClose"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
 				horizontalAlign="center"
-				close="onCancelClicked()"
 				layout="absolute"
 				creationComplete="onCreationComplete()"
 				keyUp="keyUpHandler(event)"
-				width="240" xmlns:common="org.bigbluebutton.common.*">
+				width="280" xmlns:common="org.bigbluebutton.common.*">
 
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import mx.managers.PopUpManager;
-
+			
+			import org.bigbluebutton.common.IKeyboardClose;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;

@@ -11,7 +11,7 @@ function presentations(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Presentations2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Presentations for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Presentations.find({ meetingId });
 }
@@ -21,4 +21,4 @@ function publish(...args) {
   return mapToAcl('subscriptions.presentations', boundPresentations)(args);
 }
 
-Meteor.publish('presentations2x', publish);
+Meteor.publish('presentations', publish);

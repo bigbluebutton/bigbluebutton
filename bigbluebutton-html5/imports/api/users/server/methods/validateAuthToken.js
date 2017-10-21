@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import createDummyUser2x from '../modifiers/createDummyUser';
+import createDummyUser from '../modifiers/createDummyUser';
 import setConnectionStatus from '../modifiers/setConnectionStatus';
 
 const ONLINE_CONNECTION_STATUS = 'online';
@@ -25,7 +25,7 @@ export default function validateAuthToken(credentials) {
   });
 
   if (!User) {
-    createDummyUser2x(meetingId, requesterUserId, requesterToken);
+    createDummyUser(meetingId, requesterUserId, requesterToken);
   } else if (User.validated) {
     setConnectionStatus(meetingId, requesterUserId, ONLINE_CONNECTION_STATUS);
   }

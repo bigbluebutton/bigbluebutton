@@ -127,7 +127,7 @@ case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
   */
 object UserEjectedFromMeetingEvtMsg { val NAME = "UserEjectedFromMeetingEvtMsg" }
 case class UserEjectedFromMeetingEvtMsg(header: BbbClientMsgHeader, body: UserEjectedFromMeetingEvtMsgBody) extends StandardMsg
-case class UserEjectedFromMeetingEvtMsgBody(userId: String, ejectedBy: String)
+case class UserEjectedFromMeetingEvtMsgBody(userId: String, ejectedBy: String, reason: String)
 
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg"}
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg

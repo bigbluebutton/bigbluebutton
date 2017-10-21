@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
-const Breakouts = new Mongo.Collection('breakouts2x');
+const Breakouts = new Mongo.Collection('breakouts');
 
 if (Meteor.isServer) {
   // types of queries for the breakouts:

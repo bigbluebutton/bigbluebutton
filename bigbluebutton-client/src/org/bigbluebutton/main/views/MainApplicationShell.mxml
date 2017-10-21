@@ -153,6 +153,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
@@ -492,21 +493,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function versionCheck():void {
 				var browserOptions : BrowserVersionsOptions = Options.getOptions(BrowserVersionsOptions) as BrowserVersionsOptions;
 				if (!StringUtils.isEmpty(browserOptions.chrome) && !StringUtils.isEmpty(browserOptions.firefox) && !StringUtils.isEmpty(browserOptions.flash)) {
-					//find browser version
-					var browserVersion:Array = ExternalInterface.call("determineBrowser");
 					//check browser version
-					if ((browserVersion[0].toString().toLowerCase() == "chrome" && browserVersion[1] < browserOptions.chrome) || browserVersion[0].toString().toLowerCase() == "firefox" && browserVersion[1] < browserOptions.firefox) {
+					if ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion < browserOptions.chrome) || BrowserCheck.isFirefox() && BrowserCheck.browserMajorVersion < browserOptions.firefox) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.title"), 
-							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [browserVersion[0]+" "+browserVersion[1]]),
+							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [BrowserCheck.browserName+" "+BrowserCheck.browserMajorVersion]),
 							'bbb.clientstatus.browser.message'));
 					}
 					
 					//find flash version
 					var flashVersion:Object = getFlashVersion(); 
 					//check flash version
-					if ((flashVersion.os == 'LNX' && browserVersion[0].toString().toLowerCase() != "chrome" && flashVersion.major < 11) || 
-						((flashVersion.os != 'LNX' || browserVersion[0].toString().toLowerCase() == "chrome") && flashVersion.major < browserOptions.flash)) {
+					if ((flashVersion.os == 'LNX' && !BrowserCheck.isChrome() && flashVersion.major < 11) || 
+						((flashVersion.os != 'LNX' || BrowserCheck.isChrome()) && flashVersion.major < browserOptions.flash)) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.title"), 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.message", [flashVersion.major+"."+flashVersion.minor+"."+flashVersion.build]),
@@ -607,7 +606,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function wrongLocaleVersion():void {
-                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModelPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
+                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModalPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
                 if (localeWindow) {
                     var point1:Point = new Point();
                     // Calculate position of TitleWindow in Application's coordinates. 
@@ -629,9 +628,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
                 var options:PhoneOptions = new PhoneOptions();
                 if (!options.showMicrophoneHint) return;
-                var browser:String = ExternalInterface.call("determineBrowser")[0];
                 var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
-                if (browser == "Firefox") {
+                if (BrowserCheck.isFirefox()) {
                     if (browserPermissionHelper) {
 						if (Capabilities.os.indexOf("Mac") >= 0){
 							browserPermissionHelper.currentState = "firefoxMicMacOSX";
@@ -642,7 +640,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 200;
                     }
-                } else if (browser == "Chrome") {
+                } else if (BrowserCheck.isChrome()) {
                     if (browserPermissionHelper) {
 						browserPermissionHelper.currentState = "chromeMic";
 						browserPermissionHelper.x = 50;
@@ -666,14 +664,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-                if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
+                if (BrowserCheck.isChrome()) {
 					// Show browserPermissionHelper component after showing the webcam window due event listeners registration order
                     setTimeout(showbrowserPermissionHelper, 100);
                 }
             }
 			
 			private function showbrowserPermissionHelper() : void {
-				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
+				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
 					browserPermissionHelper.currentState = "chromeCam";
 					browserPermissionHelper.x = 20;

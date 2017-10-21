@@ -1,31 +1,32 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- *
- * Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
- *
+ * <p>
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ * <p>
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- *
+ * <p>
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public License along
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- *
  */
-package org.bigbluebutton.main.model.options {
-	import org.bigbluebutton.core.Options;
+package org.bigbluebutton.freeswitch.voice.events;
 
-	public class SkinningOptions extends Options {
+public class VoiceConfRunningEvent extends VoiceConferenceEvent {
 
-		[Bindable]
-		public var url:String = "";
+  private boolean running;
 
-		public function SkinningOptions() {
-			name = "skinning";
-		}
-	}
+  public VoiceConfRunningEvent(String room, boolean running) {
+    super(room);
+    this.running = running;
+  }
+
+  public boolean isRunning() {
+    return running;
+  }
 }

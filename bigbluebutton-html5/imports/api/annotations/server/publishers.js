@@ -11,7 +11,7 @@ function annotations(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Annotations2x for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Annotations for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Annotations.find({ meetingId });
 }

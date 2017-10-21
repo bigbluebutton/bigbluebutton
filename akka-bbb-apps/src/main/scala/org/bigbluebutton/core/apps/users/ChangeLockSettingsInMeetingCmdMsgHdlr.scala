@@ -1,17 +1,45 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.Permissions
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.apps.PermisssionCheck
+import org.bigbluebutton.core.running.{ OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 
-trait ChangeLockSettingsInMeetingCmdMsgHdlr {
+trait ChangeLockSettingsInMeetingCmdMsgHdlrDefault {
+  def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {}
+}
+
+trait ChangeLockSettingsInMeetingCmdMsgHdlrCheckPerm
+    extends ChangeLockSettingsInMeetingCmdMsgHdlrDefault with SystemConfiguration {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
 
-  def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
+  override def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
+    val isAllowed = PermisssionCheck.isAllowed(
+      PermisssionCheck.MOD_LEVEL,
+      PermisssionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.body.setBy
+    )
+
+    if (applyPermissionCheck && !isAllowed) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to change lock settings"
+      PermisssionCheck.ejectUserForFailedPermission(meetingId, msg.body.setBy, reason, outGW)
+    } else {
+      super.handleSetLockSettings(msg)
+    }
+  }
+}
+
+trait ChangeLockSettingsInMeetingCmdMsgHdlr extends ChangeLockSettingsInMeetingCmdMsgHdlrCheckPerm {
+  this: MeetingActor =>
+
+  val outGW: OutMsgRouter
+
+  override def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
     val settings = Permissions(
       disableCam = msg.body.disableCam,
       disableMic = msg.body.disableMic,

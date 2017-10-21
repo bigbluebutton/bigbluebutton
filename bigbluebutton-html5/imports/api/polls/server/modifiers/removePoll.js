@@ -13,10 +13,10 @@ export default function removePoll(meetingId, id) {
 
   const cb = (err) => {
     if (err) {
-      return Logger.error(`Removing Poll2x from collection: ${err}`);
+      return Logger.error(`Removing Poll from collection: ${err}`);
     }
 
-    return Logger.info(`Removed Poll2x id=${id}`);
+    return Logger.info(`Removed Poll id=${id}`);
   };
 
   return Polls.remove(selector, cb);
