@@ -6,6 +6,7 @@
     "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
+    "test-meteor": "cp -r tests/meteor imports/meteor-tests ; (Xvfb :99 -ac -screen 0 1280x1024x24 &) ; TEST_BROWSER_DRIVER=chrome DISPLAY=:99 meteor test --once --driver-package meteortesting:mocha ; rm -rf imports/meteor-tests ; kill `pgrep Xvfb`",
     "lint": "eslint . --ext .jsx,.js",
     "precommit": "lint-staged"
   },
