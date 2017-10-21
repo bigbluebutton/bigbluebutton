@@ -108,13 +108,11 @@ object Users2x {
   }
 
   def addUserToPresenterGroup(users: Users2x, userIdToAdd: String): Boolean = {
-    // returns Boolean(successful operation)
-    users.updatePresenterGroup(users.presenterGroup.:+(userIdToAdd))
+    users.updatePresenterGroup(users.presenterGroup.filterNot(_ == userIdToAdd).:+(userIdToAdd)) // ensure no repetition
     users.presenterGroup.contains(userIdToAdd)
   }
 
   def removeUserFromPresenterGroup(users: Users2x, userIdToRemove: String): Boolean = {
-    // returns Boolean(successful operation)
     users.updatePresenterGroup(users.presenterGroup.filterNot(_ == userIdToRemove))
     !users.presenterGroup.contains(userIdToRemove)
   }

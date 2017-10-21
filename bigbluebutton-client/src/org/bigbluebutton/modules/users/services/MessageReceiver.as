@@ -863,11 +863,13 @@ package org.bigbluebutton.modules.users.services
     private function handleUserAddedToPresenterGroupEvtMsg(msg: Object): void {
       var userId: String = msg.body.userId;
       dispatcher.dispatchEvent(new UserAddedToPresenterGroupEvent(userId));
+      LiveMeeting.inst().users.addToPresenterGroup(userId);
     }
 
     private function handleUserRemovedFromPresenterGroupEvtMsg(msg: Object): void {
       var userId: String = msg.body.userId;
       dispatcher.dispatchEvent(new UserRemovedFromPresenterGroupEvent(userId));
+      LiveMeeting.inst().users.removeFromPresenterGroup(userId);
     }
 
     public function handleGuestPolicyChanged(msg:Object):void {

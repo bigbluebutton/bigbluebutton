@@ -333,17 +333,17 @@
 						});
 					}
 
-					if (true) { // TODO if belongs to Presenter group
-						myMenuData.push({
-							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.addUserToPresenterGroup',[data.name]),
-							icon: getStyle('iconEject'),
-							callback: addToPresenterGroup
-						});
-					} else {
+					if (UsersUtil.isUserInPresentationGroup(data.userId)) {
 						myMenuData.push({
 							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.removeUserFromPresenterGroup',[data.name]),
 							icon: getStyle('iconEject'),
 							callback: removeFromPresenterGroup
+						});
+					} else {
+						myMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.addUserToPresenterGroup',[data.name]),
+							icon: getStyle('iconEject'),
+							callback: addToPresenterGroup
 						});
 					}
 
