@@ -50,6 +50,7 @@
     "autoprefixer": "^7.1.1",
     "chai": "^3.5.0",
     "chromedriver": "^2.33.1",
+    "enzyme": "^3.1.0",
     "eslint": "~3.19.0",
     "eslint-config-airbnb": "^15.0.1",
     "eslint-config-airbnb-base": "~11.2.0",

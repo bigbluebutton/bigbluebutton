@@ -24,3 +24,4 @@ shell-server@0.2.4
 http@1.2.12
 dynamic-import@0.1.1
 meteortesting:mocha
+dburles:factory
