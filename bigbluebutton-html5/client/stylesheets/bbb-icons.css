@@ -198,7 +198,6 @@
 .icon-bbb-about:before {
   content: "\e933";
 }
-
 .icon-bbb-delete:before {
   content: "\e936";
 }
@@ -267,4 +266,7 @@
 }
 .icon-bbb-warning:before {
   content: "\e94c";
+}
+.upside-down {
+  transform: rotate(180deg);
 }

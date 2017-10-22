@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SettingsDropdown from './component';
 import Service from './service';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 export default class SettingsDropdownContainer extends Component {
   constructor(props) {

@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioService from '../audio/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 const intlMessages = defineMessages({
   title: {
@@ -46,8 +47,19 @@ class BreakoutJoinConfirmation extends Component {
 
     // leave main room's audio when joining a breakout room
     AudioService.exitAudio();
+    if (breakoutURL) {
+      if(IosHandler.isApp) {
+        const meetingId = breakoutURL.split('=')[1];
 
-    window.open(breakoutURL);
+        IosHandler.goToRoom(breakoutURL, meetingId);
+      } else {
+        window.open(breakoutURL);
+      }
+    } else {
+      if(IosHandler.isApp) {
+        IosHandler.goToMainMeeting();
+      }
+    }
     mountModal(null);
   }
 

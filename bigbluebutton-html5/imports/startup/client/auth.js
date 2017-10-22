@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { logClient } from '/imports/ui/services/api';
+import IosHandler from '/imports/ui/services/ios-handler';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -30,12 +31,18 @@ export function joinRouteHandler(nextState, replace, callback) {
 export function logoutRouteHandler(nextState, replace) {
   Auth.logout()
     .then((logoutURL = window.location.origin) => {
-      const protocolPattern = /^((http|https):\/\/)/;
+      if (window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') {
+        IosHandler.hangupCall();
+        IosHandler.leaveRoom();
+        window.location = `${logoutURL}/demo/logout.html`;
+      } else {
+        const protocolPattern = /^((http|https):\/\/)/;
 
-      window.location.href =
-        protocolPattern.test(logoutURL) ?
-          logoutURL :
-          `http://${logoutURL}`;
+        window.location.href =
+          protocolPattern.test(logoutURL) ?
+            logoutURL :
+            `http://${logoutURL}`;
+      }
     })
     .catch(() => {
       replace({ pathname: '/error/500' });

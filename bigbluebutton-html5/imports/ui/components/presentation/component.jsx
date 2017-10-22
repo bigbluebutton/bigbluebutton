@@ -178,8 +178,6 @@ export default class PresentationArea extends Component {
           transitionLeaveTimeout={400}
         >
           <svg
-            width={width}
-            height={height}
             ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"

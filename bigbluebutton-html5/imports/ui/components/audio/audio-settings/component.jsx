@@ -49,6 +49,10 @@ class AudioSettings extends React.Component {
       intl,
     } = this.props;
 
+    const isDeviceiOS = window.navigator.userAgent === 'BigBlueButton';
+
+    const titleMessage = isDeviceiOS ? intlMessages.titleLabeliOS : intlMessages.titleLabel;
+
     return (
       <div>
         <div className={styles.topRow}>
@@ -62,71 +66,105 @@ class AudioSettings extends React.Component {
             onClick={this.chooseAudio}
           />
           <div className={cx(styles.title, styles.chooseAudio)}>
-            {intl.formatMessage(intlMessages.titleLabel)}
+            {intl.formatMessage(titleMessage)}
           </div>
         </div>
-
-        <div className={styles.form}>
-
-          <div className={styles.row}>
-            <div className={styles.audioNote}>
-              {intl.formatMessage(intlMessages.descriptionLabel)}
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.micSourceLabel)}
-                  <DeviceSelector
-                    value={this.state.inputDeviceId}
-                    className={styles.select}
-                    kind="audioinput"
-                    onChange={this.handleInputChange}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.speakerSourceLabel)}
-                  <DeviceSelector
-                    value={this.state.outputDeviceId}
-                    className={styles.select}
-                    kind="audiooutput"
-                    onChange={this.handleOutputChange}
-                  />
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.streamVolumeLabel)}
-                  <AudioStreamVolume
-                    deviceId={this.state.inputDeviceId}
-                    className={styles.audioMeter}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <label className={styles.label}> </label>
-              <AudioTestContainer />
-            </div>
-          </div>
-        </div>
-
+        {isDeviceiOS ? this.renderiOS() : this.renderDefault()}
         <div className={styles.enterAudio}>
-          <EnterAudioContainer isFullAudio />
+          <EnterAudioContainer isFullAudio={true}/>
         </div>
       </div>
     );
+  }
+
+  renderDefault() {
+    const {
+      intl,
+    } = this.props;
+
+    return (
+      <div className={styles.form}>
+        <div className={styles.row}>
+          <div className={styles.audioNote}>
+            {intl.formatMessage(intlMessages.descriptionLabel)}
+          </div>
+        </div>
+        <div className={styles.row}>
+          <div className={styles.col}>
+            <div className={styles.formElement}>
+              <label className={cx(styles.label, styles.labelSmall)}>
+                {intl.formatMessage(intlMessages.micSourceLabel)}
+              </label>
+              <DeviceSelector
+                value={this.state.inputDeviceId}
+                className={styles.select}
+                kind="audioinput"
+                onChange={this.handleInputChange} />
+            </div>
+          </div>
+          <div className={styles.col}>
+            <div className={styles.formElement}>
+              <label className={cx(styles.label, styles.labelSmall)}>
+                {intl.formatMessage(intlMessages.speakerSourceLabel)}
+              </label>
+              <DeviceSelector
+                  value={this.state.outputDeviceId}
+                  className={styles.select}
+                  kind="audiooutput"
+                  onChange={this.handleOutputChange} />
+            </div>
+          </div>
+        </div>
+        <div className={styles.row}>
+          <div className={styles.col}>
+            <div className={styles.formElement}>
+              <label className={cx(styles.label, styles.labelSmall)}>
+                {intl.formatMessage(intlMessages.streamVolumeLabel)}
+                <AudioStreamVolume
+                  deviceId={this.state.inputDeviceId}
+                  className={styles.audioMeter} />
+              </label>
+            </div>
+          </div>
+          <div className={styles.col}>
+            <label className={styles.label}> </label>
+            <AudioTestContainer/>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderiOS() {
+    const {
+      intl,
+    } = this.props;
+
+    return (
+      <div className={styles.form}>
+        <div className={styles.row}>
+          <div className={styles.audioNote}>
+            {intl.formatMessage(intlMessages.descriptionLabeliOS)}
+          </div>
+        </div>
+        <div className={styles.row}>
+          <div className={styles.col}>
+            <div className={styles.formElement}>
+              <label className={cx(styles.label, styles.labelSmall)}>
+                {intl.formatMessage(intlMessages.streamVolumeLabel)}
+              </label>
+              <AudioStreamVolume
+                deviceId={this.state.inputDeviceId}
+                className={styles.audioMeter} />
+            </div>
+          </div>
+          <div className={styles.col}>
+            <label className={styles.label}> </label>
+            <AudioTestContainer/>
+          </div>
+        </div>
+      </div>
+    )
   }
 }
 
@@ -139,9 +177,17 @@ const intlMessages = defineMessages({
     id: 'app.audio.audioSettings.titleLabel',
     description: 'audio setting title label',
   },
+  titleLabeliOS: {
+    id: 'app.audio.audioSettings.titleLabel.iOS',
+    description: 'audio setting title label for iOS devices',
+  },
   descriptionLabel: {
     id: 'app.audio.audioSettings.descriptionLabel',
     description: 'audio settings description label',
+  },
+  descriptionLabeliOS: {
+    id: 'app.audio.audioSettings.descriptionLabel.iOS',
+    description: 'audio settings description label for iOS devices',
   },
   micSourceLabel: {
     id: 'app.audio.audioSettings.microphoneSourceLabel',

@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import cx from 'classnames';
 
 import ModalContainer from '../modal/container';
+import IosHandler from '/imports/ui/services/ios-handler';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
 import AudioContainer from '../audio/container';
@@ -63,6 +64,15 @@ class App extends Component {
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+
+    IosHandler.sendCallParameters();
+    IosHandler.applicationLoaded();
+    if(!this.props.meetingIsBreakout) {
+      window.addEventListener('requestBreakoutRooms',
+      (e) => {
+        IosHandler.updateBreakoutRooms(this.props.breakoutSessionTokens);
+      });
+    }
   }
 
   renderNavBar() {

@@ -58,14 +58,66 @@ class NavBar extends Component {
     };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
+    this.leftSwipeHandler = this.leftSwipeHandler.bind(this);
+    this.rightSwipeHandler = this.rightSwipeHandler.bind(this);
   }
 
-  componendDidMount() {
+  componentDidMount() {
     document.title = this.props.presentationTitle;
+
+    this.addTouchEventListeners();
+  }
+
+  addTouchEventListeners() {
+    let xDown = null;
+    let yDown = null;
+
+    const handleTouchStart = (evt) => {
+      xDown = evt.touches[0].clientX;
+      yDown = evt.touches[0].clientY;
+    };
+
+    const handleTouchMove = (evt) => {
+      if (!xDown || !yDown) {
+        return;
+      }
+
+      let xUp = evt.touches[0].clientX;
+      let yUp = evt.touches[0].clientY
+
+      let xDiff = xDown - xUp;
+      let yDiff = yDown - yUp;
+
+      if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+        if ( xDiff > 0 ) {
+          this.leftSwipeHandler();
+        } else {
+          this.rightSwipeHandler();
+        }
+      }
+      xDown = null;
+      yDown = null;
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, false);
+    document.addEventListener('touchmove', handleTouchMove, false);
+  }
+
+  componentWillUnmount(){
+    document.removeEventListener('touchstart', handleTouchStart, false);
+    document.removeEventListener('touchmove', handleTouchMove, false);
   }
 
   handleToggleUserList() {
     this.props.toggleUserList();
+  }
+
+  leftSwipeHandler() {
+    this.props.leftSwipeHandler();
+  }
+
+  rightSwipeHandler() {
+    this.props.rightSwipeHandler();
   }
 
   inviteUserToBreakout(breakout, breakoutURL) {
@@ -79,7 +131,13 @@ class NavBar extends Component {
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
+    const {
+      hasUnreadMessages,
+      beingRecorded,
+      isExpanded,
+      intl,
+      breakouts,
+    } = this.props;
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -122,7 +180,7 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
-    if (isBreakoutRoom || !breakouts.length) {
+    if (!breakouts.length || (window.navigator.userAgent != "BigBlueButton" && isBreakoutRoom)) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -132,14 +190,14 @@ class NavBar extends Component {
       <Dropdown isOpen={this.state.isActionsOpen}>
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName="down-arrow" />
+            {presentationTitle} <Icon iconName="up_arrow upside-down" />
           </h1>
         </DropdownTrigger>
         <DropdownContent
           placement="bottom"
         >
           <DropdownList>
-            {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
+            {breakouts.map(breakout => this.renderItem(breakout))}
           </DropdownList>
         </DropdownContent>
       </Dropdown>
@@ -175,6 +233,35 @@ class NavBar extends Component {
     if (!breakouts.length && this.state.didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
+  }
+
+  renderItem(breakout) {
+    const {
+      isBreakoutRoom,
+    } = this.props;
+    if (isBreakoutRoom) {
+      return this.renderMainRoomItem('');
+    }else {
+      return this.renderBreakoutItem(breakout);
+    }
+  }
+
+  renderMainRoomItem(mainURL) {
+    const {
+      getBreakoutJoinURL,
+      mountModal,
+    } = this.props;
+
+    const roomName = 'Main Room';
+
+    return (
+      <DropdownListItem
+        className={styles.actionsHeader}
+        key={_.uniqueId('action-header')}
+        label={roomName}
+        onClick={openBreakoutJoinConfirmation.bind(this, mainURL, roomName, mountModal)}
+      />
+    );
   }
 
   renderBreakoutItem(breakout) {

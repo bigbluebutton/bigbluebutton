@@ -2,10 +2,17 @@ import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
 import { defineMessages, injectIntl } from 'react-intl';
+import { withIosHandler } from '/imports/ui/components/ios-handler/service';
 
 class AudioTest extends React.Component {
   constructor(props) {
     super(props);
+
+    this.handlePlayAudioSample = this.handlePlayAudioSample.bind(this);
+  }
+
+  handlePlayAudioSample() {
+    this.props.handlePlayAudioSample();
   }
 
   render() {
@@ -20,7 +27,7 @@ class AudioTest extends React.Component {
         icon={'unmute'}
         size={'sm'}
         color={'primary'}
-        onClick={this.props.handlePlayAudioSample}
+        onClick={this.handlePlayAudioSample}
       />
     );
   }
@@ -33,4 +40,8 @@ const intlMessages = defineMessages({
   },
 });
 
-export default injectIntl(AudioTest);
+const iosHandlers = {
+  'handlePlayAudioSample': 'restartMeter',
+};
+
+export default injectIntl(withIosHandler(AudioTest, iosHandlers));

@@ -2,6 +2,7 @@ import React, { cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
+import IosHandler from '/imports/ui/services/ios-handler';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
@@ -14,6 +15,7 @@ import {
   getFontSize,
   getCaptionsStatus,
   meetingIsBreakout,
+  getBreakoutSessionTokens,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -101,20 +103,39 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
-      if (!meetingIsBreakout) {
+      console.log('Im actually here', meetingIsBreakout());
+      if (!meetingIsBreakout()) {
         sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
+      } else {
+        if (IosHandler.isApp) {
+          IosHandler.leaveRoom();
+        } else {
+          window.close();
+        }
       }
     },
   });
 
   // Close the widow when the current breakout room ends
-  Breakouts.find({ breakoutId: Auth.meetingID }).observeChanges({
-    removed() {
-      Auth.clearCredentials().then(window.close);
+  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+    removed(old) {
+      const {
+        meetingID,
+      } = Auth;
+      console.log('Im here');
+      Auth.clearCredentials().then(() => {
+        if(IosHandler.isApp) {
+          IosHandler.leaveRoom();
+        } else {
+          window.close;
+        }
+      });
     },
   });
 
   return {
+    meetingIsBreakout: meetingIsBreakout(),
+    breakoutSessionTokens: getBreakoutSessionTokens(),
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
   };
