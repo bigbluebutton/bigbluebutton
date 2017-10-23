@@ -1,19 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Application from './component';
 
-// import Service from './service';
 
-class ApplicationContainer extends Component {
-  render() {
-    return (
-      <Application {...this.props}>
-        {this.props.children}
-      </Application>
+const ApplicationContainer = props => (
+  <Application {...props}>
+    {props.children}
+  </Application>
     );
-  }
-}
+
 export default createContainer(() => ({
   fontSizes: [
     '12px',
