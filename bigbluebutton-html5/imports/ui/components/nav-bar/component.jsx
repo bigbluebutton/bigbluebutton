@@ -45,7 +45,7 @@ const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
     breakoutName={breakoutName}
   />);
 
-const closeBreakoutJoinConfirmation = (mountModal) =>
+const closeBreakoutJoinConfirmation = mountModal =>
    mountModal(null);
 
 class NavBar extends Component {
