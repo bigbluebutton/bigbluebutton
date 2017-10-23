@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
+import styles from './styles.scss';
+import Button from '../button/component';
+import RecordingIndicator from './recording-indicator/component';
+import SettingsDropdownContainer from './settings-dropdown/container';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -11,10 +15,6 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
-import styles from './styles';
-import Button from '../button/component';
-import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdownContainer from './settings-dropdown/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -45,7 +45,7 @@ const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
     breakoutName={breakoutName}
   />);
 
-const closeBreakoutJoinConfirmation = mountModal =>
+const closeBreakoutJoinConfirmation = (mountModal) =>
    mountModal(null);
 
 class NavBar extends Component {
@@ -60,6 +60,14 @@ class NavBar extends Component {
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
+  componendDidMount() {
+    document.title = this.props.presentationTitle;
+  }
+
+  handleToggleUserList() {
+    this.props.toggleUserList();
+  }
+
   componentDidUpdate(oldProps) {
     const {
       breakouts,
@@ -70,16 +78,16 @@ class NavBar extends Component {
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
 
+    if (!hasBreakouts && hadBreakouts) {
+      closeBreakoutJoinConfirmation(this.props.mountModal);
+    }
+
     breakouts.forEach((breakout) => {
       if (!breakout.users) {
         return;
       }
+
       const breakoutURL = getBreakoutJoinURL(breakout);
-
-      if (!hasBreakouts && hadBreakouts) {
-        closeBreakoutJoinConfirmation(this.props.mountModal);
-      }
-
 
       if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout, breakoutURL);
@@ -89,14 +97,6 @@ class NavBar extends Component {
     if (!breakouts.length && this.state.didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
-  }
-
-  componendDidMount() {
-    document.title = this.props.presentationTitle;
-  }
-
-  handleToggleUserList() {
-    this.props.toggleUserList();
   }
 
   inviteUserToBreakout(breakout, breakoutURL) {
@@ -139,6 +139,7 @@ class NavBar extends Component {
       </Dropdown>
     );
   }
+
 
   renderBreakoutItem(breakout) {
     const {
