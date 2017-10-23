@@ -76,7 +76,12 @@ package org.bigbluebutton.modules.users.views
         }
       }
     }
-    
+
+    public function getAllUsersInPresenterGroup(): ArrayCollection {
+      var presenterGroup: ArrayCollection = LiveMeeting.inst().users.getPresenterGroup();
+      return presenterGroup;
+    }
+
     public function populateAllUsers(dataGrid:BBBDataGrid):void {
 	  this.dataGrid = dataGrid;
       getAllWebUsers();

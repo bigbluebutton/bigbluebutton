@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.models.Users2x
 
 trait SetCurrentPagePubMsgHdlr {
 
@@ -28,12 +29,6 @@ trait SetCurrentPagePubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    //    if (Users2x.isPresenter(msg.header.userId, liveMeeting.users2x)) {
-    //      if (setCurrentPage(liveMeeting, msg.body.presentationId, msg.body.pageId)) {
-    //        broadcastEvent(msg)
-    //      }
-    //    }
-
     val podId = msg.body.podId
     val userId = msg.header.userId
     val presentationId = msg.body.presentationId
@@ -41,17 +36,18 @@ trait SetCurrentPagePubMsgHdlr {
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)
-      presenter <- PresentationPodsApp.verifyPresenterStatus(state, pod.id, userId)
       presentationToModify <- pod.getPresentation(presentationId)
       updatedPod <- pod.setCurrentPage(presentationId, pageId)
     } yield {
 
-      // if user is in the presenter group // TODO
-      // if (Users2x.isPresenter(userId, liveMeeting.users2x)) {
-      broadcastSetCurrentPageEvtMsg(pod.id, presentationId, pageId, userId)
+      if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, userId)) {
+        broadcastSetCurrentPageEvtMsg(pod.id, presentationId, pageId, userId)
 
-      val pods = state.presentationPodManager.addPod(updatedPod)
-      state.update(pods)
+        val pods = state.presentationPodManager.addPod(updatedPod)
+        state.update(pods)
+      } else {
+        state
+      }
     }
 
     newState match {
