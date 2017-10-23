@@ -60,19 +60,26 @@ class NavBar extends Component {
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(oldProps) {
     const {
       breakouts,
       getBreakoutJoinURL,
       isBreakoutRoom,
     } = this.props;
 
+    const hadBreakouts = oldProps.breakouts.length;
+    const hasBreakouts = breakouts.length;
+
     breakouts.forEach((breakout) => {
       if (!breakout.users) {
         return;
       }
-
       const breakoutURL = getBreakoutJoinURL(breakout);
+
+      if (!hasBreakouts && hadBreakouts) {
+        closeBreakoutJoinConfirmation(this.props.mountModal);
+      }
+
 
       if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout, breakoutURL);
@@ -80,12 +87,7 @@ class NavBar extends Component {
     });
 
     if (!breakouts.length && this.state.didSendBreakoutInvite) {
-      // this.setState({ didSendBreakoutInvite: false });
-      this.onUpdate(() => {
-        this.setState({
-          didSendBreakoutInvite: false,
-        });
-      });
+      this.setState({ didSendBreakoutInvite: false });
     }
   }
 
@@ -138,40 +140,6 @@ class NavBar extends Component {
     );
   }
 
-<<<<<<< HEAD
-=======
-  componentDidUpdate(oldProps) {
-    const {
-      breakouts,
-      getBreakoutJoinURL,
-      isBreakoutRoom,
-    } = this.props;
-
-    const hadBreakouts = oldProps.breakouts.length;
-    const hasBreakouts = breakouts.length;
-
-    if(!hasBreakouts && hadBreakouts) {
-      closeBreakoutJoinConfirmation(this.props.mountModal);
-    }
-
-    breakouts.forEach((breakout) => {
-      if (!breakout.users) {
-        return;
-      }
-
-      const breakoutURL = getBreakoutJoinURL(breakout);
-
-      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
-        this.inviteUserToBreakout(breakout, breakoutURL);
-      }
-    });
-
-    if (!breakouts.length && this.state.didSendBreakoutInvite) {
-      this.setState({ didSendBreakoutInvite: false });
-    }
-  }
-
->>>>>>> upstream/v2.0.x-release
   renderBreakoutItem(breakout) {
     const {
       getBreakoutJoinURL,
