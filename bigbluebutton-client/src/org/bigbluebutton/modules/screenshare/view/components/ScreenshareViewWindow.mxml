@@ -339,6 +339,7 @@
 
 	<mx:Canvas id="videoCanvas" width="100%" height="100%" />
     <mx:Button id="btnActualSize"
+			   styleName="mainActionButton"
                toggle="true"
 			   horizontalCenter="0"
 			   top="{VIDEO_HEIGHT_PADDING}"
