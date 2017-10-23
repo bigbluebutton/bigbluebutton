@@ -44,8 +44,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 		<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
 		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
-		<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
-		<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
 		<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
@@ -63,7 +61,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.ToolTipEvent;
-			import mx.managers.PopUpManager;
 			
 			import flashx.textLayout.formats.Direction;
 			
@@ -71,7 +68,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
@@ -129,7 +125,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var xml:XML;
 			private var settingsComponents:Array = new Array();
-			private var settingsPopup:BBBSettings = null;
 			
 			private function init():void{
 				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
@@ -517,18 +512,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				logoSperatator.visible = logo.includeInLayout = false;
 			}
 
-			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
-				settingsComponents.push(e.component);
-			}
-
-			private function removeSettingsComponent(e:SettingsComponentEvent = null):void {
-				throw("Not implemented");
-			}
-
 			private function onSettingsButtonClick():void {
-				settingsPopup = PopUpUtil.createModalPopUp(this.parent, BBBSettings, true) as BBBSettings;
-				settingsPopup.pushComponents(settingsComponents);
-				PopUpManager.centerPopUp(settingsPopup);
+				PopUpUtil.createModalPopUp(this.parent, GuestSettingsWindow, true) as GuestSettingsWindow;
 			}
 
 			private function refreshRole(e:ChangeMyRole):void {

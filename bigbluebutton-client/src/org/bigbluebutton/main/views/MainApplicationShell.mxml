@@ -76,7 +76,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
 	
 		<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
-		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
 		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
 		<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
 		<mate:Listener type="{NewGuestWaitingEvent.NEW_GUEST_WAITING}" method="refreshGuestView" />
@@ -99,7 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
@@ -192,7 +190,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
-			private var guestManagement:GuestManagement = null;
 			private var guest:Guest = new Guest();
 			private var guestPolicy:String = "ASK_MODERATOR";
 
@@ -297,16 +294,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (heightWatch != null) heightWatch.unwatch();
 			}
 			
-			private function setGuestPolicy(event:BBBEvent):void {
-				guestPolicy = event.payload.guestPolicy;
-				if(guestManagement == null) {
-					LOGGER.debug("ADD Guest Event");
-					guestManagement = new GuestManagement();
-					guestManagement.setGuestPolicy(guestPolicy);
-					guestManagement.addToSettings();
-				}
-			}
-
 			private function updateCopyrightLabelDimensions(e:Event = null):void {
 				var appWidth:Number = parentApplication.width;
 				
