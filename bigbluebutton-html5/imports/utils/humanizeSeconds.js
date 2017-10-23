@@ -13,6 +13,4 @@ const humanizeSeconds = (time) => {
   ).join(':');
 };
 
-export default {
-  humanizeSeconds,
-};
+export default humanizeSeconds;

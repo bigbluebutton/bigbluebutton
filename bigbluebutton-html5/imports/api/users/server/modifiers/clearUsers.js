@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/2.0/users/index';
+import Users from '/imports/api/users/index';
 
 const clearUsers = (meetingId) => {
   if (meetingId) {
