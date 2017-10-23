@@ -24,7 +24,7 @@
            xmlns:common="org.bigbluebutton.common.*"
            xmlns:mx="library://ns.adobe.com/flex/mx"
            xmlns:fx="http://ns.adobe.com/mxml/2009"
-           width="100%"
+           width="600"
            height="400"
            initialize="init()"
 		   layout="absolute"
@@ -106,7 +106,6 @@
 				videoHolder.addEventListener(MouseEvent.MOUSE_OUT, videoHolder_mouseOutHanlder);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				fitToActualSize();
-				maximize();
 
 				resourcesChanged();
 
@@ -133,13 +132,13 @@
 				btnActualSize.alpha = 0;
 			}
 
-			public function startVideo(connection:Connection):void{
-        var logData:Object = new Object();
-        logData.width = ScreenshareModel.getInstance().width;
-        logData.height = ScreenshareModel.getInstance().height;
-        logData.streamId = ScreenshareModel.getInstance().streamId;
+			public function startVideo(connection:Connection):void {
+				var logData:Object = new Object();
+				logData.width = ScreenshareModel.getInstance().width;
+				logData.height = ScreenshareModel.getInstance().height;
+				logData.streamId = ScreenshareModel.getInstance().streamId;
 
-        JSLog.debug(LOG + "startVideo", logData);
+				JSLog.debug(LOG + "startVideo", logData);
 
 				this.connection = connection;
 			}
@@ -224,7 +223,7 @@
 			}
 
 			public function getPrefferedPosition():String{
-				return MainCanvas.MIDDLE;
+				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
 
             /**
@@ -340,6 +339,7 @@
 
 	<mx:Canvas id="videoCanvas" width="100%" height="100%" />
     <mx:Button id="btnActualSize"
+			   styleName="mainActionButton"
                toggle="true"
 			   horizontalCenter="0"
 			   top="{VIDEO_HEIGHT_PADDING}"
