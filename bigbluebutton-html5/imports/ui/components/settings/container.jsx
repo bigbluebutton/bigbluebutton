@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
-import Settings from './component';
 import SettingsService from '/imports/ui/services/settings';
+import Settings from './component';
 
 import {
     getClosedCaptionLocales,
