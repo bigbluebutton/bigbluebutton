@@ -4,7 +4,6 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
-import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import cx from 'classnames';
 import styles from './styles';
@@ -74,18 +73,14 @@ class AudioSettings extends React.Component {
     };
   }
 
-  handleInputChange(deviceId, device) {
-    console.log(`INPUT DEVICE CHANGED: ${deviceId}`);
-    console.log(device);
+  handleInputChange(deviceId) {
     this.changeInputDevice(deviceId);
     this.setState({
       inputDeviceId: deviceId,
     });
   }
 
-  handleOutputChange(deviceId, device) {
-    console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
-    console.log(device);
+  handleOutputChange(deviceId) {
     this.changeOutputDevice(deviceId);
     this.setState({
       outputDeviceId: deviceId,

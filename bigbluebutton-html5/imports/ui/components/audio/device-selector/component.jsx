@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styles from '../audio-modal/styles';
@@ -7,19 +8,21 @@ const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
+  handleDeviceChange: PropTypes.func,
+  className: PropTypes.string,
 };
 
 const defaultProps = {
   kind: 'audioinput',
   value: undefined,
+  className: null,
+  handleDeviceChange: null,
 };
 
 class DeviceSelector extends Component {
   constructor(props) {
     super(props);
 
-    this.handleEnumerateDevicesSuccess = this.handleEnumerateDevicesSuccess.bind(this);
-    this.handleEnumerateDevicesError = this.handleEnumerateDevicesError.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
 
     this.state = {
@@ -30,26 +33,26 @@ class DeviceSelector extends Component {
   }
 
   componentDidMount() {
+    const handleEnumerateDevicesError = (error) => {
+      logClient('error', { error, method: 'handleEnumerateDevicesError' });
+    };
+
+    const handleEnumerateDevicesSuccess = (deviceInfos) => {
+      const devices = deviceInfos.filter(d => d.kind === this.props.kind);
+
+      this.setState({
+        devices,
+        options: devices.map((d, i) => ({
+          label: d.label || `${this.props.kind} - ${i}`,
+          value: d.deviceId,
+        })),
+      });
+    };
+
     navigator.mediaDevices
       .enumerateDevices()
-      .then(this.handleEnumerateDevicesSuccess)
-      .catch(this.handleEnumerateDevicesError);
-  }
-
-  handleEnumerateDevicesSuccess(deviceInfos) {
-    const devices = deviceInfos.filter(d => d.kind === this.props.kind);
-
-    this.setState({
-      devices,
-      options: devices.map((d, i) => ({
-        label: d.label || `${this.props.kind} - ${i}`,
-        value: d.deviceId,
-      })),
-    });
-  }
-
-  handleEnumerateDevicesError(error) {
-    logClient('error', { error, method: 'handleEnumerateDevicesError' });
+      .then(handleEnumerateDevicesSuccess)
+      .catch(handleEnumerateDevicesError);
   }
 
   handleSelectChange(event) {
@@ -75,9 +78,9 @@ class DeviceSelector extends Component {
       >
         {
           options.length ?
-            options.map((option, i) => (
+            options.map(option => (
               <option
-                key={i}
+                key={_.uniqueId('device-option-')}
                 value={option.value}
               >
                 {option.label}

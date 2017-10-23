@@ -20,8 +20,13 @@ const propTypes = {
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
-  inputDeviceId: PropTypes.string.isRequired,
-  outputDeviceId: PropTypes.string.isRequired,
+  inputDeviceId: PropTypes.string,
+  outputDeviceId: PropTypes.string,
+};
+
+const defaultProps = {
+  inputDeviceId: null,
+  outputDeviceId: null,
 };
 
 const intlMessages = defineMessages({
@@ -277,5 +282,6 @@ class AudioModal extends Component {
 }
 
 AudioModal.propTypes = propTypes;
+AudioModal.defaultProps = defaultProps;
 
 export default injectIntl(AudioModal);

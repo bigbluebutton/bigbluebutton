@@ -1,7 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import styles from './styles.scss';
+
+const propTypes = {
+  intl: intlShape.isRequired,
+  handlePlayAudioSample: PropTypes.func.isRequired,
+  outputDeviceId: PropTypes.string,
+};
+
+const defaultProps = {
+  outputDeviceId: null,
+};
 
 const intlMessages = defineMessages({
   playSoundLabel: {
@@ -35,5 +46,8 @@ class AudioTest extends React.Component {
     );
   }
 }
+
+AudioTest.propTypes = propTypes;
+AudioTest.defaultProps = defaultProps;
 
 export default injectIntl(AudioTest);

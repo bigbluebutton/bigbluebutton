@@ -77,7 +77,7 @@ class AudioManager {
       inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
     };
 
-    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this))
+    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
   }
 
   exitAudio() {
@@ -100,7 +100,7 @@ class AudioManager {
     this.isConnected = true;
 
     if (!this.isEchoTest) {
-      notify(this.messages.info.JOINED_AUDIO, 'info', 'audio_on');
+      this.notify(this.messages.info.JOINED_AUDIO);
     }
   }
 
@@ -115,7 +115,7 @@ class AudioManager {
 
 
     if (!this.error && !this.isEchoTest) {
-      notify(this.messages.info.LEFT_AUDIO, 'info', 'audio_on');
+      this.notify(this.messages.info.LEFT_AUDIO);
     }
     this.isEchoTest = false;
   }
@@ -135,6 +135,7 @@ class AudioManager {
       const {
         status,
         error,
+        bridgeError,
       } = response;
 
       if (status === STARTED) {
@@ -144,8 +145,8 @@ class AudioManager {
         this.onAudioExit();
       } else if (status === FAILED) {
         this.error = error;
-        notify(this.messages.error[error], 'error', 'audio_on');
-        console.error('Audio Error:', error);
+        this.notify(this.messages.error[error]);
+        console.error('Audio Error:', error, bridgeError);
         this.onAudioExit();
       }
     });
@@ -164,7 +165,12 @@ class AudioManager {
   }
 
   async changeInputDevice(deviceId) {
-    this.inputDevice = await this.bridge.changeInputDevice(deviceId);
+    try {
+      this.inputDevice = await this.bridge.changeInputDevice(deviceId);
+    } catch(err) {
+      this.error = err;
+      this.notify('There was a problem getting the media devices');
+    }
   }
 
   async changeOutputDevice(deviceId) {
@@ -191,6 +197,12 @@ class AudioManager {
 
   get userData() {
     return this._userData;
+  }
+
+  notify(message) {
+    notify(message,
+           this.error ? 'error' : 'info',
+           this.isListenOnly ? 'audio_on' : 'unmute');
   }
 }
 

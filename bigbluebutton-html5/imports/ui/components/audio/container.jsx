@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
     id: 'app.audioManager.joinedAudio',
     description: 'Joined audio toast message',
   },
-  joinedEcho : {
+  joinedEcho: {
     id: 'app.audioManager.joinedEcho',
     description: 'Joined echo test toast message',
   },
@@ -28,7 +28,6 @@ const intlMessages = defineMessages({
     id: 'app.audioManager.leftAudio',
     description: 'Left audio toast message',
   },
-
   genericError: {
     id: 'app.audioManager.genericError',
     description: 'Generic error messsage',
@@ -51,8 +50,7 @@ const intlMessages = defineMessages({
 const AudioContainer = props =>
   (<Audio {...props}>
     {props.children}
-  </Audio>
-  );
+  </Audio>);
 
 let didMountAutoJoin = false;
 
@@ -73,12 +71,12 @@ export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }
       REQUEST_TIMEOUT: intl.formatMessage(intlMessages.requestTimeout),
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
     },
-  }
+  };
 
   return {
     init: () => {
       Service.init(messages);
-      Service.changeOutputDevice(document.querySelector('#remote-media').sinkId)
+      Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       if (!autoJoinAudio || didMountAutoJoin) return;
       mountModal(<AudioModalContainer />);
       didMountAutoJoin = true;

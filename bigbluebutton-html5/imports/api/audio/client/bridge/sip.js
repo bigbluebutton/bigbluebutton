@@ -165,9 +165,9 @@ export default class SIPBridge extends BaseAudioBridge {
       let userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
-        log: {
-          builtinEnabled: false,
-        },
+        // log: {
+        //   builtinEnabled: false,
+        // },
         displayName: callerIdName,
         register: false,
         traceSip: true,
@@ -234,9 +234,13 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   setupEventHandlers(currentSession) {
+    this.notifiedSuccess = false;
+
     return new Promise((resolve) => {
       const handleConnectionCompleted = () => {
+        if (this.notifiedSuccess) return;
         this.callback({ status: this.baseCallStates.started });
+        this.notifiedSuccess = true;
         resolve();
       };
 
@@ -260,7 +264,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
       currentSession.on('terminated', handleSessionTerminated);
       currentSession.mediaHandler.on('iceConnectionCompleted', handleConnectionCompleted);
-      currentSession.mediaHandler.on('iceConnectsionConnected', handleConnectionCompleted);
+      currentSession.mediaHandler.on('iceConnectionConnected', handleConnectionCompleted);
 
       this.currentSession = currentSession;
     });
@@ -272,7 +276,10 @@ export default class SIPBridge extends BaseAudioBridge {
     } = this;
 
     const getMediaStream = constraints =>
-      navigator.mediaDevices.getUserMedia(constraints);
+      navigator.mediaDevices.getUserMedia(constraints).catch((err) => {
+        console.error(err);
+        throw new Error('There was a problem getting the media devices');
+      });
 
     if (!value) {
       const mediaStream = await getMediaStream({ audio: true });
