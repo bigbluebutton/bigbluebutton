@@ -102,7 +102,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
-			[Bindable] private var showGuestSettingsButton:Boolean = false;
 			[Bindable] private var showRecordButton:Boolean = false;
 			[Bindable] public var toolbarOptions:LayoutOptions;
 			[Bindable] private var brandingOptions:BrandingOptions;
@@ -234,8 +233,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
       private function refreshModeratorButtonsVisibility(e:*):void {
-          showGuestSettingsButton = UsersUtil.amIModerator() && usersOptions.enableGuestUI;
-
           showRecordButton = LiveMeeting.inst().meeting.recorded && UsersUtil.amIModerator();
       }
 
@@ -512,10 +509,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				logoSperatator.visible = logo.includeInLayout = false;
 			}
 
-			private function onSettingsButtonClick():void {
-				PopUpUtil.createModalPopUp(this.parent, GuestSettingsWindow, true) as GuestSettingsWindow;
-			}
-
 			private function refreshRole(e:ChangeMyRole):void {
 				refreshModeratorButtonsVisibility(null);
 			}
@@ -558,15 +551,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 				<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 				
-				<mx:Button
-					id="bbbSettings"
-					visible="{showGuestSettingsButton}"
-					includeInLayout="{showGuestSettingsButton}"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
-					click="onSettingsButtonClick()"
-					styleName="settingsButtonStyle"
-					height="30"
-					/>
 				<!--
 				<mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 				-->
