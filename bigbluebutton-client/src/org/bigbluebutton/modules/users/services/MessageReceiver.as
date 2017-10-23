@@ -52,6 +52,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+  import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
+  import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -200,6 +202,12 @@ package org.bigbluebutton.modules.users.services
           break;
         case "GuestsWaitingApprovedEvtMsg":
           handleGuestsWaitingApprovedEvtMsg(message);
+          break;
+        case "UserAddedToPresenterGroupEvtMsg":
+          handleUserAddedToPresenterGroupEvtMsg(message);
+          break;
+        case "UserRemovedFromPresenterGroupEvtMsg":
+          handleUserRemovedFromPresenterGroupEvtMsg(message);
           break;
       }
     }
@@ -861,7 +869,17 @@ package org.bigbluebutton.modules.users.services
         dispatcher.dispatchEvent(e);
       }
     }
-    
+
+    private function handleUserAddedToPresenterGroupEvtMsg(msg: Object): void {
+      var userId: String = msg.body.userId;
+      dispatcher.dispatchEvent(new UserAddedToPresenterGroupEvent(userId));
+    }
+
+    private function handleUserRemovedFromPresenterGroupEvtMsg(msg: Object): void {
+      var userId: String = msg.body.userId;
+      dispatcher.dispatchEvent(new UserRemovedFromPresenterGroupEvent(userId));
+    }
+
     public function handleGuestPolicyChanged(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;

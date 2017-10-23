@@ -346,5 +346,14 @@ package org.bigbluebutton.core
     public static function getBreakoutRoom(id: String): BreakoutRoom {
       return LiveMeeting.inst().breakoutRooms.getBreakoutRoom(id);
     }
+
+    public static function isUserInPresentationGroup(id: String): Boolean {
+      return LiveMeeting.inst().users.isUserInPresentationGroup(id);
+    }
+
+    public static function getPresenterGroup(): ArrayCollection {
+        return LiveMeeting.inst().users.getPresenterGroup();
+    }
+
   }
 }

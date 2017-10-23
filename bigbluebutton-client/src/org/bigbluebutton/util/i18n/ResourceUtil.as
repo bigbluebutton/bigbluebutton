@@ -41,14 +41,12 @@ package org.bigbluebutton.util.i18n
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.options.LanguageOptions;
 
 	public class ResourceUtil extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(ResourceUtil);
 
 		public static const LOCALES_FILE:String = "client/conf/locales.xml";
-		public static const VERSION:String = "0.9.0";
     
 		private static var instance:ResourceUtil = null;
 		private var inited:Boolean = false;
@@ -256,14 +254,6 @@ package org.bigbluebutton.util.i18n
 			update();
 		}
 		
-		private function sendAppAndLocaleVersions():void {
-      		trace("Sending locale version");
-			var dispatcher:Dispatcher = new Dispatcher();
-			var versionEvent:AppVersionEvent = new AppVersionEvent();
-			versionEvent.configLocaleVersion = false;
-			dispatcher.dispatchEvent(versionEvent);			
-		}
-
 		/**
 		 * Defaults to DEFAULT_LANGUAGE when an error is thrown by the ResourceManager
 		 * @param event
@@ -277,7 +267,6 @@ package org.bigbluebutton.util.i18n
 		
 		public function update():void{
 			reloadLocaleNames();
-      		sendAppAndLocaleVersions();
 			var dispatcher:Dispatcher = new Dispatcher;
 			dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_CHANGED));
 			dispatchEvent(new Event(Event.CHANGE));

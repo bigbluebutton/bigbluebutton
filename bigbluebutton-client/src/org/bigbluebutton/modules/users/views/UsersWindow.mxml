@@ -51,6 +51,8 @@ $Id: $
     <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserMutedEvent" />
     <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
+    <mate:Listener type="{UserAddedToPresenterGroupEvent.USER_ADDED_TO_PRESENTER_GROUP}" method="handleUserAddedToPresenterGroupEvent" />
+    <mate:Listener type="{UserRemovedFromPresenterGroupEvent.USER_REMOVED_FROM_PRESENTER_GROUP}" method="handleUserRemovedFromPresenterGroupEvent" />
     <mate:Listener type="{UserEmojiChangedEvent.USER_EMOJI_CHANGED}" method="handleUserEmojiChangedEvent" />
     <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleSwitchedPresenterEvent" />
     <mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="handleStoppedViewingWebcamEvent" />
@@ -113,6 +115,8 @@ $Id: $
 		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 		import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 		import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+		import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
+		import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
 		import org.bigbluebutton.main.views.MainCanvas;
 		import org.bigbluebutton.main.views.WellPositionedMenu;
 		import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -209,7 +213,15 @@ $Id: $
       private function handleUserLeftEvent(event: UserLeftEvent): void {
         handler.handleUserLeftEvent(event.userID);  
       }
-      
+
+      private function handleUserAddedToPresenterGroupEvent(event: UserAddedToPresenterGroupEvent): void {
+        LiveMeeting.inst().users.addToPresenterGroup(event.userId);
+      }
+
+      private function handleUserRemovedFromPresenterGroupEvent(event: UserRemovedFromPresenterGroupEvent): void {
+        LiveMeeting.inst().users.removeFromPresenterGroup(event.userId);
+      }
+
       private function handleStoppedViewingWebcamEvent(event: StoppedViewingWebcamEvent): void {
         handler.handleStoppedViewingWebcamEvent(event);  
       }
@@ -241,7 +253,7 @@ $Id: $
       private function onCreationComplete():void {
         dispatcher = new Dispatcher();
         
-        handler.populateAllUsers(usersGrid)
+        handler.populateAllUsers(usersGrid);
         users = handler.users;
         
         breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
