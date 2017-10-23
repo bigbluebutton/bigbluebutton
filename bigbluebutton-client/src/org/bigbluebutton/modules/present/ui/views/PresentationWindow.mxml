@@ -161,6 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
 
+			[Bindable]
 			private var podId: String = "";
 			private var ownerId: String = "";
 			
@@ -1004,7 +1005,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
 	<mx:Canvas width="100%" height="100%" styleName="slideViewBackground" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-		<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
+		<views:SlideView id="slideView" podId="{this.podId}" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
 	</mx:Canvas>
 
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">

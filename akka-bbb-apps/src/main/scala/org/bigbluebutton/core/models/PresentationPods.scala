@@ -25,23 +25,18 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
         Some(newPres)
       case None =>
         None
-
     }
   }
 
 }
 
-case class PresentationPod(id: String, ownerId: String, currentPresenter: String, authorizedPresenters: Vector[String],
+case class PresentationPod(id: String, ownerId: String, currentPresenter: String,
                            presentations: collection.immutable.Map[String, PresentationInPod]) {
   def addPresentation(presentation: PresentationInPod): PresentationPod = {
     copy(presentations = presentations + (presentation.id -> presentation))
   }
 
   def removePresentation(id: String): PresentationPod = copy(presentations = presentations - id)
-
-  def addAuthorizedPresenter(userId: String): PresentationPod = copy(authorizedPresenters = authorizedPresenters :+ userId)
-  def removeAuthorizedPresenter(userId: String): PresentationPod = copy(authorizedPresenters =
-    authorizedPresenters.filterNot(u => u == userId))
 
   def setCurrentPresenter(userId: String): PresentationPod = copy(currentPresenter = userId)
   //  def getCurrentPresenter(): String = currentPresenter

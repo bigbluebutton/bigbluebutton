@@ -82,7 +82,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 			[Bindable]
 			public var slideModel:SlideViewModel = new SlideViewModel();
-			
+
+
+			public var podId:String;
+
       private var pageCache:ArrayCollection = new ArrayCollection();
       
 			private function onCreationComplete():void {
@@ -113,8 +116,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
 			}
 						
-			public function setSlides(podId: String):void {
-				var pres: Presentation = PresentationPodManager.getInstance().getPod(podId).getCurrentPresentation();
+			public function setSlides(_podId: String):void {
+				if (_podId != this.podId) {
+					return;
+				}
+
+				var pres: Presentation = PresentationPodManager.getInstance().getPod(_podId).getCurrentPresentation();
 				if (pres != null) {
 					pageCache = pres.getPages();
 					/* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
@@ -289,6 +296,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handlePageChangedEvent(e:PageChangedEvent):void {
+				if (e.podId != this.podId) {
+					return;
+				}
+
 				LOGGER.debug("Got a page changed event for page [{0}]", [e.pageId]);
 				var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
 				if (page != null) {
@@ -316,25 +327,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
-        LOGGER.debug("Got a page loaded event for page [{0}]", [e.pageId]);
-        var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
-        if (page != null) {
-          setSelectedSlide(page.num);
-          slideLoader.source = page.swfData;
-          LOGGER.debug("Displaying page [{0}]", [e.pageId]);
-//          positionPage(page);
-          if (whiteboardCanvas != null) {
-            whiteboardCanvas.displayWhiteboardById(page.id);
-          }
-          
-          //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
-          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-        }
+				if (e.podId != this.podId) {
+					return;
+				}
+
+				LOGGER.debug("Got a page loaded event for page [{0}]", [e.pageId]);
+				var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
+				if (page != null) {
+					setSelectedSlide(page.num);
+					slideLoader.source = page.swfData;
+					LOGGER.debug("Displaying page [{0}]", [e.pageId]);
+					// positionPage(page);
+					if (whiteboardCanvas != null) {
+						whiteboardCanvas.displayWhiteboardById(page.id);
+					}
+
+					//slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+					slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") +
+							page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+					slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") +
+							page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+				}
 			}
-			
+
       private function becomeViewer():void {
         removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
         this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
