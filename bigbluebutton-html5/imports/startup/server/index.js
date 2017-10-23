@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import _ from 'lodash';
 import Logger from './logger';
 import Redis from './redis';
 import locales from '../../utils/locales';
@@ -11,7 +10,7 @@ Meteor.startup(() => {
   Logger.info(`SERVER STARTED. ENV=${Meteor.settings.runtime.env}`, APP_CONFIG);
 });
 
-WebApp.connectHandlers.use('/check', (req, res, next) => {
+WebApp.connectHandlers.use('/check', (req, res) => {
   const payload = { html5clientStatus: 'running' };
 
   res.setHeader('Content-Type', 'application/json');
@@ -24,13 +23,13 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
   const localeRegion = req.query.locale.split('-');
   let messages = {};
-  const locales = [defaultLocale, localeRegion[0]];
+  const completeLocale = [defaultLocale, localeRegion[0]];
   let statusCode = 200;
   if (localeRegion.length > 1) {
     locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
   }
 
-  locales.forEach((locale) => {
+  completeLocale.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
