@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
   this: BaseMeetingActor =>
@@ -64,7 +65,10 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
       log.info("Send START RECORDING voice conf. meetingId=" + liveMeeting.props.meetingProp.intId
         + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
 
-      val event = buildStartRecordingVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf)
+      val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf
+      )
       outGW.send(event)
     } else {
       log.info("Not recording audio as numVoiceUsers={} and isRecording={} and recordProp={}", numVoiceUsers,
@@ -72,12 +76,4 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     }
   }
 
-  def buildStartRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(StartRecordingVoiceConfSysMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(StartRecordingVoiceConfSysMsg.NAME, meetingId)
-    val body = StartRecordingVoiceConfSysMsgBody(voiceConf, meetingId)
-    val event = StartRecordingVoiceConfSysMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
 }

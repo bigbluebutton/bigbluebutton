@@ -381,6 +381,8 @@ public class MeetingService implements MessageListener {
     recordingService.updateMetaParams(idList, metaParams);
   }
 
+
+
   public void processRecording(String meetingId) {
     recordingService.startIngestAndProcessing(meetingId);
   }
@@ -857,11 +859,17 @@ public class MeetingService implements MessageListener {
           processPresentationUploadToken((PresentationUploadToken) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
+        } else if (message instanceof RecordChapterBreak) {
+          processRecordingChapterBreak((RecordChapterBreak) message);
         }
       }
     };
 
     runExec.execute(task);
+  }
+
+  public void processRecordingChapterBreak(RecordChapterBreak msg) {
+    recordingService.kickOffRecordingChapterBreak(msg.meetingId, msg.timestamp);
   }
 
   public void start() {

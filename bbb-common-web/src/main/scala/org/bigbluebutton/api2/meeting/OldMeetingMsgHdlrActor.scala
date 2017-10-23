@@ -41,9 +41,16 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: PresentationUploadTokenSysPubMsg => handlePresentationUploadTokenSysPubMsg(m)
       case m: GuestsWaitingApprovedEvtMsg => handleGuestsWaitingApprovedEvtMsg(m)
+      case m: RecordingChapterBreakSysMsg => handleRecordingChapterBreakSysMsg(m)
 
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
+  }
+
+  def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
+    println("*************!!!!!!!!!!!!!! HANDLE RECORDING CHAPTER BREAK !!!!!!!!!!!!!!!")
+
+    olgMsgGW.handle(new RecordChapterBreak(msg.body.meetingId, msg.body.timestamp))
   }
 
   def handleMeetingCreatedEvtMsg(msg: MeetingCreatedEvtMsg): Unit = {
