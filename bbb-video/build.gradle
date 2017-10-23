@@ -58,7 +58,7 @@ dependencies {
   compile 'org.easymock:easymock:2.4@jar'
   
   //redis
-  compile 'redis.clients:jedis:2.0.0'
+  compile 'redis.clients:jedis:2.9.0'
   compile 'commons-pool:commons-pool:1.5.6'
   compile 'com.google.code.gson:gson:2.5'
 	
