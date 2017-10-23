@@ -49,10 +49,5 @@ object PresentationPodsApp {
     PresentationVO(pres.id, pres.name, pres.current, pres.pages.values.toVector, pres.downloadable)
   }
 
-  def verifyPresenterStatus(state: MeetingState2x, podId: String, userId: String): Option[String] = {
-    // TODO check if the user belongs in the presenter group
-    Some(userId)
-  }
-
 }
 
