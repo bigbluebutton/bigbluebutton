@@ -140,7 +140,6 @@ class NavBar extends Component {
     );
   }
 
-
   renderBreakoutItem(breakout) {
     const {
       getBreakoutJoinURL,
