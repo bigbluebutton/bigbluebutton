@@ -123,3 +123,9 @@ object CheckAlivePongSysMsg { val NAME = "CheckAlivePongSysMsg" }
 case class CheckAlivePongSysMsg(header: BbbCoreBaseHeader,
                                 body: CheckAlivePongSysMsgBody) extends BbbCoreMsg
 case class CheckAlivePongSysMsgBody(system: String, timestamp: Long)
+
+
+object RecordingChapterBreakSysMsg { val NAME = "RecordingChapterBreakSysMsg" }
+case class RecordingChapterBreakSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                body: RecordingChapterBreakSysMsgBody) extends BbbCoreMsg
+case class RecordingChapterBreakSysMsgBody(meetingId: String, timestamp: Long)

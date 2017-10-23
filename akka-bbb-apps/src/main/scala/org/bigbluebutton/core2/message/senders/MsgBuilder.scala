@@ -247,4 +247,14 @@ object MsgBuilder {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildRecordingChapterBreakSysMsg(meetingId: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(RecordingChapterBreakSysMsg.NAME, routing)
+    val body = RecordingChapterBreakSysMsgBody(meetingId, timestamp)
+    val header = BbbCoreHeaderWithMeetingId(RecordingChapterBreakSysMsg.NAME, meetingId)
+    val event = RecordingChapterBreakSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }
