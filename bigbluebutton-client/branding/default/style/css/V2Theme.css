@@ -831,6 +831,12 @@ views|GuestSettingsWindow {
 	headerHeight : 0;
 }
 
+.guestListStyle {
+	borderStyle    : none;
+	rollOverColor  : #FFFFFF;
+	selectionColor : #FFFFFF;
+}
+
 .allowButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Allow");
 }

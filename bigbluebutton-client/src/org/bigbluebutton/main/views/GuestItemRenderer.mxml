@@ -22,7 +22,7 @@
 
 <mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:fx="http://ns.adobe.com/mxml/2009"
-		 verticalAlign="middle" width="100%" >
+		 width="90%" verticalAlign="middle">
 
     <fx:Script>
         <![CDATA[
@@ -33,30 +33,29 @@
 
             private var dispatcher:Dispatcher = new Dispatcher();
 
-            private function onRejectUserBtnClick():void {
-                sendResponseToServer(false);
-            }
+			private function onRejectUserBtnClick():void {
+				sendResponseToServer(false);
+			}
 
-            private function onAllowUserBtnClick():void {
-                sendResponseToServer(true);
-            }
+			private function onAllowUserBtnClick():void {
+				sendResponseToServer(true);
+			}
 
-            private function sendResponseToServer(accept:Boolean):void {
-              var approvedGuests: Array = new Array();
-              approvedGuests.push(data.intId);
-                var respCommand:ResponseModeratorEvent = 
-                  new ResponseModeratorEvent(approvedGuests, accept);
-                dispatcher.dispatchEvent(respCommand);
-            }
-
+			private function sendResponseToServer(accept:Boolean):void {
+				var approvedGuests:Array = new Array();
+				approvedGuests.push(data.intId);
+				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(approvedGuests, accept);
+				dispatcher.dispatchEvent(respCommand);
+			}
         ]]>
     </fx:Script>
 
-    <mx:Label text="{data.name}" width="260" />
-    <mx:Button width="20" height="20" styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" 
+    <mx:Label text="{data.name}" width="{this.width-denyButton.width-allowButton.width-30}" />
+    <mx:Button width="20" height="20" id="denyButton" styleName="denyButtonStyle"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" 
                click="onRejectUserBtnClick()" />
-    <mx:Button width="20" height="20" styleName="allowButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" 
+    <mx:Button width="20" height="20" id="allowButton" styleName="allowButtonStyle"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" 
                click="onAllowUserBtnClick()" />
-  
 
 </mx:HBox>

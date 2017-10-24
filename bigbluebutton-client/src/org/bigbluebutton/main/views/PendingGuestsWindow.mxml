@@ -25,15 +25,16 @@ $Id: $
 				xmlns:common="org.bigbluebutton.common.*"
                 title="{ResourceUtil.getInstance().getString('bbb.guests.title')}"
 				showCloseButton="false"
-                layout="absolute" width="600" height="380"
+                layout="absolute" width="600" minHeight="400"
+				verticalScrollPolicy="off" horizontalScrollPolicy="off"
                 xmlns:mate="http://mate.asfusion.com/" >
-    
+
     <fx:Declarations>
         <mate:Listener type="{BBBEvent.ACCEPT_ALL_WAITING_GUESTS}" method="acceptAllWaitingGuests" />
         <mate:Listener type="{BBBEvent.DENY_ALL_WAITING_GUESTS}" method="denyAllWaitingGuests" />
         <mate:Listener type="{RemoveGuestFromViewEvent.REMOVE_GUEST}" receive="{remove(event.userid)}" />
     </fx:Declarations>
-    
+
     <fx:Script>
         <![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -51,11 +52,13 @@ $Id: $
 			import org.bigbluebutton.util.i18n.ResourceUtil;
             
 			[Bindable]
-			private var guestList:ArrayCollection = new ArrayCollection();
+			private var guestUsers:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var authUsers:ArrayCollection = new ArrayCollection();
             private var dispatcher:Dispatcher = new Dispatcher();
             
             public function refreshGuestView():void {
-                guestList = new ArrayCollection(LiveMeeting.inst().guestsWaiting.getGuests());
+				guestUsers = new ArrayCollection(LiveMeeting.inst().guestsWaiting.getGuests());
             }
             
             public function sendResponseToAllGuests(approved:Boolean):void {
@@ -103,7 +106,7 @@ $Id: $
                 removeGuestEvent.userid = userid;
                 dispatcher.dispatchEvent(removeGuestEvent);
                 
-                if (guestList.length == 0) {
+                if (guestUsers.length == 0) {
                     closeWindow();
                 }
             }
@@ -115,35 +118,51 @@ $Id: $
         ]]>
     </fx:Script>
 	
-	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.guests.pending.title')}"
-						  styleName="titleWindowStyle"
-						  width="{this.width - 40}" />
-	
-	<mx:HBox paddingLeft="20" paddingRight="20" horizontalGap="20">
-		<mx:VBox>
-			<mx:Label text="Options" />
-			<mx:Button id="allowEveryoneBtn" styleName="mainActionButton"
-					   label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}"
-					   width="100%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
-			<mx:Button id="denyEveryoneBtn" styleName="mainActionButton"
-					   label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}"
-					   width="100%" click="sendResponseToAllGuestsCheckBox(false)" toolTip="{denyEveryoneBtn.label}"/>
-			<mx:CheckBox id="rememberCheckBox" label="{ResourceUtil.getInstance().getString('bbb.guests.rememberAction.text')}"/>
-		</mx:VBox>
-		
-		<mx:HRule width="100%"/>
-		
-		<mx:VBox>
-			<mx:Label text="{guestList.length > 1? ResourceUtil.getInstance().getString('bbb.guests.message.plural', [String(guestList.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.singular', [String(guestList.length)])}"
-					  width="100%"/>
-			<mx:List id="guestListBox" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
-					 rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{guestList}" />
-		</mx:VBox>
-	</mx:HBox>
+	<mx:VBox height="100%" width="100%" paddingTop="15" paddingBottom="15" verticalGap="15" horizontalAlign="center">
+
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.guests.pending.title')}"
+							  styleName="titleWindowStyle"
+							  width="{this.width - 40}" />
+
+		<mx:HBox paddingLeft="20" paddingRight="20" horizontalGap="20" width="100%" height="100%">
+			<mx:VBox width="200" height="100%">
+				<mx:VBox width="100%">
+					<mx:Button id="allowAllAuthBtn" styleName="mainActionButton"
+							   label="{ResourceUtil.getInstance().getString('bbb.guests.allowAllAuthenticated.label')}"
+							   width="100%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
+					<mx:Button id="allowAllGuestsBtn" styleName="mainActionButton"
+							   label="{ResourceUtil.getInstance().getString('bbb.guests.allowAllGuestsBtn.label')}"
+							   width="100%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
+				</mx:VBox>
+				<mx:VBox width="100%" paddingTop="20" paddingBottom="20">
+					<mx:Button id="allowEveryoneBtn" styleName="mainActionButton"
+							   label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryone.label')}"
+							   width="100%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
+					<mx:Button id="denyEveryoneBtn" styleName="mainActionButton"
+							   label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryone.label')}"
+							   width="100%" click="sendResponseToAllGuestsCheckBox(false)" toolTip="{denyEveryoneBtn.label}"/>
+				</mx:VBox>
+				<mx:CheckBox id="rememberCheckBox" label="{ResourceUtil.getInstance().getString('bbb.guests.rememberAction.label')}"/>
+			</mx:VBox>
+
+			<mx:VRule height="100%"/>
+
+			<mx:VBox width="100%" height="100%">
+				<mx:Label text="{authUsers.length > 1 ? ResourceUtil.getInstance().getString('bbb.guests.message.user.plural', [String(authUsers.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.user.singular', [String(authUsers.length)])}"
+						  width="100%"/>
+				<mx:List id="authUsersList" styleName="guestListStyle" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
+						 rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{authUsers}" />
+				<mx:Label text="{guestUsers.length > 1 ? ResourceUtil.getInstance().getString('bbb.guests.message.guest.plural', [String(guestUsers.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.guest.singular', [String(guestUsers.length)])}"
+						  width="100%"/>
+				<mx:List id="guestList" styleName="guestListStyle" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
+						 rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{guestUsers}" />
+			</mx:VBox>
+		</mx:HBox>
+	</mx:VBox>
 
 	<mx:Button id="closeButton" click="closeWindow()" styleName="titleWindowCloseButton"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.guests.pending.close')}"
 			   right="10" top="15"
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.guests.pending.close.toolTip')}" />
-    
+
 </mx:TitleWindow>
