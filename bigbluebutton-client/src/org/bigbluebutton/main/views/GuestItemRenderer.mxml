@@ -33,14 +33,6 @@
 
             private var dispatcher:Dispatcher = new Dispatcher();
 
-            [Bindable] private var username:String = "";
-            private var userid:String;
-
-            public function setUser(username:String, userid:String):void {
-                this.username = username;
-                this.userid = userid;
-            }
-
             private function onRejectUserBtnClick():void {
                 sendResponseToServer(false);
             }
@@ -51,7 +43,7 @@
 
             private function sendResponseToServer(accept:Boolean):void {
               var approvedGuests: Array = new Array();
-              approvedGuests.push(userid);
+              approvedGuests.push(data.intId);
                 var respCommand:ResponseModeratorEvent = 
                   new ResponseModeratorEvent(approvedGuests, accept);
                 dispatcher.dispatchEvent(respCommand);
@@ -60,11 +52,10 @@
         ]]>
     </fx:Script>
 
-    <mx:Label text="{username}" maxWidth="150" />
-    <mx:Spacer width="100%" />
-    <mx:Button styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" 
+    <mx:Label text="{data.name}" width="260" />
+    <mx:Button width="20" height="20" styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" 
                click="onRejectUserBtnClick()" />
-    <mx:Button styleName="allowButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" 
+    <mx:Button width="20" height="20" styleName="allowButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" 
                click="onAllowUserBtnClick()" />
   
 

@@ -136,6 +136,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.Guest;
+			import org.bigbluebutton.main.model.GuestPolicy;
 			import org.bigbluebutton.main.model.ImageLoader;
 			import org.bigbluebutton.main.model.options.BrandingOptions;
 			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
@@ -161,7 +162,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;
-			private var guestWindow:GuestWindow = null;
+			private var guestWindow:PendingGuestsWindow = null;
 			private var scWindow:ShortcutHelpWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -191,7 +192,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var isTunneling:Boolean = false;
 			
 			private var guest:Guest = new Guest();
-			private var guestPolicy:String = "ASK_MODERATOR";
+			private var guestPolicy:String = GuestPolicy.ASK_MODERATOR;
 
 			private var confirmingLogout:Boolean = false;
 			
@@ -361,7 +362,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (guestWindow == null) {
-					guestWindow = PopUpUtil.createModalPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+					guestWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
 					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
 
 					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;

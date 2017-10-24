@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:common="org.bigbluebutton.common.*"
+                title="{ResourceUtil.getInstance().getString('bbb.guests.title')}"
+				showCloseButton="false"
+                layout="absolute" width="600" height="380"
+                xmlns:mate="http://mate.asfusion.com/" >
+    
+    <fx:Declarations>
+        <mate:Listener type="{BBBEvent.ACCEPT_ALL_WAITING_GUESTS}" method="acceptAllWaitingGuests" />
+        <mate:Listener type="{BBBEvent.DENY_ALL_WAITING_GUESTS}" method="denyAllWaitingGuests" />
+        <mate:Listener type="{RemoveGuestFromViewEvent.REMOVE_GUEST}" receive="{remove(event.userid)}" />
+    </fx:Declarations>
+    
+    <fx:Script>
+        <![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.core.model.users.GuestWaiting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.RemoveGuestEvent;
+			import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
+			import org.bigbluebutton.main.events.ResponseModeratorEvent;
+			import org.bigbluebutton.main.model.GuestPolicy;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+            
+			[Bindable]
+			private var guestList:ArrayCollection = new ArrayCollection();
+            private var dispatcher:Dispatcher = new Dispatcher();
+            
+            public function refreshGuestView():void {
+                guestList = new ArrayCollection(LiveMeeting.inst().guestsWaiting.getGuests());
+            }
+            
+            public function sendResponseToAllGuests(approved:Boolean):void {
+              removeAllGuests();
+              var _guests: Array = LiveMeeting.inst().guestsWaiting.getGuests();
+              var approvedGuests: Array = new Array();
+              for (var i:int = 0; i < _guests.length; i++) {
+                var _guest: GuestWaiting = _guests[i] as GuestWaiting;
+                approvedGuests.push(_guest.intId);
+              }
+                var respCommand:ResponseModeratorEvent = 
+                  new ResponseModeratorEvent(approvedGuests, approved);
+                dispatcher.dispatchEvent(respCommand);
+            }
+            
+            public function sendResponseToAllGuestsCheckBox(resp:Boolean):void {
+                if(rememberCheckBox.selected) {
+                    var event:BBBEvent = new BBBEvent(BBBEvent.BROADCAST_GUEST_POLICY);
+                    if (resp) {
+                        event.payload['guestPolicy'] = GuestPolicy.ALWAYS_ACCEPT;
+                    } else {
+                        event.payload['guestPolicy'] = GuestPolicy.ALWAYS_DENY;
+                    }
+                    dispatcher.dispatchEvent(event);
+                }
+                sendResponseToAllGuests(resp);
+            }
+            
+            public function acceptAllWaitingGuests(event:BBBEvent):void {
+                sendResponseToAllGuests(true);
+            }
+            
+            public function denyAllWaitingGuests(event:BBBEvent):void {
+                sendResponseToAllGuests(false);
+            }
+            
+            public function removeAllGuests():void {
+                closeWindow();
+            }
+            
+            public function remove(userid:String):void {
+				refreshGuestView();
+
+                var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent();
+                removeGuestEvent.userid = userid;
+                dispatcher.dispatchEvent(removeGuestEvent);
+                
+                if (guestList.length == 0) {
+                    closeWindow();
+                }
+            }
+            
+            public function closeWindow():void {
+                PopUpManager.removePopUp(this);
+            }
+            
+        ]]>
+    </fx:Script>
+	
+	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.guests.pending.title')}"
+						  styleName="titleWindowStyle"
+						  width="{this.width - 40}" />
+	
+	<mx:HBox paddingLeft="20" paddingRight="20" horizontalGap="20">
+		<mx:VBox>
+			<mx:Label text="Options" />
+			<mx:Button id="allowEveryoneBtn" styleName="mainActionButton"
+					   label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}"
+					   width="100%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
+			<mx:Button id="denyEveryoneBtn" styleName="mainActionButton"
+					   label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}"
+					   width="100%" click="sendResponseToAllGuestsCheckBox(false)" toolTip="{denyEveryoneBtn.label}"/>
+			<mx:CheckBox id="rememberCheckBox" label="{ResourceUtil.getInstance().getString('bbb.guests.rememberAction.text')}"/>
+		</mx:VBox>
+		
+		<mx:HRule width="100%"/>
+		
+		<mx:VBox>
+			<mx:Label text="{guestList.length > 1? ResourceUtil.getInstance().getString('bbb.guests.message.plural', [String(guestList.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.singular', [String(guestList.length)])}"
+					  width="100%"/>
+			<mx:List id="guestListBox" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
+					 rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{guestList}" />
+		</mx:VBox>
+	</mx:HBox>
+
+	<mx:Button id="closeButton" click="closeWindow()" styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.guests.pending.close')}"
+			   right="10" top="15"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.guests.pending.close.toolTip')}" />
+    
+</mx:TitleWindow>
