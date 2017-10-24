@@ -2,18 +2,19 @@ import React from 'react';
 import { Router, Route, Redirect, IndexRoute, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 
-import { joinRouteHandler, logoutRouteHandler, authenticatedRouteHandler } from './auth';
-import Base from './base';
-
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
+
+import { joinRouteHandler, logoutRouteHandler, authenticatedRouteHandler } from './auth';
+import Base from './base';
+
 
 const browserHistory = useRouterHistory(createHistory)({
   basename: Meteor.settings.public.app.basename,
 });
 
-export const renderRoutes = () => (
+const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/logout" onEnter={logoutRouteHandler} />
     <Route
@@ -38,3 +39,4 @@ export const renderRoutes = () => (
     <Redirect from="*" to="/error/404" />
   </Router>
 );
+export default renderRoutes;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import ActionsBar from './component';
@@ -7,17 +7,11 @@ import AudioService from '../audio/service';
 
 import AudioModal from '../audio/audio-modal/component';
 
-class ActionsBarContainer extends Component {
-  render() {
-    return (
-      <ActionsBar
-        {...this.props}
-      >
-        {this.props.children}
-      </ActionsBar>
-    );
-  }
-}
+const ActionsBarContainer = ({ children, ...props }) => (
+  <ActionsBar {...props}>
+    {children}
+  </ActionsBar>
+);
 
 export default withModalMounter(createContainer(({ mountModal }) => {
   const isPresenter = Service.isUserPresenter();

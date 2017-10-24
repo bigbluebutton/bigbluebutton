@@ -1,8 +1,9 @@
+/* eslint react/jsx-filename-extension: 0 */
 import React from 'react';
 import _ from 'lodash';
 import { toast } from 'react-toastify';
 
-import Toast from './component';
+import Toast from '/imports/ui/components/toast/component';
 
 let lastToast = {
   id: null,
@@ -11,7 +12,7 @@ let lastToast = {
   icon: null,
 };
 
-const notify = (message, type = 'default', icon, options) => {
+export function notify(message, type = 'default', icon, options) {
   const settings = {
     type,
     ...options,
@@ -25,9 +26,6 @@ const notify = (message, type = 'default', icon, options) => {
 
     lastToast = { id, ...toastProps };
   }
-};
+}
 
-export default notify;
-
-export const withToast = ComponentToWrap =>
-  props => (<ComponentToWrap {...props} toastNotify={notify} />);
+export default { notify };

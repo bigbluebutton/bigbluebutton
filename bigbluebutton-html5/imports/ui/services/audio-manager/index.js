@@ -2,7 +2,7 @@ import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
 import VertoBridge from '/imports/api/audio/client/bridge/verto';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
-import notify from '/imports/ui/components/toast/service';
+import { notify } from '/imports/ui/services/notification';
 
 const MEDIA = Meteor.settings.public.media;
 const USE_SIP = MEDIA.useSIPAudio;

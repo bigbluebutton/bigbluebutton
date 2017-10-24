@@ -1,31 +1,22 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import userListService from '../user-list/service';
 import ChatService from '../chat/service';
 import Service from './service';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import NavBar from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-class NavBarContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <NavBar {...this.props}>
-        {this.props.children}
-      </NavBar>
-    );
-  }
-}
+const NavBarContainer = ({ children, ...props }) => (
+  <NavBar {...props}>
+    {children}
+  </NavBar>
+);
 
 export default withRouter(createContainer(({ location, router }) => {
   let meetingTitle;

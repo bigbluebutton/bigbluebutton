@@ -1,6 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { check } from 'meteor/check';
-import notify from '/imports/ui/components/toast/service';
+import { notify } from '/imports/ui/services/notification';
 
 /**
  * Send the request to the server via Meteor.call and don't treat errors.

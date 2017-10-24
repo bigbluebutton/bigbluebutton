@@ -11,7 +11,7 @@ export default function handleRecordingStatusChange({ body }, meetingId) {
   };
 
   const modifier = {
-    $set: { 'recordProp.record': recording },
+    $set: { 'recordProp.recording': recording },
   };
 
   const cb = (err, numChanged) => {
