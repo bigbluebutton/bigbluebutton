@@ -1,12 +1,19 @@
+// border
 $focus-border-size: 2px;
 $focus-border-offset: -4px;
+
+// colours
+$color-white: #FFF;
+$user-list-bg: #F3F6F9;
 $color-primary: #0F70D7 !default;
 $color-primary-input-shadow: lighten($color-primary, 35%);
-$user-list-bg: #F3F6F9;
-$color-white: #FFF;
 $list-item-bg-hover: darken($user-list-bg, 7%);
 $color-list-item-hover-bg: #e4ecf2;
 $color-list-item-focus-border: #92bcea;
+
+// padding 
+$sm-padding-y: .25rem;
+$lg-padding-y: .5rem;
 
 %customListFocus {
   border: $focus-border-size solid $user-list-bg;
@@ -23,7 +30,7 @@ $color-list-item-focus-border: #92bcea;
   border: $focus-border-size solid $user-list-bg;
   border-radius: $focus-border-size;
   border-right: none;
-  padding-left: .25em;
+  padding-left: $sm-padding-y;
 
   &:hover {
     background-color: $list-item-bg-hover;
@@ -43,7 +50,7 @@ $color-list-item-focus-border: #92bcea;
   position: relative;
   display: inline-block;
   border: $focus-border-size solid $color-white;
-  border-radius: .5em;
+  border-radius: $lg-padding-y;
   
   &,
   &:active {
