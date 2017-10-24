@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
 
+import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
@@ -189,6 +190,7 @@ class App extends Component {
         </section>
         <ModalContainer />
         <AudioContainer />
+        <ToastContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );
