@@ -11,10 +11,9 @@
   },
   "lint-staged": {
     "gitDir": "../",
-    "*.{js,jsx}": [
-      "eslint --fix",
-      "git add"
-    ]
+    "linters": {
+      "*.{js,jsx}": ["eslint --fix","git add"]
+    }
   },
   "dependencies": {
     "babel-runtime": "~6.26.0",
