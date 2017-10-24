@@ -153,6 +153,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
@@ -169,11 +170,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
 			[Bindable] public var appVersion:String = ' ';
-			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
-			
-			private var receivedConfigLocaleVer:Boolean = false;
-			private var receivedResourceLocaleVer:Boolean = false;
 			
 			[Bindable] private var copyrightText:String;
 
@@ -334,42 +331,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.height = appHeight - (_showFooter ? footerHeight: 0) - (_showToolbar ? toolbarHeight: 0);
 				updateCanvasBackgroundDimensions();
 			}
-			
-			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
-                var logData:Object = UsersUtil.initLogData();
-                
-				if (event.configLocaleVersion == true) {
-					receivedConfigLocaleVer = true;
-					appVersion = event.appVersion;
-					localeVersion = event.localeVersion;
-          updateCopyrightText();
-          
-                    logData.localeVersion = localeVersion;
-                    logData.tags = ["locale"];
-                    logData.appVersion = appVersion;
-                    logData.message = "Received locale version from config.xml";
-                    LOGGER.info(JSON.stringify(logData));
-      
-					LOGGER.debug("Received locale version fron config.xml");
-				} else {
-					receivedResourceLocaleVer = true;
 
-                    logData.tags = ["locale"];
-                    logData.message = "Received locale version from locale file";
-                    LOGGER.info(JSON.stringify(logData));
-				}
-				
-				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LOGGER.debug("Comparing locale versions.");
-					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
-					if (sendStartModulesEvent) {
-            
-						sendStartModulesEvent = false;
-						sendStartAllModulesEvent();
-					}				
-				}						
+			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
+				var logData:Object = UsersUtil.initLogData();
+
+				appVersion = event.appVersion;
+				updateCopyrightText();
+
+				logData.appVersion = appVersion;
+				LOGGER.info(JSON.stringify(logData));
+
+				logData.message = "Received application version event";
+				sendStartAllModulesEvent();
 			}
-			
+
 			public function sendStartAllModulesEvent():void{
 				LOGGER.debug("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
@@ -492,21 +467,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function versionCheck():void {
 				var browserOptions : BrowserVersionsOptions = Options.getOptions(BrowserVersionsOptions) as BrowserVersionsOptions;
 				if (!StringUtils.isEmpty(browserOptions.chrome) && !StringUtils.isEmpty(browserOptions.firefox) && !StringUtils.isEmpty(browserOptions.flash)) {
-					//find browser version
-					var browserVersion:Array = ExternalInterface.call("determineBrowser");
 					//check browser version
-					if ((browserVersion[0].toString().toLowerCase() == "chrome" && browserVersion[1] < browserOptions.chrome) || browserVersion[0].toString().toLowerCase() == "firefox" && browserVersion[1] < browserOptions.firefox) {
+					if ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion < browserOptions.chrome) || BrowserCheck.isFirefox() && BrowserCheck.browserMajorVersion < browserOptions.firefox) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.title"), 
-							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [browserVersion[0]+" "+browserVersion[1]]),
+							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [BrowserCheck.browserName+" "+BrowserCheck.browserMajorVersion]),
 							'bbb.clientstatus.browser.message'));
 					}
 					
 					//find flash version
 					var flashVersion:Object = getFlashVersion(); 
 					//check flash version
-					if ((flashVersion.os == 'LNX' && browserVersion[0].toString().toLowerCase() != "chrome" && flashVersion.major < 11) || 
-						((flashVersion.os != 'LNX' || browserVersion[0].toString().toLowerCase() == "chrome") && flashVersion.major < browserOptions.flash)) {
+					if ((flashVersion.os == 'LNX' && !BrowserCheck.isChrome() && flashVersion.major < 11) || 
+						((flashVersion.os != 'LNX' || BrowserCheck.isChrome()) && flashVersion.major < browserOptions.flash)) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.title"), 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.message", [flashVersion.major+"."+flashVersion.minor+"."+flashVersion.build]),
@@ -542,26 +515,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			mdiCanvas.addChild(e.component);
 	   		}
 	   		
-	   		public function checkLocaleVersion(localeVersion:String):void {	   			
-	   			Alert.okLabel ="OK";
-				var version:String = "old-locales";
-				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-                
-                var logData:Object = UsersUtil.initLogData();
-                logData.configVersion = localeVersion;
-                logData.localeVersion = version;
-                logData.locale = ResourceUtil.getInstance().getCurrentLanguageCode();
-                logData.tags = ["locale"];
-                logData.message = "Loaded locale.";
-                LOGGER.info(JSON.stringify(logData));
-                    
-				if ((version == "old-locales") || (version == "") || (version == null)) {
-					wrongLocaleVersion();
-				} else {
-					if (version != localeVersion) wrongLocaleVersion();
-				}	   			
-	   		}
-
 			private function handleInactivityWarningEvent(e:BBBEvent):void {
 				var inactivityWarning:InactivityWarningWindow = PopUpUtil.createModalPopUp(mdiCanvas, InactivityWarningWindow, true) as InactivityWarningWindow;
 				inactivityWarning.duration = e.payload.duration;
@@ -606,18 +559,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
             }
 
-            private function wrongLocaleVersion():void {
-                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModelPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
-                if (localeWindow) {
-                    var point1:Point = new Point();
-                    // Calculate position of TitleWindow in Application's coordinates. 
-                    point1.x = width / 2;
-                    point1.y = height / 2;
-                    localeWindow.x = point1.x - (localeWindow.width / 2);
-                    localeWindow.y = point1.y - (localeWindow.height / 2);
-                }
-            }
-
             private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
                 PopUpUtil.createModalPopUp(mdiCanvas, AudioSelectionWindow, true);
             }
@@ -629,9 +570,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
                 var options:PhoneOptions = new PhoneOptions();
                 if (!options.showMicrophoneHint) return;
-                var browser:String = ExternalInterface.call("determineBrowser")[0];
                 var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
-                if (browser == "Firefox") {
+                if (BrowserCheck.isFirefox()) {
                     if (browserPermissionHelper) {
 						if (Capabilities.os.indexOf("Mac") >= 0){
 							browserPermissionHelper.currentState = "firefoxMicMacOSX";
@@ -642,7 +582,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 200;
                     }
-                } else if (browser == "Chrome") {
+                } else if (BrowserCheck.isChrome()) {
                     if (browserPermissionHelper) {
 						browserPermissionHelper.currentState = "chromeMic";
 						browserPermissionHelper.x = 50;
@@ -666,14 +606,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-                if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
+                if (BrowserCheck.isChrome()) {
 					// Show browserPermissionHelper component after showing the webcam window due event listeners registration order
                     setTimeout(showbrowserPermissionHelper, 100);
                 }
             }
 			
 			private function showbrowserPermissionHelper() : void {
-				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
+				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
 					browserPermissionHelper.currentState = "chromeCam";
 					browserPermissionHelper.x = 20;
@@ -811,6 +751,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0);
 					if (UsersUtil.isBreakout()) {
 						toolbarHeight += toolbar.breakoutRibbon.height;
+					}
+					if (toolbar.banner.includeInLayout) {
+						toolbarHeight += toolbar.banner.height;
 					}
 				}
 				calculateCanvasHeight();

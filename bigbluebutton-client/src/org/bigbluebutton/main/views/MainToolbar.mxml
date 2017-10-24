@@ -75,6 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
@@ -194,6 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					initBandwidthToolTip();
 				}
 			}
+
 			private function handleRemainingTimeUpdate(e:MeetingTimeRemainingEvent):void {
 				// Display timer only if there is less than 30 minutes remaining
 				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
@@ -217,13 +219,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
 				}
 				
-				if (LiveMeeting.inst().me.logoutTimer > 0 ) {
-					idleLogoutButton.startTimer(LiveMeeting.inst().me.logoutTimer);
+				if (LiveMeeting.inst().meeting.logoutTimer > 0 ) {
+					idleLogoutButton.startTimer(LiveMeeting.inst().meeting.logoutTimer);
 				} else {
 					rightBox.removeChild(idleLogoutButton);
 				}
+				
+				initBanner();
 
 				logFlashPlayerCapabilities();
+			}
+			
+			private function initBanner() : void {
+				if (!StringUtils.isEmpty(LiveMeeting.inst().meeting.bannerText)) {
+					banner.visible = banner.includeInLayout = true;
+					banner.setStyle("backgroundColor", uint("0x" + LiveMeeting.inst().meeting.bannerColor.substr(1))); 
+					bannerLabel.text = LiveMeeting.inst().meeting.bannerText;
+				}
 			}
 
       private function refreshModeratorButtonsVisibility(e:*):void {
@@ -300,13 +312,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout) {
-					var logoutWindow:LogoutWindow;
-					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
+					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true) as LogoutWindow;
 
 					var newX:Number = this.width - logoutWindow.width - 5;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
-
-					PopUpManager.centerPopUp(logoutWindow);
 
 					logoutWindow.x = newX;
 					logoutWindow.y = newY;
@@ -400,7 +409,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
-					setStyle("backgroundColor", brandingOptions.toolbarColor);
+					topBox.setStyle("backgroundColor", uint("0x" + brandingOptions.toolbarColor.substr(1)));
 				}
 			}
 			
@@ -517,8 +526,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSettingsButtonClick():void {
-				settingsPopup = BBBSettings(PopUpManager.createPopUp(this.parent, BBBSettings, true));
+				settingsPopup = PopUpUtil.createModalPopUp(this.parent, BBBSettings, true) as BBBSettings;
 				settingsPopup.pushComponents(settingsComponents);
+				PopUpManager.centerPopUp(settingsPopup);
 			}
 
 			private function refreshRole(e:ChangeMyRole):void {
@@ -535,6 +545,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="top">
 		<!-- Breakout room  Ribbon-->
+		<mx:HBox id="banner" visible="false" includeInLayout="false" styleName="bannerStyle" width="100%" height="30">
+			<mx:Label id="bannerLabel" width="100%" textAlign="center"/>
+		</mx:HBox>
 		<mx:HBox id="breakoutRibbon" width="100%" height="30"
 				 styleName="breakoutRoomRibbon" 
 				 visible="false" includeInLayout="false" >
@@ -545,7 +558,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timerForRoom.toolTip')}"/>
 		</mx:HBox>
 		<!-- Top bar -->
-		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
+		<mx:HBox id="topBox" width="100%" verticalAlign="middle" height="50" horizontalScrollPolicy="off" styleName="topBoxStyle">
 			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
 				<mx:VRule id="logoSperatator" styleName="toolbarSeparator" height="10" />

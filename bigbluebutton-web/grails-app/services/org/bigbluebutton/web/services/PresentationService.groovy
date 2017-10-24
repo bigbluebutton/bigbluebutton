@@ -143,7 +143,8 @@ class PresentationService {
 		if (presDir.exists()) {
 			File pres = new File(presDir.getAbsolutePath() + File.separatorChar + testUploadedPresentation)
 			if (pres.exists()) {
-				UploadedPresentation uploadedPres = new UploadedPresentation(testConferenceMock, testRoomMock, testPresentationName);
+				// TODO add podId
+				UploadedPresentation uploadedPres = new UploadedPresentation("B", testConferenceMock, testRoomMock, testPresentationName);
 				uploadedPres.setUploadedFile(pres);
 				// Run conversion on another thread.
 				new Timer().runAfter(1000) 

@@ -17,8 +17,8 @@ package org.bigbluebutton.modules.polling.views {
 		override public function set visible(vsb:Boolean):void {
 			if (vsb) {
 				// This button should only be visible when there is a polling at the current slide's text
-				var page:Page = PresentationModel.getInstance().getCurrentPage();
-				super.visible = page != null ? parseSlideText(page.txtData) : false;
+//				var page:Page = PresentationModel.getInstance().getCurrentPage();
+//				super.visible = page != null ? parseSlideText(page.txtData) : false;
 			} else {
 				super.visible = false;
 			}

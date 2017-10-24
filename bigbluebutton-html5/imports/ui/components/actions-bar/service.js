@@ -1,7 +1,7 @@
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
-import VoiceUsers from '/imports/api/2.0/voice-users';
+import VoiceUsers from '/imports/api/voice-users';
 
 const isUserPresenter = () => Users.findOne({
   userId: Auth.userID,

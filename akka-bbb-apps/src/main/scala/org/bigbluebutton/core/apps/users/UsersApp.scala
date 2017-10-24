@@ -21,7 +21,11 @@ class UsersApp(
     with SetRecordingStatusCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
     with AssignPresenterReqMsgHdlr
-    with EjectUserFromMeetingCmdMsgHdlr {
+    with AddUserToPresenterGroupCmdMsgHdlr
+    with RemoveUserFromPresenterGroupCmdMsgHdlr
+    with EjectUserFromMeetingCmdMsgHdlr
+    with MuteUserCmdMsgHdlr
+    with MuteUserCmdMsgHdlrPermCheck {
 
   val log = Logging(context.system, getClass)
 }

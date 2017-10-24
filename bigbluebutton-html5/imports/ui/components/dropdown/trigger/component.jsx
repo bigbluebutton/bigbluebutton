@@ -41,7 +41,17 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
-    const { children, className, ...restProps } = this.props;
+    const remainingProps = { ...this.props };
+    delete remainingProps.dropdownToggle;
+    delete remainingProps.dropdownShow;
+    delete remainingProps.dropdownHide;
+
+    const {
+      children,
+      className,
+      ...restProps
+    } = remainingProps;
+
     const TriggerComponent = React.Children.only(children);
 
     const TriggerComponentBounded = React.cloneElement(TriggerComponent, {

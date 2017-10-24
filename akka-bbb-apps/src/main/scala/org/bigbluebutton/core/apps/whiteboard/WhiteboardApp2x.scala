@@ -1,12 +1,14 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import akka.actor.ActorContext
+import akka.event.Logging
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
 case class Whiteboard(id: String, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
 
-trait WhiteboardApp2x
+class WhiteboardApp2x(implicit val context: ActorContext)
     extends SendCursorPositionPubMsgHdlr
     with ClearWhiteboardPubMsgHdlr
     with UndoWhiteboardPubMsgHdlr
@@ -15,11 +17,10 @@ trait WhiteboardApp2x
     with SendWhiteboardAnnotationPubMsgHdlr
     with SyncWhiteboardAccessRespMsgHdlr
     with GetWhiteboardAnnotationsReqMsgHdlr {
-  this: MeetingActor =>
 
-  val outGW: OutMsgRouter
+  val log = Logging(context.system, getClass)
 
-  def sendWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
+  def sendWhiteboardAnnotation(annotation: AnnotationVO, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
     var rtnAnnotation: AnnotationVO = annotation
 
@@ -44,24 +45,24 @@ trait WhiteboardApp2x
     rtnAnnotation
   }
 
-  def getWhiteboardAnnotations(whiteboardId: String): Array[AnnotationVO] = {
+  def getWhiteboardAnnotations(whiteboardId: String, liveMeeting: LiveMeeting): Array[AnnotationVO] = {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
     liveMeeting.wbModel.getHistory(whiteboardId)
   }
 
-  def clearWhiteboard(whiteboardId: String, requesterId: String): Option[Boolean] = {
+  def clearWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[Boolean] = {
     liveMeeting.wbModel.clearWhiteboard(whiteboardId, requesterId)
   }
 
-  def undoWhiteboard(whiteboardId: String, requesterId: String): Option[AnnotationVO] = {
+  def undoWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[AnnotationVO] = {
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
-  def modifyWhiteboardAccess(multiUser: Boolean) {
+  def modifyWhiteboardAccess(multiUser: Boolean, liveMeeting: LiveMeeting) {
     liveMeeting.wbModel.modifyWhiteboardAccess(multiUser)
   }
 
-  def getWhiteboardAccess(): Boolean = {
+  def getWhiteboardAccess(liveMeeting: LiveMeeting): Boolean = {
     liveMeeting.wbModel.getWhiteboardAccess()
   }
 }

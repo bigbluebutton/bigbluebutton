@@ -290,3 +290,104 @@ Handle the message in [MeestingActor](https://github.com/bigbluebutton/bigbluebu
 
 A complete example would be the `ValidateAuthTokenReqMsg`.
 
+## Installing Flex SDK 4.16.0 and Playerglobal 23.0 for version 2.1 development
+
+In the next step, you need to get the Apache Flex 4.16.0 SDK package. 
+
+Next, you need to make a directory to hold the tools needed for BigBlueButton development.
+
+~~~
+mkdir -p ~/dev/tools
+cd ~/dev/tools
+~~~
+
+First, you need to download the SDK tarball from an Apache mirror site and then unpack it.
+
+~~~
+wget https://archive.apache.org/dist/flex/4.16.0/binaries/apache-flex-sdk-4.16.0-bin.tar.gz
+tar xvfz apache-flex-sdk-4.16.0-bin.tar.gz
+~~~
+
+Next, create a linked directory with a shortened name for easier referencing.
+
+~~~
+ln -s ~/dev/tools/apache-flex-sdk-4.16.0-bin ~/dev/tools/flex
+~~~
+
+Once the Apache Flex SDK is unpacked, you need to download one of the dependencies manually because the file was moved from its original URL.
+
+~~~
+wget --content-disposition https://github.com/swfobject/swfobject/archive/2.2.tar.gz
+tar xvfz swfobject-2.2.tar.gz
+cp -r swfobject-2.2/swfobject flex/templates/
+~~~
+
+Now that we've finished with the first dependency we need to download the Adobe Flex SDK.  We'll do this step manually in case the download fails (if it does, remove the incomplete file and issue the `wget` command again).
+
+~~~
+cd flex/
+mkdir -p in/
+wget http://download.macromedia.com/pub/flex/sdk/builds/flex4.6/flex_sdk_4.6.0.23201B.zip -P in/
+~~~
+
+Once the supplementary SDK has downloaded, we can use its `build.xml` script to automatically download the remaining third-party tools.
+
+~~~
+ant -f frameworks/build.xml thirdparty-downloads
+~~~
+
+After Flex downloads the remaining third-party tools, you need to modify their permissions.
+
+~~~
+find ~/dev/tools/flex -type d -exec chmod o+rx '{}' \;
+chmod 755 ~/dev/tools/flex/bin/*
+chmod -R +r ~/dev/tools/flex
+~~~
+
+The next step in setting up the Flex SDK environment is to download a Flex library for video.
+
+~~~
+mkdir -p ~/dev/tools/flex/frameworks/libs/player/23.0
+cd ~/dev/tools/flex/frameworks/libs/player/23.0
+wget http://fpdownload.macromedia.com/get/flashplayer/installers/archive/playerglobal/playerglobal23_0.swc
+mv -f playerglobal23_0.swc playerglobal.swc
+~~~
+
+The last step to have a working Flex SDK is to configure it to work with playerglobal 23.0
+
+~~~
+cd ~/dev/tools/flex
+sed -i "s/11.1/23.0/g" frameworks/flex-config.xml
+sed -i "s/<swf-version>14<\/swf-version>/<swf-version>34<\/swf-version>/g" frameworks/flex-config.xml
+sed -i "s/{playerglobalHome}\/{targetPlayerMajorVersion}.{targetPlayerMinorVersion}/libs\/player\/23.0/g" frameworks/flex-config.xml
+~~~
+
+With the tools installed, you need to add a set of environment variables to your `.profile` to access these tools.
+
+~~~
+vi ~/.profile
+~~~
+
+Copy-and-paste the following text at bottom of `.profile`.
+
+~~~
+
+export FLEX_HOME=$HOME/dev/tools/flex
+export PATH=$PATH:$FLEX_HOME/bin
+
+export ANT_OPTS="-Xmx512m -XX:MaxPermSize=512m"
+
+~~~
+
+Reload your profile to use these tools (this will happen automatically when you next login).
+
+~~~
+source ~/.profile
+~~~
+
+Check that the tools are now in your path by running the following command.
+
+~~~
+$ mxmlc -version
+Version 4.16.0 build 20170305
+~~~

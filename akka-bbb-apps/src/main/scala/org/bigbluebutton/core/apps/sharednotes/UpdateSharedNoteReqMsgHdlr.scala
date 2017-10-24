@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.sharednotes
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait UpdateSharedNoteReqMsgHdlr {
   this: SharedNotesApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleUpdateSharedNoteReqMsg(msg: UpdateSharedNoteReqMsg): Unit = {
+  def handle(msg: UpdateSharedNoteReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: UpdateSharedNoteReqMsg, userId: String, patch: String, patchId: Int, undo: Boolean, redo: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, userId)
@@ -18,7 +17,7 @@ trait UpdateSharedNoteReqMsgHdlr {
       val body = UpdateSharedNoteRespMsgBody(msg.body.noteId, patch, patchId, undo, redo)
       val event = UpdateSharedNoteRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
     }
 
     val userId = msg.body.operation match {

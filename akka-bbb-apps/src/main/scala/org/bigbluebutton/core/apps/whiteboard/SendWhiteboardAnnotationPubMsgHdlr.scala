@@ -1,28 +1,26 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.{ OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.bus.MessageBus
 
 trait SendWhiteboardAnnotationPubMsgHdlr {
-  this: MeetingActor =>
+  this: WhiteboardApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleSendWhiteboardAnnotationPubMsg(msg: SendWhiteboardAnnotationPubMsg): Unit = {
+  def handle(msg: SendWhiteboardAnnotationPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: SendWhiteboardAnnotationPubMsg, annotation: AnnotationVO): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SendWhiteboardAnnotationEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(SendWhiteboardAnnotationEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
+      val header = BbbClientMsgHeader(SendWhiteboardAnnotationEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
       val body = SendWhiteboardAnnotationEvtMsgBody(annotation)
       val event = SendWhiteboardAnnotationEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
     }
 
-    val annotation = sendWhiteboardAnnotation(msg.body.annotation)
+    val annotation = sendWhiteboardAnnotation(msg.body.annotation, liveMeeting)
     broadcastEvent(msg, annotation)
   }
 }

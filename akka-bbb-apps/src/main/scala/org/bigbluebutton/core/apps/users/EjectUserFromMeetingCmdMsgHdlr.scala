@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait EjectUserFromMeetingCmdMsgHdlr {
   this: UsersApp =>
@@ -16,22 +16,22 @@ trait EjectUserFromMeetingCmdMsgHdlr {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, msg.body.userId)
     } yield {
       RegisteredUsers.remove(msg.body.userId, liveMeeting.registeredUsers)
-
+      val reason = "user ejected by another user"
       // send a message to client
-      val ejectFromMeetingClientEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(
+      Sender.sendUserEjectedFromMeetingClientEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        user.intId, msg.body.ejectedBy
+        user.intId, msg.body.ejectedBy, reason, outGW
       )
-      outGW.send(ejectFromMeetingClientEvent)
+
       log.info("Ejecting user from meeting (client msg).  meetingId=" + liveMeeting.props.meetingProp.intId +
         " userId=" + msg.body.userId)
 
       // send a system message to force disconnection
-      val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(
+      Sender.sendUserEjectedFromMeetingSystemMsg(
         liveMeeting.props.meetingProp.intId,
-        user.intId, "eject-user"
+        user.intId, msg.body.ejectedBy, outGW
       )
-      outGW.send(ejectFromMeetingSystemEvent)
+
       log.info("Ejecting user from meeting (system msg).  meetingId=" + liveMeeting.props.meetingProp.intId +
         " userId=" + msg.body.userId)
 

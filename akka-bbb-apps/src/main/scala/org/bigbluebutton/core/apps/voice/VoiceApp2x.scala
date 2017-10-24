@@ -8,7 +8,8 @@ trait VoiceApp2x extends UserJoinedVoiceConfEvtMsgHdlr
     with UserLeftVoiceConfEvtMsgHdlr
     with UserMutedInVoiceConfEvtMsgHdlr
     with UserTalkingInVoiceConfEvtMsgHdlr
-    with RecordingStartedVoiceConfEvtMsgHdlr {
+    with RecordingStartedVoiceConfEvtMsgHdlr
+    with VoiceConfRunningEvtMsgHdlr {
 
   this: MeetingActor =>
 }

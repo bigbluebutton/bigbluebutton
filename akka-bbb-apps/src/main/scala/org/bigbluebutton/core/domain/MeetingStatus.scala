@@ -3,6 +3,10 @@ package org.bigbluebutton.core.domain
 import com.softwaremill.quicklens._
 import org.bigbluebutton.core.api.Permissions
 
+object BbbSystemConst {
+  val SYSTEM_USER = "SYSTEM"
+}
+
 case class MeetingProperties(
   id:                      String,
   extId:                   String,

@@ -1,0 +1,64 @@
+	# Handle request to bbb-web running within Tomcat.  This is for BBB-API and Presentation.
+	location /bigbluebutton {
+		proxy_http_version 1.1;
+
+		location /bigbluebutton {
+			proxy_pass         http://127.0.0.1:8080;
+	       		proxy_redirect     default;
+        	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+                	# Workaround IE refusal to set cookies in iframe
+	                add_header P3P 'CP="No P3P policy available"';
+		}
+
+
+		location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
+	        	proxy_pass         http://127.0.0.1:8080;
+			proxy_redirect     default;
+			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+			# Workaround IE refusal to set cookies in iframe
+		        add_header P3P 'CP="No P3P policy available"';
+
+			# Allow 30M uploaded presentation document.
+		        client_max_body_size       30m;
+			client_body_buffer_size    128k;
+
+			proxy_connect_timeout      90;
+			proxy_send_timeout         90;
+			proxy_read_timeout         90;
+
+		        proxy_buffer_size          4k;
+		        proxy_buffers              4 32k;
+		        proxy_busy_buffers_size    64k;
+		        proxy_temp_file_write_size 64k;
+
+		        include    fastcgi_params;
+
+			proxy_request_buffering off;
+
+			# Send a sub-request to allow bbb-web to refuse before loading
+		 	auth_request /bigbluebutton/presentation/checkPresentation;
+
+		}
+
+		location = /bigbluebutton/presentation/checkPresentation {
+			proxy_pass         http://127.0.0.1:8080;
+	       		proxy_redirect     default;
+        	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+			proxy_set_header        X-Presentation-Token $prestoken;
+			proxy_set_header        X-Original-URI $request_uri;
+			proxy_set_header	Content-Length "";
+			proxy_set_header	X-Original-Content-Length $http_content_length;
+
+			# Allow 30M uploaded presentation document.
+		        client_max_body_size       30m;
+			client_body_buffer_size    128k;
+
+			proxy_pass_request_body off;
+			proxy_request_buffering off;
+
+		}
+       }
+

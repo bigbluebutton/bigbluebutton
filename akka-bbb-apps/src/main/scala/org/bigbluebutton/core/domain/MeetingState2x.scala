@@ -1,18 +1,24 @@
 package org.bigbluebutton.core.domain
 
 import org.bigbluebutton.core.apps.BreakoutModel
+import org.bigbluebutton.core.models.GroupChats
+import org.bigbluebutton.core.models.PresentationPodManager
 
 object MeetingState2x {
 
 }
 
 case class MeetingState2x(
-    breakout:          Option[BreakoutModel],
-    inactivityTracker: MeetingInactivityTracker,
-    expiryTracker:     MeetingExpiryTracker
+    groupChats:             GroupChats,
+    presentationPodManager: PresentationPodManager,
+    breakout:               Option[BreakoutModel],
+    inactivityTracker:      MeetingInactivityTracker,
+    expiryTracker:          MeetingExpiryTracker
 ) {
 
-  def update(breakout: Option[BreakoutModel]) = copy(breakout = breakout)
+  def update(groupChats: GroupChats): MeetingState2x = copy(groupChats = groupChats)
+  def update(presPodManager: PresentationPodManager): MeetingState2x = copy(presentationPodManager = presPodManager)
+  def update(breakout: Option[BreakoutModel]): MeetingState2x = copy(breakout = breakout)
   def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
   def update(inactivityTracker: MeetingInactivityTracker): MeetingState2x = copy(inactivityTracker = inactivityTracker)
 }

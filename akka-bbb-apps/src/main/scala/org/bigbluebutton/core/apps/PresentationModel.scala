@@ -8,22 +8,18 @@ case class CurrentPresentationInfo(presenter: CurrentPresenter, presentations: S
 case class Presentation(id: String, name: String, current: Boolean = false,
                         pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean)
 
-case class Page(id: String, num: Int, thumbUri: String = "", swfUri: String,
-                txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0, yOffset: Double = 0,
-                widthRatio: Double = 100D, heightRatio: Double = 100D)
-
 class PresentationModel {
-  private var presentations = new scala.collection.immutable.HashMap[String, Presentation]
+  private var presentations = new scala.collection.immutable.HashMap[String, Presentation] // todo remove
 
-  def addPresentation(pres: Presentation) {
+  def addPresentation(pres: Presentation) { // todo remove
     savePresentation(pres)
   }
 
-  def getPresentations(): Vector[Presentation] = {
+  def getPresentations(): Vector[Presentation] = { // todo remove
     presentations.values.toVector
   }
 
-  def getCurrentPresentation(): Option[Presentation] = {
+  def getCurrentPresentation(): Option[Presentation] = { // todo remove
     presentations.values find (p => p.current)
   }
 
@@ -38,7 +34,7 @@ class PresentationModel {
     } yield curPage
   }
 
-  def removePresentation(presId: String): Option[Presentation] = {
+  def removePresentation(presId: String): Option[Presentation] = { // todo remove
     for {
       pres <- presentations.get(presId)
     } yield {
@@ -47,7 +43,7 @@ class PresentationModel {
     }
   }
 
-  def setCurrentPresentation(presId: String): Option[Presentation] = {
+  def setCurrentPresentation(presId: String): Option[Presentation] = { // todo remove
     getPresentations foreach (curPres => {
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
@@ -64,7 +60,7 @@ class PresentationModel {
     }
   }
 
-  private def savePresentation(pres: Presentation) {
+  private def savePresentation(pres: Presentation) { // todo remove
     presentations += pres.id -> pres
   }
 
@@ -84,6 +80,7 @@ class PresentationModel {
     }
   }
 
+  // TODO remove
   private def deactivateCurrentPage(pres: Presentation, pageIdToIgnore: String): Presentation = {
     var updatedPres = pres
     pres.pages.values.find(p => p.current && p.id != pageIdToIgnore).foreach { cp =>
@@ -95,6 +92,7 @@ class PresentationModel {
     updatedPres
   }
 
+  // TODO remove
   private def makePageCurrent(pres: Presentation, pageId: String): Option[Presentation] = {
     pres.pages.get(pageId) match {
       case Some(newCurPage) =>
@@ -108,8 +106,9 @@ class PresentationModel {
     }
   }
 
+  // TODO remove
   def changeCurrentPage(presentationId: String, pageId: String): Boolean = {
-    var foundPage: Boolean = false;
+    var foundPage: Boolean = false
 
     for {
       pres <- presentations.get(presentationId)

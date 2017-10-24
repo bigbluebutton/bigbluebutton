@@ -49,6 +49,8 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
+	import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
 	import org.bigbluebutton.modules.users.services.MessageSender;
 
@@ -104,7 +106,6 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().me.authToken = result.authToken;
         LiveMeeting.inst().me.layout = result.defaultLayout;
 		LiveMeeting.inst().me.logoutURL = result.logoutUrl;
-		LiveMeeting.inst().me.logoutTimer = result.logoutTimer;
         LiveMeeting.inst().me.role = result.role;
         LiveMeeting.inst().me.welcome = result.welcome;
         LiveMeeting.inst().me.avatarURL = result.avatarURL;
@@ -130,7 +131,11 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.metadata = result.metadata;
         LiveMeeting.inst().meeting.muteOnStart = meetingOptions.muteOnStart;
         
-				
+		LiveMeeting.inst().meeting.logoutTimer = result.logoutTimer;
+		
+		LiveMeeting.inst().meeting.bannerColor = result.bannerColor;
+		LiveMeeting.inst().meeting.bannerText = result.bannerText;
+
 				// assign the meeting name to the document title
 				ExternalInterface.call("setTitle", result.meetingName);
 				
@@ -232,10 +237,10 @@ package org.bigbluebutton.main.model.users
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
 			sender.createBreakoutRooms(LiveMeeting.inst().meeting.internalId, e.rooms, e.durationInMinutes, e.record);
 		}
-
-		public function responseToGuest(e:ResponseModeratorEvent):void {
-			sender.responseToGuest(e.userid, e.resp);
-		}
+    
+    public function handleApproveGuestAccess(e: ResponseModeratorEvent):void {
+      sender.approveGuestAccess(e.userIds, e.allow);
+    }
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
 			sender.requestBreakoutJoinUrl(LiveMeeting.inst().meeting.internalId, e.breakoutMeetingId, e.userId);
@@ -257,6 +262,14 @@ package org.bigbluebutton.main.model.users
 
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) sender.kickUser(e.userid);
+		}
+
+		public function addUserToPresenterGroup(e: AddUserToPresenterGroupEvent): void {
+			if (this.isModerator()) sender.addUserToPresenterGroup(e.userId);
+		}
+
+		public function removeUserFromPresenterGroup(e: RemoveUserFromPresenterGroupEvent): void {
+			if (this.isModerator()) sender.removeUserFromPresenterGroup(e.userId);
 		}
 
 		public function changeRole(e:ChangeRoleEvent):void {

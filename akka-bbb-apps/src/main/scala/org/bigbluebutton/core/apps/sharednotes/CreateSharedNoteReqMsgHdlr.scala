@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.sharednotes
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait CreateSharedNoteReqMsgHdlr {
   this: SharedNotesApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleCreateSharedNoteReqMsg(msg: CreateSharedNoteReqMsg): Unit = {
+  def handle(msg: CreateSharedNoteReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: CreateSharedNoteReqMsg, noteId: String, isNotesLimit: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -18,7 +17,7 @@ trait CreateSharedNoteReqMsgHdlr {
       val body = CreateSharedNoteRespMsgBody(noteId, msg.body.noteName, isNotesLimit)
       val event = CreateSharedNoteRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
     }
 
     if (!liveMeeting.notesModel.isNotesLimit) {

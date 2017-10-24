@@ -143,7 +143,7 @@ phonecomponents|MuteMeButton {
 
 .toolbarMainBox {
 	backgroundColor : #FFFFFF;
-	paddingTop      : 6;
+	paddingTop      : 0;
 	paddingBottom   : 6;
 }
 
@@ -155,8 +155,15 @@ phonecomponents|MuteMeButton {
 	horizontalAlign : center;
 }
 
+.bannerStyle {
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
 .topBoxStyle {
-	paddingTop    : 0;
+	paddingTop    : 6;
 	paddingBottom : 0;
 	paddingLeft   : 8;
 	paddingRight  : 8;
@@ -429,7 +436,7 @@ mx|Button {
 	borderAlphaUp               : 1;
 	borderAlphaOver             : 1;
 	borderAlphaDown             : 1;
-	borderAlphaDisabled         : 1;
+	borderAlphaDisabled         : 0.25;
 
 	borderThickness             : 1;
 
@@ -546,6 +553,10 @@ views|BrowserPermissionHelper {
 //------------------------------
 */
 
+views|ClientStatusWindow {
+	horizontalAlign : right;
+}
+
 views|ClientStatusItemRenderer {
 	iconSuccess : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Success");
 	iconWarning : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning");
@@ -636,7 +647,7 @@ chat|AddChatTabBox {
 }
 
 .chatOptionsLabel {
-	fontSize : 14;
+	fontSize   : 14;
 }
 
 .chatMessageListStyle {
@@ -763,10 +774,6 @@ mx|DataGrid {
 //------------------------------
 */
 
-.deskshareControlButtonStyle {
-	cornerRadius : 18;
-}
-
 .deskshareWarningLabelStyle {
 	fontWeight : bold;
 	fontSize   : 18;
@@ -798,6 +805,24 @@ mx|DataGrid {
 	color      : #2A2D33;
 	fontSize   : 11;
 	fontWeight : bold;
+}
+
+/*
+//------------------------------
+//  FileExportWindow
+//------------------------------
+*/
+
+presentation|FileExportWindow {
+	verticalGap : 12;
+}
+
+.fileExportUploadProgressBar {
+	trackHeight : 14;
+}
+
+.fileExportResultError {
+	color : #DE2721;
 }
 
 /*
@@ -911,6 +936,7 @@ views|LockSettings {
 */
 
 views|MainApplicationShell {
+	borderStyle   : none;
 	paddingBottom : 0;
 	verticalGap   : 0;
 }
@@ -1065,6 +1091,35 @@ views|NetworkStatsWindow {
 
 /*
 //------------------------------
+//  NumericStepper
+//------------------------------
+*/
+
+mx|NumericStepper {
+	/* Normal state */
+	fillColorUp         : #FFFFFF;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #0A5EAC;
+	borderColorDisabled : #CDD4DB;
+
+	/* Icon states */
+	iconColor           : #4E5A66;
+	iconColorOver       : #1070D7;
+	iconColorDown       : #4E5A66;
+
+	borderThickness     : 1;
+
+	/* Skins */
+	downArrowSkin       : ClassReference("org.bigbluebutton.skins.NumericStepperDownSkin");
+	upArrowSkin         : ClassReference("org.bigbluebutton.skins.NumericStepperUpSkin");
+}
+
+/*
+//------------------------------
 //  PopUpButton
 //------------------------------
 */
@@ -1116,10 +1171,6 @@ mx|Panel {
 //  Presentation
 //------------------------------
 */
-
-.presentationUploadDownloadButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
-}
 
 .presentationWindowControlsStyle {
 	paddingBottom     : 5;
@@ -1581,6 +1632,9 @@ users|StatusItemRenderer {
 	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
 	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
 	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	verticalAlign      : middle;
+	horizontalAlign    : center;
+	horizontalGap      : 2;
 }
 
 users|MediaItemRenderer {
@@ -1596,7 +1650,7 @@ users|MediaItemRenderer {
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
 	glowFilterColor : #1070D7;
 	verticalAlign   : middle;
-	horizontalGap   : 8;
+	horizontalGap   : 2;
 	horizontalAlign : center;
 }
 

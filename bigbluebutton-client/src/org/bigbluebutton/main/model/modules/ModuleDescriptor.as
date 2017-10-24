@@ -38,7 +38,7 @@ package org.bigbluebutton.main.model.modules
 		private static const LOGGER:ILogger = getClassLogger(ModuleDescriptor);      
 
 		private var _attributes:Object;
-		private var _loader:BigBlueButtonModuleLoader;
+		private var _loader:ModuleLoader;
 		private var _module:IBigBlueButtonModule;
 		private var _loaded:Boolean = false;
 		private var _connected:Boolean = false;
@@ -53,7 +53,7 @@ package org.bigbluebutton.main.model.modules
 		{
 			unresolvedDependancies = new ArrayCollection();
 			_attributes = new Object();
-			_loader = new BigBlueButtonModuleLoader();
+			_loader = new ModuleLoader();
 			
 			parseAttributes(attributes);			
 		}
