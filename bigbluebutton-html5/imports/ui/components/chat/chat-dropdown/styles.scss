@@ -1,7 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$icon-top-offset: -.4em;
-$icon-left-offset: -.1em;
+$icon-offset: -.3em;
 $square-side-length: 1.56rem;
 
 .btn {
@@ -15,8 +14,8 @@ $square-side-length: 1.56rem;
 
   i {
     color: $color-gray-dark !important;
-    top: $icon-top-offset;
-    left: $icon-left-offset;
+    top: $icon-offset;
+    left: $icon-offset;
   }   
 
   &:hover,
