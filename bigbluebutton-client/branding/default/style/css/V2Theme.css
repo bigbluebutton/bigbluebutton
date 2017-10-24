@@ -203,10 +203,6 @@ phonecomponents|MuteMeButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout_RTL");
 }
 
-.settingsButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
-}
-
 .webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
 .deskshareDefaultButtonStyle, .deskshareOverButtonStyle, .deskshareOnButtonStyle, .deskshareOffButtonStyle,
 .muteMeDefaultButtonStyle, .muteMeOnButtonStyle, .muteMeOffButtonStyle {
@@ -831,8 +827,14 @@ presentation|FileExportWindow {
 //------------------------------
 */
 
-views|BBBSettings {
+views|GuestSettingsWindow {
 	headerHeight : 0;
+}
+
+.guestListStyle {
+	borderStyle    : none;
+	rollOverColor  : #FFFFFF;
+	selectionColor : #FFFFFF;
 }
 
 .allowButtonStyle {

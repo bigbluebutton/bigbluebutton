@@ -885,9 +885,7 @@ package org.bigbluebutton.modules.users.services
       var body: Object = msg.body as Object;
       var policy: String = body.policy as String;
       
-      var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
-      policyEvent.payload['guestPolicy'] = policy;
-      dispatcher.dispatchEvent(policyEvent);
+	  LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
     }
     
     public function handleGetGuestPolicyReply(msg:Object):void {
@@ -896,10 +894,6 @@ package org.bigbluebutton.modules.users.services
       var policy: String = body.policy as String;
       
       LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
-      
-      var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
-      policyEvent.payload['guestPolicy'] = policyEvent;
-      dispatcher.dispatchEvent(policyEvent);
     }
     
     public function handleGuestAccessDenied(msg:Object):void {
