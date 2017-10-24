@@ -49,13 +49,9 @@ package org.bigbluebutton.main.events {
 	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
 	public static const CHANGE_RECORDING_STATUS:String = "CHANGE_RECORDING_STATUS";
 
-		public static const SETTINGS_CONFIRMED:String = "BBB_SETTINGS_CONFIRMED";
-		public static const SETTINGS_CANCELLED:String = "BBB_SETTINGS_CANCELLED";
-
 		public static const ACCEPT_ALL_WAITING_GUESTS:String = "BBB_ACCEPT_ALL_WAITING_GUESTS";
 		public static const DENY_ALL_WAITING_GUESTS:String = "BBB_DENY_ALL_WAITING_GUESTS";
 		public static const BROADCAST_GUEST_POLICY:String = "BBB_BROADCAST_GUEST_POLICY";
-		public static const RETRIEVE_GUEST_POLICY:String = "BBB_RETRIEVE_GUEST_POLICY";
 		public static const MODERATOR_ALLOWED_ME_TO_JOIN:String = "MODERATOR_ALLOWED_ME_TO_JOIN";
 		public static const WAITING_FOR_MODERATOR_ACCEPTANCE:String = "WAITING_FOR_MODERATOR_ACCEPTANCE";
 		public static const ADD_GUEST_TO_LIST:String = "ADD_GUEST_TO_LIST";

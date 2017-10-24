@@ -117,6 +117,7 @@ $Id: $
 		import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
 		import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
 		import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
+		import org.bigbluebutton.main.views.GuestSettingsWindow;
 		import org.bigbluebutton.main.views.MainCanvas;
 		import org.bigbluebutton.main.views.WellPositionedMenu;
 		import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -391,7 +392,7 @@ $Id: $
         moodMenu.btn = emojiStatusBtn;
         moodMenu.show();
       }
-      
+		
       private function openSettings():void {
         paramsMenuData = [];
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: getStyle('iconClearStatus'), handler: resetEmojiStatuses});
@@ -414,6 +415,9 @@ $Id: $
             paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.sendBreakoutRoomsInvitations'), handler: sendBreakoutRoomsInvitations});
           }
         }
+		if (partOptions.enableGuestUI) {
+			paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.guestSettings'), handler: guestSettings});
+		}
         
         // make sure the previous menu is closed before opening a new one
         // This could be improved to include a flag that tells if the menu is open,
@@ -448,6 +452,10 @@ $Id: $
         event.record = breakoutOptions.record;
         dispatcher.dispatchEvent(event);
       }
+	  
+	  private function guestSettings():void {
+		  PopUpUtil.createModalPopUp(this.parent, GuestSettingsWindow, true) as GuestSettingsWindow;
+	  }
       
       private function sendBreakoutRoomsInvitations():void {
         var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);

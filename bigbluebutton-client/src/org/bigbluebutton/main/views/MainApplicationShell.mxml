@@ -76,7 +76,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
 	
 		<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
-		<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
 		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
 		<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
 		<mate:Listener type="{NewGuestWaitingEvent.NEW_GUEST_WAITING}" method="refreshGuestView" />
@@ -99,7 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
@@ -138,6 +136,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.Guest;
+			import org.bigbluebutton.main.model.GuestPolicy;
 			import org.bigbluebutton.main.model.ImageLoader;
 			import org.bigbluebutton.main.model.options.BrandingOptions;
 			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
@@ -163,7 +162,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;
-			private var guestWindow:GuestWindow = null;
+			private var guestWindow:PendingGuestsWindow = null;
 			private var scWindow:ShortcutHelpWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -192,9 +191,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
-			private var guestManagement:GuestManagement = null;
 			private var guest:Guest = new Guest();
-			private var guestPolicy:String = "ASK_MODERATOR";
+			private var guestPolicy:String = GuestPolicy.ASK_MODERATOR;
 
 			private var confirmingLogout:Boolean = false;
 			
@@ -297,16 +295,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (heightWatch != null) heightWatch.unwatch();
 			}
 			
-			private function setGuestPolicy(event:BBBEvent):void {
-				guestPolicy = event.payload.guestPolicy;
-				if(guestManagement == null) {
-					LOGGER.debug("ADD Guest Event");
-					guestManagement = new GuestManagement();
-					guestManagement.setGuestPolicy(guestPolicy);
-					guestManagement.addToSettings();
-				}
-			}
-
 			private function updateCopyrightLabelDimensions(e:Event = null):void {
 				var appWidth:Number = parentApplication.width;
 				
@@ -374,7 +362,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (guestWindow == null) {
-					guestWindow = PopUpUtil.createModalPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+					guestWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
 					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
 
 					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;
