@@ -4,7 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { makeCall, logClient } from '/imports/ui/services/api';
+import { makeCall, log } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -121,7 +121,7 @@ class Auth {
       // do **not** use the custom call - it relies on expired data
       Meteor.call('userLogout', credentialsSnapshot, (error) => {
         if (error) {
-          logClient('error', { error, method: 'userLogout', credentialsSnapshot });
+          log('error', error, { credentials: credentialsSnapshot });
         } else {
           this.fetchLogoutUrl()
             .then(this.clearCredentials)
