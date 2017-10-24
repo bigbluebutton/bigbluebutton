@@ -35,7 +35,7 @@ public class MessageReceiver {
             jedis = new Jedis(host, port);
             // Set the name of this client to be able to distinguish when doing
             // CLIENT LIST on redis-cli
-            jedis.clientSetname("BbbWebSub");
+            jedis.clientSetname("BbbVideoSub");
 
             Runnable messageReceiver = new Runnable() {
                 public void run() {
@@ -78,6 +78,13 @@ public class MessageReceiver {
         @Override
         public void onMessage(String channel, String message) {
             // Not used.
+            Runnable task = new Runnable() {
+                public void run() {
+                    handler.handleMessage("", channel, message);
+                }
+            };
+
+            runExec.execute(task);
         }
 
         @Override

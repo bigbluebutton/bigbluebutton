@@ -32,7 +32,6 @@ import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IPlayItem;
-import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.scheduling.QuartzSchedulingService;
@@ -64,6 +63,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private final Map<String, String> h263PublishedStreams = new HashMap<String, String>(); //publishers
 
     private final Map<String, VideoRotator> videoRotators = new HashMap<String, VideoRotator>();
+
+    private MeetingManager meetingManager;
 
     @Override
     public boolean appStart(IScope app) {
@@ -248,7 +249,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         String meetingId = conn.getScope().getName();
         String streamId = stream.getPublishedName();
 
-
         Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
         addH263PublishedStream(streamId);
         if (streamId.contains("/")) {
@@ -259,18 +259,17 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             }
         } else if (matcher.matches()) {
             log.info("Start recording of stream=[" + stream.getPublishedName() + "] for meeting=[" + conn.getScope().getName() + "]");
+
             Boolean recordVideoStream = true;
 
             VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
-                    recordVideoStream, userId, packetTimeout, scheduler);
-            listener.setEventRecordingService(recordingService);
-            stream.addStreamListener(listener);
-            streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
+                    recordVideoStream, userId, packetTimeout, scheduler, recordingService);
+            ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
+            VideoStream vstream = new VideoStream(stream, listener, cstream);
+            vstream.startRecording();
 
-            recordStream(stream);
+            meetingManager.addStream(meetingId, vstream);
         }
-
-
     }
 
     private Long genTimestamp() {
@@ -309,11 +308,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
         removeH263PublishedStream(streamId);
         if (matcher.matches()) {
-            IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
-            if (listener != null) {
-                ((VideoStreamListener) listener).streamStopped();
-                stream.removeStreamListener(listener);
-            }
+            meetingManager.streamBroadcastClose(meetingId, streamId);
+            meetingManager.removeStream(meetingId, streamId);
 
             long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
             log.info("Stop recording event for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
@@ -325,30 +321,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             event.put("duration", new Long(publishDuration).toString());
             event.put("eventName", "StopWebcamShareEvent");
             recordingService.record(scopeName, event);
-
-        }
-
-    }
-
-    /**
-     * A hook to record a stream. A file is written in webapps/video/streams/
-     * @param stream
-     */
-    private void recordStream(IBroadcastStream stream) {
-        IConnection conn = Red5.getConnectionLocal();
-        long now = System.currentTimeMillis();
-        String recordingStreamName = stream.getPublishedName(); // + "-" + now; /** Comment out for now...forgot why I added this - ralam */
-
-        try {
-            log.info("Recording stream " + recordingStreamName);
-            ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
-            cstream.saveAs(recordingStreamName, false);
-        } catch (Exception e) {
-            log.error("ERROR while recording stream " + e.getMessage());
-            e.printStackTrace();
         }
     }
-
 
     public void setPacketTimeout(int timeout) {
         this.packetTimeout = timeout;

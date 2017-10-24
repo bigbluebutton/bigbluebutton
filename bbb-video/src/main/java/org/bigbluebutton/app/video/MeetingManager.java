@@ -13,17 +13,47 @@ public class MeetingManager {
         this.app = app;
     }
 
-    public void add(String id) {
-        Meeting m = new Meeting(id);
+    private void add(Meeting m) {
         meetings.put(m.id, m);
     }
 
-    public void remove(String id) {
+    private void remove(String id) {
         Meeting m = meetings.remove(id);
+    }
+
+    public void addStream(String meetingId, VideoStream vs) {
+        Meeting m = meetings.get(meetingId);
         if (m != null) {
-            // Close all streams;
+            m.addStream(vs);
+        } else {
+            Meeting nm = new Meeting(meetingId);
+            nm.addStream(vs);
+            add(m);
         }
     }
 
+    public void removeStream(String meetingId, String streamId) {
+        Meeting m = meetings.get(meetingId);
+        if (m != null) {
+            m.removeStream(streamId);
+        }
+    }
+
+    public void streamBroadcastClose(String meetingId, String streamId) {
+        Meeting m = meetings.get(meetingId);
+        if (m != null) {
+            m.streamBroadcastClose(streamId);
+            if (!m.hasVideoStreams()) {
+                remove(m.id);
+            }
+        }
+    }
+
+    public synchronized void stopStartAllRecordings(String meetingId) {
+        Meeting m = meetings.get(meetingId);
+        if (m != null) {
+            m.stopStartAllRecordings();
+        }
+    }
 }
 

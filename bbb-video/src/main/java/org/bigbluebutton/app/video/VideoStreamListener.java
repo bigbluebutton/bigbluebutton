@@ -86,20 +86,25 @@ public class VideoStreamListener implements IStreamListener {
     
     public VideoStreamListener(String meetingId, String streamId, Boolean record,
 							   String userId, int packetTimeout,
-							   QuartzSchedulingService scheduler) {
+							   QuartzSchedulingService scheduler,
+							   EventRecordingService recordingService) {
     	this.meetingId = meetingId;
         this.streamId = streamId;
         this.record = record;
         this.videoTimeout = packetTimeout;
         this.userId = userId;
         this.scheduler = scheduler;
-
+		this.recordingService = recordingService;
      }
 	
 	private Long genTimestamp() {
 		return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
 	}
-	  
+
+	public void reset() {
+    	firstPacketReceived = false;
+	}
+
 	@Override
 	public void packetReceived(IBroadcastStream stream, IStreamPacket packet) {
 	      IoBuffer buf = packet.getData();
@@ -158,11 +163,6 @@ public class VideoStreamListener implements IStreamListener {
 	      } 
 	}
 
-
-	
-	public void setEventRecordingService(EventRecordingService s) {
-		recordingService = s;
-	}
 	
 	public void streamStopped() {
 		this.publishing = false;
