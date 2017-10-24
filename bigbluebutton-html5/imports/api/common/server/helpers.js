@@ -11,9 +11,7 @@ export const indexOf = [].indexOf || function (item) {
 };
 
 // used in 1.1
-export const inReplyToHTML5Client = function (arg) {
-  return arg.routing.userId === 'nodeJSapp';
-};
+export const inReplyToHTML5Client = arg => arg.routing.userId === 'nodeJSapp';
 
 export const getMultiUserStatus = (meetingId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId });

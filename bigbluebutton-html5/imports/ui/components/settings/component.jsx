@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '../modal/service';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
-import Video from '/imports/ui/components/settings/submenus/video/component';
 import _ from 'lodash';
+import { withModalMounter } from '../modal/service';
 
 import Icon from '../icon/component';
 import styles from './styles';
@@ -59,6 +58,9 @@ const propTypes = {
 };
 
 class Settings extends Component {
+  static setHtmlFontSize(size) {
+    document.getElementsByTagName('html')[0].style.fontSize = size;
+  }
   constructor(props) {
     super(props);
 
@@ -92,37 +94,6 @@ class Settings extends Component {
     this.props.availableLocales.then((locales) => {
       this.setState({ availableLocales: locales });
     });
-  }
-
-  setHtmlFontSize(size) {
-    document.getElementsByTagName('html')[0].style.fontSize = size;
-  }
-
-  render() {
-    const intl = this.props.intl;
-
-    return (
-      <Modal
-        title={intl.formatMessage(intlMessages.SettingsLabel)}
-        confirm={{
-          callback: (() => {
-            this.props.mountModal(null);
-            this.updateSettings(this.state.current);
-          }),
-          label: intl.formatMessage(intlMessages.SaveLabel),
-          description: intl.formatMessage(intlMessages.SaveLabelDesc),
-        }}
-        dismiss={{
-          callback: (() => {
-            this.setHtmlFontSize(this.state.saved.application.fontSize);
-          }),
-          label: intl.formatMessage(intlMessages.CancelLabel),
-          description: intl.formatMessage(intlMessages.CancelLabelDesc),
-        }}
-      >
-        {this.renderModalContent()}
-      </Modal>
-    );
   }
 
   handleUpdateSettings(key, newSettings) {
@@ -201,6 +172,33 @@ class Settings extends Component {
       </Tabs>
     );
   }
+  render() {
+    const intl = this.props.intl;
+
+    return (
+      <Modal
+        title={intl.formatMessage(intlMessages.SettingsLabel)}
+        confirm={{
+          callback: (() => {
+            this.props.mountModal(null);
+            this.updateSettings(this.state.current);
+          }),
+          label: intl.formatMessage(intlMessages.SaveLabel),
+          description: intl.formatMessage(intlMessages.SaveLabelDesc),
+        }}
+        dismiss={{
+          callback: (() => {
+            Settings.setHtmlFontSize(this.state.saved.application.fontSize);
+          }),
+          label: intl.formatMessage(intlMessages.CancelLabel),
+          description: intl.formatMessage(intlMessages.CancelLabelDesc),
+        }}
+      >
+        {this.renderModalContent()}
+      </Modal>
+    );
+  }
+
 }
 
 Settings.propTypes = propTypes;

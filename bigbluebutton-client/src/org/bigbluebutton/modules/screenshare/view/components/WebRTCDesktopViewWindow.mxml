@@ -263,7 +263,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function getPrefferedPosition():String{
-				return MainCanvas.DESKTOP_SHARING_VIEW;
+				return MainCanvas.MIDDLE;
 			}
 
 			/**

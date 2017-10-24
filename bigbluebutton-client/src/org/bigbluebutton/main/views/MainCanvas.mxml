@@ -198,13 +198,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						if (x < 0) x = 1;
 						if (y < 0) y = 1;
 						break;
+					case DESKTOP_SHARING_VIEW:
+						win.width = this.width * 0.80;
+						win.height = this.height - 80;
+						x = centerWindowWidth - win.width / 2;
+						y = centerWindowHeight - win.height / 2;
+						break;
 					case DESKTOP_SHARING_PUBLISH:
 						x = 100;
 						y = this.height - win.height - 50;
-						break;
-					case DESKTOP_SHARING_VIEW:
-						x = centerWindowWidth - win.width / 2;
-						y = centerWindowHeight - win.height / 2;
 						break;
 					case ABSOLUTE:
 						// don't reposition the window

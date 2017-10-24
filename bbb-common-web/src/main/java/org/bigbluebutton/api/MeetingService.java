@@ -750,6 +750,14 @@ public class MeetingService implements MessageListener {
       if (user != null) {
         user.setVoiceJoined(true);
         return;
+      } else {
+        if (message.userId.startsWith("v_")) {
+          // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
+          User vuser = new User(message.userId, message.userId,
+                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false);
+          vuser.setVoiceJoined(true);
+          m.userJoined(vuser);
+        }
       }
       return;
     }
@@ -760,7 +768,13 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       User user = m.getUserById(message.userId);
       if (user != null) {
-        user.setVoiceJoined(false);
+        if (message.userId.startsWith("v_")) {
+          // A dial-in user left the meeting. Dial-in users by convention has userId that starts with "v_".
+          User vuser = m.userLeft(message.userId);
+        } else {
+          user.setVoiceJoined(false);
+        }
+
         return;
       }
       return;

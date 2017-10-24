@@ -39,6 +39,14 @@ class ActionsDropdown extends Component {
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
   }
 
+  componentWillUpdate(nextProps) {
+    const { isUserPresenter: isPresenter } = nextProps;
+    const { isUserPresenter: wasPresenter, mountModal } = this.props;
+    if (wasPresenter && !isPresenter) {
+      mountModal(null);
+    }
+  }
+
   handlePresentationClick() {
     this.props.mountModal(<PresentationUploaderContainer />);
   }
