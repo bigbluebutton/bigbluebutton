@@ -336,6 +336,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         this.publisher = publisher;
     }
 
+    public void setMeetingManager(MeetingManager meetingManager) {
+        this.meetingManager = meetingManager;
+    }
+
     @Override
     public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
         // log w3c connect event

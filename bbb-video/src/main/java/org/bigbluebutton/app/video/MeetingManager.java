@@ -5,13 +5,7 @@ import java.util.Map;
 
 public class MeetingManager {
 
-    private VideoApplication app;
-
     private Map<String, Meeting> meetings = new HashMap<String, Meeting>();
-
-    public MeetingManager(VideoApplication app) {
-        this.app = app;
-    }
 
     private void add(Meeting m) {
         meetings.put(m.id, m);
