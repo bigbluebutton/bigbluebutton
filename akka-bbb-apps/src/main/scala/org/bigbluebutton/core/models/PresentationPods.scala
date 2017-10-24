@@ -7,7 +7,7 @@ object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
   def create(ownerId: String): PresentationPod = {
     val currentPresenter = ownerId // default
-    new PresentationPod(genId(), ownerId, currentPresenter, Vector.empty, Map.empty)
+    new PresentationPod(genId(), ownerId, currentPresenter, Map.empty)
   }
 }
 
@@ -39,7 +39,6 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
   def removePresentation(id: String): PresentationPod = copy(presentations = presentations - id)
 
   def setCurrentPresenter(userId: String): PresentationPod = copy(currentPresenter = userId)
-  //  def getCurrentPresenter(): String = currentPresenter
 
   def getCurrentPresentation(): Option[PresentationInPod] = presentations.values find (p => p.current)
 

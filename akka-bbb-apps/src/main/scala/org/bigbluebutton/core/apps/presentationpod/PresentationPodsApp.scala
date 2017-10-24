@@ -36,8 +36,7 @@ object PresentationPodsApp {
     val presentationVOs = presentationObjects.values.map(p => PresentationVO(p.id, p.name, p.current,
       p.pages.values.toVector, p.downloadable)).toVector
 
-    PresentationPodVO(pod.id, pod.ownerId, pod.currentPresenter,
-      pod.authorizedPresenters, presentationVOs)
+    PresentationPodVO(pod.id, pod.ownerId, pod.currentPresenter, presentationVOs)
   }
 
   def updatePresentationPod(state: MeetingState2x, pod: PresentationPod): MeetingState2x = {

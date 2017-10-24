@@ -8,5 +8,4 @@ case class PageVO(id: String, num: Int, thumbUri: String = "", swfUri: String,
   yOffset: Double = 0, widthRatio: Double = 100D, heightRatio: Double = 100D)
 
 case class PresentationPodVO(id: String, ownerId: String, currentPresenter: String,
-                           authorizedPresenters: Vector[String],
                            presentations: Vector[PresentationVO])

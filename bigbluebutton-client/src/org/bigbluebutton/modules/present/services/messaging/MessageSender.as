@@ -157,5 +157,24 @@ package org.bigbluebutton.modules.present.services.messaging
         JSON.stringify(message)
       );
     }
+
+    public function handleSetPresenterInPodReqEvent(podId: String, nextPresenterId: String):void {
+      var message:Object = {
+        header: {name: "SetPresenterInPodReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {nextPresenterId: nextPresenterId, podId: podId}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error("Error while setting presenter for pod." + status); },
+        JSON.stringify(message)
+      );
+    }
+    
+    
+    
+    
+    
   }
 }

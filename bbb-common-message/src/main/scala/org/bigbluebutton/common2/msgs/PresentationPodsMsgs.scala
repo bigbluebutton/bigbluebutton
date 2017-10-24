@@ -28,6 +28,9 @@ object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg"}
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
 case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
 
+object SetPresenterInPodReqMsg { val NAME = "SetPresenterInPodReqMsg"}
+case class SetPresenterInPodReqMsg(header: BbbClientMsgHeader, body: SetPresenterInPodReqMsgBody) extends StandardMsg
+case class SetPresenterInPodReqMsgBody(podId: String, nextPresenterId: String)
 // ------------ client to akka-apps ------------
 
 
@@ -106,6 +109,9 @@ object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg"}
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
 
+object SetPresenterInPodRespMsg { val NAME = "SetPresenterInPodRespMsg"}
+case class SetPresenterInPodRespMsg(header: BbbClientMsgHeader, body: SetPresenterInPodRespMsgBody) extends StandardMsg
+case class SetPresenterInPodRespMsgBody(podId: String, nextPresenterId: String)
 // ------------ akka-apps to client ------------
 
 
