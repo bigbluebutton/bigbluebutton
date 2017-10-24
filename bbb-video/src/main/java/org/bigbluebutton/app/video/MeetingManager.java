@@ -22,7 +22,7 @@ public class MeetingManager {
         } else {
             Meeting nm = new Meeting(meetingId);
             nm.addStream(vs);
-            add(m);
+            add(nm);
         }
     }
 
