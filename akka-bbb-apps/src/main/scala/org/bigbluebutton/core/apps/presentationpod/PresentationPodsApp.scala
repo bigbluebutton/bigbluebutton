@@ -10,11 +10,15 @@ object PresentationPodsApp {
     PresentationPodFactory.create(ownerId)
   }
 
-  def createDefaultPresentationPod(state: MeetingState2x): MeetingState2x = {
-    val defaultPresPod = PresentationPodFactory.create("the-owner-id")
-    val podManager = state.presentationPodManager.addPod(defaultPresPod)
-    state.update(podManager)
+  def createDefaultPresentationPod(ownerId: String): PresentationPod = {
+    PresentationPodFactory.createDefaultPod(ownerId)
   }
+
+  //  def createDefaultPresentationPod(state: MeetingState2x): MeetingState2x = {
+  //    val defaultPresPod = PresentationPodFactory.create("the-owner-id")
+  //    val podManager = state.presentationPodManager.addPod(defaultPresPod)
+  //    state.update(podManager)
+  //  }
 
   def removePresentationPod(state: MeetingState2x, podId: String): MeetingState2x = {
     val podManager = state.presentationPodManager.removePod(podId)
