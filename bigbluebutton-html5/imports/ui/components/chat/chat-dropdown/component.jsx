@@ -127,6 +127,7 @@ class ChatDropdown extends Component {
             circle
             hideLabel
             color="primary"
+            aria-label={intl.formatMessage(intlMessages.options)}
           />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
