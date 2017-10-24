@@ -45,7 +45,7 @@ public class MessageSender {
 		// Set the name of this client to be able to distinguish when doing
 		// CLIENT LIST on redis-cli
 		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, null,
-				Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
+				Protocol.DEFAULT_DATABASE, "BbbRed5VideoPub");
 
 		log.info("Redis message publisher starting!");
 		try {

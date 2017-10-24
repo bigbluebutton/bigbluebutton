@@ -18,6 +18,9 @@ public class MeetingMessageHandler implements MessageHandler {
     private MeetingManager meetingManager;
 
     public void handleMessage(String pattern, String channel, String message) {
+
+        System.out.println("******* HANDLING MESSAGE " + message);
+
         JsonParser parser = new JsonParser();
         JsonObject obj = (JsonObject) parser.parse(message);
 
