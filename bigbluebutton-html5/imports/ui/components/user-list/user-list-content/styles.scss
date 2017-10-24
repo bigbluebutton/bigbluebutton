@@ -1,6 +1,6 @@
 @import "/imports/ui/components/user-list/styles.scss";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
-@import "../../../stylesheets/variables/focus";
+@import "/imports/ui/stylesheets/variables/focus";
 
 .content {
   @extend %flex-column;
