@@ -4,8 +4,11 @@ import { IntlProvider } from 'react-intl';
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
-  baseControls: PropTypes.shape.isRequired,
-  children: PropTypes.shape.isRequired,
+  baseControls: PropTypes.shape({
+    updateErrorState: PropTypes.func.isRequired,
+    updateLoadingState: PropTypes.func.isRequired,
+  }).isRequired,
+  children: PropTypes.element.isRequired,
 };
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
