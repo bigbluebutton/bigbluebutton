@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
-import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import notify from '/imports/ui/components/toast/service';
@@ -22,23 +20,36 @@ const intlMessages = defineMessages({
 class ChatNotificationContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = { toastMessage: props.chatsNotify };
+    this.state = { notified: {} };
     this.audio = new Audio('/html5client/resources/sounds/notify.mp3');
+  }
+
+  componentWillReceiveProps({ openChats }) {
+    const notifiedToClear = {};
+    openChats
+      .filter(c => c.unreadCounter === 0)
+      .forEach((c) => {
+        notifiedToClear[c.id] = 0;
+      });
+    this.setState(({ notified }) => ({
+      notified: {
+        ...notified,
+        ...notifiedToClear,
+      },
+    }));
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.unreadMessagesCount > prevProps.unreadMessagesCount) {
       this.playAudio();
     }
+
+    this.toastNotification();
   }
 
   playAudio() {
     if (this.props.disableAudio) return;
     _.debounce(() => this.audio.play(), this.audio.duration * 1000)();
-  }
-
-  componentWillReceiveProps(props) {
-    console.log(this.state);
   }
 
   toastNotification() {
@@ -47,17 +58,31 @@ class ChatNotificationContainer extends Component {
       disableNotify,
       chatsNotify,
     } = this.props;
-
     if (disableNotify) return;
 
-    chatsNotify.forEach(cn =>
-       _.debounce(() => notify(intl.formatMessage(
+    chatsNotify.forEach((cn) => {
+      if (cn.unreadCounter === this.state.notified[cn.id]) return;
+      _.debounce(() => {
+        const message = intl.formatMessage(
           cn.unreadCounter > 1 ?
-         intlMessages.appToastChatPlural :
-         intlMessages.appToastChatSigular, {
-           0: cn.unreadCounter,
-           1: cn.name })), 1000)()
-     );
+        intlMessages.appToastChatPlural :
+        intlMessages.appToastChatSigular, {
+          0: cn.unreadCounter,
+          1: cn.name,
+        });
+
+        notify(message, 'info', 'chat', {
+          onOpen: () => {
+            this.setState(({ notified }) => ({
+              notified: {
+                ...notified,
+                [cn.id]: cn.unreadCounter,
+              },
+            }));
+          },
+        });
+      }, 1000)();
+    });
   }
 
   render() {
@@ -82,5 +107,6 @@ export default injectIntl(createContainer(({ currentChatID }) => {
     disableNotify: !AppSettings.chatPushNotifications,
     unreadMessagesCount,
     chatsNotify,
+    openChats,
   };
 }, ChatNotificationContainer));
