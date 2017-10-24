@@ -16,16 +16,11 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.main.model.options {
-	import org.bigbluebutton.core.Options;
+package org.bigbluebutton.common {
 
-	public class SkinningOptions extends Options {
-
-		[Bindable]
-		public var url:String = "";
-
-		public function SkinningOptions() {
-			name = "skinning";
-		}
+	/**
+	 * Add it to popup classes to add the Keyboard.ESCAPE close behaviour
+	 */
+	public interface IKeyboardClose {
 	}
 }

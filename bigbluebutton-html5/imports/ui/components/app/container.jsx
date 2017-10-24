@@ -28,7 +28,6 @@ const propTypes = {
   actionsbar: PropTypes.node,
   media: PropTypes.node,
   location: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
 };
 
 const defaultProps = {
@@ -69,9 +68,7 @@ const AppContainer = (props) => {
       actionsbar={actionsbar}
       media={media}
       {...otherProps}
-    >
-      {props.children}
-    </App>
+    />
   );
 };
 

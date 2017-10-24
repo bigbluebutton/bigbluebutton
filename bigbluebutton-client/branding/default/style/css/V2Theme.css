@@ -143,7 +143,7 @@ phonecomponents|MuteMeButton {
 
 .toolbarMainBox {
 	backgroundColor : #FFFFFF;
-	paddingTop      : 6;
+	paddingTop      : 0;
 	paddingBottom   : 6;
 }
 
@@ -156,7 +156,7 @@ phonecomponents|MuteMeButton {
 }
 
 .topBoxStyle {
-	paddingTop    : 0;
+	paddingTop    : 6;
 	paddingBottom : 0;
 	paddingLeft   : 8;
 	paddingRight  : 8;
@@ -429,7 +429,7 @@ mx|Button {
 	borderAlphaUp               : 1;
 	borderAlphaOver             : 1;
 	borderAlphaDown             : 1;
-	borderAlphaDisabled         : 1;
+	borderAlphaDisabled         : 0.25;
 
 	borderThickness             : 1;
 
@@ -546,6 +546,10 @@ views|BrowserPermissionHelper {
 //------------------------------
 */
 
+views|ClientStatusWindow {
+	horizontalAlign : right;
+}
+
 views|ClientStatusItemRenderer {
 	iconSuccess : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Success");
 	iconWarning : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning");
@@ -636,7 +640,7 @@ chat|AddChatTabBox {
 }
 
 .chatOptionsLabel {
-	fontSize : 14;
+	fontSize   : 14;
 }
 
 .chatMessageListStyle {
@@ -762,10 +766,6 @@ mx|DataGrid {
 //  Desktop Sharing
 //------------------------------
 */
-
-.deskshareControlButtonStyle {
-	cornerRadius : 18;
-}
 
 .deskshareWarningLabelStyle {
 	fontWeight : bold;
@@ -911,6 +911,7 @@ views|LockSettings {
 */
 
 views|MainApplicationShell {
+	borderStyle   : none;
 	paddingBottom : 0;
 	verticalGap   : 0;
 }
@@ -1061,6 +1062,35 @@ flexlib|MDIWindow {
 
 views|NetworkStatsWindow {
 	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refresh");
+}
+
+/*
+//------------------------------
+//  NumericStepper
+//------------------------------
+*/
+
+mx|NumericStepper {
+	/* Normal state */
+	fillColorUp         : #FFFFFF;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #0A5EAC;
+	borderColorDisabled : #CDD4DB;
+
+	/* Icon states */
+	iconColor           : #4E5A66;
+	iconColorOver       : #1070D7;
+	iconColorDown       : #4E5A66;
+
+	borderThickness     : 1;
+
+	/* Skins */
+	downArrowSkin       : ClassReference("org.bigbluebutton.skins.NumericStepperDownSkin");
+	upArrowSkin         : ClassReference("org.bigbluebutton.skins.NumericStepperUpSkin");
 }
 
 /*

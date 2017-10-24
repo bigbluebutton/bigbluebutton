@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
 import _ from 'lodash';
@@ -120,7 +119,7 @@ class ChatDropdown extends Component {
       >
         <DropdownTrigger
           tabIndex={0}
-          ariaLabel={intl.formatMessage(intlMessages.options)}
+          aria-label={intl.formatMessage(intlMessages.options)}
           className={styles.btn}
         >
           <Icon iconName="more" />

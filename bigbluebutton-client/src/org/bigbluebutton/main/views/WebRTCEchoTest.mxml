@@ -24,8 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:common="org.bigbluebutton.common.*"
 				width="600" height="380"
 				creationComplete="onCreationComplete()"
-				showCloseButton="false"
-				close="onCancelClicked()">
+				showCloseButton="false">
 	
 	<fx:Declarations>
 		<mate:Listener type="{WebRTCEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRTCEchoTestStartedEvent" />

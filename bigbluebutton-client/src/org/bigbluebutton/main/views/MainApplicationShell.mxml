@@ -150,10 +150,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.phone.models.PhoneOptions;
-			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
@@ -606,7 +606,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function wrongLocaleVersion():void {
-                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModelPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
+                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModalPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
                 if (localeWindow) {
                     var point1:Point = new Point();
                     // Calculate position of TitleWindow in Application's coordinates. 
@@ -671,7 +671,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 			
 			private function showbrowserPermissionHelper() : void {
-				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
+				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
 					browserPermissionHelper.currentState = "chromeCam";
 					browserPermissionHelper.x = 20;

@@ -34,6 +34,8 @@
     "app.userList.menu.muteUserAudio.label": "Teilnehmer stummschalten",
     "app.userList.menu.unmuteUserAudio.label": "Mikrofon freigeben",
     "app.userList.userAriaLabel": "Teilnehmer : {0}  Rolle: {1}  Person: {2}  Status: {3}",
+    "app.userList.menu.promoteUser.label": "{0} zum Moderator machen",
+    "app.userList.menu.demoteUser.label": "{0} zum Zuschauer zurückstufen",
     "app.media.label": "Media",
     "app.presentation.presentationToolbar.prevSlideLabel": "Vorherige Folie",
     "app.presentation.presentationToolbar.prevSlideDesc": "Präsentation zur vorherigen Folie wechseln",
@@ -54,7 +56,7 @@
     "app.navBar.settingsDropdown.optionsLabel": "Optionen",
     "app.navBar.settingsDropdown.fullscreenLabel": "Als Vollbild darstellen",
     "app.navBar.settingsDropdown.settingsLabel": "Einstellungen öffnen",
-    "app.navBar.settingsDropdown.aboutLabel": "Über",
+    "app.navBar.settingsDropdown.aboutLabel": "Versionsinfo",
     "app.navBar.settingsDropdown.leaveSessionLabel": "Ausloggen",
     "app.navBar.settingsDropdown.exitFullscreenLabel": "Vollbilddarstellung beenden",
     "app.navBar.settingsDropdown.fullscreenDesc": "Das Einstellungsmenü als Vollbild darstellen",
@@ -72,7 +74,7 @@
     "app.leaveConfirmation.dismissDesc": "Schließt den Dialog zum Verlassen der Konferenz",
     "app.leaveConfirmation.endMeetingLabel": "Ja und Konferenz beenden",
     "app.leaveConfirmation.endMeetingDesc": "Bestätigung zum Beenden der Konferenz",
-    "app.about.title": "Über",
+    "app.about.title": "Versionsinfo",
     "app.about.version": "Client Build:",
     "app.about.copyright": "Copyright:",
     "app.about.confirmLabel": "OK",
@@ -218,8 +220,9 @@
     "app.error.500": "Ups, irgendwas ist schiefgelaufen",
     "app.error.404": "Nicht gefunden",
     "app.error.401": "Nicht erlaubt",
-    "app.error.403": "Verboten",
-    "app.error.leaveLabel": "Erneut einloggen",
+    "app.error.403": "Verboten",    
+    "app.error.leaveLabel": "Erneut einloggen",    
     "app.guest.waiting": "Warte auf Erlaubnis zur Konferenzteilnahme"
+
 }
 

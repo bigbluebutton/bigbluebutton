@@ -75,6 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
@@ -300,13 +301,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout) {
-					var logoutWindow:LogoutWindow;
-					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
+					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true) as LogoutWindow;
 
 					var newX:Number = this.width - logoutWindow.width - 5;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
-
-					PopUpManager.centerPopUp(logoutWindow);
 
 					logoutWindow.x = newX;
 					logoutWindow.y = newY;
@@ -517,8 +515,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSettingsButtonClick():void {
-				settingsPopup = BBBSettings(PopUpManager.createPopUp(this.parent, BBBSettings, true));
+				settingsPopup = PopUpUtil.createModalPopUp(this.parent, BBBSettings, true) as BBBSettings;
 				settingsPopup.pushComponents(settingsComponents);
+				PopUpManager.centerPopUp(settingsPopup);
 			}
 
 			private function refreshRole(e:ChangeMyRole):void {
