@@ -56,10 +56,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import flash.utils.setTimeout;
 		
 		import mx.collections.ArrayCollection;
-		import mx.controls.listClasses.IListItemRenderer;
 		import mx.core.mx_internal;
 		import mx.events.FlexEvent;
-		import mx.events.ListEvent;
 		import mx.utils.StringUtil;
 		
 		import flashx.textLayout.formats.Direction;
@@ -81,7 +79,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-		import org.bigbluebutton.modules.present.events.PresentationRollEvent;
 		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 		import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
 		import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -89,17 +86,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.UploadProgressEvent;
 		import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
 		import org.bigbluebutton.modules.present.model.PresentOptions;
-		import org.bigbluebutton.modules.present.model.Presentation;
 		import org.bigbluebutton.modules.present.model.PresentationModel;
+		import org.bigbluebutton.modules.present.model.PresentationPodManager;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
       
 		private static const LOGGER:ILogger = getClassLogger(FileUploadWindow);      
-        
-      [Bindable] private var presentationNamesAC:ArrayCollection;
-	    [BIndable] public var maxFileSize:Number;
-		
+
+		[Bindable] private var presentationNamesAC:ArrayCollection;
+		[Bindable] public var maxFileSize:Number;
+		[Bindable] public var podId:String;
+
 		private var dispatcher:Dispatcher;
 
       private var thumbnailTimer:Timer = new Timer(5000);
@@ -118,7 +116,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			dispatcher = new Dispatcher();
 			updateStyles();
 		}
-		
+
+		public function setPodId(_podId: String): void {
+			podId = _podId;
+			presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations(); // GOOD
+			if (presentationNamesAC.length <= 0) {
+				selectFile();
+			}
+		}
+
 		private function updateStyles() : void {
 			var styleNameExt : String = "";
 			if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
@@ -130,10 +136,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			private function initData():void {
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-				presentationNamesAC = PresentationModel.getInstance().getPresentations();
-				if (presentationNamesAC.length <= 0) {
-					selectFile();
-				}
 			}
 
       private function handleThumbnailsProgressEvent(event:CreatingThumbnailsEvent):void {	
@@ -218,6 +220,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
           uploadCmd.isDownloadable = isDownloadable;
+          uploadCmd.podId = podId;
+
           globalDispatch.dispatchEvent(uploadCmd);
           letUserDownload.visible = false;
         }       		
@@ -324,7 +328,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
         enableClosing();
-		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.presId));
+		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.podId, e.presId));
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
 
@@ -344,20 +348,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 			}
-		}
-		
-		private function onItemRollOver(event:ListEvent):void {
-			var item:IListItemRenderer = event.itemRenderer;
-			var presentation:Presentation = item.data as Presentation;
-			var rollEvent:PresentationRollEvent = new PresentationRollEvent(PresentationRollEvent.PRESENTATION_ROLL_OVER, presentation.id);
-			dispatcher.dispatchEvent(rollEvent);
-		}
-		
-		private function onItemRollOut(event:ListEvent):void {
-			var item:IListItemRenderer = event.itemRenderer;
-			var presentation:Presentation = item.data as Presentation;
-			var rollEvent:PresentationRollEvent = new PresentationRollEvent(PresentationRollEvent.PRESENTATION_ROLL_OUT, presentation.id);
-			dispatcher.dispatchEvent(rollEvent);
 		}
 		
 		private function onCancelClicked():void {
@@ -421,7 +411,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <mx:List id="uploadedFilesList" rowCount="{presentationNamesAC.length > 3 ? Math.min(6, presentationNamesAC.length) : 3}" width="100%" styleName="presentationFilesList"
              itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
-		     itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)"
 			 allowMultipleSelection="false" dragEnabled="false" dataProvider="{presentationNamesAC}">
     </mx:List>
   </mx:VBox>

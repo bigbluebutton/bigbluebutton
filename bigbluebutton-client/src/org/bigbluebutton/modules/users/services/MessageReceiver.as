@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
   import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
   import org.bigbluebutton.core.events.NewGuestWaitingEvent;
   import org.bigbluebutton.core.events.UserEmojiChangedEvent;
@@ -51,6 +52,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+  import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
+  import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -196,6 +199,16 @@ package org.bigbluebutton.modules.users.services
           break;
         case "UserRoleChangedEvtMsg":
           handleUserRoleChangedEvtMsg(message);
+          break;
+        case "GuestsWaitingApprovedEvtMsg":
+          handleGuestsWaitingApprovedEvtMsg(message);
+          break;
+        case "UserAddedToPresenterGroupEvtMsg":
+          handleUserAddedToPresenterGroupEvtMsg(message);
+          break;
+        case "UserRemovedFromPresenterGroupEvtMsg":
+          handleUserRemovedFromPresenterGroupEvtMsg(message);
+          break;
       }
     }
     
@@ -292,6 +305,24 @@ package org.bigbluebutton.modules.users.services
       var guestsWaitingEvent:NewGuestWaitingEvent = new NewGuestWaitingEvent();
       dispatcher.dispatchEvent(guestsWaitingEvent);	
       
+    }
+    
+    private function removeGuestWaiting(userId: String): void {
+      LiveMeeting.inst().guestsWaiting.remove(userId);
+    }
+    
+    private function handleGuestsWaitingApprovedEvtMsg(msg: Object): void {
+      var body: Object = msg.body as Object;
+      var guests: Array = body.guests as Array;
+      
+      for (var i: int = 0; i < guests.length; i++) {
+        var guest: Object = guests[i] as Object;
+        removeGuestWaiting(guest.guest as String);
+      }
+      
+      var guestsWaitingEvent:GuestWaitingApprovedEvent = 
+        new GuestWaitingApprovedEvent(body.approvedBy as String);
+      dispatcher.dispatchEvent(guestsWaitingEvent);	
     }
     
     private function handleGetUsersMeetingRespMsg(msg: Object):void {
@@ -838,7 +869,17 @@ package org.bigbluebutton.modules.users.services
         dispatcher.dispatchEvent(e);
       }
     }
-    
+
+    private function handleUserAddedToPresenterGroupEvtMsg(msg: Object): void {
+      var userId: String = msg.body.userId;
+      dispatcher.dispatchEvent(new UserAddedToPresenterGroupEvent(userId));
+    }
+
+    private function handleUserRemovedFromPresenterGroupEvtMsg(msg: Object): void {
+      var userId: String = msg.body.userId;
+      dispatcher.dispatchEvent(new UserRemovedFromPresenterGroupEvent(userId));
+    }
+
     public function handleGuestPolicyChanged(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;

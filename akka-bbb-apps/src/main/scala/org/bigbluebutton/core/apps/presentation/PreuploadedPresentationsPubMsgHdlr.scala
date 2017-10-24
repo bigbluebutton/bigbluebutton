@@ -3,14 +3,16 @@ package org.bigbluebutton.core.apps.presentation
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.common2.msgs.PreuploadedPresentationsSysPubMsg
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.{ LiveMeeting }
 
 trait PreuploadedPresentationsPubMsgHdlr {
   this: PresentationApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handlePreuploadedPresentationsPubMsg(msg: PreuploadedPresentationsSysPubMsg): Unit = {
+  def handle(
+    msg:         PreuploadedPresentationsSysPubMsg,
+    liveMeeting: LiveMeeting, bus: MessageBus
+  ): Unit = {
 
     val presos = new collection.mutable.HashMap[String, Presentation]
 
@@ -28,10 +30,10 @@ trait PreuploadedPresentationsPubMsgHdlr {
       presos += pres.id -> pr
     }
 
-    processPreuploadedPresentations(presos.values.toVector)
+    processPreuploadedPresentations(liveMeeting, presos.values.toVector)
 
     msg.body.presentations foreach (presentation => {
-      broadcastNewPresentationEvent(msg.header.userId, presentation)
+      broadcastNewPresentationEvent(msg.header.userId, presentation, liveMeeting, bus)
     })
   }
 }

@@ -229,6 +229,15 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
                                                    talking: Boolean, callingWith: String, listenOnly: Boolean)
 
 /**
+  * Received from FS about the conference is running (created, destroyed).
+  */
+object VoiceConfRunningEvtMsg { val NAME = "VoiceConfRunningEvtMsg" }
+case class VoiceConfRunningEvtMsg(header: BbbCoreVoiceConfHeader,
+                                     body: VoiceConfRunningEvtMsgBody) extends VoiceStandardMsg
+case class VoiceConfRunningEvtMsgBody(voiceConf: String, running: Boolean)
+
+
+/**
   * Received from FS that user has left the voice conference.
   */
   object UserLeftVoiceConfEvtMsg { val NAME = "UserLeftVoiceConfEvtMsg" }

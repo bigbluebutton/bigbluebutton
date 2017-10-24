@@ -166,7 +166,7 @@ package org.bigbluebutton.main.model.users
             messageName != "BreakoutRoomsTimeRemainingUpdateEvtMsg" &&
             messageName != "UserTalkingVoiceEvtMsg" &&
             messageName != "MeetingTimeRemainingUpdateEvtMsg") {
-//            LOGGER.debug("onMessageFromServer2x - " + msg);
+            LOGGER.debug("onMessageFromServer2x - " + msg);
           }
             
             var map:Object = JSON.parse(msg);  

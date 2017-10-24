@@ -44,6 +44,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
 
     Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("podId", pres.getPodId());
     logData.put("meetingId", pres.getMeetingId());
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());
@@ -79,6 +80,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     }
 
     logData = new HashMap<String, Object>();
+    logData.put("podId", pres.getPodId());
     logData.put("meetingId", pres.getMeetingId());
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());

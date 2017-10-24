@@ -22,7 +22,7 @@ trait UserLeaveReqMsgHdlr {
       // stop the webcams of a user leaving
       handleUserBroadcastCamStopMsg(msg.body.userId)
 
-      captionApp2x.handleUserLeavingMsg(msg.body.userId)
+      captionApp2x.handleUserLeavingMsg(msg.body.userId, liveMeeting, msgBus)
       stopAutoStartedRecording()
 
       // send a user left event for the clients to update
@@ -33,10 +33,14 @@ trait UserLeaveReqMsgHdlr {
         automaticallyAssignPresenter(outGW, liveMeeting)
 
         // request screenshare to end
-        screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, liveMeeting.props.screenshareProps.screenshareConf)
+        screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
+          liveMeeting.props.voiceProp.voiceConf,
+          liveMeeting.props.screenshareProps.screenshareConf,
+          liveMeeting, msgBus
+        )
 
         // request ongoing poll to end
-        handleStopPollReqMsg(u.intId)
+        pollApp.stopPoll(u.intId, liveMeeting, msgBus)
       }
 
       def broadcastEvent(vu: VoiceUserState): Unit = {

@@ -57,7 +57,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
         // Need to get an ActorContext
         val actorRef = TestActorRef[MockTestActor]
@@ -88,7 +88,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
         val richard = TestDataGen.createRegisteredUser(live.registeredUsers, "Richard", Roles.MODERATOR_ROLE,
           guest = false, authed = false, waitForApproval = false)
@@ -114,84 +114,12 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
   }
 
   "A MeetingActor" should {
-    "Accept a valid authToken for a registered users in the meeting" in {
-      within(500 millis) {
-        val live = newLiveMeeting()
-        val msgGW = new OutMsgGWSeq()
-        val outGW = new OutMsgRouter(false, msgGW)
-        val eventBus = new InMsgBusGW(new IncomingEventBusImp())
-
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
-
-        val richard = TestDataGen.createRegisteredUser(live.registeredUsers, "Richard", Roles.MODERATOR_ROLE,
-          guest = false, authed = false, waitForApproval = false)
-
-        // Need to get an ActorContext
-        val actorRef = TestActorRef[MockTestActor]
-        val actor = actorRef.underlyingActor
-        // Create actor under test Actor
-        val meetingActorRef = new UsersApp(live, outGW, eventBus)(actor.context)
-
-        def build(meetingId: String, userId: String, authToken: String): ValidateAuthTokenReqMsg = {
-          ValidateAuthTokenReqMsg(meetingId, userId, authToken)
-        }
-
-        // Send our message
-        val msg = build(live.props.meetingProp.intId, richard.id, richard.authToken)
-        meetingActorRef.handleValidateAuthTokenReqMsg(msg, state)
-
-        // Handle message expectations
-        assert(msgGW.msgs.length == 6)
-      }
-    }
-  }
-
-  "A MeetingActor" should {
-    "Accept a valid authToken for a registered users in the meeting and not wait for approval for none guests" in {
-      within(500 millis) {
-        val live = newLiveMeeting()
-        val msgGW = new OutMsgGWSeq()
-        val outGW = new OutMsgRouter(false, msgGW)
-        val eventBus = new InMsgBusGW(new IncomingEventBusImp())
-
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
-
-        // Set the guest policy to ask moderator
-        GuestsWaiting.setGuestPolicy(live.guestsWaiting, GuestPolicy(GuestPolicyType.ASK_MODERATOR, "SYSTEM"))
-
-        // Register a user that is not a guest
-        val richard = TestDataGen.createRegisteredUser(live.registeredUsers, "Richard", Roles.MODERATOR_ROLE,
-          guest = false, authed = false, waitForApproval = false)
-
-        // Need to get an ActorContext
-        val actorRef = TestActorRef[MockTestActor]
-        val actor = actorRef.underlyingActor
-        // Create actor under test Actor
-        val meetingActorRef = new UsersApp(live, outGW, eventBus)(actor.context)
-
-        def build(meetingId: String, userId: String, authToken: String): ValidateAuthTokenReqMsg = {
-          ValidateAuthTokenReqMsg(meetingId, userId, authToken)
-        }
-
-        // Send our message
-        val msg = build(live.props.meetingProp.intId, richard.id, richard.authToken)
-        meetingActorRef.handleValidateAuthTokenReqMsg(msg, state)
-
-        // Handle message expectations
-        // Handle message expectations
-        assert(msgGW.msgs.length == 6)
-
-      }
-    }
-  }
-
-  "A MeetingActor" should {
     "Accept a valid authToken for a registered users in the meeting and wait for approval for guests" in {
       within(500 millis) {
 
         val registeredUsers = new RegisteredUsers
         val users2x = new Users2x
-        val live = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
+        val live = new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layouts,
           registeredUsers, polls2x, wbModel, presModel, captionModel,
           notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 
@@ -217,7 +145,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
         val outGW = new OutMsgRouter(false, msgGW)
         val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-        var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+        var state = new MeetingState2x(new GroupChats(Map.empty), None, inactivityTracker, expiryTracker)
 
         // Need to get an ActorContext
         val actorRef = TestActorRef[MockTestActor]

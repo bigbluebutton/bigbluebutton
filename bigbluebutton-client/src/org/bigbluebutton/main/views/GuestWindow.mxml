@@ -70,10 +70,16 @@ $Id: $
                 this.visible = true;
             }
             
-            public function sendResponseToAllGuests(resp:Boolean):void {
-                removeAllGuests();
-                var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE_ALL);
-                respCommand.resp = resp;
+            public function sendResponseToAllGuests(approved:Boolean):void {
+              removeAllGuests();
+              var _guests: Array = LiveMeeting.inst().guestsWaiting.getGuests();
+              var approvedGuests: Array = new Array();
+              for (var i:int = 0; i < _guests.length; i++) {
+                var _guest: GuestWaiting = _guests[i] as GuestWaiting;
+                approvedGuests.push(_guest.intId);
+              }
+                var respCommand:ResponseModeratorEvent = 
+                  new ResponseModeratorEvent(approvedGuests, approved);
                 dispatcher.dispatchEvent(respCommand);
             }
             
@@ -99,9 +105,6 @@ $Id: $
             }
             
             public function removeAllGuests():void {
-                var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent(RemoveGuestEvent.REMOVE_ALL);
-                dispatcher.dispatchEvent(removeGuestEvent);
-                
                 closeWindow();
             }
             

@@ -155,6 +155,13 @@ phonecomponents|MuteMeButton {
 	horizontalAlign : center;
 }
 
+.bannerStyle {
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
 .topBoxStyle {
 	paddingTop    : 6;
 	paddingBottom : 0;
@@ -802,6 +809,24 @@ mx|DataGrid {
 
 /*
 //------------------------------
+//  FileExportWindow
+//------------------------------
+*/
+
+presentation|FileExportWindow {
+	verticalGap : 12;
+}
+
+.fileExportUploadProgressBar {
+	trackHeight : 14;
+}
+
+.fileExportResultError {
+	color : #DE2721;
+}
+
+/*
+//------------------------------
 //  Guest
 //------------------------------
 */
@@ -1146,10 +1171,6 @@ mx|Panel {
 //  Presentation
 //------------------------------
 */
-
-.presentationUploadDownloadButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
-}
 
 .presentationWindowControlsStyle {
 	paddingBottom     : 5;

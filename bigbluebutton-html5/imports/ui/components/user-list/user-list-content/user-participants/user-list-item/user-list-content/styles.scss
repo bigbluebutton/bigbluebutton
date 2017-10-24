@@ -62,6 +62,8 @@
 
 .active {
   background-color: $list-item-bg-hover;
+  border: $focus-border-size solid $color-list-item-focus-border;
+  border-right: none;
   outline: none;
 }
 

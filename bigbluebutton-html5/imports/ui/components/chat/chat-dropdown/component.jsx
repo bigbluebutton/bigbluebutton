@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
 import _ from 'lodash';
-import Icon from '/imports/ui/components/icon/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -11,6 +10,8 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Auth from '/imports/ui/services/auth';
 import Acl from '/imports/startup/acl';
+import Button from '/imports/ui/components/button/component';
+
 import ChatService from './../service';
 import styles from './styles';
 
@@ -112,17 +113,22 @@ class ChatDropdown extends Component {
     const availableActions = this.getAvailableActions();
 
     return (
+
       <Dropdown
         isOpen={this.state.isSettingOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger
-          tabIndex={0}
-          aria-label={intl.formatMessage(intlMessages.options)}
-          className={styles.btn}
-        >
-          <Icon iconName="more" />
+        <DropdownTrigger tabIndex={0}>
+          <Button
+            className={styles.btn}
+            icon="more"
+            ghost
+            circle
+            hideLabel
+            color="primary"
+            aria-label={intl.formatMessage(intlMessages.options)}
+          />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>

@@ -70,6 +70,7 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultClientUrl;
+    private String defaultGuestWaitURL;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -348,7 +349,11 @@ public class ParamsProcessorUtil {
         int maxUsers = processMaxUser(params.get("maxParticipants"));
         int meetingDuration = processMeetingDuration(params.get("duration"));
         int logoutTimer = processMeetingDuration(params.get("logoutTimer"));
-
+        
+        // Banner parameters
+        String bannerText = params.get("bannerText");
+        String bannerColor = params.get("bannerColor");
+        
         // set is breakout room property
         boolean isBreakout = false;
         if (!StringUtils.isEmpty(params.get("isBreakout"))) {
@@ -444,6 +449,7 @@ public class ParamsProcessorUtil {
                 .withViewerPass(viewerPass).withRecording(record)
                 .withDuration(meetingDuration).withLogoutUrl(logoutUrl)
                 .withLogoutTimer(logoutTimer)
+                .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(defaultAvatarURL)
@@ -489,7 +495,12 @@ public class ParamsProcessorUtil {
 	public String getDefaultClientUrl() {
 		return defaultClientUrl;
 	}
-	
+
+	public String getDefaultGuestWaitURL() {
+		return defaultGuestWaitURL;
+		//return defaultServerUrl + "/guestWait";
+	}
+
 	public String getDefaultConfigXML() {
 		defaultConfigXML = getConfig(defaultConfigURL);
 		
@@ -806,6 +817,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultClientUrl(String defaultClientUrl) {
 		this.defaultClientUrl = defaultClientUrl;
+	}
+
+	public void setDefaultGuestWaitURL(String url) {
+		this.defaultGuestWaitURL = url;
 	}
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {

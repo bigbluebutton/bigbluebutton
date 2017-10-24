@@ -1,27 +1,23 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.{ OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.bus.MessageBus
 
 trait SendCursorPositionPubMsgHdlr {
-  this: MeetingActor =>
+  this: WhiteboardApp2x =>
 
-  val outGW: OutMsgRouter
-
-  def handleSendCursorPositionPubMsg(msg: SendCursorPositionPubMsg): Unit = {
+  def handle(msg: SendCursorPositionPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: SendCursorPositionPubMsg): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SendCursorPositionEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(SendCursorPositionEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
+      val header = BbbClientMsgHeader(SendCursorPositionEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
       val body = SendCursorPositionEvtMsgBody(msg.body.xPercent, msg.body.yPercent)
       val event = SendCursorPositionEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-
-      //record(event)
+      bus.outGW.send(msgEvent)
     }
 
     broadcastEvent(msg)

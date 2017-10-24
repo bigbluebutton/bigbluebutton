@@ -1,35 +1,32 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- *
- * Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
- *
+ * <p>
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ * <p>
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any later
+ * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- *
+ * <p>
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public License along
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- *
  */
-package org.bigbluebutton.modules.present.events {
-	import flash.events.Event;
+package org.bigbluebutton.freeswitch.voice.events;
 
-	public class PresentationRollEvent extends Event {
-		public static const PRESENTATION_ROLL_OVER:String = "PresentationRollOver";
+public class VoiceConfRunningEvent extends VoiceConferenceEvent {
 
-		public static const PRESENTATION_ROLL_OUT:String = "PresentationRollOut";
+  private boolean running;
 
-		public var presentationId:String;
+  public VoiceConfRunningEvent(String room, boolean running) {
+    super(room);
+    this.running = running;
+  }
 
-		public function PresentationRollEvent(type:String, p:String) {
-			super(type, true, false);
-
-			presentationId = p;
-		}
-	}
+  public boolean isRunning() {
+    return running;
+  }
 }

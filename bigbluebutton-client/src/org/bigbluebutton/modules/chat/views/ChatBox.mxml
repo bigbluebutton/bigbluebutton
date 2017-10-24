@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          xmlns:common="org.bigbluebutton.common.*"
          xmlns:chat="org.bigbluebutton.modules.chat.views.*"
          implements="org.bigbluebutton.modules.chat.views.IChatTab"
+         width="100%" height="100%"
          click="setMessageRead()" verticalScrollPolicy="off"
          creationComplete="onCreationComplete()">
   
@@ -33,7 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
     <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
     <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-    <mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleRecievedChatHistoryEvent" />
+    <!--mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleRecievedChatHistoryEvent" /-->
     <mate:Listener type="{ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT}" method="handleClearPublicChatBoxMessages"/>
     <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
@@ -48,47 +49,49 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import flash.events.TextEvent;
-		
-		import mx.binding.utils.BindingUtils;
-		
-		import flashx.textLayout.formats.Direction;
-		
-		import org.as3commons.lang.StringUtils;
-		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.core.Options;
-		import org.bigbluebutton.core.UsersUtil;
-		import org.bigbluebutton.core.events.LockControlEvent;
-		import org.bigbluebutton.core.model.LiveMeeting;
-		import org.bigbluebutton.main.events.BBBEvent;
-		import org.bigbluebutton.main.events.ShortcutEvent;
-		import org.bigbluebutton.main.events.UserJoinedEvent;
-		import org.bigbluebutton.main.events.UserLeftEvent;
-		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-		import org.bigbluebutton.modules.chat.ChatUtil;
-		import org.bigbluebutton.modules.chat.events.ChatEvent;
-		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-		import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-		import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-		import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-		import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-		import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-		import org.bigbluebutton.modules.chat.model.ChatConversation;
-		import org.bigbluebutton.modules.chat.model.ChatOptions;
-		import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-		import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.TextEvent;
+      
+      import mx.binding.utils.BindingUtils;
+      
+      import flashx.textLayout.formats.Direction;
+      
+      import org.as3commons.lang.StringUtils;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.Options;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.model.LiveMeeting;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+      import org.bigbluebutton.modules.chat.ChatUtil;
+      import org.bigbluebutton.modules.chat.events.ChatEvent;
+      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+      import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+      import org.bigbluebutton.modules.chat.events.GetWelcomeMessageEvent;
+      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+      import org.bigbluebutton.modules.chat.model.ChatConversation;
+      import org.bigbluebutton.modules.chat.model.ChatModel;
+      import org.bigbluebutton.modules.chat.model.ChatOptions;
+      import org.bigbluebutton.modules.chat.model.GroupChat;
+      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+      import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ChatBox);      
-      
-      public var publicChat:Boolean = false;
       public var chatWithUserID:String;
       public var chatWithUsername:String
-      
+      public var chatId: String = null;
+      public var publicChat: Boolean = false;
       public var read:Boolean = true;
       public var userHasLeft:Boolean = false;
       
@@ -102,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var lastTime:String = "";
       
       [Bindable]
-      private var chatMessages:ChatConversation = new ChatConversation();
+      private var chatMessages: ChatConversation;
       
       private var lastCount:Number = 0;			
       private var scrollTimer:Timer;
@@ -127,6 +130,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var ctrlPressed:Boolean = false;
       
       private function onCreationComplete():void {
+        chatMessages = new ChatConversation(chatId);
+        
         chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
         bindToHeightToDetermineHeightOfMessageList();
         
@@ -158,7 +163,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
         }
        
-        LOGGER.debug(" onCreationComplete. Apply lock settings");
         applyLockSettings();
         
 //        chatToolbar.registerListeners(chatMessagesList);
@@ -231,20 +235,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         historyTimer = new Timer(5000, 1);
         historyTimer.addEventListener(TimerEvent.TIMER, loadChatHistory);
         historyTimer.start();
+       
       }
       
       private var historyTimer:Timer;
       
       private function loadChatHistory(event:TimerEvent):void {
-        if (publicChat) {
-          var disp:Dispatcher  = new Dispatcher();
-          disp.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.REQUEST_HISTORY));
+        var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (chat != null) {
+          chatMessages.processChatHistory(chat.messages.source);
+          scrollToEndOfMessage();
         }
+        
+        getWelcomeMessage();
+   //     var disp:Dispatcher  = new Dispatcher();
+   //     var chatHistEvent: ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.REQUEST_HISTORY);
+   //     chatHistEvent.chatId = chatId;
+   //     trace("QUERY CHAT HISTORY FOR " + chatId);
+   //     disp.dispatchEvent(chatHistEvent);
       }
       
       private function handleUserLeftEvent(event:UserLeftEvent):void {
         // Handle user leaving so that the user won't be talking to someone not there.
-        if (!publicChat && event.userID == chatWithUserID) {
+        if (event.userID == chatWithUserID) {
           displayUserHasLeftMessage();
           txtMsgArea.enabled = false;
           scrollToEndOfMessage();
@@ -253,13 +266,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function refreshChat(e:BBBEvent):void {
         if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-          if (publicChat) chatMessages = new ChatConversation();
+            var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+            if (groupChat != null) {
+              chatMessages.processChatHistory(groupChat.messages.source);
+            }
+            
+        }
+      }
+      
+      private function getWelcomeMessage():void {
+        if (chatId == ChatModel.MAIN_PUBLIC_CHAT) {
+          globalDispatcher.dispatchEvent(new GetWelcomeMessageEvent(chatId));
         }
       }
       
       private function handleUserJoinedEvent(event:UserJoinedEvent):void {
         // Handle user joining so that the user can start to talk if the person rejoins
-        if (!publicChat && event.userID == chatWithUserID) {
+        if (event.userID == chatWithUserID) {
           displayUserHasJoinedMessage();
           txtMsgArea.enabled = true;
           scrollToEndOfMessage();
@@ -278,7 +301,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+        myChat.newChatMessage(msg);
       }
       
       private function displayUserHasJoinedMessage():void {
@@ -292,7 +316,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          myChat.newChatMessage(msg);
       }
       
       public function focusToTextMessageArea():void {
@@ -301,16 +326,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-        if (publicChat) {
-          chatMessages.newChatMessage(event.message);
+        if (chatId == event.chatId) {
+          chatMessages.newChatMessage(event.msg);
           scrollToEndOfMessage();
         }
       }
       
       private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
-        if (publicChat && event.history != null) {
-          chatMessages.processChatHistory(event.history);
-          scrollToEndOfMessage();
+        trace("RECEIVED CHAT HISTORY for id = " + chatId + " event.chatId = " + event.chatId);
+        if (chatId == event.chatId) {
+          var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+          if (chat != null) {
+            chatMessages.processChatHistory(chat.messages.source);
+            scrollToEndOfMessage();
+          }
         }
       }
       
@@ -320,14 +349,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-        var message:ChatMessageVO = event.message;
-        
-        if (!publicChat && 
-          ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
-            (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
-          chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage();
-        }        
+        if (chatId == event.chatId) {
+          var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+          if (chat != null) {
+            chatMessages.processChatHistory(chat.messages.source);
+            scrollToEndOfMessage();
+          }
+        }       
       }
       
       public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
@@ -348,7 +376,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+        myChat.newChatMessage(msg);
       }
       
       public function scrollToEndOfMessage():void {
@@ -394,11 +423,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function copyAllText():void{
-        System.setClipboard(chatMessages.getAllMessageAsString());
+        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+        System.setClipboard(myChat.getAllMessageAsString());
       }
       
-      public function getChatMessages():ChatConversation {
-        return chatMessages;
+      public function getChatId():String {
+        return id;
       }
       
       private function addContextMenuItems():void {
@@ -414,7 +444,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function menuItemHandler(e:ContextMenuEvent):void{
         if (e.target.caption == ResourceUtil.getInstance().getString("bbb.chat.contextmenu.copyalltext")){
-          System.setClipboard(chatMessages.getAllMessageAsString());
+          var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          System.setClipboard(myChat.getAllMessageAsString());
         }
       }
       
@@ -436,7 +467,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	  private function updateStyles():void {
 		  var styleNameExt : String = "";
-		  if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+		  if (ResourceUtil.getInstance().isRTLEnabled() && 
+        ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
 			  styleNameExt = "RTL";
 		  }
 		  
@@ -462,7 +494,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
           sendStartCustomPollEvent(answers);
         } else {
-          var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
           var cm:ChatMessageVO = new ChatMessageVO();
           cm.fromUserId = UsersUtil.getMyUserID();
           cm.fromUsername = UsersUtil.getMyUsername();
@@ -477,8 +508,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
           cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
           
-          publicEvent.chatMessage = cm;
-          globalDispatcher.dispatchEvent(publicEvent);			
+          var publicEvent:SendGroupChatMessageEvent = new SendGroupChatMessageEvent(
+            chatId, cm);
+          globalDispatcher.dispatchEvent(publicEvent);
         }
       }
       
@@ -537,11 +569,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var msgToSend:String = StringUtils.trim(txtMsgArea.text);
         
         if (!StringUtils.isBlank(msgToSend)){
-          if (publicChat) {
             sendPublicChatMessage(msgToSend);
-          } else {
-            sendPrivateChatMessage(msgToSend);
-          }
         }
         txtMsgArea.text = "";
         txtMsgArea.validateNow();
@@ -582,11 +610,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function applyLockSettings():void {
-        if (publicChat) {
+        //if (publicChat) {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
-        } else {
-          txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat;
-        }
+        //} else {
+        //  txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat;
+        //}
       }
       
       private function refreshRole(e:ChangeMyRole):void {
@@ -608,11 +636,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleClearPublicChatBoxMessages(event:ClearPublicChatEvent):void {
-        if(publicChat){
-          chatMessages.clearPublicChat();
+        //if(publicChat){
+          var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
+          myChat.clearPublicChat();
           invalidateDisplayList();
           validateNow();
-        }
+       // }
       }
       
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
@@ -646,7 +675,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          dataProvider="{chatMessages.messages}"
                          styleName="chatMessageListStyle"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
-      <!--chat:ChatToolbar id="chatToolbar" /-->
     </mx:Canvas>
   </mx:VBox>
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
