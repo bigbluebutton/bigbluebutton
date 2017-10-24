@@ -19,10 +19,13 @@
 package org.bigbluebutton.main.model {
 
 	public final class GuestPolicy {
-		public static var ASK_MODERATOR:String = "ASK_MODERATOR";
 
-		public static var ALWAYS_ACCEPT:String = "ALWAYS_ACCEPT";
+		public static const ALWAYS_ACCEPT:String = "ALWAYS_ACCEPT";
 
-		public static var ALWAYS_DENY:String = "ALWAYS_DENY";
+		public static const ALWAYS_DENY:String = "ALWAYS_DENY";
+
+		public static const ASK_MODERATOR:String = "ASK_MODERATOR";
+
+		public static const ALWAYS_ACCEPT_AUTH:String = "ALWAYS_ACCEPT_AUTH";
 	}
 }
