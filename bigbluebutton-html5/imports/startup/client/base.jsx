@@ -6,7 +6,7 @@ import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
-import { initBBB } from '/imports/api/2.0/bbb';
+import { initBBB } from '/imports/api/bbb';
 import IntlStartup from './intl';
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
@@ -87,8 +87,8 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
-  'users2x', 'chat2x', 'cursor2x', 'meetings2x', 'polls2x', 'presentations2x', 'annotations',
-  'slides2x', 'captions2x', 'breakouts2x', 'voiceUsers', 'whiteboard-multi-user',
+  'users', 'chat', 'cursor', 'meetings', 'polls', 'presentations', 'annotations',
+  'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user',
 ];
 
 const BaseContainer = createContainer(({ params }) => {

@@ -23,21 +23,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
+				implements="org.bigbluebutton.common.IKeyboardClose"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
 				horizontalAlign="center"
-				close="onCancelClicked()"
 				layout="absolute"
 				creationComplete="onCreationComplete()"
 				keyUp="keyUpHandler(event)"
-				width="250" xmlns:common="org.bigbluebutton.common.*">
+				width="280" xmlns:common="org.bigbluebutton.common.*">
 
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import mx.managers.PopUpManager;
-
+			
+			import org.bigbluebutton.common.IKeyboardClose;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -80,24 +81,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 	
-	<mx:VBox width="100%" height="100%" paddingTop="15">
+	<mx:VBox width="100%" height="100%" paddingTop="5" horizontalAlign="center">
 		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.sharedNotes.createNoteWindow.label')}"
 							  styleName="titleWindowStyle"
-							  maxWidth="{this.width - 10}" />
-		<mx:HBox width="100%"
-				 height="100%"
-				 verticalAlign="middle">
-			<mx:TextInput id="textInput"
-						  restrict="a-zA-Z0-9 "
-						  maxChars="20"
-						  width="100%"
-						  text="{sharedNoteTitle}" />
-			<mx:Button id="btnNew"
-					   click="btnNew_clickHandler(event)"
-					   height="30"
-					   label="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.label')}"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}" />
-		</mx:HBox>
+							  width="180" />
+		<mx:TextInput id="textInput"
+					  restrict="a-zA-Z0-9 "
+					  maxChars="20"
+					  height="26"
+					  width="100%"
+					  text="{sharedNoteTitle}" />
+		<mx:Button id="btnNew"
+				   click="btnNew_clickHandler(event)"
+				   styleName="mainActionButton"
+				   height="30"
+				   width="100%"
+				   label="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.label')}"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}" />
 	</mx:VBox>
 	
 	<mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"

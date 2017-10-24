@@ -50,11 +50,9 @@
 			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
-			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
 			
 			import flashx.textLayout.formats.Direction;
 			
@@ -66,6 +64,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -318,10 +317,13 @@
 			}
 
 			protected function saveNotes(title:String, text:String, extension:String):void {
-				var filename:String = title.replace(/\s+/g, '-').toLowerCase() + "." + extension;
+				var filename:String = title.replace(/\s+/g, '_').toLowerCase() + "_" + LiveMeeting.inst().meeting.name.replace(/\s+/g, '_').toLowerCase() + "_" + new Date().time.toString() + "." + extension;
 				var fileRef:FileReference = new FileReference();
 				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
+				});
+				fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), "", Alert.OK);
 				});
 
 				var cr:String = String.fromCharCode(13);
@@ -476,8 +478,7 @@
 			}
 
 			protected function newNoteHandler():void {
-				var noteNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
-				PopUpManager.centerPopUp(noteNameWindow);
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
 			}
 
 			protected function btnUndo_clickHandler(event:MouseEvent = null):void {
@@ -528,7 +529,7 @@
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
-				richTextEditor.showControlBar = !richTextEditor.showControlBar;
+				btnFormat.selected = richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
 
 			public function getPrefferedPosition():String {
@@ -616,11 +617,6 @@
 					toolTip="{options.maxNoteLength - richTextEditor.text.length > 0 ?
 							ResourceUtil.getInstance().getString('bbb.sharedNotes.remaining.tooltip') :
 							ResourceUtil.getInstance().getString('bbb.sharedNotes.full.tooltip')}"/>
-			<mx:Button id="btnSettings"
-					styleName="sharedNotesSettings"
-					width="26" height="26"
-					click="btnSettings_clickHandler(event)"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.settings.toolTip')}"/>
 			<mx:Button id="btnFormat"
 					styleName="sharedNotesFormatButtonStyle"
 					width="26" height="26"
@@ -634,6 +630,11 @@
 					height="26"
 					click="btnSave_clickHandler(event)"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			<mx:Button id="btnSettings"
+					   styleName="sharedNotesSettings"
+					   width="26" height="26"
+					   click="btnSettings_clickHandler(event)"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.settings.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
 </CustomMdiWindow>

@@ -225,4 +225,5 @@
     "app.guest.waiting": "Waiting for approval to join",
     "app.toast.chat.singular":"you have {0} new message in {1}",
     "app.toast.chat.plural":"you have {0} new messages in {1}"
+
 }
