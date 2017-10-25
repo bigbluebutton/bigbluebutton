@@ -20,15 +20,18 @@
 package org.bigbluebutton.modules.present.events
 {
 
-import flash.events.Event;
+    import flash.events.Event;
 
-    public class RequestNewPresentationPodEvent extends Event {
-        public static const REQUEST_NEW_PRES_POD:String = "REQUEST_NEW_PRES_POD";
+    public class SetPresenterInPodReqEvent extends Event {
+        public static const SET_PRESENTER_IN_POD_REQ:String = "SET_PRESENTER_IN_POD_REQ";
 
-        public var requesterId: String;
+        public var podId: String;
+        public var nextPresenterId: String;
 
-        public function RequestNewPresentationPodEvent(type:String) {
-            super(type, true, false);
+        public function SetPresenterInPodReqEvent(podId :String, nextPresenterId: String) {
+            this.podId = podId;
+            this.nextPresenterId = nextPresenterId;
+            super(SET_PRESENTER_IN_POD_REQ, true, false);
         }
 
     }

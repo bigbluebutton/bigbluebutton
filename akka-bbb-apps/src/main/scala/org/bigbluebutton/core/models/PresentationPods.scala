@@ -5,16 +5,23 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
+
   def create(ownerId: String): PresentationPod = {
-    val currentPresenter = ownerId // default
-    new PresentationPod(genId(), ownerId, currentPresenter, Vector.empty, Map.empty)
+    val currentPresenter = ownerId
+    PresentationPod(genId(), ownerId, currentPresenter, Map.empty)
+  }
+
+  def createDefaultPod(ownerId: String): PresentationPod = {
+    val currentPresenter = ownerId
+
+    // we hardcode the podId of the default presentation pod for the purposes of having bbb-web know the podId
+    // in advance (so we can fully process default.pdf) // TODO change to a generated podId
+    PresentationPod("DEFAULT_PRESENTATION_POD", ownerId, currentPresenter, Map.empty)
   }
 }
 
 case class PresentationInPod(id: String, name: String, current: Boolean = false,
                              pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean) {
-
-  // TODO remove org.bigbluebutton.core.apps.Presentation
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
     pres.pages.get(pageId) match {
@@ -25,13 +32,12 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
         Some(newPres)
       case None =>
         None
-
     }
   }
 
 }
 
-case class PresentationPod(id: String, ownerId: String, currentPresenter: String, authorizedPresenters: Vector[String],
+case class PresentationPod(id: String, ownerId: String, currentPresenter: String,
                            presentations: collection.immutable.Map[String, PresentationInPod]) {
   def addPresentation(presentation: PresentationInPod): PresentationPod = {
     copy(presentations = presentations + (presentation.id -> presentation))
@@ -39,12 +45,7 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
 
   def removePresentation(id: String): PresentationPod = copy(presentations = presentations - id)
 
-  def addAuthorizedPresenter(userId: String): PresentationPod = copy(authorizedPresenters = authorizedPresenters :+ userId)
-  def removeAuthorizedPresenter(userId: String): PresentationPod = copy(authorizedPresenters =
-    authorizedPresenters.filterNot(u => u == userId))
-
   def setCurrentPresenter(userId: String): PresentationPod = copy(currentPresenter = userId)
-  //  def getCurrentPresenter(): String = currentPresenter
 
   def getCurrentPresentation(): Option[PresentationInPod] = presentations.values find (p => p.current)
 
@@ -59,7 +60,7 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
       }
     })
 
-    presentations.get(presId) match { // set new current presenter
+    presentations.get(presId) match { // set new current presentation
       case Some(pres) =>
         val cp = pres.copy(current = true)
         addPresentation(cp)

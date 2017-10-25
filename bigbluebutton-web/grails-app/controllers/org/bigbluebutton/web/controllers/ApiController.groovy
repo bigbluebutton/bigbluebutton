@@ -2052,7 +2052,7 @@ class ApiController {
 
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
         def pres = new File(newFilePath)
-        processUploadedFile("ONE", meetingId, presId, presFilename, pres, current);
+        processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
       } else {
         log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
       }
