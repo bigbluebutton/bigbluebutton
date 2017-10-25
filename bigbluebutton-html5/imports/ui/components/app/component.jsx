@@ -37,7 +37,13 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
+  closedCaption: PropTypes.element,
+  userList: PropTypes.element,
+  chat: PropTypes.element,
   locale: PropTypes.string,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 const defaultProps = {
@@ -46,20 +52,23 @@ const defaultProps = {
   sidebar: null,
   media: null,
   actionsbar: null,
+  closedCaption: null,
+  userList: null,
+  chat: null,
   locale: 'en',
 };
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
 
     this.state = {
-      compactUserList: false, //TODO: Change this on userlist resize (?)
+      compactUserList: false, // TODO: Change this on userlist resize (?)
     };
   }
 
   componentDidMount() {
-    const locale = this.props.locale;
+    const { locale } = this.props;
 
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
