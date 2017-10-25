@@ -1,10 +1,14 @@
+import { Meteor } from 'meteor/meteor';
 import Users from '/imports/api/users';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
 export default function handlePresenterAssigned({ body }, meetingId) {
+  const USER_CONFIG = Meteor.settings.public.user;
+  const ROLE_PRESENTER = USER_CONFIG.role_presenter;
+
   const { presenterId, assignedBy } = body;
 
-  changeRole('PRESENTER', true, presenterId, meetingId, assignedBy);
+  changeRole(ROLE_PRESENTER, true, presenterId, meetingId, assignedBy);
 
   const selector = {
     meetingId,
@@ -13,5 +17,5 @@ export default function handlePresenterAssigned({ body }, meetingId) {
   };
 
   const prevPresenter = Users.findOne(selector);
-  changeRole('PRESENTER', false, prevPresenter.userId, meetingId, assignedBy);
+  changeRole(ROLE_PRESENTER, false, prevPresenter.userId, meetingId, assignedBy);
 }

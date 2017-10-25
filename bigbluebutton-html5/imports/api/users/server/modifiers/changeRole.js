@@ -2,6 +2,9 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
 export default function changeRole(role, status, userId, meetingId, changedBy) {
+  const USER_CONFIG = Meteor.settings.public.user;
+  const ROLE_PRESENTER = USER_CONFIG.role_presenter;
+
   const selector = {
     meetingId,
     userId,
@@ -13,7 +16,7 @@ export default function changeRole(role, status, userId, meetingId, changedBy) {
 
   const modifier = {
     $set: {
-      role: (role === 'PRESENTER' ? user.role : role),
+      role: (role === ROLE_PRESENTER ? user.role : role),
       [role.toLowerCase()]: status,
     },
     [action]: {
