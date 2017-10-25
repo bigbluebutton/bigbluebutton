@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
 import flat from 'flat';
 
-export default function removeVoiceUser(meetingId, voiceUser) {
+export default function updateVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, {
     intId: String,

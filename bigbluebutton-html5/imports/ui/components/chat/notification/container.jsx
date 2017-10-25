@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import UserListService from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
-import notify from '/imports/ui/components/toast/service';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   appToastChatSigular: {
@@ -90,6 +90,7 @@ class ChatNotificationContainer extends Component {
   }
 }
 
+
 export default injectIntl(createContainer(({ currentChatID }) => {
   const AppSettings = Settings.application;
 
@@ -99,9 +100,6 @@ export default injectIntl(createContainer(({ currentChatID }) => {
     .reduce((a, b) => a + b, 0);
 
   const chatsNotify = openChats.filter(c => c.unreadCounter > 0);
-
-  // console.log('@@', chatsNotify);
-
   return {
     disableAudio: !AppSettings.chatAudioNotifications,
     disableNotify: !AppSettings.chatPushNotifications,

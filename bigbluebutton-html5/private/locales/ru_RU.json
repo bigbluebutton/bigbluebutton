@@ -86,6 +86,7 @@
     "app.audio.listenOnly.closeLabel": "Закрыть",
     "app.error.kicked": "Вас исключили из конференции",
     "app.dropdown.close": "Закрыть",
-    "app.error.500": "Упс, что-то пошло не так"
+    "app.error.500": "Упс что-то пошло не так",
+
 }
 

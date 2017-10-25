@@ -6,7 +6,6 @@ const STATUS_CONNECTING = 'connecting';
 
 export function joinRouteHandler(nextState, replace, callback) {
   const { sessionToken } = nextState.location.query;
-  console.log(`sessionToken=${sessionToken}`);
 
   if (!nextState || !sessionToken) {
     replace({ pathname: '/error/404' });
@@ -99,7 +98,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
       // do **not** use the custom call - it relies on expired data
       Meteor.call('userLogout', credentialsSnapshot, (error) => {
         if (error) {
-          console.error('error');
+          throw new Error(error);
         }
       });
 

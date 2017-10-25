@@ -8,7 +8,8 @@ import ListSeparator from './separator/component';
 import ListTitle from './title/component';
 
 const propTypes = {
-  // We should recheck this proptype, sometimes we need to create an container and send to dropdown, but with this
+ /*  We should recheck this proptype, sometimes we need to create an container and send to dropdown,
+   but with this */
   // proptype, is not possible.
   children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
     if (propValue[key].type !== ListItem &&

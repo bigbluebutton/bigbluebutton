@@ -90,7 +90,7 @@ const Chat = (props) => {
 
 export default injectWbResizeEvent(injectIntl(Chat));
 
-Chat.propTypes = {
+const propTypes = {
   chatID: PropTypes.string.isRequired,
   chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
@@ -104,7 +104,7 @@ Chat.propTypes = {
       ]),
     ).isRequired,
   ).isRequired,
-  scrollPosition: PropTypes.number,
+  scrollPosition: PropTypes.number.isRequired,
   hasUnreadMessages: PropTypes.bool.isRequired,
   lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
@@ -121,3 +121,5 @@ Chat.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
 };
+
+Chat.propTypes = propTypes;
