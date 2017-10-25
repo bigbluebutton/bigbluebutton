@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import Users from '/imports/api/users';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
