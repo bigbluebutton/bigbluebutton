@@ -23,6 +23,7 @@ package org.bigbluebutton.core {
 	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
 
+	import mx.controls.Alert;
 	import mx.core.FlexGlobals;
 	import mx.core.IChildList;
 	import mx.core.IFlexDisplayObject;
@@ -33,12 +34,22 @@ package org.bigbluebutton.core {
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IKeyboardClose;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class PopUpUtil {
 
 		private static const LOGGER:ILogger = getClassLogger(PopUpUtil);
 
 		private static var popUpDict:Dictionary = new Dictionary(true);
+
+		public static function initAlert():void {
+			Alert.buttonHeight = 30;
+			Alert.buttonWidth = 100;
+			Alert.cancelLabel = ResourceUtil.getInstance().getString('bbb.alert.cancel');
+			Alert.noLabel = ResourceUtil.getInstance().getString('bbb.alert.no');
+			Alert.okLabel = ResourceUtil.getInstance().getString('bbb.alert.ok');
+			Alert.yesLabel = ResourceUtil.getInstance().getString('bbb.alert.yes');
+		}
 
 		public static function createNonModalPopUp(parent:DisplayObject, className:Class, center:Boolean = true):IFlexDisplayObject {
 			if (!checkPopUpExists(className)) {

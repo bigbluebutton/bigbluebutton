@@ -338,8 +338,9 @@
 	</fx:Declarations>
 
 	<mx:Canvas id="videoCanvas" width="100%" height="100%" />
-    <mx:Button id="btnActualSize"
-			   styleName="mainActionButton"
+
+	<mx:Button id="btnActualSize"
+			   styleName="screenShareActualizeButton"
                toggle="true"
 			   horizontalCenter="0"
 			   top="{VIDEO_HEIGHT_PADDING}"
@@ -348,4 +349,5 @@
 			   mouseOver="btnActualSize.alpha = 100"
                label="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
                toolTip="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"/>
+
 </common:CustomMdiWindow>
