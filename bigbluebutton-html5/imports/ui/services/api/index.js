@@ -47,7 +47,7 @@ export function log(type = 'error', message, ...args) {
   const clientInfo = {
     language: userInfo.language,
     userAgent: userInfo.userAgent,
-    screenSize: { width: screen.width, height: screen.height },
+    screenSize: { width: window.screen.width, height: window.screen.height },
     windowSize: { width: window.innerWidth, height: window.innerHeight },
     bbbVersion: Meteor.settings.public.app.bbbServerVersion,
     location: window.location.href,
