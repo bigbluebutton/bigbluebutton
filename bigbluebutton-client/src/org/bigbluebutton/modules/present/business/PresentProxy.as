@@ -43,6 +43,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+	import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
 	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
@@ -283,5 +284,10 @@ package org.bigbluebutton.modules.present.business
 		public function handleRequestClosePresentationPod(e: RequestClosePresentationPodEvent): void {
 			sender.requestClosePresentationPod(e.requesterId, e.podId);
 		}
+
+		public function handleSetPresenterInPodReqEvent(e: SetPresenterInPodReqEvent): void {
+			sender.handleSetPresenterInPodReqEvent(e.podId, e.nextPresenterId);
+		}
+
 	}
 }

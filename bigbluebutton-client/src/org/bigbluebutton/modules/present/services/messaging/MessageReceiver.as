@@ -33,19 +33,20 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
   import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
   import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+  import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
+  import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-  import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
-  import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
-  import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
   import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
-  import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
+  import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+  import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
+  import org.bigbluebutton.modules.present.events.SetPresenterInPodRespEvent;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
-  import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
+  import org.bigbluebutton.modules.present.services.messages.PresentationVO;
 
   
   public class MessageReceiver implements IMessageListener {
@@ -105,6 +106,9 @@ package org.bigbluebutton.modules.present.services.messaging
           break;
         case "GetAllPresentationPodsRespMsg":
           handleGetAllPresentationPodsRespMsg(message);
+          break;
+        case "SetPresenterInPodRespMsg":
+          handleSetPresenterInPodRespMsg(message);
           break;
       }
     }
@@ -307,6 +311,12 @@ package org.bigbluebutton.modules.present.services.messaging
       var event: GetAllPodsRespEvent = new GetAllPodsRespEvent(GetAllPodsRespEvent.GET_ALL_PODS_RESP);
       event.pods = podsAC;
       dispatcher.dispatchEvent(event);
+    }
+
+    private function handleSetPresenterInPodRespMsg(msg: Object): void {
+      var podId: String = msg.body.podId as String;
+      var nextPresenterId: String = msg.body.nextPresenterId as String;
+      dispatcher.dispatchEvent(new SetPresenterInPodRespEvent(podId, nextPresenterId));
     }
   }
 }

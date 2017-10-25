@@ -40,7 +40,7 @@ trait SetCurrentPagePubMsgHdlr {
       updatedPod <- pod.setCurrentPage(presentationId, pageId)
     } yield {
 
-      if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, userId)) {
+      if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, userId) || userId.equals(pod.ownerId)) {
         broadcastSetCurrentPageEvtMsg(pod.id, presentationId, pageId, userId)
 
         val pods = state.presentationPodManager.addPod(updatedPod)
