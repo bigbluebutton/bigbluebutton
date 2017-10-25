@@ -1,0 +1,67 @@
+// We use these functions to get the ranges for the media queries variables.
+@function lower-bound($range){
+  @if length($range) <= 0 {
+    @return 0;
+  }
+  @return nth($range,1);
+}
+
+@function upper-bound($range) {
+  @if length($range) < 2 {
+    @return 999999999999;
+  }
+  @return nth($range, 2);
+}
+
+
+$small-range: (0em, 40em);
+/* 0, 640px */
+$medium-range: (40.063em, 64em);
+/* 641px, 1024px */
+$large-range: (64.063em, 90em);
+/* 1025px, 1440px */
+$xlarge-range: (90.063em, 120em);
+/* 1441px, 1920px */
+$xxlarge-range: (120.063em);
+/* 1921px */
+
+$screen: "only screen";
+$landscape: "#{$screen} and (orientation: landscape)";
+$portrait: "#{$screen} and (orientation: portrait)";
+$small-up: $screen;
+$small-only: "#{$screen} and (max-width: #{upper-bound($small-range)})";
+$medium-up: "#{$screen} and (min-width:#{lower-bound($medium-range)})";
+$medium-only: "#{$screen} and (min-width:#{lower-bound($medium-range)}) and (max-width:#{upper-bound($medium-range)})";
+$large-up: "#{$screen} and (min-width:#{lower-bound($large-range)})";
+$large-only: "#{$screen} and (min-width:#{lower-bound($large-range)}) and (max-width:#{upper-bound($large-range)})";
+$xlarge-up: "#{$screen} and (min-width:#{lower-bound($xlarge-range)})";
+$xlarge-only: "#{$screen} and (min-width:#{lower-bound($xlarge-range)}) and (max-width:#{upper-bound($xlarge-range)})";
+$xxlarge-up: "#{$screen} and (min-width:#{lower-bound($xxlarge-range)})";
+$xxlarge-only: "#{$screen} and (min-width:#{lower-bound($xxlarge-range)}) and (max-width:#{upper-bound($xxlarge-range)})";
+
+$breakpoints: (
+  'screen': $screen,
+  'landscape': $landscape,
+  'portrait': $portrait,
+  'small': $small-only,
+  'medium': $medium-only,
+  'large': $large-only,
+  'xlarge': $xlarge-only,
+  'xxlarge': $xxlarge-only,
+);
+
+@mixin mq($media) {
+  // If the key exists in the map
+  @if map-has-key($breakpoints, $media) {
+    // Prints a media query based on the value
+    @media #{map-get($breakpoints, $media)} {
+       @content;
+    }
+  }
+  // If the key doesn't exist in the map we create a media with the argument
+  @else {
+    @media #{$media} {
+       @content;
+    }
+  }
+}
