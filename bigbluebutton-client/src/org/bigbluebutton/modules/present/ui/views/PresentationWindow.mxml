@@ -64,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{GoToPageLocalCommand.GO_TO_PAGE_LOCAL}" method="handleGoToPageLocalCommand" />
 		<mate:Listener type="{UserAddedToPresenterGroupEvent.USER_ADDED_TO_PRESENTER_GROUP}" method="handleUserAddedToPresenterGroupEvent" />
 		<mate:Listener type="{UserRemovedFromPresenterGroupEvent.USER_REMOVED_FROM_PRESENTER_GROUP}" method="handleUserRemovedFromPresenterGroupEvent" />
+		<mate:Listener type="{SetPresenterInPodRespEvent.SET_PRESENTER_IN_POD_RESP}" method="handleSetPresenterInPodRespEvent" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -113,6 +114,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 			import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
+			import org.bigbluebutton.modules.present.events.SetPresenterInPodRespEvent;
+			import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
 			import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
 			import org.bigbluebutton.modules.present.model.Page;
@@ -124,6 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.api.JSLog;
 
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
@@ -161,8 +165,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
 
+			[Bindable]
 			private var podId: String = "";
 			private var ownerId: String = "";
+			private var currentPresenterInPod: String = "";
 			
 			[Bindable]
 			private var listOfPodControls:Array = [];
@@ -191,7 +197,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function populatePodDropdown(): void {
 				listOfPodControls = [];
 				listOfPodControls.push({label: this.podId,
-					icon: getStyle('iconClearStatus'), handler: setPresenterInPodHandler});
+					icon: getStyle('iconClearStatus'), handler: function (): void {} });
+
+				listOfPodControls.push({label: UsersUtil.getUserName(this.ownerId),
+						icon: getStyle('iconClearStatus'), handler: requestPodPresenterChange, data: this.ownerId});
 
 				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'),
 					icon: getStyle('iconClearStatus'), handler: newPresentationWindowHandler});
@@ -202,8 +211,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				var presGroup: ArrayCollection = UsersUtil.getPresenterGroup();
 				for (var j:int = 0; j < presGroup.length; j++) {
-					listOfPodControls.push({label: UsersUtil.getUserName(presGroup.getItemAt(j) as String),
-						icon: getStyle('iconClearStatus'), handler: setPresenterInPodHandler});
+					var nextPresenterId: String = presGroup.getItemAt(j) as String;
+					listOfPodControls.push({label: UsersUtil.getUserName(nextPresenterId),
+						icon: getStyle('iconClearStatus'),  handler: requestPodPresenterChange, data: nextPresenterId});
 
 				}
 			}
@@ -212,6 +222,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.podId = _podId;
 				this.ownerId = _ownerId;
 				populatePodDropdown();
+
+				// the owner is the default currentPresenter for the pod
+				setPresenterInPodHelper(this.ownerId);
 			}
 
 			public function getPodId(): String { return this.podId; }
@@ -219,7 +232,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getOwnerId(): String { return this.ownerId; }
 
 			private function onPresentationPodControlsClicked():void {
-				presentationPodControls.selectedItem.handler();
+				if(presentationPodControls.selectedItem != null) {
+					presentationPodControls.selectedItem.handler();
+				}
 			}
 
 			private function newPresentationWindowHandler(): void {
@@ -235,8 +250,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localDispatcher.dispatchEvent(event);
 			}
 
-			private function setPresenterInPodHandler(): void {
-				// TODO
+			private function requestPodPresenterChange(): void {
+				if (presentationPodControls.selectedItem == null || presentationPodControls.selectedItem.data == null) {
+					return;
+				}
+
+				var nextPresenterId: String = presentationPodControls.selectedItem.data as String;
+				JSLog.warn("__ PresentationWindow::requestPodPresenterChange: " + nextPresenterId, {});
+				setPresenterInPodHelper(nextPresenterId);
+			}
+
+			private function setPresenterInPodHelper(nextPresenterId: String): void {
+				localDispatcher.dispatchEvent(new SetPresenterInPodReqEvent(this.podId, nextPresenterId));
+			}
+
+			private function handleSetPresenterInPodRespEvent(event: SetPresenterInPodRespEvent): void {
+				if (event.podId != this.podId) {
+					return;
+				}
+
+				// set the dropdown current value? // TODO
+				this.currentPresenterInPod = event.nextPresenterId as String;
+
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				var page : Page = presentationModel.getCurrentPage();
+
+				displaySlideNavigationControls(false, !!page);
+				setupPresenter(this.currentPresenterInPod == UsersUtil.getMyUserID());
+
 			}
 
 			private function onCreationComplete():void{
@@ -460,7 +501,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			
 			private function displaySlideNavigationControls(isPresenter:Boolean, activePresentation:Boolean):void {
-				var showButtons:Boolean = isPresenter && activePresentation;
+				var showButtons:Boolean = (UsersUtil.getMyUserID() == this.currentPresenterInPod) && activePresentation;
+				// var showButtons:Boolean = (isPresenter || UsersUtil.getMyUserID() == this.currentPresenterInPod) && activePresentation;
 				
 				pollStartBtn.visible = showButtons;
 				quickPollBtn.visible = showButtons;
@@ -1004,7 +1046,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
 	<mx:Canvas width="100%" height="100%" styleName="slideViewBackground" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-		<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
+		<views:SlideView id="slideView" podId="{this.podId}" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
 	</mx:Canvas>
 
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">

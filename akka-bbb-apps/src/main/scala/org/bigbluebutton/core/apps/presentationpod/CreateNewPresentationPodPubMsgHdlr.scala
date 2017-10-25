@@ -23,7 +23,12 @@ trait CreateNewPresentationPodPubMsgHdlr {
     }
 
     val ownerId = msg.body.ownerId
-    val pod = PresentationPodsApp.createPresentationPod(ownerId)
+    val pod = if (state.presentationPodManager.getNumberOfPods() == 0) {
+      PresentationPodsApp.createDefaultPresentationPod(ownerId)
+    } else {
+      PresentationPodsApp.createPresentationPod(ownerId)
+    }
+
     val respMsg = buildCreateNewPresentationPodEvtMsg(
       liveMeeting.props.meetingProp.intId,
       ownerId, pod.id
