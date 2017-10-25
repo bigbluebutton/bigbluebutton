@@ -417,6 +417,10 @@ class MeetingActor(
       lastRecBreakSentOn = now
       val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
       outGW.send(event)
+
+      VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
+      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW)
+
     }
 
   }

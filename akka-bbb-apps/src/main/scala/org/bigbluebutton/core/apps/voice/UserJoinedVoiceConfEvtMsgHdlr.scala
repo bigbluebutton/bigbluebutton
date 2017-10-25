@@ -61,15 +61,10 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     if (numVoiceUsers == 1 &&
       liveMeeting.props.recordProp.record &&
       !MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
-      MeetingStatus2x.startRecordingVoice(liveMeeting.status)
+
       log.info("Send START RECORDING voice conf. meetingId=" + liveMeeting.props.meetingProp.intId
         + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
-
-      val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
-        liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf
-      )
-      outGW.send(event)
+      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW)
     } else {
       log.info("Not recording audio as numVoiceUsers={} and isRecording={} and recordProp={}", numVoiceUsers,
         MeetingStatus2x.isVoiceRecording(liveMeeting.status), liveMeeting.props.recordProp.record)

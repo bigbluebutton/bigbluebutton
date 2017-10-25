@@ -20,9 +20,6 @@ public class MeetingMessageHandler implements MessageHandler {
     private MeetingManager meetingManager;
 
     public void handleMessage(String pattern, String channel, String message) {
-
-        System.out.println("******* HANDLING MESSAGE \n\n" + message + "\n\n");
-
         JsonParser parser = new JsonParser();
         JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -38,7 +35,6 @@ public class MeetingMessageHandler implements MessageHandler {
 
     private void handle(String name, JsonObject body) {
         if (RecordingChapterBreakSysMsg.equals(name)) {
-            System.out.println("******* HANDLING RecordingChapterBreakSysMsg MESSAGE \n\n" + body + "\n\n");
             if (body.has(MEETING_ID) && body.has(TIMESTAMP)) {
                 String meetingId = body.get(MEETING_ID).getAsString();
                 Long timestamp = body.get(TIMESTAMP).getAsLong();

@@ -46,13 +46,7 @@ trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     if (VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length == 0 &&
       liveMeeting.props.recordProp.record &&
       MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
-      MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
-
-      val event = MsgBuilder.buildStopRecordingVoiceConfSysMsg(
-        liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf, MeetingStatus2x.getVoiceRecordingFilename(liveMeeting.status)
-      )
-      outGW.send(event)
+      VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
     }
   }
 

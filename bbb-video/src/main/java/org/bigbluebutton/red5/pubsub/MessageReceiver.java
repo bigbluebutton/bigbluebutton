@@ -77,7 +77,6 @@ public class MessageReceiver {
 
         @Override
         public void onMessage(String channel, String message) {
-            System.out.println("RECEIVED onMessage" + channel + " message=\n" + message);
             // Not used.
             Runnable task = new Runnable() {
                 public void run() {
