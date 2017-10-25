@@ -1,9 +1,11 @@
 import { check } from 'meteor/check';
-import changeRole from '../modifiers/changeRole';
+import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
 export default function handleChangeRole(payload, meetingId) {
   check(payload.body, Object);
   check(meetingId, String);
 
-  changeRole(payload, meetingId);
+  const { userId, role, changedBy } = payload.body;
+
+  return changeRole(role, true, userId, meetingId, changedBy);
 }
