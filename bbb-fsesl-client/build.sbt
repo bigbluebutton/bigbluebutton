@@ -60,6 +60,13 @@ publishMavenStyle := true
 
 publishArtifact in Test := false
 
+// http://www.scala-sbt.org/release/docs/Artifacts.html
+// disable publishing the main API jar
+publishArtifact in (Compile, packageDoc) := false
+
+// disable publishing the main sources jar
+publishArtifact in (Compile, packageSrc) := false
+
 pomIncludeRepository := { _ => false }
 
 pomExtra := (
