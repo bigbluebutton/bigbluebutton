@@ -63,4 +63,5 @@ trait SystemConfiguration {
   lazy val applyPermissionCheck = Try(config.getBoolean("apps.checkPermissions")).getOrElse(false)
 
   lazy val voiceConfRecordPath = Try(config.getString("voiceConf.recordPath")).getOrElse("/var/freeswitch/meetings")
+  lazy val recordingChapterBreakLenghtInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(180)
 }
