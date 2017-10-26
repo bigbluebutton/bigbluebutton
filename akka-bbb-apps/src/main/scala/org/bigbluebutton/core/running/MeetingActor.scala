@@ -412,14 +412,17 @@ class MeetingActor(
     val now = TimeUtil.timeNowInMs()
     val elapsedInMs = now - lastRecBreakSentOn
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
-    println("******************* ElapsedInMS=" + elapsedInMs + ", elapsedInMIN=" + elapsedInMin)
+
     if (elapsedInMin > 1) {
       lastRecBreakSentOn = now
       val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
       outGW.send(event)
 
       VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
-      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW)
+
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, now)
+      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
 
     }
 

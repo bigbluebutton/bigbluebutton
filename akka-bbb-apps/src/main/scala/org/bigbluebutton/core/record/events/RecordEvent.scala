@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.core.record.events
 
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import scala.collection.mutable.HashMap
@@ -34,7 +35,8 @@ trait RecordEvent {
 
   final def timestampUTC(utc: Long): Unit = {
     eventMap.put(TIMESTAMP_UTC, utc.toString)
-    eventMap.put(DATE, (new Date(utc)).toString)
+    val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    eventMap.put(DATE, sdf.format(utc))
   }
 
   /**

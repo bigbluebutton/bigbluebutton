@@ -1,16 +1,27 @@
 package org.bigbluebutton.core.apps.voice
 
+import java.io.File
+
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object VoiceApp {
 
-  def startRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
+  def genRecordPath(recordDir: String, meetingId: String, timestamp: Long): String = {
+    if (recordDir.endsWith("/")) {
+      recordDir.concat(meetingId).concat("-").concat(timestamp.toString).concat(".wav")
+    } else {
+      recordDir.concat("/").concat(meetingId).concat("-").concat(timestamp.toString).concat(".wav")
+    }
+  }
+
+  def startRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter, stream: String): Unit = {
     MeetingStatus2x.startRecordingVoice(liveMeeting.status)
     val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
       liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.voiceProp.voiceConf
+      liveMeeting.props.voiceProp.voiceConf,
+      stream
     )
     outGW.send(event)
   }

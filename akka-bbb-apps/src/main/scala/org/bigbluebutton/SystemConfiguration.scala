@@ -61,4 +61,6 @@ trait SystemConfiguration {
   lazy val telizePort = Try(config.getInt("services.telizePort")).getOrElse(80)
 
   lazy val applyPermissionCheck = Try(config.getBoolean("apps.checkPermissions")).getOrElse(false)
+
+  lazy val voiceConfRecordPath = Try(config.getString("voiceConf.recordPath")).getOrElse("/var/freeswitch/meetings")
 }

@@ -114,10 +114,7 @@ public class FreeswitchApplication {
     return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
   }
 
-  public void startRecording(String voiceConfId, String meetingid) {
-    String RECORD_DIR = "/var/freeswitch/meetings";
-    String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + genTimestamp() + ".wav";
-
+  public void startRecording(String voiceConfId, String meetingid, String voicePath) {
     RecordConferenceCommand rcc = new RecordConferenceCommand(voiceConfId, USER, true, voicePath);
     queueMessage(rcc);
   }
