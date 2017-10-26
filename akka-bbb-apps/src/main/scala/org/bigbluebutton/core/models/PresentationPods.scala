@@ -40,7 +40,16 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
 case class PresentationPod(id: String, ownerId: String, currentPresenter: String,
                            presentations: collection.immutable.Map[String, PresentationInPod]) {
   def addPresentation(presentation: PresentationInPod): PresentationPod = {
+    println(s" 1 PresentationPods::addPresentation  ${presentation.id}   ")
     copy(presentations = presentations + (presentation.id -> presentation))
+    //    for {
+    //      nextPresentation <- setCurrentPresentation(presentation.id)
+    //    } yield {
+    //      println(s" 2 PresentationPods::addPresentation  ${nextPresentation.id}   ")
+    //      copy(presentations = presentations + (nextPresentation.id -> nextPresentation))
+    //    }
+    //    //Some(copy(presentations = presentations + (presentation.id -> presentation)))
+    //    // setCurrentPresentation(presentation.id)
   }
 
   def removePresentation(id: String): PresentationPod = copy(presentations = presentations - id)
@@ -52,7 +61,7 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
   def getPresentation(presentationId: String): Option[PresentationInPod] =
     presentations.values find (p => p.id == presentationId)
 
-  def setCurrentPresentation(presId: String): Option[PresentationInPod] = { // copy(currentPresenter = userId) // ****
+  def setCurrentPresentation(presId: String): Option[PresentationPod] = { // copy(currentPresenter = userId) // ****
     presentations.values foreach (curPres => { // unset previous current presentation
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
@@ -63,8 +72,8 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
     presentations.get(presId) match { // set new current presentation
       case Some(pres) =>
         val cp = pres.copy(current = true)
-        addPresentation(cp)
-        Some(cp)
+        Some(addPresentation(cp))
+      //        Some(cp)
       case None => None
     }
 
@@ -93,6 +102,13 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
   def getPresentationsSize(): Int = {
     presentations.values.size
   }
+
+  def printPod(): String = {
+    val b = s"printPod (${presentations.values.size}):"
+    var d = ""
+    presentations.values.foreach(p => d += s"PRES_ID=${p.id} NAME=${p.name} CURRENT=${p.current}\n")
+    b.concat(s"PODID=$id  OWNERID=$ownerId  CURRENTPRESENTER=$currentPresenter PRESENTATIONS={{{$d}}}\n")
+  }
 }
 
 case class PresentationPodManager(presentationPods: collection.immutable.Map[String, PresentationPod]) {
@@ -111,11 +127,36 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
   def updatePresentationPod(presPod: PresentationPod): PresentationPodManager = addPod(presPod)
 
   def addPresentationToPod(podId: String, pres: PresentationInPod): PresentationPodManager = {
+    println(s"\n\n-------  addPresentationToPod   ${pres.name} + ${pres.current}  before\n")
     val updatedManager = for {
       pod <- getPod(podId)
+      //      updatedPod <- pod.addPresentation(pres)
+      //      currentPresPod <- pod.setCurrentPresentation(updatedPod.id)
+      //podWithAddedPresentation <- pod.addPresentation(pres)
     } yield {
-      val updatedPod = pod.addPresentation(pres)
-      updatePresentationPod(updatedPod)
+      println(s"\n\n-------  addPresentationToPod   ${pres.name} + ${pres.current}  after\n")
+      updatePresentationPod(pod.addPresentation(pres))
+    }
+
+    updatedManager match {
+      case Some(ns) => ns
+      case None     => this
+    }
+  }
+
+  def printPods(): String = {
+    var a = s"printPods (${presentationPods.values.size}):"
+    presentationPods.values.foreach(pod => a = a.concat(pod.printPod()))
+    a
+  }
+
+  def setCurrentPresentation(podId: String, presId: String): PresentationPodManager = {
+    val updatedManager = for {
+      pod <- getPod(podId)
+      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(presId)
+
+    } yield {
+      updatePresentationPod(podWithAdjustedCurrentPresentation)
     }
 
     updatedManager match {
