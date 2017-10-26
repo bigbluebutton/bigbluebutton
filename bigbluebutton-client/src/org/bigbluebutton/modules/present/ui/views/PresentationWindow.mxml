@@ -161,7 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void{
 				//check for the polling module in config.xml
 				var vxml:XML = BBB.getConfigForModule("PollingModule");
-				if (vxml == null) navigationControls.removeChild(pollStartBtn);
+				if (vxml == null) fileAndPollControls.removeChild(pollStartBtn);
 				
 				setControlBarState("presenter");
 				

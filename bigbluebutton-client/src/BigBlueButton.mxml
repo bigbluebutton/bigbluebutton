@@ -37,9 +37,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.PopUpUtil;
 
 			private function init():void {
 				LogUtil.initLogging(true);
+				PopUpUtil.initAlert();
 			}
 		]]>
 	</fx:Script>

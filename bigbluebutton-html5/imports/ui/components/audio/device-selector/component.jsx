@@ -33,10 +33,6 @@ class DeviceSelector extends Component {
   }
 
   componentDidMount() {
-    const handleEnumerateDevicesError = (error) => {
-      logClient('error', { error, method: 'handleEnumerateDevicesError' });
-    };
-
     const handleEnumerateDevicesSuccess = (deviceInfos) => {
       const devices = deviceInfos.filter(d => d.kind === this.props.kind);
 
@@ -51,8 +47,7 @@ class DeviceSelector extends Component {
 
     navigator.mediaDevices
       .enumerateDevices()
-      .then(handleEnumerateDevicesSuccess)
-      .catch(handleEnumerateDevicesError);
+      .then(handleEnumerateDevicesSuccess);
   }
 
   handleSelectChange(event) {
