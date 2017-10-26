@@ -12,7 +12,7 @@ export default withModalMounter(createContainer(({ mountModal }) =>
      mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest(),
      unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
      join: Service.isConnected() && !Service.isEchoTest(),
-     disable: Service.isConnecting(),
+     disable: Service.isConnecting() || Service.isHangingUp(),
      handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
      handleJoinAudio: () => mountModal(<AudioModalContainer />),
      handleLeaveAudio: () => Service.exitAudio(),

@@ -216,6 +216,7 @@
     "app.audioManager.connectionError": "Error: Connection error",
     "app.audioManager.requestTimeout": "Error: There was a timeout in the request",
     "app.audioManager.invalidTarget": "Error: Tried to request something to an invalid target",
+    "app.audioManager.mediaError": "Error: There was an error getting your media devices",
 
     "app.audio.joinAudio": "Join Audio",
     "app.audio.leaveAudio": "Leave Audio",

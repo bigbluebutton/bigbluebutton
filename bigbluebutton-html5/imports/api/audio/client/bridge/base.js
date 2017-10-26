@@ -7,6 +7,7 @@ export default class BaseAudioBridge {
       CONNECTION_ERROR: 'CONNECTION_ERROR',
       REQUEST_TIMEOUT: 'REQUEST_TIMEOUT',
       GENERIC_ERROR: 'GENERIC_ERROR',
+      MEDIA_ERROR: 'MEDIA_ERROR',
     };
 
     this.baseCallStates = {

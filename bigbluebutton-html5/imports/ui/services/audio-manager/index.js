@@ -24,6 +24,7 @@ class AudioManager {
       isMuted: false,
       isConnected: false,
       isConnecting: false,
+      isHangingUp: false,
       isListenOnly: false,
       isEchoTest: false,
       error: null,
@@ -35,7 +36,8 @@ class AudioManager {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
     this.messages = messages;
-    this.changeInputDevice();
+    this.setDefaultInputDevice();
+    this.changeOutputDevice('default');
   }
 
   defineProperties(obj) {
@@ -81,6 +83,7 @@ class AudioManager {
   }
 
   exitAudio() {
+    this.isHangingUp = true;
     return this.bridge.exitAudio();
   }
 
@@ -112,6 +115,7 @@ class AudioManager {
   onAudioExit() {
     this.isConnected = false;
     this.isConnecting = false;
+    this.isHangingUp = false;
 
 
     if (!this.error && !this.isEchoTest) {
@@ -164,8 +168,16 @@ class AudioManager {
     return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
   }
 
+  setDefaultInputDevice() {
+    this.changeInputDevice();
+  }
+
   async changeInputDevice(deviceId) {
     try {
+      if (!deviceId) {
+        this.inputDevice = await await this.bridge.setDefaultInputDevice();
+        return;
+      }
       this.inputDevice = await this.bridge.changeInputDevice(deviceId);
     } catch(err) {
       this.error = err;

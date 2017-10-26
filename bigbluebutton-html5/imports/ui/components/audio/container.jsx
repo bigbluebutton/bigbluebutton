@@ -44,6 +44,10 @@ const intlMessages = defineMessages({
     id: 'app.audioManager.invalidTarget',
     description: 'Invalid target error messsage',
   },
+  mediaError: {
+    id: 'app.audioManager.mediaError',
+    description: 'Media error messsage',
+  },
 });
 
 

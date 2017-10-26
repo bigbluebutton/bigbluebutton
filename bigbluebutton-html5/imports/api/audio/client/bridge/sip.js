@@ -6,27 +6,32 @@ const MEDIA = Meteor.settings.public.media;
 const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
 const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
+const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
+const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 
-const fetchStunTurnServers = sessionToken =>
-  new Promise(async (resolve, reject) => {
-    const handleStunTurnResponse = ({ stunServers, turnServers }) => {
-      if (!stunServers && !turnServers) {
-        return { error: 404, stun: [], turn: [] };
-      }
-      return {
-        stun: stunServers.map(server => server.url),
-        turn: turnServers.map(server => server.url),
-      };
+const fetchStunTurnServers = (sessionToken) => {
+  const handleStunTurnResponse = ({ stunServers, turnServers }) => {
+    if (!stunServers && !turnServers) {
+      return { error: 404, stun: [], turn: [] };
+    }
+    return {
+      stun: stunServers.map(server => server.url),
+      turn: turnServers.map(server => server.url),
     };
+  };
 
-    const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
-    const response = await fetch(url)
-      .then(res => res.json())
-      .then(handleStunTurnResponse);
+  const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
+  return fetch(url)
+    .then(res => res.json())
+    .then(handleStunTurnResponse)
+    .then((response) => {
+      if (response.error) {
+        return Promise.reject('Could not fetch the stuns/turns servers!');
+      }
+      return response;
+    });
+};
 
-    if (response.error) return reject('Could not fetch the stuns/turns servers!');
-    return resolve(response);
-  });
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -50,7 +55,9 @@ export default class SIPBridge extends BaseAudioBridge {
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
+
     const causes = window.SIP.C.causes;
+
     this.errorCodes = {
       [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
       [causes.INVALID_TARGET]: this.baseErrorCodes.INVALID_TARGET,
@@ -68,7 +75,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
       this.callback = callback;
 
-      return this.doCall({ callExtension, isListenOnly, inputStream }, callback)
+      return this.doCall({ callExtension, isListenOnly, inputStream })
                  .catch((reason) => {
                    callback({
                      status: this.baseCallStates.failed,
@@ -143,11 +150,34 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   exitAudio() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      let hangupRetries = 0;
+      let hangup = false;
+      const tryHangup = () => {
+        this.currentSession.bye();
+        hangupRetries += 1;
+
+        setTimeout(() => {
+          if (hangupRetries > CALL_HANGUP_MAX_RETRIES) {
+            this.callback({
+              status: this.baseCallStates.failed,
+              error: this.baseErrorCodes.REQUEST_TIMEOUT,
+              bridgeError: 'Timeout on call hangup',
+            });
+            return reject(this.baseErrorCodes.REQUEST_TIMEOUT);
+          }
+
+          if (!hangup) return tryHangup();
+          return resolve();
+        }, CALL_HANGUP_TIMEOUT);
+      };
+
       this.currentSession.on('bye', () => {
+        hangup = true;
         resolve();
       });
-      this.currentSession.bye();
+
+      return tryHangup();
     });
   }
 
@@ -234,17 +264,18 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   setupEventHandlers(currentSession) {
-    this.notifiedSuccess = false;
-
     return new Promise((resolve) => {
+      this.connectionCompleted = false;
+
       const handleConnectionCompleted = () => {
-        if (this.notifiedSuccess) return;
+        if (this.connectionCompleted) return;
         this.callback({ status: this.baseCallStates.started });
-        this.notifiedSuccess = true;
+        this.connectionCompleted = true;
         resolve();
       };
 
       const handleSessionTerminated = (message, cause) => {
+        this.connectionCompleted = false;
         if (!message && !cause) {
           return this.callback({
             status: this.baseCallStates.ended,
@@ -270,24 +301,25 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
+  getMediaStream(constraints) {
+    return navigator.mediaDevices.getUserMedia(constraints).catch((err) => {
+      console.error(err);
+      throw new Error(this.baseErrorCodes.MEDIA_ERROR);
+    });
+  }
+
+  async setDefaultInputDevice() {
+    const mediaStream = await this.getMediaStream({ audio: true });
+    const deviceLabel = mediaStream.getAudioTracks()[0].label;
+    const mediaDevices = await navigator.mediaDevices.enumerateDevices();
+    const device = mediaDevices.find(d => d.label === deviceLabel);
+    return this.changeInputDevice(device.deviceId);
+  }
+
   async changeInputDevice(value) {
     const {
       media,
     } = this;
-
-    const getMediaStream = constraints =>
-      navigator.mediaDevices.getUserMedia(constraints).catch((err) => {
-        console.error(err);
-        throw new Error('There was a problem getting the media devices');
-      });
-
-    if (!value) {
-      const mediaStream = await getMediaStream({ audio: true });
-      const deviceLabel = mediaStream.getAudioTracks()[0].label;
-      const mediaDevices = await navigator.mediaDevices.enumerateDevices();
-      const device = mediaDevices.find(d => d.label === deviceLabel);
-      return this.changeInputDevice(device.deviceId);
-    }
 
     if (media.inputDevice.audioContext) {
       media.inputDevice.audioContext.close().then(() => {
@@ -314,7 +346,7 @@ export default class SIPBridge extends BaseAudioBridge {
       },
     };
 
-    const mediaStream = await getMediaStream(constraints);
+    const mediaStream = await this.getMediaStream(constraints);
     media.inputDevice.stream = mediaStream;
     media.inputDevice.source = media.inputDevice.audioContext.createMediaStreamSource(mediaStream);
     media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
@@ -323,14 +355,19 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.media.inputDevice;
   }
 
-  changeOutputDevice(value) {
+  async changeOutputDevice(value) {
     const audioContext = document.querySelector(MEDIA_TAG);
 
     if (audioContext.setSinkId) {
-      audioContext.setSinkId(value);
-      this.media.outputDeviceId = value;
+      try {
+        await audioContext.setSinkId(value);
+        this.media.outputDeviceId = value;
+      } catch (err) {
+        console.error(err);
+        throw new Error(this.baseErrorCodes.MEDIA_ERROR);
+      }
     }
 
-    return value;
+    return this.media.outputDeviceId;
   }
 }
