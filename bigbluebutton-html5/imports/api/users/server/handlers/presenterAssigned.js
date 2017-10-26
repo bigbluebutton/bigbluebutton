@@ -16,5 +16,5 @@ export default function handlePresenterAssigned({ body }, meetingId) {
   };
 
   const prevPresenter = Users.findOne(selector);
-  changeRole(ROLE_PRESENTER, false, prevPresenter.userId, meetingId, assignedBy);
+  return changeRole(ROLE_PRESENTER, false, prevPresenter.userId, meetingId, assignedBy);
 }
