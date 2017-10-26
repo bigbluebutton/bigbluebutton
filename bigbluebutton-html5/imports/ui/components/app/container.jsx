@@ -101,7 +101,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
-      if (!meetingIsBreakout) {
+      if (!meetingIsBreakout()) {
         sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
       }
     },
