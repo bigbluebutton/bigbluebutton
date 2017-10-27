@@ -307,6 +307,10 @@ $Id: $
         return MainCanvas.TOP_LEFT;
       }
       
+      public function getName():String {
+        return "UsersWindow";
+      }
+      
       private function addContextMenuItems():void {
         var contextMenuItems:Array = new Array();
         

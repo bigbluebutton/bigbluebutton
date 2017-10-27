@@ -265,6 +265,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
 			}
+			
+			public function getName():String {
+				return "ScreenshareViewWindow";
+			}
 
 			/**
 			 * resizes the desktop sharing video to fit to this window
