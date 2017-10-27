@@ -15,6 +15,7 @@ describe('Screenshots:', function() {
 
   it('Home page viewport looks good', function() {
     $('.icon-bbb-listen').click();
+    browser.element('[aria-label="Unmute"]').waitForExist(5000);
     expectImageMatch(browser.checkViewport(), 'Home page viewport isn\'t the same');
   });
 
