@@ -1,7 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+
+const propTypes = {
+  intl: intlShape.isRequired,
+  count: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  notify: PropTypes.func.isRequired,
+  onOpen: PropTypes.func.isRequired,
+};
 
 const intlMessages = defineMessages({
   appToastChatSigular: {
@@ -46,5 +55,6 @@ class ChatPushNotification extends React.Component {
     return null;
   }
 }
+ChatPushNotification.propTypes = propTypes;
 
 export default injectIntl(injectNotify(ChatPushNotification));
