@@ -9,6 +9,7 @@ const propTypes = {
 };
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale;
 
 const defaultProps = {
   locale: BROWSER_LANGUAGE,
@@ -54,7 +55,7 @@ class IntlStartup extends Component {
         });
       })
       .catch(() => {
-        this.setState({ locale: 'en' });
+        this.setState({ locale: DEFAULT_LANGUAGE });
         baseControls.updateLoadingState(false);
       });
   }
