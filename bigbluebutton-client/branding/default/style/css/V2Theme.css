@@ -873,16 +873,8 @@ views|GuestSettingsWindow {
 //------------------------------
 */
 
-layout|AddButton {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Circle_Add");
-}
-
-layout|SaveButton {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download_Template");
-}
-
-layout|LoadButton {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload_Template");
+.gearLayoutButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
 .broadcastLayoutButtonStyle {
