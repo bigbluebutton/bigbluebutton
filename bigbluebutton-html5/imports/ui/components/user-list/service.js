@@ -211,8 +211,8 @@ const getOpenChats = (chatID) => {
 const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
   const hasAuthority = currentUser.isModerator || user.isCurrent;
   const allowedToChatPrivately = !user.isCurrent;
-  const allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
-  const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+  const allowedToMuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+  const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
   const allowedToResetStatus = hasAuthority && user.emoji.status !== EMOJI_STATUSES.none;
 
   // if currentUser is a moderator, allow kicking other users
