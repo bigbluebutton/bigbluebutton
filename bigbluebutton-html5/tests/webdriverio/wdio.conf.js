@@ -1,6 +1,4 @@
 var path = require('path');
-var VisualRegressionCompare = require('wdio-visual-regression-service/compare');
-
 
 function getScreenshotName(basePath) {
   return function(context) {
@@ -64,16 +62,6 @@ exports.config = {
     login: [
       'tests/webdriverio/specs/login.spec.js',
     ],
-  },
-  services: [
-    'visual-regression'
-  ],
-  visualRegression: {
-    compare: new VisualRegressionCompare.LocalCompare({
-      referenceName: getScreenshotName(path.join(process.cwd(), 'screenshots/reference')),
-      screenshotName: getScreenshotName(path.join(process.cwd(), 'screenshots/taken')),
-      diffName: getScreenshotName(path.join(process.cwd(), 'screenshots/diff')),
-    }),
   },
   before: function() {
     // make the properties that browsers share and the list of browserNames available:
