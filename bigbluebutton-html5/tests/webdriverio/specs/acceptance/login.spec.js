@@ -1,8 +1,8 @@
 'use strict';
 
-let LandingPage = require('../pageobjects/landing.page');
+let LandingPage = require('../../pageobjects/landing.page');
 let chai = require('chai');
-let utils = require('../utils');
+let utils = require('../../utils');
 
 describe('Landing page', function () {
 
