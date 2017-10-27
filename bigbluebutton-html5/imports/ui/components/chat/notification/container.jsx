@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import _ from 'lodash';
 
@@ -14,15 +14,16 @@ class ChatNotificationContainer extends Component {
     this.audio = new Audio('/html5client/resources/sounds/notify.mp3');
   }
 
-  playAudio() {
-    if (this.props.disableAudio) return;
-    return _.debounce(() => this.audio.play(), this.audio.duration * 1000)();
+  componentDidUpdate(prevProps) {
+    if (this.props.unreadMessagesCount < prevProps.unreadMessagesCount) return;
+
+    this.playAudio();
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.unreadMessagesCount > prevProps.unreadMessagesCount) {
-      this.playAudio();
-    }
+  playAudio() {
+    if (this.props.disableAudio) return;
+
+    _.debounce(() => this.audio.play(), this.audio.duration * 1000)();
   }
 
   render() {
@@ -30,13 +31,13 @@ class ChatNotificationContainer extends Component {
   }
 }
 
-export default createContainer(({ currentChatID }) => {
+export default createContainer(() => {
   const AppSettings = Settings.application;
 
   const unreadMessagesCount = UserListService.getOpenChats()
-                        .map(chat => chat.unreadCounter)
-                        .filter(userID => userID !== Auth.userID)
-                        .reduce((a, b) => a + b, 0);
+    .map(chat => chat.unreadCounter)
+    .filter(userID => userID !== Auth.userID)
+    .reduce((a, b) => a + b, 0);
 
   return {
     disableAudio: !AppSettings.chatAudioNotifications,

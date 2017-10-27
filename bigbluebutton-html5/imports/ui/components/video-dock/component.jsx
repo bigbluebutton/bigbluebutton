@@ -1,13 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
-import styles from './styles.scss';
+import styles from './styles';
 
-export default class VideoDock extends Component {
-  render() {
-    return (
-      <div className={styles.videoDock}>
-        <ScreenshareContainer />
-      </div>
-    );
-  }
-}
+const VideoDock = () => (
+  <div className={styles.videoDock}>
+    <ScreenshareContainer />
+  </div>
+);
+
+export default VideoDock;

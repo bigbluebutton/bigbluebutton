@@ -24,7 +24,7 @@
            xmlns:common="org.bigbluebutton.common.*"
            xmlns:mx="library://ns.adobe.com/flex/mx"
            xmlns:fx="http://ns.adobe.com/mxml/2009"
-           width="100%"
+           width="600"
            height="400"
            initialize="init()"
 		   layout="absolute"
@@ -102,9 +102,10 @@
 				videoCanvas.addChildAt(videoHolder, 0);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
+				videoHolder.addEventListener(MouseEvent.MOUSE_OVER, videoHolder_mouseOverHanlder);
+				videoHolder.addEventListener(MouseEvent.MOUSE_OUT, videoHolder_mouseOutHanlder);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				fitToActualSize();
-				maximize();
 
 				resourcesChanged();
 
@@ -122,14 +123,22 @@
 					fitToWindow();
 				}
 			}
+			
+			private function videoHolder_mouseOverHanlder(event:MouseEvent) : void {
+				btnActualSize.alpha = 100;
+			}
+			
+			private function videoHolder_mouseOutHanlder(event:MouseEvent) : void {
+				btnActualSize.alpha = 0;
+			}
 
-			public function startVideo(connection:Connection):void{
-        var logData:Object = new Object();
-        logData.width = ScreenshareModel.getInstance().width;
-        logData.height = ScreenshareModel.getInstance().height;
-        logData.streamId = ScreenshareModel.getInstance().streamId;
+			public function startVideo(connection:Connection):void {
+				var logData:Object = new Object();
+				logData.width = ScreenshareModel.getInstance().width;
+				logData.height = ScreenshareModel.getInstance().height;
+				logData.streamId = ScreenshareModel.getInstance().streamId;
 
-        JSLog.debug(LOG + "startVideo", logData);
+				JSLog.debug(LOG + "startVideo", logData);
 
 				this.connection = connection;
 			}
@@ -247,8 +256,8 @@
 				videoHolder.width = video.width;
 				videoHolder.height = video.height;
 
-				videoCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
-				videoCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
+				this.verticalScrollPolicy = videoCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
+				this.horizontalScrollPolicy = videoCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
 			}
 
 			private function fitWindowToVideo():void {
@@ -275,8 +284,8 @@
 					videoHolder.height = videoHeight;
 				}
 				
-				videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
-				videoCanvas.horizontalScrollPolicy = ScrollPolicy.AUTO;
+				this.verticalScrollPolicy = videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
+				this.horizontalScrollPolicy = videoCanvas.horizontalScrollPolicy = ScrollPolicy.AUTO;
 			}
 
 			private function determineHowToDisplayVideo():void {
@@ -329,14 +338,16 @@
 	</fx:Declarations>
 
 	<mx:Canvas id="videoCanvas" width="100%" height="100%" />
-    <mx:Button id="btnActualSize"
+
+	<mx:Button id="btnActualSize"
+			   styleName="screenShareActualizeButton"
                toggle="true"
 			   horizontalCenter="0"
 			   top="{VIDEO_HEIGHT_PADDING}"
                click="determineHowToDisplayVideo()"
-			   mouseOut="btnActualSize.alpha = 0"
-			   mouseOver="btnActualSize.alpha = 100"
                selected="false"
+			   mouseOver="btnActualSize.alpha = 100"
                label="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
                toolTip="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"/>
+
 </common:CustomMdiWindow>

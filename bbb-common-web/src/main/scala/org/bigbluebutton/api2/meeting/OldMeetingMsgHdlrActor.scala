@@ -106,7 +106,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     if (msg.body.listenOnly) {
       olgMsgGW.handle(new UserListeningOnly(msg.header.meetingId, msg.body.intId, msg.body.listenOnly))
     } else {
-      olgMsgGW.handle(new UserJoinedVoice(msg.header.meetingId, msg.body.intId))
+      olgMsgGW.handle(new UserJoinedVoice(msg.header.meetingId, msg.body.intId, msg.body.callerName))
     }
   }
 

@@ -181,10 +181,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dataMenu.dataProvider = dp;
 			}
 
+			private function browserForcesHTTPS() : Boolean {
+				var result : Boolean = !BrowserCheck.isHttps() && ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion >= "60") || (BrowserCheck.isOpera() && BrowserCheck.browserMajorVersion >= "47"));
+				if (result) {
+					Alert.show(ResourceUtil.getInstance().getString("bbb.video.message.browserhttp", [BrowserCheck.browserName]));
+				}
+				return result;
+			}
 
 			private function openPublishWindow():void{
-				if (!BrowserCheck.isHttps() && ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion >= "60") || (BrowserCheck.isOpera() && BrowserCheck.browserMajorVersion >= "47"))) {
-					Alert.show(ResourceUtil.getInstance().getString("bbb.video.message.browserhttp", [BrowserCheck.browserName]));
+				if (browserForcesHTTPS()) {
 					return;
 				}
 				this.enabled = false;
@@ -256,6 +262,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(stopShareCameraRequestEvent);
 				}
 				else {
+					if (browserForcesHTTPS()) {
+						return;
+					}
 					this.enabled = false;
 					if(numberOfCamerasOff > 0)
 						numberOfCamerasOff--;
