@@ -12,7 +12,7 @@ function getScreenshotName(basePath) {
 }
 
 exports.config = {
-  specs: ['tests/webdriverio/specs/**/*.spec.js'],
+  specs: ['tests/webdriverio/specs/acceptance/**/*.spec.js'],
   capabilities: {
     chromeBrowser: {
       desiredCapabilities: {
@@ -60,7 +60,7 @@ exports.config = {
   screenshotPath: 'screenshots',
   suites: {
     login: [
-      'tests/webdriverio/specs/login.spec.js',
+      'tests/webdriverio/specs/acceptance/login.spec.js',
     ],
   },
   before: function() {
