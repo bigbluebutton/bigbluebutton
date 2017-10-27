@@ -7,7 +7,7 @@ function expectImageMatch(results, errorMessage) {
 describe('Screenshots:', function() {
 
   it('Join Audio modal looks good', function() {
-    browser.url('http://.../demo/demoHTML5.jsp?username=testuser&meetingname=Demo+Meeting&action=create');
+    browser.url('demo/demoHTML5.jsp?username=testuser&meetingname=Demo+Meeting&action=create');
 
     browser.element('.ReactModal__Content--after-open').waitForExist(7000);
     expectImageMatch(browser.checkElement('.ReactModal__Content--after-open'), 'Join Audio modal isn\'t the same');
