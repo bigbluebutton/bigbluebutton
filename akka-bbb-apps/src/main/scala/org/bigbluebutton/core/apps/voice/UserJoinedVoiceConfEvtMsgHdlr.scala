@@ -5,9 +5,6 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers with SystemConfiguration {
   this: BaseMeetingActor =>
@@ -54,25 +51,5 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers with SystemConfi
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()
     }
-
-    startRecordingVoiceConference()
   }
-
-  def startRecordingVoiceConference() {
-    val numVoiceUsers = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
-    if (numVoiceUsers == 1 &&
-      liveMeeting.props.recordProp.record &&
-      !MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
-
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, TimeUtil.timeNowInMs())
-      log.info("Send START RECORDING voice conf. meetingId=" + meetingId + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
-
-      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
-    } else {
-      log.info("Not recording audio as numVoiceUsers={} and isRecording={} and recordProp={}", numVoiceUsers,
-        MeetingStatus2x.isVoiceRecording(liveMeeting.status), liveMeeting.props.recordProp.record)
-    }
-  }
-
 }

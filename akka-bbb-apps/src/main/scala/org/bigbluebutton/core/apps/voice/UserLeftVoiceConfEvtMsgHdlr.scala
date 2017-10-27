@@ -38,16 +38,5 @@ trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()
     }
-
-    stopRecordingVoiceConference()
   }
-
-  def stopRecordingVoiceConference() {
-    if (VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length == 0 &&
-      liveMeeting.props.recordProp.record &&
-      MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
-      VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
-    }
-  }
-
 }
