@@ -52,28 +52,24 @@ class AudioSettings extends React.Component {
     super(props);
 
     const {
-      handleBack,
-      handleRetry,
-      exitAudio,
-      changeInputDevice,
-      changeOutputDevice,
+      inputDeviceId,
+      outputDeviceId,
     } = props;
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
-    this.handleBack = handleBack;
-    this.handleRetry = handleRetry;
-    this.exitAudio = exitAudio;
-    this.changeInputDevice = changeInputDevice;
-    this.changeOutputDevice = changeOutputDevice;
 
     this.state = {
-      inputDeviceId: props.inputDeviceId,
-      outputDeviceId: props.outputDeviceId,
+      inputDeviceId,
+      outputDeviceId,
     };
   }
 
   handleInputChange(deviceId) {
+    const {
+      changeInputDevice,
+    } = this.props;
+
     this.changeInputDevice(deviceId);
     this.setState({
       inputDeviceId: deviceId,
@@ -81,6 +77,10 @@ class AudioSettings extends React.Component {
   }
 
   handleOutputChange(deviceId) {
+    const {
+      changeOutputDevice,
+    } = this.props;
+
     this.changeOutputDevice(deviceId);
     this.setState({
       outputDeviceId: deviceId,
@@ -91,6 +91,8 @@ class AudioSettings extends React.Component {
     const {
       isConnecting,
       intl,
+      handleBack,
+      handleRetry,
     } = this.props;
 
     return (
@@ -159,7 +161,7 @@ class AudioSettings extends React.Component {
             label={intl.formatMessage(intlMessages.backLabel)}
             size={'md'}
             color={'primary'}
-            onClick={this.handleBack}
+            onClick={handleBack}
             disabled={isConnecting}
             ghost
           />
@@ -167,7 +169,7 @@ class AudioSettings extends React.Component {
             size={'md'}
             color={'primary'}
             label={intl.formatMessage(intlMessages.retryLabel)}
-            onClick={this.handleRetry}
+            onClick={handleRetry}
           />
         </div>
       </div>
