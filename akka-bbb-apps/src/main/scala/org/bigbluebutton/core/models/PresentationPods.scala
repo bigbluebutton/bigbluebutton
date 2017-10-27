@@ -58,8 +58,6 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
     presentations.values foreach (curPres => { // unset previous current presentation
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
-        println(s"  ____PresentationPod::setCurrentPresentation presId=${newPres.id}  presName=${newPres.name}" +
-          s"   current=${newPres.current}")
         tempPod = tempPod.addPresentation(newPres)
       }
     })
@@ -67,8 +65,6 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
     presentations.get(presId) match { // set new current presentation
       case Some(pres) =>
         val cp = pres.copy(current = true)
-        //        println(s"  ____PresentationPod::setCurrentPresentation presId=${newPres.id}  presName=${newPres.name} " +
-        //          s"  current=${newPres.current}")
         tempPod = tempPod.addPresentation(cp)
       case None => None
     }
@@ -124,11 +120,9 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
   def updatePresentationPod(presPod: PresentationPod): PresentationPodManager = addPod(presPod)
 
   def addPresentationToPod(podId: String, pres: PresentationInPod): PresentationPodManager = {
-    println(s"\n\n-------  addPresentationToPod   ${pres.name} + ${pres.current}  before\n")
     val updatedManager = for {
       pod <- getPod(podId)
     } yield {
-      println(s"\n\n-------  addPresentationToPod   ${pres.name} + ${pres.current}  after\n")
       updatePresentationPod(pod.addPresentation(pres))
     }
 

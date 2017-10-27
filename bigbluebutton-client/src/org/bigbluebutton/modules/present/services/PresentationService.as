@@ -18,7 +18,6 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
-  import org.bigbluebutton.main.api.JSLog;
 
   public class PresentationService
   {
@@ -81,16 +80,11 @@ package org.bigbluebutton.modules.present.services
     public function addPresentation(podId: String, pres:PresentationVO):void {
       var presentation:Presentation = presentationVOToPresentation(pres);
 
-      JSLog.warn("__ PresentationService::addPresentation: " + presentation.id, {});
-
       podManager.getPod(podId).addPresentation(presentation);    
       LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
       if (presentation.current) {
-        JSLog.warn("__ PresentationService::addPresentation: YES presentation was current. displaying "
-                  + presentation.name + "   in " + podId, {});
         LOGGER.debug("Making presentation [{0}] current [{1}]", [presentation.id, presentation.current]);
-        JSLog.debug("Making presentation " + presentation.id + " current " , presentation.current);
         var event: PresentationChangedEvent = new PresentationChangedEvent(podId, pres.id);
         dispatcher.dispatchEvent(event);
         
@@ -100,13 +94,9 @@ package org.bigbluebutton.modules.present.services
           dispatcher.dispatchEvent(changePageCommand);          
           
           LOGGER.debug("Sending page moved event to position page [{0}] current=[{1}]", [curPage.id, curPage.current]);
-          JSLog.debug("Sending page moved event to position page " + curPage.id + " current=", curPage.current);
           var pageChangedEvent: PageChangedEvent = new PageChangedEvent(podId, curPage.id);
           dispatcher.dispatchEvent(pageChangedEvent); 
         }        
-      } else {
-        JSLog.warn("__ PresentationService::addPresentation: presentation was NOT current. not displaying "
-                + presentation.name + "   in " + podId, {});
       }
     }
     
@@ -127,19 +117,15 @@ package org.bigbluebutton.modules.present.services
       // We've switched presentations. Mark the old presentation as not current.
       var curPres:Presentation = podManager.getPod(podId).getCurrentPresentation();
       if (curPres != null) {
-          JSLog.debug("300005a  " + curPres.name , curPres);
         curPres.current = false;
-          JSLog.debug("300005b  " + curPres.name , curPres);
       } else {
         LOGGER.debug("No previous active presentation.");
-        JSLog.debug("No previous active presentation.", {});
       }
 
       podManager.getPod(podId).printPresentations("PresentationService::changeCurrentPresentation bef");
       var newPres:Presentation = podManager.getPod(podId).getPresentation(presentationId);
       if (newPres != null) {
         LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
-        JSLog.debug("Making presentation "  + presentationId + " the  active presentation.", {});
         newPres.current = true;
 
 
@@ -155,7 +141,6 @@ package org.bigbluebutton.modules.present.services
         }
       } else {
         LOGGER.debug("Could not find presentation to make current. id="+presentationId);
-        JSLog.debug("Could not find presentation to make current. id="+presentationId, {});
       }
     }
     

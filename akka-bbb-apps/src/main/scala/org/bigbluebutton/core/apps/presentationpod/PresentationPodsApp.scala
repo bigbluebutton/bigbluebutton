@@ -27,12 +27,10 @@ object PresentationPodsApp {
 
   def getPresentationPod(state: MeetingState2x, podId: String): Option[PresentationPod] = {
     if (getNumberOfPresentationPods(state) == 0) {
-      println("\n\ncase1\n")
       val defPod = createDefaultPresentationPod("") // ownerId is to be assigned later
       state.presentationPodManager.addPod(defPod)
       Some(defPod)
     } else {
-      println("\n\ncase2\n")
       state.presentationPodManager.getPod(podId)
     }
   }
