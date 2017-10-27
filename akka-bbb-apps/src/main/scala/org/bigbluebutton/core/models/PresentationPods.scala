@@ -40,16 +40,8 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
 case class PresentationPod(id: String, ownerId: String, currentPresenter: String,
                            presentations: collection.immutable.Map[String, PresentationInPod]) {
   def addPresentation(presentation: PresentationInPod): PresentationPod = {
-    println(s" 1 PresentationPods::addPresentation  ${presentation.id}   ")
+    println(s" 1 PresentationPods::addPresentation  ${presentation.id}  presName=${presentation.name}   current=${presentation.current} ")
     copy(presentations = presentations + (presentation.id -> presentation))
-    //    for {
-    //      nextPresentation <- setCurrentPresentation(presentation.id)
-    //    } yield {
-    //      println(s" 2 PresentationPods::addPresentation  ${nextPresentation.id}   ")
-    //      copy(presentations = presentations + (nextPresentation.id -> nextPresentation))
-    //    }
-    //    //Some(copy(presentations = presentations + (presentation.id -> presentation)))
-    //    // setCurrentPresentation(presentation.id)
   }
 
   def removePresentation(id: String): PresentationPod = copy(presentations = presentations - id)
@@ -61,22 +53,27 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
   def getPresentation(presentationId: String): Option[PresentationInPod] =
     presentations.values find (p => p.id == presentationId)
 
-  def setCurrentPresentation(presId: String): Option[PresentationPod] = { // copy(currentPresenter = userId) // ****
+  def setCurrentPresentation(presId: String): Option[PresentationPod] = {
+    var tempPod: PresentationPod = this
     presentations.values foreach (curPres => { // unset previous current presentation
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
-        addPresentation(newPres)
+        println(s"  ____PresentationPod::setCurrentPresentation presId=${newPres.id}  presName=${newPres.name}" +
+          s"   current=${newPres.current}")
+        tempPod = tempPod.addPresentation(newPres)
       }
     })
 
     presentations.get(presId) match { // set new current presentation
       case Some(pres) =>
         val cp = pres.copy(current = true)
-        Some(addPresentation(cp))
-      //        Some(cp)
+        //        println(s"  ____PresentationPod::setCurrentPresentation presId=${newPres.id}  presName=${newPres.name} " +
+        //          s"  current=${newPres.current}")
+        tempPod = tempPod.addPresentation(cp)
       case None => None
     }
 
+    Some(tempPod)
   }
 
   def setCurrentPage(presentationId: String, pageId: String): Option[PresentationPod] = {
@@ -106,7 +103,7 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
   def printPod(): String = {
     val b = s"printPod (${presentations.values.size}):"
     var d = ""
-    presentations.values.foreach(p => d += s"PRES_ID=${p.id} NAME=${p.name} CURRENT=${p.current}\n")
+    presentations.values.foreach(p => d += s"\nPRES_ID=${p.id} NAME=${p.name} CURRENT=${p.current}\n")
     b.concat(s"PODID=$id  OWNERID=$ownerId  CURRENTPRESENTER=$currentPresenter PRESENTATIONS={{{$d}}}\n")
   }
 }
@@ -130,9 +127,6 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
     println(s"\n\n-------  addPresentationToPod   ${pres.name} + ${pres.current}  before\n")
     val updatedManager = for {
       pod <- getPod(podId)
-      //      updatedPod <- pod.addPresentation(pres)
-      //      currentPresPod <- pod.setCurrentPresentation(updatedPod.id)
-      //podWithAddedPresentation <- pod.addPresentation(pres)
     } yield {
       println(s"\n\n-------  addPresentationToPod   ${pres.name} + ${pres.current}  after\n")
       updatePresentationPod(pod.addPresentation(pres))

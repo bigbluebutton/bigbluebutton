@@ -60,8 +60,13 @@ object PresentationPodsApp {
     PresentationVO(pres.id, pres.name, pres.current, pres.pages.values.toVector, pres.downloadable)
   }
 
-  def setCurrentPresentationInPod(pod: PresentationPod, nextCurrentPresId: String): Option[PresentationPod] = {
-    pod.setCurrentPresentation(nextCurrentPresId)
+  def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {
+    for {
+      pod <- getPresentationPod(state, podId)
+      updatedPod <- pod.setCurrentPresentation(nextCurrentPresId)
+    } yield {
+      updatedPod
+    }
   }
 
   // add ownerId to default presentation pod -- in some cases we add it before first user is available
