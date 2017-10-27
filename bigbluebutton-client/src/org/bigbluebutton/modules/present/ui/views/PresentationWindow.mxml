@@ -71,15 +71,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
+			import flashx.textLayout.formats.Direction;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ArrayList;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
-			
-			import flashx.textLayout.formats.Direction;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -91,8 +91,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
+			import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
@@ -102,22 +105,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.views.PollChoicesModal;
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
-			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
-			import org.bigbluebutton.modules.present.commands.GoToPageLocalCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageLocalCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
 			import org.bigbluebutton.modules.present.events.ExportEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 			import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
-			import org.bigbluebutton.modules.present.events.SetPresenterInPodRespEvent;
+			import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 			import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
-			import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
-			import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
+			import org.bigbluebutton.modules.present.events.SetPresenterInPodRespEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PresentOptions;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
@@ -127,7 +128,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.main.api.JSLog;
 
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
@@ -420,6 +420,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
+			}
+			
+			public function getName():String {
+				return podId;
 			}
 						
 			private function onSliderZoom():void {

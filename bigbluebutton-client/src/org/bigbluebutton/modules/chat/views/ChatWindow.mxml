@@ -75,6 +75,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return _windowId;
       }
       
+      public function getPrefferedPosition():String {
+        return MainCanvas.TOP_RIGHT;
+      }
+      
+      public function getName():String {
+        return _windowId;
+	  }
+      
       public function setMainChatId(chatId: String):void {
         _mainChatId = chatId;
       }
@@ -82,10 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function setOpenAddTabBox(open:Boolean):void {
         _openAddTabBox = open;
       }
-      
-      public function getPrefferedPosition():String{
-        return MainCanvas.TOP_RIGHT;
-      } 
       
       private function onCreationComplete():void {
         hotkeyCapture();
