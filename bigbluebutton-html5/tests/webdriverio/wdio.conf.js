@@ -43,7 +43,7 @@ exports.config = {
         browserName: 'chrome',
         chromeOptions: {
           mobileEmulation: {
-            deviceName: 'Apple iPhone 6'
+            deviceName: 'iPhone 6'
           }
         }
       }
