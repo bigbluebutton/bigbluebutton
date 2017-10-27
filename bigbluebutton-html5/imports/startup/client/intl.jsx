@@ -20,13 +20,12 @@ class IntlStartup extends Component {
 
     this.state = {
       messages: {},
-      appLocale: this.props.locale,
     };
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
   componentWillMount() {
-    this.fetchLocalizedMessages(this.state.appLocale);
+    this.fetchLocalizedMessages(this.props.locale);
   }
 
   componentWillUpdate(nextProps) {
@@ -39,34 +38,30 @@ class IntlStartup extends Component {
     const url = `/html5client/locale?locale=${locale}`;
 
     const { baseControls } = this.props;
-    this.setState({ appLocale: locale });
 
     baseControls.updateLoadingState(true);
     fetch(url)
       .then((response) => {
-        if (response.ok) {
-          return response.json();
+        if (!response.ok) {
+          return Promise.reject();
         }
-        this.setState({ appLocale: 'en' });
+
         return response.json();
       })
-      .then((messages) => {
-        if (messages.statusCode === 506) {
-          this.setState({ appLocale: 'en' });
-        }
-        this.setState({ messages: messages.messages }, () => {
+      .then(({ messages, normalizedLocale }) => {
+        this.setState({ messages, locale: normalizedLocale.replace('_', '-') }, () => {
           baseControls.updateLoadingState(false);
         });
       })
       .catch((reason) => {
-        baseControls.updateErrorState(reason);
+        this.setState({ locale: 'en' });
         baseControls.updateLoadingState(false);
       });
   }
 
   render() {
     return (
-      <IntlProvider locale={this.state.appLocale} messages={this.state.messages}>
+      <IntlProvider locale={this.state.locale} messages={this.state.messages}>
         {this.props.children}
       </IntlProvider>
     );

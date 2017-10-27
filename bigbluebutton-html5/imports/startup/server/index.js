@@ -21,15 +21,18 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
-  const localeRegion = req.query.locale.split('-');
+  const localeRegion = req.query.locale.split(/[-_]/g);
+  const localeList = [defaultLocale, localeRegion[0]];
+
+  let normalizedLocale = localeRegion[0];
   let messages = {};
-  const completeLocale = [defaultLocale, localeRegion[0]];
-  let statusCode = 200;
+
   if (localeRegion.length > 1) {
-    locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
+    normalizedLocale = `${localeRegion[0]}_${localeRegion[1].toUpperCase()}`;
+    localeList.push(normalizedLocale);
   }
 
-  completeLocale.forEach((locale) => {
+  localeList.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
@@ -37,12 +40,11 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       // Variant Also Negotiates Status-Code, to alert the client that we
       // do not support the following lang.
       // https://en.wikipedia.org/wiki/Content_negotiation
-      statusCode = 506;
     }
   });
 
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ statusCode, messages }));
+  res.end(JSON.stringify({ normalizedLocale, messages }));
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
