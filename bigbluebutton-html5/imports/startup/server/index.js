@@ -37,9 +37,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
     } catch (e) {
-      // Variant Also Negotiates Status-Code, to alert the client that we
-      // do not support the following lang.
-      // https://en.wikipedia.org/wiki/Content_negotiation
+      // Getting here means the locale is not available on the files.
     }
   });
 

@@ -53,7 +53,7 @@ class IntlStartup extends Component {
           baseControls.updateLoadingState(false);
         });
       })
-      .catch((reason) => {
+      .catch(() => {
         this.setState({ locale: 'en' });
         baseControls.updateLoadingState(false);
       });
