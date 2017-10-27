@@ -1,8 +1,5 @@
 import React from 'react';
-import Modal from 'react-modal';
-import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import ReactDOM from 'react-dom';
 import cx from 'classnames';
 import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -155,7 +152,7 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
-          {/* TODO: Uncomment after the release
+
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement} >
@@ -175,7 +172,7 @@ class ApplicationMenu extends BaseMenu {
                 />
               </div>
             </div>
-          </div>*/}
+          </div>
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
@@ -185,29 +182,29 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-                <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
-                  <select
-                    defaultValue={this.formatLocale(this.state.settings.locale)}
-                    className={styles.select}
-                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                  >
-                    <option disabled>
-                      { availableLocales &&
+              <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
+                <select
+                  defaultValue={this.formatLocale(this.state.settings.locale)}
+                  className={styles.select}
+                  onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
+                >
+                  <option disabled>
+                    { availableLocales &&
                         availableLocales.length ?
                         intl.formatMessage(intlMessages.languageOptionLabel) :
                         intl.formatMessage(intlMessages.noLocaleOptionLabel) }
-                    </option>
-                    {availableLocales ? availableLocales.map((locale, index) =>
+                  </option>
+                  {availableLocales ? availableLocales.map((locale, index) =>
                     (<option key={index} value={locale.locale}>
                       {locale.name}
                     </option>),
                   ) : null }
-                  </select>
-                </label>
-                <div
-                  id="changeLangLabel"
-                  aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
-                />
+                </select>
+              </label>
+              <div
+                id="changeLangLabel"
+                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
+              />
             </div>
           </div>
           <hr className={styles.separator} />
