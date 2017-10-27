@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import AudioService from '../audio/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
+import AudioService from '../audio/service';
 
 const intlMessages = defineMessages({
   title: {

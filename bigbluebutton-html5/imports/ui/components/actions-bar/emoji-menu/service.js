@@ -9,8 +9,8 @@ const getEmojiData = () => {
 
   // Find the Emoji Status of this specific meeting and userid
   const userEmojiStatus = Users.findOne({
-    meetingId: Auth.meetingID,
-    userId: Auth.userID,
+    meetingId,
+    userId,
   }).emoji;
 
   return {

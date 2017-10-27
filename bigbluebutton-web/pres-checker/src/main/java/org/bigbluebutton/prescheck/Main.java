@@ -6,6 +6,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFPictureData;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ public class Main {
         xmlSlideShow = new XMLSlideShow(new FileInputStream(file));
         valid &= !main.embedsEmf(xmlSlideShow);
         valid &= !main.containsTinyTileBackground(xmlSlideShow);
+        valid &= !main.allSlidesAreHidden(xmlSlideShow);
         // Close the resource once we finished reading it
         xmlSlideShow.close();
       } catch (IOException e) {
@@ -77,6 +80,16 @@ public class Main {
     return false;
   }
 
+	private boolean allSlidesAreHidden(XMLSlideShow xmlSlideShow) {
+		HiddenSlidePredicate hiddenSlidePredicate = new HiddenSlidePredicate();
+    ArrayList<XSLFSlide> hiddenSlides = (ArrayList<XSLFSlide>) CollectionUtils
+		    .select(xmlSlideShow.getSlides(), hiddenSlidePredicate);
+		if (hiddenSlides.size() == xmlSlideShow.getSlides().size()) {
+			return true;
+		}
+		return false;
+	}
+
   private final class EmfPredicate implements Predicate<XSLFPictureData> {
     public boolean evaluate(XSLFPictureData img) {
       return img.getContentType().equals("image/x-emf");
@@ -91,4 +104,10 @@ public class Main {
           && LittleEndian.getLong(img.getChecksum()) == 4114937224L;
     }
   }
+
+	private final class HiddenSlidePredicate implements Predicate<XSLFSlide> {
+		public boolean evaluate(XSLFSlide slide) {
+			return !slide.getXmlObject().getShow();
+		}
+	}
 }

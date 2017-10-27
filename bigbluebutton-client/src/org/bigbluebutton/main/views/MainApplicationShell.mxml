@@ -831,6 +831,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (ResourceUtil.getInstance().isRTLEnabled()) {
 					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
 				}
+				PopUpUtil.initAlert();
 			}
 
 		]]>
