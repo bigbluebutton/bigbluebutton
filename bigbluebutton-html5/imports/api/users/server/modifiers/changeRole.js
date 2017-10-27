@@ -32,8 +32,8 @@ export default function changeRole(role, status, userId, meetingId, changedBy) {
     }
 
     if (numChanged) {
-      return Logger.info(`${actionVerb} user role=${role} id=${userId} meeting=${meetingId}` +
-        `${changedBy === undefined ? '' : ` changedBy=${changedBy}`}`);
+      return Logger.info(`${actionVerb} user role=${role} id=${userId} meeting=${meetingId}`
+      + `${changedBy ? ` changedBy=${changedBy}` : ''}`);
     }
 
     return null;
