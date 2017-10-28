@@ -408,10 +408,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {
+        LOGGER.debug("Got a DisplaySlideEvent pod=" + podId);
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null) {
 					var curPage:Page = presentationModel.getCurrentPage();
 					if (curPage != null) {
+            LOGGER.debug("Got a DisplaySlideEvent pod=" + podId + " current page=" + curPage.num);
 						displaySlideNumber(curPage.num);
 						currentSlideWidth = event.slideWidth;
 						currentSlideHeight = event.slideHeight;
