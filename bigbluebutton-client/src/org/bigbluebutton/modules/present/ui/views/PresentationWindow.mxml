@@ -423,7 +423,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
 			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
-				slideView.onParentResized(parentWidth, parentHeight);
+				slideView.onParentResized(this.podId, parentWidth, parentHeight);
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {
@@ -552,7 +552,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
-				// TODO
 				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = presentationName;
 					shareEvent.podId = podId;
@@ -643,7 +642,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function addWhiteboardCanvasToSlideView():void{
         if(whiteboardOverlay != null) {
           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
-          slideView.acceptOverlayCanvas(whiteboardOverlay);
+          slideView.acceptOverlayCanvas(this.podId, whiteboardOverlay);
 		}
       }
 			

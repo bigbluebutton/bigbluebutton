@@ -45,6 +45,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
 	import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
 	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
+	import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.Presentation;
@@ -101,8 +102,9 @@ package org.bigbluebutton.modules.present.business
 			userid = a.userid as Number;
 		}
     
-    public function handleGetListOfPresentationsRequest():void {
-      var presos:ArrayCollection = PresentationModel.getInstance().getPresentations();
+    public function handleGetListOfPresentationsRequest(event: GetListOfPresentationsRequest):void {
+      // TODO podId is currently not set (the call is from bbb api and assumes only one presentation pod
+      var presos:ArrayCollection = podManager.getPod(event.podId).getPresentations();  
       var idAndName:Array = new Array();
       for (var i:int = 0; i < presos.length; i++) {
         var pres:Presentation = presos.getItemAt(i) as Presentation;
@@ -258,13 +260,13 @@ package org.bigbluebutton.modules.present.business
 		 * @param e
 		 * 
 		 */		
-		public function zoomSlide(e:PresenterCommands):void{
-//			var currentPresentation:Presentation = PresentationModel.getInstance().getCurrentPresentation();
-//      if (currentPresentation == null) return;
-//      
-//			var currentPage:Page = PresentationModel.getInstance().getCurrentPage();
-//			
-//			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+		public function zoomSlide(e:PresenterCommands):void {
+			var currentPresentation:Presentation = podManager.getPod(e.podId).getCurrentPresentation();
+			if (currentPresentation == null) return;
+
+			var currentPage:Page = podManager.getPod(e.podId).getCurrentPage();  
+
+			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 
 		/**
