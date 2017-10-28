@@ -1,6 +1,5 @@
 package org.bigbluebutton.modules.present.model {
     import mx.collections.ArrayCollection;
-
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import com.asfusion.mate.events.Dispatcher;
