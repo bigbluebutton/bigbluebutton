@@ -342,7 +342,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					setSelectedSlide(page.num);
 					slideLoader.source = page.swfData;
 					LOGGER.debug("Displaying page [{0}]", [e.pageId]);
-					positionPage(page);
+					//positionPage(page);
 					if (whiteboardCanvas != null) {
 						whiteboardCanvas.displayWhiteboardById(page.id);
 					}

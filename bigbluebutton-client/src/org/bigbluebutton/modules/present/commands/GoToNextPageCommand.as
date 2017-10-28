@@ -6,11 +6,11 @@ package org.bigbluebutton.modules.present.commands
   {
     public static const GO_TO_NEXT_PAGE:String = "presentation go to next page";
 
-	public var podId: String;
+    public var podId: String;
 
     public function GoToNextPageCommand(podId: String){
-      this.podId = podId;
       super(GO_TO_NEXT_PAGE, true, false);
+      this.podId = podId;
     }
   }
 }
