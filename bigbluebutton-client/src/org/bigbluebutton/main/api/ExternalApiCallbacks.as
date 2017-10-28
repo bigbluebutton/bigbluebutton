@@ -118,7 +118,7 @@ package org.bigbluebutton.main.api
     }
 
     private function handleQueryListsOfPresentationsRequest():void {    
-      _dispatcher.dispatchEvent(new GetListOfPresentationsRequest());
+      _dispatcher.dispatchEvent(new GetListOfPresentationsRequest("UNKNOWN"));
     }
         
     private function handleDisplayPresentationRequest(presentationID:String):void {
