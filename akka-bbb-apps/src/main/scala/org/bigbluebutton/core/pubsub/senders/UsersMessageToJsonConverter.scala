@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import scala.collection.JavaConverters._
-
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 

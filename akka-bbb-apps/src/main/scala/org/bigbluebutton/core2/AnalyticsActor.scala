@@ -101,6 +101,9 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
 
+      // Recording
+      case m: RecordingChapterBreakSysMsg => logMessage(msg)
+
       case _ => // ignore message
     }
   }

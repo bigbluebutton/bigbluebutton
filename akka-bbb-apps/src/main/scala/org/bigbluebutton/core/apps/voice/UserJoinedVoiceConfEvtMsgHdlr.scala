@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.voice
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.MeetingStatus2x
 
-trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
+trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers with SystemConfiguration {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
@@ -51,33 +51,5 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()
     }
-
-    startRecordingVoiceConference()
-  }
-
-  def startRecordingVoiceConference() {
-    val numVoiceUsers = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
-    if (numVoiceUsers == 1 &&
-      liveMeeting.props.recordProp.record &&
-      !MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
-      MeetingStatus2x.startRecordingVoice(liveMeeting.status)
-      log.info("Send START RECORDING voice conf. meetingId=" + liveMeeting.props.meetingProp.intId
-        + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
-
-      val event = buildStartRecordingVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf)
-      outGW.send(event)
-    } else {
-      log.info("Not recording audio as numVoiceUsers={} and isRecording={} and recordProp={}", numVoiceUsers,
-        MeetingStatus2x.isVoiceRecording(liveMeeting.status), liveMeeting.props.recordProp.record)
-    }
-  }
-
-  def buildStartRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(StartRecordingVoiceConfSysMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(StartRecordingVoiceConfSysMsg.NAME, meetingId)
-    val body = StartRecordingVoiceConfSysMsgBody(voiceConf, meetingId)
-    val event = StartRecordingVoiceConfSysMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, event)
   }
 }

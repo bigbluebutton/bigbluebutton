@@ -165,6 +165,8 @@ package org.bigbluebutton.main.model.users
             messageName != "UpdateBreakoutUsersEvtMsg" &&
             messageName != "BreakoutRoomsTimeRemainingUpdateEvtMsg" &&
             messageName != "UserTalkingVoiceEvtMsg" &&
+            messageName != "DoLatencyTracerMsg" &&
+            messageName != "ServerToClientLatencyTracerMsg" &&
             messageName != "MeetingTimeRemainingUpdateEvtMsg") {
             LOGGER.debug("onMessageFromServer2x - " + msg);
           }

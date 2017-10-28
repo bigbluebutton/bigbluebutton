@@ -193,7 +193,6 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(UserLeftMeetingEvtMsg.NAME, meetingId, userId)
     val body = UserLeftMeetingEvtMsgBody(userId)
     val event = UserLeftMeetingEvtMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -246,6 +245,34 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(StopMeetingTranscodersSysCmdMsg.NAME, meetingId)
     val event = StopMeetingTranscodersSysCmdMsg(header, body)
 
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRecordingChapterBreakSysMsg(meetingId: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(RecordingChapterBreakSysMsg.NAME, routing)
+    val body = RecordingChapterBreakSysMsgBody(meetingId, timestamp)
+    val header = BbbCoreHeaderWithMeetingId(RecordingChapterBreakSysMsg.NAME, meetingId)
+    val event = RecordingChapterBreakSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStartRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String, stream: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StartRecordingVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(StartRecordingVoiceConfSysMsg.NAME, meetingId)
+    val body = StartRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
+    val event = StartRecordingVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStopRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String, stream: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StopRecordingVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(StopRecordingVoiceConfSysMsg.NAME, meetingId)
+    val body = StopRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
+    val event = StopRecordingVoiceConfSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }
