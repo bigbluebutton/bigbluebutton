@@ -63,7 +63,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.Presentation;
-			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
@@ -202,9 +201,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
 						
-			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
+			public function onParentResized(_podId: String, parentWidth:Number, parentHeight:Number):void {
 				if (slideModel == null || noSlideContentLoaded()) return;
-				
+
+				if (_podId != this.podId) {
+					return;
+				}
+
 				slideModel.parentChange(parentWidth, parentHeight);
 				
 				if (UsersUtil.amIPresenter()) {
@@ -214,15 +217,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					slideModel.printViewedRegion();
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
-				} else {          
-//          var page:Page = PresentationModel.getInstance().getCurrentPage();
-//          if (page != null) {
-//            LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
-//            positionPage(page);
-//          }
-				}				
+				} else {
+					var page:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
+					if (page != null) {
+						LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
+						positionPage(page);
+					}
+				}
 			}
-											
+
 			/**
 			 * Fit the slide inside the loader.
 			 */			
@@ -296,7 +299,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handlePageChangedEvent(e:PageChangedEvent):void {
+        LOGGER.debug("Got a page changed event for pod=" + e.podId + " page=" + e.pageId);
 				if (e.podId != this.podId) {
+          LOGGER.debug("Not handling page as this.podId=" + this.podId);
 					return;
 				}
 
@@ -311,8 +316,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
       private function positionPage(page:Page):void {
+        LOGGER.debug("Got Positioning page [{0}]", [page.id]);
         if (page != null && page.swfData != null) {   
-          LOGGER.debug("Positioning page [{0}]", [page.id]);
+          LOGGER.debug("Handling Positioning page [{0}]", [page.id]);
           slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.calculateViewportNeededForRegion(page.widthRatio, page.heightRatio);
           slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
@@ -327,7 +333,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
+        LOGGER.debug("Got a page loaded event for pod=" + e.podId + " page=" + e.pageId);
 				if (e.podId != this.podId) {
+          LOGGER.debug("Not handling page as this.podId=" + this.podId);
 					return;
 				}
 
@@ -337,7 +345,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					setSelectedSlide(page.num);
 					slideLoader.source = page.swfData;
 					LOGGER.debug("Displaying page [{0}]", [e.pageId]);
-					// positionPage(page);
+					//positionPage(page);
 					if (whiteboardCanvas != null) {
 						whiteboardCanvas.displayWhiteboardById(page.id);
 					}
@@ -407,14 +415,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(dispEvent);
 			}
 			
-			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{
+			public function acceptOverlayCanvas(_podId: String, overlay:WhiteboardCanvas):void{
 				whiteboardCanvas = overlay;
-				
-//				var currPage:Page = PresentationModel.getInstance().getCurrentPage();
-//				if (currPage != null) {
-//					whiteboardCanvas.displayWhiteboardById(currPage.id);
-//				}
-//				
+
+				if (_podId != this.podId) {
+					return;
+				}
+
+				var currPage:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
+				if (currPage != null) {
+					whiteboardCanvas.displayWhiteboardById(currPage.id);
+				}
+
 				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
 				fitSlideToLoader();
 				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);

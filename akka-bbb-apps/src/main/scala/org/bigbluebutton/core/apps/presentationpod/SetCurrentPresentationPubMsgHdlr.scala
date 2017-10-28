@@ -28,20 +28,20 @@ trait SetCurrentPresentationPubMsgHdlr {
     val presId = msg.body.presentationId
 
     val newState = for {
-      pod <- PresentationPodsApp.getPresentationPod(state, podId)
-      //      presentation <- setCurrentPresentation(liveMeeting, pod.id, presId)
+      updatedPod <- PresentationPodsApp.setCurrentPresentationInPod(state, podId, presId)
     } yield {
-
-      // unset old current
-      PresentationPodsApp.getPresentationPod(state, podId)
-      // TODO
-
-      // set new current
-      // TODO
-
       broadcastSetCurrentPresentationEvent(podId, msg.header.userId, presId)
+
+      log.warning("_____ SetCurrentPresentationPubMsgHdlr before_ " + state.presentationPodManager.printPods())
+      val pods = state.presentationPodManager.addPod(updatedPod)
+      log.warning("_____ SetCurrentPresentationPubMsgHdlr after_ " + pods.printPods())
+      state.update(pods)
     }
-    state
+
+    newState match {
+      case Some(ns) => ns
+      case None     => state
+    }
 
   }
 }

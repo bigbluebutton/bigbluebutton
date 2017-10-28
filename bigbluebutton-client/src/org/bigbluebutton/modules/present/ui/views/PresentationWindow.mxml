@@ -199,8 +199,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				listOfPodControls.push({label: this.podId,
 					icon: getStyle('iconClearStatus'), handler: function (): void {} });
 
-				listOfPodControls.push({label: UsersUtil.getUserName(this.ownerId),
+				if (this.ownerId != null && this.ownerId != "") {
+					listOfPodControls.push({label: UsersUtil.getUserName(this.ownerId),
 						icon: getStyle('iconClearStatus'), handler: requestPodPresenterChange, data: this.ownerId});
+				}
 
 				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'),
 					icon: getStyle('iconClearStatus'), handler: newPresentationWindowHandler});
@@ -212,19 +214,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presGroup: ArrayCollection = UsersUtil.getPresenterGroup();
 				for (var j:int = 0; j < presGroup.length; j++) {
 					var nextPresenterId: String = presGroup.getItemAt(j) as String;
-					listOfPodControls.push({label: UsersUtil.getUserName(nextPresenterId),
-						icon: getStyle('iconClearStatus'),  handler: requestPodPresenterChange, data: nextPresenterId});
-
+					if (nextPresenterId != this.ownerId) { // avoid duplication
+						listOfPodControls.push({label: UsersUtil.getUserName(nextPresenterId),
+							icon: getStyle('iconClearStatus'),  handler: requestPodPresenterChange, data: nextPresenterId});
+					}
 				}
+
+				showCurrentPresenterInPod();
 			}
 
 			public function onPodCreated(_podId: String, _ownerId: String):void {
 				this.podId = _podId;
 				this.ownerId = _ownerId;
+				this.currentPresenterInPod = this.ownerId;
 				populatePodDropdown();
-
-				// the owner is the default currentPresenter for the pod
-				setPresenterInPodHelper(this.ownerId);
 			}
 
 			public function getPodId(): String { return this.podId; }
@@ -238,7 +241,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function newPresentationWindowHandler(): void {
+				presentationPodControls.selectedIndex = 0;
 				var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
+
 				event.requesterId = UsersUtil.getMyUserID();
 				localDispatcher.dispatchEvent(event);
 			}
@@ -264,20 +269,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localDispatcher.dispatchEvent(new SetPresenterInPodReqEvent(this.podId, nextPresenterId));
 			}
 
+			private function showCurrentPresenterInPod(): void {
+				if (this.currentPresenterInPod == null || this.currentPresenterInPod == "") {
+					return;
+				}
+
+				for (var i:int=0; i<listOfPodControls.length; i++) {
+					if (listOfPodControls[i].data != null && listOfPodControls[i].data == this.currentPresenterInPod 
+							&& presentationPodControls != null && presentationPodControls.dataProvider != null) {
+						presentationPodControls.selectedItem = presentationPodControls.dataProvider.getItemAt(i);
+						return;
+					}
+				}
+
+				// show podId
+				// presentationPodControls.selectedItem = presentationPodControls.dataProvider.getItemAt(0);
+			}
+
 			private function handleSetPresenterInPodRespEvent(event: SetPresenterInPodRespEvent): void {
 				if (event.podId != this.podId) {
 					return;
 				}
 
-				// set the dropdown current value? // TODO
 				this.currentPresenterInPod = event.nextPresenterId as String;
+				showCurrentPresenterInPod();
 
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
-				var page : Page = presentationModel.getCurrentPage();
+				var page: Page = presentationModel.getCurrentPage();
 
 				displaySlideNavigationControls(false, !!page);
 				setupPresenter(this.currentPresenterInPod == UsersUtil.getMyUserID());
-
 			}
 
 			private function onCreationComplete():void{
@@ -402,7 +423,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
 			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
-				slideView.onParentResized(parentWidth, parentHeight);
+				slideView.onParentResized(this.podId, parentWidth, parentHeight);
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {
@@ -531,7 +552,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
-				// TODO
 				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = presentationName;
 					shareEvent.podId = podId;
@@ -622,7 +642,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function addWhiteboardCanvasToSlideView():void{
         if(whiteboardOverlay != null) {
           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
-          slideView.acceptOverlayCanvas(whiteboardOverlay);
+          slideView.acceptOverlayCanvas(this.podId, whiteboardOverlay);
 		}
       }
 			

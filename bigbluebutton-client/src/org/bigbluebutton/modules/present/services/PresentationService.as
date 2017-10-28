@@ -18,24 +18,24 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
-  import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 
   public class PresentationService
   {
 	private static const LOGGER:ILogger = getClassLogger(PresentationService);      
     private static const NUM_PRELOAD:uint = 3;
     private var podManager: PresentationPodManager;
-    private var sender:MessageSender;
     private var receiver:MessageReceiver;
     private var dispatcher:Dispatcher;
     
     public function PresentationService() {
       podManager = PresentationPodManager.getInstance();
+      podManager.setPresentationService(this);
       receiver = new MessageReceiver(this);
       dispatcher = new Dispatcher();
     }
     
     public function pageChanged(podId: String, pageId:String):void {
+        podManager.getPod(podId).printPresentations("PresentationService::pageChanged bef");
       var np: Page = podManager.getPod(podId).getPage(pageId);
       if (np != null) {        
         var oldPage: Page = podManager.getPod(podId).getCurrentPage();
@@ -44,7 +44,8 @@ package org.bigbluebutton.modules.present.services
         np.current = true;
 //        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
         var changePageCommand: ChangePageCommand = new ChangePageCommand(podId, np.id, NUM_PRELOAD);
-        dispatcher.dispatchEvent(changePageCommand);          
+        dispatcher.dispatchEvent(changePageCommand);
+          podManager.getPod(podId).printPresentations("PresentationService::pageChanged aft");
       }       
     }
     
@@ -83,7 +84,7 @@ package org.bigbluebutton.modules.present.services
       LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
       if (presentation.current) {
-        LOGGER.debug("Making presentation [{0}] current [{1}]", [presentation.id, presentation.current]); 
+        LOGGER.debug("Making presentation [{0}] current [{1}]", [presentation.id, presentation.current]);
         var event: PresentationChangedEvent = new PresentationChangedEvent(podId, pres.id);
         dispatcher.dispatchEvent(event);
         
@@ -121,11 +122,14 @@ package org.bigbluebutton.modules.present.services
         LOGGER.debug("No previous active presentation.");
       }
 
+      podManager.getPod(podId).printPresentations("PresentationService::changeCurrentPresentation bef");
       var newPres:Presentation = podManager.getPod(podId).getPresentation(presentationId);
       if (newPres != null) {
         LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
         newPres.current = true;
 
+
+        podManager.getPod(podId).printPresentations("PresentationService::changeCurrentPresentation aft");
 
         var event: PresentationChangedEvent = new PresentationChangedEvent(podId, presentationId);
         dispatcher.dispatchEvent(event);

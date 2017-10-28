@@ -49,7 +49,12 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
     } yield {
       broadcastPresentationConversionCompletedEvtMsg(pod.id, msg.header.userId, msg.body.messageKey, msg.body.code, presVO)
 
-      val pods = state.presentationPodManager.addPresentationToPod(pod.id, pres)
+      var pods = state.presentationPodManager.addPod(pod)
+      pods = pods.addPresentationToPod(pod.id, pres)
+      pods = pods.setCurrentPresentation(pod.id, pres.id)
+
+      log.warning("_____PresentationConversionCompletedSysPubMsgHdlr_ " + pods.printPods())
+
       state.update(pods)
     }
 

@@ -19,10 +19,10 @@
 package org.bigbluebutton.modules.present.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
+
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
-	
+
 	import mx.core.FlexGlobals;
 	import mx.collections.ArrayCollection;
 
@@ -32,12 +32,10 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
-	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.present.events.ExportEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
-	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
 	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 	import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
@@ -48,19 +46,17 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 
-	
 	public class PresentManager
 	{
 		private var globalDispatcher:Dispatcher;
 		private var windows: Array = [];
 		private var podsManager: PresentationPodManager;
-		
-		
+
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
 			podsManager = PresentationPodManager.getInstance();
 		}
-		
+
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
 			if (windows.length >= 1) {
 				return;
@@ -74,30 +70,37 @@ package org.bigbluebutton.modules.present.managers
 			var podId: String = e.podId;
 			var ownerId: String = e.ownerId;
 
-			if(!windows.hasOwnProperty(podId)) {
-				var newWindow:PresentationWindow = new PresentationWindow();
-				newWindow.onPodCreated(podId, ownerId);
-
-				var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
-				newWindow.visible = true; // TODO
-				// newWindow.visible = presentOptions.showPresentWindow;
-				newWindow.showControls = presentOptions.showWindowControls;
-
-				windows[podId] = newWindow;
-
-				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				openEvent.window = newWindow;
-				globalDispatcher.dispatchEvent(openEvent);
-
-				podsManager.handleAddPresentationPod(podId, ownerId);
+			if(windows.hasOwnProperty(podId)) {
+				// remove pod and replace with the updated version
+				handlePresentationPodRemovedHelper(podId, ownerId);
 			}
+			
+			var newWindow:PresentationWindow = new PresentationWindow();
+			newWindow.onPodCreated(podId, ownerId);
+
+			var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
+			newWindow.visible = true; // TODO
+			// newWindow.visible = presentOptions.showPresentWindow;
+			newWindow.showControls = presentOptions.showWindowControls;
+
+			windows[podId] = newWindow;
+
+			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+			openEvent.window = newWindow;
+			globalDispatcher.dispatchEvent(openEvent);
+
+			podsManager.handleAddPresentationPod(podId, ownerId);
 		}
 
 		public function handlePresentationPodRemoved(e: PresentationPodRemoved): void {
 			var podId: String = e.podId;
 			var ownerId: String = e.ownerId;
 
-			podsManager.handlePresentationPodRemoved(podId, ownerId); // GOOD
+			handlePresentationPodRemovedHelper(podId, ownerId);
+		}
+
+		private function handlePresentationPodRemovedHelper(podId: String, ownerId: String): void {
+			podsManager.handlePresentationPodRemoved(podId, ownerId);
 
 			var destroyWindow:PresentationWindow = windows[podId];
 			if (destroyWindow != null) {
@@ -178,5 +181,8 @@ package org.bigbluebutton.modules.present.managers
 			PopUpUtil.removePopUp(FileExportWindow);
 		}
 
+//		public function handleSetPresenterInPodRespEvent(event: SetPresenterInPodRespEvent): void {
+//			
+//		}
 	}
 }
