@@ -238,7 +238,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function newPresentationWindowHandler(): void {
+				presentationPodControls.selectedIndex = 0;
 				var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
+
 				event.requesterId = UsersUtil.getMyUserID();
 				localDispatcher.dispatchEvent(event);
 			}

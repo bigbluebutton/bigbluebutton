@@ -14,11 +14,11 @@ object PresentationPodsApp {
     PresentationPodFactory.createDefaultPod(ownerId)
   }
 
-  //  def createDefaultPresentationPod(state: MeetingState2x): MeetingState2x = {
-  //    val defaultPresPod = PresentationPodFactory.create("the-owner-id")
-  //    val podManager = state.presentationPodManager.addPod(defaultPresPod)
-  //    state.update(podManager)
-  //  }
+  //    def createDefaultPresentationPod(state: MeetingState2x): MeetingState2x = {
+  //      val defaultPresPod = PresentationPodFactory.create("the-owner-id")
+  //      val podManager = state.presentationPodManager.addPod(defaultPresPod)
+  //      state.update(podManager)
+  //    }
 
   def removePresentationPod(state: MeetingState2x, podId: String): MeetingState2x = {
     val podManager = state.presentationPodManager.removePod(podId)
@@ -26,7 +26,13 @@ object PresentationPodsApp {
   }
 
   def getPresentationPod(state: MeetingState2x, podId: String): Option[PresentationPod] = {
-    state.presentationPodManager.getPod(podId)
+    if (getNumberOfPresentationPods(state) == 0) {
+      val defPod = createDefaultPresentationPod("") // ownerId is to be assigned later
+      state.presentationPodManager.addPod(defPod)
+      Some(defPod)
+    } else {
+      state.presentationPodManager.getPod(podId)
+    }
   }
 
   def getAllPresentationPodsInMeeting(state: MeetingState2x): Vector[PresentationPod] = {
@@ -52,5 +58,23 @@ object PresentationPodsApp {
     PresentationVO(pres.id, pres.name, pres.current, pres.pages.values.toVector, pres.downloadable)
   }
 
+  def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {
+    for {
+      pod <- getPresentationPod(state, podId)
+      updatedPod <- pod.setCurrentPresentation(nextCurrentPresId)
+    } yield {
+      updatedPod
+    }
+  }
+
+  // add ownerId to default presentation pod -- in some cases we add it before first user is available
+  def changeOwnershipOfDefaultPod(state: MeetingState2x, newOwnerId: String): Option[PresentationPod] = {
+    for {
+      defPod <- getPresentationPod(state, "DEFAULT_PRESENTATION_POD")
+    } yield {
+      println(s"\n\n\n changeOwnershipOfDefaultPod  $newOwnerId  \n\n\n")
+      defPod.copy(ownerId = newOwnerId)
+    }
+  }
 }
 
