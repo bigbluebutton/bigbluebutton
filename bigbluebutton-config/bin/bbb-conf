@@ -478,7 +478,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE libreoffice bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+	units="start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
