@@ -1,11 +1,11 @@
 package org.bigbluebutton.modules.chat.maps
 {
-  public class GroubChatBoxMapper
+  public class GroupChatBoxMapper
   {
     private var _chatBoxId: String;
     private var _chatBoxOpen: Boolean = false;
     
-    public function GroubChatBoxMapper(chatBoxId: String)
+    public function GroupChatBoxMapper(chatBoxId: String)
     {
       _chatBoxId = chatBoxId;
     }
