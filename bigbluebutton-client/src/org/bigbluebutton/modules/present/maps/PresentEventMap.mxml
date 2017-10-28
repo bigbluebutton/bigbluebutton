@@ -130,7 +130,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 	
 	  <EventHandlers type="{GetListOfPresentationsRequest.GET_LIST_OF_PRESENTATIONS}" >
-	    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" />
+	    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" arguments="{event}" />
 	  </EventHandlers>
 		
 		<EventHandlers type="{PresenterCommands.RESIZE}" >

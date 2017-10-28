@@ -63,7 +63,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.Presentation;
-			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
@@ -202,9 +201,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
 						
-			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
+			public function onParentResized(_podId: String, parentWidth:Number, parentHeight:Number):void {
 				if (slideModel == null || noSlideContentLoaded()) return;
-				
+
+				if (_podId != this.podId) {
+					return;
+				}
+
 				slideModel.parentChange(parentWidth, parentHeight);
 				
 				if (UsersUtil.amIPresenter()) {
@@ -214,15 +217,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					slideModel.printViewedRegion();
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
-				} else {          
-//          var page:Page = PresentationModel.getInstance().getCurrentPage();
-//          if (page != null) {
-//            LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
-//            positionPage(page);
-//          }
-				}				
+				} else {
+					var page:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
+					if (page != null) {
+						LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
+						positionPage(page);
+					}
+				}
 			}
-											
+
 			/**
 			 * Fit the slide inside the loader.
 			 */			
@@ -415,14 +418,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(dispEvent);
 			}
 			
-			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{
+			public function acceptOverlayCanvas(_podId: String, overlay:WhiteboardCanvas):void{
 				whiteboardCanvas = overlay;
-				
-//				var currPage:Page = PresentationModel.getInstance().getCurrentPage();
-//				if (currPage != null) {
-//					whiteboardCanvas.displayWhiteboardById(currPage.id);
-//				}
-//				
+
+				if (_podId != this.podId) {
+					return;
+				}
+
+				var currPage:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
+				if (currPage != null) {
+					whiteboardCanvas.displayWhiteboardById(currPage.id);
+				}
+
 				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
 				fitSlideToLoader();
 				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
