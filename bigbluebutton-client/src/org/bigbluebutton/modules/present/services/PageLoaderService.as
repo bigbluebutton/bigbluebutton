@@ -1,13 +1,11 @@
 package org.bigbluebutton.modules.present.services
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher;  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.present.commands.ChangePageCommand;
   import org.bigbluebutton.modules.present.events.PageLoadedEvent;
   import org.bigbluebutton.modules.present.model.Page;
-  import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.model.PresentationPodManager;
 
   public class PageLoaderService

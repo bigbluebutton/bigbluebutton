@@ -296,7 +296,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handlePageChangedEvent(e:PageChangedEvent):void {
+        LOGGER.debug("Got a page changed event for pod=" + e.podId + " page=" + e.pageId);
 				if (e.podId != this.podId) {
+          LOGGER.debug("Not handling page as this.podId=" + this.podId);
 					return;
 				}
 
@@ -311,8 +313,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
       private function positionPage(page:Page):void {
+        LOGGER.debug("Got Positioning page [{0}]", [page.id]);
         if (page != null && page.swfData != null) {   
-          LOGGER.debug("Positioning page [{0}]", [page.id]);
+          LOGGER.debug("Handling Positioning page [{0}]", [page.id]);
           slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.calculateViewportNeededForRegion(page.widthRatio, page.heightRatio);
           slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
@@ -327,7 +330,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
+        LOGGER.debug("Got a page loaded event for pod=" + e.podId + " page=" + e.pageId);
 				if (e.podId != this.podId) {
+          LOGGER.debug("Not handling page as this.podId=" + this.podId);
 					return;
 				}
 
@@ -337,7 +342,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					setSelectedSlide(page.num);
 					slideLoader.source = page.swfData;
 					LOGGER.debug("Displaying page [{0}]", [e.pageId]);
-					// positionPage(page);
+					positionPage(page);
 					if (whiteboardCanvas != null) {
 						whiteboardCanvas.displayWhiteboardById(page.id);
 					}
