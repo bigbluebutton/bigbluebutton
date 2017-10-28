@@ -9,8 +9,8 @@ package org.bigbluebutton.modules.present.commands
     public var podId: String;
 
     public function GoToPrevPageCommand(podId: String){
-      this.podId = podId;
       super(GO_TO_PREV_PAGE, true, false);
+      this.podId = podId;
     }
   }
 }
