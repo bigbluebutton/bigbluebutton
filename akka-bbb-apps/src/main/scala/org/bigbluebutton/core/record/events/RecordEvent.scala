@@ -19,6 +19,9 @@
 
 package org.bigbluebutton.core.record.events
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.TimestampGenerator
 
@@ -28,6 +31,13 @@ trait RecordEvent {
   protected final val eventMap = new HashMap[String, String]()
 
   setTimestamp(TimestampGenerator.generateTimestamp())
+  timestampUTC(System.currentTimeMillis())
+
+  final def timestampUTC(utc: Long): Unit = {
+    eventMap.put(TIMESTAMP_UTC, utc.toString)
+    val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    eventMap.put(DATE, sdf.format(utc))
+  }
 
   /**
    * Set the module that generated the event.
@@ -75,4 +85,6 @@ object RecordEvent extends RecordEvent {
   protected final val TIMESTAMP = "timestamp"
   protected final val MEETING = "meetingId"
   protected final val EVENT = "eventName"
+  protected final val TIMESTAMP_UTC = "timestampUTC"
+  protected final val DATE = "date"
 }

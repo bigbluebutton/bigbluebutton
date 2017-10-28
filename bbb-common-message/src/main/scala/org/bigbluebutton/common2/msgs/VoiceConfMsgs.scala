@@ -191,7 +191,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   object StartRecordingVoiceConfSysMsg { val NAME = "StartRecordingVoiceConfSysMsg" }
   case class StartRecordingVoiceConfSysMsg(header: BbbCoreHeaderWithMeetingId,
                                         body: StartRecordingVoiceConfSysMsgBody) extends BbbCoreMsg
-  case class StartRecordingVoiceConfSysMsgBody(voiceConf: String, meetingId: String)
+  case class StartRecordingVoiceConfSysMsgBody(voiceConf: String, meetingId: String, stream: String)
 
 /**
   * Sent to FS to stop recording voice conference.

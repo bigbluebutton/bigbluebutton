@@ -11,7 +11,7 @@ class KeepAliveRedisPublisher(val system: ActorSystem, sender: RedisPublisher) e
   val startedOn = System.currentTimeMillis()
 
   system.scheduler.schedule(2 seconds, 5 seconds) {
-    val msg = new BbbAppsIsAliveMessage(startedOn, System.currentTimeMillis())
+    //val msg = new BbbAppsIsAliveMessage(startedOn, System.currentTimeMillis())
     // sender.publish("bigbluebutton:from-bbb-apps:keepalive", msg.toJson())
   }
 }

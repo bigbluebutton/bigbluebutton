@@ -112,10 +112,6 @@ class VoiceUsers {
       user
     }
   }
-
-  private def findUserFromCache(intId: String): Option[VoiceUserState] = {
-    usersCache.values.find(u => u.intId == intId)
-  }
 }
 
 case class VoiceUser2x(intId: String, voiceUserId: String)

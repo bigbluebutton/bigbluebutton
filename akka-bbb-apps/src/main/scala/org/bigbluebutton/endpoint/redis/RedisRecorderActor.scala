@@ -92,6 +92,9 @@ class RedisRecorderActor(val system: ActorSystem)
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
 
+      // Recording
+      case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
+
       case _                                        => // message not to be recorded.
     }
   }
@@ -404,6 +407,14 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handleEndAndKickAllSysMsg(msg: EndAndKickAllSysMsg): Unit = {
     val ev = new EndAndKickAllRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
+    val ev = new RecordChapterBreakRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setChapterBreakTimestamp(msg.body.timestamp)
 
     record(msg.header.meetingId, ev.toMap)
   }

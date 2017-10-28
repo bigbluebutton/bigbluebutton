@@ -1,26 +1,21 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
-
+import akka.actor._
+import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
 import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
-//import java.util.concurrent.TimeUnit
-
-import akka.actor._
-import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
-import org.bigbluebutton.core.apps.meeting._
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
@@ -38,6 +33,7 @@ import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object MeetingActor {
   def props(
@@ -407,6 +403,29 @@ class MeetingActor(
     expireReason2 foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
 
     sendRttTraceTest()
+    setRecordingChapterBreak()
+  }
+
+  var lastRecBreakSentOn = expiryTracker.startedOnInMs
+
+  def setRecordingChapterBreak(): Unit = {
+    val now = TimeUtil.timeNowInMs()
+    val elapsedInMs = now - lastRecBreakSentOn
+    val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
+
+    if (elapsedInMin > 1) {
+      lastRecBreakSentOn = now
+      val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
+      outGW.send(event)
+
+      VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
+
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, now)
+      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
+
+    }
+
   }
 
   def sendRttTraceTest(): Unit = {

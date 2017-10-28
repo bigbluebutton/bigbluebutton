@@ -50,6 +50,22 @@ public class RecordingService {
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
 
+    public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {
+        String done = recordStatusDir + "/" + meetingId + "-" + timestamp + ".done";
+
+        File doneFile = new File(done);
+        if (!doneFile.exists()) {
+            try {
+                doneFile.createNewFile();
+                if (!doneFile.exists())
+                    log.error("Failed to create " + done + " file.");
+            } catch (IOException e) {
+                log.error("Failed to create " + done + " file.");
+            }
+        } else {
+            log.error(done + " file already exists.");
+        }
+    }
 
     public void startIngestAndProcessing(String meetingId) {
         String done = recordStatusDir + "/" + meetingId + ".done";

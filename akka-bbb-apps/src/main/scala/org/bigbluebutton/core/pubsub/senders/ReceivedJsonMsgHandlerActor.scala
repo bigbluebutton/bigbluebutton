@@ -136,6 +136,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserDisconnectedFromGlobalAudioMsg](envelope, jsonNode)
       case MuteMeetingCmdMsg.NAME =>
         routeGenericMsg[MuteMeetingCmdMsg](envelope, jsonNode)
+      case VoiceConfRunningEvtMsg.NAME =>
+        routeVoiceMsg[VoiceConfRunningEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
