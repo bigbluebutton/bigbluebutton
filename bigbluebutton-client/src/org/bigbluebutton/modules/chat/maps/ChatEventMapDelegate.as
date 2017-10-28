@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.chat.maps {
     
     private var _windowMapper:Array = [];
     
-    private var MAIN_CHAT_WINID: String = "gcWin-0";
+    private var MAIN_CHAT_WINID: String = "ChatWindow0";
     
     public function ChatEventMapDelegate() {
       this.dispatcher = dispatcher;
@@ -54,31 +54,33 @@ package org.bigbluebutton.modules.chat.maps {
     private function genWindowMappers():void{
       getChatOptions();
       for (var i:int = 0; i < chatOptions.maxNumWindows; i++) {
-        var winId: String = "gcWin-" + i;
-        _windowMapper[winId] = new GroupChatWindowMapper(winId);
+        var winId: String = "ChatWindow" + i;
+        _windowMapper[i] = new GroupChatWindowMapper(winId);
       }
     }
     
     private function findGroupChatWindowMapper(winId: String):GroupChatWindowMapper {
-      if (_windowMapper.hasOwnProperty(winId)) {
-        return _windowMapper[winId];
+      for (var i:int=0; i<_windowMapper.length; i++) {
+        var wMapper: GroupChatWindowMapper = _windowMapper[i];
+        if (wMapper.gcWinId == winId) return wMapper;
       }
       return null;
     }
     
     private function findUnusedWindowMapper():GroupChatWindowMapper {
-      for (var winId:String in _windowMapper) {
-        var wMapper: GroupChatWindowMapper = _windowMapper[winId];
+      // start looking for unused at 1 becuase 0 is reserved for the main chat
+      for (var i:int=1; i<_windowMapper.length; i++) {
+        var wMapper: GroupChatWindowMapper = _windowMapper[i];
         if (wMapper.isEmpty()) return wMapper;
       }
       return null;
     }
     
-    private function openNewPublicGrouChatWindow(chatId: String, gc:GroupChat):void {
+    private function openNewPublicGroupChatWindow(chatId: String, gc:GroupChat):void {
       var wMapper:GroupChatWindowMapper = findUnusedWindowMapper();
       if (wMapper != null) {
         // Setup a tracker for the state of this chat.
-        var gcBoxMapper:GroubChatBoxMapper = new GroubChatBoxMapper(chatId);
+        var gcBoxMapper:GroupChatBoxMapper = new GroupChatBoxMapper(chatId);
         gcBoxMapper.chatBoxOpen = true;
         wMapper.addChatBox(gcBoxMapper);    
         
@@ -97,9 +99,9 @@ package org.bigbluebutton.modules.chat.maps {
     
     private function openChatBoxForPrivateChat(chatId: String, gc: GroupChat):void {
       // Setup a tracker for the state of this chat.
-      var gcBoxMapper:GroubChatBoxMapper = new GroubChatBoxMapper(chatId);
+      var gcBoxMapper:GroupChatBoxMapper = new GroupChatBoxMapper(chatId);
       gcBoxMapper.chatBoxOpen = true;
-      var winMapper:GroupChatWindowMapper = _windowMapper[MAIN_CHAT_WINID];
+      var winMapper:GroupChatWindowMapper = findGroupChatWindowMapper(MAIN_CHAT_WINID);
       winMapper.addChatBox(gcBoxMapper);
       
       globalDispatcher.dispatchEvent(new PrivateGroupChatCreatedEvent(chatId));
@@ -108,9 +110,9 @@ package org.bigbluebutton.modules.chat.maps {
     public function createNewGroupChat(chatId: String):void {
       if (ChatModel.MAIN_PUBLIC_CHAT == chatId){
         // Setup a tracker for the state of this chat.
-        var gcBoxMapper:GroubChatBoxMapper = new GroubChatBoxMapper(chatId);
+        var gcBoxMapper:GroupChatBoxMapper = new GroupChatBoxMapper(chatId);
         gcBoxMapper.chatBoxOpen = true;
-        var winMapper:GroupChatWindowMapper = _windowMapper[MAIN_CHAT_WINID];
+        var winMapper:GroupChatWindowMapper = findGroupChatWindowMapper(MAIN_CHAT_WINID);
         winMapper.addChatBox(gcBoxMapper);
         
         var window:ChatWindow = new ChatWindow();
@@ -127,7 +129,7 @@ package org.bigbluebutton.modules.chat.maps {
       } else {
         var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
         if (gc != null && gc.access == GroupChat.PUBLIC) {
-          openNewPublicGrouChatWindow(chatId, gc);
+          openNewPublicGroupChatWindow(chatId, gc);
         } else if (gc != null && gc.access == GroupChat.PRIVATE) {
           openChatBoxForPrivateChat(chatId, gc);
         }
@@ -154,7 +156,7 @@ package org.bigbluebutton.modules.chat.maps {
       globalDispatcher.dispatchEvent(event);		
     }
     
-    public function closeChatWindow():void {
+    public function closeChatWindow():void { //Never called
       var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
       //	event.window = _chatWindow;
       globalDispatcher.dispatchEvent(event);

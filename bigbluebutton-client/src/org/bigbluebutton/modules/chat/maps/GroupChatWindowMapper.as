@@ -1,10 +1,12 @@
 package org.bigbluebutton.modules.chat.maps
 {
+  import mx.collections.ArrayCollection;
+
   public class GroupChatWindowMapper
   {
     private var _gcWinId: String;
     
-    private var _chatBoxes:Array = [];
+    private var _chatBoxes:ArrayCollection = new ArrayCollection();
     
     public function GroupChatWindowMapper(gcWinId: String)
     {
@@ -19,12 +21,17 @@ package org.bigbluebutton.modules.chat.maps
       return _chatBoxes.length == 0;
     }
     
-    public function addChatBox(box: GroubChatBoxMapper):void {
-      _chatBoxes[box.chatBoxId] = box;
+    public function addChatBox(box: GroupChatBoxMapper):void {
+      _chatBoxes.addItem(box);
     }
     
-    public function removeChatBox(id: String):void {
-      delete _chatBoxes[id];
+    public function removeChatBox(id: String):void { // never called
+      for (var i:int=0; i<_chatBoxes.length; i++) {
+        var box:GroupChatBoxMapper = _chatBoxes.getItemAt(i) as GroupChatBoxMapper;
+        if (box.chatBoxId == id) {
+          _chatBoxes.removeItemAt(i);
+        }
+      }
     }
     
     public function getNumChatBoxes():int {
