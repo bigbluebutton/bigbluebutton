@@ -227,6 +227,7 @@ class MeetingActor(
       case m: AddUserToPresenterGroupCmdMsg => usersApp.handleAddUserToPresenterGroupCmdMsg(m)
       case m: RemoveUserFromPresenterGroupCmdMsg =>
         usersApp.handleRemoveUserFromPresenterGroupCmdMsg(m)
+      case m: GetPresenterGroupReqMsg        => usersApp.handleGetPresenterGroupReqMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)

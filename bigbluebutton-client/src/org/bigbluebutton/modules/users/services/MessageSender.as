@@ -456,6 +456,20 @@ package org.bigbluebutton.modules.users.services
       }, JSON.stringify(message));
     }
 
+    public function handleRequestPresenterGroupEvent():void {
+      var message:Object = {
+        header: {name: "GetPresenterGroupReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x(
+        function(result:String):void { },
+        function(status:String):void { LOGGER.error(status); },
+          JSON.stringify(message)
+      );
+    }
+
     public function getRoomMuteState():void{
       var message:Object = {
         header: {name: "IsMeetingMutedReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 

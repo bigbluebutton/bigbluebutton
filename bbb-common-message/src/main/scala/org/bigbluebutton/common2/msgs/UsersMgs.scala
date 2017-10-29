@@ -310,3 +310,17 @@ case class RemoveUserFromPresenterGroupCmdMsgBody(userId: String, requesterId: S
 object UserRemovedFromPresenterGroupEvtMsg { val NAME = "UserRemovedFromPresenterGroupEvtMsg" }
 case class UserRemovedFromPresenterGroupEvtMsg(header: BbbClientMsgHeader, body: UserRemovedFromPresenterGroupEvtMsgBody) extends StandardMsg
 case class UserRemovedFromPresenterGroupEvtMsgBody(userId: String, requesterId: String)
+
+/**
+  * Sent from client to request the presenter group of a meeting.
+  */
+object GetPresenterGroupReqMsg { val NAME = "GetPresenterGroupReqMsg" }
+case class GetPresenterGroupReqMsg(header: BbbClientMsgHeader, body: GetPresenterGroupReqMsgBody) extends StandardMsg
+case class GetPresenterGroupReqMsgBody(requesterId: String)
+
+/**
+  * Sent to all clients about the members of the presenter group of a meeting
+  */
+object GetPresenterGroupRespMsg { val NAME = "GetPresenterGroupRespMsg" }
+case class GetPresenterGroupRespMsg(header: BbbClientMsgHeader, body: GetPresenterGroupRespMsgBody) extends StandardMsg
+case class GetPresenterGroupRespMsgBody(presenterGroup: Vector[String], requesterId: String)
