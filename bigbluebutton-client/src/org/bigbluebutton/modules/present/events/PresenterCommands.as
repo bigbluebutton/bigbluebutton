@@ -49,9 +49,9 @@ package org.bigbluebutton.modules.present.events
 		
 		public function PresenterCommands(type:String, _podId: String, slideNumber:Number = 0)
 		{
+			super(type, true, false);
 			this.podId = _podId;
 			this.slideNumber = slideNumber;
-			super(type, true, false);
 		}
 
 	}
