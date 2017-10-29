@@ -352,7 +352,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
 			for(var i:int = 0; i < presentationNamesAC.length; i++) {
-				if(e.presentationName == presentationNamesAC.getItemAt(i).presId) {
+				if(e.presentationName == presentationNamesAC.getItemAt(i).presId && e.podId == this.podId) {
 					presentationNamesAC.removeItemAt(i);
 					return;
 				}

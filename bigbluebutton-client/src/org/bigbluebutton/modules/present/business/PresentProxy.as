@@ -252,7 +252,7 @@ package org.bigbluebutton.modules.present.business
 		}
 
 		public function removePresentation(e:RemovePresentationEvent):void {
-			sender.removePresentation(e.presentationName);
+			sender.removePresentation(e.podId, e.presentationName);
 		}
 		
 		/**

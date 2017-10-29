@@ -35,7 +35,7 @@
 			private function deletePresentation():void {
 				LOGGER.debug("FileUploadWindow.mxml::deletePresentation() {0}", [data.presId]);
 
-				var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
+				var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT, data.podId);
 				rEvent.presentationName = data.presId as String;
 				dispatchEvent(rEvent);
 			}

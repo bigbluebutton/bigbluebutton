@@ -1016,6 +1016,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function handleUpdateDownloadableFilesEvent(e:RemovePresentationEvent):void {
+				if (e.podId == null || e.podId != this.podId) {
+					return;
+				}
 				updateDownloadBtn();
 			}
 
