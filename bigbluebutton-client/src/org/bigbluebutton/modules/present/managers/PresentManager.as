@@ -19,29 +19,30 @@
 package org.bigbluebutton.modules.present.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
-
-	import mx.core.FlexGlobals;
+	
 	import mx.collections.ArrayCollection;
-
+	import mx.core.FlexGlobals;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
 	import org.bigbluebutton.modules.present.events.ExportEvent;
-	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
 	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
 	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
-	import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
+	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.model.PresentOptions;
 	import org.bigbluebutton.modules.present.model.PresentationPodManager;
+	import org.bigbluebutton.modules.present.model.PresentationWindowManager;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileExportWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
@@ -49,20 +50,28 @@ package org.bigbluebutton.modules.present.managers
 
 	public class PresentManager
 	{
+		private const DEFAULT_POD_ID:String = "DEFAULT_PRESENTATION_POD";
+		
 		private var globalDispatcher:Dispatcher;
-		private var windows: Array = [];
+		private var winManager:PresentationWindowManager;
 		private var podsManager: PresentationPodManager;
+		private var presentOptions:PresentOptions;
 
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
 			podsManager = PresentationPodManager.getInstance();
+			winManager = new PresentationWindowManager;
 		}
 
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
-			if (windows.length >= 1) {
+			if (winManager.isEmpty()) {
 				return;
 			}
+			
+			presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 
+			winManager.initCollection(presentOptions.maxNumWindows);
+			
 			var requestAllPodsEvent:RequestAllPodsEvent = new RequestAllPodsEvent(RequestAllPodsEvent.REQUEST_ALL_PODS);
 			globalDispatcher.dispatchEvent(requestAllPodsEvent);
 
@@ -74,26 +83,28 @@ package org.bigbluebutton.modules.present.managers
 			var podId: String = e.podId;
 			var ownerId: String = e.ownerId;
 
-			if(windows.hasOwnProperty(podId)) {
+			if(winManager.containsPodId(podId)) {
 				// remove pod and replace with the updated version
 				handlePresentationPodRemovedHelper(podId, ownerId);
 			}
 			
 			var newWindow:PresentationWindow = new PresentationWindow();
 			newWindow.onPodCreated(podId, ownerId);
-
-			var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			newWindow.visible = true; // TODO
 			// newWindow.visible = presentOptions.showPresentWindow;
 			newWindow.showControls = presentOptions.showWindowControls;
 
-			windows[podId] = newWindow;
+			var selectedWinId:String = winManager.addWindow(podId, newWindow, podId == DEFAULT_POD_ID);
+			
+			if (selectedWinId != null) {
+				newWindow.setWindowId(selectedWinId);
+				
+				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				openEvent.window = newWindow;
+				globalDispatcher.dispatchEvent(openEvent);
 
-			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			openEvent.window = newWindow;
-			globalDispatcher.dispatchEvent(openEvent);
-
-			podsManager.handleAddPresentationPod(podId, ownerId);
+				podsManager.handleAddPresentationPod(podId, ownerId);
+			}
 		}
 
 		public function handlePresentationPodRemoved(e: PresentationPodRemoved): void {
@@ -106,13 +117,13 @@ package org.bigbluebutton.modules.present.managers
 		private function handlePresentationPodRemovedHelper(podId: String, ownerId: String): void {
 			podsManager.handlePresentationPodRemoved(podId, ownerId);
 
-			var destroyWindow:PresentationWindow = windows[podId];
+			var destroyWindow:PresentationWindow = winManager.findWindowByPodId(podId);
 			if (destroyWindow != null) {
 				var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 				closeEvent.window = destroyWindow;
 				globalDispatcher.dispatchEvent(closeEvent);
 
-				delete windows[podId];
+				winManager.removeWindow(podId);
 			}
 		}
 
@@ -122,8 +133,9 @@ package org.bigbluebutton.modules.present.managers
 		}
 
 		public function handleStopModuleEvent():void{
-			for (var key: String in windows) {
-				windows[key].close();
+			var openWindows:Array = winManager.findAllWindows();
+			for (var i:int=0; i<openWindows.length; i++) {
+				openWindows[i].close();
 			}
 			
 //			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
