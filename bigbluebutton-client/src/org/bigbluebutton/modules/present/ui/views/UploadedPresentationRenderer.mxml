@@ -26,17 +26,17 @@
 			private var globalDispatch:Dispatcher = new Dispatcher();
 
 			private function showPresentation():void {
-				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand('AAAAAUploadedPresentationRendererAAAA', data.id);
+				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.podId, data.presId);
 				globalDispatch.dispatchEvent(changePresCommand);
 
 				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 			}
 
 			private function deletePresentation():void {
-				LOGGER.debug("FileUploadWindow.mxml::deletePresentation() {0}", [data.id]);
+				LOGGER.debug("FileUploadWindow.mxml::deletePresentation() {0}", [data.presId]);
 
 				var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
-				rEvent.presentationName = data.id as String;
+				rEvent.presentationName = data.presId as String;
 				dispatchEvent(rEvent);
 			}
 		]]>
@@ -45,19 +45,19 @@
 			  width="{this.width-showBtn.width-deleteBtn.width-50}"
 			  truncateToFit="true"
 			  styleName="presentationNameLabel"
-			  text="{data.name as String}" />
+			  text="{data.presName as String}" />
 	<mx:Button id="showBtn"
 			   height="32"
 			   label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}"
 			   styleName="presentationUploadShowButtonStyle"
 			   click="showPresentation()"
-			   enabled="{!data.current}" />
+			   enabled="{!data.presCurrent}" />
 	<mx:Button id="deleteBtn"
 			   height="32"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}"
 			   styleName="presentationUploadDeleteButtonStyle"
 			   click="deletePresentation()"
-			   visible="{String(data.name) != 'default.pdf'}" />
+			   visible="{String(data.presName) != 'default.pdf'}" />
 
 </mx:HBox>
