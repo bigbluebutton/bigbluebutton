@@ -51,6 +51,8 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
 	import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
+	import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
+
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
 	import org.bigbluebutton.modules.users.services.MessageSender;
 
@@ -270,6 +272,10 @@ package org.bigbluebutton.main.model.users
 
 		public function removeUserFromPresenterGroup(e: RemoveUserFromPresenterGroupEvent): void {
 			if (this.isModerator()) sender.removeUserFromPresenterGroup(e.userId);
+		}
+
+		public function handleRequestPresenterGroupEvent(e: RequestPresenterGroupEvent): void {
+			sender.handleRequestPresenterGroupEvent();
 		}
 
 		public function changeRole(e:ChangeRoleEvent):void {

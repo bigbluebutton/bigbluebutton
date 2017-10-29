@@ -119,7 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		public function setPodId(_podId: String): void {
 			podId = _podId;
-			presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations(); // GOOD
+			presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations();
 			if (presentationNamesAC.length <= 0) {
 				selectFile();
 			}
