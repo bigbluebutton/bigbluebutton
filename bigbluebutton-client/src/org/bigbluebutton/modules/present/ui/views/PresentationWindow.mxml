@@ -552,9 +552,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
-				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
+				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND, this.podId);
 					shareEvent.presentationName = presentationName;
-					shareEvent.podId = podId;
 					dispatchEvent(shareEvent);
 			}
 			
