@@ -49,7 +49,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
       import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
       import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
-//      import org.bigbluebutton.modules.present.events.SetPresenterInPodRespEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.model.PresentationPodManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
@@ -193,8 +192,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{PresentProxy}" method="handleSetPresenterInPodReqEvent" arguments="{event}" />
 		</EventHandlers>
 
-		<!--<EventHandlers type="{SetPresenterInPodRespEvent.SET_PRESENTER_IN_POD_RESP}" >-->
-			<!--<MethodInvoker generator="{PresentManager}" method="handleSetPresenterInPodRespEvent" arguments="{event}" />-->
-		<!--</EventHandlers>-->
 	</fx:Declarations>
 </EventMap>

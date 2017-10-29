@@ -209,6 +209,9 @@ package org.bigbluebutton.modules.users.services
         case "UserRemovedFromPresenterGroupEvtMsg":
           handleUserRemovedFromPresenterGroupEvtMsg(message);
           break;
+        case "GetPresenterGroupRespMsg":
+          handleGetPresenterGroupRespMsg(message);
+          break;
       }
     }
     
@@ -878,6 +881,14 @@ package org.bigbluebutton.modules.users.services
     private function handleUserRemovedFromPresenterGroupEvtMsg(msg: Object): void {
       var userId: String = msg.body.userId;
       dispatcher.dispatchEvent(new UserRemovedFromPresenterGroupEvent(userId));
+    }
+    
+    private function handleGetPresenterGroupRespMsg(msg: Object): void {
+      var presenterGroup: Array = msg.body.presenterGroup as Array;
+      for (var i: int = 0; i < presenterGroup.length; i++) {
+        var member: String = presenterGroup[i] as String;
+        dispatcher.dispatchEvent(new UserAddedToPresenterGroupEvent(member));
+      }
     }
 
     public function handleGuestPolicyChanged(msg:Object):void {

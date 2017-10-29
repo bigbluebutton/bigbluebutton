@@ -23,6 +23,7 @@ class UsersApp(
     with AssignPresenterReqMsgHdlr
     with AddUserToPresenterGroupCmdMsgHdlr
     with RemoveUserFromPresenterGroupCmdMsgHdlr
+    with GetPresenterGroupReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr
     with MuteUserCmdMsgHdlr
     with MuteUserCmdMsgHdlrPermCheck {

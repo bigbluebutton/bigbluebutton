@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
+	import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
 	import org.bigbluebutton.modules.present.events.ExportEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -62,8 +63,11 @@ package org.bigbluebutton.modules.present.managers
 				return;
 			}
 
-			var event:RequestAllPodsEvent = new RequestAllPodsEvent(RequestAllPodsEvent.REQUEST_ALL_PODS);
-			globalDispatcher.dispatchEvent(event);
+			var requestAllPodsEvent:RequestAllPodsEvent = new RequestAllPodsEvent(RequestAllPodsEvent.REQUEST_ALL_PODS);
+			globalDispatcher.dispatchEvent(requestAllPodsEvent);
+
+			var requestPresenterGroupEvent:RequestPresenterGroupEvent = new RequestPresenterGroupEvent(RequestPresenterGroupEvent.REQUEST_PRESENTER_GROUP);
+			globalDispatcher.dispatchEvent(requestPresenterGroupEvent);
 		}
 
 		public function handleAddPresentationPod(e: NewPresentationPodCreated): void {
