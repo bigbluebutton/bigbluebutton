@@ -50,6 +50,7 @@ public class VideoStream {
 
     public synchronized void stopStartRecording() {
         stopRecording();
+        videoStreamListener.reset();
         startRecording();
     }
 

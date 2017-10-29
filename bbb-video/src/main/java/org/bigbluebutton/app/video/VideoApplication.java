@@ -265,6 +265,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
                     recordVideoStream, userId, packetTimeout, scheduler, recordingService);
             ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
+            stream.addStreamListener(listener);
             VideoStream vstream = new VideoStream(stream, listener, cstream);
             vstream.startRecording();
 
