@@ -286,7 +286,6 @@ class MeetingActor(
 
       // Presentation
       case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: RemovePresentationPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationUploadTokenReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
@@ -303,6 +302,7 @@ class MeetingActor(
       case m: PresentationConversionCompletedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresenterInPodReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: RemovePresentationPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)

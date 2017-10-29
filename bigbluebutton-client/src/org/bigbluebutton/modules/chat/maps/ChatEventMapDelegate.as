@@ -156,11 +156,12 @@ package org.bigbluebutton.modules.chat.maps {
       globalDispatcher.dispatchEvent(event);		
     }
     
-    public function closeChatWindow():void { //Never called
-      var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-      //	event.window = _chatWindow;
-      globalDispatcher.dispatchEvent(event);
-      
+    public function closeChatWindows():void { //Never called
+      for each (var window:ChatWindow in _windows) {
+        var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+        event.window = window;
+        globalDispatcher.dispatchEvent(event);
+      }
     }
   }
 }

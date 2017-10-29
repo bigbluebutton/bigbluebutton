@@ -68,7 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
     
     <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
-      <MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindow" />
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindows" />
     </EventHandlers>
     
     <EventHandlers type="{EventConstants.SEND_PUBLIC_CHAT_REQ}">        

@@ -32,10 +32,12 @@ package org.bigbluebutton.modules.present.events
 		public static const UPDATE_DOWNLOADABLE_FILES_EVENT:String = "Update Downloadable Files Event";
 		
 		public var presentationName:String;
-		
-		public function RemovePresentationEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public var podId: String;
+
+		public function RemovePresentationEvent(type:String, _podId: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
+			this.podId = _podId;
 		}
 		
 	}

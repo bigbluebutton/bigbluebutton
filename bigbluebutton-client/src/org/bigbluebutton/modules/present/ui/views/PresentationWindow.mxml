@@ -165,6 +165,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
 
+			private var windowId:String;
+			
 			[Bindable]
 			private var podId: String = "";
 			private var ownerId: String = "";
@@ -207,9 +209,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'),
 					icon: getStyle('iconClearStatus'), handler: newPresentationWindowHandler});
 
-				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'),
-					icon: getStyle('iconClearStatus'), handler: closePresentationWindowHandler});
+				if (this.podId != "DEFAULT_PRESENTATION_POD") {
+					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'),
+						icon: getStyle('iconClearStatus'), handler: closePresentationWindowHandler});
 
+				}
 
 				var presGroup: ArrayCollection = UsersUtil.getPresenterGroup();
 				for (var j:int = 0; j < presGroup.length; j++) {
@@ -228,6 +232,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.ownerId = _ownerId;
 				this.currentPresenterInPod = this.ownerId;
 				populatePodDropdown();
+			}
+			
+			public function setWindowId(windowId:String):void {
+				this.windowId = windowId;
 			}
 
 			public function getPodId(): String { return this.podId; }
@@ -446,7 +454,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function getName():String {
-				return podId;
+				return windowId;
 			}
 						
 			private function onSliderZoom():void {
@@ -554,9 +562,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
-				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
+				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND, this.podId);
 					shareEvent.presentationName = presentationName;
-					shareEvent.podId = podId;
 					dispatchEvent(shareEvent);
 			}
 			
@@ -1017,6 +1024,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function handleUpdateDownloadableFilesEvent(e:RemovePresentationEvent):void {
+				if (e.podId == null || e.podId != this.podId) {
+					return;
+				}
 				updateDownloadBtn();
 			}
 

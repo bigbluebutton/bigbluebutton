@@ -31,6 +31,10 @@ case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageI
 object SetPresenterInPodReqMsg { val NAME = "SetPresenterInPodReqMsg"}
 case class SetPresenterInPodReqMsg(header: BbbClientMsgHeader, body: SetPresenterInPodReqMsgBody) extends StandardMsg
 case class SetPresenterInPodReqMsgBody(podId: String, nextPresenterId: String)
+
+object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg"}
+case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
+case class RemovePresentationPubMsgBody(podId: String, presentationId: String)
 // ------------ client to akka-apps ------------
 
 
@@ -112,6 +116,10 @@ case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageI
 object SetPresenterInPodRespMsg { val NAME = "SetPresenterInPodRespMsg"}
 case class SetPresenterInPodRespMsg(header: BbbClientMsgHeader, body: SetPresenterInPodRespMsgBody) extends StandardMsg
 case class SetPresenterInPodRespMsgBody(podId: String, nextPresenterId: String)
+
+object RemovePresentationEvtMsg { val NAME = "RemovePresentationEvtMsg"}
+case class RemovePresentationEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationEvtMsgBody) extends BbbCoreMsg
+case class RemovePresentationEvtMsgBody(podId: String, presentationId: String)
 // ------------ akka-apps to client ------------
 
 
