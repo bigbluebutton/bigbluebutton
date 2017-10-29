@@ -12,9 +12,6 @@ object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg"}
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
 case class ResizeAndMovePagePubMsgBody(presentationId: String, pageId: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
 
-object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg"}
-case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
-case class RemovePresentationPubMsgBody(presentationId: String)
 // ------------ client to akka-apps ------------
 
 
@@ -45,10 +42,6 @@ case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: Strin
 object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg"}
 case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg
 case class ResizeAndMovePageEvtMsgBody(presentationId: String, pageId: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
-
-object RemovePresentationEvtMsg { val NAME = "RemovePresentationEvtMsg"}
-case class RemovePresentationEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationEvtMsgBody) extends BbbCoreMsg
-case class RemovePresentationEvtMsgBody(presentationId: String)
 
 
 // html5 client only

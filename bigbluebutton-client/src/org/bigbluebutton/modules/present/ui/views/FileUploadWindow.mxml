@@ -88,6 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.model.PresentOptions;
 		import org.bigbluebutton.modules.present.model.PresentationModel;
 		import org.bigbluebutton.modules.present.model.PresentationPodManager;
+		import org.bigbluebutton.modules.present.model.Presentation;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
@@ -119,7 +120,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		public function setPodId(_podId: String): void {
 			podId = _podId;
-			presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations();
+			presentationNamesAC = new ArrayCollection();
+			var presNames: ArrayCollection = PresentationPodManager.getInstance().getPod(podId).getPresentations();
+
+			for (var i:int =0; i<presNames.length; i++) {
+				var pres: Presentation = presNames.getItemAt(i) as Presentation;
+				presentationNamesAC.addItem({ presName: pres.name, presCurrent: pres.current,
+					presId: pres.id, podId: this.podId});
+			}
+
 			if (presentationNamesAC.length <= 0) {
 				selectFile();
 			}
@@ -343,7 +352,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
 			for(var i:int = 0; i < presentationNamesAC.length; i++) {
-				if(e.presentationName == presentationNamesAC.getItemAt(i).id) {
+				if(e.presentationName == presentationNamesAC.getItemAt(i).presId && e.podId == this.podId) {
 					presentationNamesAC.removeItemAt(i);
 					return;
 				}
@@ -355,9 +364,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function retryButtonClikcHandler(event:MouseEvent):void {
-			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 			setTimeout(function():void {
-				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
 			}, 100);
 		}
 	]]>

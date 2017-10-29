@@ -132,6 +132,19 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
     }
   }
 
+  def removePresentationInPod(podId: String, presentationId: String): PresentationPodManager = {
+    val updatedManager = for {
+      pod <- getPod(podId)
+    } yield {
+      updatePresentationPod(pod.removePresentation(presentationId))
+    }
+
+    updatedManager match {
+      case Some(ns) => ns
+      case None     => this
+    }
+  }
+
   def printPods(): String = {
     var a = s"printPods (${presentationPods.values.size}):"
     presentationPods.values.foreach(pod => a = a.concat(pod.printPod()))

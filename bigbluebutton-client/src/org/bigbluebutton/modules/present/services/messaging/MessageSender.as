@@ -102,10 +102,10 @@ package org.bigbluebutton.modules.present.services.messaging
       );
     }
 
-    public function removePresentation(presentationId:String):void {
+    public function removePresentation(podId: String, presentationId:String):void {
       var message:Object = {
         header: {name: "RemovePresentationPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {presentationId: presentationId}
+        body: {podId: podId, presentationId: presentationId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
