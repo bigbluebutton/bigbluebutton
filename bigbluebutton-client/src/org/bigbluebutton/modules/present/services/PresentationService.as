@@ -144,25 +144,25 @@ package org.bigbluebutton.modules.present.services
       }
     }
     
-    public function removeAllPresentations():void {
-//      model.removeAllPresentations();
+    public function removeAllPresentations(podId: String):void {
+      podManager.getPod(podId).removeAllPresentations();
     }
     
-	public function removePresentation(presentationID:String):void {
-//		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
-//		removedEvent.presentationName = presentationID;
-//		dispatcher.dispatchEvent(removedEvent);
-//		
-//		var currPresentation:Presentation = model.getCurrentPresentation();
-//		
-//		if(currPresentation && presentationID == currPresentation.id) {
-//			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
-//			dispatcher.dispatchEvent(uploadEvent);
-//		}
-//		
-//		model.removePresentation(presentationID);
-//		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT);
-//		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
+	public function removePresentation(podId: String, presentationID:String):void {
+		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT, podId);
+		removedEvent.presentationName = presentationID;
+		dispatcher.dispatchEvent(removedEvent);
+
+		var currPresentation:Presentation = podManager.getPod(podId).getCurrentPresentation();
+
+		if(currPresentation && presentationID == currPresentation.id) {
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
+			dispatcher.dispatchEvent(uploadEvent);
+		}
+
+		podManager.getPod(podId).removePresentation(presentationID);
+		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT, podId);
+		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
 	}
   }
 }

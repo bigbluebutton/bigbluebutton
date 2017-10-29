@@ -285,8 +285,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 									
 			private function notifyOthersOfZoomEvent():void {
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
-				presentEvent.podId = this.podId;
+				if (this.podId == null) {
+					return;
+				}
+
+				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM, this.podId);
 				presentEvent.xOffset = slideModel.viewedRegionX;
 				presentEvent.yOffset = slideModel.viewedRegionY;
 				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;

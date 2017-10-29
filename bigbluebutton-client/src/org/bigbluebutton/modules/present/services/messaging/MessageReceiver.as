@@ -175,10 +175,13 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleRemovePresentationEvtMsg(msg:Object):void {
-      service.removePresentation(msg.body.presentationId);
+        var podId: String = msg.body.podId as String;
+        var presentationId: String = msg.body.presentationId as String;
+      service.removePresentation(podId, presentationId);
     }
     
     private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
+        
       var presVO: PresentationVO = processUploadedPresentation(msg.body.presentation);
       var podId: String = msg.body.podId as String;
 
@@ -263,14 +266,15 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleGetPresentationInfoRespMsg(msg:Object):void {
       var presos:ArrayCollection = new ArrayCollection();
       var presentations:Array = msg.body.presentations as Array;
+      var podId:String = msg.body.podId as String;
       for (var j:int = 0; j < presentations.length; j++) {
         var presentation:Object = presentations[j] as Object;
         var presVO: PresentationVO = processUploadedPresentation(presentation);
         presos.addItem(presVO);
       }
       
-      service.removeAllPresentations();
-//      service.addPresentations(presos, podId); // TODO -- are they all on the same pod?
+      service.removeAllPresentations(podId);
+      service.addPresentations(podId, presos);
     }
 
     private function handlePresentationUploadTokenPassRespMsg(msg:Object):void {
