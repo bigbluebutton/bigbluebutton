@@ -165,6 +165,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
 
+			private var windowId:String;
+			
 			[Bindable]
 			private var podId: String = "";
 			private var ownerId: String = "";
@@ -228,6 +230,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.ownerId = _ownerId;
 				this.currentPresenterInPod = this.ownerId;
 				populatePodDropdown();
+			}
+			
+			public function setWindowId(windowId:String):void {
+				this.windowId = windowId;
 			}
 
 			public function getPodId(): String { return this.podId; }
@@ -446,7 +452,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function getName():String {
-				return podId;
+				return windowId;
 			}
 						
 			private function onSliderZoom():void {
