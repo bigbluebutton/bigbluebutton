@@ -2033,7 +2033,8 @@ class ApiController {
       fos.flush()
       fos.close()
 
-      processUploadedFile("TWO", meetingId, presId, presFilename, pres, current);
+      // Hardcode pre-uploaded presentation to the default presentation window
+      processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
     }
 
   }
@@ -2052,6 +2053,7 @@ class ApiController {
 
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
         def pres = new File(newFilePath)
+        // Hardcode pre-uploaded presentation to the default presentation window
         processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
       } else {
         log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")

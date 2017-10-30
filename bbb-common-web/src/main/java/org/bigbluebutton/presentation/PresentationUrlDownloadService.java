@@ -144,7 +144,8 @@ public class PresentationUrlDownloadService {
             }
         }
 
-        processUploadedFile("THREE", destinationMeetingId, presId, "default-"
+        // Hardcode pre-uploaded presentation for breakout room to the default presentation window
+        processUploadedFile("DEFAULT_PRESENTATION_POD", destinationMeetingId, presId, "default-"
                 + presentationSlide.toString() + "." + filenameExt,
                 newPresentation, true);
     }
