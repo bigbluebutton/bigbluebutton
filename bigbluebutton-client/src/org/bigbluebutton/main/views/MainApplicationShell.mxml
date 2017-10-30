@@ -635,8 +635,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 } else {
                     mdiCanvas.removeAllPopUps();
                     removeToolBars();
-                    var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-                    var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+                    var serverURL:String = FlexGlobals.topLevelApplication.determineHtmlUrl();
+                    var pageHost:String = serverURL.split("/")[0];
+                    var pageURL:String = serverURL.split("/")[2];
                     LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
                     var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
                     var urlLoader:URLLoader = new URLLoader();
