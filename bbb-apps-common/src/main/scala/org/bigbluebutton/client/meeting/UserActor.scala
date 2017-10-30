@@ -101,8 +101,13 @@ class UserActor(val userId: String,
           log.info("-- trace -- " + msg.json)
         }
 
+        // Override the meetingId and userId on the message from client. This
+        // will prevent spoofing of messages. (ralam oct 30, 2017)
+        val newHeader = BbbClientMsgHeader(msgFromClient.header.name, meetingId, userId)
+        val msgClient = msgFromClient.copy(header = newHeader)
+        val json = JsonUtil.toJson(msgClient)
         for {
-          jsonNode <- convertToJsonNode(msg.json)
+          jsonNode <- convertToJsonNode(json)
         } yield {
           val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
           msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
