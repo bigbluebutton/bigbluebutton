@@ -1392,7 +1392,7 @@ class ApiController {
         redirectClient = false
       } else if (guestWaitStatus.equals(GuestPolicy.DENY)) {
         destUrl = meeting.getLogoutUrl()
-        msgKey = "guestDeny"
+        msgKey = "guestDenied"
         msgValue = "Guest denied to join meeting."
       }
 
