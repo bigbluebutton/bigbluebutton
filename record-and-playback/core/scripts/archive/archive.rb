@@ -3,16 +3,17 @@
 #
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
-# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+# Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
 #
-# This program is free software; you can redistribute it and/or modify it under the
-# terms of the GNU Lesser General Public License as published by the Free Software
-# Foundation; either version 3.0 of the License, or (at your option) any later
-# version.
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 3.0 of the License, or (at your option)
+# any later version.
 #
-# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
@@ -24,17 +25,6 @@ require 'logger'
 require 'trollop'
 require 'yaml'
 
-
-def archive_audio(meeting_id, audio_dir, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}*.wav.")
-  begin
-    audio_dest_dir = "#{raw_archive_dir}/#{meeting_id}/audio"
-    FileUtils.mkdir_p audio_dest_dir
-    BigBlueButton::AudioArchiver.archive(meeting_id, audio_dir, audio_dest_dir) 
-  rescue => e
-    BigBlueButton.logger.warn("Failed to archive audio for #{meeting_id}. " + e.to_s)
-  end
-end
 
 def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
   BigBlueButton.logger.info("Archiving events for #{meeting_id}.")
@@ -48,47 +38,23 @@ def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
   end
 end
 
-def archive_video(meeting_id, video_dir, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving video for #{meeting_id}.")
-  begin
-    video_dest_dir = "#{raw_archive_dir}/#{meeting_id}/video"
-    FileUtils.mkdir_p video_dest_dir
-    BigBlueButton::VideoArchiver.archive(meeting_id, "#{video_dir}/#{meeting_id}", video_dest_dir)
-  rescue => e
-    BigBlueButton.logger.warn("Failed to archive video for #{meeting_id}. " + e.to_s)
+def archive_audio(meeting_id, audio_dir, raw_archive_dir)
+  BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}-*.wav")
+  audio_dest_dir = "#{raw_archive_dir}/#{meeting_id}/audio"
+  ret = BigBlueButton.exec_ret('rsync', '-rstv',
+          *Dir.glob("#{audio_dir}/#{meeting_id}-*.wav"),
+          "#{raw_archive_dir}/#{meeting_id}/audio/")
+  if ret != 0
+    BigBlueButton.logger.warn("Failed to archive audio for #{meeting_id}")
   end
 end
 
-def archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving deskshare for #{meeting_id}.")
-  begin
-    deskshare_dest_dir = "#{raw_archive_dir}/#{meeting_id}/deskshare"
-    FileUtils.mkdir_p deskshare_dest_dir
-    BigBlueButton::DeskshareArchiver.archive(meeting_id, deskshare_dir, deskshare_dest_dir)
-  rescue => e
-    BigBlueButton.logger.warn("Failed to archive deskshare for #{meeting_id}. " + e.to_s)
-  end
-end
-
-def archive_screenshare(meeting_id, deskshare_dir, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving screenshare for #{meeting_id}.")
-  begin
-    deskshare_dest_dir = "#{raw_archive_dir}/#{meeting_id}/deskshare"
-    FileUtils.mkdir_p deskshare_dest_dir
-    BigBlueButton::DeskshareArchiver.archive(meeting_id, "#{deskshare_dir}/#{meeting_id}", deskshare_dest_dir)
-  rescue => e
-    BigBlueButton.logger.warn("Failed to archive screenshare for #{meeting_id}. " + e.to_s)
-  end
-end
-
-def archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving presentation for #{meeting_id}.")
-  begin
-    presentation_dest_dir = "#{raw_archive_dir}/#{meeting_id}/presentation"
-    FileUtils.mkdir_p presentation_dest_dir
-    BigBlueButton::PresentationArchiver.archive(meeting_id, "#{presentation_dir}/#{meeting_id}/#{meeting_id}", presentation_dest_dir)
-  rescue => e
-    BigBlueButton.logger.warn("Failed to archive presentations for #{meeting_id}. " + e.to_s)
+def archive_directory(source, dest)
+  BigBlueButton.logger.info("Archiving contents of #{source}")
+  ret = BigBlueButton.exec_ret('resync', '-rstv',
+          "#{source}/", "#{dest}/")
+  if ret != 0
+    BigBlueButton.logger.warn("Failed to archive contents of #{source}")
   end
 end
 
@@ -109,11 +75,13 @@ end
 ################## START ################################
 
 opts = Trollop::options do
-  opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
+  opt :meeting_id, "Meeting id to archive", type: :string
+  opt :break_timestamp, "Chapter break end timestamp", type: :string
 end
+Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 
 meeting_id = opts[:meeting_id]
-
+break_timestamp = opts[:break_timestamp]
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
@@ -136,10 +104,12 @@ if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
   archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
   archive_audio(meeting_id, audio_dir, raw_archive_dir)
-  archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
-  archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
-  archive_screenshare(meeting_id, screenshare_dir, raw_archive_dir)
-  archive_video(meeting_id, video_dir, raw_archive_dir)
+  archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}",
+                    "#{target_dir}/presentation")
+  archive_directory("#{screenshare_dir}/#{meeting_id}",
+                    "#{target_dir}/deskshare")
+  archive_directory("#{video_dir}/#{meeting_id}",
+                    "#{target_dir}/video/#{meeting_id}")
 
   if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
     BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")
