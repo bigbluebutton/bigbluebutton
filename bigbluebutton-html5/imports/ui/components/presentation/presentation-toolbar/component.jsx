@@ -161,49 +161,52 @@ class PresentationToolbar extends Component {
       actions,
       intl,
     } = this.props;
-
+    // <select> has an implicit role of listbox, no need to define role="listbox" explicitly
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
-        <Button
-          role="button"
-          aria-labelledby="prevSlideLabel"
-          aria-describedby="prevSlideDesc"
-          disabled={!(currentSlideNum > 1)}
-          color={'default'}
-          icon={'left_arrow'}
-          size={'md'}
-          onClick={actions.previousSlideHandler}
-          label={intl.formatMessage(intlMessages.previousSlideLabel)}
-          hideLabel
-          className={styles.prevSlide}
-        />
-        <select
-          // <select> has an implicit role of listbox, no need to define role="listbox" explicitly
-          id="skipSlide"
-          aria-labelledby="skipSlideLabel"
-          aria-describedby="skipSlideDesc"
-          aria-live="polite"
-          aria-relevant="all"
-          value={currentSlideNum}
-          onChange={actions.skipToSlideHandler}
-          className={styles.skipSlide}
-        >
-          {PresentationToolbar.renderSkipSlideOpts(numberOfSlides)}
-        </select>
-        <Button
-          role="button"
-          aria-labelledby="nextSlideLabel"
-          aria-describedby="nextSlideDesc"
-          disabled={!(currentSlideNum < numberOfSlides)}
-          color={'default'}
-          icon={'right_arrow'}
-          size={'md'}
-          onClick={actions.nextSlideHandler}
-          label={intl.formatMessage(intlMessages.nextSlideLabel)}
-          hideLabel
-        />
 
+        { !(numberOfSlides === 1) ?
+        [
+          <Button
+            role="button"
+            aria-labelledby="prevSlideLabel"
+            aria-describedby="prevSlideDesc"
+            disabled={!(currentSlideNum > 1)}
+            color={'default'}
+            icon={'left_arrow'}
+            size={'md'}
+            onClick={actions.previousSlideHandler}
+            label={intl.formatMessage(intlMessages.previousSlideLabel)}
+            hideLabel
+            className={styles.prevSlide}
+          />,
+          <select
+            id="skipSlide"
+            aria-labelledby="skipSlideLabel"
+            aria-describedby="skipSlideDesc"
+            aria-live="polite"
+            aria-relevant="all"
+            value={currentSlideNum}
+            onChange={actions.skipToSlideHandler}
+            className={styles.skipSlide}
+          >
+            {PresentationToolbar.renderSkipSlideOpts(numberOfSlides)}
+          </select>,
+          <Button
+            role="button"
+            aria-labelledby="nextSlideLabel"
+            aria-describedby="nextSlideDesc"
+            disabled={!(currentSlideNum < numberOfSlides)}
+            color={'default'}
+            icon={'right_arrow'}
+            size={'md'}
+            onClick={actions.nextSlideHandler}
+            label={intl.formatMessage(intlMessages.nextSlideLabel)}
+            hideLabel
+          />,
+        ] : null
+        }
         {/* Fit to width button
         <Button
           role="button"
