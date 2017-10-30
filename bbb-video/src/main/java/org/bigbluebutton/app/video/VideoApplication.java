@@ -311,17 +311,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         if (matcher.matches()) {
             meetingManager.streamBroadcastClose(meetingId, streamId);
             meetingManager.removeStream(meetingId, streamId);
-
-            long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-            log.info("Stop recording event for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
-            Map<String, String> event = new HashMap<String, String>();
-            event.put("module", "WEBCAM");
-            event.put("timestamp", genTimestamp().toString());
-            event.put("meetingId", scopeName);
-            event.put("stream", stream.getPublishedName());
-            event.put("duration", new Long(publishDuration).toString());
-            event.put("eventName", "StopWebcamShareEvent");
-            recordingService.record(scopeName, event);
         }
     }
 
