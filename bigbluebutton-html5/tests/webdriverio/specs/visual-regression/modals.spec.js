@@ -15,7 +15,7 @@ describe('Screenshots:', function() {
 
   it('Home page viewport looks good', function() {
     $('.icon-bbb-listen').click();
-    browser.element('[aria-label="Unmute"]').waitForExist(5000);
+    browser.element('.icon-bbb-mute').waitForExist(5000);
     expectImageMatch(browser.checkViewport(), 'Home page viewport isn\'t the same');
   });
 
@@ -27,8 +27,8 @@ describe('Screenshots:', function() {
   });
 
   it('Logout popup looks good', function() {
-    browser.element('._imports_ui_components_nav_bar__styles__right ._imports_ui_components_dropdown__styles__dropdown ._imports_ui_components_dropdown__styles__content[aria-expanded="true"] li[aria-labelledby="dropdown-item-label-7"]').waitForExist(2000);
-    $('._imports_ui_components_nav_bar__styles__right ._imports_ui_components_dropdown__styles__dropdown ._imports_ui_components_dropdown__styles__content[aria-expanded="true"] li[aria-labelledby="dropdown-item-label-7"]').click();
+    browser.element('.icon-bbb-logout').waitForExist(2000);
+    $('.icon-bbb-logout').click();
     browser.element('._imports_ui_components_modal_fullscreen__styles__modal').waitForExist(2000);
     expectImageMatch(browser.checkElement('._imports_ui_components_modal_fullscreen__styles__modal'));
   });
