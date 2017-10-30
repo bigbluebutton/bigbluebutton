@@ -8,7 +8,8 @@ export default function muteToggle(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MuteUserCmdMsg';
-  const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = true;
+  const APP_CONFIG = Meteor.settings.public.app;
+  const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
 
   const { meetingId, requesterUserId } = credentials;
 
