@@ -84,6 +84,8 @@ public class VideoStreamListener implements IStreamListener {
 
   private String meetingId;
 
+  private long recordingStartTime;
+
   public VideoStreamListener(String meetingId, String streamId, Boolean record,
                              String userId, int packetTimeout,
                              QuartzSchedulingService scheduler,
@@ -103,6 +105,10 @@ public class VideoStreamListener implements IStreamListener {
 
   public void reset() {
     firstPacketReceived = false;
+  }
+
+  public void setStreamId(String streamId) {
+    this.streamId = streamId;
   }
 
   @Override
@@ -129,11 +135,12 @@ public class VideoStreamListener implements IStreamListener {
         timeoutJobName = scheduler.addScheduledJob(videoTimeout, new TimeoutJob());
 
         if (record) {
+          recordingStartTime = System.currentTimeMillis();
           Map<String, String> event = new HashMap<String, String>();
           event.put("module", "WEBCAM");
           event.put("timestamp", genTimestamp().toString());
           event.put("meetingId", meetingId);
-          event.put("stream", stream.getPublishedName());
+          event.put("stream", streamId);
           event.put("eventName", "StartWebcamShareEvent");
 
           recordingService.record(meetingId, event);
@@ -163,6 +170,20 @@ public class VideoStreamListener implements IStreamListener {
     }
   }
 
+  public void stopRecording() {
+    if (record) {
+      long publishDuration = (System.currentTimeMillis() - recordingStartTime) / 1000;
+
+      Map<String, String> event = new HashMap<String, String>();
+      event.put("module", "WEBCAM");
+      event.put("timestamp", genTimestamp().toString());
+      event.put("meetingId", meetingId);
+      event.put("stream", streamId);
+      event.put("duration", new Long(publishDuration).toString());
+      event.put("eventName", "StopWebcamShareEvent");
+      recordingService.record(meetingId, event);
+    }
+  }
 
   public void streamStopped() {
     this.publishing = false;
