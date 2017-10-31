@@ -29,15 +29,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		public function presenterChange(amIPresenter:Boolean):void {
-			verifyTimerState();
+			verifyTimerState(amIPresenter);
 		}
 		
 		public function multiUserChange(multiUser:Boolean):void {
 			verifyTimerState();
 		}
 		
-		private function verifyTimerState():void {
-			if (UsersUtil.amIPresenter() || LiveMeeting.inst().whiteboardModel.multiUser) {
+		private function verifyTimerState(amIPresenter:Boolean=false):void {
+			if (amIPresenter || UsersUtil.amIPresenter() || LiveMeeting.inst().whiteboardModel.multiUser) {
 				startTimer();
 			} else {
 				stopTimer();

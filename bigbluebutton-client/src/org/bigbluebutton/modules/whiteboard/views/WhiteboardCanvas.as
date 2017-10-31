@@ -99,13 +99,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.ENABLE_WHITEBOARD, onEnableWhiteboardEvent);
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
-			
-			var stpl:Listener = new Listener();
-			stpl.type = SwitchedPresenterEvent.SWITCHED_PRESENTER;
-			stpl.method = onSwitchedPresenterEvent;
-			
-			presenterChange(UsersUtil.amIPresenter(), UsersUtil.getPresenterUserID());
-			
+
 			var ull:Listener = new Listener();
 			ull.type = UserLeftEvent.LEFT;
 			ull.method = onUserLeftEvent;
@@ -255,7 +249,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			}
 		}
 		
-		private function presenterChange(amIPresenter:Boolean, presenterId:String):void {
+		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			canvasModel.presenterChange(amIPresenter, presenterId);
 			canvasDisplayModel.presenterChange(amIPresenter, presenterId);
 		}
@@ -368,11 +362,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			this.whiteboardEnabled = false;
 			setWhiteboardInteractable();
 		}
-		
-		private function onSwitchedPresenterEvent(e:SwitchedPresenterEvent):void {
-			presenterChange(e.amIPresenter, e.newPresenterUserID);
-		}
-		
+
 		private function onUserLeftEvent(e:UserLeftEvent):void {
 			canvasDisplayModel.userLeft(e.userID);
 		}

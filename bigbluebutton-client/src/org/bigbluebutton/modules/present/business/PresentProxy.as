@@ -292,7 +292,7 @@ package org.bigbluebutton.modules.present.business
 		}
 
 		public function handleSetPresenterInPodReqEvent(e: SetPresenterInPodReqEvent): void {
-			sender.handleSetPresenterInPodReqEvent(e.podId, e.nextPresenterId);
+			sender.handleSetPresenterInPodReqEvent(e.podId, e.prevPresenterId, e.nextPresenterId);
 		}
 
 	}

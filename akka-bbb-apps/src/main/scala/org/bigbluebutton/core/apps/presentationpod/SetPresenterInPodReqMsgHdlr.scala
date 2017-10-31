@@ -14,7 +14,7 @@ trait SetPresenterInPodReqMsgHdlr {
     liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
-    def broadcastSetPresenterInPodRespMsg(podId: String, nextPresenterId: String, requesterId: String): Unit = {
+    def broadcastSetPresenterInPodRespMsg(podId: String, prevPresenterId: String, nextPresenterId: String, requesterId: String): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId, requesterId
@@ -22,7 +22,7 @@ trait SetPresenterInPodReqMsgHdlr {
       val envelope = BbbCoreEnvelope(SetPresenterInPodRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SetPresenterInPodRespMsg.NAME, liveMeeting.props.meetingProp.intId, requesterId)
 
-      val body = SetPresenterInPodRespMsgBody(podId, nextPresenterId)
+      val body = SetPresenterInPodRespMsgBody(podId, prevPresenterId, nextPresenterId)
       val event = SetPresenterInPodRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -31,6 +31,7 @@ trait SetPresenterInPodReqMsgHdlr {
     val podId: String = msg.body.podId
     val requesterId: String = msg.header.userId
     val nextPresenterId: String = msg.body.nextPresenterId
+    val prevPresenterId: String = msg.body.prevPresenterId
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)
@@ -39,7 +40,7 @@ trait SetPresenterInPodReqMsgHdlr {
       if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, requesterId) || requesterId.equals(pod.ownerId)) {
         val updatedPod = pod.setCurrentPresenter(nextPresenterId)
 
-        broadcastSetPresenterInPodRespMsg(pod.id, nextPresenterId, requesterId)
+        broadcastSetPresenterInPodRespMsg(pod.id, prevPresenterId, nextPresenterId, requesterId)
 
         val pods = state.presentationPodManager.addPod(updatedPod)
         state.update(pods)

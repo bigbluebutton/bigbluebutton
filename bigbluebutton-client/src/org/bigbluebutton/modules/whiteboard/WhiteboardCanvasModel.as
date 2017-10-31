@@ -115,8 +115,8 @@ package org.bigbluebutton.modules.whiteboard
 	}
 
     /** Helper method to test whether this user is the presenter */
-    private function get isPresenter():Boolean {
-      return UsersUtil.amIPresenter();
-    }
+//    private function get isPresenter():Boolean {
+//      return UsersUtil.amIPresenter();
+//    }
   }
 }
