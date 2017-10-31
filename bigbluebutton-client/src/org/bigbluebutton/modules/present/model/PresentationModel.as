@@ -10,25 +10,18 @@ package org.bigbluebutton.modules.present.model
   public class PresentationModel
   {
 	private static const LOGGER:ILogger = getClassLogger(PresentationModel);      
-    
-//    private static var instance:PresentationModel = null;
-    
+
     private var _presentations:ArrayCollection = new ArrayCollection();
-    private var _podId: String = ""; // TODO make this private
+    private var _podId: String = "";
     private var _ownerId: String = "";
-    
-    /**
-     * This class is a singleton. Please initialize it using the getInstance() method.
-     * 
-     */		
+
     public function PresentationModel(podId: String, ownerId: String) {
-      
       initialize(podId, ownerId);
     }
     
     private function initialize(podId: String, ownerId: String):void {
-        _podId = podId;
-        _ownerId = ownerId;
+        this._podId = podId;
+        this._ownerId = ownerId;
     }
     
     private function whichPageIsCurrent(presId: String): String {
@@ -49,23 +42,16 @@ package org.bigbluebutton.modules.present.model
       }  
     }
     
-//    /**
-//     * Return the single instance of the PresentationModel class
-//     */
-    public static function getInstance():PresentationModel{
-//      if (instance == null){
-//        instance = new PresentationModel();
-//      }
-//      return instance;
-        return null;
-    }
-    
     public function getPodId(): String {
-        return _podId;
+        return this._podId;
     }
 
     public function getOwnerId(): String {
-        return _ownerId;
+        return this._ownerId;
+    }
+    
+    public function setOwnerId(ownerId: String): void {
+        this._ownerId = ownerId;
     }
 
     public function addPresentation(p: Presentation):void {

@@ -5,9 +5,7 @@ package org.bigbluebutton.modules.present.model {
     import com.asfusion.mate.events.Dispatcher;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.modules.present.services.PresentationService;
-    import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
     import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
-    import org.bigbluebutton.modules.present.services.messages.PresentationVO;
     import org.bigbluebutton.modules.present.model.PresentationModel;
     import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
     import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
@@ -134,6 +132,11 @@ package org.bigbluebutton.modules.present.model {
             if (podsAC.length == 0) { // If there are no pods, request the creation of a default one
                 requestDefaultPresentationPod();
             }
+        }
+
+        public function updateOwnershipOfDefaultPod(ownerId: String): void {
+            var pod: PresentationModel = getPod("DEFAULT_PRESENTATION_POD");
+            pod.setOwnerId(ownerId);
         }
 
     }

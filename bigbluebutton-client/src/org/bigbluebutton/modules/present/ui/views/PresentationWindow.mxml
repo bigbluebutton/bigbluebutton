@@ -241,6 +241,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPodId(): String { return this.podId; }
 
 			public function getOwnerId(): String { return this.ownerId; }
+			public function setOwnerId(newOwnerId: String): void {
+				this.ownerId = newOwnerId;
+				// trigger update
+				onPodCreated(this.podId, this.ownerId);
+			}
 
 			private function onPresentationPodControlsClicked():void {
 				if(presentationPodControls.selectedItem != null) {
