@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/2.0/users';
-import notify from '/imports//ui/components/toast/service';
 import Breakouts from '/imports/api/2.0/breakouts';
 import Meetings from '/imports/api/2.0/meetings';
 
