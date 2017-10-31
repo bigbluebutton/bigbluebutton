@@ -50,4 +50,46 @@
         alias="${cert.alias}" />
     </target>
 
+  <target name="sign-lin-x86-jar" depends="get-alias-name">
+      <signjar jar="workdir/ffmpeg-linux-x86-svc2.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+  <target name="sign-lin-x86_64-jar" depends="get-alias-name">
+      <signjar jar="workdir/ffmpeg-linux-x86_64-svc2.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+  <target name="sign-win-x86-jar" depends="get-alias-name">
+      <signjar jar="workdir/ffmpeg-win-x86-svc2.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+
+  <target name="sign-win-x86_64-jar" depends="get-alias-name">
+      <signjar jar="workdir/ffmpeg-win-x86_64-svc2.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+  <target name="sign-macosx-x86_64-jar" depends="get-alias-name">
+      <signjar jar="workdir/ffmpeg-macosx-x86_64-svc2.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+
 </project>
