@@ -3,8 +3,10 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.SystemConfiguration
 
-trait ChangeUserEmojiCmdMsgHdlr {
+trait ChangeUserEmojiCmdMsgHdlr extends SystemConfiguration {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
@@ -12,10 +14,16 @@ trait ChangeUserEmojiCmdMsgHdlr {
 
   def handleChangeUserEmojiCmdMsg(msg: ChangeUserEmojiCmdMsg) {
     log.debug("handling " + msg)
-    for {
-      uvo <- Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, msg.body.emoji)
-    } yield {
-      sendUserEmojiChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.emoji)
+    if (msg.header.userId != msg.body.userId && applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to clear chat in meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+    } else {
+      for {
+        uvo <- Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, msg.body.emoji)
+      } yield {
+        sendUserEmojiChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.emoji)
+      }
     }
   }
 
