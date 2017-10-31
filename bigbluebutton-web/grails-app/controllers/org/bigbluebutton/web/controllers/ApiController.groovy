@@ -1379,12 +1379,18 @@ class ApiController {
       }
 
       String guestWaitStatus = userSession.guestStatus
+
+      log.debug("GuestWaitStatus = " + guestWaitStatus)
+
       String msgKey = "guestAllowed"
       String msgValue = "Guest allowed to join meeting."
       String destUrl = clientURL + "?sessionToken=" + sessionToken
+      log.debug("destUrl = " + destUrl)
+
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
         destUrl = clientURL + "?sessionToken=" + sessionToken
+        log.debug("GuestPolicy.WAIT - destUrl = " + destUrl)
         msgKey = "guestWait"
         msgValue = "Guest waiting for approval to join meeting."
         // We force the response to not do a redirect. Otherwise,
@@ -1394,6 +1400,7 @@ class ApiController {
         destUrl = meeting.getLogoutUrl()
         msgKey = "guestDenied"
         msgValue = "Guest denied to join meeting."
+        log.debug("GuestPolicy.DENY - destUrl = " + destUrl)
       }
 
       if (redirectClient){
@@ -1403,18 +1410,18 @@ class ApiController {
         log.info("Successfully joined. Sending XML response.");
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
-          xml {
-            render(contentType:"text/xml") {
-              response() {
-                returncode(RESP_CODE_SUCCESS)
-                messageKey(msgKey)
-                message(msgValue)
-                meeting_id() { mkp.yield(us.meetingID) }
-                user_id(us.internalUserId)
-                auth_token(us.authToken)
-                session_token(session[sessionToken])
-                guestStatus(guestWaitStatus)
-                url(destUrl)
+          json {
+            render(contentType:"application/json") {
+              response = {
+                returncode = RESP_CODE_SUCCESS
+                messageKey = msgKey
+                message = msgValue
+                meeting_id = us.meetingID
+                user_id = us.internalUserId
+                auth_token = us.authToken
+                session_token = session[sessionToken]
+                guestStatus = guestWaitStatus
+                url = destUrl
               }
             }
           }
@@ -1422,7 +1429,6 @@ class ApiController {
       }
     }
   }
-
 
   /***********************************************
    * ENTER API
