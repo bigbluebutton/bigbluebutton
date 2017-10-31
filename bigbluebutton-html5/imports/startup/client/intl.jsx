@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
@@ -8,11 +9,10 @@ const propTypes = {
   children: PropTypes.shape.isRequired,
 };
 
-const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale;
 
 const defaultProps = {
-  locale: BROWSER_LANGUAGE,
+  locale: DEFAULT_LANGUAGE,
 };
 
 class IntlStartup extends Component {
@@ -21,6 +21,7 @@ class IntlStartup extends Component {
 
     this.state = {
       messages: {},
+      locale: DEFAULT_LANGUAGE,
     };
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
@@ -30,7 +31,7 @@ class IntlStartup extends Component {
   }
 
   componentWillUpdate(nextProps) {
-    if (this.props.locale !== nextProps.locale) {
+    if (nextProps.locale && this.props.locale !== nextProps.locale) {
       this.fetchLocalizedMessages(nextProps.locale);
     }
   }
@@ -50,13 +51,19 @@ class IntlStartup extends Component {
         return response.json();
       })
       .then(({ messages, normalizedLocale }) => {
-        this.setState({ messages, locale: normalizedLocale.replace('_', '-') }, () => {
+        const dasherizedLocale = normalizedLocale.replace('_', '-')
+        this.setState({ messages, locale: dasherizedLocale }, () => {
+          Settings.application.locale = dasherizedLocale;
+          Settings.save();
           baseControls.updateLoadingState(false);
         });
       })
-      .catch(() => {
-        this.setState({ locale: DEFAULT_LANGUAGE });
-        baseControls.updateLoadingState(false);
+      .catch((messages) => {
+        this.setState({ locale: DEFAULT_LANGUAGE }, () => {
+          Settings.application.locale = DEFAULT_LANGUAGE;
+          Settings.save();
+          baseControls.updateLoadingState(false);
+        });
       });
   }
 

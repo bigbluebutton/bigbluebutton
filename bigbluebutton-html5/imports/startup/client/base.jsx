@@ -9,8 +9,6 @@ import Settings from '/imports/ui/services/settings';
 import { initBBB } from '/imports/api/bbb';
 import IntlStartup from './intl';
 
-const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
-
 const propTypes = {
   error: PropTypes.object,
   errorCode: PropTypes.number,
@@ -21,7 +19,7 @@ const propTypes = {
 const defaultProps = {
   error: undefined,
   errorCode: undefined,
-  locale: BROWSER_LANGUAGE,
+  locale: undefined,
 };
 
 class Base extends Component {
@@ -103,7 +101,6 @@ const BaseContainer = createContainer(({ params }) => {
 
   const credentials = Auth.credentials;
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials));
-
   return {
     locale: Settings.application.locale,
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),

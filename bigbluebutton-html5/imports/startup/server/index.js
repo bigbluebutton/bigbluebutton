@@ -3,11 +3,14 @@ import Logger from './logger';
 import Redis from './redis';
 import locales from '../../utils/locales';
 
+let DEFAULT_LANGUAGE = null;
 const availableLocales = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   Logger.info(`SERVER STARTED. ENV=${Meteor.settings.runtime.env}`, APP_CONFIG);
+
+  DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale
 });
 
 WebApp.connectHandlers.use('/check', (req, res) => {
@@ -21,7 +24,7 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
-  const localeRegion = req.query.locale.split(/[-_]/g);
+  const localeRegion = req.query.locale.split(/[-_]/g);;
   const localeList = [defaultLocale, localeRegion[0]];
 
   let normalizedLocale = localeRegion[0];
@@ -36,8 +39,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
+      normalizedLocale = locale
     } catch (e) {
-      // Getting here means the locale is not available on the files.
+      console.log('error', locale);
     }
   });
 
