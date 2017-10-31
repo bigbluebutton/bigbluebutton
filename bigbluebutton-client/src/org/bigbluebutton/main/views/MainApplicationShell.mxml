@@ -162,7 +162,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;
-			private var guestWindow:PendingGuestsWindow = null;
 			private var scWindow:ShortcutHelpWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -347,34 +346,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			private function closeGuestWindow(e:Event = null):void {
-				if(guestWindow != null) {
-					guestWindow.closeWindow();
-					guestWindow = null;
-				}
-			}
-
 			private function refreshGuestView(evt:NewGuestWaitingEvent):void {
+        LOGGER.debug("NewGuestWaitingEvent");
 				// do not show the guest window if the user isn't moderator or if he's waiting for acceptance
 				if (!UsersUtil.amIModerator() || UsersUtil.amIWaitingForAcceptance() && usersOptions.enableGuestUI) {
-					closeGuestWindow();
 					return;
 				}
 
-				if (guestWindow == null) {
-					guestWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
-					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
-
+          LOGGER.debug("OPENING GUEST WINDOW");
+          var guestWindow:PendingGuestsWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
 					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;
 					guestWindow.y = 20;
-				}
 				guestWindow.refreshGuestView();
 			}
 
 			public function removeGuestWindow(evt:BBBEvent):void {
-				if (guestWindow != null) {
-					guestWindow.remove(evt.payload.userId);
-				}
+        LOGGER.debug("REMOVE GUEST WINDOW");
+				//if (guestWindow != null) {
+				//	guestWindow.remove(evt.payload.userId);
+				//}
 			}
 
 			private function closeWaitWindow(e:BBBEvent):void {
