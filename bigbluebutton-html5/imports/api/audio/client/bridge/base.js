@@ -1,14 +1,35 @@
 export default class BaseAudioBridge {
-  constructor() {
+  constructor(userData) {
+    this.userData = userData;
+
+    this.baseErrorCodes = {
+      INVALID_TARGET: 'INVALID_TARGET',
+      CONNECTION_ERROR: 'CONNECTION_ERROR',
+      REQUEST_TIMEOUT: 'REQUEST_TIMEOUT',
+      GENERIC_ERROR: 'GENERIC_ERROR',
+      MEDIA_ERROR: 'MEDIA_ERROR',
+    };
+
+    this.baseCallStates = {
+      started: 'started',
+      ended: 'ended',
+      failed: 'failed',
+    };
   }
 
   exitAudio() {
+    console.error('The Bridge must implement exitAudio');
   }
 
-  joinListenOnly() {
+  joinAudio() {
+    console.error('The Bridge must implement joinAudio');
   }
 
-  joinMicrophone() {
+  changeInputDevice() {
+    console.error('The Bridge must implement changeInputDevice');
   }
 
+  changeOutputDevice() {
+    console.error('The Bridge must implement changeOutputDevice');
+  }
 }
