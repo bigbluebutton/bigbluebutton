@@ -34,7 +34,6 @@ const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
-  children: null,
 };
 
 const intlMessages = defineMessages({

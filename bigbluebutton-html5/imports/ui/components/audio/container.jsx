@@ -51,10 +51,7 @@ const intlMessages = defineMessages({
 });
 
 
-const AudioContainer = props =>
-  (<Audio {...props}>
-    {props.children}
-  </Audio>);
+const AudioContainer = props => <Audio {...props} />;
 
 let didMountAutoJoin = false;
 

@@ -204,11 +204,10 @@
     "app.audioModal.closeLabel": "Close",
     "app.audioModal.yes": "Yes",
     "app.audioModal.no": "No",
-    "app.audioModal.echoTestTitle": "Speak a few words, Do you hear yourself? Does everything seems correct?",
+    "app.audioModal.echoTestTitle": "This is a private echo test. Speak a few words. Did you hear audio?",
     "app.audioModal.settingsTitle": "Change your audio settings",
     "app.audioModal.connecting": "Connecting",
     "app.audioModal.connectingEchoTest": "Connecting to echo test",
-
     "app.audioManager.joinedAudio": "You have joined the audio conference",
     "app.audioManager.joinedEcho": "You have joined the echo test",
     "app.audioManager.leftAudio": "You have left the audio conference",
@@ -217,7 +216,6 @@
     "app.audioManager.requestTimeout": "Error: There was a timeout in the request",
     "app.audioManager.invalidTarget": "Error: Tried to request something to an invalid target",
     "app.audioManager.mediaError": "Error: There was an error getting your media devices",
-
     "app.audio.joinAudio": "Join Audio",
     "app.audio.leaveAudio": "Leave Audio",
     "app.audio.enterSessionLabel": "Enter Session",

@@ -36,8 +36,6 @@ class AudioManager {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
     this.messages = messages;
-    this.setDefaultInputDevice();
-    this.changeOutputDevice('default');
   }
 
   defineProperties(obj) {
@@ -66,6 +64,12 @@ class AudioManager {
       isListenOnly,
       isEchoTest,
     } = options;
+
+    if (!this.devicesInitialized) {
+      this.setDefaultInputDevice();
+      this.changeOutputDevice('default');
+      this.devicesInitialized = true;
+    }
 
     this.isConnecting = true;
     this.isMuted = false;
