@@ -21,7 +21,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlrCheckPerm
   override def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
     val isAllowed = PermissionCheck.isAllowed(
       PermissionCheck.MOD_LEVEL,
-      PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.body.setBy
+      PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
     )
 
     if (applyPermissionCheck && !isAllowed) {
