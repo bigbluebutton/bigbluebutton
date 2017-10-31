@@ -127,9 +127,9 @@ package org.bigbluebutton.core {
 			return logoutUrl;
 		}
 
-		public static function getBaseURL():String {
-			var protocol:String = URLUtil.getProtocol(FlexGlobals.topLevelApplication.url);
-			var serverName:String = URLUtil.getServerNameWithPort(FlexGlobals.topLevelApplication.url);
+		private static function getBaseURL():String {
+			var protocol:String = URLUtil.getProtocol(FlexGlobals.topLevelApplication.determineHtmlUrl());
+			var serverName:String = URLUtil.getServerNameWithPort(FlexGlobals.topLevelApplication.determineHtmlUrl());
 			return protocol + "://" + serverName;
 		}
 	}
