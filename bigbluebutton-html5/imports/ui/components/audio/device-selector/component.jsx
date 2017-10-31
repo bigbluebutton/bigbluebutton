@@ -41,6 +41,7 @@ class DeviceSelector extends Component {
         options: devices.map((d, i) => ({
           label: d.label || `${this.props.kind} - ${i}`,
           value: d.deviceId,
+          key: _.uniqueId('device-option-'),
         })),
       });
     };
@@ -75,7 +76,7 @@ class DeviceSelector extends Component {
           options.length ?
             options.map(option => (
               <option
-                key={_.uniqueId('device-option-')}
+                key={option.key}
                 value={option.value}
               >
                 {option.label}

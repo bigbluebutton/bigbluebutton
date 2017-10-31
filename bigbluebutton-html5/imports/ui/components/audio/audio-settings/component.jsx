@@ -70,7 +70,7 @@ class AudioSettings extends React.Component {
       changeInputDevice,
     } = this.props;
 
-    this.changeInputDevice(deviceId);
+    changeInputDevice(deviceId);
     this.setState({
       inputDeviceId: deviceId,
     });
@@ -81,7 +81,7 @@ class AudioSettings extends React.Component {
       changeOutputDevice,
     } = this.props;
 
-    this.changeOutputDevice(deviceId);
+    changeOutputDevice(deviceId);
     this.setState({
       outputDeviceId: deviceId,
     });
