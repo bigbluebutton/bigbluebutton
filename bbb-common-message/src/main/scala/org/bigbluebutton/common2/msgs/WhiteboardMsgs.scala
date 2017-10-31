@@ -79,21 +79,13 @@ case class DoLatencyTracerMsgBody(timestampUTC: Long)
 
   case class ModifyWhiteboardAccessPubMsgBody(multiUser: Boolean)
 
-  object SendCursorPositionEvtMsg {
-    val NAME = "SendCursorPositionEvtMsg"
-  }
-
+  object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
   case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
+  case class SendCursorPositionEvtMsgBody(whiteboardId: String, xPercent: Double, yPercent: Double)
 
-  case class SendCursorPositionEvtMsgBody(xPercent: Double, yPercent: Double)
-
-  object SendCursorPositionPubMsg {
-    val NAME = "SendCursorPositionPubMsg"
-  }
-
+  object SendCursorPositionPubMsg { val NAME = "SendCursorPositionPubMsg" }
   case class SendCursorPositionPubMsg(header: BbbClientMsgHeader, body: SendCursorPositionPubMsgBody) extends StandardMsg
-
-  case class SendCursorPositionPubMsgBody(xPercent: Double, yPercent: Double)
+  case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, yPercent: Double)
 
   object SendWhiteboardAnnotationEvtMsg {
     val NAME = "SendWhiteboardAnnotationEvtMsg"

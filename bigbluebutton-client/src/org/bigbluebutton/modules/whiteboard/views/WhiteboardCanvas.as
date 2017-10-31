@@ -190,6 +190,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			var event:WhiteboardCursorEvent = new WhiteboardCursorEvent(WhiteboardCursorEvent.SEND_CURSOR_POSITION);
 			event.xPercent = x;
 			event.yPercent = y;
+			event.whiteboardId = currentWhiteboardId;
 			dispatcher.dispatchEvent(event);
 		}
 		
@@ -345,7 +346,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function onReceivedCursorPosition(e:WhiteboardCursorEvent):void {
-			canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
+			if (e.whiteboardId == currentWhiteboardId) {
+				canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
+			}
 		}
 		
 		private function onEnableWhiteboardEvent(e:WhiteboardButtonEvent):void {
@@ -360,7 +363,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			stopDrawing();
 			
-			removeCursor()
+			removeCursor();
 			
 			this.whiteboardEnabled = false;
 			setWhiteboardInteractable();

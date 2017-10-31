@@ -14,7 +14,7 @@ trait SendCursorPositionPubMsgHdlr {
       val envelope = BbbCoreEnvelope(SendCursorPositionEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendCursorPositionEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = SendCursorPositionEvtMsgBody(msg.body.xPercent, msg.body.yPercent)
+      val body = SendCursorPositionEvtMsgBody(msg.body.whiteboardId, msg.body.xPercent, msg.body.yPercent)
       val event = SendCursorPositionEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

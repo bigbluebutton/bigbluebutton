@@ -62,7 +62,7 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     public function sendCursorPosition(e:WhiteboardCursorEvent):void {
-      sender.sendCursorPosition(e.xPercent, e.yPercent);
+      sender.sendCursorPosition(e.whiteboardId, e.xPercent, e.yPercent);
     }
     
     public function handlePerformRttTraceEvent():void {

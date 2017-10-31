@@ -198,8 +198,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function populatePodDropdown(): void {
 				listOfPodControls = [];
-				listOfPodControls.push({label: this.podId,
-					icon: getStyle('iconClearStatus'), handler: function (): void {} });
+//				listOfPodControls.push({label: this.podId,
+//					icon: getStyle('iconClearStatus'), handler: function (): void {} });
 
 				if (this.ownerId != null && this.ownerId != "") {
 					listOfPodControls.push({label: UsersUtil.getUserName(this.ownerId),
