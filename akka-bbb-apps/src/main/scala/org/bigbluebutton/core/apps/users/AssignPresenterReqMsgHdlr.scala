@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.apps.PermissionCheck
 
 trait AssignPresenterReqMsgHdlr {
   this: UsersApp =>
@@ -44,18 +45,24 @@ trait AssignPresenterReqMsgHdlr {
       outGW.send(msgEventAssign)
     }
 
-    for {
-      oldPres <- Users2x.findPresenter(this.liveMeeting.users2x)
-    } yield {
-      Users2x.makeNotPresenter(this.liveMeeting.users2x, oldPres.intId)
-      broadcastOldPresenterChange(oldPres)
-    }
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to change presenter in meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+    } else {
+      for {
+        oldPres <- Users2x.findPresenter(this.liveMeeting.users2x)
+      } yield {
+        Users2x.makeNotPresenter(this.liveMeeting.users2x, oldPres.intId)
+        broadcastOldPresenterChange(oldPres)
+      }
 
-    for {
-      newPres <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.newPresenterId)
-    } yield {
-      Users2x.makePresenter(this.liveMeeting.users2x, newPres.intId)
-      broadcastNewPresenterChange(newPres)
+      for {
+        newPres <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.newPresenterId)
+      } yield {
+        Users2x.makePresenter(this.liveMeeting.users2x, newPres.intId)
+        broadcastNewPresenterChange(newPres)
+      }
     }
   }
 

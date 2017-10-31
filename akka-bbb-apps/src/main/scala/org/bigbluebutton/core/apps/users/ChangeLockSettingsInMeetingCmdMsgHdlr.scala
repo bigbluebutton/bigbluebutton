@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.Permissions
-import org.bigbluebutton.core.apps.PermisssionCheck
+import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.running.{ OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -19,15 +19,15 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlrCheckPerm
   val outGW: OutMsgRouter
 
   override def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
-    val isAllowed = PermisssionCheck.isAllowed(
-      PermisssionCheck.MOD_LEVEL,
-      PermisssionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.body.setBy
+    val isAllowed = PermissionCheck.isAllowed(
+      PermissionCheck.MOD_LEVEL,
+      PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.body.setBy
     )
 
     if (applyPermissionCheck && !isAllowed) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change lock settings"
-      PermisssionCheck.ejectUserForFailedPermission(meetingId, msg.body.setBy, reason, outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.setBy, reason, outGW)
     } else {
       super.handleSetLockSettings(msg)
     }
