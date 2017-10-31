@@ -117,15 +117,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       Auth.clearCredentials().then(window.close);
     },
   });
-  Breakouts.find().observeChanges({
-    removed() {
-      notify('fechou a breakout room');
-      
-      if(wasInAudio) {
-        notify('join audio');
-      }
-    },
-  });
+
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
