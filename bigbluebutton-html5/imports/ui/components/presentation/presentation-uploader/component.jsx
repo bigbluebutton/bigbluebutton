@@ -300,7 +300,7 @@ class PresentationUploader extends Component {
 
     if (!item.upload.done && !item.upload.error) {
       return intl.formatMessage(intlMessages.uploadProcess, {
-        progress: item.upload.progress,
+        progress: Math.floor(item.upload.progress).toString(),
       });
     }
 
