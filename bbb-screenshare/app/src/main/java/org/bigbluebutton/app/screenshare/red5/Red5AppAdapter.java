@@ -34,9 +34,11 @@ import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
-
+import org.red5.server.scheduling.QuartzSchedulingService;
 import com.google.gson.Gson;
-
+import org.bigbluebutton.app.screenshare.MeetingManager;
+import org.bigbluebutton.app.screenshare.VideoStreamListener;
+import org.bigbluebutton.app.screenshare.VideoStream;
 import org.bigbluebutton.app.screenshare.EventRecordingService;
 import org.bigbluebutton.app.screenshare.IScreenShareApplication;
 import org.bigbluebutton.app.screenshare.ScreenshareStreamListener;
@@ -44,21 +46,27 @@ import org.bigbluebutton.app.screenshare.ScreenshareStreamListener;
 public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppAdapter.class, "screenshare");
 
-  private EventRecordingService recordingService;
-  private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
+  // Scheduler
+  private QuartzSchedulingService scheduler;
 
+  private EventRecordingService recordingService;
   private IScreenShareApplication app;
   private String streamBaseUrl;
   private ConnectionInvokerService sender;
   private String recordingDirectory;
 
   private final Pattern STREAM_ID_PATTERN = Pattern.compile("(.*)-(.*)-(.*)$");
-  
+
+  private MeetingManager meetingManager;
+  private int packetTimeout = 10000;
+
   @Override
   public boolean appStart(IScope app) {
     super.appStart(app);
     log.info("BBB Screenshare appStart");
     sender.setAppScope(app);
+    // get the scheduler
+    scheduler = (QuartzSchedulingService) getContext().getBean(QuartzSchedulingService.BEAN_NAME);
     return true;
   }
 
@@ -148,12 +156,14 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
         app.streamStarted(meetingId, streamId, url);
 
 	    boolean recordVideoStream = app.recordStream(meetingId, streamId);
-	    if (recordVideoStream) {
-	      recordStream(stream);
-	      ScreenshareStreamListener listener = new ScreenshareStreamListener(recordingService, recordingDirectory);
-	      stream.addStreamListener(listener);
-	      streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
-	    }
+          VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
+                  recordVideoStream, recordingDirectory, packetTimeout, scheduler, recordingService);
+          ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
+          stream.addStreamListener(listener);
+          VideoStream vstream = new VideoStream(stream, listener, cstream);
+          vstream.startRecording();
+
+          meetingManager.addStream(meetingId, vstream);
 
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", meetingId);
@@ -182,43 +192,12 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     String streamId = stream.getPublishedName();
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
-        String meetingId = matcher.group(1).trim();
-        app.streamStopped(meetingId, streamId);
+      String meetingId = matcher.group(1).trim();
+      app.streamStopped(meetingId, streamId);
 
-        boolean recordVideoStream = app.recordStream(meetingId, streamId);
-        if (recordVideoStream) {
-          IConnection conn = Red5.getConnectionLocal();
-          String scopeName;
-          if (conn != null) {
-            scopeName = conn.getScope().getName();
-          } else {
-            log.info("Connection local was null, using scope name from the stream: {}", stream);
-            scopeName = stream.getScope().getName();
-          }
-          IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
-          if (listener != null) {
-            stream.removeStreamListener(listener);
-          }
+      boolean recordVideoStream = app.recordStream(meetingId, streamId);
+      meetingManager.streamBroadcastClose(meetingId, streamId);
 
-          String filename = recordingDirectory;
-          if (!filename.endsWith("/")) {
-            filename.concat("/");
-          }
-
-          filename = filename.concat(meetingId).concat("/").concat(stream.getPublishedName()).concat(".flv");
-
-          long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-
-          Map<String, String> event = new HashMap<String, String>();
-          event.put("module", "Deskshare");
-          event.put("timestamp", genTimestamp().toString());
-          event.put("meetingId", scopeName);
-          event.put("stream", stream.getPublishedName());
-          event.put("file", filename);
-          event.put("duration", new Long(publishDuration).toString());
-          event.put("eventName", "DeskshareStoppedEvent");
-          recordingService.record(scopeName, event);
-        }
 
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", meetingId);
@@ -234,26 +213,9 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     }
   }
 
-  /**
-   * A hook to record a stream. A file is written in webapps/video/streams/
-   * @param stream
-   */
-  private void recordStream(IBroadcastStream stream) {
-    IConnection conn = Red5.getConnectionLocal();
-    long now = System.currentTimeMillis();
-    String recordingStreamName = stream.getPublishedName(); // + "-" + now; /** Comment out for now...forgot why I added this - ralam */
-
-    try {
-      log.info("Recording stream " + recordingStreamName );
-      ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
-      cstream.saveAs(recordingStreamName, false);
-    } catch(Exception e) {
-      log.error("ERROR while recording stream " + e.getMessage());
-      e.printStackTrace();
-    }
+  public void setMeetingManager(MeetingManager meetingManager) {
+    this.meetingManager = meetingManager;
   }
-
-
 
   public void setEventRecordingService(EventRecordingService s) {
     recordingService = s;
