@@ -1,3 +1,4 @@
+@import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
 $btn-default-color: $color-gray;
@@ -37,7 +38,11 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
  * ==========
  */
 .button {
-  @extend %btnFocus;
+  @include customBtnFocus(
+    $focus-border-size, 
+    $focus-border-offset, 
+    $color-primary
+  );
 
   font-weight: $btn-font-weight;
   line-height: 1.5;
@@ -76,7 +81,11 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 }
 
 .buttonWrapper {
-  @extend %btnFocus;
+  @include customBtnFocus(
+    $focus-border-size, 
+    $focus-border-offset, 
+    $color-primary
+  );
 
   &,
   &:active {

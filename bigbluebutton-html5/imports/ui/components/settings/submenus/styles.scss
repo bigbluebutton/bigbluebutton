@@ -1,3 +1,4 @@
+@import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
 .title {
@@ -53,7 +54,12 @@
 }
 
 .select {
-  @extend %customSelectFocus;
+  @include customLinkFocus(
+    $focus-border-size, 
+    $color-white, 
+    $color-primary
+  );
+
   background-color: #fff;
   border: $focus-border-size solid #fff;
   border-radius: $focus-border-size;
@@ -91,7 +97,12 @@
 }
 
 .swatch {
-  @extend %customSelectFocus;
+  @include customLinkFocus(
+    $focus-border-size, 
+    $color-white, 
+    $color-primary
+  );
+
   position: absolute;
   float: right;
   background: #fff;

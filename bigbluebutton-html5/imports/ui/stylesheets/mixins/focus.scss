@@ -1,35 +1,16 @@
-// border
-$focus-border-size: 2px;
-$focus-border-offset: -4px;
-
-// colours
-$color-white: #FFF;
-$user-list-bg: #F3F6F9;
-$color-primary: #0F70D7 !default;
-$color-primary-input-shadow: lighten($color-primary, 35%);
-$list-item-bg-hover: darken($user-list-bg, 7%);
-$color-list-item-hover-bg: #e4ecf2;
-$color-list-item-focus-border: #92bcea;
-
-// padding 
-$sm-padding-y: .25rem;
-$lg-padding-y: .5rem;
-
-%customListFocus {
+@mixin customListFocus($focus-border-size, $user-list-bg, $color-primary){
   border: $focus-border-size solid $user-list-bg;
   border-radius: $focus-border-size;
 
   &:focus {
     outline: none;
-    border: $focus-border-size solid $color-primary;
+    border: $focus-border-size solid $color-list-item-focus-border;
   }
 }
 
-%customUserItemFocus,
-%customChatItemFocus {
+@mixin customUserlistItemFocus($focus-border-size, $user-list-bg, $list-item-bg-hover, $color-list-item-hover-bg, $color-list-item-focus-border, $sm-padding-y){
   border: $focus-border-size solid $user-list-bg;
-  border-radius: $focus-border-size;
-  border-right: none;
+  border-radius: 5px;
   padding-left: $sm-padding-y;
 
   &:hover {
@@ -39,18 +20,19 @@ $lg-padding-y: .5rem;
   &,
   &:active {
     &:focus {
-      outline: none;
-      background-color: $color-list-item-hover-bg;
+      background-color: $list-item-bg-hover;
       border: $focus-border-size solid $color-list-item-focus-border;
+      border-right: none;
+      outline: none;
     }
   }
 }
 
-%customListItemFocus {
+@mixin customListItemFocus($focus-border-size, $color-white, $lg-padding-y, $color-list-item-focus-border, $color-list-item-hover-bg) {
   position: relative;
   display: inline-block;
   border: $focus-border-size solid $color-white;
-  border-radius: $lg-padding-y;
+  border-radius: 5px;
   
   &,
   &:active {
@@ -62,7 +44,7 @@ $lg-padding-y: .5rem;
   }
 }
 
-%customInputFocus {
+@mixin customInputFocus($focus-border-size, $color-primary, $color-primary-input-shadow) {
   &,
   &:active {
     &:focus {
@@ -72,12 +54,11 @@ $lg-padding-y: .5rem;
       box-shadow: 0 0 0 $focus-border-size $color-primary-input-shadow;
     }
   }
-}
+} 
 
-%customSelectFocus,
-%customLinkFocus {
+@mixin customLinkFocus($focus-border-size, $color-white, $color-primary) {
   border: $focus-border-size solid $color-white;
-
+  
   &,
   &:active {
     &:focus {
@@ -88,7 +69,7 @@ $lg-padding-y: .5rem;
   }
 }
 
-%btnFocus {
+@mixin customBtnFocus($focus-border-size, $focus-border-offset, $color-primary) {
   border: none;
   position: relative;
   overflow: visible;

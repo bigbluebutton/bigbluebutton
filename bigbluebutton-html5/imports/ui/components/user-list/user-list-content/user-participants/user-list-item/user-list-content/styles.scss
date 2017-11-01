@@ -1,4 +1,6 @@
 @import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
 
 /* Animations
  * ==========
@@ -62,13 +64,20 @@
 
 .active {
   background-color: $list-item-bg-hover;
-  border: $focus-border-size solid $color-list-item-focus-border;
-  border-right: none;
+  border: $focus-border-size solid $color-list-item-focus-border !important;
+  border-right: none !important;
   outline: none;
 }
 
 .userListItem {
-  @extend %customUserItemFocus;
+  @include customUserlistItemFocus(
+    $focus-border-size, 
+    $user-list-bg, 
+    $list-item-bg-hover, 
+    $color-list-item-hover-bg, 
+    $color-list-item-focus-border, 
+    $sm-padding-y);
+    
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;

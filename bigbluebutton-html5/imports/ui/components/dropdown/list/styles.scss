@@ -1,4 +1,5 @@
-@import "../../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
 
 .list {
   list-style: none;
@@ -37,7 +38,14 @@
 }
 
 .item {
-  @extend %customListItemFocus;
+  @include customListItemFocus(
+    $focus-border-size, 
+    $color-white, 
+    $lg-padding-y, 
+    $color-list-item-focus-border, 
+    $color-list-item-hover-bg
+  );
+  
   display: flex;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;

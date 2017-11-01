@@ -19,3 +19,10 @@ $color-link: $color-primary !default;
 $color-link-hover: darken($color-link, 15%) !default;
 
 $color-gray-label: $color-gray !default;
+
+
+$user-list-bg: #F3F6F9;
+$color-primary-input-shadow: lighten($color-primary, 35%);
+$list-item-bg-hover: darken($user-list-bg, 7%);
+$color-list-item-hover-bg: #e4ecf2;
+$color-list-item-focus-border: #92bcea;

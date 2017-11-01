@@ -1,7 +1,17 @@
 @import "../styles.scss";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+
 
 .chatListItem {
-  @extend %customChatItemFocus;
+  @include customUserlistItemFocus(
+    $focus-border-size, 
+    $user-list-bg, 
+    $list-item-bg-hover, 
+    $color-list-item-hover-bg, 
+    $color-list-item-focus-border, 
+    $sm-padding-y);
+
   @extend %list-item;
   cursor: pointer;
   padding: 0;
@@ -46,4 +56,7 @@
 
 .active {
   background-color: $list-item-bg-hover;
+  border: $focus-border-size solid $color-list-item-focus-border !important;
+  border-right: none !important;
+  outline: none;
 }
