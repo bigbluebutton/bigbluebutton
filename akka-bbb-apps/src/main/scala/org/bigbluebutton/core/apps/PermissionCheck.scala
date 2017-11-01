@@ -4,7 +4,7 @@ import org.bigbluebutton.core.models.{ Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
-object PermisssionCheck {
+object PermissionCheck {
 
   val MOD_LEVEL = 100
   val AUTHED_LEVEL = 50
@@ -47,7 +47,6 @@ object PermisssionCheck {
 
         println("PERMLEVELCHECK = " + permLevelCheck + " ROLELEVELCHECK=" + roleLevelCheck)
         permLevelCheck && roleLevelCheck
-        false
       case None => false
     }
 

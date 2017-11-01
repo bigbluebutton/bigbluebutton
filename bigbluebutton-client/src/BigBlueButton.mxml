@@ -36,10 +36,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
+			import mx.utils.URLUtil;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.LogUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(BigBlueButtonMainContainer);
 
 			private function init():void {
 				LogUtil.initLogging(true);
+			}
+			
+			public function determineHtmlUrl():String {
+				var url:String = "";
+				if(ExternalInterface.available) {
+					try {
+						url = String(ExternalInterface.call("window.location.href.toString"));
+						LOGGER.debug("HTML URL [{0}]", [url]);
+					} catch(s:Error) {
+						LOGGER.debug("Cannot determine HTML URL");
+					}
+				}
+				
+				return url;
 			}
 		]]>
 	</fx:Script>

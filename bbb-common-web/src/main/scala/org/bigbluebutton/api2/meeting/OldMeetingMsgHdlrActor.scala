@@ -48,8 +48,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
-    println("*************!!!!!!!!!!!!!! HANDLE RECORDING CHAPTER BREAK !!!!!!!!!!!!!!!")
-
     olgMsgGW.handle(new RecordChapterBreak(msg.body.meetingId, msg.body.timestamp))
   }
 

@@ -37,19 +37,17 @@ $Id: $
 
     <fx:Script>
         <![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.collections.ArrayCollection;
-			import mx.managers.PopUpManager;
-			
-			import org.bigbluebutton.core.model.LiveMeeting;
-			import org.bigbluebutton.core.model.users.GuestWaiting;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.RemoveGuestEvent;
-			import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
-			import org.bigbluebutton.main.events.ResponseModeratorEvent;
-			import org.bigbluebutton.main.model.GuestPolicy;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+          import com.asfusion.mate.events.Dispatcher;
+          import mx.collections.ArrayCollection;
+          import org.bigbluebutton.core.PopUpUtil;
+          import org.bigbluebutton.core.model.LiveMeeting;
+          import org.bigbluebutton.core.model.users.GuestWaiting;
+          import org.bigbluebutton.main.events.BBBEvent;
+          import org.bigbluebutton.main.events.RemoveGuestEvent;
+          import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
+          import org.bigbluebutton.main.events.ResponseModeratorEvent;
+          import org.bigbluebutton.main.model.GuestPolicy;
+          import org.bigbluebutton.util.i18n.ResourceUtil;
             
 			[Bindable]
 			private var guestUsers:ArrayCollection = new ArrayCollection();
@@ -112,7 +110,7 @@ $Id: $
             }
             
             public function closeWindow():void {
-                PopUpManager.removePopUp(this);
+              PopUpUtil.removePopUp(this);
             }
             
         ]]>

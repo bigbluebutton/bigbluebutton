@@ -22,7 +22,7 @@ const mapUser = (user) => {
     isPresenter: user.presenter,
     isModerator: user.role === ROLE_MODERATOR,
     isCurrent: user.userId === userId,
-    isVoiceUser: voiceUser.joined,
+    isVoiceUser: voiceUser ? voiceUser.joined : false,
     isMuted: voiceUser ? voiceUser.muted : false,
     isTalking: voiceUser ? voiceUser.talking : false,
     isListenOnly: voiceUser ? voiceUser.listenOnly : false,
