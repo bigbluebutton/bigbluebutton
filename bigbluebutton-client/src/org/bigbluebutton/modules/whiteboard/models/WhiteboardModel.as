@@ -189,11 +189,12 @@ package org.bigbluebutton.modules.whiteboard.models
       return _multiUser;
     }
 	
-    public function updateCursorPosition(userId:String, xPercent:Number, yPercent:Number):void {
+    public function updateCursorPosition(whiteboardId: String, userId:String, xPercent:Number, yPercent:Number):void {
       var event:WhiteboardCursorEvent = new WhiteboardCursorEvent(WhiteboardCursorEvent.RECEIVED_CURSOR_POSITION);
       event.userId = userId;
       event.xPercent = xPercent;
       event.yPercent = yPercent;
+      event.whiteboardId = whiteboardId;
       dispatchEvent(event);
     }
 	

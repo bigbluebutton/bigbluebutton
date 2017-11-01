@@ -92,7 +92,7 @@ package org.bigbluebutton.modules.present.business
 		public function connect(e:PresentModuleEvent):void {
 			extractAttributes(e.data);
 
-			podManager.requestAllPodsPresentationInfo(); // Instead of sender.getPresentationInfo();     
+			podManager.requestAllPodsPresentationInfo();
 		}
 
 		private function extractAttributes(a:Object):void{
@@ -179,8 +179,7 @@ package org.bigbluebutton.modules.present.business
 			if (currentUploadCommand != null && currentUploadCommand.filename == e.filename) {
 				uploadService.upload(currentUploadCommand.podId, currentUploadCommand.filename, currentUploadCommand.file, currentUploadCommand.isDownloadable);
 				currentUploadCommand = null;
-				
-				// TODO
+
 				uploadService = null; // reset upload service so we can use new token for consecutive upload
 			} else {
 
@@ -293,7 +292,7 @@ package org.bigbluebutton.modules.present.business
 		}
 
 		public function handleSetPresenterInPodReqEvent(e: SetPresenterInPodReqEvent): void {
-			sender.handleSetPresenterInPodReqEvent(e.podId, e.nextPresenterId);
+			sender.handleSetPresenterInPodReqEvent(e.podId, e.prevPresenterId, e.nextPresenterId);
 		}
 
 	}
