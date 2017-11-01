@@ -4,32 +4,38 @@
 const config = require("./config_local.js");
 
 // BigBlueButton configs
-if (!config.bbb) { config.bbb = {}; }
+if (config.bbb == null) { config.bbb = {}; }
 if (!config.bbb.sharedSecret) { config.bbb.sharedSecret = "sharedSecret"; }
 if (!config.bbb.apiPath) { config.bbb.apiPath = "/bigbluebutton/api"; }
+if (config.bbb.auth2_0 == null) { config.bbb.auth2_0 = true; }
 
 // Web server configs
 if (!config.server) { config.server = {}; }
-if (!config.server.port) { config.server.port = 3005; }
+if (config.server.port == null) { config.server.port = 3005; }
 
 // Web hooks configs
 if (!config.hooks) { config.hooks = {}; }
 if (!config.hooks.channels) {
   config.hooks.channels = {
     mainChannel: 'from-akka-apps-redis-channel',
-    rapChannel: 'bigbluebutton:from-rap'
+    rapChannel: 'bigbluebutton:from-rap',
+    chatChannel: 'from-akka-apps-chat-redis-channel'
   }
  }
 // IP where aggr will be hosted
-if (!config.hooks.aggr) { config.hooks.aggr = []; }
-if (!config.hooks.queueSize) { config.hooks.queueSize = 10000; }
-if (!config.hooks.getRaw) { config.hooks.getRaw = false; }
+if (!config.hooks.permanentURLs) { config.hooks.permanentURLs = []; }
+if (config.hooks.queueSize  == null) { config.hooks.queueSize = 10000; }
+if (config.hooks.getRaw  == null) { config.hooks.getRaw = false; }
+if (config.hooks.multiEvent  == null) { config.hooks.multiEvent = 10; }
 
 // Retry intervals for failed attempts for perform callback calls.
 // In ms. Totals to around 5min.
 config.hooks.retryIntervals = [
   100, 500, 1000, 2000, 4000, 8000, 10000, 30000, 60000, 60000, 60000, 60000
 ];
+
+// Reset permanent interval when exceeding maximum attemps
+config.hooks.permanentURLsIntervalReset = 8;
 
 // Mappings of internal to external meeting IDs
 config.mappings = {};
