@@ -414,7 +414,7 @@ class MeetingActor(
     val elapsedInMs = now - lastRecBreakSentOn
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
 
-    if (elapsedInMin > 1) {
+    if (elapsedInMin > recordingChapterBreakLenghtInMinutes) {
       lastRecBreakSentOn = now
       val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
       outGW.send(event)
