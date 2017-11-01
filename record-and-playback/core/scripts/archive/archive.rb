@@ -27,7 +27,7 @@ require 'yaml'
 
 
 def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving events for #{meeting_id}.")
+  BigBlueButton.logger.info("Archiving events for #{meeting_id}")
   begin
     redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
     events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
