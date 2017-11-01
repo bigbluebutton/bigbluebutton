@@ -15,6 +15,6 @@ export default createContainer(() => {
   return {
     showEndMeeting: !meetingIsBreakout() &&
                     isModerator(),
-    endMeeting: endMeeting,
+    handleEndMeeting: endMeeting,
   }
 }, LogoutConfirmationContainer);
