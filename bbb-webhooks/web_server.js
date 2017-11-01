@@ -70,16 +70,18 @@ module.exports = class WebServer {
     }
   }
   // Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
-  createPermanent() {
-    Hook.addSubscription(config.hooks.aggr, null, config.hooks.getRaw, function(error, hook) {
-      if (error != null) { // there probably won't be any errors here
-        Logger.info("[WebServer] duplicated permanent hook", error);
-      } else if (hook != null) {
-        Logger.info("[WebServer] permanent hook created successfully");
-      } else {
-        Logger.info("[WebServer] error creating permanent hook");
-      }
-    });
+  createPermanents() {
+    for (let i = 0; i < config.hooks.permanentURLs.length; i++) {
+      Hook.addSubscription(config.hooks.permanentURLs[i], null, config.hooks.getRaw, function(error, hook) {
+        if (error != null) { // there probably won't be any errors here
+          Logger.info("[WebServer] duplicated permanent hook", error);
+        } else if (hook != null) {
+          Logger.info("[WebServer] permanent hook created successfully");
+        } else {
+          Logger.info("[WebServer] error creating permanent hook");
+        }
+      });
+    }
   }
 
   _destroy(req, res, next) {
