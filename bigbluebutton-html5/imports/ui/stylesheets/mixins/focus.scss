@@ -10,7 +10,7 @@
 
 @mixin customUserlistItemFocus($focus-border-size, $user-list-bg, $list-item-bg-hover, $color-list-item-hover-bg, $color-list-item-focus-border, $sm-padding-y){
   border: $focus-border-size solid $user-list-bg;
-  border-radius: 5px;
+  border-radius: $border-radius;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px; 
   padding-top: $md-padding-y;
@@ -36,7 +36,7 @@
   position: relative;
   display: inline-block;
   border: $focus-border-size solid $color-white;
-  border-radius: 5px;
+  border-radius: $border-radius;
   
   &,
   &:active {
