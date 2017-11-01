@@ -2,8 +2,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	
-	import org.bigbluebutton.core.UsersUtil;
+
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 
@@ -29,15 +28,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		public function presenterChange(amIPresenter:Boolean):void {
-			verifyTimerState();
+			verifyTimerState(amIPresenter);
 		}
 		
 		public function multiUserChange(multiUser:Boolean):void {
 			verifyTimerState();
 		}
 		
-		private function verifyTimerState():void {
-			if (UsersUtil.amIPresenter() || LiveMeeting.inst().whiteboardModel.multiUser) {
+		private function verifyTimerState(amIPresenter:Boolean=false):void {
+			if (amIPresenter || LiveMeeting.inst().whiteboardModel.multiUser) {
 				startTimer();
 			} else {
 				stopTimer();

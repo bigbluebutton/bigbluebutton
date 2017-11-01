@@ -11,7 +11,6 @@ package org.bigbluebutton.modules.present.model {
     import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
     import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
     import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
-    import org.bigbluebutton.main.api.JSLog;
 
     
     public class PresentationPodManager {
@@ -105,21 +104,9 @@ package org.bigbluebutton.modules.present.model {
                 globalDispatcher.dispatchEvent(event);
             }
         }
-        
-        public function removeAllPresentationPods(): void {
-            for (var i:int = 0; i < _presentationPods.length; i++) {
-                var oldPod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
-                // globalDispatcher.dispatchEvent(new PresentationPodRemoved(oldPod.getPodId(), oldPod.getOwnerId()));
-                
-            }
-        }
-
 
         public function handleGetAllPodsResp(podsAC: ArrayCollection): void {
-//            removeAllPresentationPods();
-
             for (var j:int = 0; j < podsAC.length; j++) {
-                JSLog.warn("__ PresentationPodManager::handleGetAllPodsResp A: " , podsAC.length);
                 var podVO: PresentationPodVO = podsAC.getItemAt(j) as PresentationPodVO;
                 var newPod: PresentationModel = new PresentationModel(podVO.id, podVO.ownerId);
 

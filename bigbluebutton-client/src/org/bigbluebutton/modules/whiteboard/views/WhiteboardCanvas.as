@@ -99,13 +99,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.ENABLE_WHITEBOARD, onEnableWhiteboardEvent);
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
-			
-			var stpl:Listener = new Listener();
-			stpl.type = SwitchedPresenterEvent.SWITCHED_PRESENTER;
-			stpl.method = onSwitchedPresenterEvent;
-			
-			presenterChange(UsersUtil.amIPresenter(), UsersUtil.getPresenterUserID());
-			
+
 			var ull:Listener = new Listener();
 			ull.type = UserLeftEvent.LEFT;
 			ull.method = onUserLeftEvent;
@@ -190,6 +184,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			var event:WhiteboardCursorEvent = new WhiteboardCursorEvent(WhiteboardCursorEvent.SEND_CURSOR_POSITION);
 			event.xPercent = x;
 			event.yPercent = y;
+			event.whiteboardId = currentWhiteboardId;
 			dispatcher.dispatchEvent(event);
 		}
 		
@@ -254,9 +249,11 @@ package org.bigbluebutton.modules.whiteboard.views {
 			}
 		}
 		
-		private function presenterChange(amIPresenter:Boolean, presenterId:String):void {
+		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			canvasModel.presenterChange(amIPresenter, presenterId);
 			canvasDisplayModel.presenterChange(amIPresenter, presenterId);
+			whiteboardToolbar.presenterChange(amIPresenter);
+			textToolbar.presenterChange(amIPresenter);
 		}
 		
 		public function doesContainGraphic(child:DisplayObject):Boolean {
@@ -345,7 +342,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function onReceivedCursorPosition(e:WhiteboardCursorEvent):void {
-			canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
+			if (e.whiteboardId == currentWhiteboardId) {
+				canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
+			}
 		}
 		
 		private function onEnableWhiteboardEvent(e:WhiteboardButtonEvent):void {
@@ -360,16 +359,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			stopDrawing();
 			
-			removeCursor()
+			removeCursor();
 			
 			this.whiteboardEnabled = false;
 			setWhiteboardInteractable();
 		}
-		
-		private function onSwitchedPresenterEvent(e:SwitchedPresenterEvent):void {
-			presenterChange(e.amIPresenter, e.newPresenterUserID);
-		}
-		
+
 		private function onUserLeftEvent(e:UserLeftEvent):void {
 			canvasDisplayModel.userLeft(e.userID);
 		}

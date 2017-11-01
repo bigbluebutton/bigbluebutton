@@ -39,8 +39,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 	  <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
 	  <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
-	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
-	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
 	  <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
 	</fx:Declarations>
 	<fx:Script>
@@ -54,7 +52,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.commands.GoToPageLocalCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -84,6 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 			public var podId:String;
+			public var currentPresenterInPod: String;
 
       private var pageCache:ArrayCollection = new ArrayCollection();
       
@@ -107,14 +105,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				});
 				t.start();
 				*/
-        
-        if (UsersUtil.amIPresenter()) {
-          becomePresenter();
-        } else {
-          becomeViewer();
-        }
+
+				if (amITheCurrentPodPresenter()) {
+					becomePresenter(amITheCurrentPodPresenter(), this.currentPresenterInPod);
+				} else {
+					becomeViewer(amITheCurrentPodPresenter(), this.currentPresenterInPod);
+				}
 			}
-						
+
 			public function setSlides(_podId: String):void {
 				if (_podId != this.podId) {
 					return;
@@ -210,7 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				slideModel.parentChange(parentWidth, parentHeight);
 				
-				if (UsersUtil.amIPresenter()) {
+				if (amITheCurrentPodPresenter()) {
 					slideModel.adjustSlideAfterParentResized();
 					slideModel.onMove(0, 0); // fake a move to reset some values
 					slideModel.displayPresenterView();
@@ -315,7 +313,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Got a page changed event for page [{0}]", [e.pageId]);
 				var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
 				if (page != null) {
-					if (! UsersUtil.amIPresenter()) {
+					if (! amITheCurrentPodPresenter()) {
 						// if we are presenter, we don't need to reposition our view of the page
 						positionPage(page);
 					}
@@ -365,38 +363,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-      private function becomeViewer():void {
-        removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-        this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-      }
-      
-			/**
-			 * Handle the event where this presenter becomes a viewer because another attendee became presenter.
-			 */			
-			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
-        becomeViewer();
+			private function amITheCurrentPodPresenter(): Boolean {
+				return UsersUtil.getMyUserID() == this.currentPresenterInPod;
 			}
-			
-      private function becomePresenter():void {
-        // need to calculate slide zoom percantage left by a previous presenter
-        /**
-          * We use width for the calculation because of fit-to-width mode. If you change between 
-          * presenters rapidly the presentation drifts upwards slightly. - Chad
-          */
-        zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
 
-        addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-        this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        notifyOthersOfZoomEvent();
-      }
-      
-			/**
-			 * Makes the attendee the presenter.
-			 */
-			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void {
-        becomePresenter();
+			public function becomeViewer(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
+
+				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+				this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				if (whiteboardCanvas != null && currentPresenterInPod != null) {
+					whiteboardCanvas.presenterChange(amIThePresenterInThePod, currentPresenterInPod);
+				}
 			}
-			
+
+			public function becomePresenter(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
+				// need to calculate slide zoom percentage left by a previous presenter
+				/**
+				  * We use width for the calculation because of fit-to-width mode. If you change between 
+				  * presenters rapidly the presentation drifts upwards slightly. - Chad
+				  */
+				zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
+
+				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+				this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				notifyOthersOfZoomEvent();
+				if (whiteboardCanvas != null) {
+					whiteboardCanvas.presenterChange(amIThePresenterInThePod, currentPresenterInPod);
+				}
+			}
+
 			private function noSlideContentLoaded():Boolean {
 				return slideLoader.content == null
 			}
@@ -423,11 +418,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function acceptOverlayCanvas(_podId: String, overlay:WhiteboardCanvas):void{
-				whiteboardCanvas = overlay;
-
 				if (_podId != this.podId) {
 					return;
 				}
+
+				whiteboardCanvas = overlay;
 
 				var currPage:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
 				if (currPage != null) {

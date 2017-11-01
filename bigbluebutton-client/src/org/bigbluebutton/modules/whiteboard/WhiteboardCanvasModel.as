@@ -18,7 +18,6 @@
  */
 package org.bigbluebutton.modules.whiteboard
 {
-  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
   import org.bigbluebutton.modules.whiteboard.views.CursorPositionListener;
@@ -114,9 +113,5 @@ package org.bigbluebutton.modules.whiteboard
 		cursorPositionListener.multiUserChange(multiUser);
 	}
 
-    /** Helper method to test whether this user is the presenter */
-    private function get isPresenter():Boolean {
-      return UsersUtil.amIPresenter();
-    }
   }
 }

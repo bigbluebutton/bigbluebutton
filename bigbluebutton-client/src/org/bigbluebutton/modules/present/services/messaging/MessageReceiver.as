@@ -319,8 +319,9 @@ package org.bigbluebutton.modules.present.services.messaging
 
     private function handleSetPresenterInPodRespMsg(msg: Object): void {
       var podId: String = msg.body.podId as String;
+      var prevPresenterId: String = msg.body.prevPresenterId as String;
       var nextPresenterId: String = msg.body.nextPresenterId as String;
-      dispatcher.dispatchEvent(new SetPresenterInPodRespEvent(podId, nextPresenterId));
+      dispatcher.dispatchEvent(new SetPresenterInPodRespEvent(podId, prevPresenterId, nextPresenterId));
     }
   }
 }
