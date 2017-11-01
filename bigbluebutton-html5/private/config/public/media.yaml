@@ -8,3 +8,9 @@ media:
   vertoPort: "8082"
   # specifies whether to use SIP.js for audio over mod_verto
   useSIPAudio: true
+  stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
+  mediaTag: '#remote-media'
+  callTransferTimeout: 5000
+  callHangupTimeout: 2000
+  callHangupMaximumRetries: 10
+  echoTestNumber: '9196'

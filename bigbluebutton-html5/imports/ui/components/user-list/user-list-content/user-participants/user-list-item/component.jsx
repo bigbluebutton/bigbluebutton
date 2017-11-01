@@ -88,8 +88,8 @@ class UserListItem extends Component {
 
     return _.compact([
       (allowedToChatPrivately ? UserListItem.createAction(openChat, router, user) : null),
-      (allowedToMuteAudio ? UserListItem.createAction(unmute, user) : null),
-      (allowedToUnmuteAudio ? UserListItem.createAction(mute, user) : null),
+      (allowedToMuteAudio ? UserListItem.createAction(mute, user) : null),
+      (allowedToUnmuteAudio ? UserListItem.createAction(unmute, user) : null),
       (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
       (allowedToSetPresenter ? UserListItem.createAction(setPresenter, user) : null),
       (allowedToKick ? UserListItem.createAction(kick, user) : null),

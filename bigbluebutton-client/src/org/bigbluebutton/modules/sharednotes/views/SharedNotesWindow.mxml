@@ -43,6 +43,7 @@
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.KeyboardEvent;
+			import flash.globalization.DateTimeFormatter;
 			import flash.ui.Keyboard;
 			
 			import mx.binding.utils.BindingUtils;
@@ -78,6 +79,11 @@
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			
+			
+			
+			
 
 			private static const LOGGER:ILogger = getClassLogger(SharedNotesWindow);
 
@@ -317,7 +323,9 @@
 			}
 
 			protected function saveNotes(title:String, text:String, extension:String):void {
-				var filename:String = title.replace(/\s+/g, '_').toLowerCase() + "_" + LiveMeeting.inst().meeting.name.replace(/\s+/g, '_').toLowerCase() + "_" + new Date().time.toString() + "." + extension;
+				var dtf:DateTimeFormatter = new DateTimeFormatter("en-US");
+				dtf.setDateTimePattern("yyyy_MM_dd");
+				var filename:String = title.replace(/\s+/g, '_').toLowerCase() + "_" + LiveMeeting.inst().meeting.name.replace(/\s+/g, '_').toLowerCase() + "_" + dtf.format(new Date()) + "." + extension;
 				var fileRef:FileReference = new FileReference();
 				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);

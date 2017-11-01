@@ -1,9 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 
-const logClient = () => {
-  const args = Array.prototype.slice.call(arguments, 1);
-
-  Logger.log(arguments[0], 'Client Log', args);
+const logClient = (type, log, ...args) => {
+  Logger.log(type, `CLIENT LOG: ${log}\n`, ...args);
 };
 
 export default logClient;
