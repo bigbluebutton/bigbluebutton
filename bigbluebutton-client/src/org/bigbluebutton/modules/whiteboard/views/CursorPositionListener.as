@@ -2,8 +2,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	
-	import org.bigbluebutton.core.UsersUtil;
+
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 
@@ -37,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function verifyTimerState(amIPresenter:Boolean=false):void {
-			if (amIPresenter || UsersUtil.amIPresenter() || LiveMeeting.inst().whiteboardModel.multiUser) {
+			if (amIPresenter || LiveMeeting.inst().whiteboardModel.multiUser) {
 				startTimer();
 			} else {
 				stopTimer();

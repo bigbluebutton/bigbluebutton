@@ -50,7 +50,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.core.Options;
-		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
@@ -85,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
       private function onCreationComplete():void {
-        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = UsersUtil.amIPresenter();
+        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = this.isPresenter;
         
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
@@ -282,10 +281,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function toolbarAllowed():Boolean {
         return (multiUser? true : isPresenter);
-      }
-
-      private function get isModerator():Boolean {
-        return UsersUtil.amIModerator();
       }
 
 		]]>

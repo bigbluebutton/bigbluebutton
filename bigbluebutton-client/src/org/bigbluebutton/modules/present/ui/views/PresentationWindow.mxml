@@ -208,7 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						icon: getStyle('iconClearStatus'), handler: closePresentationWindowHandler});
 				}
 
-				if (this.ownerId != null && this.ownerId != "") {
+				if (this.ownerId != null && this.ownerId != "" && UsersUtil.getUserName(this.ownerId) != null) {
 					listOfPodControls.push({label: UsersUtil.getUserName(this.ownerId),
 						icon: getStyle('iconClearStatus'), handler: requestPodPresenterChange, data: this.ownerId});
 				}
@@ -216,7 +216,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presGroup: ArrayCollection = UsersUtil.getPresenterGroup();
 				for (var j:int = 0; j < presGroup.length; j++) {
 					var nextPresenterId: String = presGroup.getItemAt(j) as String;
-					if (nextPresenterId != this.ownerId) { // avoid duplication
+					if (nextPresenterId != this.ownerId && UsersUtil.getUserName(nextPresenterId) != null) { // avoid duplication
 						listOfPodControls.push({label: UsersUtil.getUserName(nextPresenterId),
 							icon: getStyle('iconClearStatus'),  handler: requestPodPresenterChange, data: nextPresenterId});
 					}
