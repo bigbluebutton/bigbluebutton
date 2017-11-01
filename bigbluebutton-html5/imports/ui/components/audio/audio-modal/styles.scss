@@ -36,9 +36,9 @@
 }
 
 .closeBtn {
-  right: 0;
-  top: 0;
-  position: absolute;
+  right: $focus-border-offset;
+  top: $focus-border-offset;
+  position: relative;
   background-color: $color-white;
   border: none;
   padding: .75rem;
