@@ -14,20 +14,19 @@ const Utils = require("./utils.js");
 // to perform the callback.
 module.exports = class CallbackEmitter extends EventEmitter {
 
-  constructor(callbackURL, message, backupURL) {
+  constructor(callbackURL, message, permanent) {
     super();
     this.callbackURL = callbackURL;
     this.message = message;
-    this.backupURL = backupURL;
     this.nextInterval = 0;
     this.timestap = 0;
     this.permanent = false;
+    this.permanent = permanent;
   }
 
-  start(permanent) {
+  start() {
     this.timestamp = new Date().getTime();
     this.nextInterval = 0;
-    this.permanent = permanent;
     this._scheduleNext(0);
   }
 
@@ -48,50 +47,77 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
           // no intervals anymore, time to give up
           } else {
-            this.nextInterval = !this.permanent ? 0 : 8; // Reset interval to permanent hooks
-            // If a hook has backup URLs for the POSTS, use them after a few failed attempts
-            if ((this.backupURL != null) && this.permanent) { this.backupURL.push(this.backupURL[0]); this.backupURL.shift(); this.callbackURL = this.backupURL[0]; }
-            if (this.permanent) { this._scheduleNext(interval); }
-            if (!this.permanent) { return this.emit("stopped"); }
+            this.nextInterval = !this.permanent ? 0 : config.hooks.permanentIntervalReset; // Reset interval to permanent hooks
+            if(this.permanent){
+              this._scheduleNext(interval);
+            }
+            else {
+              return this.emit("stopped");
+            }
           }
         }
       });
     }
-
     , timeout);
   }
 
   _emitMessage(callback) {
-    // data to be sent
-    // note: keep keys in alphabetical order
-    const data = {
-      event: "[" + this.message + "]",
-      timestamp: this.timestamp
-    };
+    let data,requestOptions;
+    
+    if (config.bbb.auth2_0) {
+      // Send data as a JSON
+      data = "[" + this.message + "]";
 
-    // calculate the checksum
-    const checksum = Utils.checksum(`${this.callbackURL}${JSON.stringify(data)}${config.bbb.sharedSecret}`);
+      const callbackURL = this.callbackURL;
 
-    // get the final callback URL, including the checksum
-    const urlObj = url.parse(this.callbackURL, true);
-    let callbackURL = this.callbackURL;
-    callbackURL += _.isEmpty(urlObj.search) ? "?" : "&";
-    callbackURL += `checksum=${checksum}`;
+      requestOptions = {
+        followRedirect: true,
+        maxRedirects: 10,
+        uri: callbackURL,
+        method: "POST",
+        form: data,
+        auth: {
+          bearer: config.bbb.sharedSecret
+        }
+      };
+    }
+    else {
+      // data to be sent
+      // note: keep keys in alphabetical order
+      data = {
+        event: "[" + this.message + "]",
+        timestamp: this.timestamp
+      };
 
-    const requestOptions = {
-      followRedirect: true,
-      maxRedirects: 10,
-      uri: callbackURL,
-      method: "POST",
-      form: data
+      // calculate the checksum
+      const checksum = Utils.checksum(`${this.callbackURL}${JSON.stringify(data)}${config.bbb.sharedSecret}`);
+
+      // get the final callback URL, including the checksum
+      const urlObj = url.parse(this.callbackURL, true);
+      let callbackURL = this.callbackURL;
+      callbackURL += _.isEmpty(urlObj.search) ? "?" : "&";
+      callbackURL += `checksum=${checksum}`;
+
+      requestOptions = {
+        followRedirect: true,
+        maxRedirects: 10,
+        uri: callbackURL,
+        method: "POST",
+        form: data
+      };
+    }
+
+    const responseFailed = (response) => {
+        var statusCode = (response != null ? response.statusCode : undefined)
+        return !((statusCode >= 200) && (statusCode < 300))
     };
 
     request(requestOptions, function(error, response, body) {
-      if ((error != null) || !(((response != null ? response.statusCode : undefined) >= 200) && ((response != null ? response.statusCode : undefined) < 300))) {
-        Logger.warn(`[Emitter] error in the callback call to: [${requestOptions.uri}] for ${simplifiedEvent(data.event)}`, "error:", error, "status:", response != null ? response.statusCode : undefined);
+      if ((error != null) || responseFailed(response)) {
+        Logger.warn(`[Emitter] error in the callback call to: [${requestOptions.uri}] for ${simplifiedEvent(data)}`, "error:", error, "status:", response != null ? response.statusCode : undefined);
         callback(error, false);
       } else {
-        Logger.info(`[Emitter] successful callback call to: [${requestOptions.uri}] for ${simplifiedEvent(data.event)}`);
+        Logger.info(`[Emitter] successful callback call to: [${requestOptions.uri}] for ${simplifiedEvent(data)}`);
         callback(null, true);
       }
     });
@@ -100,6 +126,9 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
 // A simple string that identifies the event
 var simplifiedEvent = function(event) {
+  if (event.event != null) {
+    event = event.event
+  }
   try {
     const eventJs = JSON.parse(event);
     return `event: { name: ${(eventJs.data != null ? eventJs.data.id : undefined)}, timestamp: ${(eventJs.data.event != null ? eventJs.data.event.ts : undefined)} }`;
