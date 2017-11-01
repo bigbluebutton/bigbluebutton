@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import org.bigbluebutton.common2.msgs.BbbClientMsgHeader;
+import org.bigbluebutton.common2.msgs.ValidateConnAuthTokenSysMsg;
+import org.bigbluebutton.common2.msgs.ValidateConnAuthTokenSysMsgBody;
 
 public class MessagePublisher {
 
@@ -16,7 +19,20 @@ public class MessagePublisher {
 	public void setMessageSender(MessageSender sender) {
 		this.sender = sender;
 	}
-	
+
+	public void validateConnAuthToken(String meetingId, String userId, String authToken) {
+		BbbClientMsgHeader header = new BbbClientMsgHeader("ValidateConnAuthTokenSysMsg", meetingId, userId);
+		ValidateConnAuthTokenSysMsgBody body = new ValidateConnAuthTokenSysMsgBody(meetingId,
+				userId, authToken, "VIDEO");
+		ValidateConnAuthTokenSysMsg msg = new ValidateConnAuthTokenSysMsg(header, body);
+		Gson gson = new Gson();
+		String json = gson.toJson(msg);
+
+		System.out.println("**** SENDING " + json);
+
+		sender.send("to-akka-apps-redis-channel", json);
+	}
+
 	// Polling 
 	public void userSharedWebcamMessage(String meetingId, String userId, String streamId) {
 		UserSharedWebcamMessage msg = new UserSharedWebcamMessage(meetingId, userId, streamId);
