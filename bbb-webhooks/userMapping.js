@@ -127,7 +127,7 @@ module.exports = class UserMapping {
           result.push(undefined);
         }
       }
-      callback();
+      return (typeof callback === 'function' ? callback() : undefined);
     })();
   }
 
