@@ -23,7 +23,7 @@ module.exports = class Application {
       UserMapping.initialize(() => {
         IDMapping.initialize(()=> {
           this.webServer.start(config.server.port);
-          this.webServer.createPermanent();
+          this.webServer.createPermanents();
           this.webHooks.start();
         });
       });
