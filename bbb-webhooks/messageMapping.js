@@ -8,7 +8,7 @@ module.exports = class MessageMapping {
     this.mappedObject = {};
     this.mappedMessage = {};
     this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg"];
-    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg"];
+    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg"];
     this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
     this.rapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended"];
   }
@@ -58,21 +58,20 @@ module.exports = class MessageMapping {
       this.mappedObject.data.attributes = {
         "meeting":{
           "internal-meeting-id": props.meetingProp.intId,
-          "external-meeting-id": props.meetingProp.extId
-        },
-        "name": props.meetingProp.name,
-        "is-breakout": props.meetingProp.isBreakout,
-        "duration": props.durationProps.duration,
-        "create-time": props.durationProps.createdTime,
-        "create-date": props.durationProps.createdDate,
-        "moderator-pass": props.password.moderatorPass,
-        "viewer-pass": props.password.viewerPass,
-        //"recorded": messageObj.payload.recorded, ?
-        "record": props.recordProp.record,
-        "voice-conf": props.voiceProp.voiceConf,
-        "dial-number": props.voiceProp.dialNumber,
-        "max-users": props.usersProp.maxUsers,
-        "metadata": props.metadataProp.metadata
+          "external-meeting-id": props.meetingProp.extId,
+          "name": props.meetingProp.name,
+          "is-breakout": props.meetingProp.isBreakout,
+          "duration": props.durationProps.duration,
+          "create-time": props.durationProps.createdTime,
+          "create-date": props.durationProps.createdDate,
+          "moderator-pass": props.password.moderatorPass,
+          "viewer-pass": props.password.viewerPass,
+          "record": props.recordProp.record,
+          "voice-conf": props.voiceProp.voiceConf,
+          "dial-number": props.voiceProp.dialNumber,
+          "max-users": props.usersProp.maxUsers,
+          "metadata": props.metadataProp.metadata
+        }
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
@@ -82,7 +81,8 @@ module.exports = class MessageMapping {
   // Map internal to external message for user information
   userTemplate(messageObj) {
     const msgBody = messageObj.core.body;
-    const extId = UserMapping.getExternalUserID(msgBody.intId) ? UserMapping.getExternalUserID(msgBody.intId) : msgBody.extId;
+    const msgHeader = messageObj.core.header;
+    const extId = UserMapping.getExternalUserID(msgHeader.userId) ? UserMapping.getExternalUserID(msgHeader.userId) : msgBody.extId;
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj),
@@ -92,7 +92,7 @@ module.exports = class MessageMapping {
           "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
         },
         "user":{
-          "internal-user-id": msgBody.intId,
+          "internal-user-id": msgHeader.userId,
           "external-user-id": extId,
           "sharing-mic": msgBody.muted,
           "name": msgBody.name,
@@ -146,16 +146,28 @@ module.exports = class MessageMapping {
   }
 
   rapTemplate(messageObj) {
+    data = messageObj.payload
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj.header.name),
-      "attributes":{
-        "meeting":{
-          "internal-meeting-id": messageObj.payload.meeting_id,
-          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.payload.meeting_id)
+      "attributes": {
+        "meeting": {
+          "internal-meeting-id": data.meeting_id,
+          "external-meeting-id": IDMapping.getExternalMeetingID(data.meeting_id)
+        },
+        "recording": {
+          "name": data.metadata.meetingName,
+          "isBreakout": data.metadata.isBreakout,
+          "startTime": data.startTime,
+          "endTime": data.endTime,
+          "size": data.playback.size,
+          "rawSize": data.rawSize,
+          "metadata": data.metadata,
+          "playback": data.playback,
+          "download": data.download
         }
       },
-      "event":{
+      "event": {
         "ts": messageObj.header.current_time
       }
     };
@@ -179,7 +191,9 @@ module.exports = class MessageMapping {
       case "UserJoinedVoiceConfToClientEvtMsg": return "user-audio-voice-enabled";
       case "UserLeftVoiceConfToClientEvtMsg": return "user-audio-voice-disabled";
       case "UserBroadcastCamStartedEvtMsg": return "user-cam-broadcast-start";
-      case "UserBroadcastCamStoppedEvtMsg": return "user-cam-broadcast-end"
+      case "UserBroadcastCamStoppedEvtMsg": return "user-cam-broadcast-end";
+      case "PresenterAssignedEvtMsg": return "user-presenter-assigned";
+      case "PresenterUnassignedEvtMsg": return "user-presenter-unassigned"
       case "SendPublicMessageEvtMsg": return "chat-public-message-sent";
       case "SendPrivateMessageEvtMsg": return "chat-private-message-sent";
       case "archive_started": return "rap-archive-started";
