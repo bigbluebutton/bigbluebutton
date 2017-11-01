@@ -38,14 +38,13 @@ module.exports = class Hook {
     this.emitter = null;
     this.redisClient = config.redis.client;
     this.permanent = false;
-    this.backupURL = [];
     this.getRaw = false;
   }
 
   save(callback) {
    this.redisClient.hmset(config.redis.keys.hook(this.id), this.toRedis(), (error, reply) => {
       if (error != null) { Logger.error("[Hook] error saving hook to redis:", error, reply); }
-     this.redisClient.sadd(config.redis.keys.hooks, this.id, (error, reply) => {
+        this.redisClient.sadd(config.redis.keys.hooks, this.id, (error, reply) => {
         if (error != null) { Logger.error("[Hook] error saving hookID to the list of hooks:", error, reply); }
 
         db[this.id] = this;
@@ -57,7 +56,7 @@ module.exports = class Hook {
   destroy(callback) {
    this.redisClient.srem(config.redis.keys.hooks, this.id, (error, reply) => {
       if (error != null) { Logger.error("[Hook] error removing hookID from the list of hooks:", error, reply); }
-     this.redisClient.del(config.redis.keys.hook(this.id), error => {
+        this.redisClient.del(config.redis.keys.hook(this.id), error => {
         if (error != null) { Logger.error("[Hook] error removing hook from redis:", error); }
 
         if (db[this.id]) {
@@ -104,7 +103,6 @@ module.exports = class Hook {
       "hookID": this.id,
       "callbackURL": this.callbackURL,
       "permanent": this.permanent,
-      "backupURL": this.backupURL,
       "getRaw": this.getRaw
     };
     if (this.externalMeetingID != null) { r.externalMeetingID = this.externalMeetingID; }
@@ -114,9 +112,8 @@ module.exports = class Hook {
   fromRedis(redisData) {
     this.id = parseInt(redisData.hookID);
     this.callbackURL = redisData.callbackURL;
-    this.permanent = redisData.permanent;
-    this.backupURL = redisData.backupURL;
-    this.getRaw = redisData.getRaw;
+    this.permanent = redisData.permanent.toLowerCase() == 'true';
+    this.getRaw = redisData.getRaw.toLowerCase() == 'true';
     if (redisData.externalMeetingID != null) {
       this.externalMeetingID = redisData.externalMeetingID;
     } else {
@@ -127,8 +124,8 @@ module.exports = class Hook {
   // Gets the first message in the queue and start an emitter to send it. Will only do it
   // if there is no emitter running already and if there is a message in the queue.
   _processQueue() {
-    // Will try to send up to 10 messages together if they're enqueued
-    const lengthIn = this.queue.length > 10 ? 10 : this.queue.length;
+    // Will try to send up to a defined number of messages together if they're enqueued (defined on config.hooks.multiEvent)
+    const lengthIn = this.queue.length > config.hooks.multiEvent ? config.hooks.multiEvent : this.queue.length;
     let num = lengthIn + 1;
     // Concat messages
     let message = this.queue.slice(0,lengthIn);
@@ -136,8 +133,8 @@ module.exports = class Hook {
 
     if ((message == null) || (this.emitter != null) || (lengthIn <= 0)) { return; }
     // Add params so emitter will 'know' when a hook is permanent and have backupURLs
-    this.emitter = new CallbackEmitter(this.callbackURL, message, this.backupURL);
-    this.emitter.start(this.permanent);
+    this.emitter = new CallbackEmitter(this.callbackURL, message, this.permanent);
+    this.emitter.start();
 
     this.emitter.on("success", () => {
       delete this.emitter;
@@ -159,30 +156,27 @@ module.exports = class Hook {
   }
 
   static addSubscription(callbackURL, meetingID, getRaw, callback) {
-    //Since we can pass a list of URLs to serve as backup for the permanent hook, we need to check that
-    const firstURL = callbackURL instanceof Array ? callbackURL[0] : callbackURL;
-
-    let hook = Hook.findByCallbackURLSync(firstURL);
+    let hook = Hook.findByCallbackURLSync(callbackURL);
     if (hook != null) {
       return (typeof callback === 'function' ? callback(new Error("There is already a subscription for this callback URL"), hook) : undefined);
     } else {
-      let msg = `[Hook] adding a hook with callback URL: [${firstURL}],`;
+      let msg = `[Hook] adding a hook with callback URL: [${callbackURL}],`;
       if (meetingID != null) { msg += ` for the meeting: [${meetingID}]`; }
       Logger.info(msg);
 
       hook = new Hook();
-      hook.callbackURL = firstURL;
+      hook.callbackURL = callbackURL;
       hook.externalMeetingID = meetingID;
       hook.getRaw = getRaw;
-      hook.permanent = config.hooks.aggr.some( url => {
-        return url === firstURL
+      hook.permanent = config.hooks.permanentURLs.some( url => {
+        return url === callbackURL
       });
-      if (hook.permanent) { hook.id = 1;nextID++; } else { hook.id = nextID++; }
-      // Create backup URLs list
-      let backupURLs = callbackURL instanceof Array ? callbackURL : [];
-      backupURLs.push(firstURL); backupURLs.shift();
-      hook.backupURL = backupURLs;
-      Logger.info("[Hook] Backup URLs:", hook.backupURL);
+      if (hook.permanent) {
+        hook.id = config.hooks.permanentURLs.indexOf(callbackURL) + 1;
+        nextID = config.hooks.permanentURLs.length + 1;
+      } else {
+        hook.id = nextID++;
+      }
       // Sync permanent queue
       if (hook.permanent) {
         hook.redisClient.llen(config.redis.keys.events(hook.id), (error, len) => {
@@ -203,7 +197,7 @@ module.exports = class Hook {
 
   static removeSubscription(hookID, callback) {
     let hook = Hook.getSync(hookID);
-    if ( hook != null && ((hook.permanent === "false") || (hook.permanent === false))) {
+    if (hook != null && !hook.permanent) {
       let msg = `[Hook] removing the hook with callback URL: [${hook.callbackURL}],`;
       if (hook.externalMeetingID != null) { msg += ` for the meeting: [${hook.externalMeetingID}]`; }
       Logger.info(msg);
@@ -280,13 +274,15 @@ module.exports = class Hook {
   // Calls `callback()` when done.
   static resync(callback) {
     let client = config.redis.client;
-    // Remove previous permanent hook (always ID = 1)
-    client.srem(config.redis.keys.hooks, 1, (error, reply) => {
-      if (error != null) { Logger.error("[Hook] error removing previous permanent hook from list:", error); }
-      client.del(config.redis.keys.hook(1), error => {
-        if (error != null) { Logger.error("[Hook] error removing previous permanent hook from redis:", error); }
+    // Remove previous permanent hooks
+    for (let hk = 1; hk <= config.hooks.permanentURLs.length; hk++) {
+      client.srem(config.redis.keys.hooks, hk, (error, reply) => {
+        if (error != null) { Logger.error("[Hook] error removing previous permanent hook from list:", error); }
+        client.del(config.redis.keys.hook(hk), error => {
+          if (error != null) { Logger.error("[Hook] error removing previous permanent hook from redis:", error); }
+        });
       });
-    });
+    }
 
     let tasks = [];
 
