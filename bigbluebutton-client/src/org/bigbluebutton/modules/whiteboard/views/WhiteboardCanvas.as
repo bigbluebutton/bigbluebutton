@@ -252,6 +252,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			canvasModel.presenterChange(amIPresenter, presenterId);
 			canvasDisplayModel.presenterChange(amIPresenter, presenterId);
+			whiteboardToolbar.presenterChange(amIPresenter);
+			textToolbar.presenterChange(amIPresenter);
 		}
 		
 		public function doesContainGraphic(child:DisplayObject):Boolean {
