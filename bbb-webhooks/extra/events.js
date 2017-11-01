@@ -15,7 +15,7 @@ subscriber.on("psubscribe", function(channel, count) {
 subscriber.on("pmessage", function(pattern, channel, message) {
   try {
     message = JSON.parse(message);
-    if (message && message.envelope) {
+    if (message.hasOwnProperty('envelope')) {
 
       var message_name = message.envelope.name;
 
