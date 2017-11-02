@@ -203,7 +203,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'),
 					icon: getStyle('iconClearStatus'), handler: newPresentationWindowHandler});
 
-				if (this.podId != "DEFAULT_PRESENTATION_POD") {
+				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
 					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'),
 						icon: getStyle('iconClearStatus'), handler: closePresentationWindowHandler});
 				}
@@ -295,9 +295,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						return;
 					}
 				}
-
-				// show podId
-				// presentationPodControls.selectedItem = presentationPodControls.dataProvider.getItemAt(0);
 			}
 
 			private function handleSetPresenterInPodRespEvent(event: SetPresenterInPodRespEvent): void {

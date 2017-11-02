@@ -11,6 +11,7 @@ package org.bigbluebutton.modules.present.model {
     import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
     import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
     import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+    import org.bigbluebutton.modules.present.model.PresentationModel;
 
     
     public class PresentationPodManager {
@@ -21,6 +22,8 @@ package org.bigbluebutton.modules.present.model {
         private var _presentationPods: ArrayCollection = new ArrayCollection();
         private var globalDispatcher:Dispatcher;
         private var presentationService: PresentationService;
+
+        public static const DEFAULT_POD_ID:String = "DEFAULT_PRESENTATION_POD";
 
 
         /**
@@ -70,6 +73,11 @@ package org.bigbluebutton.modules.present.model {
                 }
             }
             return resultingPod;
+        }
+
+        public function getDefaultPresentationPod(): PresentationModel {
+            var pod: PresentationModel = getPod(DEFAULT_POD_ID);
+            return pod || null;
         }
 
         public function handleAddPresentationPod(podId: String, ownerId: String): void {
@@ -122,8 +130,10 @@ package org.bigbluebutton.modules.present.model {
         }
 
         public function updateOwnershipOfDefaultPod(ownerId: String): void {
-            var pod: PresentationModel = getPod("DEFAULT_PRESENTATION_POD");
-            pod.setOwnerId(ownerId);
+            var pod: PresentationModel = getDefaultPresentationPod();
+            if (pod != null) {
+                pod.setOwnerId(ownerId);
+            }
         }
 
     }

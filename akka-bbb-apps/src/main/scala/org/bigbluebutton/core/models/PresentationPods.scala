@@ -15,7 +15,7 @@ object PresentationPodFactory {
     val currentPresenter = ownerId
 
     // we hardcode the podId of the default presentation pod for the purposes of having bbb-web know the podId
-    // in advance (so we can fully process default.pdf) // TODO change to a generated podId
+    // in advance (so we can fully process default.pdf)
     PresentationPod("DEFAULT_PRESENTATION_POD", ownerId, currentPresenter, Map.empty)
   }
 }

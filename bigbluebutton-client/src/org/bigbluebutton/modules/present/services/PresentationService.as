@@ -148,7 +148,7 @@ package org.bigbluebutton.modules.present.services
       podManager.getPod(podId).removeAllPresentations();
     }
     
-	public function removePresentation(podId: String, presentationID:String):void {
+	public function presentationWasRemoved(podId: String, presentationID:String):void {
 		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT, podId);
 		removedEvent.presentationName = presentationID;
 		dispatcher.dispatchEvent(removedEvent);
