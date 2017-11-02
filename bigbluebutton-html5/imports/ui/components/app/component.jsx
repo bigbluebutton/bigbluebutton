@@ -7,7 +7,6 @@ import cx from 'classnames';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
-import AudioNotificationContainer from '../audio/audio-notification/container';
 import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
 import styles from './styles';
@@ -176,7 +175,6 @@ class App extends Component {
 
     return (
       <main className={styles.main}>
-        <AudioNotificationContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           {this.renderUserList()}

@@ -75,6 +75,7 @@ const AppContainer = (props) => {
 export default withRouter(injectIntl(withModalMounter(createContainer((
   { router, intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
+  const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -101,9 +102,8 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
-      if (!meetingIsBreakout) {
-        sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
-      }
+      if (isMeetingBreakout) return;
+      sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
     },
   });
 
