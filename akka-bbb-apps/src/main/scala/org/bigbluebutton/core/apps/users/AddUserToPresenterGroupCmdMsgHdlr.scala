@@ -13,17 +13,6 @@ trait AddUserToPresenterGroupCmdMsgHdlr {
 
   def handleAddUserToPresenterGroupCmdMsg(msg: AddUserToPresenterGroupCmdMsg) {
 
-    def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-      val envelope = BbbCoreEnvelope(UserAddedToPresenterGroupEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UserAddedToPresenterGroupEvtMsg.NAME, meetingId, userId)
-      val body = UserAddedToPresenterGroupEvtMsgBody(userId, requesterId)
-      val event = UserAddedToPresenterGroupEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-
-      outGW.send(msgEvent)
-    }
-
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to add user to presenter group."
@@ -36,8 +25,7 @@ trait AddUserToPresenterGroupCmdMsgHdlr {
         requester <- Users2x.findWithIntId(liveMeeting.users2x, requesterId)
       } yield {
         if (requester.role == Roles.MODERATOR_ROLE) {
-          Users2x.addUserToPresenterGroup(liveMeeting.users2x, userId)
-          broadcastAddUserToPresenterGroup(liveMeeting.props.meetingProp.intId, userId, requesterId)
+          UsersApp.addUserToPresenterGroup(liveMeeting, outGW, userId, requesterId)
         }
       }
     }
