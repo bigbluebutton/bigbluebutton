@@ -10,6 +10,8 @@ export default function muteToggle(credentials, userId) {
   const EVENT_NAME = 'MuteUserCmdMsg';
   const APP_CONFIG = Meteor.settings.public.app;
   const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
+  const USER_CONFIG = Meteor.settings.public.user;
+  const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
   const { meetingId, requesterUserId } = credentials;
 
@@ -21,16 +23,29 @@ export default function muteToggle(credentials, userId) {
     mutedBy: requesterUserId,
   };
 
-  const { role: requesterRole } = Users.findOne({
+  const user = Users.findOne({
     meetingId,
     userId: requesterUserId,
   });
 
-  const { muted: isUserMuted } = VoiceUsers.findOne({
+  const voiceUser = VoiceUsers.findOne({
     intId: userId,
   });
 
-  if (requesterUserId !== userId && requesterRole === 'MODERATOR' && !ALLOW_MODERATOR_TO_UNMUTE_AUDIO && isUserMuted) return;
+  if (!user || !voiceUser) return;
+
+  const isListenOnly = voiceUser.listenOnly;
+
+  if (isListenOnly) return;
+
+  const isModerator = user.roles.includes(ROLE_MODERATOR.toLowerCase());
+  const isMuted = voiceUser.muted;
+  const isNotHimself = requesterUserId !== userId;
+
+  if (!ALLOW_MODERATOR_TO_UNMUTE_AUDIO &&
+    isModerator &&
+    isMuted &&
+    isNotHimself) return;
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }
