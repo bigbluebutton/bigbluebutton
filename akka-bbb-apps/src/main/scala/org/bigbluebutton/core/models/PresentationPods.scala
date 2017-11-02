@@ -35,6 +35,10 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
     }
   }
 
+  def getCurrentPage(pres: PresentationInPod): Option[PageVO] = {
+    pres.pages.values find (p => p.current)
+  }
+
 }
 
 case class PresentationPod(id: String, ownerId: String, currentPresenter: String,
@@ -116,6 +120,7 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
 
   def getNumberOfPods(): Int = presentationPods.size
   def getPod(podId: String): Option[PresentationPod] = presentationPods.get(podId)
+  def getDefaultPod(): Option[PresentationPod] = presentationPods.get("DEFAULT_PRESENTATION_POD")
   def getAllPresentationPodsInMeeting(): Vector[PresentationPod] = presentationPods.values.toVector
   def updatePresentationPod(presPod: PresentationPod): PresentationPodManager = addPod(presPod)
 
