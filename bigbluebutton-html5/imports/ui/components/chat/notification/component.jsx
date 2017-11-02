@@ -5,7 +5,7 @@ import ChatPushNotification from './push-notification/component';
 
 const propTypes = {
   disableNotify: PropTypes.bool.isRequired,
-  openChats: PropTypes.array.isRequired,
+  openChats: PropTypes.arrayOf(PropTypes.object).isRequired,
   disableAudio: PropTypes.bool.isRequired,
 };
 
@@ -28,6 +28,7 @@ class ChatNotification extends Component {
           loadMessages[c.id] = c.unreadCounter;
         });
       this.setState({ notified: loadMessages });
+      return;
     }
 
     const notifiedToClear = {};
