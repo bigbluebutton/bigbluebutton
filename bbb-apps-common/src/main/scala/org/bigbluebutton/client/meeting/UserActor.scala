@@ -119,7 +119,7 @@ class UserActor(val userId: String,
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** UserActor handleBbbServerMsg " + msg)
+    //log.debug("**** UserActor handleBbbServerMsg " + msg)
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {
@@ -128,7 +128,7 @@ class UserActor(val userId: String,
   }
 
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** UserActor handleServerMsg " + msg)
+   // log.debug("**** UserActor handleServerMsg " + msg)
     msgType match {
       case MessageTypes.DIRECT => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
@@ -137,7 +137,7 @@ class UserActor(val userId: String,
   }
 
   private def forwardToUser(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("UserActor forwardToUser. Forwarding to connection. " + msg)
+    //log.debug("UserActor forwardToUser. Forwarding to connection. " + msg)
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {
