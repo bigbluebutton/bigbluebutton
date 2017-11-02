@@ -72,7 +72,6 @@ object PresentationPodsApp {
     for {
       defPod <- getPresentationPod(state, "DEFAULT_PRESENTATION_POD")
     } yield {
-      println(s"\n\n\n changeOwnershipOfDefaultPod  $newOwnerId  \n\n\n")
       defPod.copy(ownerId = newOwnerId)
     }
   }

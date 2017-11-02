@@ -32,9 +32,7 @@ trait SetCurrentPresentationPubMsgHdlr {
     } yield {
       broadcastSetCurrentPresentationEvent(podId, msg.header.userId, presId)
 
-      log.warning("_____ SetCurrentPresentationPubMsgHdlr before_ " + state.presentationPodManager.printPods())
       val pods = state.presentationPodManager.addPod(updatedPod)
-      log.warning("_____ SetCurrentPresentationPubMsgHdlr after_ " + pods.printPods())
       state.update(pods)
     }
 

@@ -63,6 +63,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildValidateConnAuthTokenSysRespMsg(meetingId: String, userId: String, authToken: String,
+                                           authzed: Boolean, conn: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(ValidateConnAuthTokenSysRespMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(ValidateConnAuthTokenSysRespMsg.NAME, meetingId)
+    val body = ValidateConnAuthTokenSysRespMsgBody(meetingId, userId, authToken, conn, authzed)
+    val event = ValidateConnAuthTokenSysRespMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
                                     valid: Boolean, waitForApproval: Boolean): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)

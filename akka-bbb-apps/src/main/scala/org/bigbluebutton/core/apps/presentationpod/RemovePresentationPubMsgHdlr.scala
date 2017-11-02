@@ -36,7 +36,6 @@ trait RemovePresentationPubMsgHdlr {
       broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
 
       val pods = state.presentationPodManager.removePresentationInPod(pod.id, presentationId)
-      log.warning("_____ RemovePresentationPubMsgHdlr _ " + pods.printPods())
       state.update(pods)
     }
 

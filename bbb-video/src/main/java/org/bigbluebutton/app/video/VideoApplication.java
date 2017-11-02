@@ -65,11 +65,14 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private final Map<String, VideoRotator> videoRotators = new HashMap<String, VideoRotator>();
 
     private MeetingManager meetingManager;
+    private ConnectionInvokerService connInvokerService;
 
     @Override
     public boolean appStart(IScope app) {
         super.appStart(app);
         log.info("BBB Video appStart");
+        connInvokerService.setAppScope(app);
+
         // get the scheduler
         scheduler = (QuartzSchedulingService) getContext().getBean(QuartzSchedulingService.BEAN_NAME);
         return true;
@@ -88,13 +91,18 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             params = new Object[2];
             params[0] = "UNKNOWN-MEETING-ID";
             params[1] = "UNKNOWN-USER-ID";
+            params[2] = "UNKNOWN-AUTH-TOKEN";
         }
 
-        String meetingId = ((String) params[0]).toString();
+        String meetingId = connection.getScope().getName();
         String userId = ((String) params[1]).toString();
+        String authToken = ((String) params[2]).toString();
 
         Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
         Red5.getConnectionLocal().setAttribute("USERID", userId);
+        Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
+
+        publisher.validateConnAuthToken(meetingId, userId, authToken);
 
         String connType = getConnectionType(Red5.getConnectionLocal().getType());
         String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -454,5 +462,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
                 clearH263Users(h263StreamName);
             }
         }
+    }
+
+    public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+        this.connInvokerService = connInvokerService;
     }
 }

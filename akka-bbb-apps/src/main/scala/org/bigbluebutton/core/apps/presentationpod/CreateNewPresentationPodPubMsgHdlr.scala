@@ -44,9 +44,6 @@ trait CreateNewPresentationPodPubMsgHdlr {
 
     val pods = state.presentationPodManager.addPod(resultPod)
 
-    log.warning("_____ pres pod add, after:" + pods.getNumberOfPods())
-    log.warning("_____ CreateNewPresentationPodPubMsgHdlr _" + pods.printPods())
-
     state.update(pods)
 
   }
