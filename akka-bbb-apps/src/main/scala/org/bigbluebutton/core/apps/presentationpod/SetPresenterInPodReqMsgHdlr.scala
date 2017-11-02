@@ -17,7 +17,7 @@ trait SetPresenterInPodReqMsgHdlr {
 
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to set presentation page."
+      val reason = "No permission to set presenter in presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
       state
     } else {

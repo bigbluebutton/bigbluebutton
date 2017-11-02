@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
@@ -54,6 +55,11 @@ trait HandlerHelpers extends SystemConfiguration {
         if (!Users2x.hasPresenter(liveMeeting.users2x)) {
           automaticallyAssignPresenter(outGW, liveMeeting)
         }
+
+        if (newUser.role == Roles.MODERATOR_ROLE) {
+          UsersApp.addUserToPresenterGroup(liveMeeting, outGW, newUser.intId, newUser.intId)
+        }
+
         state.update(state.expiryTracker.setUserHasJoined())
       case None =>
         state
