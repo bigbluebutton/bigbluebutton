@@ -71,6 +71,7 @@ export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }
       CONNECTION_ERROR: intl.formatMessage(intlMessages.connectionError),
       REQUEST_TIMEOUT: intl.formatMessage(intlMessages.requestTimeout),
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
+      MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
     },
   };
 

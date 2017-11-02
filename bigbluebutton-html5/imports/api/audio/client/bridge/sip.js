@@ -301,41 +301,41 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
-  getMediaStream(constraints) {
-    return navigator.mediaDevices.getUserMedia(constraints).catch((err) => {
-      console.error(err);
-      throw new Error(this.baseErrorCodes.MEDIA_ERROR);
-    });
+  setDefaultInputDevice() {
+    const handleMediaSuccess = (mediaStream) => {
+      const deviceLabel = mediaStream.getAudioTracks()[0].label;
+      return navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
+        const device = mediaDevices.find(d => d.label === deviceLabel);
+        return this.changeInputDevice(device.deviceId);
+      });
+    }
+
+    return navigator.mediaDevices.getUserMedia({ audio: true }).then(handleMediaSuccess);
   }
 
-  async setDefaultInputDevice() {
-    const mediaStream = await this.getMediaStream({ audio: true });
-    const deviceLabel = mediaStream.getAudioTracks()[0].label;
-    const mediaDevices = await navigator.mediaDevices.enumerateDevices();
-    const device = mediaDevices.find(d => d.label === deviceLabel);
-    return this.changeInputDevice(device.deviceId);
-  }
-
-  async changeInputDevice(value) {
+  changeInputDevice(value) {
     const {
       media,
     } = this;
 
     if (media.inputDevice.audioContext) {
-      media.inputDevice.audioContext.close().then(() => {
+      const handleAudioContextCloseSuccess = () => {
         media.inputDevice.audioContext = null;
         media.inputDevice.scriptProcessor = null;
         media.inputDevice.source = null;
         return this.changeInputDevice(value);
-      });
+      }
+
+      return media.inputDevice.audioContext.close().then(handleAudioContextCloseSuccess);
     }
 
-    media.inputDevice.id = value;
     if ('AudioContext' in window) {
       media.inputDevice.audioContext = new window.AudioContext();
     } else {
       media.inputDevice.audioContext = new window.webkitAudioContext();
     }
+
+    media.inputDevice.id = value;
     media.inputDevice.scriptProcessor = media.inputDevice.audioContext
                                               .createScriptProcessor(2048, 1, 1);
     media.inputDevice.source = null;
@@ -346,13 +346,16 @@ export default class SIPBridge extends BaseAudioBridge {
       },
     };
 
-    const mediaStream = await this.getMediaStream(constraints);
-    media.inputDevice.stream = mediaStream;
-    media.inputDevice.source = media.inputDevice.audioContext.createMediaStreamSource(mediaStream);
-    media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
-    media.inputDevice.scriptProcessor.connect(media.inputDevice.audioContext.destination);
+    const handleMediaSuccess = (mediaStream) => {
+      media.inputDevice.stream = mediaStream;
+      media.inputDevice.source = media.inputDevice.audioContext.createMediaStreamSource(mediaStream);
+      media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
+      media.inputDevice.scriptProcessor.connect(media.inputDevice.audioContext.destination);
 
-    return this.media.inputDevice;
+      return this.media.inputDevice;
+    }
+
+    return navigator.mediaDevices.getUserMedia(constraints).then(handleMediaSuccess);
   }
 
   async changeOutputDevice(value) {

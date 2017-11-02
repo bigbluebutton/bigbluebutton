@@ -65,28 +65,39 @@ class AudioManager {
       isEchoTest,
     } = options;
 
-    if (!this.devicesInitialized) {
-      this.setDefaultInputDevice();
-      this.changeOutputDevice('default');
+    const doCall = () => {
       this.devicesInitialized = true;
+      this.isConnecting = true;
+      this.isMuted = false;
+      this.error = null;
+      this.isListenOnly = isListenOnly || false;
+      this.isEchoTest = isEchoTest || false;
+
+      const callOptions = {
+        isListenOnly: this.isListenOnly,
+        extension: isEchoTest ? ECHO_TEST_NUMBER : null,
+        inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
+      };
+
+      return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
     }
 
-    this.isConnecting = true;
-    this.isMuted = false;
-    this.error = null;
-    this.isListenOnly = isListenOnly || false;
-    this.isEchoTest = isEchoTest || false;
+    if (this.devicesInitialized) return doCall();
 
-    const callOptions = {
-      isListenOnly: this.isListenOnly,
-      extension: isEchoTest ? ECHO_TEST_NUMBER : null,
-      inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
-    };
-
-    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+    return Promise.all([
+      this.setDefaultInputDevice(),
+      this.setDefaultOutputDevice(),
+    ]).then(doCall)
+      .catch(err => {
+        this.error = err;
+        this.notify(err);
+        return Promise.reject();
+      });
   }
 
   exitAudio() {
+    if (!this.isConnected) return Promise.resolve();
+
     this.isHangingUp = true;
     return this.bridge.exitAudio();
   }
@@ -173,20 +184,27 @@ class AudioManager {
   }
 
   setDefaultInputDevice() {
-    this.changeInputDevice();
+    return this.changeInputDevice();
   }
 
-  async changeInputDevice(deviceId) {
-    try {
-      if (!deviceId) {
-        this.inputDevice = await await this.bridge.setDefaultInputDevice();
-        return;
-      }
-      this.inputDevice = await this.bridge.changeInputDevice(deviceId);
-    } catch(err) {
-      this.error = err;
-      this.notify('There was a problem getting the media devices');
+  setDefaultOutputDevice() {
+    return this.changeOutputDevice('default');
+  }
+
+  changeInputDevice(deviceId) {
+    const handleChangeInputDeviceSuccess = (inputDevice) => {
+      this.inputDevice = inputDevice;
+      return inputDevice;
+    };
+
+    const handleChangeInputDeviceError = () => Promise.reject(this.messages.error.MEDIA_ERROR);
+
+    if (!deviceId) {
+      return this.bridge.setDefaultInputDevice().then(handleChangeInputDeviceSuccess)
+                                                .catch(handleChangeInputDeviceError);
     }
+    return this.bridge.changeInputDevice(deviceId).then(handleChangeInputDeviceSuccess)
+                                                  .catch(handleChangeInputDeviceError);;
   }
 
   async changeOutputDevice(deviceId) {
