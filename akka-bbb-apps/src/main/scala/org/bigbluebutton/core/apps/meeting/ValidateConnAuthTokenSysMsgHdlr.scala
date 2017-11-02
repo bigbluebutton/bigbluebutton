@@ -10,9 +10,6 @@ trait ValidateConnAuthTokenSysMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleValidateConnAuthTokenSysMsg(msg: ValidateConnAuthTokenSysMsg): Unit = {
-
-    println("******************** RECEIVED ValidateConnAuthTokenSysMsg")
-
     val regUser = RegisteredUsers.getRegisteredUserWithToken(
       msg.body.authToken,
       msg.body.userId,

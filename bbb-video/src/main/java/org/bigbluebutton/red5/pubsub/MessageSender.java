@@ -79,8 +79,6 @@ public class MessageSender {
 		    public void run() {
 		  		Jedis jedis = redisPool.getResource();
 		  		try {
-
-		  			System.out.println("**** PUBLISH TO " + channel + " msg=" + message);
 		  			jedis.publish(channel, message);
 		  		} catch(Exception e){
 		  			log.warn("Cannot publish the message to redis", e);

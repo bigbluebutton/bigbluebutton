@@ -24,8 +24,6 @@ trait RemovePresentationPodPubMsgHdlr {
 
     val requesterId = msg.body.requesterId // TODO -- use it
 
-    log.warning(s"_____ attempt for pres pod removal by $requesterId, num before:${state.presentationPodManager.getNumberOfPods()}")
-
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
     } yield {
@@ -39,10 +37,7 @@ trait RemovePresentationPodPubMsgHdlr {
 
       bus.outGW.send(event)
 
-      log.warning("_____ pres pod removal, before:" + state.presentationPodManager.getNumberOfPods())
       val pods = state.presentationPodManager.removePod(pod.id)
-      //      PresentationPodsApp.removePresentationPod(state, pod.id)
-      log.warning("_____ pres pod removal, afterB:" + pods.getNumberOfPods())
       state.update(pods)
     }
 

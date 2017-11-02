@@ -65,11 +65,14 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private final Map<String, VideoRotator> videoRotators = new HashMap<String, VideoRotator>();
 
     private MeetingManager meetingManager;
+    private ConnectionInvokerService connInvokerService;
 
     @Override
     public boolean appStart(IScope app) {
         super.appStart(app);
         log.info("BBB Video appStart");
+        connInvokerService.setAppScope(app);
+
         // get the scheduler
         scheduler = (QuartzSchedulingService) getContext().getBean(QuartzSchedulingService.BEAN_NAME);
         return true;
@@ -91,7 +94,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             params[2] = "UNKNOWN-AUTH-TOKEN";
         }
 
-        String meetingId = ((String) params[0]).toString();
+        String meetingId = connection.getScope().getName();
         String userId = ((String) params[1]).toString();
         String authToken = ((String) params[2]).toString();
 
@@ -459,5 +462,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
                 clearH263Users(h263StreamName);
             }
         }
+    }
+
+    public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+        this.connInvokerService = connInvokerService;
     }
 }
