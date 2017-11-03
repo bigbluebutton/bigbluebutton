@@ -26,7 +26,6 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.modules.chat.ChatUtil;
-  import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatMsgFromUser;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;

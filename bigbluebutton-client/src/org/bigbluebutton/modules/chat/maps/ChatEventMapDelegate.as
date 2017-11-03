@@ -18,9 +18,7 @@
  */
 package org.bigbluebutton.modules.chat.maps {
   import com.asfusion.mate.events.Dispatcher;
-  
-  import flash.events.IEventDispatcher;
-  
+  import flash.events.IEventDispatcher; 
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.core.Options;
