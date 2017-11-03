@@ -12,7 +12,7 @@ trait RemovePresentationPodPubMsgHdlr {
   def handle(msg: RemovePresentationPodPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to remove presentation pod from meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
