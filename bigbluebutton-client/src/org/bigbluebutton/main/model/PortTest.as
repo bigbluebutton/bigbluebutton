@@ -154,7 +154,8 @@ package org.bigbluebutton.main.model
         
         var curTime:Number = new Date().getTime();
 				// Create connection with the server.
-				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, "portTestDummyUserId-" + curTime);
+				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, 
+          "portTestDummyUserId-" + curTime, "portTestDummyToken-" + curTime);
 				status = "Connecting...";
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.

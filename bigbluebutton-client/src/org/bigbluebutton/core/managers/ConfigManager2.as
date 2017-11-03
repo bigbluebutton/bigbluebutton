@@ -70,7 +70,7 @@ package org.bigbluebutton.core.managers {
         }
 
         private function buildRequestURL():String {
-            var swfURL:String = FlexGlobals.topLevelApplication.url;
+            var swfURL:String = FlexGlobals.topLevelApplication.determineHtmlUrl();
             var protocol:String = URLUtil.getProtocol(swfURL);
             var serverName:String = URLUtil.getServerNameWithPort(swfURL);
             return protocol + "://" + serverName + "/" + CONFIG_XML;

@@ -1,8 +1,8 @@
 package org.bigbluebutton.app.screenshare.redis
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.app.screenshare.server.sessions.messages.{MeetingCreated, MeetingEnded}
+import org.bigbluebutton.app.screenshare.server.sessions.messages.{MeetingCreated, MeetingEnded, RecordingChapterBreak}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 
 import scala.reflect.runtime.universe._
 import org.bigbluebutton.common2.msgs._
@@ -55,6 +55,12 @@ class ReceivedJsonMsgHandlerActor(screenshareManager: ActorRef)
           m <- deserialize[MeetingDestroyedEvtMsg](jsonNode)
         } yield {
           screenshareManager ! new MeetingEnded(m.body.meetingId)
+        }
+      case RecordingChapterBreakSysMsg.NAME =>
+        for {
+          m <- deserialize[RecordingChapterBreakSysMsg](jsonNode)
+        } yield {
+          screenshareManager ! new RecordingChapterBreak(m.body.meetingId, m.body.timestamp)
         }
       case _ =>
        // log.error("Cannot route envelope name " + envelope.name)

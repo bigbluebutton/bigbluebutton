@@ -53,8 +53,6 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pods = pods.addPresentationToPod(pod.id, pres)
       pods = pods.setCurrentPresentation(pod.id, pres.id)
 
-      log.warning("_____PresentationConversionCompletedSysPubMsgHdlr_ " + pods.printPods())
-
       state.update(pods)
     }
 

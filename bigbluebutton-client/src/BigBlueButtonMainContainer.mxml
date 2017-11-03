@@ -109,23 +109,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function setupAPI():void {
         langResources = ResourceUtil.getInstance();
         api = new ExternalApiCallbacks();
-        Security.allowDomain(determineHTMLURL());
-		LOGGER.debug("Security.allowDomain({0});", [determineHTMLURL()]);
-      }
-      
-      private function determineHTMLURL():String {
-        var serverName:String = "*";
-        if(ExternalInterface.available) {
-          try {
-            var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
-            serverName = URLUtil.getServerName(htmlURL);
-            LOGGER.debug("HTML URL [{0}]", [htmlURL]);
-          } catch(s:Error) {
-            LOGGER.debug("Cannot determine HTML URL");
-          }
-        }
-        
-        return serverName;
+        //Security.allowDomain(FlexGlobals.topLevelApplication.determineHtmlUrl());
+        //LOGGER.debug("Security.allowDomain({0});", [FlexGlobals.topLevelApplication.determineHtmlUrl()]);
+        Security.allowDomain("*");
+        LOGGER.debug("Security.allowDomain({0});", ["*"]);
       }
 		
 	  /**

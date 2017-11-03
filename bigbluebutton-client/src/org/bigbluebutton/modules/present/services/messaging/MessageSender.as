@@ -158,10 +158,10 @@ package org.bigbluebutton.modules.present.services.messaging
       );
     }
 
-    public function handleSetPresenterInPodReqEvent(podId: String, nextPresenterId: String):void {
+    public function handleSetPresenterInPodReqEvent(podId: String, prevPresenterId: String, nextPresenterId: String):void {
       var message:Object = {
         header: {name: "SetPresenterInPodReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {nextPresenterId: nextPresenterId, podId: podId}
+        body: { podId: podId, prevPresenterId: prevPresenterId, nextPresenterId: nextPresenterId }
       };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();

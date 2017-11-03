@@ -43,8 +43,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatcher" />
 		<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
-		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
-		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
 		<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
 		<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 		<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
@@ -91,8 +89,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.main.api.JSLog;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
@@ -167,10 +163,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var windowId:String;
 			
-			[Bindable]
-			private var podId: String = "";
+			[Bindable] private var podId: String = "";
 			private var ownerId: String = "";
-			private var currentPresenterInPod: String = "";
+			[Bindable] private var currentPresenterInPod: String = "";
 			
 			[Bindable]
 			private var listOfPodControls:Array = [];
@@ -188,6 +183,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			}
 
+			private function amITheCurrentPodPresenter(): Boolean {
+				return UsersUtil.getMyUserID() == this.currentPresenterInPod;
+			}
+
 			private function handleUserAddedToPresenterGroupEvent(event: UserAddedToPresenterGroupEvent): void {
 				populatePodDropdown();
 			}
@@ -198,13 +197,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function populatePodDropdown(): void {
 				listOfPodControls = [];
-				listOfPodControls.push({label: this.podId,
-					icon: getStyle('iconClearStatus'), handler: function (): void {} });
-
-				if (this.ownerId != null && this.ownerId != "") {
-					listOfPodControls.push({label: UsersUtil.getUserName(this.ownerId),
-						icon: getStyle('iconClearStatus'), handler: requestPodPresenterChange, data: this.ownerId});
-				}
+//				listOfPodControls.push({label: this.podId,
+//					icon: getStyle('iconClearStatus'), handler: function (): void {} });
 
 				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'),
 					icon: getStyle('iconClearStatus'), handler: newPresentationWindowHandler});
@@ -212,13 +206,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (this.podId != "DEFAULT_PRESENTATION_POD") {
 					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'),
 						icon: getStyle('iconClearStatus'), handler: closePresentationWindowHandler});
+				}
 
+				if (this.ownerId != null && this.ownerId != "" && UsersUtil.getUserName(this.ownerId) != null) {
+					listOfPodControls.push({label: UsersUtil.getUserName(this.ownerId),
+						icon: getStyle('iconClearStatus'), handler: requestPodPresenterChange, data: this.ownerId});
 				}
 
 				var presGroup: ArrayCollection = UsersUtil.getPresenterGroup();
 				for (var j:int = 0; j < presGroup.length; j++) {
 					var nextPresenterId: String = presGroup.getItemAt(j) as String;
-					if (nextPresenterId != this.ownerId) { // avoid duplication
+					if (nextPresenterId != this.ownerId && UsersUtil.getUserName(nextPresenterId) != null) { // avoid duplication
 						listOfPodControls.push({label: UsersUtil.getUserName(nextPresenterId),
 							icon: getStyle('iconClearStatus'),  handler: requestPodPresenterChange, data: nextPresenterId});
 					}
@@ -241,6 +239,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPodId(): String { return this.podId; }
 
 			public function getOwnerId(): String { return this.ownerId; }
+			public function setOwnerId(newOwnerId: String): void {
+				this.ownerId = newOwnerId;
+				// trigger update
+				onPodCreated(this.podId, this.ownerId);
+			}
 
 			private function onPresentationPodControlsClicked():void {
 				if(presentationPodControls.selectedItem != null) {
@@ -269,12 +272,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				var nextPresenterId: String = presentationPodControls.selectedItem.data as String;
-				JSLog.warn("__ PresentationWindow::requestPodPresenterChange: " + nextPresenterId, {});
 				setPresenterInPodHelper(nextPresenterId);
 			}
 
 			private function setPresenterInPodHelper(nextPresenterId: String): void {
-				localDispatcher.dispatchEvent(new SetPresenterInPodReqEvent(this.podId, nextPresenterId));
+				var prevPresenterId: String = this.ownerId;
+				if (this.currentPresenterInPod != null && this.currentPresenterInPod != "") {
+					prevPresenterId = this.currentPresenterInPod;
+				}
+				localDispatcher.dispatchEvent(new SetPresenterInPodReqEvent(this.podId, prevPresenterId, nextPresenterId));
 			}
 
 			private function showCurrentPresenterInPod(): void {
@@ -300,13 +306,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				this.currentPresenterInPod = event.nextPresenterId as String;
+				if (UsersUtil.getMyUserID() == event.prevPresenterId) {
+					becomeViewer();
+				}
+
+				if (UsersUtil.getMyUserID() == event.nextPresenterId) {
+					becomePresenter();
+				}
+
 				showCurrentPresenterInPod();
-
-				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
-				var page: Page = presentationModel.getCurrentPage();
-
-				displaySlideNavigationControls(false, !!page);
-				setupPresenter(this.currentPresenterInPod == UsersUtil.getMyUserID());
 			}
 
 			private function onCreationComplete():void{
@@ -324,19 +332,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				titleBarOverlay.tabIndex = presentOptions.baseTabIndex;
 				
 				hotkeyCapture();
-                
-        //Necessary now because of module loading race conditions
-        var t:Timer = new Timer(2000, 1);
-        t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
-        t.start();
-        
-        if (UsersUtil.amIPresenter()) {
-          becomePresenter();
-        } else {
-          becomeViewer();
-        }
-        
-        setPollMenuData();
+
+				//Necessary now because of module loading race conditions
+				var t:Timer = new Timer(2000, 1);
+				t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
+				t.start();
+
+				if (amITheCurrentPodPresenter()) {
+					becomePresenter();
+				} else {
+					becomeViewer();
+				}
+				setPollMenuData();
       }
 			
 			private function requestWhiteboardCanvas(event:TimerEvent):void {
@@ -464,12 +471,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onResetZoom():void {
 				slideView.onZoomSlide(100);
 			}
-
-      private function handleBecomePresenter(e:MadePresenterEvent):void{
-        becomePresenter();
-      }
       
-			private function becomePresenter():void{
+			private function becomePresenter():void {
+				slideView.becomePresenter(amITheCurrentPodPresenter(), this.currentPresenterInPod);
 				setupPresenter(true);
 				addContextMenuItems();
 			}
@@ -480,14 +484,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(new GoToPageCommand(podId, cmd.pageId));
 			}
 
-      private function handleBecomeViewer(e:MadePresenterEvent):void{
-        becomeViewer();
-      }
-      
-			private function becomeViewer():void{
+			private function becomeViewer():void {
 				setupPresenter(false);
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 				this.customContextMenuItems = new Array();
+				slideView.becomeViewer(amITheCurrentPodPresenter(), this.currentPresenterInPod);
 				if (slideView.thumbnailView.visible)
 					showThumbnails();
 			}
@@ -523,7 +524,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						displaySlideNumber(page.num);
 					}
 
-					if (UsersUtil.amIPresenter()) {
+					if (amITheCurrentPodPresenter()) {
 						displaySlideNavigationControls(true, !!page);
 					}
 					else {
@@ -941,7 +942,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function pollStartedHandler(e:PollStartedEvent):void {
 				// the event for this doesn't exist yet
-				if (UsersUtil.amIPresenter()) {
+				if (amITheCurrentPodPresenter()) {
 					// display the results view
 					var pollResultsPopUp : PollResultsModal = PopUpUtil.createModalPopUp(this, PollResultsModal, true) as PollResultsModal;
 					if (pollResultsPopUp) {
@@ -994,7 +995,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					zoomControls.visible = zoomControls.includeInLayout= false;
 					pollVoteBox.visible = pollVoteBox.includeInLayout = true;
 					
-				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
+				} else if (state == "presenter" && amITheCurrentPodPresenter()) {
 					pollStartBtn.visible = true;
 
 					fileAndPollControls.visible = fileAndPollControls.includeInLayout= true;
@@ -1082,7 +1083,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
 	<mx:Canvas width="100%" height="100%" styleName="slideViewBackground" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-		<views:SlideView id="slideView" podId="{this.podId}" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
+		<views:SlideView id="slideView" podId="{this.podId}" currentPresenterInPod="{this.currentPresenterInPod}" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
 	</mx:Canvas>
 
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">

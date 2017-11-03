@@ -297,6 +297,9 @@ class ReceivedJsonMsgHandlerActor(
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
+      case ValidateConnAuthTokenSysMsg.NAME =>
+        routeGenericMsg[ValidateConnAuthTokenSysMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

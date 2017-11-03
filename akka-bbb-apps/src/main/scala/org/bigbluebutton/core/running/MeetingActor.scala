@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
@@ -28,10 +29,11 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
-import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
+import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -76,7 +78,8 @@ class MeetingActor(
     with SendBreakoutTimeRemainingMsgHdlr
     with ChangeLockSettingsInMeetingCmdMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr
-    with ClientToServerLatencyTracerMsgHdlr {
+    with ClientToServerLatencyTracerMsgHdlr
+    with ValidateConnAuthTokenSysMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -342,6 +345,8 @@ class MeetingActor(
       case m: GetGroupChatsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
       case m: SendGroupChatMessageMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
+      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
+
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -414,7 +419,7 @@ class MeetingActor(
     val elapsedInMs = now - lastRecBreakSentOn
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
 
-    if (elapsedInMin > 1) {
+    if (elapsedInMin > recordingChapterBreakLenghtInMinutes) {
       lastRecBreakSentOn = now
       val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
       outGW.send(event)
