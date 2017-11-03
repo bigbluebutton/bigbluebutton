@@ -1,17 +1,16 @@
-package org.bigbluebutton.core.apps.presentation
+package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationUploadTokenReqMsgHdlr {
-  this: PresentationApp2x =>
+  this: PresentationPodHdlrs =>
 
   def handle(msg: PresentationUploadTokenReqMsg, state: MeetingState2x,
-             liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+             liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
     def broadcastPresentationUploadTokenPassResp(msg: PresentationUploadTokenReqMsg, token: String): Unit = {
       // send back to client
@@ -72,6 +71,8 @@ trait PresentationUploadTokenReqMsgHdlr {
     } else {
       broadcastPresentationUploadTokenFailResp(msg)
     }
+
+    state
   }
 
 }

@@ -9,11 +9,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 class PresentationApp2x(implicit val context: ActorContext)
     extends NewPresentationMsgHdlr
     with ResizeAndMovePagePubMsgHdlr
-    with PresentationUploadTokenReqMsgHdlr
     with PreuploadedPresentationsPubMsgHdlr
-    with PresentationConversionUpdatePubMsgHdlr
-    with PresentationPageCountErrorPubMsgHdlr
-    with PresentationPageGeneratedPubMsgHdlr
     with SyncGetPresentationInfoRespMsgHdlr {
 
   val log = Logging(context.system, getClass)
