@@ -48,7 +48,6 @@ package org.bigbluebutton.util.i18n
 		private var inited:Boolean = false;
 		private var dispatcher:Dispatcher = new Dispatcher();
 
-		
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		private static var MASTER_LOCALE:String = "en_US";
 		private static var DEFAULT_LOCALE_IDENTIFIER:String = "default";
