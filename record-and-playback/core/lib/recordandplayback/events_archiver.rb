@@ -312,10 +312,19 @@ module BigBlueButton
         end
       end
 
-      # And, finally, write the events file.
+      # Write the events file.
       io = File.open(events_file, 'wb')
       io.write(events_doc.to_xml(indent: 2, encoding: 'UTF-8'))
       io.close
+
+      # Once the events file has been written, we can delete this segment's
+      # events from redis.
+
+      msgs.each_with_index do |msg, i|
+        @redis.delete_event_info_for(meeting_id, msg)
+        break if i >= 0 and i >= last_index
+      end
+
     end
 
     
