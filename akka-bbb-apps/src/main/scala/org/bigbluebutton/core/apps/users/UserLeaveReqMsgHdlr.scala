@@ -43,6 +43,11 @@ trait UserLeaveReqMsgHdlr {
         pollApp.stopPoll(state, u.intId, liveMeeting, msgBus)
       }
 
+      if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, u.intId)) {
+        Users2x.removeUserFromPresenterGroup(liveMeeting.users2x, u.intId)
+        outGW.send(buildRemoveUserFromPresenterGroup(liveMeeting.props.meetingProp.intId, u.intId, u.intId))
+      }
+
       def broadcastEvent(vu: VoiceUserState): Unit = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId,
           vu.intId)

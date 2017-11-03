@@ -218,4 +218,13 @@ trait HandlerHelpers extends SystemConfiguration {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildRemoveUserFromPresenterGroup(meetingId: String, userId: String, requesterId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserRemovedFromPresenterGroupEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(UserRemovedFromPresenterGroupEvtMsg.NAME, meetingId, userId)
+    val body = UserRemovedFromPresenterGroupEvtMsgBody(userId, requesterId)
+    val event = UserRemovedFromPresenterGroupEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }
