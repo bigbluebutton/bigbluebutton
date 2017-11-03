@@ -87,6 +87,20 @@ module BigBlueButton
       @redis.del("recording:#{meeting_id}:#{event}")
     end
 
+    # Trim the events list for a meeting to remove the events up to including
+    # the one at last_index. After this is done, the event at last_index + 1
+    # will be the new first event.
+    def trim_events_for(meeting_id, last_index)
+      if last_index < 0
+        # Interpret negative last_index as meaning delete all events (this
+        # will happen after the last segment of a multi-segment recording).
+        delete_events_for(meeting_id)
+      else
+        @redis.ltrim("meeting:#{meeting_id}:recordings",
+                     last_index + 1, -1)
+      end
+    end
+
     def delete_events_for(meeting_id)
       @redis.del("meeting:#{meeting_id}:recordings")
     end
@@ -319,7 +333,7 @@ module BigBlueButton
 
       # Once the events file has been written, we can delete this segment's
       # events from redis.
-
+      @redis.trim_events_for(meeting_id, last_index)
       msgs.each_with_index do |msg, i|
         @redis.delete_event_info_for(meeting_id, msg)
         break if i >= 0 and i >= last_index

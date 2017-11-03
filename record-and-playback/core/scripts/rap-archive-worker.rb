@@ -56,7 +56,9 @@ def archive_recorded_meetings(recording_dir)
     archived_norecord = "#{recording_dir}/status/archived/#{recorded_done_base}.norecord"
     next if File.exists?(archived_norecord)
 
-    archived_fail = "#{recording_dir}/status/archived/#{recorded_done_base}.fail"
+    # The fail filename doesn't contain the break timestamp, because we need an
+    # archive failure to block archiving of future segments.
+    archived_fail = "#{recording_dir}/status/archived/#{meeting_id}.fail"
     next if File.exists?(archived_fail)
 
     # TODO: define redis messages for recording segments...
