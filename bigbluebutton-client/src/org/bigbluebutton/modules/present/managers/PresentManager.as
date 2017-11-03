@@ -49,8 +49,6 @@ package org.bigbluebutton.modules.present.managers
 
 	public class PresentManager
 	{
-		private const DEFAULT_POD_ID:String = "DEFAULT_PRESENTATION_POD";
-		
 		private var globalDispatcher:Dispatcher;
 		private var winManager:PresentationWindowManager;
 		private var podsManager: PresentationPodManager;
@@ -82,10 +80,10 @@ package org.bigbluebutton.modules.present.managers
 			var podId: String = e.podId;
 			var ownerId: String = e.ownerId;
 
-			if (podId == DEFAULT_POD_ID && winManager.containsPodId(podId)) {
+			if (podId == PresentationPodManager.DEFAULT_POD_ID && winManager.containsPodId(podId)) {
 				// update model
 				podsManager.updateOwnershipOfDefaultPod(ownerId);
-				var defWindow: PresentationWindow = winManager.findWindowByPodId(DEFAULT_POD_ID);
+				var defWindow: PresentationWindow = winManager.findWindowByPodId(PresentationPodManager.DEFAULT_POD_ID);
 				defWindow.setOwnerId(ownerId);
 			} else {
 				if (ownerId == "") {
@@ -101,7 +99,7 @@ package org.bigbluebutton.modules.present.managers
 				newWindow.visible = true;
 				newWindow.showControls = presentOptions.showWindowControls;
 
-				var selectedWinId:String = winManager.addWindow(podId, newWindow, podId == DEFAULT_POD_ID);
+				var selectedWinId:String = winManager.addWindow(podId, newWindow, podId == PresentationPodManager.DEFAULT_POD_ID);
 
 				if (selectedWinId != null) {
 					newWindow.setWindowId(selectedWinId);

@@ -418,7 +418,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function acceptOverlayCanvas(_podId: String, overlay:WhiteboardCanvas):void{
-				if (_podId != this.podId) {
+				if (_podId != this.podId || PresentationPodManager.getInstance().getPod(_podId) == null) {
 					return;
 				}
 

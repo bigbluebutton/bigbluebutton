@@ -53,19 +53,6 @@ trait RemovePresentationPodPubMsgHdlr {
         case None     => state
       }
 
-      // TODO check if requesterId == ownerId
-      // TODO check about notifying only the list of authorized?
-
-      //    val respMsg = buildRemovePresentationPodEvtMsg(
-      //      liveMeeting.props.meetingProp.intId,
-      //      ownerId, pod.id
-      //    )
-      //    bus.outGW.send(respMsg)
-      //
-      //    log.warning("RemovePresentationPodPubMsgHdlr new podId=" + pod.id)
-      //
-      //    val pods = state.presentationPodManager.removePod(pod)
-      //    state.update(pods)
     }
 
   }

@@ -509,6 +509,4 @@
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-screenshare-standalone,
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" description="Build BBB client without locales" />
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales" />
-
-	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
 </project>
