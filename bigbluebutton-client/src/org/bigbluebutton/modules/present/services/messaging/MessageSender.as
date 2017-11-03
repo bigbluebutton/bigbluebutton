@@ -32,10 +32,10 @@ package org.bigbluebutton.modules.present.services.messaging
      * Sends an event to the server to update the clients with the new slide position 
      * 
      */		
-    public function move(presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+    public function move(podId: String, presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
       var message:Object = {
         header: {name: "ResizeAndMovePagePubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {presentationId: presentationId, pageId: pageId, xOffset: xOffset, yOffset: yOffset, widthRatio: widthRatio, heightRatio: heightRatio}
+        body: {podId: podId, presentationId: presentationId, pageId: pageId, xOffset: xOffset, yOffset: yOffset, widthRatio: widthRatio, heightRatio: heightRatio}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

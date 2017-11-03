@@ -167,7 +167,13 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleResizeAndMovePageEvtMsg(msg:Object):void {
-      service.pageMoved(msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio);
+      var podId: String = msg.body.podId as String;
+      var pageId: String = msg.body.pageId as String;
+      var xOffset: Number = msg.body.xOffset as Number;
+      var yOffset: Number = msg.body.yOffset as Number;
+      var widthRatio: Number = msg.body.widthRatio as Number;
+      var heightRatio: Number = msg.body.heightRatio as Number;
+      service.pageMoved(podId, pageId, xOffset, yOffset, widthRatio, heightRatio);
     }
     
     private function handleSetCurrentPresentationEvtMsg(msg:Object):void {

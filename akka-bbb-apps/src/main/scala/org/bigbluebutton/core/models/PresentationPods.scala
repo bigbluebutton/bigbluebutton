@@ -106,6 +106,30 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
     presentations.values.foreach(p => d += s"\nPRES_ID=${p.id} NAME=${p.name} CURRENT=${p.current}\n")
     b.concat(s"PODID=$id  OWNERID=$ownerId  CURRENTPRESENTER=$currentPresenter PRESENTATIONS={{{$d}}}\n")
   }
+
+  def resizePage(presentationId: String, pageId: String,
+                 xOffset: Double, yOffset: Double, widthRatio: Double,
+                 heightRatio: Double): Option[(PresentationPod, PageVO)] = {
+    // Force coordinate that are out-of-bounds inside valid values
+    // 0.25D is 400% zoom
+    // 100D-checkedWidth is the maximum the page can be moved over
+    val checkedWidth = Math.min(widthRatio, 100D) //if (widthRatio <= 100D) widthRatio else 100D
+    val checkedHeight = Math.min(heightRatio, 100D)
+    val checkedXOffset = Math.min(xOffset, 0D)
+    val checkedYOffset = Math.min(yOffset, 0D)
+
+    for {
+      pres <- presentations.get(presentationId)
+      page <- pres.pages.get(pageId)
+    } yield {
+      val nPage = page.copy(xOffset = checkedXOffset, yOffset = checkedYOffset,
+        widthRatio = checkedWidth, heightRatio = checkedHeight)
+      val nPages = pres.pages + (nPage.id -> nPage)
+      val newPres = pres.copy(pages = nPages)
+      (addPresentation(newPres), nPage)
+    }
+  }
+
 }
 
 case class PresentationPodManager(presentationPods: collection.immutable.Map[String, PresentationPod]) {

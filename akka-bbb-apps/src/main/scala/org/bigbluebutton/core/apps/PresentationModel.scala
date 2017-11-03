@@ -66,7 +66,7 @@ class PresentationModel {
 
   def resizePage(presentationId: String, pageId: String,
                  xOffset: Double, yOffset: Double, widthRatio: Double,
-                 heightRatio: Double): Option[PageVO] = {
+                 heightRatio: Double): Option[PageVO] = { // TODO remove
     for {
       pres <- presentations.get(presentationId)
       page <- pres.pages.get(pageId)
