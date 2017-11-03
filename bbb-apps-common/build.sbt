@@ -3,7 +3,7 @@ name := "bbb-apps-common"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.2"
+version := "0.0.3-SNAPSHOT"
 
 scalaVersion  := "2.12.2"
 

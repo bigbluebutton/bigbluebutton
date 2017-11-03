@@ -29,14 +29,13 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
-	import org.bigbluebutton.main.api.JSLog;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -82,7 +81,8 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 	    public function connect():void {
-	      nc.connect(_url, UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
+	      nc.connect(_url, UsersUtil.getInternalMeetingID(), 
+          UsersUtil.getMyUserID(), LiveMeeting.inst().me.authToken);
 	    }
 	    
 		private function onAsyncError(event:AsyncErrorEvent):void{
