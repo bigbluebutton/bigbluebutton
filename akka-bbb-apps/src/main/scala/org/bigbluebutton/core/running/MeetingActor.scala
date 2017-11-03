@@ -243,12 +243,12 @@ class MeetingActor(
       case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
-      case m: StartPollReqMsg                => pollApp.handle(m, liveMeeting, msgBus)
-      case m: StartCustomPollReqMsg          => pollApp.handle(m, liveMeeting, msgBus)
-      case m: StopPollReqMsg                 => pollApp.handle(m, liveMeeting, msgBus)
-      case m: ShowPollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StartPollReqMsg                => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: StartCustomPollReqMsg          => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: StopPollReqMsg                 => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: ShowPollResultReqMsg           => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: HidePollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
-      case m: GetCurrentPollReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: GetCurrentPollReqMsg           => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: RespondToPollReqMsg            => pollApp.handle(m, liveMeeting, msgBus)
 
       // Breakout
@@ -371,7 +371,7 @@ class MeetingActor(
 
   def handlePresenterChange(msg: AssignPresenterReqMsg): Unit = {
     // Stop poll if one is running as presenter left
-    pollApp.stopPoll(msg.header.userId, liveMeeting, msgBus)
+    pollApp.stopPoll(state, msg.header.userId, liveMeeting, msgBus)
 
     // switch user presenter status for old and new presenter
     usersApp.handleAssignPresenterReqMsg(msg)

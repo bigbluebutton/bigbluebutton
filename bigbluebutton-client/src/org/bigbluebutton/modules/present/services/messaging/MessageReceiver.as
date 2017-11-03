@@ -175,9 +175,9 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleRemovePresentationEvtMsg(msg:Object):void {
-        var podId: String = msg.body.podId as String;
-        var presentationId: String = msg.body.presentationId as String;
-      service.removePresentation(podId, presentationId);
+      var podId: String = msg.body.podId as String;
+      var presentationId: String = msg.body.presentationId as String;
+      service.presentationWasRemoved(podId, presentationId);
     }
     
     private function handlePresentationConversionCompletedEvtMsg(msg:Object):void {

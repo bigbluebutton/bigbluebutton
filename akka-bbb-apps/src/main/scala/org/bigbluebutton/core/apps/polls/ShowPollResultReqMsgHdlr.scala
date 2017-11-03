@@ -3,13 +3,14 @@ package org.bigbluebutton.core.apps.polls
 import org.bigbluebutton.common2.domain.SimplePollResultOutVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait ShowPollResultReqMsgHdlr {
   this: PollApp2x =>
 
-  def handle(msg: ShowPollResultReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(msg: ShowPollResultReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: ShowPollResultReqMsg, result: SimplePollResultOutVO, annot: AnnotationVO): Unit = {
       // PollShowResultEvtMsg
@@ -34,7 +35,7 @@ trait ShowPollResultReqMsgHdlr {
     }
 
     for {
-      (result, annotationProp) <- Polls.handleShowPollResultReqMsg(msg.header.userId, msg.body.pollId, liveMeeting)
+      (result, annotationProp) <- Polls.handleShowPollResultReqMsg(state, msg.header.userId, msg.body.pollId, liveMeeting)
     } yield {
 
       broadcastEvent(msg, result, annotationProp)

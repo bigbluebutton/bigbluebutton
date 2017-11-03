@@ -40,7 +40,12 @@ trait UserLeaveReqMsgHdlr {
         )
 
         // request ongoing poll to end
-        pollApp.stopPoll(u.intId, liveMeeting, msgBus)
+        pollApp.stopPoll(state, u.intId, liveMeeting, msgBus)
+      }
+
+      if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, u.intId)) {
+        Users2x.removeUserFromPresenterGroup(liveMeeting.users2x, u.intId)
+        outGW.send(buildRemoveUserFromPresenterGroup(liveMeeting.props.meetingProp.intId, u.intId, u.intId))
       }
 
       def broadcastEvent(vu: VoiceUserState): Unit = {

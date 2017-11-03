@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.model.PollingModel;
 	import org.bigbluebutton.modules.polling.model.SimplePoll;
 	import org.bigbluebutton.modules.present.model.Presentation;
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 
 	public class PollingService
@@ -54,16 +55,19 @@ package org.bigbluebutton.modules.polling.service
 			
 
     private function generatePollId():String {
-      // TODO podId is currently not set (the call assumes only one presentation pod
-//      var curPres:Presentation = PresentationPodManager.getPod(this.podId).getCurrentPresentation();
-//      if (curPres != null) {
-//        var date:Date = new Date();
-//
-//        var pollId:String;
-//        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
-//
-//        return pollId;
-//      }
+      var presentationModel: PresentationModel = PresentationPodManager.getInstance().getDefaultPresentationPod();
+      if (presentationModel == null) {
+        return null;
+      }
+      var curPres:Presentation = presentationModel.getCurrentPresentation();
+      if (curPres != null) {
+        var date:Date = new Date();
+
+        var pollId:String;
+        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+
+        return pollId;
+      }
       
       return null;
     }

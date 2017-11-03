@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.polls
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -19,17 +20,13 @@ trait StopPollReqMsgHdlr {
     bus.outGW.send(msgEvent)
   }
 
-  def handle(msg: StopPollReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    for {
-      stoppedPollId <- Polls.handleStopPollReqMsg(msg.header.userId, liveMeeting)
-    } yield {
-      broadcastPollStoppedEvtMsg(msg.header.userId, stoppedPollId, liveMeeting, bus)
-    }
+  def handle(msg: StopPollReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    stopPoll(state, msg.header.userId, liveMeeting, bus)
   }
 
-  def stopPoll(requesterId: String, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def stopPoll(state: MeetingState2x, requesterId: String, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     for {
-      stoppedPollId <- Polls.handleStopPollReqMsg(requesterId, liveMeeting)
+      stoppedPollId <- Polls.handleStopPollReqMsg(state, requesterId, liveMeeting)
     } yield {
       broadcastPollStoppedEvtMsg(requesterId, stoppedPollId, liveMeeting, bus)
     }

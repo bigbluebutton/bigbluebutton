@@ -203,7 +203,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'),
 					icon: getStyle('iconClearStatus'), handler: newPresentationWindowHandler});
 
-				if (this.podId != "DEFAULT_PRESENTATION_POD") {
+				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
 					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'),
 						icon: getStyle('iconClearStatus'), handler: closePresentationWindowHandler});
 				}
@@ -295,9 +295,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						return;
 					}
 				}
-
-				// show podId
-				// presentationPodControls.selectedItem = presentationPodControls.dataProvider.getItemAt(0);
 			}
 
 			private function handleSetPresenterInPodRespEvent(event: SetPresenterInPodRespEvent): void {
@@ -875,7 +872,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// on the bottom right-corner.
 				onResetZoom();
 				var dispatcher:Dispatcher = new Dispatcher();
-				dispatchEvent(new StartPollEvent(pollType));				
+				dispatchEvent(new StartPollEvent(pollType));
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
@@ -941,6 +938,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function pollStartedHandler(e:PollStartedEvent):void {
+				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
+					return;
+				}
 				// the event for this doesn't exist yet
 				if (amITheCurrentPodPresenter()) {
 					// display the results view
@@ -996,7 +996,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					pollVoteBox.visible = pollVoteBox.includeInLayout = true;
 					
 				} else if (state == "presenter" && amITheCurrentPodPresenter()) {
-					pollStartBtn.visible = true;
+					if (this.podId == PresentationPodManager.DEFAULT_POD_ID) { // only allow polling from the default pod
+						pollStartBtn.visible = true;
+					}
 
 					fileAndPollControls.visible = fileAndPollControls.includeInLayout= true;
 					navigationControls.visible = navigationControls.includeInLayout= true;

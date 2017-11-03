@@ -15,7 +15,7 @@ object PresentationPodFactory {
     val currentPresenter = ownerId
 
     // we hardcode the podId of the default presentation pod for the purposes of having bbb-web know the podId
-    // in advance (so we can fully process default.pdf) // TODO change to a generated podId
+    // in advance (so we can fully process default.pdf)
     PresentationPod("DEFAULT_PRESENTATION_POD", ownerId, currentPresenter, Map.empty)
   }
 }
@@ -33,6 +33,10 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
       case None =>
         None
     }
+  }
+
+  def getCurrentPage(pres: PresentationInPod): Option[PageVO] = {
+    pres.pages.values find (p => p.current)
   }
 
 }
@@ -116,6 +120,7 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
 
   def getNumberOfPods(): Int = presentationPods.size
   def getPod(podId: String): Option[PresentationPod] = presentationPods.get(podId)
+  def getDefaultPod(): Option[PresentationPod] = presentationPods.get("DEFAULT_PRESENTATION_POD")
   def getAllPresentationPodsInMeeting(): Vector[PresentationPod] = presentationPods.values.toVector
   def updatePresentationPod(presPod: PresentationPod): PresentationPodManager = addPod(presPod)
 

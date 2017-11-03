@@ -23,8 +23,8 @@ object PermissionCheck {
     }
   }
 
-  private def roleToLevel(user: UserState): Int = {
-    if (user.presenter) PRESENTER_LEVEL else VIEWER_LEVEL
+  private def roleToLevel(users: Users2x, user: UserState): Int = {
+    if (Users2x.userIsInPresenterGroup(users, user.intId) || user.presenter) PRESENTER_LEVEL else VIEWER_LEVEL
   }
 
   /**
@@ -42,8 +42,8 @@ object PermissionCheck {
       case Some(user) =>
         println("permissionToLevel = " + permissionToLevel(user) + " permissionLevel=" + permissionLevel)
         val permLevelCheck = permissionToLevel(user) >= permissionLevel
-        println("roleToLevel = " + roleToLevel(user) + " roleLevel=" + roleLevel)
-        val roleLevelCheck = roleToLevel(user) >= roleLevel
+        println("roleToLevel = " + roleToLevel(users, user) + " roleLevel=" + roleLevel)
+        val roleLevelCheck = roleToLevel(users, user) >= roleLevel
 
         println("PERMLEVELCHECK = " + permLevelCheck + " ROLELEVELCHECK=" + roleLevelCheck)
         permLevelCheck && roleLevelCheck
