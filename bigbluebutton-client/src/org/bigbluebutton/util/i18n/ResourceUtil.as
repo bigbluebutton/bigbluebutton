@@ -29,11 +29,9 @@ package org.bigbluebutton.util.i18n
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
-	import mx.core.FlexGlobals;
 	import mx.events.ResourceEvent;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
-	import mx.utils.URLUtil;
 	
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
@@ -46,10 +44,10 @@ package org.bigbluebutton.util.i18n
 	public class ResourceUtil extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(ResourceUtil);
 
-		public static const LOCALES_FILE:String = "client/conf/locales.xml";
-    
 		private static var instance:ResourceUtil = null;
 		private var inited:Boolean = false;
+		private var dispatcher:Dispatcher = new Dispatcher();
+
 		
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		private static var MASTER_LOCALE:String = "en_US";
@@ -57,7 +55,6 @@ package org.bigbluebutton.util.i18n
 		
 		[Bindable] public var locales:Array = new Array();
 		
-		//private var eventDispatcher:IEventDispatcher;
 		private var resourceManager:IResourceManager;
 		private var preferredLocale:String
 		private var preferredDirection:String
@@ -69,7 +66,6 @@ package org.bigbluebutton.util.i18n
 			if (enforcer == null) {
 				throw new Error( "You Can Only Have One ResourceUtil" );
 			}
-			initialize();
 		}
 		
 		private function isInited():Boolean {
@@ -77,6 +73,8 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		public function initialize():void {
+			var languageOptions : LanguageOptions = Options.getOptions(LanguageOptions) as LanguageOptions;
+			
 			resourceManager = ResourceManager.getInstance();
 			// Add a random string on the query so that we always get an up-to-date config.xml
 			var date:Date = new Date();
@@ -84,17 +82,10 @@ package org.bigbluebutton.util.i18n
 			var _urlLoader:URLLoader = new URLLoader();     
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
       
-      		var localeReqURL:String = buildRequestURL() + LOCALES_FILE + "?a=" + date.time;
+      		var localeReqURL:String = languageOptions.localesConfig + "?a=" + date.time;
 			_urlLoader.load(new URLRequest(localeReqURL));
 		}
 		
-	    private function buildRequestURL():String {
-	      var swfURL:String = FlexGlobals.topLevelApplication.url;
-	      var protocol:String = URLUtil.getProtocol(swfURL);
-	      var serverName:String = URLUtil.getServerNameWithPort(swfURL);        
-	      return protocol + "://" + serverName + "/";
-	    }
-    
 		private function handleComplete(e:Event):void{
 			parse(new XML(e.target.data));		
 									
@@ -105,6 +96,7 @@ package org.bigbluebutton.util.i18n
 			}
 			// To improve
 			setPreferredLocale({code:preferredLocale, direction:"ltr"});
+			dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_INIT));
 		}
 		
 		private function parse(xml:XML):void{		 	
@@ -188,8 +180,8 @@ package org.bigbluebutton.util.i18n
 			 *  Always load the default language, so if the chosen language 
 			 *  doesn't provide a resource, the default language resource is used
 			 */
-			var dispatcher:IEventDispatcher = loadResource(locale);
-			dispatcher.addEventListener(ResourceEvent.COMPLETE, onMasterLocaleLoaded);
+			var eventDispatcher:IEventDispatcher = loadResource(locale);
+			eventDispatcher.addEventListener(ResourceEvent.COMPLETE, onMasterLocaleLoaded);
 		}
 		
 		private function onMasterLocaleLoaded(event:ResourceEvent):void {
@@ -203,9 +195,10 @@ package org.bigbluebutton.util.i18n
 
 		private function loadResource(language:String):IEventDispatcher {
 			// Add a random string on the query so that we don't get a cached version.
-			
+			var languageOptions : LanguageOptions = Options.getOptions(LanguageOptions) as LanguageOptions;
+
 			var date:Date = new Date();
-			var localeURI:String = buildRequestURL() + 'client/locale/' + language + '_resources.swf?a=' + date.time;
+			var localeURI:String = languageOptions.localesDirectory + language + '_resources.swf?a=' + date.time;
       		trace("Loading locale " +  localeURI);
 			return resourceManager.loadResourceModule( localeURI, false);
 		}		
@@ -267,7 +260,6 @@ package org.bigbluebutton.util.i18n
 		
 		public function update():void{
 			reloadLocaleNames();
-			var dispatcher:Dispatcher = new Dispatcher;
 			dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_CHANGED));
 			dispatchEvent(new Event(Event.CHANGE));
 		}

@@ -35,23 +35,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 alphaTo="1.0"
 				 target="{this}"
 				 startDelay="200" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}"
 					   method="allModulesLoaded" />
 	</fx:Declarations>
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.EffectEvent;
-
 			import org.as3commons.lang.StringUtils;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private function dissolveOutHandler(event:EffectEvent):void {
-				showNewQuote();
-			}
 
-			private function showNewQuote():void {
+			private function localeChanged(e:LocaleChangeEvent):void {
 				var randomQuoteId:int = Math.ceil(Math.random() * 5);
 				var quote:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.sentence.' + randomQuoteId);
 				var attribution:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.attribution.' + randomQuoteId);
@@ -68,10 +65,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function allModulesLoaded(event:ModuleLoadEvent):void {
 				dispose();
-			}
-
-			public function init():void {
-				showNewQuote();
 			}
 
 			public function dispose():void {

@@ -21,7 +21,9 @@ package org.bigbluebutton.modules.videoconf.model {
 	import org.bigbluebutton.util.browser.BrowserCheck;
 
 	public class VideoConfOptions extends Options {
-		public var uri:String = "rtmp://localhost/video";
+		public var uri:String = "";
+
+		public var videoProfilesConfig:String = "";
 
 		[Bindable]
 		public var autoStart:Boolean = false;

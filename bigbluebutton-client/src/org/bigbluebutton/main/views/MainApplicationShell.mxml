@@ -53,7 +53,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 		<mate:Listener type="{ExitApplicationEvent.EXIT_APPLICATION}" method="handleExitApplicationEvent" />
-		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
 		<mate:Listener type="{FullscreenToggledEvent.IS_FULLSCREEN_TOGGLED}" method="handleFullscreenToggleState"  />
 		<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
 		<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
@@ -128,7 +127,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
-			import org.bigbluebutton.main.events.ConfigLoadedEvent;
 			import org.bigbluebutton.main.events.ExitApplicationEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
@@ -209,10 +207,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return logWindow;
 			}
       
-			public function initOptions(e:Event):void {
-				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
+			public function initOptions():void {
 				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
+				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				
 				updateCopyrightText();
 				loadBackground();
@@ -247,9 +245,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function initQuote() : void {
-				if (brandingOptions.showQuote) {
-					quoteView.init();
-				} else {
+				if (!brandingOptions.showQuote) {
 					quoteView.dispose();
 				}
 			}
@@ -258,6 +254,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				globalDispatcher = new Dispatcher();
 
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
+				
+				initOptions();
 			}
 			
 			// See this stackoverflow post for an explanation on why the size watching is done this way, https://stackoverflow.com/a/2141223
@@ -321,7 +319,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				var logData:Object = UsersUtil.initLogData();
-
+				
 				appVersion = event.appVersion;
 				updateCopyrightText();
 
@@ -840,7 +838,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   visible="{_showToolbar}"
 					   includeInLayout="{showToolbarOpt}"
 					   verticalAlign="middle" 
-					   toolbarOptions="{layoutOptions}" 
 					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->

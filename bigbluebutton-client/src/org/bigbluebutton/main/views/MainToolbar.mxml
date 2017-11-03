@@ -103,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
 			[Bindable] private var showRecordButton:Boolean = false;
-			[Bindable] public var toolbarOptions:LayoutOptions;
+			[Bindable] private var toolbarOptions:LayoutOptions;
 			[Bindable] private var brandingOptions:BrandingOptions;
 			[Bindable] private var usersOptions:UsersOptions;
 
@@ -126,10 +126,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var settingsComponents:Array = new Array();
 			
 			private function init():void{
-				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
-				
+				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
+
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
