@@ -21,9 +21,9 @@ describe('Landing page', function () {
 
       utils.setUsername(new Map([
         ['chromeBrowser', 'Alex'],
-        ['chromeDevBrowser', 'Anton'],
+        ['chromeBrowser', 'Anton'],
         ['firefoxBrowser', 'Danny'],
-        ['firefoxNightlyBrowser', 'Maxim'],
+        ['firefoxBrowser', 'Maxim'],
         ['chromeMobileBrowser', 'Oswaldo']
       ]));
 

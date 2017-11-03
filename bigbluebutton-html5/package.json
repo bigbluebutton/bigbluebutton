@@ -70,6 +70,7 @@
     "wdio-junit-reporter": "~0.3.1",
     "wdio-spec-reporter": "~0.1.2",
     "wdio-visual-regression-service": "~0.8.0",
+    "webdriver-manager": "~12.0.6",
     "webdriverio": "~4.8.0"
   },
   "cssModules": {
