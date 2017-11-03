@@ -343,11 +343,11 @@ module BigBlueButton
     end
 
     def self.get_start_stop_events_for_edl(archive_dir)
+      doc = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(
               "#{archive_dir}/events.xml")
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-              BigBlueButton::Events.get_start_and_stop_rec_events(
-                     "#{archive_dir}/events.xml"))
+              BigBlueButton::Events.get_start_and_stop_rec_events(doc))
       start_stop_events.each do |record_event|
         record_event[:start_timestamp] -= initial_timestamp
         record_event[:stop_timestamp] -= initial_timestamp
@@ -439,9 +439,8 @@ module BigBlueButton
 
     def self.get_record_status_events(events_xml)
       BigBlueButton.logger.info "Getting record status events"
-      doc = Nokogiri::XML(File.open(events_xml))
       rec_events = []
-      doc.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
+      events_xml.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
         s = { :timestamp => event['timestamp'].to_i }
         rec_events << s
       end
@@ -481,8 +480,9 @@ module BigBlueButton
     # Calculate the length of the final recording from the start/stop events
     def self.get_recording_length(rec_events)
       duration = 0
+      doc = Nokogiri::XML(File.open(rec_events))
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-              BigBlueButton::Events.get_start_and_stop_rec_events(rec_events))
+              BigBlueButton::Events.get_start_and_stop_rec_events(doc))
       start_stop_events.each do |start_stop|
         duration += start_stop[:stop_timestamp] - start_stop[:start_timestamp]
       end

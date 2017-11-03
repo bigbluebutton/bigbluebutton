@@ -58,11 +58,15 @@ def archive_directory(source, dest)
   end
 end
 
-def archive_has_recording_marks?(meeting_id, raw_archive_dir)
+def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
+  doc = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
+  if !break_timestamp.nil?
+    # Locate the start time for this recording segment
+  end
   BigBlueButton.logger.info("Fetching the recording marks for #{meeting_id}.")
   has_recording_marks = true
   begin
-    record_events = BigBlueButton::Events.get_record_status_events("#{raw_archive_dir}/#{meeting_id}/events.xml")
+    record_events = BigBlueButton::Events.get_record_status_events(doc)
     BigBlueButton.logger.info("record_events:\n#{BigBlueButton.hash_to_str(record_events)}")
     has_recording_marks = (not record_events.empty?)
   rescue => e
@@ -121,7 +125,7 @@ if not FileTest.directory?(target_dir)
                     "#{target_dir}/video/#{meeting_id}")
 
   # TODO we need to check for recording marks in the segment being archived
-  if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
+  if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
     BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")
 
     if break_timestamp.nil?
